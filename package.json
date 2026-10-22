@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--max-old-space-size=1024' next dev -p 3000 -H 0.0.0.0",
-    "build": "NODE_OPTIONS='--max-old-space-size=1024' next build && (mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/ 2>/dev/null || true) && (cp -r public .next/standalone/ 2>/dev/null || true) && (mkdir -p dist && cp -r .next/* dist/ 2>/dev/null || true) && (cp -r public dist/ 2>/dev/null || true)",
+    "build": "rm -rf .next dist && NODE_OPTIONS='--max-old-space-size=1024' next build && (mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/ 2>/dev/null || true) && (cp -r public .next/standalone/ 2>/dev/null || true) && (mkdir -p dist && cp -r .next/* dist/ 2>/dev/null || true) && (cp -r public dist/ 2>/dev/null || true)",
     "start": "node server.ts",
     "lint": "eslint ."
   },
