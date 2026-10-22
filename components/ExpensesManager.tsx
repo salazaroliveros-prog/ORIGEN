@@ -25,10 +25,12 @@ import {
   Ban,
   UserCheck,
   Sparkles,
+  BarChart3,
 } from 'lucide-react';
 import { ExpenseRecord, Project, CompanySettings, APUItem, ExpenseAuditEntry } from '@/lib/types';
 import { formatGTQ, formatUSD, initialAPUItems } from '@/lib/data';
 import { CameraCaptureModal } from '@/components/CameraCaptureModal';
+import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
 
 interface ExpensesManagerProps {
   expenses: ExpenseRecord[];
@@ -77,6 +79,9 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
   // Lightbox preview for full receipt inspection
   const [viewingReceiptExpense, setViewingReceiptExpense] = useState<ExpenseRecord | null>(null);
+
+  // Active view tab: Invoices list or Monthly Histogram & PDF
+  const [activeExpenseTab, setActiveExpenseTab] = useState<'facturas' | 'histograma'>('facturas');
 
   // Two-Step Approval states
   const [statusFilter, setStatusFilter] = useState<'todos' | 'pendientes' | 'aprobados'>('todos');
@@ -379,6 +384,32 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Sub-tab view switcher */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setActiveExpenseTab('facturas')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                activeExpenseTab === 'facturas'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Receipt className="w-3.5 h-3.5 text-blue-600" />
+              Facturas & Aprobación
+            </button>
+            <button
+              onClick={() => setActiveExpenseTab('histograma')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                activeExpenseTab === 'histograma'
+                  ? 'bg-amber-500 text-slate-950 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              Histograma Mensual & PDF
+            </button>
+          </div>
+
           <button
             onClick={() => {
               setNewReceiptUrl(null);
@@ -391,8 +422,18 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         </div>
       </div>
 
-      {/* Metrics & Two-Step Approval Summary Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {activeExpenseTab === 'histograma' ? (
+        <MonthlyExpensesHistogram
+          projects={projects}
+          activeProjectId={activeProjectId}
+          expenses={expenses}
+          company={company}
+          currency={currency}
+        />
+      ) : (
+        <>
+          {/* Metrics & Two-Step Approval Summary Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
@@ -639,6 +680,8 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
           </table>
         </div>
       </div>
+      </>
+      )}
 
       {/* Modal: Two-Step Approval by Project Manager */}
       {approvalModalExpense && (

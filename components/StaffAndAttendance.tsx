@@ -18,9 +18,11 @@ import {
   Filter,
   Smartphone,
   Calendar,
+  BarChart3,
 } from 'lucide-react';
 import { Employee, AttendanceRecord, Project } from '@/lib/types';
-import { formatGTQ } from '@/lib/data';
+import { formatGTQ, initialCompanySettings } from '@/lib/data';
+import { LaborProductivityChart } from '@/components/LaborProductivityChart';
 import {
   calculateDistanceMeters,
   validateProjectGeofence,
@@ -47,8 +49,8 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   onAddAttendance,
   onDeleteAttendance,
 }) => {
-  // Navigation Tabs: 'asistencia' or 'personal'
-  const [activeTab, setActiveTab] = useState<'asistencia' | 'personal'>('asistencia');
+  // Navigation Tabs: 'asistencia', 'personal', or 'productividad'
+  const [activeTab, setActiveTab] = useState<'asistencia' | 'personal' | 'productividad'>('asistencia');
 
   // Employee creation modal
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -314,6 +316,17 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
               }`}
             >
               Cuadrillas ({employees.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('productividad')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                activeTab === 'productividad'
+                  ? 'bg-amber-500 text-slate-950 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              Productividad Recharts
             </button>
           </div>
 
@@ -779,6 +792,18 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
             </div>
           ))}
         </div>
+      )}
+
+      {/* VIEW 3: LABOR PRODUCTIVITY RECHARTS VIEW */}
+      {activeTab === 'productividad' && (
+        <LaborProductivityChart
+          employees={employees}
+          attendance={attendance}
+          projects={projects}
+          activeProjectId={activeProjectId}
+          company={initialCompanySettings}
+          currency="GTQ"
+        />
       )}
 
       {/* CREATE EMPLOYEE MODAL */}

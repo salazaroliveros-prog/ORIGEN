@@ -40,6 +40,7 @@ import {
 } from 'recharts';
 import { Project, ExpenseRecord, AiRecommendation, CompanySettings, Employee, AttendanceRecord, ScheduleTask, APUItem } from '@/lib/types';
 import { formatGTQ, formatUSD } from '@/lib/data';
+import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
 const D3BudgetUtilizationChart = React.lazy(() =>
   import('@/components/D3BudgetUtilizationChart').then((m) => ({ default: m.D3BudgetUtilizationChart }))
 );
@@ -302,6 +303,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           company={company}
         />
       </React.Suspense>
+
+      {/* Recharts Engine: Histograma de Gastos Mensuales vs Presupuesto Proyectado por Proyecto & Exportación PDF */}
+      <MonthlyExpensesHistogram
+        projects={projects}
+        activeProjectId={activeProjectId}
+        expenses={expenses}
+        company={company}
+        currency={currency}
+        onSelectProject={onSelectProject}
+      />
 
       {/* Variation 5: Content Split (Obras list & Curva S) */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
