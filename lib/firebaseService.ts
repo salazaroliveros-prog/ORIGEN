@@ -30,7 +30,7 @@ const appConfig = {
 const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
 const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
 
-export const db = getFirestore(app, firestoreDatabaseId || undefined);
+export const db = getFirestore(app, firestoreDatabaseId);
 export const auth = getAuth(app);
 
 if (!hasFirebaseRuntimeConfig()) {

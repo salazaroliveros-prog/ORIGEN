@@ -10,12 +10,15 @@ import {
   QuoteRecord,
   APUItem,
   ScheduleTask,
+  Milestone,
+  TaskReminder,
   AiRecommendation,
 } from './types';
 
 export const initialCompanySettings: CompanySettings = {
   legalName: 'Constructora e Inmobiliaria Los Volcanes, S.A.',
   commercialName: 'Volcanes Proyectos & Ingeniería',
+  companyName: 'Volcanes Proyectos & Ingeniería',
   nit: '8492019-2',
   architectName: 'Arq. Alejandro Morales',
   architectColNumber: 'CIG-12940',

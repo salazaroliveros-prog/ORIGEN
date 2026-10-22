@@ -12,6 +12,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action, description, department = 'Guatemala', unit = 'm²', quantity = 100, budgetItems = [], projectName = 'Proyecto' } = body;
 
+    const validActions = new Set([
+      'generate_apu',
+      'audit_budget',
+      'market_update',
+      'analyze_logbook',
+      'chat',
+    ]);
+
+    if (!validActions.has(action)) {
+      return NextResponse.json({ error: 'Acción no reconocida' }, { status: 400 });
+    }
+
     const apiKey = process.env.GEMINI_API_KEY;
     const deptInfo = GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
 

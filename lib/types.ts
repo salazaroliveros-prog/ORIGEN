@@ -1,6 +1,7 @@
 export interface CompanySettings {
   legalName: string;
   commercialName: string;
+  companyName: string;
   nit: string;
   architectName: string;
   architectColNumber: string;
@@ -134,6 +135,12 @@ export interface ExpenseRecord {
   receiptPhotoUrl?: string;
   receiptPhotoDate?: string;
   receiptCoords?: { lat: number; lng: number };
+  assignedApuId?: string;
+  assignedApuDescription?: string;
+  approvalStatus?: 'Pendiente' | 'Aprobado' | 'Rechazado';
+  approvedBy?: string;
+  approvedAt?: string;
+  auditTrail?: ExpenseAuditEntry[];
 }
 
 export interface QuoteRecord {
@@ -226,6 +233,25 @@ export interface TaskReminder {
   createdAt: string;
   triggered?: boolean;
   followFlowRequirement?: boolean; // Ensure preceding milestones are met
+}
+
+export interface OfflineQueueItem {
+  id: string;
+  type: 'attendance' | 'progress' | 'fieldVisit';
+  timestamp: string;
+  description: string;
+  payload: any;
+  synced: boolean;
+}
+
+export interface ExpenseAuditEntry {
+  id: string;
+  action: string;
+  userId?: string;
+  user: string;
+  role: string;
+  timestamp: string;
+  note?: string;
 }
 
 export interface AiRecommendation {
