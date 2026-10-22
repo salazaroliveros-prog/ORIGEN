@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+	<key>AppleMobileWebAppCapable</key>
+	<true/>
+	<key>AppleMobileWebAppStatusBarStyle</key>
+	<string>black-translucent</string>
+	<key>AppleMobileWebAppTitle</key>
+	<string>ConstructERP</string>
+	<key>AppleTouchIcon</key>
+	<string>/assets/branding/apple-touch-icon.png</string>
+	<key>AppleStartupImage</key>
+	<string>/assets/branding/apple-touch-icon.png</string>
+</dict>
+</plist>

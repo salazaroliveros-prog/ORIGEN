@@ -28,6 +28,10 @@ export const initialCompanySettings: CompanySettings = {
   exchangeRate: 7.82, // GTQ per USD
   primaryColor: '#1e3a8a',
   secondaryColor: '#d97706',
+  logoUrl: '/assets/branding/web-banner-logo.png',
+  logoSmallUrl: '/assets/branding/icon-192x192.png',
+  logoSquareUrl: '/assets/branding/icon-512x512.png',
+  bannerUrl: '/assets/branding/web-banner-logo.png',
 };
 
 export const initialProjects: Project[] = [
