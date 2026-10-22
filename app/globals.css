@@ -121,3 +121,111 @@
   -webkit-backdrop-filter: blur(20px);
 }
 
+/* ============================================================
+   RESPONSIVE DESIGN SYSTEM - All screen types, sizes, orientations
+   ============================================================ */
+
+/* Mobile-first base utilities already handled by Tailwind */
+
+/* Tablet and desktop layout tweaks */
+@media (min-width: 640px) {
+  .responsive-container {
+    padding: 1rem;
+  }
+  .responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  .responsive-text {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    padding: 1.5rem;
+  }
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .responsive-text {
+    font-size: 1.25rem;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-compact {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  .nav-glass-active {
+    padding: 0.5rem 1rem !important;
+  }
+}
+
+/* iOS Safari safe areas */
+@supports (-webkit-touch-callout: none) {
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .safe-area-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  .safe-area-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
+/* Prevent zoom on input focus in iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input {
+    font-size: 16px;
+  }
+}
+
+/* High DPI / Retina optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .retina-hairline {
+    border-width: 0.5px;
+  }
+}
+
+/* Dark mode forced for glassmorphism consistency */
+@media (prefers-color-scheme: light) {
+  body {
+    color-scheme: dark;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+

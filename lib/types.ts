@@ -11,6 +11,10 @@ export interface CompanySettings {
   exchangeRate: number; // e.g. 7.85 GTQ per USD
   primaryColor: string;
   secondaryColor: string;
+  logoUrl?: string;
+  logoSmallUrl?: string;
+  logoSquareUrl?: string;
+  bannerUrl?: string;
 }
 
 export interface Project {
