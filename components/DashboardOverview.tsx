@@ -41,6 +41,7 @@ import {
 import { Project, ExpenseRecord, AiRecommendation, CompanySettings, Employee, AttendanceRecord, ScheduleTask, APUItem } from '@/lib/types';
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
+import { PhysicalVsFinancialChart } from '@/components/PhysicalVsFinancialChart';
 const D3BudgetUtilizationChart = React.lazy(() =>
   import('@/components/D3BudgetUtilizationChart').then((m) => ({ default: m.D3BudgetUtilizationChart }))
 );
@@ -303,6 +304,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           company={company}
         />
       </React.Suspense>
+
+      {/* Recharts Engine: Gráfico de Barras Avance Físico vs Avance Financiero por Proyecto */}
+      <PhysicalVsFinancialChart
+        projects={projects}
+        currency={currency}
+        company={company}
+        onSelectProject={onSelectProject}
+      />
 
       {/* Recharts Engine: Histograma de Gastos Mensuales vs Presupuesto Proyectado por Proyecto & Exportación PDF */}
       <MonthlyExpensesHistogram

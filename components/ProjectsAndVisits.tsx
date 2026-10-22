@@ -902,13 +902,18 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
                 />
               </div>
 
-              {/* Photo attachment in bitácora */}
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <Camera className="w-3.5 h-3.5 text-blue-600" />
-                    Adjuntar Fotos de Campo (GPS & Timestamp)
-                  </label>
+              {/* Photo attachment in bitácora (Mobile Direct Camera & Base64 Storage) */}
+              <div className="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 space-y-3 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div>
+                    <label className="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
+                      <Camera className="w-4 h-4 text-amber-400" />
+                      Fotografía de Obra en Vivo (Cámara Móvil)
+                    </label>
+                    <p className="text-[11px] text-slate-400">
+                      Captura el frente de trabajo con la cámara del dispositivo. Se guarda en base64 con coordenadas GPS.
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -916,13 +921,13 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
                         setCameraVisitTargetId(null);
                         setIsSiteCameraOpen(true);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition cursor-pointer shadow-2xs"
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-extrabold transition cursor-pointer shadow-md active:scale-95"
                     >
-                      <Camera className="w-3.5 h-3.5" />
-                      Tomar Foto con Cámara
+                      <Camera className="w-4 h-4 text-slate-950" />
+                      Capturar Foto con Cámara
                     </button>
-                    <label className="cursor-pointer text-xs font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-300 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
-                      <Plus className="w-3.5 h-3.5" /> Subir Archivo
+                    <label className="cursor-pointer text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 border border-slate-700 hover:border-slate-600 px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
+                      <ImageIcon className="w-3.5 h-3.5 text-sky-400" /> Galería
                       <input
                         type="file"
                         accept="image/*"
@@ -935,30 +940,43 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
                 </div>
 
                 {visitAttachedPhotos.length > 0 ? (
-                  <div className="flex items-center gap-2 overflow-x-auto py-1">
-                    {visitAttachedPhotos.map((p, idx) => (
-                      <div key={p.id} className="relative w-20 h-16 rounded-lg overflow-hidden border border-slate-300 shrink-0 bg-slate-900 group">
-                        <img src={p.url} alt="Foto" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => setVisitAttachedPhotos((prev) => prev.filter((_, i) => i !== idx))}
-                          className="absolute top-1 right-1 bg-rose-600 text-white rounded p-0.5 shadow transition hover:bg-rose-700 cursor-pointer"
-                          title="Eliminar foto"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        {p.coords && (
-                          <div className="absolute bottom-0.5 left-0.5 bg-slate-950/80 text-[8px] font-mono text-sky-400 px-1 rounded">
-                            GPS
+                  <div className="space-y-2 pt-1 border-t border-slate-800">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-emerald-400 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {visitAttachedPhotos.length} fotografía(s) capturada(s) en base64
+                      </span>
+                      <span className="text-slate-400 font-mono text-[10px]">Almacenado en Bitácora</span>
+                    </div>
+                    <div className="flex items-center gap-2.5 overflow-x-auto py-1.5">
+                      {visitAttachedPhotos.map((p, idx) => (
+                        <div key={p.id} className="relative w-24 h-20 rounded-xl overflow-hidden border border-slate-700 shrink-0 bg-slate-950 group shadow-md">
+                          <img src={p.url} alt="Foto de obra" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <button
+                            type="button"
+                            onClick={() => setVisitAttachedPhotos((prev) => prev.filter((_, i) => i !== idx))}
+                            className="absolute top-1 right-1 bg-rose-600/90 text-white rounded-lg p-1 shadow transition hover:bg-rose-600 cursor-pointer"
+                            title="Eliminar foto"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="absolute bottom-0 inset-x-0 bg-slate-950/85 backdrop-blur-xs text-[8px] font-mono text-sky-400 px-1 py-0.5 flex justify-between items-center">
+                            <span>GPS OK</span>
+                            <span className="text-slate-300 font-sans">{p.timestamp || 'Hoy'}</span>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
-                  <p className="text-[11px] text-slate-500">
-                    Opcional: Adjunte evidencias fotográficas geolocalizadas con la cámara del dispositivo a esta bitácora.
-                  </p>
+                  <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-amber-400/70" />
+                      Sin fotografía adjunta. Haz clic en &quot;Capturar Foto con Cámara&quot; para abrir la cámara móvil.
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 font-mono bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                      Recomendado
+                    </span>
+                  </div>
                 )}
               </div>
 
