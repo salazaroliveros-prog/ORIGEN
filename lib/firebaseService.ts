@@ -12,16 +12,31 @@ import {
   onSnapshot,
   Unsubscribe,
 } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
 import { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings } from './types';
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const firebaseConfig = getFirebaseConfig();
 
-// CRITICAL: The app will break without passing firebaseConfig.firestoreDatabaseId
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const appConfig = {
+  apiKey: firebaseConfig.apiKey || 'demo-api-key',
+  authDomain: firebaseConfig.authDomain || 'demo-project.firebaseapp.com',
+  projectId: firebaseConfig.projectId || 'demo-project',
+  storageBucket: firebaseConfig.storageBucket || 'demo-project.firebasestorage.app',
+  messagingSenderId: firebaseConfig.messagingSenderId || '000000000000',
+  appId: firebaseConfig.appId || '1:000000000000:web:demo',
+  measurementId: firebaseConfig.measurementId || '',
+};
+
+const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
+const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
+
+export const db = getFirestore(app, firestoreDatabaseId || undefined);
 export const auth = getAuth(app);
 
-// Connection test helper (called on demand if needed)
+if (!hasFirebaseRuntimeConfig()) {
+  console.warn('Firebase runtime config is not fully configured. Using safe demo defaults until environment variables are injected.');
+}
+
 export async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
@@ -32,7 +47,6 @@ export async function testConnection() {
   }
 }
 
-// Required error handling schema
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
@@ -59,12 +73,18 @@ export interface FirestoreErrorInfo {
   };
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+export function handleFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null
+): Error {
   const errMsg = error instanceof Error ? error.message : String(error);
-  // Avoid rethrowing normal idle stream disconnections from gRPC
-  if (errMsg.includes('Disconnecting idle stream') || errMsg.includes('Timed out waiting for new targets')) {
+  const isKnownIdleWarning =
+    errMsg.includes('Disconnecting idle stream') || errMsg.includes('Timed out waiting for new targets');
+
+  if (isKnownIdleWarning) {
     console.debug('Firestore idle stream disconnected:', errMsg);
-    return;
+    return new Error(errMsg);
   }
 
   const errInfo: FirestoreErrorInfo = {
@@ -84,15 +104,12 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path,
   };
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+
+  const serialized = JSON.stringify(errInfo);
+  console.error('Firestore Error: ', serialized);
+  return new Error(serialized);
 }
 
-// -------------------------------------------------------------
-// Firestore Helpers for Application Entities
-// -------------------------------------------------------------
-
-// 1. Projects
 export async function saveProjectToFirestore(project: Project, userId: string) {
   const path = `projects/${project.id}`;
   try {
@@ -120,9 +137,7 @@ export function subscribeProjects(userId: string, callback: (projects: Project[]
       q,
       (snapshot) => {
         const list: Project[] = [];
-        snapshot.forEach((docSnap) => {
-          list.push(docSnap.data() as Project);
-        });
+        snapshot.forEach((docSnap) => list.push(docSnap.data() as Project));
         callback(list);
       },
       (error) => {
@@ -146,7 +161,6 @@ export async function deleteProjectFromFirestore(projectId: string) {
   }
 }
 
-// 2. Field Visits & Inspections
 export async function saveFieldVisitToFirestore(visit: FieldVisit, userId: string) {
   const path = `fieldVisits/${visit.id}`;
   try {
@@ -174,9 +188,7 @@ export function subscribeFieldVisits(userId: string, callback: (visits: FieldVis
       q,
       (snapshot) => {
         const list: FieldVisit[] = [];
-        snapshot.forEach((docSnap) => {
-          list.push(docSnap.data() as FieldVisit);
-        });
+        snapshot.forEach((docSnap) => list.push(docSnap.data() as FieldVisit));
         callback(list);
       },
       (error) => {
@@ -189,7 +201,6 @@ export function subscribeFieldVisits(userId: string, callback: (visits: FieldVis
   }
 }
 
-// 3. Expenses
 export async function saveExpenseToFirestore(expense: ExpenseRecord, userId: string) {
   const path = `expenses/${expense.id}`;
   try {
@@ -217,9 +228,7 @@ export function subscribeExpenses(userId: string, callback: (expenses: ExpenseRe
       q,
       (snapshot) => {
         const list: ExpenseRecord[] = [];
-        snapshot.forEach((docSnap) => {
-          list.push(docSnap.data() as ExpenseRecord);
-        });
+        snapshot.forEach((docSnap) => list.push(docSnap.data() as ExpenseRecord));
         callback(list);
       },
       (error) => {
@@ -232,7 +241,6 @@ export function subscribeExpenses(userId: string, callback: (expenses: ExpenseRe
   }
 }
 
-// 4. Attendance
 export async function saveAttendanceToFirestore(record: AttendanceRecord, userId: string) {
   const path = `attendance/${record.id}`;
   try {
@@ -260,9 +268,7 @@ export function subscribeAttendance(userId: string, callback: (records: Attendan
       q,
       (snapshot) => {
         const list: AttendanceRecord[] = [];
-        snapshot.forEach((docSnap) => {
-          list.push(docSnap.data() as AttendanceRecord);
-        });
+        snapshot.forEach((docSnap) => list.push(docSnap.data() as AttendanceRecord));
         callback(list);
       },
       (error) => {
@@ -275,7 +281,6 @@ export function subscribeAttendance(userId: string, callback: (records: Attendan
   }
 }
 
-// 5. Company Settings
 export async function saveCompanySettingsToFirestore(settings: CompanySettings, userId: string) {
   const path = `companySettings/${userId}`;
   try {
