@@ -577,6 +577,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   }
 
   // Generate filename and trigger download
+  const now = new Date();
   const safeProjectName = selectedProject
     ? selectedProject.code.replace(/[^a-zA-Z0-9_-]/g, '_')
     : 'Consolidado_Todas_Las_Obras';
