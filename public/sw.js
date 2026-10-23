@@ -3,7 +3,7 @@ const CACHE_NAME = 'constructerp-v1';
 const STATIC_ASSETS = [
   '/',
   '/globals.css',
-  '/manifest.json'
+  '/site.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {

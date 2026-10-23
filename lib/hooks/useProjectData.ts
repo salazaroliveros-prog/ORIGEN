@@ -10,6 +10,10 @@ import {
   subscribeCompanySettings,
   saveProjectToFirestore,
   deleteProjectFromFirestore,
+  saveCompanySettingsToFirestore,
+  deleteExpensesByProject,
+  deleteFieldVisitsByProject,
+  deleteAttendanceByProject,
 } from '@/lib/firebaseService';
 import { validateProjectForm, getDefaultProjectValues, type ProjectFormValues } from '@/lib/validation/project.schema';
 import { toast } from 'react-hot-toast';
@@ -129,8 +133,14 @@ export function useProjectData(currentUserId?: string) {
 
       setLoading(true);
       try {
-        const success = await deleteProjectFromFirestore(projectId);
-        if (success) {
+        const [expensesOk, visitsOk, attendanceOk, projectOk] = await Promise.all([
+          deleteExpensesByProject(projectId),
+          deleteFieldVisitsByProject(projectId),
+          deleteAttendanceByProject(projectId),
+          deleteProjectFromFirestore(projectId),
+        ]);
+
+        if (projectOk) {
           toast.success('Proyecto eliminado correctamente');
           return true;
         }
@@ -156,6 +166,8 @@ export function useProjectData(currentUserId?: string) {
     createProject,
     updateProject,
     deleteProject,
+    saveCompanySettings: (settings: CompanySettings) =>
+      saveCompanySettingsToFirestore(settings, currentUserId || ''),
     getDefaultValues: () => getDefaultProjectValues(),
     validateForm: (data: unknown) => validateProjectForm(data),
   };

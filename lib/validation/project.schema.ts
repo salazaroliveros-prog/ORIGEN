@@ -48,6 +48,7 @@ export const ProjectFormSchema = z.object({
 export type ProjectFormValues = z.infer<typeof ProjectFormSchema>;
 
 export interface ProjectFormProject {
+  id: string;
   code: string;
   name: string;
   client: string;
@@ -71,6 +72,7 @@ export function validateProjectForm(data: unknown) {
 
 export function getDefaultProjectValues(): ProjectFormProject {
   return {
+    id: `proj-${Date.now()}`,
     code: '',
     name: '',
     client: '',

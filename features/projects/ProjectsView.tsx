@@ -13,6 +13,7 @@ import { ProjectForm } from '@/components/ProjectForm';
 import { useProjectData } from '@/lib/hooks/useProjectData';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { toast } from 'react-hot-toast';
+import type { ProjectFormProject } from '@/lib/validation/project.schema';
 
 export function ProjectsView({ company }: { company?: any }) {
   const { currentUser } = useAuthSession();
@@ -25,7 +26,7 @@ export function ProjectsView({ company }: { company?: any }) {
   } = useProjectData(currentUser?.uid);
 
   const [formOpen, setFormOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<any>(null);
+  const [editingProject, setEditingProject] = useState<ProjectFormProject | null>(null);
 
   const handleCreate = useCallback(
     async (values: any) => {
@@ -38,9 +39,12 @@ export function ProjectsView({ company }: { company?: any }) {
   const handleEdit = useCallback(
     async (values: any) => {
       if (!editingProject) return;
-      const success = await updateProject(editingProject.id, values);
-      if (success) {
-        setFormOpen(false);
+      try {
+        const success = await updateProject(editingProject.id, values);
+        if (success) {
+          setFormOpen(false);
+        }
+      } finally {
         setEditingProject(null);
       }
     },
