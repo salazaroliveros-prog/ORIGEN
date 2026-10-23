@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
+import type { AttendanceRecord, CompanySettings } from '@/lib/types';
 
-export function StaffView({ attendance, company }: { attendance: any[]; company?: any }) {
+export function StaffView({ attendance, company }: { attendance: AttendanceRecord[]; company?: CompanySettings }) {
   const present = attendance.filter((a: any) => a.status === 'Presente').length;
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full">

@@ -23,7 +23,6 @@ import {
   Menu,
   X,
   ChevronDown,
-  Bell,
   Sliders,
 } from 'lucide-react';
 import { CompanySettings, Project } from '@/lib/types';
@@ -40,17 +39,11 @@ interface NavbarProps {
   onToggleCurrency: () => void;
   onOpenAiAssistant: () => void;
   onOpenBranding: () => void;
-  onQuickAction?: (action: string) => void;
-  isFocusMode?: boolean;
-  onToggleFocusMode?: () => void;
-  alertsCount?: number;
-  onOpenGmail?: () => void;
   currentUser: User | null;
   onSignIn: () => void;
   onSignOut: () => void;
   isMobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
-  onOpenNotifications?: () => void;
   remindersCount?: number;
 }
 
@@ -70,7 +63,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSignOut,
   isMobileSidebarOpen,
   onToggleMobileSidebar,
-  onOpenNotifications,
   remindersCount = 0,
 }) => {
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
@@ -87,6 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
     { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
     { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
+    { id: 'ai', label: 'Asistente IA', icon: Sparkles },
     { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
   ];
 
@@ -291,22 +284,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               )}
             </div>
-
-            {/* Notification Bell Button */}
-            {onOpenNotifications && (
-              <button
-                onClick={onOpenNotifications}
-                className="relative inline-flex items-center gap-1.5 p-2 rounded-xl bg-white/[0.06] hover:bg-amber-500/20 border border-white/10 hover:border-amber-400/30 text-amber-300 transition cursor-pointer"
-                title="Notificaciones personalizables y recordatorios de obra"
-              >
-                <Bell className="w-4 h-4" />
-                {remindersCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-black text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.6)]">
-                    {remindersCount}
-                  </span>
-                )}
-              </button>
-            )}
 
             {/* Currency Pill Toggle */}
             <button

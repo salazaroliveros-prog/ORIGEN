@@ -13,9 +13,10 @@ import { ProjectForm } from '@/components/ProjectForm';
 import { useProjectData } from '@/lib/hooks/useProjectData';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { toast } from 'react-hot-toast';
-import type { ProjectFormProject } from '@/lib/validation/project.schema';
+import type { CompanySettings, Project } from '@/lib/types';
+import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
 
-export function ProjectsView({ company }: { company?: any }) {
+export function ProjectsView({ company }: { company?: CompanySettings }) {
   const { currentUser } = useAuthSession();
   const {
     projects,
@@ -29,7 +30,7 @@ export function ProjectsView({ company }: { company?: any }) {
   const [editingProject, setEditingProject] = useState<ProjectFormProject | null>(null);
 
   const handleCreate = useCallback(
-    async (values: any) => {
+    async (values: ProjectFormValues) => {
       const success = await createProject(values);
       if (success) setFormOpen(false);
     },
@@ -37,7 +38,7 @@ export function ProjectsView({ company }: { company?: any }) {
   );
 
   const handleEdit = useCallback(
-    async (values: any) => {
+    async (values: ProjectFormValues) => {
       if (!editingProject) return;
       try {
         const success = await updateProject(editingProject.id, values);
@@ -58,7 +59,7 @@ export function ProjectsView({ company }: { company?: any }) {
     [deleteProject]
   );
 
-  const openEdit = (project: any) => {
+  const openEdit = (project: ProjectFormProject) => {
     setEditingProject(project);
     setFormOpen(true);
   };
@@ -112,7 +113,7 @@ export function ProjectsView({ company }: { company?: any }) {
               </div>
             </div>
             <ul className="space-y-2">
-              {projects.map((p: any) => (
+              {projects.map((p: Project) => (
                 <li key={p.id || p.code} className="glass-l1 p-4 rounded-xl border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:bg-white/5 transition">
                   <div className="flex flex-col lg:flex-row lg:items-center gap-3 min-w-0">
                     <div className="flex items-center gap-3">
