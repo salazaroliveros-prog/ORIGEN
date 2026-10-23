@@ -33,7 +33,8 @@ export interface Project {
   status: 'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido';
   lat: number;
   lng: number;
-  expectedProfitMarginPercent?: number; // e.g. 15 for 15%
+  ownerId?: string;
+  expectedProfitMarginPercent?: number;
 }
 
 export interface FieldPhoto {
