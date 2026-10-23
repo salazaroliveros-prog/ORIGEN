@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: 'ConstructERP Guatemala - Control de Obras y Firma Digital',
@@ -65,6 +66,7 @@ export default function RootLayout({
         <link rel="mask-icon" href="/assets/branding/icon-192x192.png" color="#0f172a" />
       </head>
       <body className="min-h-screen text-slate-100 antialiased selection:bg-sky-400 selection:text-slate-950 h-full overflow-x-hidden">
+        <Toaster position="bottom-right" />
         {children}
       </body>
     </html>

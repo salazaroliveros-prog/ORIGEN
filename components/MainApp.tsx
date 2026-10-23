@@ -100,7 +100,7 @@ export default function MainApp() {
             <DashboardView projects={data.projects} company={company} />
           )}
           {activeTab === 'projects' && (
-            <ProjectsView projects={data.projects} company={company} />
+            <ProjectsView company={company} />
           )}
           {activeTab === 'budget' && (
             <BudgetView projects={data.projects} expenses={data.expenses} company={company} />
