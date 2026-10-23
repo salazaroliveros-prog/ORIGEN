@@ -154,6 +154,33 @@
   }
 }
 
+/* Extra large desktop */
+@media (min-width: 1280px) {
+  .responsive-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Mobile container - ensures no horizontal overflow */
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Touch-friendly minimum target size (44x44px) for accessibility */
+button,
+a[role="button"],
+input[type="button"],
+input[type="submit"],
+[role="switch"],
+[role="checkbox"],
+[role="radio"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
 /* Landscape orientation adjustments */
 @media (orientation: landscape) and (max-height: 500px) {
   .landscape-compact {
@@ -162,6 +189,13 @@
   }
   .nav-glass-active {
     padding: 0.5rem 1rem !important;
+  }
+  .responsive-container {
+    padding: 0.5rem !important;
+  }
+  .glass-panel {
+    padding: 1rem !important;
+    border-radius: 16px !important;
   }
 }
 
@@ -216,6 +250,12 @@
   }
 }
 
+/* Focus visible for keyboard navigation */
+.focus-visible-outline {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
 /* Print styles */
 @media print {
   body {
@@ -227,5 +267,38 @@
   .no-print {
     display: none !important;
   }
+}
+
+/* Glassmorphism backdrop fallback for older browsers */
+.glass-l1,
+.glass-l2,
+.glass-l3,
+.glass-panel {
+  background-color: rgba(255, 255, 255, 0.05);
+  @supports not (backdrop-filter: blur(16px)) {
+    background: #1e293b;
+  }
+}
+
+/* Scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Selection colors tied to brand accent */
+::selection {
+  background: var(--accent);
+  color: var(--bg-deep);
 }
 

@@ -40,11 +40,11 @@ interface NavbarProps {
   onToggleCurrency: () => void;
   onOpenAiAssistant: () => void;
   onOpenBranding: () => void;
-  onQuickAction: (action: string) => void;
-  isFocusMode: boolean;
-  onToggleFocusMode: () => void;
-  alertsCount: number;
-  onOpenGmail: () => void;
+  onQuickAction?: (action: string) => void;
+  isFocusMode?: boolean;
+  onToggleFocusMode?: () => void;
+  alertsCount?: number;
+  onOpenGmail?: () => void;
   currentUser: User | null;
   onSignIn: () => void;
   onSignOut: () => void;
@@ -227,8 +227,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
 
-      {/* ================= GLASS TOP NAV BAR ================= */}
-      <header className="sticky top-0 z-40 bg-slate-950/40 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 lg:px-8 py-3 lg:ml-[280px]">
+      {/* ================= GLASS TOP NAV BAR (Desktop only - MobileHeader handles mobile) ================= */}
+      <header className="hidden lg:flex sticky top-0 z-40 bg-slate-950/40 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 lg:px-8 py-3 lg:ml-[280px]">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Mobile menu toggle & View Meta */}
           <div className="flex items-center gap-3">
