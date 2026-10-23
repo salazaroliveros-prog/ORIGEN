@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
+import type { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 
-export function ReportsView({ projects, expenses, company }: { projects: any[]; expenses: any[]; company?: any }) {
+export function ReportsView({ projects, expenses, company }: { projects: Project[]; expenses: ExpenseRecord[]; company?: CompanySettings }) {
   const letterheadLogo = '/assets/branding/report-letterhead-logo.png';
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full">

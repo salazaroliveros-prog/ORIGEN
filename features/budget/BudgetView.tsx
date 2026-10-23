@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
+import type { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 
-export function BudgetView({ projects, expenses, company }: { projects: any[]; expenses: any[]; company?: any }) {
+export function BudgetView({ projects, expenses, company }: { projects: Project[]; expenses: ExpenseRecord[]; company?: CompanySettings }) {
   const totalBudget = projects.reduce((acc: number, p: any) => acc + (p.budgetTotal || 0), 0);
   const totalSpent = expenses.reduce((acc: number, e: any) => acc + (e.amount || 0), 0);
   return (

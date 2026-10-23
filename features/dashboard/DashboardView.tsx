@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
+import type { CompanySettings, Project } from '@/lib/types';
 
-export function DashboardView({ projects, company }: { projects: any[]; company?: any }) {
+export function DashboardView({ projects, company }: { projects: Project[]; company?: CompanySettings }) {
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
       <PageHeader

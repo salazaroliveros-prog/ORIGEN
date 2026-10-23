@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
+import type { CompanySettings } from '@/lib/types';
 
-export function AiAssistantView({ company }: { company?: any } = {}) {
+export function AiAssistantView({ company }: { company?: CompanySettings } = {}) {
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
       <PageHeader
