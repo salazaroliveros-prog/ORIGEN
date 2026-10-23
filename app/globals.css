@@ -2,48 +2,122 @@
 @import "tw-animate-css";
 
 :root {
-  /* Design Tokens - Glassmorphism System Variation 5 */
+  /* ============================================================
+     DISEÑO TOKENS - ConstructERP Guatemala
+     Sistema completo de diseño para móviles Android/iOS y desktop
+     ============================================================ */
+
+  /* ---------- Colores de Marca ---------- */
+  --brand-primary: #f59e0b;
+  --brand-primary-hover: #d97706;
+  --brand-secondary: #38bdf8;
+  --brand-secondary-hover: #0ea5e9;
+  --text-on-brand: #1e293b;
+
+  /* ---------- Colores de Acción ---------- */
+  --action-primary: #10b981;
+  --action-primary-hover: #059669;
+  --action-danger: #ef4444;
+  --action-danger-hover: #dc2626;
+  --action-warning: #f59e0b;
+  --action-info: #3b82f6;
+
+  /* ---------- Superficies Jerárquicas ---------- */
+  --surface-elevated: rgba(255, 255, 255, 0.08);
+  --surface-subtle: rgba(255, 255, 255, 0.05);
+  --surface-overlay: rgba(255, 255, 255, 0.12);
+  --surface-input: rgba(255, 255, 255, 0.03);
+
+  /* ---------- Texto ---------- */
+  --text-primary: #f8fafc;
+  --text-secondary: rgba(248, 250, 252, 0.7);
+  --text-muted: rgba(248, 250, 252, 0.45);
+  --text-on-brand: #1e293b;
+
+  /* ---------- Bordes ---------- */
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --border-weak: rgba(255, 255, 255, 0.1);
+  --border-focus: rgba(56, 189, 248, 0.5);
+
+  /* ---------- Sombras ---------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.4);
+
+  /* ---------- Radio ---------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* ---------- Espaciado ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* ---------- Fondos ---------- */
   --bg-deep: #0f172a;
-  --bg-ambient: radial-gradient(circle at top right, #1e293b, #0f172a), 
+  --bg-ambient: radial-gradient(circle at top right, #1e293b, #0f172a),
                 radial-gradient(circle at bottom left, #1e1b4b, #0f172a);
-  
+
+  /* ---------- Glassmorphism ---------- */
   --glass-l1-bg: rgba(255, 255, 255, 0.05);
   --glass-l1-border: rgba(255, 255, 255, 0.1);
-  
   --glass-l2-bg: rgba(255, 255, 255, 0.08);
   --glass-l2-border: rgba(255, 255, 255, 0.15);
-  
   --glass-l3-bg: rgba(255, 255, 255, 0.12);
   --glass-l3-border: rgba(255, 255, 255, 0.25);
-  
-  --ink: #f8fafc;
-  --ink-muted: rgba(248, 250, 252, 0.65);
-  --accent: #38bdf8;
-  --accent-glow: rgba(56, 189, 248, 0.3);
-  --success: #4ade80;
-  --warning: #fbbf24;
-  
   --blur-standard: 16px;
-  --radius-main: 24px;
+
+  /* ---------- Transiciones ---------- */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @layer base {
   body {
     background: var(--bg-ambient);
     background-attachment: fixed;
-    color: var(--ink);
+    color: var(--text-primary);
     font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
   ::selection {
-    background: var(--accent);
-    color: var(--bg-deep);
+    background: var(--brand-secondary);
+    color: var(--text-on-brand);
+  }
+
+  /* Prevenir zoom en iOS al hacer foco en inputs */
+  select,
+  textarea,
+  input {
+    font-size: 16px;
+  }
+
+  /* Evitar seleccionar texto en elementos interactivos */
+  button,
+  [role="button"],
+  .touch-target {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 }
 
-/* Glassmorphism utility classes */
+/* ============================================================
+   COMPONENTES BASE - Glassmorphism
+   ============================================================ */
 .glass-l1 {
   background: var(--glass-l1-bg);
   backdrop-filter: blur(var(--blur-standard));
@@ -60,8 +134,8 @@
 
 .glass-l3 {
   background: var(--glass-l3-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(var(--blur-standard));
+  -webkit-backdrop-filter: blur(var(--blur-standard));
   border: 1px solid var(--glass-l3-border);
 }
 
@@ -70,9 +144,14 @@
   backdrop-filter: blur(var(--blur-standard));
   -webkit-backdrop-filter: blur(var(--blur-standard));
   border: 1px solid var(--glass-l1-border);
-  border-radius: var(--radius-main);
-  padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.glass-panel:hover {
+  border-color: var(--border-strong);
 }
 
 .stat-card {
@@ -80,17 +159,17 @@
   backdrop-filter: blur(var(--blur-standard));
   -webkit-backdrop-filter: blur(var(--blur-standard));
   border: 1px solid var(--glass-l1-border);
-  padding: 1.5rem;
-  border-radius: var(--radius-main);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s, border-color 0.2s;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--border-strong);
 }
 
 .stat-card::after {
@@ -101,41 +180,56 @@
   pointer-events: none;
 }
 
-.nav-glass-active {
-  background: var(--glass-l2-bg) !important;
-  color: var(--accent) !important;
-  border: 1px solid var(--glass-l2-border) !important;
-  box-shadow: inset 0 0 12px var(--accent-glow) !important;
+/* ============================================================
+   COMPONENTES TACTILES - Touch Optimization
+   ============================================================ */
+.touch-target {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
-.ai-assistant-bar {
-  background: var(--glass-l3-bg);
-  border: 1px solid var(--glass-l3-border);
-  border-radius: 20px;
-  padding: 0.85rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+.touch-target:active {
+  transform: scale(0.95);
+  opacity: 0.85;
+}
+
+.touch-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.touch-target:active .touch-ripple {
+  opacity: 1;
 }
 
 /* ============================================================
-   RESPONSIVE DESIGN SYSTEM - All screen types, sizes, orientations
+   RESPONSIVE DESIGN SYSTEM
    ============================================================ */
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
 
-/* Mobile-first base utilities already handled by Tailwind */
-
-/* Tablet and desktop layout tweaks */
 @media (min-width: 640px) {
   .responsive-container {
-    padding: 1rem;
+    padding: var(--space-4);
   }
   .responsive-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: var(--space-4);
   }
   .responsive-text {
     font-size: 1.125rem;
@@ -144,7 +238,7 @@
 
 @media (min-width: 1024px) {
   .responsive-container {
-    padding: 1.5rem;
+    padding: var(--space-6);
   }
   .responsive-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -154,91 +248,44 @@
   }
 }
 
-/* Extra large desktop */
 @media (min-width: 1280px) {
   .responsive-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* Mobile container - ensures no horizontal overflow */
-.responsive-container {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-/* Touch-friendly minimum target size (44x44px) for accessibility */
-button,
-a[role="button"],
-input[type="button"],
-input[type="submit"],
-[role="switch"],
-[role="checkbox"],
-[role="radio"] {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-/* Landscape orientation adjustments */
+/* Landscape orientation compact */
 @media (orientation: landscape) and (max-height: 500px) {
   .landscape-compact {
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-  }
-  .nav-glass-active {
-    padding: 0.5rem 1rem !important;
+    padding-top: var(--space-2) !important;
+    padding-bottom: var(--space-2) !important;
   }
   .responsive-container {
-    padding: 0.5rem !important;
+    padding: var(--space-2) !important;
   }
   .glass-panel {
-    padding: 1rem !important;
-    border-radius: 16px !important;
+    padding: var(--space-4) !important;
+    border-radius: var(--radius-md) !important;
   }
 }
 
 /* iOS Safari safe areas */
 @supports (-webkit-touch-callout: none) {
   .safe-area-top {
-    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-top: max(var(--space-4), env(safe-area-inset-top));
   }
   .safe-area-bottom {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
   }
   .safe-area-left {
-    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-left: max(var(--space-4), env(safe-area-inset-left));
   }
   .safe-area-right {
-    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-right: max(var(--space-4), env(safe-area-inset-right));
   }
 }
 
-/* Prevent zoom on input focus in iOS */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  select,
-  textarea,
-  input {
-    font-size: 16px;
-  }
-}
-
-/* High DPI / Retina optimization */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .retina-hairline {
-    border-width: 0.5px;
-  }
-}
-
-/* Dark mode forced for glassmorphism consistency */
-@media (prefers-color-scheme: light) {
-  body {
-    color-scheme: dark;
-  }
-}
-
-/* Reduced motion for accessibility */
+/* Reducido de movimiento */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -250,10 +297,55 @@ input[type="submit"],
   }
 }
 
-/* Focus visible for keyboard navigation */
+/* Focus visible para navegación por teclado */
 .focus-visible-outline {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--brand-secondary);
   outline-offset: 2px;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Skeleton para estados de carga */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Glassmorphism fallback para navegadores antiguos */
+.glass-l1,
+.glass-l2,
+.glass-l3,
+.glass-panel {
+  background-color: rgba(255, 255, 255, 0.05);
+  @supports not (backdrop-filter: blur(16px)) {
+    background: #1e293b;
+  }
 }
 
 /* Print styles */
@@ -268,37 +360,3 @@ input[type="submit"],
     display: none !important;
   }
 }
-
-/* Glassmorphism backdrop fallback for older browsers */
-.glass-l1,
-.glass-l2,
-.glass-l3,
-.glass-panel {
-  background-color: rgba(255, 255, 255, 0.05);
-  @supports not (backdrop-filter: blur(16px)) {
-    background: #1e293b;
-  }
-}
-
-/* Scrollbar styling for webkit browsers */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Selection colors tied to brand accent */
-::selection {
-  background: var(--accent);
-  color: var(--bg-deep);
-}
-

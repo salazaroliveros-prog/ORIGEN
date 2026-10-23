@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/PageHeader';
+import { Card } from '@/components/ui/Card';
 import type { CompanySettings, Project } from '@/lib/types';
 
 export function DashboardView({ projects, company }: { projects: Project[]; company?: CompanySettings }) {
@@ -11,14 +12,14 @@ export function DashboardView({ projects, company }: { projects: Project[]; comp
         companyName={company?.companyName}
       />
       <div className="responsive-grid">
-        <div className="glass-panel">
+        <Card variant="elevated" padding="lg">
           <h3 className="text-sm font-semibold text-slate-300 mb-2">Proyectos Activos</h3>
-          <p className="text-2xl font-bold text-white">{projects.length}</p>
-        </div>
-        <div className="glass-panel">
+          <p className="text-3xl font-bold text-white">{projects.length}</p>
+        </Card>
+        <Card variant="elevated" padding="lg">
           <h3 className="text-sm font-semibold text-slate-300 mb-2">Estado del Sistema</h3>
-          <p className="text-2xl font-bold text-emerald-400">Operativo</p>
-        </div>
+          <p className="text-3xl font-bold text-emerald-400">Operativo</p>
+        </Card>
       </div>
     </div>
   );
