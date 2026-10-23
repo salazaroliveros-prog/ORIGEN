@@ -1,3 +1,6 @@
+import React from 'react';
+import { Button } from '@/components/ui/Button';
+
 export function PageHeader({
   title,
   subtitle,
@@ -18,7 +21,7 @@ export function PageHeader({
         <img
           src={resolvedLogo}
           alt={companyName || 'Empresa'}
-          className="w-14 h-14 md:w-16 md:h-16 rounded-2xl object-cover shadow-lg bg-white/5 border border-white/10"
+          className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover shadow-lg bg-white/5 border border-white/10"
           loading="eager"
           decoding="async"
         />
@@ -56,13 +59,15 @@ export function MobileHeader({
   const resolvedLogo = logoUrl || '/assets/branding/web-banner-logo.png';
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-slate-950/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30">
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={onMenu}
-        className="p-2 rounded-xl bg-white/[0.05] border border-white/10 text-slate-300 hover:bg-white/[0.1] transition"
+        className="p-2 rounded-lg text-slate-300 hover:bg-white/[0.1]"
         aria-label="Abrir menú de navegación"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-      </button>
+      </Button>
       <img
         src={resolvedLogo}
         alt={companyName || 'Empresa'}

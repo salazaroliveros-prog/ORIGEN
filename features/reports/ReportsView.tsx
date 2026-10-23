@@ -1,4 +1,6 @@
 import { PageHeader } from '@/components/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import type { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 
 export function ReportsView({ projects, expenses, company }: { projects: Project[]; expenses: ExpenseRecord[]; company?: CompanySettings }) {
@@ -12,40 +14,44 @@ export function ReportsView({ projects, expenses, company }: { projects: Project
         companyName={company?.companyName}
       />
       <div className="responsive-grid">
-        <div className="glass-panel">
+        <Card variant="elevated" padding="lg">
           <h3 className="text-sm font-semibold text-slate-300 mb-2">Proyectos para Reporte</h3>
-          <p className="text-2xl font-bold text-white">{projects.length}</p>
-        </div>
-        <div className="glass-panel">
+          <p className="text-3xl font-bold text-white">{projects.length}</p>
+        </Card>
+        <Card variant="elevated" padding="lg">
           <h3 className="text-sm font-semibold text-slate-300 mb-2">Gastos Documentados</h3>
-          <p className="text-2xl font-bold text-white">{expenses.length}</p>
-        </div>
+          <p className="text-3xl font-bold text-white">{expenses.length}</p>
+        </Card>
       </div>
-      <div className="mt-6 glass-panel">
-        <h3 className="text-sm font-semibold text-slate-300 mb-3">Encabezado de Reporte (Letterhead)</h3>
-        <div className="flex items-center justify-center p-4 bg-white/5 border border-white/10 rounded-xl">
-          <img
-            src={letterheadLogo}
-            alt="Letterhead de empresa"
-            className="max-w-full h-auto max-h-48 object-contain"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <p className="mt-3 text-xs text-slate-400 text-center">
-          El logo de carta membretada se utiliza en reportes PDF exportados y actas de obra.
-        </p>
+      <div className="mt-6">
+        <Card variant="elevated" padding="lg">
+          <h3 className="text-sm font-semibold text-slate-300 mb-3">Encabezado de Reporte (Letterhead)</h3>
+          <div className="flex items-center justify-center p-4 bg-white/5 border border-white/10 rounded-xl">
+            <img
+              src={letterheadLogo}
+              alt="Letterhead de empresa"
+              className="max-w-full h-auto max-h-48 object-contain"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <p className="mt-3 text-xs text-slate-400 text-center">
+            El logo de carta membretada se utiliza en reportes PDF exportados y actas de obra.
+          </p>
+        </Card>
       </div>
-      <div className="mt-6 glass-panel">
-        <h3 className="text-sm font-semibold text-slate-300 mb-3">Acciones de Reporte</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <button className="glass-l1 p-3 rounded-xl border border-white/10 text-left text-sm text-slate-200 hover:bg-white/5 transition">
-            Exportar Resumen PDF
-          </button>
-          <button className="glass-l1 p-3 rounded-xl border border-white/10 text-left text-sm text-slate-200 hover:bg-white/5 transition">
-            Generar Acta de Obra
-          </button>
-        </div>
+      <div className="mt-6">
+        <Card variant="elevated" padding="lg">
+          <h3 className="text-sm font-semibold text-slate-300 mb-3">Acciones de Reporte</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Button variant="primary" size="sm" className="w-full">
+              Exportar Resumen PDF
+            </Button>
+            <Button variant="outline" size="sm" className="w-full">
+              Generar Acta de Obra
+            </Button>
+          </div>
+        </Card>
       </div>
     </div>
   );

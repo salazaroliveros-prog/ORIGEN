@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { CompanySettings, Project } from '@/lib/types';
 import { User } from 'firebase/auth';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
 interface NavbarProps {
   company: CompanySettings;
@@ -97,9 +99,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-extrabold tracking-tight text-white">ConstructERP</h1>
-              <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded">
+              <Badge variant="primary" size="sm">
                 Guatemala
-              </span>
+              </Badge>
             </div>
             <p className="text-xs text-slate-400 font-medium mt-1 truncate">
               {company.commercialName || 'Volcanes Proyectos & Ingeniería'}
@@ -113,25 +115,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button
+              <Button
                 key={tab.id}
+                variant={isActive ? 'primary' : 'ghost'}
+                size="sm"
                 onClick={() => onSelectTab(tab.id)}
-                className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-white/[0.08] text-sky-400 border border-white/15 shadow-[inset_0_0_12px_rgba(56,189,248,0.3)]'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.05] border border-transparent'
-                }`}
+                className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_12px_rgba(56,189,248,0.3)]' : ''}`}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                <div className="flex items-center gap-3 w-full">
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
                   <span className="truncate">{tab.label}</span>
                 </div>
                 {tab.badge && (
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                    {tab.badge}
-                  </span>
+                  <Badge variant="primary" size="sm">{tab.badge}</Badge>
                 )}
-              </button>
+              </Button>
             );
           })}
         </nav>
@@ -139,20 +137,24 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Sidebar Footer Controls */}
         <div className="pt-4 border-t border-white/10 space-y-3">
           <div className="flex items-center justify-between">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={onOpenAiAssistant}
-              className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-gradient-to-r from-sky-500/20 to-indigo-500/20 border border-sky-400/30 hover:border-sky-400/60 text-sky-300 text-xs font-bold transition shadow-sm cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
               <span>Gemini IA Asistente</span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onOpenBranding}
-              className="ml-2 p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 border border-white/10 transition cursor-pointer"
+              className="ml-2 p-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.05]"
               title="Configuración de Empresa"
             >
               <Settings className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 font-mono">
@@ -183,12 +185,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="font-mono text-[9px] uppercase text-amber-400 font-bold">Guate Glass</span>
                 </div>
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={onToggleMobileSidebar}
-                className="p-1.5 rounded-lg bg-white/10 text-slate-300 hover:text-white cursor-pointer"
+                className="p-1.5 text-slate-300 hover:text-white hover:bg-white/[0.05]"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
@@ -196,23 +200,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
                 return (
-                  <button
+                  <Button
                     key={tab.id}
+                    variant={isActive ? 'primary' : 'ghost'}
+                    size="sm"
                     onClick={() => {
                       onSelectTab(tab.id);
                       if (onToggleMobileSidebar) onToggleMobileSidebar();
                     }}
-                    className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                      isActive
-                        ? 'bg-white/[0.1] text-sky-400 border border-white/20 shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]'
-                        : 'text-slate-300 hover:bg-white/[0.05]'
-                    }`}
+                    className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]' : ''}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4" />
+                    <div className="flex items-center gap-3 w-full">
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
                       <span>{tab.label}</span>
                     </div>
-                  </button>
+                    {tab.badge && (
+                      <Badge variant="primary" size="sm">{tab.badge}</Badge>
+                    )}
+                  </Button>
                 );
               })}
             </nav>
@@ -225,13 +230,15 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between gap-4">
           {/* Left: Mobile menu toggle & View Meta */}
           <div className="flex items-center gap-3">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onToggleMobileSidebar}
-              className="lg:hidden p-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-slate-200 cursor-pointer"
+              className="lg:hidden p-2 rounded-lg text-slate-200 hover:bg-white/[0.05]"
               title="Abrir Menú"
             >
               <Menu className="w-5 h-5" />
-            </button>
+            </Button>
 
             <div className="flex flex-col">
               <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
@@ -247,56 +254,63 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Project Dropdown Selector */}
             <div className="relative">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-slate-200 transition cursor-pointer"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200"
               >
                 <span className="w-2 h-2 rounded-full bg-sky-400"></span>
                 <span className="max-w-[110px] sm:max-w-[160px] truncate">{activeProject?.name}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </button>
+              </Button>
 
               {isProjectDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-white/15 shadow-2xl p-2 z-50 space-y-1">
+                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-slate-900/95 backdrop-blur-2xl border border-white/15 shadow-2xl p-2 z-50 space-y-1">
                   <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
                     Cambiar Proyecto Activo
                   </div>
                   {projects.map((proj) => (
-                    <button
+                    <Button
                       key={proj.id}
+                      variant={proj.id === activeProjectId ? 'primary' : 'ghost'}
+                      size="sm"
                       onClick={() => {
                         onSelectProject(proj.id);
                         setIsProjectDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition cursor-pointer ${
+                      className={`w-full text-left justify-between ${
                         proj.id === activeProjectId
-                          ? 'bg-sky-500/20 text-sky-300 font-bold border border-sky-400/30'
-                          : 'text-slate-300 hover:bg-white/[0.06]'
+                          ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]'
+                          : ''
                       }`}
                     >
-                      <div className="truncate">
-                        <span className="font-mono text-[10px] text-amber-400 mr-1.5">{proj.code}</span>
-                        <span className="truncate">{proj.name}</span>
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[10px] text-amber-400 mr-1.5">{proj.code}</span>
+                          <span className="truncate">{proj.name}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono ml-2">{proj.progressPercent}%</span>
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono ml-2">{proj.progressPercent}%</span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               )}
             </div>
 
             {/* Currency Pill Toggle */}
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={onToggleCurrency}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-bold text-amber-400 transition cursor-pointer"
-              title="Alternar entre Quetzales (GTQ) y Dólares (USD)"
+              className="flex items-center gap-2 text-xs font-bold text-amber-400"
             >
               <Globe className="w-3.5 h-3.5 text-amber-400" />
               <span>{currency === 'GTQ' ? 'Q (GTQ)' : '$ (USD)'}</span>
-            </button>
+            </Button>
 
             {/* User Pill with Status Dot */}
-            <div className="user-pill flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-xs text-slate-200">
+            <div className="user-pill flex items-center gap-2 px-3 py-2 rounded-full bg-white/[0.06] border border-white/15 text-xs text-slate-200">
               <span className="status-dot w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]"></span>
               <span className="font-semibold truncate max-w-[140px] sm:max-w-[180px]">
                 {currentUser?.email || 'salazaroliveros@gmail.com'}
@@ -305,21 +319,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Auth / Logout Button */}
             {currentUser ? (
-              <button
+              <Button
+                variant="danger"
+                size="sm"
                 onClick={onSignOut}
-                className="p-2 rounded-xl bg-white/[0.06] hover:bg-red-500/20 border border-white/10 text-slate-400 hover:text-red-300 transition cursor-pointer"
+                className="p-2.5 rounded-lg text-slate-400 hover:text-red-300 hover:bg-red-500/20"
                 title="Cerrar Sesión"
               >
                 <LogOut className="w-4 h-4" />
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={onSignIn}
-                className="p-2 rounded-xl bg-white/[0.06] hover:bg-sky-500/20 border border-white/10 text-slate-400 hover:text-sky-300 transition cursor-pointer"
+                className="p-2.5 rounded-lg text-slate-400 hover:text-sky-300 hover:bg-sky-500/20"
                 title="Iniciar Sesión con Google"
               >
                 <LogIn className="w-4 h-4" />
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -327,4 +345,3 @@ export const Navbar: React.FC<NavbarProps> = ({
     </>
   );
 };
-
