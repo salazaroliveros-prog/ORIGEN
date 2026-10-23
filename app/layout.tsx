@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://origen-one-kohl.vercel.app'),
   title: 'ConstructERP Guatemala - Control de Obras y Firma Digital',
   description: 'ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas y firma digital de capataces.',
   alternates: {

@@ -10,6 +10,8 @@ import {
   query,
   where,
   onSnapshot,
+  getDocs,
+  writeBatch,
   Unsubscribe,
 } from 'firebase/firestore';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
@@ -157,6 +159,54 @@ export async function deleteProjectFromFirestore(projectId: string) {
     return true;
   } catch (err) {
     handleFirestoreError(err, OperationType.DELETE, path);
+    return false;
+  }
+}
+
+export async function deleteExpensesByProject(projectId: string): Promise<boolean> {
+  try {
+    const q = query(collection(db, 'expenses'), where('projectId', '==', projectId));
+    const snapshot = await getDocs(q);
+    const batch = writeBatch(db);
+    snapshot.forEach((docSnap) => {
+      batch.delete(docSnap.ref);
+    });
+    await batch.commit();
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, `expenses/${projectId}`);
+    return false;
+  }
+}
+
+export async function deleteFieldVisitsByProject(projectId: string): Promise<boolean> {
+  try {
+    const q = query(collection(db, 'fieldVisits'), where('projectId', '==', projectId));
+    const snapshot = await getDocs(q);
+    const batch = writeBatch(db);
+    snapshot.forEach((docSnap) => {
+      batch.delete(docSnap.ref);
+    });
+    await batch.commit();
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, `fieldVisits/${projectId}`);
+    return false;
+  }
+}
+
+export async function deleteAttendanceByProject(projectId: string): Promise<boolean> {
+  try {
+    const q = query(collection(db, 'attendance'), where('projectId', '==', projectId));
+    const snapshot = await getDocs(q);
+    const batch = writeBatch(db);
+    snapshot.forEach((docSnap) => {
+      batch.delete(docSnap.ref);
+    });
+    await batch.commit();
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, `attendance/${projectId}`);
     return false;
   }
 }

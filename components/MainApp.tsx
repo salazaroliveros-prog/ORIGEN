@@ -3,10 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { useProjectData } from '@/lib/services/projectData';
+import {
+  saveCompanySettingsToFirestore,
+  deleteProjectFromFirestore,
+  deleteExpensesByProject,
+  deleteFieldVisitsByProject,
+  deleteAttendanceByProject,
+} from '@/lib/firebaseService';
 import { Navbar } from '@/components/Navbar';
 import { LogoUpload } from '@/components/LogoUpload';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
-import { MobileHeader } from '@/components/PageHeader';
+import { MobileHeader, PageHeader } from '@/components/PageHeader';
 import { DashboardView } from '@/features/dashboard/DashboardView';
 import { ProjectsView } from '@/features/projects/ProjectsView';
 import { BudgetView } from '@/features/budget/BudgetView';
@@ -16,15 +23,81 @@ import { AiAssistantView } from '@/features/ai/AiAssistantView';
 import type { CompanySettings } from '@/lib/types';
 import { initialCompanySettings } from '@/lib/data';
 
-type TabKey = 'dashboard' | 'projects' | 'budget' | 'staff' | 'reports' | 'ai';
+type TabKey =
+  | 'dashboard'
+  | 'proyectos'
+  | 'apu_presupuestos'
+  | 'personal'
+  | 'reportes'
+  | 'ai'
+  | 'cotizaciones'
+  | 'cronograma_gantt'
+  | 'maquinaria'
+  | 'planillas'
+  | 'gastos'
+  | 'gmail';
 
 const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }> = {
-  dashboard: { id: 'dashboard', label: 'Tablero de Control', subtitle: 'Resumen general de proyectos y estado del sistema' },
-  projects: { id: 'projects', label: 'Proyectos y Firmas Digitales', subtitle: 'Gestión de proyectos con trazabilidad completa' },
-  budget: { id: 'budget', label: 'Presupuestos APU y Gastos', subtitle: 'Control financiero con desglose por renglón y departamento' },
-  staff: { id: 'staff', label: 'Personal y Asistencia IGSS', subtitle: 'Control de cuadrillas, planillas y cumplimiento laboral' },
-  reports: { id: 'reports', label: 'Reportes Finales y Actas', subtitle: 'Generación de reportes ejecutivos y documentación de obra' },
-  ai: { id: 'ai', label: 'Asistente Técnico IA', subtitle: 'Consultas sobre presupuestos, normativas AGIES y COGUANOR' },
+  dashboard: {
+    id: 'dashboard',
+    label: 'Tablero de Control',
+    subtitle: 'Resumen general de proyectos y estado del sistema',
+  },
+  proyectos: {
+    id: 'proyectos',
+    label: 'Proyectos y Firmas Digitales',
+    subtitle: 'Gestión de proyectos con trazabilidad completa',
+  },
+  apu_presupuestos: {
+    id: 'apu_presupuestos',
+    label: 'Presupuestos APU y Gastos',
+    subtitle: 'Control financiero con desglose por renglón y departamento',
+  },
+  personal: {
+    id: 'personal',
+    label: 'Personal y Asistencia IGSS',
+    subtitle: 'Control de cuadrillas, planillas y cumplimiento laboral',
+  },
+  reportes: {
+    id: 'reportes',
+    label: 'Reportes Finales y Actas',
+    subtitle: 'Generación de reportes ejecutivos y documentación de obra',
+  },
+  ai: {
+    id: 'ai',
+    label: 'Asistente Técnico IA',
+    subtitle: 'Consultas sobre presupuestos, normativas AGIES y COGUANOR',
+  },
+  cotizaciones: {
+    id: 'cotizaciones',
+    label: 'Cotizaciones',
+    subtitle: 'Gestión de cotizaciones y presupuestos de clientes',
+  },
+  cronograma_gantt: {
+    id: 'cronograma_gantt',
+    label: 'Seguimiento & Hitos',
+    subtitle: 'Cronograma de obra y seguimiento de hitos',
+  },
+  maquinaria: {
+    id: 'maquinaria',
+    label: 'Maquinaria',
+    subtitle: 'Control de flota de maquinaria y horómetros',
+  },
+  planillas: {
+    id: 'planillas',
+    label: 'Planillas Guate',
+    subtitle: 'Planillas laborales y cumplimiento IGSS',
+  },
+  gastos: {
+    id: 'gastos',
+    label: 'Gastos & Facturas',
+    subtitle: 'Registro y control de gastos operativos',
+  },
+  gmail: {
+    id: 'gmail',
+    label: 'Correo & Avisos',
+    subtitle: 'Comunicaciones y notificaciones del proyecto',
+  },
 };
 
 export default function MainApp() {
@@ -33,6 +106,7 @@ export default function MainApp() {
   const [company, setCompany] = useState<CompanySettings>(initialCompanySettings);
   const [brandingOpen, setBrandingOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
+  const [activeProjectId, setActiveProjectId] = useState<string>('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const tabConfig = TAB_CONFIG[activeTab];
@@ -45,16 +119,35 @@ export default function MainApp() {
     }
   }, [data.company]);
 
-  const handleUpdateCompany = (updates: Partial<CompanySettings>) => {
+  useEffect(() => {
+    if (data.projects.length > 0 && !activeProjectId) {
+      setActiveProjectId(data.projects[0].id);
+    }
+  }, [data.projects, activeProjectId]);
+
+  const handleUpdateCompany = async (updates: Partial<CompanySettings>) => {
+    if (!currentUser?.uid) {
+      return;
+    }
     setCompany((prev) => ({ ...prev, ...updates }));
+    try {
+      await saveCompanySettingsToFirestore(
+        { ...company, ...updates } as CompanySettings,
+        currentUser.uid
+      );
+    } catch {
+      console.warn('No se pudo guardar la configuración de marca en Firestore');
+    }
+  };
+
+  const handleSelectProject = (projectId: string) => {
+    setActiveProjectId(projectId);
   };
 
   const handleSelectTab = (tabId: string) => {
     setActiveTab(tabId as TabKey);
     if (isMobileSidebarOpen) setIsMobileSidebarOpen(false);
   };
-
-  const activeProjectId = data.projects[0]?.id || '';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 safe-area-top safe-area-bottom safe-area-left safe-area-right">
@@ -80,7 +173,7 @@ export default function MainApp() {
           company={company}
           projects={data.projects}
           activeProjectId={activeProjectId}
-          onSelectProject={() => {}}
+          onSelectProject={handleSelectProject}
           activeTab={activeTab}
           onSelectTab={handleSelectTab}
           currency="GTQ"
@@ -99,20 +192,38 @@ export default function MainApp() {
           {activeTab === 'dashboard' && (
             <DashboardView projects={data.projects} company={company} />
           )}
-          {activeTab === 'projects' && (
+          {activeTab === 'proyectos' && (
             <ProjectsView company={company} />
           )}
-          {activeTab === 'budget' && (
+          {activeTab === 'apu_presupuestos' && (
             <BudgetView projects={data.projects} expenses={data.expenses} company={company} />
           )}
-          {activeTab === 'staff' && (
+          {activeTab === 'personal' && (
             <StaffView attendance={data.attendance} company={company} />
           )}
-          {activeTab === 'reports' && (
+          {activeTab === 'reportes' && (
             <ReportsView projects={data.projects} expenses={data.expenses} company={company} />
           )}
           {activeTab === 'ai' && (
             <AiAssistantView company={company} />
+          )}
+          {['cotizaciones', 'cronograma_gantt', 'maquinaria', 'planillas', 'gastos', 'gmail'].includes(activeTab) && (
+            <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
+              <PageHeader
+                title={tabConfig.label}
+                subtitle={tabConfig.subtitle}
+                logoUrl={company?.logoUrl}
+                companyName={company?.companyName}
+              />
+              <div className="glass-panel p-8 text-center">
+                <h3 className="text-white text-lg font-semibold mb-2">
+                  Módulo en desarrollo
+                </h3>
+                <p className="text-slate-400 text-sm">
+                  La sección de {tabConfig.label} estará disponible próximamente.
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </div>
