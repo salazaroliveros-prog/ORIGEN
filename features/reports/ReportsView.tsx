@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
 
 export function ReportsView({ projects, expenses, company }: { projects: any[]; expenses: any[]; company?: any }) {
+  const letterheadLogo = '/assets/branding/report-letterhead-logo.png';
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
       <PageHeader
@@ -18,6 +19,21 @@ export function ReportsView({ projects, expenses, company }: { projects: any[]; 
           <h3 className="text-sm font-semibold text-slate-300 mb-2">Gastos Documentados</h3>
           <p className="text-2xl font-bold text-white">{expenses.length}</p>
         </div>
+      </div>
+      <div className="mt-6 glass-panel">
+        <h3 className="text-sm font-semibold text-slate-300 mb-3">Encabezado de Reporte (Letterhead)</h3>
+        <div className="flex items-center justify-center p-4 bg-white/5 border border-white/10 rounded-xl">
+          <img
+            src={letterheadLogo}
+            alt="Letterhead de empresa"
+            className="max-w-full h-auto max-h-48 object-contain"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <p className="mt-3 text-xs text-slate-400 text-center">
+          El logo de carta membretada se utiliza en reportes PDF exportados y actas de obra.
+        </p>
       </div>
       <div className="mt-6 glass-panel">
         <h3 className="text-sm font-semibold text-slate-300 mb-3">Acciones de Reporte</h3>
