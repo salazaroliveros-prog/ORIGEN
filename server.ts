@@ -12,7 +12,7 @@ const cwd = process.cwd();
 const dotNext = path.join(cwd, '.next');
 const distDir = path.join(cwd, 'dist');
 
-if (!dev && !fs.existsSync(dotNext) && fs.existsSync(distDir)) {
+if (!dev && (!fs.existsSync(path.join(dotNext, 'routes-manifest.json')) && fs.existsSync(distDir))) {
   try {
     fs.cpSync(distDir, dotNext, { recursive: true });
   } catch (err) {

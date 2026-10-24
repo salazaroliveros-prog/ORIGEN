@@ -1,32 +1,42 @@
-import { PageHeader } from '@/components/PageHeader';
-import { Card } from '@/components/ui/Card';
-import type { AttendanceRecord, CompanySettings } from '@/lib/types';
+'use client';
 
-export function StaffView({ attendance, company }: { attendance: AttendanceRecord[]; company?: CompanySettings }) {
-  const present = attendance.filter((a) => a.status === 'Presente').length;
+import React from 'react';
+import { StaffAndAttendance } from '@/components/StaffAndAttendance';
+import type { AttendanceRecord, CompanySettings, Employee, Project } from '@/lib/types';
+import { initialEmployees } from '@/lib/data';
 
+interface StaffViewProps {
+  attendance: AttendanceRecord[];
+  company?: CompanySettings;
+  employees?: Employee[];
+  projects?: Project[];
+  activeProjectId?: string;
+  onAddEmployee?: (emp: Employee) => void;
+  onAddAttendance?: (record: AttendanceRecord) => void;
+  onDeleteAttendance?: (id: string) => void;
+}
+
+export function StaffView({
+  attendance = [],
+  company,
+  employees = initialEmployees,
+  projects = [],
+  activeProjectId = '',
+  onAddEmployee = () => {},
+  onAddAttendance = () => {},
+  onDeleteAttendance = () => {},
+}: StaffViewProps) {
   return (
-    <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
-      <PageHeader
-        title="Personal y Asistencia IGSS"
-        subtitle="Control de cuadrillas, planillas y cumplimiento laboral guatemalteco"
-        logoUrl={company?.logoUrl}
-        companyName={company?.companyName}
+    <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-6">
+      <StaffAndAttendance
+        employees={employees}
+        attendance={attendance}
+        projects={projects}
+        activeProjectId={activeProjectId}
+        onAddEmployee={onAddEmployee}
+        onAddAttendance={onAddAttendance}
+        onDeleteAttendance={onDeleteAttendance}
       />
-      <div className="responsive-grid">
-        <Card variant="elevated" padding="lg">
-          <h3 className="text-sm font-semibold text-slate-300 mb-2">Registros Totales</h3>
-          <p className="text-3xl font-bold text-white">{attendance.length}</p>
-        </Card>
-        <Card variant="elevated" padding="lg">
-          <h3 className="text-sm font-semibold text-slate-300 mb-2">Presentes Hoy</h3>
-          <p className="text-3xl font-bold text-emerald-400">{present}</p>
-        </Card>
-        <Card variant="elevated" padding="lg">
-          <h3 className="text-sm font-semibold text-slate-300 mb-2">Ausencias</h3>
-          <p className="text-3xl font-bold text-rose-400">{attendance.length - present}</p>
-        </Card>
-      </div>
     </div>
   );
 }

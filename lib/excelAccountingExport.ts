@@ -704,3 +704,28 @@ export function downloadVbaMacroFile(project: Project): void {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+export interface ExportExpensesOptions {
+  project: Project;
+  expenses: ExpenseRecord[];
+  company: CompanySettings;
+  currency?: 'GTQ' | 'USD';
+}
+
+/**
+ * Exports expenses for a project into an Excel (.xlsx) workbook with Guatemalan accounting fields.
+ */
+export async function exportExpensesToExcel({
+  project,
+  expenses,
+  company,
+  currency = 'GTQ',
+}: ExportExpensesOptions): Promise<void> {
+  return exportProjectAccountingWorkbook({
+    project,
+    company,
+    expenses,
+    fieldVisits: [],
+    currency,
+  });
+}

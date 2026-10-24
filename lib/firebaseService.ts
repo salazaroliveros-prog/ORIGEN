@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
 import { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings } from './types';
+import { notifySyncStart, notifySyncEnd } from './hooks/useFirebaseSyncStatus';
 
 const firebaseConfig = getFirebaseConfig();
 
@@ -114,6 +115,7 @@ export function handleFirestoreError(
 
 export async function saveProjectToFirestore(project: Project, userId: string) {
   const path = `projects/${project.id}`;
+  notifySyncStart();
   try {
     const docRef = doc(db, 'projects', project.id);
     await setDoc(
@@ -124,8 +126,10 @@ export async function saveProjectToFirestore(project: Project, userId: string) {
       },
       { merge: true }
     );
+    notifySyncEnd();
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
   }
@@ -162,11 +166,14 @@ export function subscribeProjects(userId: string, callback: (projects: Project[]
     return onSnapshot(
       q,
       (snapshot) => {
+        notifySyncStart();
         const list: Project[] = [];
         snapshot.forEach((docSnap) => list.push(docSnap.data() as Project));
         callback(list);
+        notifySyncEnd();
       },
       (error) => {
+        notifySyncEnd();
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
@@ -302,6 +309,17 @@ export async function saveExpenseToFirestore(expense: ExpenseRecord, userId: str
     return true;
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export async function deleteExpenseFromFirestore(expenseId: string): Promise<boolean> {
+  const path = `expenses/${expenseId}`;
+  try {
+    await deleteDoc(doc(db, 'expenses', expenseId));
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, path);
     return false;
   }
 }

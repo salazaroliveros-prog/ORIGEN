@@ -10,6 +10,8 @@ import {
   subscribeCompanySettings,
   saveProjectToFirestore,
   deleteProjectFromFirestore,
+  saveExpenseToFirestore,
+  deleteExpenseFromFirestore,
   saveCompanySettingsToFirestore,
   deleteExpensesByProject,
   deleteFieldVisitsByProject,
@@ -162,6 +164,50 @@ export function useProjectData(currentUserId?: string) {
     [currentUserId]
   );
 
+  const addExpense = useCallback(
+    async (expense: ExpenseRecord) => {
+      if (!currentUserId) {
+        toast.error('Usuario no autenticado');
+        return false;
+      }
+      try {
+        const ok = await saveExpenseToFirestore(expense, currentUserId);
+        if (ok) {
+          toast.success('Gasto registrado correctamente');
+          return true;
+        }
+        toast.error('Error al guardar el gasto');
+        return false;
+      } catch (err) {
+        toast.error('Error inesperado al guardar el gasto');
+        return false;
+      }
+    },
+    [currentUserId]
+  );
+
+  const deleteExpense = useCallback(
+    async (expenseId: string) => {
+      if (!currentUserId) {
+        toast.error('Usuario no autenticado');
+        return false;
+      }
+      try {
+        const ok = await deleteExpenseFromFirestore(expenseId);
+        if (ok) {
+          toast.success('Gasto eliminado correctamente');
+          return true;
+        }
+        toast.error('Error al eliminar el gasto');
+        return false;
+      } catch (err) {
+        toast.error('Error inesperado al eliminar el gasto');
+        return false;
+      }
+    },
+    [currentUserId]
+  );
+
   return {
     projects,
     fieldVisits,
@@ -172,6 +218,8 @@ export function useProjectData(currentUserId?: string) {
     createProject,
     updateProject,
     deleteProject,
+    addExpense,
+    deleteExpense,
     saveCompanySettings: (settings: CompanySettings) =>
       saveCompanySettingsToFirestore(settings, currentUserId || ''),
     getDefaultValues: () => getDefaultProjectValues(),

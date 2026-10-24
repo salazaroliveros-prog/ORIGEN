@@ -360,3 +360,59 @@
     display: none !important;
   }
 }
+
+/* ============================================================
+   MODO LUZ SOLAR / ALTO CONTRASTE DE CAMPO (OUTDOOR LIGHT MODE)
+   ============================================================ */
+html.theme-light body {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light aside,
+html.theme-light header {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.theme-light .glass-l1,
+html.theme-light .glass-l2,
+html.theme-light .glass-l3,
+html.theme-light .glass-panel,
+html.theme-light .stat-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light input,
+html.theme-light select,
+html.theme-light textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+html.theme-light .text-slate-400,
+html.theme-light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.theme-light .text-white {
+  color: #0f172a !important;
+}
+
+html.theme-light .bg-slate-900,
+html.theme-light .bg-slate-950 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.theme-light .bg-slate-800 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
