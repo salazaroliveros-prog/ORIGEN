@@ -1,20 +1,17 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import {
-  PenTool,
-  RotateCcw,
-  CheckCircle2,
-  X,
-  MapPin,
-  Undo2,
-  AlertCircle,
-  ShieldCheck,
-  Calendar,
-  UserCheck,
-  Sparkles,
-} from 'lucide-react';
 import { SignatureResult } from '@/components/SignaturePad';
+import {
+AlertCircle,
+CheckCircle2,
+MapPin,
+PenTool,
+RotateCcw,
+Undo2,
+UserCheck,
+X
+} from 'lucide-react';
+import React,{ useCallback,useEffect,useRef,useState } from 'react';
 
 export interface CanvasSignatureProps {
   isOpen?: boolean;

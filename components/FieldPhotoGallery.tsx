@@ -1,23 +1,22 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import { FieldPhoto,FieldVisit,Project } from '@/lib/types';
 import {
-  Camera,
-  Upload,
-  MapPin,
-  Calendar,
-  User,
-  X,
-  Plus,
-  Trash2,
-  Download,
-  Eye,
-  AlertCircle,
-  CheckCircle2,
-  RefreshCw,
-  HardHat,
+AlertCircle,
+Calendar,
+Camera,
+CheckCircle2,
+Download,
+Eye,
+MapPin,
+Plus,
+RefreshCw,
+Trash2,
+Upload,
+User,
+X
 } from 'lucide-react';
-import { FieldPhoto, FieldVisit, Project } from '@/lib/types';
+import React,{ useRef,useState } from 'react';
 
 interface FieldPhotoGalleryProps {
   project: Project;

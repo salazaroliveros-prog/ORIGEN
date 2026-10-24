@@ -59,7 +59,7 @@ export function saveBranding(config: BrandingConfig): void {
 }
 
 export function detectUploadedLogo(file: File): string {
-  if (!file || !(file as any).arrayBuffer) return DEFAULT_LOGO_URL;
+  if (!file || typeof file.arrayBuffer !== 'function') return DEFAULT_LOGO_URL;
   return URL.createObjectURL(file);
 }
 

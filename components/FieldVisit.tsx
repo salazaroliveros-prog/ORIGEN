@@ -1,25 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import { SignatureCanvas } from '@/components/SignatureCanvas';
+import { SignatureResult } from '@/components/SignaturePad';
+import { FieldPhoto,FieldVisit as FieldVisitType,Project } from '@/lib/types';
 import {
-  FileText,
-  PenTool,
-  CheckCircle2,
-  MapPin,
-  Camera,
-  Eye,
-  Printer,
-  ShieldCheck,
-  Users,
-  CloudSun,
-  AlertCircle,
-  Clock,
-  Sparkles,
-  Plus,
+AlertCircle,
+Camera,
+CheckCircle2,
+Clock,
+CloudSun,
+Eye,
+FileText,
+MapPin,
+PenTool,
+Plus,
+Printer,
+ShieldCheck,
+Sparkles,
+Users,
 } from 'lucide-react';
-import { FieldVisit as FieldVisitType, FieldPhoto, Project } from '@/lib/types';
-import { SignaturePad, SignatureResult } from '@/components/SignaturePad';
-import { SignatureCanvas, SignatureCanvasResult } from '@/components/SignatureCanvas';
+import React,{ useState } from 'react';
 
 export interface FieldVisitProps {
   visit?: FieldVisitType;
@@ -192,7 +192,17 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
               <label className="block text-xs font-semibold text-slate-700 mb-1">Condición Climática</label>
               <select
                 value={newWeather}
-                onChange={(e) => setNewWeather(e.target.value as any)}
+                onChange={(event) => {
+                  const weather = event.target.value;
+                  if (
+                    weather === 'Soleado' ||
+                    weather === 'Lluvia Moderada' ||
+                    weather === 'Tormenta Fuerte' ||
+                    weather === 'Nublado'
+                  ) {
+                    setNewWeather(weather);
+                  }
+                }}
                 className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white"
               >
                 <option value="Soleado">Soleado (Óptimo)</option>

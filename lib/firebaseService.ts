@@ -131,6 +131,30 @@ export async function saveProjectToFirestore(project: Project, userId: string) {
   }
 }
 
+export async function saveProjectScheduleToFirestore(
+  projectId: string,
+  schedule: Partial<
+    Pick<Project, 'scheduleTasks' | 'scheduleMilestones' | 'taskReminders' | 'progressPercent'>
+  >,
+  userId: string
+): Promise<boolean> {
+  const path = `projects/${projectId}`;
+  try {
+    await setDoc(
+      doc(db, 'projects', projectId),
+      {
+        ...schedule,
+        ownerId: userId,
+      },
+      { merge: true }
+    );
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, path);
+    return false;
+  }
+}
+
 export function subscribeProjects(userId: string, callback: (projects: Project[]) => void): Unsubscribe {
   const path = 'projects';
   try {

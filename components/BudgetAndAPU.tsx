@@ -1,35 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import { formatGTQ,formatUSD } from '@/lib/data';
 import {
-  Calculator,
-  Plus,
-  Sparkles,
-  ShieldCheck,
-  TrendingUp,
-  MapPin,
-  RotateCcw,
-  Check,
-  AlertTriangle,
-  Trash2,
-  Eye,
-  Search,
-  Building2,
-  Layers,
-  ArrowRight,
-  Info,
-  Clock,
-  Compass,
-} from 'lucide-react';
-import { APUItem, Project, CompanySettings, ExpenseRecord, QuoteRecord, ScheduleTask } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
-import {
-  GUATEMALA_DEPARTMENTS_INDEX,
-  GUATEMALA_BASE_MARKET_CATALOGUE,
-  calculateRegionalPrice,
-  adjustApuDirectCostsForDepartment,
-  MarketMaterialItem,
+adjustApuDirectCostsForDepartment,
+calculateRegionalPrice,
+GUATEMALA_BASE_MARKET_CATALOGUE,
+GUATEMALA_DEPARTMENTS_INDEX
 } from '@/lib/guatemalaMarketData';
+import { APUItem,CompanySettings,ExpenseRecord,Project,QuoteRecord,ScheduleTask } from '@/lib/types';
+import {
+AlertTriangle,
+Calculator,
+Check,
+Eye,
+Info,
+Layers,
+MapPin,
+Plus,
+RotateCcw,
+Search,
+ShieldCheck,
+Sparkles,
+Trash2,
+TrendingUp
+} from 'lucide-react';
+import React,{ useState } from 'react';
 
 interface BudgetAndAPUProps {
   budgetItems: APUItem[];

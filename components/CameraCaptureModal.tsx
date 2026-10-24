@@ -1,22 +1,16 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
 import {
-  Camera,
-  CameraOff,
-  RotateCcw,
-  Check,
-  X,
-  Upload,
-  MapPin,
-  Calendar,
-  Clock,
-  Sparkles,
-  AlertCircle,
-  HardHat,
-  Receipt,
-  Eye,
+Camera,
+CameraOff,
+Check,
+MapPin,
+Receipt,
+RotateCcw,
+Upload,
+X
 } from 'lucide-react';
+import React,{ useCallback,useEffect,useRef,useState } from 'react';
 
 interface CameraCaptureModalProps {
   isOpen: boolean;
@@ -47,6 +41,8 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const cameraRequestIdRef = useRef(0);
 
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -62,11 +58,14 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
 
   // Active tab: 'camera' vs 'upload'
   const [inputTab, setInputTab] = useState<'camera' | 'upload'>('camera');
+  const defaultLatitude = defaultLocation?.lat;
+  const defaultLongitude = defaultLocation?.lng;
 
   // Audio shutter effect using Web Audio API
   const playShutterSound = () => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const audioWindow = window as Window & { webkitAudioContext?: typeof AudioContext };
+      const AudioCtx = window.AudioContext || audioWindow.webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
       const osc = ctx.createOscillator();
@@ -90,7 +89,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   };
 
   // Acquire GPS Location
-  const requestLocation = () => {
+  const requestLocation = useCallback(() => {
     setGpsStatus('searching');
     if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -102,8 +101,8 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
           setGpsStatus('ready');
         },
         () => {
-          if (defaultLocation) {
-            setCoords(defaultLocation);
+          if (defaultLatitude !== undefined && defaultLongitude !== undefined) {
+            setCoords({ lat: defaultLatitude, lng: defaultLongitude });
           } else {
             setCoords({ lat: 14.6349, lng: -90.5069 }); // Guatemala City
           }
@@ -112,14 +111,27 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         { enableHighAccuracy: true, timeout: 6000 }
       );
     } else {
-      setCoords(defaultLocation || { lat: 14.6349, lng: -90.5069 });
+      setCoords({
+        lat: defaultLatitude ?? 14.6349,
+        lng: defaultLongitude ?? -90.5069,
+      });
       setGpsStatus('fallback');
     }
-  };
+  }, [defaultLatitude, defaultLongitude]);
 
-  // Start Camera
-  const startCameraStream = async (targetFacing: 'environment' | 'user') => {
+  const stopCameraStream = useCallback(() => {
+    cameraRequestIdRef.current += 1;
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    setStream(null);
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
+  const startCameraStream = useCallback(async (targetFacing: 'environment' | 'user') => {
     stopCameraStream();
+    const requestId = cameraRequestIdRef.current;
     setCameraError(null);
 
     try {
@@ -136,34 +148,31 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         audio: false,
       });
 
+      if (requestId !== cameraRequestIdRef.current) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      streamRef.current = mediaStream;
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         videoRef.current.play().catch(() => {});
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (requestId !== cameraRequestIdRef.current) return;
       console.warn('getUserMedia error:', err);
       let msg = 'No se pudo activar la cámara del dispositivo.';
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      const errorName = err instanceof Error ? err.name : '';
+      if (errorName === 'NotAllowedError' || errorName === 'PermissionDeniedError') {
         msg = 'Permiso denegado para acceder a la cámara. Permita el acceso a la cámara o use la opción de subir archivo.';
-      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      } else if (errorName === 'NotFoundError' || errorName === 'DevicesNotFoundError') {
         msg = 'No se encontró ninguna cámara conectada en este equipo.';
       }
       setCameraError(msg);
       setInputTab('upload');
     }
-  };
-
-  // Stop Camera
-  const stopCameraStream = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      setStream(null);
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-  };
+  }, [stopCameraStream]);
 
   useEffect(() => {
     if (isOpen) {
@@ -179,15 +188,12 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     return () => {
       stopCameraStream();
     };
-  }, [isOpen, facingMode]);
+  }, [isOpen, facingMode, inputTab, requestLocation, startCameraStream, stopCameraStream]);
 
   // Toggle Camera Facing Mode
   const handleToggleFacingMode = () => {
     const nextFacing = facingMode === 'environment' ? 'user' : 'environment';
     setFacingMode(nextFacing);
-    if (inputTab === 'camera') {
-      startCameraStream(nextFacing);
-    }
   };
 
   // Capture Snapshot from Video Stream
@@ -226,7 +232,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       const timeStr = now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
       ctx.save();
-      const bannerHeight = Math.max(48, Math.round(height * 0.08));
+      const bannerHeight = Math.max(58, Math.round(height * 0.09));
       ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
       ctx.fillRect(0, height - bannerHeight, width, bannerHeight);
 
@@ -235,17 +241,22 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       ctx.font = `bold ${fontSize}px sans-serif`;
       ctx.textAlign = 'left';
 
-      if (mode === 'receipt') {
-        ctx.fillText(`COMPROBANTE / FACTURA FEL • ${dateStr} ${timeStr}`, 16, height - bannerHeight / 2 + fontSize / 3);
-      } else {
-        ctx.fillText(`CONSTRUCTERP • ${projectCode} • ${dateStr} ${timeStr}`, 16, height - bannerHeight / 2 + fontSize / 3);
-      }
+      const firstLineY = height - bannerHeight + fontSize + 6;
+      const secondLineY = height - 8;
+      const primaryWatermark = mode === 'receipt'
+        ? `COMPROBANTE / FACTURA FEL • ${dateStr} ${timeStr}`
+        : `CONSTRUCTERP • ${projectCode} • ${dateStr} ${timeStr}`;
+      ctx.fillText(primaryWatermark, 16, firstLineY, width - 32);
 
+      if (mode !== 'receipt') {
+        ctx.font = `${fontSize - 1}px sans-serif`;
+        ctx.fillText(`CAPATAZ: ${foremanName}`, 16, secondLineY, width / 2 - 24);
+      }
       if (coords) {
         ctx.textAlign = 'right';
         ctx.font = `${fontSize - 1}px monospace`;
         ctx.fillStyle = '#38bdf8';
-        ctx.fillText(`GPS: ${coords.lat.toFixed(4)}°N, ${coords.lng.toFixed(4)}°W`, width - 16, height - bannerHeight / 2 + fontSize / 3);
+        ctx.fillText(`GPS: ${coords.lat.toFixed(4)}°N, ${coords.lng.toFixed(4)}°W`, width - 16, secondLineY, width / 2 - 24);
       }
       ctx.restore();
     }
@@ -328,10 +339,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         {!previewDataUrl && (
           <div className="flex items-center border-b border-slate-200 bg-slate-50 px-4 pt-2 gap-2 text-xs">
             <button
-              onClick={() => {
-                setInputTab('camera');
-                startCameraStream(facingMode);
-              }}
+              onClick={() => setInputTab('camera')}
               className={`pb-2 px-3 font-semibold border-b-2 transition flex items-center gap-1.5 cursor-pointer ${
                 inputTab === 'camera'
                   ? 'border-blue-600 text-blue-600'
@@ -342,10 +350,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
               Cámara en Vivo
             </button>
             <button
-              onClick={() => {
-                setInputTab('upload');
-                stopCameraStream();
-              }}
+              onClick={() => setInputTab('upload')}
               className={`pb-2 px-3 font-semibold border-b-2 transition flex items-center gap-1.5 cursor-pointer ${
                 inputTab === 'upload'
                   ? 'border-blue-600 text-blue-600'
@@ -436,6 +441,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                   <div className="bg-slate-900/80 backdrop-blur-xs text-sky-300 text-[10px] px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1 font-mono">
                     <MapPin className="w-3 h-3 text-sky-400" />
                     {coords.lat.toFixed(4)}°N, {coords.lng.toFixed(4)}°W
+                    <span className="font-sans">
+                      {gpsStatus === 'ready' ? 'GPS fijo' : gpsStatus === 'fallback' ? 'Referencia' : 'Buscando'}
+                    </span>
                   </div>
                 )}
               </div>

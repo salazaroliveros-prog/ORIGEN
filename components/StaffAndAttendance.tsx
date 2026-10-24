@@ -1,34 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Users,
-  Plus,
-  CheckCircle2,
-  MapPin,
-  Navigation,
-  ShieldCheck,
-  AlertTriangle,
-  XCircle,
-  Clock,
-  Trash2,
-  Building2,
-  Compass,
-  Check,
-  Filter,
-  Smartphone,
-  Calendar,
-  BarChart3,
-} from 'lucide-react';
-import { Employee, AttendanceRecord, Project } from '@/lib/types';
-import { formatGTQ, initialCompanySettings } from '@/lib/data';
 import { LaborProductivityChart } from '@/components/LaborProductivityChart';
+import { formatGTQ,initialCompanySettings } from '@/lib/data';
 import {
-  calculateDistanceMeters,
-  validateProjectGeofence,
-  getCurrentGpsPosition,
-  DEFAULT_GEOFENCE_RADIUS_METERS,
+DEFAULT_GEOFENCE_RADIUS_METERS,
+getCurrentGpsPosition,
+validateProjectGeofence
 } from '@/lib/geofencing';
+import { AttendanceRecord,Employee,Project } from '@/lib/types';
+import {
+AlertTriangle,
+BarChart3,
+Check,
+CheckCircle2,
+Clock,
+Compass,
+Filter,
+MapPin,
+Navigation,
+Plus,
+ShieldCheck,
+Smartphone,
+Trash2,
+XCircle
+} from 'lucide-react';
+import React,{ useState } from 'react';
 
 interface StaffAndAttendanceProps {
   employees: Employee[];

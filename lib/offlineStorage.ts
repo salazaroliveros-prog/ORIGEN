@@ -1,4 +1,4 @@
-import { OfflineQueueItem, AttendanceRecord, Project } from './types';
+import { OfflineQueueItem } from './types';
 
 const PREFIX = 'constructerp_';
 const QUEUE_KEY = `${PREFIX}offline_queue`;

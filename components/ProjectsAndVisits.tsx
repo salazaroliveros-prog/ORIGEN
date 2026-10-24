@@ -1,39 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Building2,
-  Plus,
-  MapPin,
-  Calendar,
-  HardHat,
-  ShieldCheck,
-  CheckCircle2,
-  Clock,
-  CloudSun,
-  PenTool,
-  Printer,
-  ChevronRight,
-  X,
-  FileText,
-  UserCheck,
-  Camera,
-  Image as ImageIcon,
-  Eye,
-  Trash2,
-  Navigation,
-  Radio,
-  LocateFixed,
-  ExternalLink,
-} from 'lucide-react';
-import { Project, FieldVisit, FieldPhoto, CompanySettings, MachineryLog, ExpenseRecord, AttendanceRecord } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
-import { captureExactFieldGps, ExactGpsCapture } from '@/lib/geofencing';
-import { SignaturePad, SignatureResult } from '@/components/SignaturePad';
-import { SignatureCanvas, SignatureCanvasResult } from '@/components/SignatureCanvas';
-import { GoogleMapsSafetyView } from '@/components/GoogleMapsSafetyView';
-import { FieldPhotoGallery } from '@/components/FieldPhotoGallery';
 import { CameraCaptureModal } from '@/components/CameraCaptureModal';
+import { FieldPhotoGallery } from '@/components/FieldPhotoGallery';
+import { GoogleMapsSafetyView } from '@/components/GoogleMapsSafetyView';
+import { SignatureCanvas } from '@/components/SignatureCanvas';
+import { SignatureResult } from '@/components/SignaturePad';
+import { formatGTQ,formatUSD } from '@/lib/data';
+import { captureExactFieldGps,ExactGpsCapture } from '@/lib/geofencing';
+import { AttendanceRecord,CompanySettings,ExpenseRecord,FieldPhoto,FieldVisit,MachineryLog,Project } from '@/lib/types';
+import {
+Camera,
+CheckCircle2,
+ExternalLink,
+Eye,
+FileText,
+Image as ImageIcon,
+LocateFixed,
+MapPin,
+PenTool,
+Plus,
+Printer,
+Radio,
+ShieldCheck,
+X
+} from 'lucide-react';
+import React,{ useState } from 'react';
 
 interface ProjectsAndVisitsProps {
   projects: Project[];
@@ -100,8 +91,9 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
   };
 
   const handleOpenNewVisitModal = () => {
+    setSignedData(null);
+    setVisitAttachedPhotos([]);
     setIsNewVisitModalOpen(true);
-    // Automatically trigger GPS acquisition immediately
     handleAcquireExactGps(activeProject.lat, activeProject.lng);
   };
 
@@ -357,11 +349,7 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
             </button>
           ) : (
             <button
-              onClick={() => {
-                setSignedData(null);
-                setVisitAttachedPhotos([]);
-                setIsNewVisitModalOpen(true);
-              }}
+              onClick={handleOpenNewVisitModal}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-sm cursor-pointer"
             >
               <PenTool className="w-4 h-4" /> Nueva Bitácora con Firma
@@ -810,7 +798,17 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Condición Climática</label>
                   <select
                     value={visitWeather}
-                    onChange={(e: any) => setVisitWeather(e.target.value)}
+                    onChange={(event) => {
+                      const weather = event.target.value;
+                      if (
+                        weather === 'Soleado' ||
+                        weather === 'Nublado' ||
+                        weather === 'Lluvia Moderada' ||
+                        weather === 'Tormenta Fuerte'
+                      ) {
+                        setVisitWeather(weather);
+                      }
+                    }}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
                   >
                     <option value="Soleado">Soleado</option>

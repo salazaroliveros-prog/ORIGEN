@@ -1,14 +1,27 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { Download, Apple, Monitor, CheckCircle2, X, Command } from 'lucide-react';
+import { Apple,Command,Download,Monitor } from 'lucide-react';
+import React,{ useCallback,useEffect,useState } from 'react';
 
 interface PWAInstallPromptProps {
   className?: string;
 }
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+}
+
+function isBeforeInstallPromptEvent(event: Event): event is BeforeInstallPromptEvent {
+  return (
+    'prompt' in event &&
+    typeof event.prompt === 'function' &&
+    'userChoice' in event
+  );
+}
+
 export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = '' }) => {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -16,13 +29,16 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
 
   useEffect(() => {
     const ua = navigator.userAgent;
-    const isIOS = /iPad|iPhone|iPod/.test(ua) && !((window as any).MSStream);
+    const isIOS =
+      /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     setIsIOS(isIOS);
     setIsAndroid(/android/i.test(ua));
     setIsDesktop(!/Mobile|Android|iPhone|iPad|iPod/.test(ua));
   }, []);
 
   const handleBeforeInstallPrompt = useCallback((e: Event) => {
+    if (!isBeforeInstallPromptEvent(e)) return;
     e.preventDefault();
     setDeferredPrompt(e);
     setShown(true);

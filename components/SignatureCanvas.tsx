@@ -1,23 +1,21 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import {
-  PenTool,
-  RotateCcw,
-  CheckCircle2,
-  X,
-  MapPin,
-  Undo2,
-  AlertCircle,
-  ShieldCheck,
-  Calendar,
-  UserCheck,
-  Sparkles,
-  Loader2,
-  FileCheck,
-} from 'lucide-react';
+import { auth,saveFieldVisitToFirestore } from '@/lib/firebaseService';
 import { FieldVisit } from '@/lib/types';
-import { saveFieldVisitToFirestore, auth } from '@/lib/firebaseService';
+import {
+AlertCircle,
+Calendar,
+CheckCircle2,
+FileCheck,
+Loader2,
+MapPin,
+PenTool,
+RotateCcw,
+ShieldCheck,
+Undo2,
+X
+} from 'lucide-react';
+import React,{ useCallback,useEffect,useRef,useState } from 'react';
 
 export interface SignatureCanvasResult {
   dataUrl: string;
