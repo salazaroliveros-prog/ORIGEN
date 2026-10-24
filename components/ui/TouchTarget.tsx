@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
-interface TouchTargetProps {
+interface TouchTargetProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> {
   children: React.ReactNode;
   onPress?: () => void;
   minSize?: number;
   haptic?: boolean;
-  className?: string;
 }
 
 export const TouchTarget: React.FC<TouchTargetProps> = ({
@@ -16,30 +15,30 @@ export const TouchTarget: React.FC<TouchTargetProps> = ({
   minSize = 44,
   haptic = true,
   className = '',
+  style,
+  onPointerDown,
+  ...buttonProps
 }) => {
-  const [isPressed, setIsPressed] = useState(false);
-
-  const handlePressStart = () => {
-    setIsPressed(true);
-    if (haptic && navigator.vibrate) navigator.vibrate(10);
-  };
-
-  const handlePressEnd = () => {
-    setIsPressed(false);
-    if (onPress) onPress();
-  };
-
   return (
-    <div
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onTouchCancel={() => setIsPressed(false)}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      className={`relative group ${className} min-w-[${minSize}px] min-h-[${minSize}px] ${isPressed ? 'scale-95 opacity-80' : ''}`}
+    <button
+      type="button"
+      onClick={onPress}
+      onPointerDown={(event) => {
+        onPointerDown?.(event);
+        if (
+          haptic &&
+          event.pointerType === 'touch' &&
+          typeof navigator.vibrate === 'function'
+        ) {
+          navigator.vibrate(10);
+        }
+      }}
+      style={{ ...style, minWidth: minSize, minHeight: minSize }}
+      className={`touch-target relative group active:scale-95 active:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${className}`}
+      {...buttonProps}
     >
       <span className="absolute inset-0 bg-white/[0.05] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></span>
       {children}
-    </div>
+    </button>
   );
 };

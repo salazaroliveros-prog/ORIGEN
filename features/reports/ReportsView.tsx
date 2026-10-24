@@ -36,7 +36,7 @@ export function ReportsView({ projects, expenses, company }: { projects: Project
             />
           </div>
           <p className="mt-3 text-xs text-slate-400 text-center">
-            El logo de carta membretada se utiliza en reportes PDF exportados y actas de obra.
+            Este logotipo aparece en los encabezados de los reportes PDF exportados.
           </p>
         </Card>
       </div>

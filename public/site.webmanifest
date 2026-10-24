@@ -36,29 +36,13 @@
       "src": "/assets/branding/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/assets/branding/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/assets/branding/web-banner-logo.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "label": "ConstructERP Guatemala - Dashboard Principal",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/assets/branding/web-banner-logo.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "label": "ConstructERP Guatemala - Vista Móvil",
-      "form_factor": "narrow"
+      "purpose": "any"
     }
   ],
   "shortcuts": [

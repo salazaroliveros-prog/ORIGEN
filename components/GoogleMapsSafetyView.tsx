@@ -360,7 +360,7 @@ export const GoogleMapsSafetyView: React.FC<GoogleMapsSafetyViewProps> = ({
                   </div>
 
                   <p className="text-xs text-slate-600 font-medium italic">
-                    "{alert.condition}"
+                    &quot;{alert.condition}&quot;
                   </p>
 
                   <div className="pt-2 border-t border-slate-200/80 space-y-1.5">

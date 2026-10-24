@@ -1,5 +1,6 @@
 import { Project, ExpenseRecord, CompanySettings } from './types';
 import { formatGTQ, formatUSD } from './data';
+import { loadReportLetterheadLogo } from './pdfBranding';
 
 export interface MonthlyHistogramItem {
   mes: string;
@@ -31,6 +32,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   } = options;
 
   const { jsPDF } = await import('jspdf');
+  const reportLogo = await loadReportLetterheadLogo();
 
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -66,6 +68,8 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     doc.setFillColor(15, 23, 42);
     doc.rect(margin, y, usableWidth, 24, 'F');
 
+    doc.addImage(reportLogo, 'PNG', margin + 2, y + 3, 18, 18);
+
     // Amber-500 accent stripe
     doc.setFillColor(245, 158, 11);
     doc.rect(margin, y + 23, usableWidth, 1.2, 'F');
@@ -74,19 +78,19 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.text((company.legalName || 'CONSTRUCTERP GUATEMALA').toUpperCase(), margin + 4, y + 7);
+    doc.text((company.legalName || 'CONSTRUCTERP GUATEMALA').toUpperCase(), margin + 22, y + 7);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(203, 213, 225); // slate-300
     doc.text(
       `NIT: ${company.nit}  •  ${company.address}  •  Tel: ${company.phone}`,
-      margin + 4,
+      margin + 22,
       y + 13
     );
     doc.text(
       `Arq. Responsable: ${company.architectName} (${company.architectColNumber})  •  Moneda: ${currency}`,
-      margin + 4,
+      margin + 22,
       y + 19
     );
 

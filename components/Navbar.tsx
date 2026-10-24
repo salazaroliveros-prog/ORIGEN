@@ -16,19 +16,16 @@ import {
   Mail,
   Sparkles,
   Settings,
-  ShieldCheck,
-  Globe,
   LogOut,
   LogIn,
-  Menu,
   X,
   ChevronDown,
-  Sliders,
 } from 'lucide-react';
 import { CompanySettings, Project } from '@/lib/types';
 import { User } from 'firebase/auth';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { FocusTrap } from '@/components/a11y/FocusTrap';
 
 interface NavbarProps {
   company: CompanySettings;
@@ -37,8 +34,6 @@ interface NavbarProps {
   onSelectProject: (id: string) => void;
   activeTab: string;
   onSelectTab: (tab: string) => void;
-  currency: 'GTQ' | 'USD';
-  onToggleCurrency: () => void;
   onOpenAiAssistant: () => void;
   onOpenBranding: () => void;
   currentUser: User | null;
@@ -46,7 +41,6 @@ interface NavbarProps {
   onSignOut: () => void;
   isMobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
-  remindersCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -56,8 +50,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectProject,
   activeTab,
   onSelectTab,
-  currency,
-  onToggleCurrency,
   onOpenAiAssistant,
   onOpenBranding,
   currentUser,
@@ -65,7 +57,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSignOut,
   isMobileSidebarOpen,
   onToggleMobileSidebar,
-  remindersCount = 0,
 }) => {
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
@@ -110,7 +101,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Navigation List */}
-        <nav className="flex-1 py-6 space-y-1.5 overflow-y-auto no-scrollbar">
+        <nav
+          aria-label="Navegación principal"
+          className="flex-1 py-6 space-y-1.5 overflow-y-auto no-scrollbar"
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -120,6 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 variant={isActive ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => onSelectTab(tab.id)}
+                aria-current={isActive ? 'page' : undefined}
                 className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_12px_rgba(56,189,248,0.3)]' : ''}`}
               >
                 <div className="flex items-center gap-3 w-full">
@@ -169,80 +164,145 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ================= MOBILE DRAWER SIDEBAR ================= */}
       {isMobileSidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
-          <div
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
-            onClick={onToggleMobileSidebar}
-          />
-          <aside className="relative w-72 max-w-[85vw] bg-slate-950/95 backdrop-blur-2xl border-r border-white/15 p-6 flex flex-col z-50 h-full overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-md">
-                  <Building2 className="w-5 h-5 text-white" />
+        <FocusTrap onEscape={onToggleMobileSidebar}>
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            <div
+              aria-hidden="true"
+              className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+              onClick={onToggleMobileSidebar}
+            />
+            <aside
+              id="mobile-navigation"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mobile-navigation-title"
+              className="relative w-72 max-w-[85vw] bg-slate-950/95 backdrop-blur-2xl border-r border-white/15 p-6 flex flex-col z-50 h-full overflow-y-auto"
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-md">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 id="mobile-navigation-title" className="text-base font-bold text-white leading-tight">
+                      Menú de navegación
+                    </h2>
+                    <span className="font-mono text-[9px] uppercase text-amber-400 font-bold">Guatemala</span>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-base font-bold text-white leading-tight">ConstructERP</h2>
-                  <span className="font-mono text-[9px] uppercase text-amber-400 font-bold">Guate Glass</span>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onClick={onToggleMobileSidebar}
+                  className="p-1.5 text-slate-300 hover:text-white hover:bg-white/[0.05]"
+                  aria-label="Cerrar menú de navegación"
+                >
+                  <X className="w-5 h-5" aria-hidden="true" />
+                </Button>
+              </div>
+
+              <nav
+                aria-label="Navegación principal"
+                className="flex-1 py-4 space-y-1 overflow-y-auto"
+              >
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <Button
+                      key={tab.id}
+                      variant={isActive ? 'primary' : 'ghost'}
+                      size="md"
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={() => {
+                        onSelectTab(tab.id);
+                        if (onToggleMobileSidebar) onToggleMobileSidebar();
+                      }}
+                      className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]' : ''}`}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
+                        <span>{tab.label}</span>
+                      </div>
+                      {tab.badge && (
+                        <Badge variant="primary" size="sm">{tab.badge}</Badge>
+                      )}
+                    </Button>
+                  );
+                })}
+              </nav>
+              <div className="shrink-0 space-y-3 border-t border-white/10 pt-4">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="mobile-project-select"
+                    className="text-xs font-semibold text-slate-300"
+                  >
+                    Proyecto activo
+                  </label>
+                  <select
+                    id="mobile-project-select"
+                    value={activeProjectId}
+                    onChange={(event) => onSelectProject(event.target.value)}
+                    disabled={projects.length === 0}
+                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 disabled:opacity-60"
+                  >
+                    {projects.length === 0 ? (
+                      <option value="">Sin proyectos disponibles</option>
+                    ) : (
+                      projects.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.code} - {project.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <p className="truncate text-xs text-slate-400">
+                    {currentUser?.email || 'Sesión no iniciada'}
+                  </p>
+                  {currentUser ? (
+                    <Button
+                      variant="danger"
+                      size="md"
+                      onClick={() => {
+                        onSignOut();
+                        onToggleMobileSidebar?.();
+                      }}
+                      className="w-full justify-start"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
+                      Cerrar sesión
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="md"
+                      onClick={() => {
+                        onSignIn();
+                        onToggleMobileSidebar?.();
+                      }}
+                      className="w-full justify-start"
+                    >
+                      <LogIn className="mr-2 h-4 w-4" aria-hidden="true" />
+                      Iniciar sesión
+                    </Button>
+                  )}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onToggleMobileSidebar}
-                className="p-1.5 text-slate-300 hover:text-white hover:bg-white/[0.05]"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <Button
-                    key={tab.id}
-                    variant={isActive ? 'primary' : 'ghost'}
-                    size="sm"
-                    onClick={() => {
-                      onSelectTab(tab.id);
-                      if (onToggleMobileSidebar) onToggleMobileSidebar();
-                    }}
-                    className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]' : ''}`}
-                  >
-                    <div className="flex items-center gap-3 w-full">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
-                      <span>{tab.label}</span>
-                    </div>
-                    {tab.badge && (
-                      <Badge variant="primary" size="sm">{tab.badge}</Badge>
-                    )}
-                  </Button>
-                );
-              })}
-            </nav>
-          </aside>
-        </div>
+            </aside>
+          </div>
+        </FocusTrap>
       )}
 
       {/* ================= GLASS TOP NAV BAR (Desktop only - MobileHeader handles mobile) ================= */}
       <header className="hidden lg:flex sticky top-0 z-40 bg-slate-950/40 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 lg:px-8 py-3 lg:ml-[280px]">
         <div className="flex items-center justify-between gap-4">
-          {/* Left: Mobile menu toggle & View Meta */}
+          {/* Current view */}
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleMobileSidebar}
-              className="lg:hidden p-2 rounded-lg text-slate-200 hover:bg-white/[0.05]"
-              title="Abrir Menú"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-
             <div className="flex flex-col">
               <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
-                VISTA DE {currentTabName.toUpperCase()} / {currency === 'GTQ' ? 'Q (Quetzales)' : '$ (USD)'}
+                VISTA DE {currentTabName.toUpperCase()} / Q (Quetzales)
               </span>
               <span className="text-xs font-bold text-white hidden sm:block">
                 {activeProject ? `${activeProject.code} - ${activeProject.name}` : 'ConstructERP Guatemala'}
@@ -297,17 +357,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               )}
             </div>
-
-            {/* Currency Pill Toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onToggleCurrency}
-              className="flex items-center gap-2 text-xs font-bold text-amber-400"
-            >
-              <Globe className="w-3.5 h-3.5 text-amber-400" />
-              <span>{currency === 'GTQ' ? 'Q (GTQ)' : '$ (USD)'}</span>
-            </Button>
 
             {/* User Pill with Status Dot */}
             <div className="user-pill flex items-center gap-2 px-3 py-2 rounded-full bg-white/[0.06] border border-white/15 text-xs text-slate-200">

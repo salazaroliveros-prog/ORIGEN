@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--max-old-space-size=1024' next dev -p 3000 -H 0.0.0.0",
-    "build": "rm -rf .next dist && NODE_OPTIONS='--max-old-space-size=1024' next build && (mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/ 2>/dev/null || true) && (cp -r public .next/standalone/ 2>/dev/null || true) && (mkdir -p dist && cp -r .next/* dist/ 2>/dev/null || true) && (cp -r public dist/ 2>/dev/null || true)",
+    "dev": "next dev -p 3000 -H 0.0.0.0",
+    "prebuild": "node -e \"const fs=require('node:fs');fs.rmSync('.next',{recursive:true,force:true});fs.rmSync('dist',{recursive:true,force:true})\"",
+    "build": "next build && node -e \"const fs=require('node:fs'),path=require('node:path');fs.mkdirSync('.next/standalone/.next',{recursive:true});fs.cpSync('.next/static','.next/standalone/.next/static',{recursive:true});fs.cpSync('public','.next/standalone/public',{recursive:true});fs.mkdirSync('dist',{recursive:true});for(const entry of fs.readdirSync('.next'))fs.cpSync(path.join('.next',entry),path.join('dist',entry),{recursive:true});fs.cpSync('public','dist/public',{recursive:true})\"",
     "start": "node server.ts",
     "lint": "eslint .",
     "test": "vitest run"
