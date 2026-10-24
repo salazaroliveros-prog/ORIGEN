@@ -733,7 +733,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                                   </span>
                                   {rec.overrideReason && (
                                     <p className="text-[10px] text-amber-800 italic max-w-[140px] truncate" title={rec.overrideReason}>
-                                      "{rec.overrideReason}"
+                                      &quot;{rec.overrideReason}&quot;
                                     </p>
                                   )}
                                 </div>

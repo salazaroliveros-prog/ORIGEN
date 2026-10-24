@@ -163,9 +163,13 @@ export async function deleteProjectFromFirestore(projectId: string) {
   }
 }
 
-export async function deleteExpensesByProject(projectId: string): Promise<boolean> {
+export async function deleteExpensesByProject(projectId: string, userId: string): Promise<boolean> {
   try {
-    const q = query(collection(db, 'expenses'), where('projectId', '==', projectId));
+    const q = query(
+      collection(db, 'expenses'),
+      where('projectId', '==', projectId),
+      where('authorId', '==', userId)
+    );
     const snapshot = await getDocs(q);
     const batch = writeBatch(db);
     snapshot.forEach((docSnap) => {
@@ -179,9 +183,13 @@ export async function deleteExpensesByProject(projectId: string): Promise<boolea
   }
 }
 
-export async function deleteFieldVisitsByProject(projectId: string): Promise<boolean> {
+export async function deleteFieldVisitsByProject(projectId: string, userId: string): Promise<boolean> {
   try {
-    const q = query(collection(db, 'fieldVisits'), where('projectId', '==', projectId));
+    const q = query(
+      collection(db, 'fieldVisits'),
+      where('projectId', '==', projectId),
+      where('authorId', '==', userId)
+    );
     const snapshot = await getDocs(q);
     const batch = writeBatch(db);
     snapshot.forEach((docSnap) => {
@@ -195,9 +203,13 @@ export async function deleteFieldVisitsByProject(projectId: string): Promise<boo
   }
 }
 
-export async function deleteAttendanceByProject(projectId: string): Promise<boolean> {
+export async function deleteAttendanceByProject(projectId: string, userId: string): Promise<boolean> {
   try {
-    const q = query(collection(db, 'attendance'), where('projectId', '==', projectId));
+    const q = query(
+      collection(db, 'attendance'),
+      where('projectId', '==', projectId),
+      where('authorId', '==', userId)
+    );
     const snapshot = await getDocs(q);
     const batch = writeBatch(db);
     snapshot.forEach((docSnap) => {
