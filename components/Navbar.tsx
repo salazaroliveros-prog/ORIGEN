@@ -244,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     value={activeProjectId}
                     onChange={(event) => onSelectProject(event.target.value)}
                     disabled={projects.length === 0}
-                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 disabled:opacity-60"
+                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-400 disabled:opacity-60"
                   >
                     {projects.length === 0 ? (
                       <option value="">Sin proyectos disponibles</option>

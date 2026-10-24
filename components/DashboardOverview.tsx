@@ -1,47 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Building2,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  ShieldCheck,
-  CloudLightning,
-  AlertTriangle,
-  ArrowUpRight,
-  HardHat,
-  Users,
-  CheckCircle2,
-  Calendar,
-  BarChart3,
-  Layers,
-  Activity,
-  AlertCircle,
-  Clock,
-  Sparkles,
-  Info,
-} from 'lucide-react';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  Cell,
-  ReferenceLine,
-} from 'recharts';
-import { Project, ExpenseRecord, AiRecommendation, CompanySettings, Employee, AttendanceRecord, ScheduleTask, APUItem } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
 import { PhysicalVsFinancialChart } from '@/components/PhysicalVsFinancialChart';
+import { formatGTQ,formatUSD } from '@/lib/data';
+import { AiRecommendation,APUItem,AttendanceRecord,CompanySettings,Employee,ExpenseRecord,Project,ScheduleTask } from '@/lib/types';
+import {
+ArrowUpRight,
+BarChart3,
+CloudLightning,
+Layers,
+ShieldCheck,
+TrendingUp
+} from 'lucide-react';
+import React,{ useState } from 'react';
+import {
+Area,
+AreaChart,
+Bar,
+BarChart,
+CartesianGrid,
+Cell,
+Legend,
+ReferenceLine,
+ResponsiveContainer,
+Tooltip,
+XAxis,
+YAxis
+} from 'recharts';
 const D3BudgetUtilizationChart = React.lazy(() =>
   import('@/components/D3BudgetUtilizationChart').then((m) => ({ default: m.D3BudgetUtilizationChart }))
 );

@@ -1,34 +1,26 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import {
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  Sliders,
-  Plus,
-  Bell,
-  Target,
-  ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  TrendingUp,
-  Volume2,
-  Calendar,
-  Layers,
-  Award,
-  ChevronRight,
-  Filter,
-  RefreshCw,
-} from 'lucide-react';
-import { ScheduleTask, Project, Milestone, TaskReminder } from '@/lib/types';
-import { initialMilestones, initialTaskReminders } from '@/lib/data';
 import {
   calculateOverallProjectProgress,
-  validateTaskWorkflowFlow,
   playNotificationChime,
+  validateTaskWorkflowFlow,
 } from '@/lib/notificationService';
+import { Milestone, Project, ScheduleTask, TaskReminder } from '@/lib/types';
+import {
+  AlertTriangle,
+  Award,
+  Bell,
+  Calendar,
+  CheckCircle2,
+  Plus,
+  ShieldCheck,
+  Sliders,
+  Target,
+  Trash2,
+  Volume2,
+  X,
+} from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 
 interface GanttScheduleProps {
   tasks: ScheduleTask[];
@@ -42,7 +34,6 @@ interface GanttScheduleProps {
   onAddReminder?: (reminder: TaskReminder) => void;
   onToggleReminder?: (id: string) => void;
   onDeleteReminder?: (id: string) => void;
-  onOpenReminderModal?: (preselectedTaskId?: string) => void;
 }
 
 export const GanttSchedule: React.FC<GanttScheduleProps> = ({
@@ -57,17 +48,12 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
   onAddReminder,
   onToggleReminder,
   onDeleteReminder,
-  onOpenReminderModal,
 }) => {
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
   // Local state fallbacks if parent does not pass full handlers
-  const [localMilestones, setLocalMilestones] = useState<Milestone[]>(
-    propMilestones && propMilestones.length > 0 ? propMilestones : initialMilestones
-  );
-  const [localReminders, setLocalReminders] = useState<TaskReminder[]>(
-    propReminders && propReminders.length > 0 ? propReminders : initialTaskReminders
-  );
+  const [localMilestones, setLocalMilestones] = useState<Milestone[]>(propMilestones ?? []);
+  const [localReminders, setLocalReminders] = useState<TaskReminder[]>(propReminders ?? []);
   const [viewMode, setViewMode] = useState<'tasks' | 'milestones' | 'roadmap' | 'reminders'>('tasks');
   const [statusFilter, setStatusFilter] = useState<'all' | 'in_progress' | 'completed' | 'critical'>('all');
   const [searchFilter, setSearchFilter] = useState('');
@@ -76,18 +62,35 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskPhase, setNewTaskPhase] = useState('Estructura');
-  const [newTaskStart, setNewTaskStart] = useState('2025-05-20');
-  const [newTaskEnd, setNewTaskEnd] = useState('2025-06-15');
+  const [newTaskStart, setNewTaskStart] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newTaskEnd, setNewTaskEnd] = useState(() => {
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+    return endDate.toISOString().slice(0, 10);
+  });
   const [newTaskCritical, setNewTaskCritical] = useState(false);
   const [newTaskAssigned, setNewTaskAssigned] = useState('');
   const [newTaskPredecessor, setNewTaskPredecessor] = useState('');
   const [newTaskWeight, setNewTaskWeight] = useState(10);
+  const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
+  const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
+  const [newMilestonePhase, setNewMilestonePhase] = useState('Estructura');
+  const [newMilestoneDate, setNewMilestoneDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newMilestoneWeight, setNewMilestoneWeight] = useState(10);
+  const [newMilestoneDescription, setNewMilestoneDescription] = useState('');
+  const [newMilestoneDeliverable, setNewMilestoneDeliverable] = useState('');
+  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [newReminderTitle, setNewReminderTitle] = useState('');
+  const [newReminderDescription, setNewReminderDescription] = useState('');
+  const [newReminderDate, setNewReminderDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newReminderTaskId, setNewReminderTaskId] = useState('');
+  const [newReminderPriority, setNewReminderPriority] = useState<TaskReminder['priority']>('Media');
 
   // Workflow violation banner
   const [flowWarningMessage, setFlowWarningMessage] = useState<string | null>(null);
 
-  const currentMilestones = propMilestones && propMilestones.length > 0 ? propMilestones : localMilestones;
-  const currentReminders = propReminders && propReminders.length > 0 ? propReminders : localReminders;
+  const currentMilestones = propMilestones ?? localMilestones;
+  const currentReminders = propReminders ?? localReminders;
 
   // Filter tasks for active project
   const projectTasks = useMemo(() => {
@@ -106,6 +109,19 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
 
   // Update task progress and automatically sync project overall completion
   const handleUpdateTaskProgress = (taskId: string, newProgress: number) => {
+    const targetTask = tasks.find((task) => task.id === taskId);
+    if (!targetTask) return;
+
+    if (newProgress >= 100 && !targetTask.completed) {
+      const flowCheck = validateTaskWorkflowFlow(targetTask, projectTasks);
+      if (flowCheck.isBlocked) {
+        setFlowWarningMessage(flowCheck.message);
+        playNotificationChime('warning');
+        setTimeout(() => setFlowWarningMessage(null), 7000);
+        return;
+      }
+    }
+
     const updated = tasks.map((t) => {
       if (t.id === taskId) {
         const isCompleted = newProgress >= 100;
@@ -142,16 +158,6 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
   const handleToggleTaskCompleted = (taskId: string) => {
     const targetTask = tasks.find((t) => t.id === taskId);
     if (!targetTask) return;
-
-    // Check flow violation if attempting to complete without finishing predecessors
-    if (!targetTask.completed) {
-      const flowCheck = validateTaskWorkflowFlow(targetTask, projectTasks);
-      if (flowCheck.isBlocked) {
-        setFlowWarningMessage(flowCheck.message);
-        playNotificationChime('warning');
-        setTimeout(() => setFlowWarningMessage(null), 7000);
-      }
-    }
 
     const nextCompleted = !targetTask.completed;
     handleUpdateTaskProgress(taskId, nextCompleted ? 100 : 0);
@@ -216,6 +222,84 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
     setIsNewTaskModalOpen(false);
     setNewTaskName('');
     setNewTaskAssigned('');
+  };
+
+  const handleCreateMilestone = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!newMilestoneTitle.trim()) return;
+
+    const milestone: Milestone = {
+      id: `milestone-${Date.now()}`,
+      projectId: activeProjectId,
+      title: newMilestoneTitle.trim(),
+      phase: newMilestonePhase,
+      targetDate: newMilestoneDate,
+      completed: false,
+      progress: 0,
+      weightPercent: Number(newMilestoneWeight) || 10,
+      description: newMilestoneDescription.trim(),
+      deliverable: newMilestoneDeliverable.trim() || undefined,
+    };
+    const updated = [...currentMilestones, milestone];
+    if (onUpdateMilestones) onUpdateMilestones(updated);
+    else setLocalMilestones(updated);
+
+    setIsMilestoneModalOpen(false);
+    setNewMilestoneTitle('');
+    setNewMilestoneDescription('');
+    setNewMilestoneDeliverable('');
+  };
+
+  const openReminderModal = (taskId?: string) => {
+    setNewReminderTaskId(taskId ?? '');
+    setIsReminderModalOpen(true);
+  };
+
+  const handleCreateReminder = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!newReminderTitle.trim()) return;
+
+    const selectedTask = projectTasks.find((task) => task.id === newReminderTaskId);
+    const reminder: TaskReminder = {
+      id: `reminder-${Date.now()}`,
+      projectId: activeProjectId,
+      taskId: selectedTask?.id,
+      taskName: selectedTask?.name ?? 'Hito general',
+      title: newReminderTitle.trim(),
+      description: newReminderDescription.trim(),
+      targetDate: newReminderDate,
+      advanceOption: 'same_day',
+      priority: newReminderPriority,
+      channel: 'in_app',
+      enabled: true,
+      createdAt: new Date().toISOString(),
+    };
+    if (onAddReminder) onAddReminder(reminder);
+    else setLocalReminders((current) => [...current, reminder]);
+
+    setIsReminderModalOpen(false);
+    setNewReminderTitle('');
+    setNewReminderDescription('');
+  };
+
+  const handleToggleReminder = (reminderId: string) => {
+    if (onToggleReminder) {
+      onToggleReminder(reminderId);
+      return;
+    }
+    setLocalReminders((current) =>
+      current.map((reminder) =>
+        reminder.id === reminderId ? { ...reminder, enabled: !reminder.enabled } : reminder
+      )
+    );
+  };
+
+  const handleDeleteReminder = (reminderId: string) => {
+    if (onDeleteReminder) {
+      onDeleteReminder(reminderId);
+      return;
+    }
+    setLocalReminders((current) => current.filter((reminder) => reminder.id !== reminderId));
   };
 
   // Filter tasks based on view filters
@@ -372,9 +456,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
           {/* Right Action Buttons */}
           <div className="flex flex-col gap-2.5 w-full sm:w-auto shrink-0">
             <button
-              onClick={() => {
-                if (onOpenReminderModal) onOpenReminderModal();
-              }}
+              onClick={() => openReminderModal()}
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 font-bold text-xs transition cursor-pointer shadow-lg shadow-amber-500/10"
             >
               <Bell className="w-4 h-4" />
@@ -534,6 +616,11 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
           </div>
 
           <div className="divide-y divide-white/5">
+            {filteredTasks.length === 0 && (
+              <p className="p-8 text-center text-sm text-slate-400">
+                No hay tareas para mostrar. Ajusta los filtros o crea la primera actividad.
+              </p>
+            )}
             {filteredTasks.map((t) => {
               const isCompleted = t.completed || t.progress >= 100;
               const flowCheck = validateTaskWorkflowFlow(t, projectTasks);
@@ -687,11 +774,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                       </button>
 
                       <button
-                        onClick={() => {
-                          if (onOpenReminderModal) {
-                            onOpenReminderModal(t.id);
-                          }
-                        }}
+                        onClick={() => openReminderModal(t.id)}
                         className="w-full px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/20 text-amber-300 text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
                         title="Programar recordatorio para esta tarea"
                       >
@@ -725,12 +808,27 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               </div>
             </div>
 
-            <span className="font-mono text-xs font-bold text-amber-300 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-400/30">
-              {progressStats.completedMilestonesCount} / {progressStats.totalMilestonesCount} Cumplidos
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold text-amber-300 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-400/30">
+                {progressStats.completedMilestonesCount} / {progressStats.totalMilestonesCount} Cumplidos
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsMilestoneModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Nuevo hito
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {projectMilestones.length === 0 && (
+              <p className="md:col-span-2 rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm text-slate-400">
+                Aún no hay hitos para este proyecto. Crea el primero para medir el avance global.
+              </p>
+            )}
             {projectMilestones.map((m, index) => {
               const isDone = m.completed || m.progress >= 100;
               return (
@@ -814,9 +912,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
             </div>
 
             <button
-              onClick={() => {
-                if (onOpenReminderModal) onOpenReminderModal();
-              }}
+              onClick={() => openReminderModal()}
               className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition cursor-pointer flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
@@ -825,6 +921,11 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+            {currentReminders.length === 0 && (
+              <p className="md:col-span-2 rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm text-slate-400">
+                No hay recordatorios configurados para este proyecto.
+              </p>
+            )}
             {currentReminders.map((rem) => (
               <div
                 key={rem.id}
@@ -848,18 +949,226 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
 
                 <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-slate-500">
                   <span>{rem.taskName}</span>
-                  <button
-                    onClick={() => {
-                      playNotificationChime(rem.priority === 'Alta' ? 'urgent' : 'reminder');
-                    }}
-                    className="text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1 cursor-pointer"
-                  >
-                    <Volume2 className="w-3.5 h-3.5" /> Probar Alerta
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleReminder(rem.id)}
+                      className={`font-semibold cursor-pointer ${rem.enabled ? 'text-emerald-400' : 'text-slate-500'}`}
+                    >
+                      {rem.enabled ? 'Activado' : 'Pausado'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => playNotificationChime(rem.priority === 'Alta' ? 'urgent' : 'reminder')}
+                      className="text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" /> Probar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteReminder(rem.id)}
+                      aria-label={`Eliminar recordatorio ${rem.title}`}
+                      className="text-rose-400 hover:text-rose-300 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {isMilestoneModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <form
+            onSubmit={handleCreateMilestone}
+            className="w-full max-w-lg bg-slate-900 border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold text-white">Crear hito del proyecto</h3>
+              <button
+                type="button"
+                onClick={() => setIsMilestoneModalOpen(false)}
+                aria-label="Cerrar"
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <label className="block text-xs font-semibold text-slate-300">
+              Nombre del hito
+              <input
+                required
+                value={newMilestoneTitle}
+                onChange={(event) => setNewMilestoneTitle(event.target.value)}
+                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-xs font-semibold text-slate-300">
+                Fase
+                <select
+                  value={newMilestonePhase}
+                  onChange={(event) => setNewMilestonePhase(event.target.value)}
+                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                >
+                  <option>Preliminares</option>
+                  <option>Cimentación</option>
+                  <option>Estructura</option>
+                  <option>Mampostería</option>
+                  <option>Instalaciones</option>
+                  <option>Acabados & Entrega</option>
+                </select>
+              </label>
+              <label className="block text-xs font-semibold text-slate-300">
+                Fecha objetivo
+                <input
+                  type="date"
+                  required
+                  value={newMilestoneDate}
+                  onChange={(event) => setNewMilestoneDate(event.target.value)}
+                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                />
+              </label>
+            </div>
+            <label className="block text-xs font-semibold text-slate-300">
+              Ponderación del avance (%)
+              <input
+                type="number"
+                min="1"
+                max="100"
+                required
+                value={newMilestoneWeight}
+                onChange={(event) => setNewMilestoneWeight(Number(event.target.value))}
+                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+              />
+            </label>
+            <label className="block text-xs font-semibold text-slate-300">
+              Descripción
+              <textarea
+                value={newMilestoneDescription}
+                onChange={(event) => setNewMilestoneDescription(event.target.value)}
+                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+                rows={2}
+              />
+            </label>
+            <label className="block text-xs font-semibold text-slate-300">
+              Entregable (opcional)
+              <input
+                value={newMilestoneDeliverable}
+                onChange={(event) => setNewMilestoneDeliverable(event.target.value)}
+                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+              />
+            </label>
+            <div className="flex justify-end gap-2 border-t border-white/10 pt-3">
+              <button
+                type="button"
+                onClick={() => setIsMilestoneModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 text-xs font-bold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold cursor-pointer"
+              >
+                Crear hito
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {isReminderModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <form
+            onSubmit={handleCreateReminder}
+            className="w-full max-w-lg bg-slate-900 border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold text-white">Programar recordatorio</h3>
+              <button
+                type="button"
+                onClick={() => setIsReminderModalOpen(false)}
+                aria-label="Cerrar"
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <label className="block text-xs font-semibold text-slate-300">
+              Título
+              <input
+                required
+                value={newReminderTitle}
+                onChange={(event) => setNewReminderTitle(event.target.value)}
+                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-xs font-semibold text-slate-300">
+                Asociar a tarea
+                <select
+                  value={newReminderTaskId}
+                  onChange={(event) => setNewReminderTaskId(event.target.value)}
+                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                >
+                  <option value="">Hito general</option>
+                  {projectTasks.map((task) => (
+                    <option key={task.id} value={task.id}>{task.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-xs font-semibold text-slate-300">
+                Fecha
+                <input
+                  type="date"
+                  required
+                  value={newReminderDate}
+                  onChange={(event) => setNewReminderDate(event.target.value)}
+                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                />
+              </label>
+            </div>
+            <label className="block text-xs font-semibold text-slate-300">
+              Prioridad
+              <select
+                value={newReminderPriority}
+                onChange={(event) => setNewReminderPriority(event.target.value as TaskReminder['priority'])}
+                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+              >
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+              </select>
+            </label>
+            <label className="block text-xs font-semibold text-slate-300">
+              Descripción
+              <textarea
+                value={newReminderDescription}
+                onChange={(event) => setNewReminderDescription(event.target.value)}
+                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+                rows={3}
+              />
+            </label>
+            <div className="flex justify-end gap-2 border-t border-white/10 pt-3">
+              <button
+                type="button"
+                onClick={() => setIsReminderModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 text-xs font-bold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold cursor-pointer"
+              >
+                Guardar recordatorio
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
@@ -938,6 +1247,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   </label>
                   <input
                     type="date"
+                    required
                     value={newTaskStart}
                     onChange={(e) => setNewTaskStart(e.target.value)}
                     className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400 font-mono"
@@ -950,6 +1260,8 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   </label>
                   <input
                     type="date"
+                    required
+                    min={newTaskStart}
                     value={newTaskEnd}
                     onChange={(e) => setNewTaskEnd(e.target.value)}
                     className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400 font-mono"

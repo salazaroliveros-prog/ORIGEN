@@ -1,38 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import { formatGTQ,formatUSD } from '@/lib/data';
 import {
-  FileText,
-  Download,
-  Printer,
-  ShieldCheck,
-  Building2,
-  Calendar,
-  Receipt,
-  DollarSign,
-  MapPin,
-  CheckCircle2,
-  Filter,
-  Layers,
-  Sparkles,
-  HardHat,
-  ChevronDown,
-  FileSpreadsheet,
-  Code2,
-  Copy,
-  Check,
-  Info,
-  Terminal,
-} from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { Project, CompanySettings, ExpenseRecord, FieldVisit, AttendanceRecord, Employee } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
-import { loadReportLetterheadLogo } from '@/lib/pdfBranding';
-import {
-  exportProjectAccountingWorkbook,
-  downloadVbaMacroFile,
-  GUATEMALAN_ACCOUNTING_VBA_MACROS,
+downloadVbaMacroFile,
+exportProjectAccountingWorkbook,
+GUATEMALAN_ACCOUNTING_VBA_MACROS,
 } from '@/lib/excelAccountingExport';
+import { loadReportLetterheadLogo } from '@/lib/pdfBranding';
+import { AttendanceRecord,CompanySettings,Employee,ExpenseRecord,FieldVisit,Project } from '@/lib/types';
+import {
+Check,
+Code2,
+Copy,
+Download,
+FileSpreadsheet,
+FileText,
+Printer,
+Receipt,
+ShieldCheck,
+Terminal
+} from 'lucide-react';
+import React,{ useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface AdvancedReportsManagerProps {
   projects: Project[];

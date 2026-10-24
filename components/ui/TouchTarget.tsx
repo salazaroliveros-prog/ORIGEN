@@ -34,7 +34,7 @@ export const TouchTarget: React.FC<TouchTargetProps> = ({
         }
       }}
       style={{ ...style, minWidth: minSize, minHeight: minSize }}
-      className={`touch-target relative group active:scale-95 active:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${className}`}
+      className={`touch-target relative group active:scale-95 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${className}`}
       {...buttonProps}
     >
       <span className="absolute inset-0 bg-white/[0.05] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></span>

@@ -1,30 +1,29 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { LogoUpload } from '@/components/LogoUpload';
+import { Navbar } from '@/components/Navbar';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { MobileHeader,PageHeader } from '@/components/PageHeader';
+import { FocusTrap } from '@/components/a11y/FocusTrap';
+import { Button } from '@/components/ui/Button';
+import { TouchTarget } from '@/components/ui/TouchTarget';
+import { AiAssistantView } from '@/features/ai/AiAssistantView';
+import { BudgetView } from '@/features/budget/BudgetView';
+import { DashboardView } from '@/features/dashboard/DashboardView';
+import { GanttSchedule } from '@/components/GanttSchedule';
+import { ProjectsView } from '@/features/projects/ProjectsView';
+import { ReportsView } from '@/features/reports/ReportsView';
+import { StaffView } from '@/features/staff/StaffView';
+import { initialCompanySettings } from '@/lib/data';
+import {
+  saveProjectScheduleToFirestore,
+  saveCompanySettingsToFirestore,
+} from '@/lib/firebaseService';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { useProjectData } from '@/lib/services/projectData';
-import {
-  saveCompanySettingsToFirestore,
-  deleteProjectFromFirestore,
-  deleteExpensesByProject,
-  deleteFieldVisitsByProject,
-  deleteAttendanceByProject,
-} from '@/lib/firebaseService';
-import { Navbar } from '@/components/Navbar';
-import { LogoUpload } from '@/components/LogoUpload';
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
-import { MobileHeader, PageHeader } from '@/components/PageHeader';
-import { FocusTrap } from '@/components/a11y/FocusTrap';
-import { TouchTarget } from '@/components/ui/TouchTarget';
-import { Button } from '@/components/ui/Button';
-import { DashboardView } from '@/features/dashboard/DashboardView';
-import { ProjectsView } from '@/features/projects/ProjectsView';
-import { BudgetView } from '@/features/budget/BudgetView';
-import { StaffView } from '@/features/staff/StaffView';
-import { ReportsView } from '@/features/reports/ReportsView';
-import { AiAssistantView } from '@/features/ai/AiAssistantView';
-import type { CompanySettings } from '@/lib/types';
-import { initialCompanySettings } from '@/lib/data';
+import type { CompanySettings, TaskReminder } from '@/lib/types';
+import { useEffect,useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 type TabKey =
   | 'dashboard'
@@ -152,6 +151,23 @@ export default function MainApp() {
     if (isMobileSidebarOpen) setIsMobileSidebarOpen(false);
   };
 
+  const activeProject = data.projects.find((project) => project.id === activeProjectId) ?? data.projects[0];
+
+  const persistScheduleChanges = async (
+    projectId: string,
+    changes: Parameters<typeof saveProjectScheduleToFirestore>[1]
+  ) => {
+    if (!currentUser?.uid) {
+      toast.error('Inicia sesión para guardar los cambios del cronograma.');
+      return;
+    }
+
+    const saved = await saveProjectScheduleToFirestore(projectId, changes, currentUser.uid);
+    if (!saved) {
+      toast.error('No se pudieron guardar los cambios del cronograma.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 safe-area-bottom">
       {/* Skip link for accessibility */}
@@ -208,7 +224,59 @@ export default function MainApp() {
         {activeTab === 'ai' && (
           <AiAssistantView company={company} />
         )}
-        {['cotizaciones', 'cronograma_gantt', 'maquinaria', 'planillas', 'gastos', 'gmail'].includes(activeTab) && (
+        {activeTab === 'cronograma_gantt' && (
+          <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
+            <PageHeader
+              title={tabConfig.label}
+              subtitle={tabConfig.subtitle}
+              logoUrl={company.logoUrl}
+              companyName={company.companyName}
+            />
+            {activeProject ? (
+              <GanttSchedule
+                tasks={activeProject.scheduleTasks ?? []}
+                milestones={activeProject.scheduleMilestones ?? []}
+                reminders={activeProject.taskReminders ?? []}
+                projects={data.projects}
+                activeProjectId={activeProject.id}
+                onUpdateTasks={(scheduleTasks) =>
+                  void persistScheduleChanges(activeProject.id, { scheduleTasks })
+                }
+                onUpdateMilestones={(scheduleMilestones) =>
+                  void persistScheduleChanges(activeProject.id, { scheduleMilestones })
+                }
+                onAddReminder={(reminder) =>
+                  void persistScheduleChanges(activeProject.id, {
+                    taskReminders: [...(activeProject.taskReminders ?? []), reminder],
+                  })
+                }
+                onToggleReminder={(reminderId) => {
+                  const taskReminders = (activeProject.taskReminders ?? []).map((reminder) =>
+                    reminder.id === reminderId ? { ...reminder, enabled: !reminder.enabled } : reminder
+                  );
+                  void persistScheduleChanges(activeProject.id, { taskReminders });
+                }}
+                onDeleteReminder={(reminderId) => {
+                  const taskReminders = (activeProject.taskReminders ?? []).filter(
+                    (reminder: TaskReminder) => reminder.id !== reminderId
+                  );
+                  void persistScheduleChanges(activeProject.id, { taskReminders });
+                }}
+                onUpdateProjectProgress={(projectId, progressPercent) =>
+                  void persistScheduleChanges(projectId, { progressPercent })
+                }
+              />
+            ) : (
+              <div className="glass-panel p-8 text-center">
+                <h3 className="text-white text-lg font-semibold mb-2">Crea o selecciona un proyecto</h3>
+                <p className="text-slate-400 text-sm">
+                  El cronograma se guarda junto al proyecto activo. Primero agrega un proyecto para gestionar tareas e hitos.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+        {['cotizaciones', 'maquinaria', 'planillas', 'gastos', 'gmail'].includes(activeTab) && (
           <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
             <PageHeader
               title={tabConfig.label}

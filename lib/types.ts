@@ -35,6 +35,9 @@ export interface Project {
   lng: number;
   ownerId?: string;
   expectedProfitMarginPercent?: number;
+  scheduleTasks?: ScheduleTask[];
+  scheduleMilestones?: Milestone[];
+  taskReminders?: TaskReminder[];
 }
 
 export interface FieldPhoto {

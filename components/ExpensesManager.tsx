@@ -1,36 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Receipt,
-  Plus,
-  Camera,
-  Upload,
-  Eye,
-  Trash2,
-  MapPin,
-  Calendar,
-  X,
-  Download,
-  Printer,
-  CheckCircle2,
-  FileText,
-  RotateCw,
-  ShieldCheck,
-  AlertTriangle,
-  Clock,
-  History,
-  FileSearch,
-  Check,
-  Ban,
-  UserCheck,
-  Sparkles,
-  BarChart3,
-} from 'lucide-react';
-import { ExpenseRecord, Project, CompanySettings, APUItem, ExpenseAuditEntry } from '@/lib/types';
-import { formatGTQ, formatUSD, initialAPUItems } from '@/lib/data';
 import { CameraCaptureModal } from '@/components/CameraCaptureModal';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
+import { formatGTQ,formatUSD,initialAPUItems } from '@/lib/data';
+import { APUItem,CompanySettings,ExpenseAuditEntry,ExpenseRecord,Project } from '@/lib/types';
+import {
+AlertTriangle,
+Ban,
+BarChart3,
+Camera,
+Check,
+CheckCircle2,
+Clock,
+Download,
+Eye,
+FileSearch,
+History,
+Plus,
+Receipt,
+RotateCw,
+ShieldCheck,
+Trash2,
+Upload,
+X
+} from 'lucide-react';
+import React,{ useState } from 'react';
 
 interface ExpensesManagerProps {
   expenses: ExpenseRecord[];

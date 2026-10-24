@@ -1,32 +1,24 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { AttendanceRecord,CompanySettings,Employee,Project } from '@/lib/types';
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  Cell,
-  ReferenceLine,
-} from 'recharts';
-import {
-  Users,
-  Clock,
-  TrendingUp,
-  TrendingDown,
-  Award,
-  Building2,
-  Calendar,
-  CheckCircle2,
-  AlertTriangle,
-  BarChart3,
-  Filter,
+Award,
+Building2,
+Calendar,
+Clock,
+Users
 } from 'lucide-react';
-import { Employee, AttendanceRecord, Project, CompanySettings } from '@/lib/types';
+import React,{ useMemo,useState } from 'react';
+import {
+Bar,
+BarChart,
+CartesianGrid,
+Legend,
+ResponsiveContainer,
+Tooltip,
+XAxis,
+YAxis
+} from 'recharts';
 
 interface LaborProductivityChartProps {
   employees: Employee[];

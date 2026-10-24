@@ -1,4 +1,4 @@
-import { Project, ExpenseRecord, Employee, ScheduleTask, Milestone, TaskReminder } from './types';
+import { Employee,ExpenseRecord,Milestone,Project,ScheduleTask,TaskReminder } from './types';
 
 // Web Audio API synthesized sound generator - no external audio files required
 export function playNotificationChime(type: 'reminder' | 'urgent' | 'success' | 'warning' = 'reminder') {

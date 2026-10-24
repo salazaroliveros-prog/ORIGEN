@@ -1,24 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Banknote,
-  Printer,
-  Download,
-  FileText,
-  Building,
-  ShieldCheck,
-  Award,
-  Calendar,
-  Layers,
-  HelpCircle,
-  Sparkles,
-  CheckCircle2,
-  AlertTriangle,
-  Scale,
-} from 'lucide-react';
-import { Employee, CompanySettings, AttendanceRecord } from '@/lib/types';
 import { formatGTQ } from '@/lib/data';
+import { AttendanceRecord,CompanySettings,Employee } from '@/lib/types';
+import {
+Award,
+Banknote,
+Building,
+CheckCircle2,
+Download,
+Printer,
+ShieldCheck
+} from 'lucide-react';
+import React,{ useState } from 'react';
 import { GuatemalanPayrollValidator } from './GuatemalanPayrollValidator';
 
 interface GuatemalanPayrollProps {

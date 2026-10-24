@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { FileText, Plus, CheckCircle2, Printer, X } from 'lucide-react';
-import { QuoteRecord, Project, CompanySettings, APUItem } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
+import { formatGTQ,formatUSD } from '@/lib/data';
+import { APUItem,CompanySettings,Project,QuoteRecord } from '@/lib/types';
+import { Plus,Printer } from 'lucide-react';
+import React,{ useState } from 'react';
 
 interface QuotesManagerProps {
   quotes: QuoteRecord[];

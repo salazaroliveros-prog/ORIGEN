@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Upload, Building2, RefreshCw, CheckCircle2, AlertCircle, Maximize, Minimize } from 'lucide-react';
-import { loadBranding, saveBranding, detectUploadedLogo, revokeLogoUrl, isCustomLogo, subscribeToBrandingUpdates } from '@/lib/branding';
 import type { BrandingConfig } from '@/lib/branding';
+import { isCustomLogo,loadBranding,revokeLogoUrl,saveBranding,subscribeToBrandingUpdates } from '@/lib/branding';
+import { AlertCircle,Building2,CheckCircle2,Maximize,Minimize,RefreshCw,Upload } from 'lucide-react';
+import React,{ useCallback,useEffect,useState } from 'react';
 
 interface LogoUploadProps {
   company: { logoUrl?: string; companyName?: string; primaryColor?: string; secondaryColor?: string };
