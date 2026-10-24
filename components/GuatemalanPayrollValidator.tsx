@@ -1,27 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  ShieldCheck,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
-  FileCheck,
-  Scale,
-  Sparkles,
-  Download,
-  Search,
-  Filter,
-  Users,
-  Building,
-  Info,
-  Edit2,
-  Save,
-  X,
-  RefreshCw,
-} from 'lucide-react';
-import { Employee, CompanySettings, AttendanceRecord } from '@/lib/types';
 import { formatGTQ } from '@/lib/data';
+import { AttendanceRecord,CompanySettings,Employee } from '@/lib/types';
+import {
+AlertTriangle,
+CheckCircle2,
+Download,
+Edit2,
+Save,
+Scale,
+Search,
+Sparkles,
+X,
+XCircle
+} from 'lucide-react';
+import React,{ useState } from 'react';
 
 export interface GuatemalanPayrollValidatorProps {
   employees: Employee[];

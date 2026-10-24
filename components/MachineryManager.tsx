@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Truck, Plus, CheckCircle2 } from 'lucide-react';
-import { Machinery, MachineryLog, Project, CompanySettings } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
+import { formatGTQ,formatUSD } from '@/lib/data';
+import { CompanySettings,Machinery,MachineryLog,Project } from '@/lib/types';
+import { Plus } from 'lucide-react';
+import React,{ useState } from 'react';
 
 interface MachineryManagerProps {
   machinery: Machinery[];

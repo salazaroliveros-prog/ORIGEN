@@ -1,26 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  MapPin,
-  CloudRain,
-  Wind,
-  Thermometer,
-  ShieldAlert,
-  AlertTriangle,
-  RefreshCw,
-  ExternalLink,
-  CheckCircle2,
-  Navigation,
-  HardHat,
-  Search,
-  CloudLightning,
-  CloudSun,
-  Sparkles,
-  Layers,
-} from 'lucide-react';
+import { formatGTQ,formatUSD } from '@/lib/data';
 import { Project } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
+import {
+CheckCircle2,
+CloudRain,
+CloudSun,
+ExternalLink,
+MapPin,
+Navigation,
+RefreshCw,
+ShieldAlert,
+Thermometer,
+Wind
+} from 'lucide-react';
+import React,{ useEffect,useState } from 'react';
 
 interface GoogleMapsSafetyViewProps {
   projects: Project[];

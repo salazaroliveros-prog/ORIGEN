@@ -1,27 +1,26 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import {
-  Sparkles,
-  X,
-  Send,
-  Bot,
-  MapPin,
-  Calendar,
-  User,
-  Camera,
-  Upload,
-  FileText,
-  CheckCircle2,
-  AlertTriangle,
-  RotateCcw,
-  Eye,
-  Layers,
-  Copy,
-  Check,
-} from 'lucide-react';
-import { Project, APUItem, FieldVisit } from '@/lib/types';
 import { GUATEMALA_DEPARTMENTS_INDEX } from '@/lib/guatemalaMarketData';
+import { APUItem,FieldVisit,Project } from '@/lib/types';
+import {
+Bot,
+Calendar,
+Camera,
+Check,
+CheckCircle2,
+Copy,
+Eye,
+FileText,
+Layers,
+MapPin,
+RotateCcw,
+Send,
+Sparkles,
+Upload,
+User,
+X
+} from 'lucide-react';
+import React,{ useRef,useState } from 'react';
 
 interface AiAssistantModalProps {
   isOpen: boolean;

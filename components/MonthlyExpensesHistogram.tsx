@@ -1,40 +1,33 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { formatGTQ,formatUSD } from '@/lib/data';
+import { exportExpensesBudgetPdf,MonthlyHistogramItem } from '@/lib/pdfExportService';
+import { CompanySettings,ExpenseRecord,Project } from '@/lib/types';
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  Cell,
-  ReferenceLine,
-} from 'recharts';
-import {
-  BarChart3,
-  Download,
-  FileText,
-  Calendar,
-  Building2,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  AlertTriangle,
-  CheckCircle2,
-  Filter,
-  Layers,
-  ArrowUpRight,
-  Info,
-  Printer,
-  Sparkles,
+AlertTriangle,
+BarChart3,
+Building2,
+Calendar,
+CheckCircle2,
+DollarSign,
+Download,
+FileText,
+TrendingUp
 } from 'lucide-react';
-import { Project, ExpenseRecord, CompanySettings } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
-import { exportExpensesBudgetPdf, MonthlyHistogramItem } from '@/lib/pdfExportService';
+import React,{ useMemo,useState } from 'react';
 import { toast } from 'react-hot-toast';
+import {
+Bar,
+BarChart,
+CartesianGrid,
+Cell,
+Legend,
+ReferenceLine,
+ResponsiveContainer,
+Tooltip,
+XAxis,
+YAxis,
+} from 'recharts';
 
 interface MonthlyExpensesHistogramProps {
   projects: Project[];
@@ -64,7 +57,7 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
     if (activeProjectId && selectedProjectId !== 'all') {
       setSelectedProjectId(activeProjectId);
     }
-  }, [activeProjectId]);
+  }, [activeProjectId, selectedProjectId]);
 
   const activeProject = useMemo(() => {
     return projects.find((p) => p.id === selectedProjectId) || null;

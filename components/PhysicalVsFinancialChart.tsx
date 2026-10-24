@@ -1,30 +1,29 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import { formatGTQ,formatUSD } from '@/lib/data';
+import { CompanySettings,Project } from '@/lib/types';
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  ReferenceLine,
-} from 'recharts';
-import {
-  Activity,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle2,
-  PieChart,
-  DollarSign,
-  HardHat,
-  Scale,
+Activity,
+AlertTriangle,
+CheckCircle2,
+DollarSign,
+HardHat,
+Scale,
+TrendingDown,
+TrendingUp
 } from 'lucide-react';
-import { Project, CompanySettings } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
+import React,{ useMemo } from 'react';
+import {
+Bar,
+BarChart,
+CartesianGrid,
+Legend,
+ReferenceLine,
+ResponsiveContainer,
+Tooltip,
+XAxis,
+YAxis,
+} from 'recharts';
 
 interface PhysicalVsFinancialChartProps {
   projects: Project[];

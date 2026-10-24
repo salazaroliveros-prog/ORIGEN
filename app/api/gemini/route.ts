@@ -1,11 +1,9 @@
-import { GoogleGenAI } from '@google/genai';
-import { NextRequest, NextResponse } from 'next/server';
 import {
-  GUATEMALA_DEPARTMENTS_INDEX,
-  GUATEMALA_BASE_MARKET_CATALOGUE,
-  calculateRegionalPrice,
-  adjustApuDirectCostsForDepartment,
+GUATEMALA_BASE_MARKET_CATALOGUE,
+GUATEMALA_DEPARTMENTS_INDEX
 } from '@/lib/guatemalaMarketData';
+import { GoogleGenAI } from '@google/genai';
+import { NextRequest,NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {

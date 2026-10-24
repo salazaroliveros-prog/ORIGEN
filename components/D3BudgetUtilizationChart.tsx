@@ -1,20 +1,14 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import { formatGTQ,formatUSD } from '@/lib/data';
+import { CompanySettings,Project } from '@/lib/types';
 import * as d3 from 'd3';
-import { Project, CompanySettings } from '@/lib/types';
-import { formatGTQ, formatUSD } from '@/lib/data';
 import {
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle2,
-  DollarSign,
-  Layers,
-  Sparkles,
-  PieChart as PieChartIcon,
-  BarChart2,
-  Info,
+BarChart2,
+PieChart as PieChartIcon,
+TrendingUp
 } from 'lucide-react';
+import React,{ useEffect,useRef,useState } from 'react';
 
 export interface D3BudgetUtilizationChartProps {
   projects: Project[];
@@ -441,7 +435,7 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
             : '✓ DENTRO DE MARGEN PROGRAMADO'
         );
     }
-  }, [dimensions, projects, activeProjectId, viewType, currency, company.exchangeRate]);
+  }, [dimensions, projects, activeProjectId, viewType, currency, company.exchangeRate, globalPct, onSelectProject]);
 
   return (
     <div

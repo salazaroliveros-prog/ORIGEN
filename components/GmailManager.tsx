@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-import { Mail, Send } from 'lucide-react';
 import { CompanySettings } from '@/lib/types';
+import { Send } from 'lucide-react';
+import React from 'react';
 
 interface GmailManagerProps {
   company: CompanySettings;
