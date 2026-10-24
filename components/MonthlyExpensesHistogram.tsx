@@ -34,6 +34,7 @@ import {
 import { Project, ExpenseRecord, CompanySettings } from '@/lib/types';
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { exportExpensesBudgetPdf, MonthlyHistogramItem } from '@/lib/pdfExportService';
+import { toast } from 'react-hot-toast';
 
 interface MonthlyExpensesHistogramProps {
   projects: Project[];
@@ -232,6 +233,7 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
       setTimeout(() => setPdfSuccessMessage(null), 4000);
     } catch (err) {
       console.error('Error generating PDF:', err);
+      toast.error('No se pudo generar el PDF. Revisa la consola para más detalles.');
     } finally {
       setIsExportingPdf(false);
     }

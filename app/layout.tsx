@@ -15,10 +15,10 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: 'ConstructERP Guatemala',
-    images: [{ url: '/assets/branding/web-banner-logo.png', width: 1280, height: 720 }],
+    images: [{ url: '/assets/branding/web-banner-logo.png', width: 153, height: 153 }],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'ConstructERP Guatemala',
     description: 'ERP integral para arquitectos y constructoras en Guatemala.',
     images: [{ url: '/assets/branding/web-banner-logo.png' }],
@@ -44,7 +44,7 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning className="h-full touch-manipulation">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#0f172a" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

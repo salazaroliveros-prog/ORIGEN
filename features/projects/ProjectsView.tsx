@@ -6,30 +6,20 @@ import {
   Edit2,
   Trash2,
   RefreshCw,
-  Clock,
   Calendar,
   Building,
-  FileText,
 } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { ProjectForm } from '@/components/ProjectForm';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TouchTarget } from '@/components/ui/TouchTarget';
 import { useProjectData } from '@/lib/hooks/useProjectData';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { toast } from 'react-hot-toast';
-import type { CompanySettings, Project } from '@/lib/types';
+import type { CompanySettings } from '@/lib/types';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
-
-const STATUS_CONFIG: Record<string, { variant: string; label: string }> = {
-  Planificación: { variant: 'secondary', label: 'Planificación' },
-  'En Ejecución': { variant: 'primary', label: 'En Ejecución' },
-  Suspendido: { variant: 'warning', label: 'Suspendido' },
-  Finalizado: { variant: 'success', label: 'Finalizado' },
-};
 
 export function ProjectsView({ company }: { company?: CompanySettings }) {
   const { currentUser } = useAuthSession();
@@ -117,6 +107,8 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
               onClick={() => {
                 toast('Función de exportación próxima');
               }}
+              aria-label="Exportar proyectos (próximamente)"
+              title="Exportar proyectos (próximamente)"
             >
               <RefreshCw className="w-4 h-4" />
             </Button>
@@ -139,7 +131,6 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
           </div>
           <ul className="space-y-3">
             {projects.map((p) => {
-              const statusConfig = STATUS_CONFIG[p.status || 'Planificación'];
               return (
                 <li
                   key={p.id}
@@ -185,14 +176,18 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
                       <TouchTarget
                         onPress={() => openEdit(p as ProjectFormProject)}
                         className="p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 border border-white/10 transition-all"
+                        aria-label={`Editar proyecto ${p.code}`}
+                        title={`Editar proyecto ${p.code}`}
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-4 h-4" aria-hidden="true" />
                       </TouchTarget>
                       <TouchTarget
                         onPress={() => handleDelete(p.id)}
                         className="p-2 rounded-lg bg-white/[0.05] hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-slate-300 hover:text-red-300 transition-all"
+                        aria-label={`Eliminar proyecto ${p.code}`}
+                        title={`Eliminar proyecto ${p.code}`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </TouchTarget>
                     </div>
                   </div>
@@ -205,7 +200,7 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
                 <span>No hay proyectos registrados</span>
                 <Button
                   variant="primary"
-                  size="sm"
+                  size="md"
                   onClick={() => setFormOpen(true)}
                   className="mt-3"
                 >
