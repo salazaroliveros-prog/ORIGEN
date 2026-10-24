@@ -15,10 +15,10 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: 'ConstructERP Guatemala',
-    images: [{ url: '/assets/branding/web-banner-logo.png', width: 1280, height: 720 }],
+    images: [{ url: '/assets/branding/web-banner-logo.png', width: 153, height: 153 }],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'ConstructERP Guatemala',
     description: 'ERP integral para arquitectos y constructoras en Guatemala.',
     images: [{ url: '/assets/branding/web-banner-logo.png' }],
