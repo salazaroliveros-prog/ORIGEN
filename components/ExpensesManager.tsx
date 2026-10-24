@@ -869,7 +869,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                         </p>
                         {entry.note && (
                           <p className="text-[11px] text-slate-500 bg-white p-2 rounded-lg border border-slate-200 italic">
-                            "{entry.note}"
+                            &quot;{entry.note}&quot;
                           </p>
                         )}
                       </div>

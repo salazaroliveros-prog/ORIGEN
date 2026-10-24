@@ -726,7 +726,7 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
                     {visit.status}
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 italic">"{visit.notes}"</p>
+                <p className="text-xs text-slate-600 italic">&quot;{visit.notes}&quot;</p>
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200">
                   <span>Capataz: <strong>{visit.foremanName}</strong></span>
                   {visit.gpsCoords && (

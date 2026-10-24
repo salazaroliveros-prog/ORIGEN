@@ -153,7 +153,7 @@ export default function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 safe-area-top safe-area-bottom safe-area-left safe-area-right">
+    <div className="min-h-screen bg-slate-950 text-slate-100 safe-area-bottom">
       {/* Skip link for accessibility */}
       <a
         href="#main-content"
@@ -167,69 +167,66 @@ export default function MainApp() {
         title={tabConfig.label}
         logoUrl={company.logoUrl}
         companyName={company.companyName}
-        onMenu={() => setIsMobileSidebarOpen(true)}
+        onMenu={() => setIsMobileSidebarOpen((isOpen) => !isOpen)}
+        menuOpen={isMobileSidebarOpen}
       />
 
-      <div id="main-content" className="pt-16 pb-24">
-        {/* Desktop Navbar - renders sidebar + top bar */}
-        <Navbar
-          company={company}
-          projects={data.projects}
-          activeProjectId={activeProjectId}
-          onSelectProject={handleSelectProject}
-          activeTab={activeTab}
-          onSelectTab={handleSelectTab}
-          currency="GTQ"
-          onToggleCurrency={() => {}}
-          onOpenAiAssistant={() => setActiveTab('ai')}
-          onOpenBranding={() => setBrandingOpen(true)}
-          currentUser={currentUser}
-          onSignIn={signIn}
-          onSignOut={signOut}
-          isMobileSidebarOpen={isMobileSidebarOpen}
-          onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-        />
+      {/* Desktop Navbar - renders sidebar + top bar */}
+      <Navbar
+        company={company}
+        projects={data.projects}
+        activeProjectId={activeProjectId}
+        onSelectProject={handleSelectProject}
+        activeTab={activeTab}
+        onSelectTab={handleSelectTab}
+        onOpenAiAssistant={() => setActiveTab('ai')}
+        onOpenBranding={() => setBrandingOpen(true)}
+        currentUser={currentUser}
+        onSignIn={signIn}
+        onSignOut={signOut}
+        isMobileSidebarOpen={isMobileSidebarOpen}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+      />
 
+      <main id="main-content" className="max-w-7xl mx-auto px-4 pb-24 sm:px-6 lg:px-8">
         {/* Feature view content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {activeTab === 'dashboard' && (
-            <DashboardView projects={data.projects} company={company} />
-          )}
-          {activeTab === 'proyectos' && (
-            <ProjectsView company={company} />
-          )}
-          {activeTab === 'apu_presupuestos' && (
-            <BudgetView projects={data.projects} expenses={data.expenses} company={company} />
-          )}
-          {activeTab === 'personal' && (
-            <StaffView attendance={data.attendance} company={company} />
-          )}
-          {activeTab === 'reportes' && (
-            <ReportsView projects={data.projects} expenses={data.expenses} company={company} />
-          )}
-          {activeTab === 'ai' && (
-            <AiAssistantView company={company} />
-          )}
-          {['cotizaciones', 'cronograma_gantt', 'maquinaria', 'planillas', 'gastos', 'gmail'].includes(activeTab) && (
-            <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
-              <PageHeader
-                title={tabConfig.label}
-                subtitle={tabConfig.subtitle}
-                logoUrl={company?.logoUrl}
-                companyName={company?.companyName}
-              />
-              <div className="glass-panel p-8 text-center">
-                <h3 className="text-white text-lg font-semibold mb-2">
-                  Módulo en desarrollo
-                </h3>
-                <p className="text-slate-400 text-sm">
-                  La sección de {tabConfig.label} estará disponible próximamente.
-                </p>
-              </div>
+        {activeTab === 'dashboard' && (
+          <DashboardView projects={data.projects} company={company} />
+        )}
+        {activeTab === 'proyectos' && (
+          <ProjectsView company={company} />
+        )}
+        {activeTab === 'apu_presupuestos' && (
+          <BudgetView projects={data.projects} expenses={data.expenses} company={company} />
+        )}
+        {activeTab === 'personal' && (
+          <StaffView attendance={data.attendance} company={company} />
+        )}
+        {activeTab === 'reportes' && (
+          <ReportsView projects={data.projects} expenses={data.expenses} company={company} />
+        )}
+        {activeTab === 'ai' && (
+          <AiAssistantView company={company} />
+        )}
+        {['cotizaciones', 'cronograma_gantt', 'maquinaria', 'planillas', 'gastos', 'gmail'].includes(activeTab) && (
+          <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
+            <PageHeader
+              title={tabConfig.label}
+              subtitle={tabConfig.subtitle}
+              logoUrl={company?.logoUrl}
+              companyName={company?.companyName}
+            />
+            <div className="glass-panel p-8 text-center">
+              <h3 className="text-white text-lg font-semibold mb-2">
+                Módulo en desarrollo
+              </h3>
+              <p className="text-slate-400 text-sm">
+                La sección de {tabConfig.label} estará disponible próximamente.
+              </p>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
+      </main>
 
       {/* Branding drawer (mobile-friendly) */}
       <FocusTrap isActive={brandingOpen} onEscape={() => setBrandingOpen(false)}>
@@ -277,7 +274,11 @@ export default function MainApp() {
       {!brandingOpen && (
         <TouchTarget
           onPress={() => setBrandingOpen(true)}
-          className="fixed bottom-6 right-6 z-40 lg:hidden w-12 h-12 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xl hover:bg-amber-400 transition-all"
+          style={{
+            bottom: 'max(1.5rem, env(safe-area-inset-bottom))',
+            right: 'max(1.5rem, env(safe-area-inset-right))',
+          }}
+          className="fixed z-40 lg:hidden w-12 h-12 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xl hover:bg-amber-400 transition-all"
           aria-label="Configuración de Marca"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>

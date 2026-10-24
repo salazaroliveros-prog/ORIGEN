@@ -37,7 +37,7 @@ export function PageHeader({
         )}
       </div>
       {actions && (
-        <div className="flex-shrink-0 hidden lg:flex items-center gap-2">
+        <div className="flex w-full flex-shrink-0 items-center gap-2 lg:w-auto">
           {actions}
         </div>
       )}
@@ -50,23 +50,27 @@ export function MobileHeader({
   logoUrl,
   companyName,
   onMenu,
+  menuOpen = false,
 }: {
   title: string;
   logoUrl?: string;
   companyName?: string;
   onMenu: () => void;
+  menuOpen?: boolean;
 }) {
   const resolvedLogo = logoUrl || '/assets/branding/web-banner-logo.png';
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-slate-950/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30">
+    <header className="lg:hidden flex items-center gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] bg-slate-950/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30">
       <Button
         variant="ghost"
-        size="sm"
+        size="md"
         onClick={onMenu}
         className="p-2 rounded-lg text-slate-300 hover:bg-white/[0.1]"
-        aria-label="Abrir menú de navegación"
+        aria-label={menuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+        aria-expanded={menuOpen}
+        aria-controls="mobile-navigation"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
       </Button>
       <img
         src={resolvedLogo}
@@ -78,6 +82,6 @@ export function MobileHeader({
       <h1 className="flex-1 min-w-0 font-bold text-white text-base leading-tight truncate">
         {title}
       </h1>
-    </div>
+    </header>
   );
 }

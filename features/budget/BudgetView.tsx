@@ -3,8 +3,8 @@ import { Card } from '@/components/ui/Card';
 import type { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 
 export function BudgetView({ projects, expenses, company }: { projects: Project[]; expenses: ExpenseRecord[]; company?: CompanySettings }) {
-  const totalBudget = projects.reduce((acc: number, p: any) => acc + (p.budgetTotal || 0), 0);
-  const totalSpent = expenses.reduce((acc: number, e: any) => acc + (e.amount || 0), 0);
+  const totalBudget = projects.reduce((total, project) => total + project.budgetTotal, 0);
+  const totalSpent = expenses.reduce((total, expense) => total + expense.amount, 0);
 
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full">

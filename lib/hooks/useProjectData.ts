@@ -133,19 +133,25 @@ export function useProjectData(currentUserId?: string) {
 
       setLoading(true);
       try {
-        const [expensesOk, visitsOk, attendanceOk, projectOk] = await Promise.all([
-          deleteExpensesByProject(projectId),
-          deleteFieldVisitsByProject(projectId),
-          deleteAttendanceByProject(projectId),
-          deleteProjectFromFirestore(projectId),
+        const relatedRecordsDeleted = await Promise.all([
+          deleteExpensesByProject(projectId, currentUserId),
+          deleteFieldVisitsByProject(projectId, currentUserId),
+          deleteAttendanceByProject(projectId, currentUserId),
         ]);
 
-        if (projectOk) {
-          toast.success('Proyecto eliminado correctamente');
-          return true;
+        if (relatedRecordsDeleted.some((deleted) => !deleted)) {
+          toast.error('No se pudieron eliminar todos los registros. El proyecto se conserva.');
+          return false;
         }
-        toast.error('Error al eliminar el proyecto');
-        return false;
+
+        const projectDeleted = await deleteProjectFromFirestore(projectId);
+        if (!projectDeleted) {
+          toast.error('No se pudo eliminar el proyecto');
+          return false;
+        }
+
+        toast.success('Proyecto eliminado correctamente');
+        return true;
       } catch (err) {
         toast.error('Error inesperado al eliminar el proyecto');
         return false;

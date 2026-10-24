@@ -1,0 +1,9 @@
+.env*
+.github/
+.kilo/
+.vscode/
+*.log
+hs_err_pid*
+replay_pid*
+figma-mcp.json
+Untitled-1.json
