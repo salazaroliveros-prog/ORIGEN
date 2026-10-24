@@ -24,8 +24,10 @@ import {
   Info,
   Terminal,
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { Project, CompanySettings, ExpenseRecord, FieldVisit, AttendanceRecord, Employee } from '@/lib/types';
 import { formatGTQ, formatUSD } from '@/lib/data';
+import { loadReportLetterheadLogo } from '@/lib/pdfBranding';
 import {
   exportProjectAccountingWorkbook,
   downloadVbaMacroFile,
@@ -123,6 +125,7 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
     setIsGenerating(true);
     try {
       const { jsPDF } = await import('jspdf');
+      const reportLogo = await loadReportLetterheadLogo();
       const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -144,19 +147,21 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
         doc.setFillColor(245, 158, 11); // amber-500
         doc.rect(margin, y + 25, pageWidth - margin * 2, 1.5, 'F');
 
+        doc.addImage(reportLogo, 'PNG', margin + 2, y + 3, 20, 19);
+
         // Company title & subtitle
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(13);
-        doc.text(company.companyName.toUpperCase(), margin + 5, y + 7);
+        doc.text(company.companyName.toUpperCase(), margin + 25, y + 7);
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
         doc.setTextColor(203, 213, 225); // slate-300
-        doc.text(`NIT: ${company.nit} • ${company.address} • Tel: ${company.phone}`, margin + 5, y + 13);
+        doc.text(`NIT: ${company.nit} • ${company.address} • Tel: ${company.phone}`, margin + 25, y + 13);
         doc.text(
           `Documento Oficial de Control y Liquidación de Obra • Moneda: ${currency} • T.C.: Q ${company.exchangeRate.toFixed(2)}`,
-          margin + 5,
+          margin + 25,
           y + 19
         );
 
@@ -194,7 +199,8 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
           doc.setTextColor(100, 116, 139);
           doc.setFontSize(7);
           doc.setFont('helvetica', 'italic');
-          doc.text(`ConstructERP Guatemala • ${activeProject.code} - ${activeProject.name}`, margin + 3, y + 4.5);
+          doc.addImage(reportLogo, 'PNG', margin + 1, y + 0.5, 6, 6);
+          doc.text(`ConstructERP Guatemala • ${activeProject.code} - ${activeProject.name}`, margin + 9, y + 4.5);
           doc.text(`Página ${doc.getNumberOfPages()}`, pageWidth - margin - 3, y + 4.5, { align: 'right' });
           y += 12;
         }
@@ -483,6 +489,7 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
       doc.save(fileName);
     } catch (err) {
       console.error('Error generating PDF:', err);
+      toast.error('No se pudo generar el PDF. Revisa la consola para más detalles.');
     } finally {
       setIsGenerating(false);
     }
