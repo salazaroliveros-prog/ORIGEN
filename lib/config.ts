@@ -1,5 +1,3 @@
-import firebaseConfig from '../firebase-applet-config.json';
-
 export type FirebaseRuntimeConfig = {
   projectId: string;
   apiKey: string;
@@ -11,19 +9,16 @@ export type FirebaseRuntimeConfig = {
   firestoreDatabaseId: string;
 };
 
+// Usar directamente variables de entorno - ignorar archivo JSON
 export const firebaseRuntimeConfig: FirebaseRuntimeConfig = {
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? firebaseConfig.projectId ?? '',
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? firebaseConfig.apiKey ?? '',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? firebaseConfig.authDomain ?? '',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? firebaseConfig.appId ?? '',
-  storageBucket:
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? firebaseConfig.storageBucket ?? '',
-  messagingSenderId:
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? firebaseConfig.messagingSenderId ?? '',
-  measurementId:
-    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ?? firebaseConfig.measurementId ?? '',
-  firestoreDatabaseId:
-    process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID ?? firebaseConfig.firestoreDatabaseId ?? '',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
+  firestoreDatabaseId: process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID || '',
 };
 
 export function getGeminiApiKey(): string {
@@ -35,12 +30,24 @@ export function getFirebaseConfig(): FirebaseRuntimeConfig {
 }
 
 export function hasFirebaseRuntimeConfig(): boolean {
-  return Boolean(
-    firebaseRuntimeConfig.projectId &&
-    firebaseRuntimeConfig.apiKey &&
-    firebaseRuntimeConfig.appId &&
-    firebaseRuntimeConfig.authDomain
+  const config = firebaseRuntimeConfig;
+  const hasConfig = Boolean(
+    config.projectId &&
+    config.apiKey &&
+    config.appId &&
+    config.authDomain
   );
+  
+  if (!hasConfig) {
+    console.error('Firebase configuration incomplete:', {
+      projectId: config.projectId,
+      apiKey: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'missing',
+      appId: config.appId,
+      authDomain: config.authDomain,
+    });
+  }
+  
+  return hasConfig;
 }
 
 export function readNumber(value: unknown, fallback = 0): number {
