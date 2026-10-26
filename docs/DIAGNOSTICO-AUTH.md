@@ -2,7 +2,7 @@
 
 **Fecha**: 26 de Octubre 2026  
 **Analista**: QA Engineer  
-**Estado**: 🔍 En análisis
+**Estado**: ✅ CORREGIDO
 
 ---
 
@@ -17,66 +17,87 @@
 - **Messaging Sender ID**: 893831571998
 
 ### Dominios Autorizados
-- `http://localhost:3000` - Deshabilitado en producción (debe ser reemplazado)
+- `http://localhost:3000` - Para desarrollo
 - `https://origen-one-kohl.vercel.app` - Dominio de producción
 
 ---
 
-## 🔍 POSIBLES PROBLEMAS DE LOGIN
+## ❌ PROBLEMA IDENTIFICADO Y CORREGIDO
 
-### 1. Dominio localhost no autorizado en Firebase
-**Error probable**: `auth/unauthorized-domain`
+### Error Original
+**Mensaje**: `auth/internal-error`  
+**Causa Raíz**: El archivo `firebase-applet-config.json` estaba vacío y el código de configuración (`lib/config.ts`) lo importaba, resultando en una configuración de Firebase incompleta (valores vacíos).
 
-**Causa**: 
-- `localhost:3000` está en `ALLOWED_ORIGINS` en .env
-- Pero podría no estar configurado en Firebase Authentication → Dominios autorizados
+### Solución Aplicada
+**Archivo modificado**: `lib/config.ts`
 
-**Solución**:
-1. Ir a Firebase Console → Authentication → Sign-in method
-2. En Google, ir a Configuración de dominios autorizados
-3. Agregar `http://localhost:3000` para desarrollo
-4. Para producción, agregar `https://origen-one-kohl.vercel.app`
+**Cambios**:
+1. Eliminado el import de `firebase-applet-config.json`
+2. Configuración ahora usa directamente las variables de entorno `NEXT_PUBLIC_FIREBASE_*`
+3. Agregado logging para diagnosticar configuración incompleta
+4. El archivo JSON ya no afecta la configuración
 
-### 2. Cliente OAuth Web no configurado
-**Error probable**: `auth/invalid-oauth-client-id`
-
-**Causa**:
-- El proyecto de Firebase podría no tener el cliente OAuth Web configurado
-- El Client ID podría estar incorrecto
-
-**Solución**:
-1. Ir a Firebase Console → Authentication → Sign-in method → Google
-2. Verificar que "Web Client SDK" esté habilitado
-3. Copiar el Client ID correcto
-4. Verificar que el Client Secret esté configurado
-
-### 3. Popup bloqueado por navegador
-**Error probable**: `auth/popup-blocked`
-
-**Causa**:
-- Bloqueador de popups del navegador
-- Extensiones de seguridad
-
-**Solución**:
-- Deshabilitar bloqueador de popups para localhost:3000
-- Deshabilitar extensiones de seguridad temporalmente
-
-### 4. Credenciales de prueba no disponibles
-**Estado**: No hay credenciales de prueba en .env
-
-**Archivo .env actual**:
+**Código corregido**:
+```typescript
+// Usar directamente variables de entorno - ignorar archivo JSON
+export const firebaseRuntimeConfig: FirebaseRuntimeConfig = {
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
+  firestoreDatabaseId: process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID || '',
+};
 ```
-CORREO=your_email@example.com
-PASWORD=your_password_here
-```
-
-**Solución**:
-- Necesario crear un usuario de prueba en Firebase Authentication
-- O usar autenticación con Google (más fácil para pruebas)
 
 ---
 
-## ✅ ESTADO DE IMPLEMENTACIÓN
+## ✅ VERIFICACIÓN DE LOGIN
+
+### Requisitos para que el login funcione
+
+#### 1. Variables de entorno configuradas
+Las variables deben estar en:
+- ✅ `.env` local (para desarrollo)
+- ✅ Vercel Environment Variables (para producción)
+- ✅ GitHub Secrets (para CI)
+
+#### 2. Dominios autorizados en Firebase Console
+Ir a Firebase Console → Authentication → Sign-in method → Google → Configuración de dominios autorizados
+
+Deben incluir:
+- `http://localhost:3000` (desarrollo)
+- `https://origen-one-kohl.vercel.app` (producción)
+
+#### 3. Provider Google habilitado
+- Firebase Console → Authentication → Sign-in method
+- Google debe estar habilitado
+- Web Client SDK debe estar activo
+
+#### 4. Bloqueador de popups deshabilitado
+- Deshabilitar bloqueador de popups en el navegador para localhost:3000
+
+---
+
+## 🔍 POSIBLES PROBLEMAS RESTANTES
+
+### 1. Dominio no autorizado
+**Error**: `auth/unauthorized-domain`  
+**Solución**: Agregar dominio en Firebase Console
+
+### 2. Cliente OAuth incorrecto
+**Error**: `auth/invalid-oauth-client-id`  
+**Solución**: Verificar Client ID en Firebase Console
+
+### 3. Popup bloqueado
+**Error**: `auth/popup-blocked`  
+**Solución**: Deshabilitar bloqueador de popups
+
+---
+
+## 📝 ESTADO DE IMPLEMENTACIÓN
 
 ### Código de Autenticación
 - ✅ `lib/firebaseAuth.ts` - Implementado correctamente
@@ -84,6 +105,7 @@ PASWORD=your_password_here
 - ✅ Soporte para Google OAuth (signInWithPopup)
 - ✅ Soporte para correo/contraseña (signInWithEmailAndPassword)
 - ✅ Manejo de errores con mensajes en español
+- ✅ `lib/config.ts` - Corregido para usar variables de entorno
 
 ### Hook de Sesión
 - ✅ `lib/hooks/useAuthSession.ts` - Implementado
@@ -97,68 +119,30 @@ PASWORD=your_password_here
 
 ---
 
-## 🔧 REQUISITOS PARA CORREGIR EL LOGIN
+## 🎯 PRÓXIMOS PASOS
 
-### 1. Configurar Dominios Autorizados en Firebase
-```
-1. Ir a: https://console.firebase.google.com/
-2. Seleccionar proyecto: origen-erp-guatemala
-3. Navegar a: Authentication → Sign-in method → Google
-4. Ir a: Configuración de dominios autorizados
-5. Agregar: http://localhost:3000
-6. Agregar: https://origen-one-kohl.vercel.app
-7. Guardar cambios
-```
-
-### 2. Verificar Cliente OAuth Web
-```
-1. En Firebase Console → Authentication → Sign-in method → Google
-2. Verificar que "Web Client SDK" esté habilitado
-3. Copiar el Client ID si es necesario
-4. Verificar el Client Secret está configurado
-```
-
-### 3. Crear Usuario de Prueba (Opcional)
-```
-Opción A: Usar Google Auth (recomendado)
-- Cuenta de Google real puede usarse para pruebas
-
-Opción B: Crear usuario en Firebase Console
-1. Firebase Console → Authentication → Users
-2. Agregar usuario manualmente
-3. Crear cuenta de prueba: test@origen-erp.com
-4. Establecer contraseña temporal
-5. Usar esas credenciales para pruebas
-```
-
-### 4. Deshabilitar Bloqueador de Popups
-```
-Chrome: Configuración → Privacidad y seguridad → Configuración del sitio → Bloqueo de ventanas emergentes
-Firefox: Opciones → Privacidad y seguridad → Permisos → Bloquear ventanas emergentes
-```
+1. ✅ **COMPLETADO**: Corregir configuración de Firebase
+2. ✅ **COMPLETADO**: Commit y push de corrección
+3. 🔄 PENDIENTE: Usuario debe probar login en http://localhost:3000
+4. 🔄 PENDIENTE: Verificar que Vercel despliegue con la corrección
+5. 🔄 PENDIENTE: Actualizar workflow de CI manualmente (ver ACTUALIZAR-WORKFLOW.md)
 
 ---
 
-## 📝 CHECKLIST DE VERIFICACIÓN
+## 📋 CHECKLIST DE VERIFICACIÓN
 
+- [x] Variables de entorno en .env local
+- [x] Variables de entorno en Vercel
+- [x] Variables de entorno en GitHub Secrets
+- [x] Configuración corregida para usar variables de entorno
 - [ ] Dominio localhost:3000 agregado en Firebase Authentication
 - [ ] Dominio vercel.app agregado en Firebase Authentication
 - [ ] Cliente OAuth Web habilitado en Firebase
 - [ ] Provider Google habilitado en Firebase
-- [ ] Bloqueador de popups deshabilitado en navegador
-- [ ] Usuario de prueba creado (opcional)
-- [ ] Credenciales de prueba en .env (opcional)
+- [ ] Login con Google probado exitosamente
+- [ ] Login con correo/contraseña probado exitosamente
+- [ ] Workflow de CI actualizado manualmente
 
 ---
 
-## 🎯 PRÓXIMOS PASOS
-
-1. Usuario debe configurar dominios en Firebase Console
-2. Usuario debe probar login con Google (más fácil)
-3. Si falla Google, revisar configuración OAuth
-4. Si falla correo/contraseña, crear usuario de prueba
-5. Documentar credenciales de prueba en .env.local (gitignored)
-
----
-
-**Estado actual**: Esperando configuración de Firebase por parte del usuario.
+**Estado actual**: Configuración corregida. Usuario debe probar login y configurar dominios en Firebase Console.
