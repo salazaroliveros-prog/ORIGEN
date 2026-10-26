@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   FileText,
   Plus,
@@ -36,6 +36,10 @@ import { toast } from 'react-hot-toast';
 interface CotizacionesViewProps {
   projects?: Project[];
   company?: CompanySettings;
+  quotes: QuoteRecord[];
+  canWrite: boolean;
+  onSaveQuote: (quote: QuoteRecord) => Promise<boolean>;
+  onUpdateQuoteStatus: (quoteId: string, status: QuoteRecord['status']) => Promise<boolean>;
 }
 
 interface QuoteTemplate {
@@ -127,54 +131,21 @@ const QUOTE_TEMPLATES: QuoteTemplate[] = [
   },
 ];
 
-const INITIAL_QUOTES: QuoteRecord[] = [
-  {
-    id: 'COT-2026-001',
-    projectId: 'p1',
-    clientName: 'Ing. Rodrigo Castillo Valenzuela',
-    clientNit: '5492819-3',
-    date: '2026-10-18',
-    validUntil: '2026-11-18',
-    status: 'Enviada',
-    totalGTQ: 752600,
-    items: QUOTE_TEMPLATES[0].items,
-  },
-  {
-    id: 'COT-2026-002',
-    projectId: 'p2',
-    clientName: 'Inversiones Industriales del Sur, S.A.',
-    clientNit: '9482011-8',
-    date: '2026-10-21',
-    validUntil: '2026-11-21',
-    status: 'Aceptada',
-    totalGTQ: 1618000,
-    items: QUOTE_TEMPLATES[2].items,
-  },
-  {
-    id: 'COT-2026-003',
-    projectId: 'p3',
-    clientName: 'Corporación Inmobiliaria La Antigua',
-    clientNit: '2194019-0',
-    date: '2026-10-23',
-    validUntil: '2026-11-23',
-    status: 'Borrador',
-    totalGTQ: 915200,
-    items: QUOTE_TEMPLATES[1].items,
-  },
-];
-
 export function CotizacionesView({
   projects = [],
   company = initialCompanySettings,
+  quotes,
+  canWrite,
+  onSaveQuote,
+  onUpdateQuoteStatus,
 }: CotizacionesViewProps) {
-  const [quotes, setQuotes] = useState<QuoteRecord[]>(INITIAL_QUOTES);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'todos' | 'Borrador' | 'Enviada' | 'Aceptada' | 'Rechazada'>('todos');
 
   // Modal State for New/Edit Quote
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('tpl-residencial');
-  const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id || 'p1');
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id ?? '');
 
   // Form Fields
   const [clientName, setClientName] = useState('');
@@ -185,14 +156,39 @@ export function CotizacionesView({
   const [estimatedDuration, setEstimatedDuration] = useState('6 meses');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [taxPercent, setTaxPercent] = useState<number>(12); // SAT Guatemala 12%
-  const [notes, setNotes] = useState('Incluye supervisión técnica de arquitecto colegiado y bitácora autorizada.');
+  const [notes, setNotes] = useState('');
   const [quoteItems, setQuoteItems] = useState<QuoteItem[]>(QUOTE_TEMPLATES[0].items);
+  const [isSavingQuote, setIsSavingQuote] = useState(false);
 
   // New custom item row inputs
   const [newItemDesc, setNewItemDesc] = useState('');
   const [newItemQty, setNewItemQty] = useState('1');
   const [newItemUnit, setNewItemUnit] = useState('Global');
   const [newItemPrice, setNewItemPrice] = useState('10000');
+
+  const openNewQuote = () => {
+    setClientName('');
+    setClientNit('');
+    setClientPhone('');
+    setClientEmail('');
+    setClientAddress('');
+    setDiscountPercent(0);
+    setTaxPercent(12);
+    setNotes('');
+    setSelectedProjectId(projects[0]?.id ?? '');
+    setNewItemDesc('');
+    setNewItemQty('1');
+    setNewItemUnit('Global');
+    setNewItemPrice('10000');
+    handleApplyTemplate('tpl-residencial');
+    setIsModalOpen(true);
+  };
+
+  useEffect(() => {
+    if (!projects.some((project) => project.id === selectedProjectId)) {
+      setSelectedProjectId(projects[0]?.id ?? '');
+    }
+  }, [projects, selectedProjectId]);
 
   // Load a template into the active editor
   const handleApplyTemplate = (tplId: string) => {
@@ -211,8 +207,12 @@ export function CotizacionesView({
       toast.error('Ingrese la descripción del renglón');
       return;
     }
-    const qty = Number(newItemQty) || 1;
-    const price = Number(newItemPrice) || 0;
+    const qty = Number(newItemQty);
+    const price = Number(newItemPrice);
+    if (!Number.isFinite(qty) || qty <= 0 || !Number.isFinite(price) || price < 0) {
+      toast.error('La cantidad debe ser mayor a cero y el precio no puede ser negativo.');
+      return;
+    }
 
     setQuoteItems((prev) => [
       ...prev,
@@ -263,7 +263,8 @@ export function CotizacionesView({
 
   // Aggregate stats
   const stats = useMemo(() => {
-    const totalPipeline = quotes.reduce((sum, q) => sum + q.totalGTQ, 0);
+    const activeQuotes = quotes.filter((quote) => quote.status !== 'Rechazada');
+    const totalPipeline = activeQuotes.reduce((sum, q) => sum + q.totalGTQ, 0);
     const acceptedTotal = quotes
       .filter((q) => q.status === 'Aceptada')
       .reduce((sum, q) => sum + q.totalGTQ, 0);
@@ -275,11 +276,12 @@ export function CotizacionesView({
       acceptedTotal,
       acceptedCount,
       pendingCount,
+      activeCount: activeQuotes.length,
     };
   }, [quotes]);
 
   // Save new quote
-  const handleSaveQuote = (status: 'Borrador' | 'Enviada' = 'Enviada') => {
+  const handleSaveQuote = async (status: 'Borrador' | 'Enviada' = 'Enviada') => {
     if (!clientName.trim()) {
       toast.error('Ingrese el nombre del cliente o empresa');
       return;
@@ -288,25 +290,60 @@ export function CotizacionesView({
       toast.error('La cotización debe contener al menos un renglón de trabajo');
       return;
     }
+    const targetProject = projects.find((p) => p.id === selectedProjectId);
+    if (!targetProject) {
+      toast.error('Crea o selecciona un proyecto antes de emitir una cotización.');
+      return;
+    }
 
-    const newCode = `COT-2026-${String(quotes.length + 1).padStart(3, '0')}`;
-    const targetProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
+    const date = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Guatemala',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+    const newCode = `COT-${date.slice(0, 4)}-${globalThis.crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
 
     const newQuote: QuoteRecord = {
       id: newCode,
-      projectId: targetProject?.id || 'p1',
+      projectId: targetProject.id,
       clientName: clientName.trim(),
       clientNit: clientNit.trim() || 'CF',
-      date: new Date().toISOString().split('T')[0],
-      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      clientPhone: clientPhone.trim(),
+      clientEmail: clientEmail.trim(),
+      clientAddress: clientAddress.trim(),
+      date,
+      validUntil: new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Guatemala',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(expirationDate),
       items: quoteItems,
       totalGTQ: Math.round(computedTotal),
       status,
+      notes: notes.trim(),
+      estimatedDuration: estimatedDuration.trim(),
+      subtotalGTQ: Math.round(computedGross),
+      discountPercent,
+      taxPercent,
+      taxGTQ: Math.round(computedTax),
     };
 
-    setQuotes((prev) => [newQuote, ...prev]);
-    setIsModalOpen(false);
-    toast.success(`Cotización ${newCode} creada con éxito`);
+    setIsSavingQuote(true);
+    try {
+      if (await onSaveQuote(newQuote)) {
+        setIsModalOpen(false);
+        toast.success(`Cotización ${newCode} guardada.`);
+      }
+    } catch (error) {
+      console.error('No se pudo guardar la cotización:', error);
+      toast.error('No se pudo guardar la cotización. Intenta nuevamente.');
+    } finally {
+      setIsSavingQuote(false);
+    }
   };
 
   // Generate & Download PDF for any quote
@@ -320,11 +357,11 @@ export function CotizacionesView({
       clientNit: quote.clientNit,
       date: quote.date,
       validUntil: quote.validUntil,
-      estimatedDuration: '4 a 6 meses de ejecución',
+      estimatedDuration: quote.estimatedDuration ?? 'Por definir',
       items: quote.items,
-      taxPercent: 12,
-      discountPercent: 0,
-      notes: 'Supervisión profesional colegiada bajo normas AGIES y Código de Construcción de Guatemala.',
+      taxPercent: quote.taxPercent ?? 12,
+      discountPercent: quote.discountPercent ?? 0,
+      notes: quote.notes ?? '',
       templateName: 'Propuesta Comercial Formal',
     };
 
@@ -344,7 +381,8 @@ export function CotizacionesView({
       `*PROPUESTA COMERCIAL - ${company.commercialName}*\n` +
       `Estimado(a) *${quote.clientName}*,\n` +
       `Le compartimos la cotización *${quote.id}* emitida con fecha ${quote.date}.\n\n` +
-      `• Monto Total de Obra: *${formatGTQ(quote.totalGTQ)}* (incluye IVA 12% SAT)\n` +
+      `• Monto Total de Obra: *${formatGTQ(quote.totalGTQ)}*` +
+      (quote.taxPercent ? ` (incluye IVA ${quote.taxPercent}%)\n` : '\n') +
       `• Validez de la oferta: Hasta el ${quote.validUntil}\n\n` +
       `Quedamos a su disposición para coordinar la firma de contrato e inicio de obra.\n` +
       `*${company.architectName}* - Col. ${company.architectColNumber}\n` +
@@ -354,11 +392,10 @@ export function CotizacionesView({
   };
 
   // Update status directly from card
-  const handleUpdateStatus = (quoteId: string, newStatus: 'Aceptada' | 'Rechazada' | 'Enviada') => {
-    setQuotes((prev) =>
-      prev.map((q) => (q.id === quoteId ? { ...q, status: newStatus } : q))
-    );
-    toast.success(`Estado actualizado a: ${newStatus}`);
+  const handleUpdateStatus = async (quoteId: string, newStatus: 'Aceptada' | 'Rechazada' | 'Enviada') => {
+    if (await onUpdateQuoteStatus(quoteId, newStatus)) {
+      toast.success(`Estado actualizado a: ${newStatus}`);
+    }
   };
 
   return (
@@ -372,25 +409,25 @@ export function CotizacionesView({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-extrabold text-white tracking-tight">
-                Cotizaciones Comerciales & Propuestas Rápidas
+                Cotizaciones Comerciales
               </h1>
               <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md border border-amber-400/30">
-                PDF SAT Guatemala
+                Propuesta PDF
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Generador de presupuestos desde la obra basado en plantillas técnicas, exportación a PDF formal y envío instantáneo a clientes.
+              Crea propuestas vinculadas a proyectos, descarga el PDF comercial y comparte la oferta por WhatsApp.
             </p>
           </div>
         </div>
 
         {/* Action Button */}
         <button
-          onClick={() => {
-            handleApplyTemplate('tpl-residencial');
-            setIsModalOpen(true);
-          }}
-          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-500/20 cursor-pointer flex items-center gap-2"
+          type="button"
+          onClick={openNewQuote}
+          disabled={!canWrite || projects.length === 0}
+          title={!canWrite ? 'Tu rol no permite crear cotizaciones' : projects.length === 0 ? 'Primero crea un proyecto para asociar la cotización' : undefined}
+          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-500/20 cursor-pointer flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus className="w-4 h-4" />
           Nueva Cotización Rápida
@@ -401,12 +438,12 @@ export function CotizacionesView({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-md">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Propuestas Activas</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Propuestas Vigentes</span>
             <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
               <FileText className="w-4 h-4" />
             </span>
           </div>
-          <p className="text-2xl font-black text-white mt-1">{quotes.length}</p>
+          <p className="text-2xl font-black text-white mt-1">{stats.activeCount}</p>
           <p className="text-[11px] text-slate-400 mt-0.5">{stats.pendingCount} cotizaciones en seguimiento</p>
         </div>
 
@@ -420,12 +457,12 @@ export function CotizacionesView({
           <p className="text-2xl font-black text-amber-400 mt-1 font-mono">
             {formatGTQ(stats.totalPipeline)}
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">Cartera global de ofertas</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">Ofertas no rechazadas</p>
         </div>
 
         <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-md">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Obras Ganadas</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Propuestas Aceptadas</span>
             <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
               <CheckCircle2 className="w-4 h-4" />
             </span>
@@ -433,7 +470,7 @@ export function CotizacionesView({
           <p className="text-2xl font-black text-emerald-400 mt-1 font-mono">
             {formatGTQ(stats.acceptedTotal)}
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">{stats.acceptedCount} contratos cerrados</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">          {stats.acceptedCount} propuestas aceptadas</p>
         </div>
 
         <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-md">
@@ -483,9 +520,26 @@ export function CotizacionesView({
       </div>
 
       {/* Quotes Cards Grid */}
+      {filteredQuotes.length === 0 ? (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-8 text-center">
+          <FileText className="mx-auto mb-3 h-8 w-8 text-slate-500" />
+          <h2 className="font-bold text-white">
+            {quotes.length === 0 ? 'Aún no hay cotizaciones' : 'No hay resultados para esta búsqueda'}
+          </h2>
+          <p className="mt-2 text-sm text-slate-400">
+            {quotes.length === 0
+              ? !canWrite
+                ? 'No tienes permisos para crear cotizaciones en este espacio de empresa.'
+                : projects.length > 0
+                  ? 'Crea una propuesta para este espacio de empresa. Se guardará y estará disponible para el equipo.'
+                  : 'Crea primero un proyecto para poder vincular la propuesta a una obra.'
+              : 'Prueba con otro cliente, NIT, código o estado.'}
+          </p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredQuotes.map((q) => {
-          const targetProj = projects.find((p) => p.id === q.projectId) || projects[0];
+          const targetProj = projects.find((p) => p.id === q.projectId);
 
           return (
             <div
@@ -516,7 +570,7 @@ export function CotizacionesView({
                 <div>
                   <h3 className="font-extrabold text-white text-base leading-snug">{q.clientName}</h3>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    NIT: {q.clientNit} • Obra: <strong className="text-slate-300">{targetProj?.name}</strong>
+                    NIT: {q.clientNit} • Obra: <strong className="text-slate-300">{targetProj?.name ?? 'Proyecto no disponible'}</strong>
                   </p>
                 </div>
 
@@ -537,7 +591,7 @@ export function CotizacionesView({
               <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Monto Total (c/ IVA 12%)
+                    Monto Total {q.taxPercent ? `(c/ IVA ${q.taxPercent}%)` : '(sin IVA)'}
                   </span>
                   <span className="text-xl font-black text-emerald-400 font-mono">
                     {formatGTQ(q.totalGTQ)}
@@ -568,7 +622,7 @@ export function CotizacionesView({
                   <Share2 className="w-4 h-4" />
                 </button>
 
-                {q.status !== 'Aceptada' && (
+                {canWrite && q.status !== 'Aceptada' && (
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus(q.id, 'Aceptada')}
@@ -583,6 +637,7 @@ export function CotizacionesView({
           );
         })}
       </div>
+      )}
 
       {/* CREATE NEW QUOTE MODAL */}
       {isModalOpen && (
@@ -682,6 +737,7 @@ export function CotizacionesView({
                       onChange={(e) => setSelectedProjectId(e.target.value)}
                       className="w-full px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
                     >
+                      <option value="" disabled>Selecciona un proyecto</option>
                       {projects.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.code ? `${p.code} - ${p.name.substring(0, 20)}` : p.name}
@@ -722,6 +778,56 @@ export function CotizacionesView({
                       className="w-full px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Dirección del Cliente</label>
+                    <input
+                      type="text"
+                      value={clientAddress}
+                      onChange={(e) => setClientAddress(e.target.value)}
+                      placeholder="Dirección fiscal o de contacto"
+                      className="w-full px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Descuento (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={discountPercent}
+                      onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Impuesto (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={taxPercent}
+                      onChange={(e) => setTaxPercent(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-500">
+                  Confirma la aplicación del impuesto y los porcentajes con tu asesor contable antes de enviar una oferta.
+                </p>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Notas y condiciones de la oferta</label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={3}
+                    placeholder="Condiciones, exclusiones, garantías u observaciones acordadas..."
+                    className="w-full resize-y px-3 py-2 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
                 </div>
               </div>
 
@@ -824,7 +930,7 @@ export function CotizacionesView({
               {/* Financial Summary & Total */}
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="text-xs text-slate-400 space-y-1">
-                  <p>• Impuesto: <strong>12% IVA SAT Guatemala</strong> incluido en la propuesta.</p>
+                  <p>• Impuesto configurado: <strong>{taxPercent}%</strong> incluido en la propuesta.</p>
                   <p>• Tipo de cambio referencial: <strong>Q{company.exchangeRate} / USD</strong>.</p>
                 </div>
 
@@ -834,7 +940,7 @@ export function CotizacionesView({
                     <strong>{formatGTQ(computedGross)}</strong>
                   </div>
                   <div className="flex justify-between sm:justify-end gap-6 text-xs text-slate-400">
-                    <span>IVA SAT (12%):</span>
+                    <span>Impuesto ({taxPercent}%):</span>
                     <strong>{formatGTQ(computedTax)}</strong>
                   </div>
                   <div className="flex justify-between sm:justify-end gap-6 text-base font-black text-emerald-400 border-t border-slate-800 pt-1">
@@ -858,18 +964,20 @@ export function CotizacionesView({
               <button
                 type="button"
                 onClick={() => handleSaveQuote('Borrador')}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer"
+                disabled={!canWrite || isSavingQuote || projects.length === 0}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Guardar Borrador
+                {isSavingQuote ? 'Guardando...' : 'Guardar Borrador'}
               </button>
 
               <button
                 type="button"
                 onClick={() => handleSaveQuote('Enviada')}
-                className="px-5 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5"
+                disabled={!canWrite || isSavingQuote || projects.length === 0}
+                className="px-5 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="w-3.5 h-3.5" />
-                Guardar y Emitir Cotización
+                {isSavingQuote ? 'Guardando...' : '                Guardar como Enviada'}
               </button>
             </div>
           </div>

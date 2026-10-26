@@ -1,9 +1,11 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import {
   getFirestore,
   connectFirestoreEmulator,
   doc,
+  deleteField,
+  updateDoc,
   setDoc,
   deleteDoc,
   collection,
@@ -16,7 +18,19 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
-import { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings, Employee } from './types';
+import {
+  Project,
+  FieldVisit,
+  ExpenseRecord,
+  AttendanceRecord,
+  CompanySettings,
+  Employee,
+  EmployeeDirectoryEntry,
+  Machinery,
+  MachineryLog,
+  QuoteRecord,
+  APUItem,
+} from './types';
 import { notifySyncStart, notifySyncEnd } from './hooks/useFirebaseSyncStatus';
 
 const firebaseConfig = getFirebaseConfig();
@@ -39,6 +53,25 @@ export const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()
 const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
 export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
+
+const authEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST?.trim();
+if (authEmulatorHost) {
+  const emulatorUrl = authEmulatorHost.includes('://')
+    ? authEmulatorHost
+    : `http://${authEmulatorHost}`;
+  const parsedEmulatorUrl = new URL(emulatorUrl);
+  if (
+    parsedEmulatorUrl.protocol !== 'http:' ||
+    !parsedEmulatorUrl.hostname ||
+    (parsedEmulatorUrl.port &&
+      (!Number.isInteger(Number(parsedEmulatorUrl.port)) ||
+        Number(parsedEmulatorUrl.port) < 1 ||
+        Number(parsedEmulatorUrl.port) > 65535))
+  ) {
+    throw new Error('NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST must be an HTTP emulator URL.');
+  }
+  connectAuthEmulator(auth, parsedEmulatorUrl.origin, { disableWarnings: true });
+}
 
 const firestoreEmulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.trim();
 if (firestoreEmulatorHost) {
@@ -128,7 +161,7 @@ export function handleFirestoreError(
   return new Error(serialized);
 }
 
-export async function saveProjectToFirestore(project: Project, userId: string) {
+export async function saveProjectToFirestore(project: Project, companyId: string, userId: string) {
   const path = `projects/${project.id}`;
   notifySyncStart();
   try {
@@ -137,7 +170,9 @@ export async function saveProjectToFirestore(project: Project, userId: string) {
       docRef,
       {
         ...project,
-        ownerId: userId,
+        companyId,
+        ownerId: companyId,
+        createdBy: project.createdBy ?? userId,
       },
       { merge: true }
     );
@@ -155,6 +190,7 @@ export async function saveProjectScheduleToFirestore(
   schedule: Partial<
     Pick<Project, 'scheduleTasks' | 'scheduleMilestones' | 'taskReminders' | 'progressPercent'>
   >,
+  companyId: string,
   userId: string
 ): Promise<boolean> {
   const path = `projects/${projectId}`;
@@ -163,7 +199,9 @@ export async function saveProjectScheduleToFirestore(
       doc(db, 'projects', projectId),
       {
         ...schedule,
-        ownerId: userId,
+        companyId,
+        ownerId: companyId,
+        updatedBy: userId,
       },
       { merge: true }
     );
@@ -174,10 +212,10 @@ export async function saveProjectScheduleToFirestore(
   }
 }
 
-export function subscribeProjects(userId: string, callback: (projects: Project[]) => void): Unsubscribe {
+export function subscribeProjects(companyId: string, callback: (projects: Project[]) => void): Unsubscribe {
   const path = 'projects';
   try {
-    const q = query(collection(db, path), where('ownerId', '==', userId));
+    const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
       (snapshot) => {
@@ -198,78 +236,18 @@ export function subscribeProjects(userId: string, callback: (projects: Project[]
   }
 }
 
-export async function deleteProjectFromFirestore(projectId: string) {
-  const path = `projects/${projectId}`;
+export async function deleteAttendanceFromFirestore(attendanceId: string): Promise<boolean> {
+  const path = `attendance/${attendanceId}`;
   try {
-    await deleteDoc(doc(db, 'projects', projectId));
+    await deleteDoc(doc(db, 'attendance', attendanceId));
     return true;
-  } catch (err) {
-    handleFirestoreError(err, OperationType.DELETE, path);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
     return false;
   }
 }
 
-export async function deleteExpensesByProject(projectId: string, userId: string): Promise<boolean> {
-  try {
-    const q = query(
-      collection(db, 'expenses'),
-      where('projectId', '==', projectId),
-      where('authorId', '==', userId)
-    );
-    const snapshot = await getDocs(q);
-    const batch = writeBatch(db);
-    snapshot.forEach((docSnap) => {
-      batch.delete(docSnap.ref);
-    });
-    await batch.commit();
-    return true;
-  } catch (err) {
-    handleFirestoreError(err, OperationType.DELETE, `expenses/${projectId}`);
-    return false;
-  }
-}
-
-export async function deleteFieldVisitsByProject(projectId: string, userId: string): Promise<boolean> {
-  try {
-    const q = query(
-      collection(db, 'fieldVisits'),
-      where('projectId', '==', projectId),
-      where('authorId', '==', userId)
-    );
-    const snapshot = await getDocs(q);
-    const batch = writeBatch(db);
-    snapshot.forEach((docSnap) => {
-      batch.delete(docSnap.ref);
-    });
-    await batch.commit();
-    return true;
-  } catch (err) {
-    handleFirestoreError(err, OperationType.DELETE, `fieldVisits/${projectId}`);
-    return false;
-  }
-}
-
-export async function deleteAttendanceByProject(projectId: string, userId: string): Promise<boolean> {
-  try {
-    const q = query(
-      collection(db, 'attendance'),
-      where('projectId', '==', projectId),
-      where('authorId', '==', userId)
-    );
-    const snapshot = await getDocs(q);
-    const batch = writeBatch(db);
-    snapshot.forEach((docSnap) => {
-      batch.delete(docSnap.ref);
-    });
-    await batch.commit();
-    return true;
-  } catch (err) {
-    handleFirestoreError(err, OperationType.DELETE, `attendance/${projectId}`);
-    return false;
-  }
-}
-
-export async function saveFieldVisitToFirestore(visit: FieldVisit, userId: string) {
+export async function saveFieldVisitToFirestore(visit: FieldVisit, companyId: string, userId: string) {
   const path = `fieldVisits/${visit.id}`;
   try {
     const docRef = doc(db, 'fieldVisits', visit.id);
@@ -277,6 +255,7 @@ export async function saveFieldVisitToFirestore(visit: FieldVisit, userId: strin
       docRef,
       {
         ...visit,
+        companyId,
         authorId: userId,
       },
       { merge: true }
@@ -288,10 +267,10 @@ export async function saveFieldVisitToFirestore(visit: FieldVisit, userId: strin
   }
 }
 
-export function subscribeFieldVisits(userId: string, callback: (visits: FieldVisit[]) => void): Unsubscribe {
+export function subscribeFieldVisits(companyId: string, callback: (visits: FieldVisit[]) => void): Unsubscribe {
   const path = 'fieldVisits';
   try {
-    const q = query(collection(db, path), where('authorId', '==', userId));
+    const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
       (snapshot) => {
@@ -309,7 +288,7 @@ export function subscribeFieldVisits(userId: string, callback: (visits: FieldVis
   }
 }
 
-export async function saveExpenseToFirestore(expense: ExpenseRecord, userId: string) {
+export async function saveExpenseToFirestore(expense: ExpenseRecord, companyId: string, userId: string) {
   const path = `expenses/${expense.id}`;
   try {
     const docRef = doc(db, 'expenses', expense.id);
@@ -317,6 +296,7 @@ export async function saveExpenseToFirestore(expense: ExpenseRecord, userId: str
       docRef,
       {
         ...expense,
+        companyId,
         authorId: userId,
       },
       { merge: true }
@@ -339,10 +319,10 @@ export async function deleteExpenseFromFirestore(expenseId: string): Promise<boo
   }
 }
 
-export function subscribeExpenses(userId: string, callback: (expenses: ExpenseRecord[]) => void): Unsubscribe {
+export function subscribeExpenses(companyId: string, callback: (expenses: ExpenseRecord[]) => void): Unsubscribe {
   const path = 'expenses';
   try {
-    const q = query(collection(db, path), where('authorId', '==', userId));
+    const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
       (snapshot) => {
@@ -360,7 +340,7 @@ export function subscribeExpenses(userId: string, callback: (expenses: ExpenseRe
   }
 }
 
-export async function saveAttendanceToFirestore(record: AttendanceRecord, userId: string) {
+export async function saveAttendanceToFirestore(record: AttendanceRecord, companyId: string, userId: string) {
   const path = `attendance/${record.id}`;
   try {
     const docRef = doc(db, 'attendance', record.id);
@@ -368,6 +348,7 @@ export async function saveAttendanceToFirestore(record: AttendanceRecord, userId
       docRef,
       {
         ...record,
+        companyId,
         authorId: userId,
       },
       { merge: true }
@@ -379,10 +360,10 @@ export async function saveAttendanceToFirestore(record: AttendanceRecord, userId
   }
 }
 
-export function subscribeAttendance(userId: string, callback: (records: AttendanceRecord[]) => void): Unsubscribe {
+export function subscribeAttendance(companyId: string, callback: (records: AttendanceRecord[]) => void): Unsubscribe {
   const path = 'attendance';
   try {
-    const q = query(collection(db, path), where('authorId', '==', userId));
+    const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
       (snapshot) => {
@@ -400,14 +381,22 @@ export function subscribeAttendance(userId: string, callback: (records: Attendan
   }
 }
 
-export async function saveEmployeeToFirestore(employee: Employee, userId: string): Promise<boolean> {
+export async function saveEmployeeToFirestore(employee: Employee, companyId: string, userId: string): Promise<boolean> {
   const path = `employees/${employee.id}`;
   try {
-    await setDoc(
+    const batch = writeBatch(db);
+    batch.set(
       doc(db, 'employees', employee.id),
-      { ...employee, ownerId: userId },
+      { ...employee, companyId, ownerId: companyId, createdBy: userId },
       { merge: true }
     );
+    batch.set(doc(db, 'employeeDirectory', employee.id), {
+      id: employee.id,
+      companyId,
+      name: employee.name,
+      role: employee.role,
+    });
+    await batch.commit();
     return true;
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, path);
@@ -415,16 +404,49 @@ export async function saveEmployeeToFirestore(employee: Employee, userId: string
   }
 }
 
-export function subscribeEmployees(userId: string, callback: (employees: Employee[]) => void): Unsubscribe {
+async function createMissingEmployeeDirectoryEntries(
+  employees: Employee[],
+  companyId: string
+): Promise<void> {
+  if (employees.length === 0) return;
+  const existing = await getDocs(
+    query(collection(db, 'employeeDirectory'), where('companyId', '==', companyId))
+  );
+  const existingIds = new Set(existing.docs.map((item) => item.id));
+  const missing = employees.filter((employee) => !existingIds.has(employee.id));
+
+  for (let offset = 0; offset < missing.length; offset += 450) {
+    const batch = writeBatch(db);
+    for (const employee of missing.slice(offset, offset + 450)) {
+      const entry: EmployeeDirectoryEntry = {
+        id: employee.id,
+        companyId,
+        name: employee.name,
+        role: employee.role,
+      };
+      batch.set(doc(db, 'employeeDirectory', employee.id), entry);
+    }
+    await batch.commit();
+  }
+}
+
+export function subscribeEmployees(companyId: string, callback: (employees: Employee[]) => void): Unsubscribe {
   const path = 'employees';
   try {
-    const q = query(collection(db, path), where('ownerId', '==', userId));
+    const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
       (snapshot) => {
         const list: Employee[] = [];
         snapshot.forEach((docSnap) => list.push(docSnap.data() as Employee));
         callback(list);
+        void createMissingEmployeeDirectoryEntries(list, companyId).catch((error: unknown) => {
+          handleFirestoreError(
+            error,
+            OperationType.WRITE,
+            `employeeDirectory/${companyId}`
+          );
+        });
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, path);
@@ -436,15 +458,34 @@ export function subscribeEmployees(userId: string, callback: (employees: Employe
   }
 }
 
-export async function saveCompanySettingsToFirestore(settings: CompanySettings, userId: string) {
-  const path = `companySettings/${userId}`;
+export function subscribeEmployeeDirectory(
+  companyId: string,
+  callback: (employees: EmployeeDirectoryEntry[]) => void
+): Unsubscribe {
+  const path = 'employeeDirectory';
   try {
-    const docRef = doc(db, 'companySettings', userId);
+    return onSnapshot(
+      query(collection(db, path), where('companyId', '==', companyId)),
+      (snapshot) =>
+        callback(snapshot.docs.map((item) => item.data() as EmployeeDirectoryEntry)),
+      (error) => handleFirestoreError(error, OperationType.LIST, path)
+    );
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return () => {};
+  }
+}
+
+export async function saveCompanySettingsToFirestore(settings: CompanySettings, companyId: string) {
+  const path = `companySettings/${companyId}`;
+  try {
+    const docRef = doc(db, 'companySettings', companyId);
     await setDoc(
       docRef,
       {
         ...settings,
-        ownerId: userId,
+        companyId,
+        ownerId: companyId,
       },
       { merge: true }
     );
@@ -455,10 +496,10 @@ export async function saveCompanySettingsToFirestore(settings: CompanySettings, 
   }
 }
 
-export function subscribeCompanySettings(userId: string, callback: (settings: CompanySettings | null) => void): Unsubscribe {
-  const path = `companySettings/${userId}`;
+export function subscribeCompanySettings(companyId: string, callback: (settings: CompanySettings | null) => void): Unsubscribe {
+  const path = `companySettings/${companyId}`;
   try {
-    const docRef = doc(db, 'companySettings', userId);
+    const docRef = doc(db, 'companySettings', companyId);
     return onSnapshot(
       docRef,
       (docSnap) => {
@@ -475,5 +516,231 @@ export function subscribeCompanySettings(userId: string, callback: (settings: Co
   } catch (err) {
     handleFirestoreError(err, OperationType.GET, path);
     return () => {};
+  }
+}
+
+export function subscribeQuotes(companyId: string, callback: (quotes: QuoteRecord[]) => void): Unsubscribe {
+  const path = 'quotes';
+  try {
+    return onSnapshot(
+      query(collection(db, path), where('companyId', '==', companyId)),
+      (snapshot) => callback(snapshot.docs.map((item) => item.data() as QuoteRecord)),
+      (error) => handleFirestoreError(error, OperationType.LIST, path)
+    );
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return () => {};
+  }
+}
+
+export function subscribeAPUItems(companyId: string, callback: (items: APUItem[]) => void): Unsubscribe {
+  const path = 'apuItems';
+  try {
+    return onSnapshot(
+      query(collection(db, path), where('companyId', '==', companyId)),
+      (snapshot) => callback(snapshot.docs.map((item) => item.data() as APUItem)),
+      (error) => handleFirestoreError(error, OperationType.LIST, path)
+    );
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return () => {};
+  }
+}
+
+export async function saveAPUItemsToFirestore(
+  items: APUItem[],
+  projectId: string,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  if (items.length > 500) {
+    console.error('No se pueden guardar más de 500 partidas APU en una operación.');
+    return false;
+  }
+
+  const path = 'apuItems';
+  try {
+    const batch = writeBatch(db);
+    for (const item of items) {
+      batch.set(
+        doc(db, path, item.id),
+        { ...item, companyId, projectId, createdBy: item.createdBy ?? userId, updatedBy: userId },
+        { merge: true }
+      );
+    }
+    await batch.commit();
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export async function deleteAPUItemFromFirestore(itemId: string): Promise<boolean> {
+  const path = `apuItems/${itemId}`;
+  try {
+    await deleteDoc(doc(db, 'apuItems', itemId));
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
+    return false;
+  }
+}
+
+export async function saveQuoteToFirestore(
+  quote: QuoteRecord,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `quotes/${quote.id}`;
+  try {
+    await setDoc(
+      doc(db, 'quotes', quote.id),
+      { ...quote, companyId, createdBy: userId, updatedBy: userId },
+      { merge: true }
+    );
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export async function updateQuoteStatusInFirestore(
+  quote: QuoteRecord,
+  status: QuoteRecord['status'],
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  return saveQuoteToFirestore({ ...quote, status }, companyId, userId);
+}
+
+export function subscribeMachinery(
+  companyId: string,
+  callback: (machinery: Machinery[]) => void
+): Unsubscribe {
+  const path = 'machinery';
+  try {
+    return onSnapshot(
+      query(collection(db, path), where('companyId', '==', companyId)),
+      (snapshot) => callback(snapshot.docs.map((item) => item.data() as Machinery)),
+      (error) => handleFirestoreError(error, OperationType.LIST, path)
+    );
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return () => {};
+  }
+}
+
+export async function saveMachineryToFirestore(
+  machinery: Machinery,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `machinery/${machinery.id}`;
+  try {
+    await setDoc(
+      doc(db, 'machinery', machinery.id),
+      { ...machinery, companyId, createdBy: machinery.createdBy ?? userId },
+      { merge: true }
+    );
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export async function updateMachineryStatusInFirestore(
+  machinery: Machinery,
+  status: Machinery['status'],
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `machinery/${machinery.id}`;
+  try {
+    await updateDoc(doc(db, 'machinery', machinery.id), {
+      status,
+      updatedBy: userId,
+      ...(status === 'Disponible' ? { currentProjectId: deleteField() } : {}),
+      companyId,
+    });
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+    return false;
+  }
+}
+
+export function subscribeMachineryLogs(
+  companyId: string,
+  callback: (logs: MachineryLog[]) => void
+): Unsubscribe {
+  const path = 'machineryLogs';
+  try {
+    return onSnapshot(
+      query(collection(db, path), where('companyId', '==', companyId)),
+      (snapshot) => callback(snapshot.docs.map((item) => item.data() as MachineryLog)),
+      (error) => handleFirestoreError(error, OperationType.LIST, path)
+    );
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return () => {};
+  }
+}
+
+export async function recordMachineryUse(
+  log: MachineryLog,
+  machinery: Machinery,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const logPath = `machineryLogs/${log.id}`;
+  try {
+    const batch = writeBatch(db);
+    const nextHorometer = machinery.currentHorometer + log.hoursWorked;
+    const expenseId = `machine-${log.id}`;
+    const expense: ExpenseRecord = {
+      id: expenseId,
+      projectId: log.projectId,
+      date: log.date,
+      category: 'Maquinaria y Combustible',
+      description: `${log.machineryName}: ${log.hoursWorked} horas de operación`,
+      supplier: 'Operación interna',
+      nitSupplier: 'CF',
+      facturaNumber: 'SIN-FACTURA',
+      amount: log.costGTQ,
+      currency: 'GTQ',
+      paymentMethod: 'Pendiente',
+      approvalStatus: 'Pendiente',
+    };
+
+    batch.set(doc(db, 'machineryLogs', log.id), {
+      ...log,
+      companyId,
+      createdBy: userId,
+      expenseId,
+    });
+    batch.set(
+      doc(db, 'machinery', machinery.id),
+      {
+        ...machinery,
+        companyId,
+        currentHorometer: nextHorometer,
+        currentProjectId: log.projectId,
+        status: 'En Obra',
+      },
+      { merge: true }
+    );
+    batch.set(doc(db, 'expenses', expenseId), {
+      ...expense,
+      companyId,
+      authorId: userId,
+    });
+    await batch.commit();
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, logPath);
+    return false;
   }
 }

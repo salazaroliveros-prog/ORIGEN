@@ -7,7 +7,14 @@ DEFAULT_GEOFENCE_RADIUS_METERS,
 getCurrentGpsPosition,
 validateProjectGeofence
 } from '@/lib/geofencing';
-import { AttendanceRecord,Employee,Project } from '@/lib/types';
+import {
+AttendanceRecord,
+CompanySettings,
+Employee,
+EmployeeDirectoryEntry,
+EmployeeRole,
+Project
+} from '@/lib/types';
 import {
 AlertTriangle,
 BarChart3,
@@ -28,23 +35,27 @@ import React,{ useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 interface StaffAndAttendanceProps {
-  employees: Employee[];
+  employees: Array<Employee | EmployeeDirectoryEntry>;
   attendance: AttendanceRecord[];
+  company?: CompanySettings;
   projects: Project[];
   activeProjectId: string;
-  onAddEmployee: (emp: Employee) => Promise<boolean>;
+  onAddEmployee?: (emp: Employee) => Promise<boolean>;
   onAddAttendance?: (record: AttendanceRecord) => Promise<boolean>;
-  onDeleteAttendance?: (id: string) => void;
+  onDeleteAttendance?: (id: string) => Promise<boolean>;
+  canViewEmployeeDetails: boolean;
 }
 
 export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   employees,
   attendance,
+  company,
   projects,
   activeProjectId,
   onAddEmployee,
   onAddAttendance,
   onDeleteAttendance,
+  canViewEmployeeDetails,
 }) => {
   // Navigation Tabs: 'asistencia', 'personal', or 'productividad'
   const [activeTab, setActiveTab] = useState<'asistencia' | 'personal' | 'productividad'>('asistencia');
@@ -52,9 +63,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   // Employee creation modal
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [name, setName] = useState('');
-  const [role, setRole] = useState<
-    'Capataz' | 'Albañil' | 'Ayudante' | 'Arquitecto Residente' | 'Bodeguero' | 'Electricista'
-  >('Albañil');
+  const [role, setRole] = useState<EmployeeRole>('Albañil');
   const [rate, setRate] = useState('175');
   const [phone, setPhone] = useState('+502 ');
   const [isSavingEmployee, setIsSavingEmployee] = useState(false);
@@ -90,6 +99,15 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   const [historyProjectFilter, setHistoryProjectFilter] = useState<string>(activeProjectId);
 
   const currentProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
+  const employeesWithDetails = employees.filter(
+    (employee): employee is Employee => 'dailyRateGTQ' in employee
+  );
+
+  useEffect(() => {
+    if (!canViewEmployeeDetails && activeTab === 'productividad') {
+      setActiveTab('asistencia');
+    }
+  }, [activeTab, canViewEmployeeDetails]);
 
   useEffect(() => {
     if (projects.length === 0 || projects.some((project) => project.id === selectedProjectId)) return;
@@ -293,6 +311,10 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   // Employee creation submit
   const handleCreateEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!onAddEmployee) {
+      toast.error('Tu rol no permite registrar personal.');
+      return;
+    }
     if (!name.trim()) {
       toast.error('Ingresa el nombre del empleado.');
       return;
@@ -371,7 +393,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
             >
               Cuadrillas ({employees.length})
             </button>
-            <button
+            {canViewEmployeeDetails && <button
               onClick={() => setActiveTab('productividad')}
               className={`inline-flex min-h-11 items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer sm:min-h-9 ${
                 activeTab === 'productividad'
@@ -381,15 +403,15 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
             >
               <BarChart3 className="w-3.5 h-3.5" />
               Productividad Recharts
-            </button>
+            </button>}
           </div>
 
-          <button
+          {onAddEmployee && <button
             onClick={() => setIsOpenModal(true)}
             className="inline-flex min-h-11 items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs transition shadow-sm cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Nuevo Empleado
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -454,7 +476,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                 </span>
               </div>
 
-              <form onSubmit={handleRegisterAttendance} className="space-y-4">
+              {onAddAttendance ? <form onSubmit={handleRegisterAttendance} className="space-y-4">
                 {/* Project selector */}
                 <div>
                   <label htmlFor="attendance-project" className="block text-xs font-semibold text-slate-700 mb-1">
@@ -509,7 +531,8 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   >
                     {employees.map((emp) => (
                       <option key={emp.id} value={emp.id}>
-                        {emp.name} — {emp.role} ({formatGTQ(emp.dailyRateGTQ)}/día)
+                        {emp.name} — {emp.role}
+                        {'dailyRateGTQ' in emp ? ` (${formatGTQ(emp.dailyRateGTQ)}/día)` : ''}
                       </option>
                     ))}
                   </select>
@@ -684,7 +707,11 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   <Check className="w-4 h-4" />
                   Guardar Registro de Asistencia
                 </button>
-              </form>
+              </form> : (
+                <p role="status" className="rounded-lg bg-slate-100 p-3 text-xs text-slate-600">
+                  Tu rol tiene acceso de consulta, pero no permite registrar asistencia.
+                </p>
+              )}
             </div>
           </div>
 
@@ -810,7 +837,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                             <td className="py-3 text-right pr-1">
                               {onDeleteAttendance && (
                                 <button
-                                  onClick={() => onDeleteAttendance(rec.id)}
+                                  onClick={() => void onDeleteAttendance(rec.id)}
                                   className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                                   title="Eliminar registro"
                                 >
@@ -839,7 +866,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                 <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700">
                   {emp.role}
                 </span>
-                {emp.igssAffiliated && (
+                {'igssAffiliated' in emp && emp.igssAffiliated && (
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
                     IGSS Afiliado
                   </span>
@@ -847,25 +874,31 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
               </div>
               <div>
                 <h3 className="font-bold text-sm text-slate-900">{emp.name}</h3>
-                <p className="text-xs text-slate-500">{emp.phone}</p>
+                {'phone' in emp && <p className="text-xs text-slate-500">{emp.phone}</p>}
               </div>
-              <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-                <span className="text-slate-500">Jornal Diario:</span>
-                <span className="font-bold text-slate-900">{formatGTQ(emp.dailyRateGTQ)}</span>
-              </div>
+              {'dailyRateGTQ' in emp ? (
+                <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+                  <span className="text-slate-500">Jornal Diario:</span>
+                  <span className="font-bold text-slate-900">{formatGTQ(emp.dailyRateGTQ)}</span>
+                </div>
+              ) : (
+                <p className="border-t border-slate-100 pt-2 text-xs text-slate-500">
+                  Información laboral privada.
+                </p>
+              )}
             </div>
           ))}
         </div>
       )}
 
       {/* VIEW 3: LABOR PRODUCTIVITY RECHARTS VIEW */}
-      {activeTab === 'productividad' && (
+      {activeTab === 'productividad' && canViewEmployeeDetails && (
         <LaborProductivityChart
-          employees={employees}
+          employees={employeesWithDetails}
           attendance={attendance}
           projects={projects}
           activeProjectId={activeProjectId}
-          company={initialCompanySettings}
+          company={company ?? initialCompanySettings}
           currency="GTQ"
         />
       )}

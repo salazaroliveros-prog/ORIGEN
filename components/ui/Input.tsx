@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -17,12 +17,16 @@ export const Input: React.FC<InputProps> = ({
   leftIcon,
   rightIcon,
   className = '',
+  id,
   ...props
 }) => {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <label htmlFor={inputId} className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
           {label}
         </label>
       )}
@@ -38,6 +42,7 @@ export const Input: React.FC<InputProps> = ({
           </div>
         )}
         <input
+          id={inputId}
           className={`w-full px-3 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary/50 focus:border-transparent transition-all bg-white/[0.03] placeholder-slate-500 ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className}`}
           {...props}
         />

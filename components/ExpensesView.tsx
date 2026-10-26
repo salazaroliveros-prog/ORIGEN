@@ -85,12 +85,22 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const [formReceiptPhotoUrl, setFormReceiptPhotoUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const activeProjects = useMemo(
+    () => projects.filter((project) => project.status !== 'Archivado'),
+    [projects]
+  );
 
   useEffect(() => {
-    if (projects.length > 0 && !projects.some((project) => project.id === formProjectId)) {
-      setFormProjectId(projects[0].id);
+    if (activeProjects.length > 0 && !activeProjects.some((project) => project.id === formProjectId)) {
+      setFormProjectId(activeProjects[0].id);
+    } else if (activeProjects.length === 0) {
+      setFormProjectId('');
     }
-  }, [formProjectId, projects]);
+  }, [activeProjects, formProjectId]);
+
+  useEffect(() => {
+    if (!onAddExpense && activeTab === 'nuevo') setActiveTab('tabla');
+  }, [activeTab, onAddExpense]);
 
   // Export PDF state
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
@@ -190,7 +200,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       alert('Por favor complete la descripción y un monto válido mayor a Q0.00.');
       return;
     }
-    if (!projects.some((project) => project.id === formProjectId)) {
+    if (!activeProjects.some((project) => project.id === formProjectId)) {
       setSaveError('Selecciona un proyecto válido antes de registrar el gasto.');
       return;
     }
@@ -309,7 +319,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               <Receipt className="w-3.5 h-3.5" />
               Listado de Gastos
             </button>
-            <button
+            {onAddExpense && <button
               type="button"
               onClick={() => setActiveTab('nuevo')}
               className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
@@ -320,7 +330,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             >
               <Plus className="w-3.5 h-3.5" />
               Nuevo Gasto / Factura
-            </button>
+            </button>}
             <button
               type="button"
               onClick={() => setActiveTab('resumen')}
@@ -385,7 +395,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 Proyectos con Egreso
               </p>
               <p className="text-xl font-extrabold text-amber-700 mt-1">
-                {projects.length} Obras Activas
+                {activeProjects.length} Obras Activas
               </p>
               <p className="text-[10px] text-slate-400 mt-0.5">Control presupuestario</p>
             </div>
@@ -592,7 +602,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
           </div>
 
           <form onSubmit={handleSubmitExpense} className="space-y-4 text-xs">
-            {projects.length === 0 && (
+            {activeProjects.length === 0 && (
               <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm font-medium text-amber-950">
                 Crea un proyecto antes de registrar gastos; cada factura debe asignarse a una obra.
               </p>
@@ -606,9 +616,9 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   onChange={(e) => setFormProjectId(e.target.value)}
                   className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-800"
                   required
-                  disabled={projects.length === 0}
+                  disabled={activeProjects.length === 0}
                 >
-                  {projects.map((p) => (
+                  {activeProjects.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name} ({p.code || p.id})
                     </option>
@@ -655,6 +665,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   onChange={(e) => setFormPaymentMethod(e.target.value as any)}
                   className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-medium text-slate-900"
                 >
+                  <option value="Pendiente">Pendiente de pago</option>
                   <option value="Transferencia BI">Transferencia Bancaria BI / G&T</option>
                   <option value="Cheque">Cheque de Cuenta de Obra</option>
                   <option value="Efectivo">Efectivo / Caja Chica de Obra</option>
@@ -794,7 +805,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || projects.length === 0}
+                disabled={isSubmitting || activeProjects.length === 0}
                 className="min-h-11 px-6 py-2.5 rounded-xl font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 transition shadow-xs cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? 'Guardando...' : 'Guardar y Registrar Gasto'}

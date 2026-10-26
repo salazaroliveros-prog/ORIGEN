@@ -1,95 +1,52 @@
-# ORIGEN - Roles y permisos
+# ORIGEN - Roles y permisos vigentes
 
-## Roles
-- admin
-- manager
-- supervisor
-- worker
+Esta matriz refleja las reglas de Firestore y los controles de interfaz actuales. Las reglas son la autoridad de seguridad; ocultar una acción en la interfaz no reemplaza esas reglas. Cambios de permisos deben actualizar ambas capas y sus pruebas.
 
-## Permisos por rol
+## Roles de empresa
 
-### admin
-- Crear, editar y eliminar proyectos
-- Crear, editar y eliminar gastos
-- Registrar asistencia
-- Registrar visitas de obra
-- Gestionar configuración general
-- Acceder a todos los reportes
-- Ver todos los datos de la empresa
+| Rol | Uso previsto |
+| --- | --- |
+| `owner` | Propietario protegido de la empresa y administrador completo. No se puede degradar ni eliminar desde invitaciones o gestión de miembros. |
+| `admin` | Administración de la empresa, usuarios, configuración y operaciones. |
+| `project_manager` | Gestión de proyectos, operaciones de campo, presupuestos y coordinación. |
+| `finance` | Presupuestos, gastos, cotizaciones y datos de personal necesarios para la gestión financiera. |
+| `field_worker` | Operación de campo, asistencia, visitas y uso de maquinaria. |
+| `viewer` | Lectura de los datos de la empresa; sin escrituras operativas. |
 
-### manager
-- Crear y editar proyectos
-- Crear y editar gastos
-- Registrar asistencia
-- Registrar visitas de obra
-- Ver reportes generales
-- No puede borrar config general ni cambiar settings globales
+Los roles heredados `manager`, `supervisor` y `worker` ya no son los identificadores que esperan las reglas. No deben asignarse en nuevas membresías.
 
-### supervisor
-- Ver proyectos asignados
-- Registrar visitas de obra
-- Registrar asistencia de su área
-- Ver reportes operativos
-- No puede crear proyectos completos ni cambiar configuración
+## Matriz de escritura aplicada por Firestore
 
-### worker
-- Ver solo información relevante a su proyecto o turno
-- Registrar asistencia propia
-- No puede gestionar gastos ni proyectos
-- No puede ver configuración general ni reportes completos
+| Área / colección | Roles con escritura |
+| --- | --- |
+| Proyectos y cronograma | `owner`, `admin`, `project_manager` |
+| Visitas de obra | `owner`, `admin`, `project_manager`, `field_worker` |
+| Asistencia: lectura | `owner`, `admin`, `project_manager`, `finance`, `field_worker` |
+| Asistencia: escritura | `owner`, `admin`, `project_manager`, `field_worker` |
+| Gastos | `owner`, `admin`, `finance`; `project_manager` y `field_worker` pueden crear únicamente el gasto interno pendiente que se origina en uso de maquinaria |
+| Fichas completas de personal (`employees`) | `owner`, `admin`, `finance` |
+| Directorio mínimo (`employeeDirectory`) | lectura: `owner`, `admin`, `project_manager`, `finance`, `field_worker`; escritura: `owner`, `admin`, `finance` |
+| Configuración de empresa | `owner`, `admin` |
+| Cotizaciones | `owner`, `admin`, `project_manager`, `finance` |
+| APU | `owner`, `admin`, `project_manager`, `finance` |
+| Maquinaria y registro de uso | crear/editar: `owner`, `admin`, `project_manager`, `field_worker`; eliminar maquinaria y registros: `owner`, `admin`, `project_manager` |
+| Miembros e invitaciones | `owner`, `admin`; el propietario no se puede degradar ni eliminar |
+| Lectura de datos de empresa | Miembros autenticados de la empresa, sujeto a las reglas específicas de cada colección |
 
-## Reglas de seguridad recomendadas
-- Validar rol en el frontend para control UX
-- Validar rol en Firestore security rules para control real
-- Usar `ownerId` para aislar datos por empresa/usuario
-- Cada colección debe tener permisos por rol real, no solo por UI
+La pantalla de equipo solo se muestra a `owner` y `admin`. Las invitaciones no pueden asignar el rol `owner`; para aceptarlas, la persona debe iniciar sesión con la dirección invitada y tener el correo verificado.
 
-## Firestore security idea
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
+## Privacidad del personal
 
-    match /companySettings/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
+- Los documentos completos de `employees` —incluidos teléfono, jornal diario e información de afiliación— solo son legibles y modificables por `owner`, `admin` y `finance`.
+- `project_manager` y `field_worker` pueden leer `employeeDirectory`, que contiene únicamente `id`, `companyId`, nombre y puesto para asignar asistencia.
+- El rol `viewer` no puede leer fichas de personal, el directorio ni asistencia.
+- Al crear/actualizar una ficha, la aplicación guarda en un batch la ficha privada y su entrada mínima del directorio. Al cargar fichas heredadas, un usuario autorizado completa las entradas de directorio faltantes; confirma que esa cuenta tenga permisos para ejecutar la migración antes de habilitar el acceso de campo.
+- La productividad con salarios y las planillas solo se ofrecen a `owner`, `admin` y `finance`.
 
-    match /projects/{projectId} {
-      allow read: if request.auth != null;
-      allow create, update, delete: if request.auth != null && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager']
-      );
-    }
+## Controles y límites
 
-    match /expenses/{expenseId} {
-      allow read: if request.auth != null;
-      allow create, update, delete: if request.auth != null && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager']
-      );
-    }
-
-    match /attendance/{attendanceId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager', 'supervisor']
-      );
-    }
-
-    match /fieldVisits/{visitId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager', 'supervisor']
-      );
-    }
-  }
-}
-```
-
-## Recomendación final
-- El frontend puede ocultar opciones por rol
-- Firestore rules deben ser la última barrera real
-- La empresa/usuario debe estar aislada con `ownerId`
+- Las reglas validan pertenencia a la empresa, rol, campos requeridos y, para APU, que el proyecto pertenezca a la misma empresa.
+- La sesión de Firebase Authentication determina la identidad; la membresía de Firestore determina la empresa y el rol.
+- Verifica la matriz contra los controles visuales de cada pantalla antes de cambiarla. Algunas acciones pueden ser visibles y ser rechazadas por Firestore; esas diferencias deben probarse con cada rol.
+- Los cambios de reglas deben verificarse con `npm run test:rules`. Las pruebas de interfaz y lógica cliente se ejecutan con `npm test`.
+- No publiques reglas permisivas ni uses la capa de interfaz como única barrera.

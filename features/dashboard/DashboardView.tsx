@@ -42,7 +42,7 @@ import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram'
 import { D3BudgetUtilizationChart } from '@/components/D3BudgetUtilizationChart';
 import { exportDashboardPerformancePdf } from '@/lib/dashboardPdfExport';
 import type { CompanySettings, Project, ExpenseRecord, Milestone, Employee, AttendanceRecord } from '@/lib/types';
-import { formatGTQ, initialMilestones, initialEmployees, initialCompanySettings } from '@/lib/data';
+import { formatGTQ, initialCompanySettings } from '@/lib/data';
 
 interface DashboardViewProps {
   projects: Project[];
@@ -144,8 +144,8 @@ export function DashboardView({
   projects = [],
   expenses = [],
   company = initialCompanySettings,
-  milestones = initialMilestones,
-  employees = initialEmployees,
+  milestones = [],
+  employees = [],
   attendance = [],
 }: DashboardViewProps) {
   const [statusFilter, setStatusFilter] = useState<'todos' | 'En Ejecución' | 'Planificación' | 'Finalizado'>('todos');

@@ -1,7 +1,7 @@
 'use client';
 
 import { Apple,Download,Monitor,Share2 } from 'lucide-react';
-import React,{ useCallback,useEffect,useState } from 'react';
+import React,{ useCallback,useEffect,useRef,useState } from 'react';
 
 interface PWAInstallPromptProps {
   className?: string;
@@ -27,6 +27,12 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
   const [isDesktop, setIsDesktop] = useState(false);
   const [shown, setShown] = useState(false);
   const [installError, setInstallError] = useState<string | null>(null);
+  const dismissedRef = useRef(false);
+
+  const dismissPrompt = useCallback(() => {
+    dismissedRef.current = true;
+    setShown(false);
+  }, []);
 
   useEffect(() => {
     const ua = navigator.userAgent;
@@ -46,6 +52,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
   const handleBeforeInstallPrompt = useCallback((e: Event) => {
     if (!isBeforeInstallPromptEvent(e)) return;
     e.preventDefault();
+    if (dismissedRef.current) return;
     setDeferredPrompt(e);
     setShown(true);
   }, []);
@@ -53,6 +60,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     const handleInstalled = () => {
+      dismissedRef.current = true;
       setDeferredPrompt(null);
       setShown(false);
     };
@@ -70,6 +78,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
+        dismissedRef.current = true;
         setDeferredPrompt(null);
         setShown(false);
       }
@@ -103,7 +112,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
           </div>
         </div>
         <button
-          onClick={() => setShown(false)}
+          onClick={dismissPrompt}
           className="w-full min-h-11 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold hover:bg-amber-400 transition"
         >
           Entendido
@@ -131,7 +140,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
             Instalar App
           </button>
           <button
-            onClick={() => setShown(false)}
+            onClick={dismissPrompt}
             className="w-full min-h-11 py-2 rounded-xl bg-white/[0.05] border border-white/10 text-slate-300 text-sm hover:bg-white/[0.1] transition"
           >
             Quizás después
@@ -160,7 +169,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ className = 
             Instalar App
           </button>
           <button
-            onClick={() => setShown(false)}
+            onClick={dismissPrompt}
             className="w-full min-h-11 py-2 rounded-xl bg-white/[0.05] border border-white/10 text-slate-300 text-sm hover:bg-white/[0.1] transition"
           >
             Quizás después

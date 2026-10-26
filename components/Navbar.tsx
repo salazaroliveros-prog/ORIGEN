@@ -21,9 +21,12 @@ import {
   X,
   ChevronDown,
   MoreHorizontal,
+  UserPlus,
 } from 'lucide-react';
 import { CompanySettings, Project } from '@/lib/types';
-import { User } from 'firebase/auth';
+import type { User } from 'firebase/auth';
+import type { AuthSessionStatus } from '@/lib/firebaseAuth';
+import type { CompanyWorkspaceOption } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
@@ -38,10 +41,66 @@ interface NavbarProps {
   onOpenAiAssistant: () => void;
   onOpenBranding: () => void;
   currentUser: User | null;
-  onSignIn: () => void;
-  onSignOut: () => void;
+  authStatus: AuthSessionStatus;
+  isSigningOut: boolean;
+  onOpenSignIn: () => void;
+  onSignOut: () => Promise<boolean>;
+  canManageCompany?: boolean;
+  workspaces?: CompanyWorkspaceOption[];
+  activeWorkspaceId?: string;
+  onSelectWorkspace?: (companyId: string) => void;
+  canViewPersonnel?: boolean;
+  canViewPayroll?: boolean;
   isMobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
+}
+
+function WorkspaceSelector({
+  workspaces,
+  activeWorkspaceId,
+  onSelectWorkspace,
+  className,
+  id,
+}: {
+  workspaces: CompanyWorkspaceOption[];
+  activeWorkspaceId: string;
+  onSelectWorkspace?: (companyId: string) => void;
+  className?: string;
+  id: string;
+}) {
+  if (workspaces.length < 2) return null;
+
+  const activeWorkspace = workspaces.find(
+    (option) => option.workspace.id === activeWorkspaceId
+  );
+
+  return (
+    <div className={`space-y-1.5 ${className ?? ''}`}>
+      <label
+        htmlFor={id}
+        className="text-xs font-semibold text-slate-300"
+      >
+        Empresa activa
+      </label>
+      <select
+        id={id}
+        value={activeWorkspaceId}
+        onChange={(event) => onSelectWorkspace?.(event.target.value)}
+        className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-400"
+      >
+        {workspaces.map(({ workspace: item, membership }) => (
+          <option key={item.id} value={item.id}>
+            {item.name || item.id} · {membership.role}
+          </option>
+        ))}
+      </select>
+      {activeWorkspace && (
+        <p className="truncate text-[11px] text-slate-400">
+          Acceso: {activeWorkspace.membership.role}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -54,8 +113,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAiAssistant,
   onOpenBranding,
   currentUser,
-  onSignIn,
+  authStatus,
+  isSigningOut,
+  onOpenSignIn,
   onSignOut,
+  canManageCompany = false,
+  workspaces = [],
+  activeWorkspaceId = '',
+  onSelectWorkspace,
+  canViewPersonnel = false,
+  canViewPayroll = false,
   isMobileSidebarOpen,
   onToggleMobileSidebar,
 }) => {
@@ -75,13 +142,18 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
     { id: 'ai', label: 'Asistente IA', icon: Sparkles },
     { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
-  ];
+    ...(canManageCompany ? [{ id: 'equipo', label: 'Equipo de la empresa', icon: UserPlus }] : []),
+  ].filter((tab) => {
+    if (tab.id === 'personal') return canViewPersonnel;
+    if (tab.id === 'planillas') return canViewPayroll;
+    return true;
+  });
   const mobileQuickTabs = [
     { id: 'dashboard', label: 'Inicio', icon: LayoutDashboard },
     { id: 'proyectos', label: 'Obras', icon: HardHat },
     { id: 'cronograma_gantt', label: 'Agenda', icon: CalendarDays },
     { id: 'personal', label: 'Personal', icon: Users },
-  ] as const;
+  ].filter((tab) => tab.id !== 'personal' || canViewPersonnel);
 
   const currentTabName = tabs.find((t) => t.id === activeTab)?.label || 'Tablero';
 
@@ -106,6 +178,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             </p>
           </div>
         </div>
+
+        {workspaces.length > 1 && (
+          <WorkspaceSelector
+            workspaces={workspaces}
+            activeWorkspaceId={activeWorkspaceId}
+            onSelectWorkspace={onSelectWorkspace}
+            className="mt-4"
+            id="desktop-workspace-select"
+          />
+        )}
 
         {/* Navigation List */}
         <nav
@@ -148,7 +230,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Sparkles className="w-4 h-4 text-amber-300" />
               <span>Gemini IA Asistente</span>
             </Button>
-            <Button
+            {canManageCompany && <Button
               variant="ghost"
               size="sm"
               onClick={onOpenBranding}
@@ -156,7 +238,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Configuración de Empresa"
             >
               <Settings className="w-4 h-4" />
-            </Button>
+            </Button>}
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 font-mono">
@@ -208,6 +290,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </Button>
               </div>
 
+              {workspaces.length > 1 && (
+                <WorkspaceSelector
+                  workspaces={workspaces}
+                  activeWorkspaceId={activeWorkspaceId}
+                  onSelectWorkspace={onSelectWorkspace}
+                  className="mt-4"
+                  id="mobile-workspace-select"
+                />
+              )}
+
               <nav
                 aria-label="Navegación principal"
                 className="flex-1 py-4 space-y-1 overflow-y-auto"
@@ -238,7 +330,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 })}
               </nav>
               <div className="shrink-0 space-y-3 border-t border-white/10 pt-4">
-                <Button
+                {canManageCompany && <Button
                   variant="outline"
                   size="md"
                   onClick={() => {
@@ -249,7 +341,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   <Settings className="mr-2 h-4 w-4" aria-hidden="true" />
                   Marca y personalización
-                </Button>
+                </Button>}
                 <div className="space-y-2">
                   <label
                     htmlFor="mobile-project-select"
@@ -277,15 +369,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
                 <div className="space-y-2">
                   <p className="truncate text-xs text-slate-400">
-                    {currentUser?.email || 'Sesión no iniciada'}
+                    {currentUser?.email ||
+                      (authStatus === 'loading'
+                        ? 'Verificando sesión…'
+                        : authStatus === 'error'
+                          ? 'No se pudo verificar la sesión'
+                          : 'Sesión no iniciada')}
                   </p>
                   {currentUser ? (
                     <Button
                       variant="danger"
                       size="md"
+                      isLoading={isSigningOut}
                       onClick={() => {
-                        onSignOut();
-                        onToggleMobileSidebar?.();
+                        void onSignOut().then((signedOut) => {
+                          if (signedOut) onToggleMobileSidebar?.();
+                        });
                       }}
                       className="w-full justify-start"
                     >
@@ -296,14 +395,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <Button
                       variant="outline"
                       size="md"
+                      disabled={authStatus === 'loading'}
                       onClick={() => {
-                        onSignIn();
+                        onOpenSignIn();
                         onToggleMobileSidebar?.();
                       }}
                       className="w-full justify-start"
                     >
                       <LogIn className="mr-2 h-4 w-4" aria-hidden="true" />
-                      Iniciar sesión
+                      {authStatus === 'loading' ? 'Verificando sesión…' : 'Iniciar sesión'}
                     </Button>
                   )}
                 </div>
@@ -423,7 +523,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="user-pill flex items-center gap-2 px-3 py-2 rounded-full bg-white/[0.06] border border-white/15 text-xs text-slate-200">
               <span className={`status-dot w-2 h-2 rounded-full ${currentUser ? 'bg-emerald-400 shadow-[0_0_8px_#4ade80]' : 'bg-slate-500'}`}></span>
               <span className="font-semibold truncate max-w-[140px] sm:max-w-[180px]">
-                {currentUser?.email || 'Sesión no iniciada'}
+                {currentUser?.email ||
+                  (authStatus === 'loading'
+                    ? 'Verificando sesión…'
+                    : authStatus === 'error'
+                      ? 'Error al verificar sesión'
+                      : 'Sesión no iniciada')}
               </span>
             </div>
 
@@ -432,7 +537,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Button
                 variant="danger"
                 size="sm"
-                onClick={onSignOut}
+                onClick={() => void onSignOut()}
+                isLoading={isSigningOut}
+                aria-label="Cerrar sesión"
                 className="p-2.5 rounded-lg text-slate-400 hover:text-red-300 hover:bg-red-500/20"
                 title="Cerrar Sesión"
               >
@@ -442,11 +549,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onSignIn}
-                className="p-2.5 rounded-lg text-slate-400 hover:text-sky-300 hover:bg-sky-500/20"
-                title="Iniciar Sesión con Google"
+                onClick={onOpenSignIn}
+                disabled={authStatus === 'loading'}
+                className="gap-2 px-3 text-slate-200"
+                title="Iniciar sesión con correo electrónico o Google"
               >
                 <LogIn className="w-4 h-4" />
+                <span>{authStatus === 'loading' ? 'Verificando…' : 'Iniciar sesión'}</span>
               </Button>
             )}
           </div>

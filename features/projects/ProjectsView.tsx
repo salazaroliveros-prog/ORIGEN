@@ -4,8 +4,9 @@ import React, { useMemo, useState } from 'react';
 import {
   Plus,
   Edit2,
-  Trash2,
-  RefreshCw,
+  Archive,
+  ArchiveRestore,
+  Download,
   Calendar,
   Building,
 } from 'lucide-react';
@@ -26,7 +27,9 @@ interface ProjectsViewProps {
   loading: boolean;
   onCreateProject: (values: ProjectFormValues) => Promise<boolean>;
   onUpdateProject: (projectId: string, values: Partial<ProjectFormValues>) => Promise<boolean>;
-  onDeleteProject: (projectId: string) => Promise<boolean>;
+  onArchiveProject: (projectId: string) => Promise<boolean>;
+  onRestoreProject: (projectId: string) => Promise<boolean>;
+  canManageProjects: boolean;
 }
 
 export function ProjectsView({
@@ -36,11 +39,18 @@ export function ProjectsView({
   loading,
   onCreateProject,
   onUpdateProject,
-  onDeleteProject,
+  onArchiveProject,
+  onRestoreProject,
+  canManageProjects,
 }: ProjectsViewProps) {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectFormProject | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const visibleProjects = useMemo(
+    () => projects.filter((project) => (project.status === 'Archivado') === showArchived),
+    [projects, showArchived]
+  );
   const projectSpentById = useMemo(
     () =>
       expenses.reduce((totals, expense) => {
@@ -50,9 +60,39 @@ export function ProjectsView({
     [expenses]
   );
 
-  const openEdit = (project: ProjectFormProject) => {
-    setEditingProject(project);
+  const openEdit = (project: Project) => {
+    const status = project.status;
+    if (status === 'Archivado') return;
+    setEditingProject({ ...project, status });
     setFormOpen(true);
+  };
+
+  const exportProjects = () => {
+    const escapeCsv = (value: string | number) => {
+      const text = String(value);
+      const safeText = typeof value === 'string' && /^[\s]*[=+\-@]/.test(text) ? `'${text}` : text;
+      return `"${safeText.replace(/"/g, '""')}"`;
+    };
+    const rows = [
+      ['Código', 'Proyecto', 'Cliente', 'Estado', 'Presupuesto (GTQ)', 'Gasto (GTQ)', 'Avance (%)'],
+      ...visibleProjects.map((project) => [
+        project.code || project.id,
+        project.name,
+        project.client,
+        project.status,
+        project.budgetTotal,
+        projectSpentById.get(project.id) ?? project.spentTotal,
+        project.progressPercent ?? 0,
+      ]),
+    ];
+    const csv = `\uFEFF${rows.map((row) => row.map(escapeCsv).join(',')).join('\r\n')}`;
+    const fileUrl = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = `proyectos-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(fileUrl);
+    toast.success('Exportación de proyectos lista.');
   };
 
   if (loading) {
@@ -72,31 +112,31 @@ export function ProjectsView({
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
       <PageHeader
         title="Proyectos y Firmas Digitales"
-        subtitle={`Gestión de ${projects.length} proyectos con trazabilidad completa`}
+        subtitle={`Gestión de ${visibleProjects.length} ${showArchived ? 'proyectos archivados' : 'proyectos activos'}`}
         logoUrl={company?.logoUrl}
         companyName={company?.companyName}
         actions={
           <div className="flex gap-2">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => {
-                setEditingProject(null);
-                setFormOpen(true);
-              }}
-            >
-              <Plus className="w-4 h-4" /> Nuevo Proyecto
-            </Button>
+            {canManageProjects && (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => {
+                  setEditingProject(null);
+                  setFormOpen(true);
+                }}
+              >
+                <Plus className="w-4 h-4" /> Nuevo Proyecto
+              </Button>
+            )}
             <Button
               variant="outline"
               size="md"
-              onClick={() => {
-                toast('Función de exportación próxima');
-              }}
-              aria-label="Exportar proyectos (próximamente)"
-              title="Exportar proyectos (próximamente)"
+              onClick={exportProjects}
+              aria-label="Exportar proyectos a CSV"
+              title="Exportar proyectos a CSV"
             >
-              <RefreshCw className="w-4 h-4" />
+              <Download className="w-4 h-4" />
             </Button>
           </div>
         }
@@ -111,12 +151,23 @@ export function ProjectsView({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-                {projects.length} registro{projects.length !== 1 ? 's' : ''}
+                <label className="flex items-center gap-2 normal-case tracking-normal">
+                  <span>Mostrar</span>
+                  <select
+                    value={showArchived ? 'archived' : 'active'}
+                    onChange={(event) => setShowArchived(event.target.value === 'archived')}
+                    className="min-h-9 rounded-lg border border-white/15 bg-slate-900 px-2 text-xs text-white"
+                  >
+                    <option value="active">Activos</option>
+                    <option value="archived">Archivados</option>
+                  </select>
+                </label>
+                {visibleProjects.length} registro{visibleProjects.length !== 1 ? 's' : ''}
               </span>
             </div>
           </div>
           <ul className="space-y-3">
-            {projects.map((p) => {
+            {visibleProjects.map((p) => {
               return (
                 <li
                   key={p.id}
@@ -161,7 +212,8 @@ export function ProjectsView({
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <TouchTarget
+                      {canManageProjects && p.status !== 'Archivado' && (
+                        <TouchTarget
                         onPress={() => openEdit(p)}
                         className="p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 border border-white/10 transition-all"
                         aria-label={`Editar proyecto ${p.code}`}
@@ -169,39 +221,53 @@ export function ProjectsView({
                       >
                         <Edit2 className="w-4 h-4" aria-hidden="true" />
                       </TouchTarget>
-                      <TouchTarget
-                        onPress={() => void onDeleteProject(p.id)}
-                        className="p-2 rounded-lg bg-white/[0.05] hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-slate-300 hover:text-red-300 transition-all"
-                        aria-label={`Eliminar proyecto ${p.code}`}
-                        title={`Eliminar proyecto ${p.code}`}
-                      >
-                        <Trash2 className="w-4 h-4" aria-hidden="true" />
-                      </TouchTarget>
+                      )}
+                      {canManageProjects && (p.status === 'Archivado' ? (
+                        <TouchTarget
+                          onPress={() => void onRestoreProject(p.id)}
+                          className="p-2 rounded-lg bg-white/[0.05] hover:bg-emerald-500/20 border border-white/10 text-slate-300 hover:text-emerald-300 transition-all"
+                          aria-label={`Restaurar proyecto ${p.code}`}
+                          title={`Restaurar proyecto ${p.code}`}
+                        >
+                          <ArchiveRestore className="w-4 h-4" aria-hidden="true" />
+                        </TouchTarget>
+                      ) : (
+                        <TouchTarget
+                          onPress={() => void onArchiveProject(p.id)}
+                          className="p-2 rounded-lg bg-white/[0.05] hover:bg-amber-500/20 border border-white/10 text-slate-300 hover:text-amber-300 transition-all"
+                          aria-label={`Archivar proyecto ${p.code}`}
+                          title={`Archivar proyecto ${p.code}; conserva sus datos`}
+                        >
+                          <Archive className="w-4 h-4" aria-hidden="true" />
+                        </TouchTarget>
+                      ))}
                     </div>
                   </div>
                 </li>
               );
             })}
-            {projects.length === 0 && (
+            {visibleProjects.length === 0 && (
               <li className="glass-l1 p-8 rounded-xl text-center text-slate-400 text-sm flex flex-col items-center gap-3">
                 <Building className="w-10 h-10 opacity-30 text-slate-500" />
-                <span>No hay proyectos registrados</span>
-                <Button
-                  variant="primary"
-                  size="md"
-                  onClick={() => setFormOpen(true)}
-                  className="mt-3"
-                >
-                  <Plus className="w-3 h-3 mr-2" />
-                  Crear su primer proyecto
-                </Button>
+                <span>{showArchived ? 'No hay proyectos archivados' : 'No hay proyectos activos'}</span>
+                {canManageProjects && !showArchived && (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => setFormOpen(true)}
+                    className="mt-3"
+                  >
+                    <Plus className="w-3 h-3 mr-2" />
+                    Crear su primer proyecto
+                  </Button>
+                )}
               </li>
             )}
           </ul>
         </Card>
       </div>
 
-      <ProjectForm
+      {canManageProjects && <ProjectForm
         isOpen={formOpen}
         onClose={() => {
           setFormOpen(false);
@@ -213,7 +279,7 @@ export function ProjectsView({
             : onCreateProject(values)
         }
         editingProject={editingProject}
-      />
+      />}
     </div>
   );
 }

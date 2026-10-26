@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function GlobalError({
   error,
@@ -9,6 +9,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    console.error('Global application error:', error);
+  }, [error]);
+
   return (
     <html lang="es">
       <body className="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans">
@@ -17,6 +21,11 @@ export default function GlobalError({
           <p className="text-xs text-slate-400 leading-relaxed">
             Ha ocurrido un inconveniente temporal en el servidor de la aplicación.
           </p>
+          {error.digest && (
+            <p className="text-xs text-slate-400">
+              Código de referencia: <span className="font-mono">{error.digest}</span>
+            </p>
+          )}
           <button
             type="button"
             onClick={() => reset()}

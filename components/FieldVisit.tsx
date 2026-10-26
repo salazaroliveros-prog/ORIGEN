@@ -94,6 +94,7 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
 
     const newRecord: FieldVisitType = {
       id: `fv-${Date.now()}`,
+      companyId: project?.companyId,
       projectId: project?.id || 'p1',
       projectName: project?.name || 'Proyecto Activo',
       date: new Date().toISOString().split('T')[0],
@@ -490,6 +491,7 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
           onClose={() => setActiveSigningVisitId(null)}
           visit={displayVisits.find((v) => v.id === activeSigningVisitId)}
           visitId={activeSigningVisitId}
+          companyId={project?.companyId ?? displayVisits.find((v) => v.id === activeSigningVisitId)?.companyId}
           onSave={(dataUrl, result) => handleSignatureSaved(activeSigningVisitId, result as SignatureResult)}
           defaultSignerName={displayVisits.find((v) => v.id === activeSigningVisitId)?.foremanName || 'Don Mario Cifuentes'}
           defaultSignerDpi={displayVisits.find((v) => v.id === activeSigningVisitId)?.signerDpi || '2489 10293 0101'}
@@ -503,6 +505,7 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
         <SignatureCanvas
           isOpen={isNewVisitSigningOpen}
           onClose={() => setIsNewVisitSigningOpen(false)}
+          companyId={project?.companyId}
           onSave={(dataUrl, result) => {
             setNewSignatureResult(result as SignatureResult);
             setNewForeman(result.signerName);

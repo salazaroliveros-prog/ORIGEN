@@ -46,7 +46,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         status: editingProject.status,
         lat: editingProject.lat,
         lng: editingProject.lng,
-        expectedProfitMarginPercent: editingProject.expectedProfitMarginPercent,
+        expectedProfitMarginPercent: editingProject.expectedProfitMarginPercent ?? 15,
       });
     } else if (isOpen && !editingProject) {
       setFormData(getDefaultProjectValues());

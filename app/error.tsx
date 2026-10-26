@@ -20,6 +20,11 @@ export default function Error({
         <p className="text-sm text-slate-300">
           Ocurrió un problema inesperado al procesar la vista.
         </p>
+        {error.digest && (
+          <p className="text-xs text-slate-400">
+            Código de referencia: <span className="font-mono">{error.digest}</span>
+          </p>
+        )}
         <button
           type="button"
           onClick={() => reset()}

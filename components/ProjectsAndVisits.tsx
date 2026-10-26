@@ -184,6 +184,7 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
 
     const newVisit: FieldVisit = {
       id: `fv-${Date.now()}`,
+      companyId: activeProject.companyId,
       projectId: activeProject.id,
       projectName: activeProject.name,
       date: new Date().toISOString().split('T')[0],
@@ -1037,6 +1038,7 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
           visit={signingVisitId ? fieldVisits.find((v) => v.id === signingVisitId) : undefined}
           visitId={signingVisitId || undefined}
           projectId={activeProject.id}
+          companyId={activeProject.companyId}
           onSave={(dataUrl, result, updatedVisit) => {
             handleSaveSignature(result as SignatureResult);
             if (updatedVisit && onUpdateFieldVisit) {

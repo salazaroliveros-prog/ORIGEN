@@ -9,5 +9,6 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['lib/**/*.test.ts', 'lib/**/*.test.tsx'],
+    exclude: ['lib/firestore.rules.test.ts', 'lib/firebaseService.emulator.test.ts'],
   },
 });

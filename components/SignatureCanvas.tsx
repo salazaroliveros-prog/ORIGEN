@@ -33,6 +33,8 @@ export interface SignatureCanvasProps {
   visitId?: string;
   /** Project ID context */
   projectId?: string;
+  /** Company workspace that owns the visit */
+  companyId?: string;
   /** Modal open/closed flag if rendered as modal */
   isOpen?: boolean;
   /** Callback fired when user closes or cancels */
@@ -64,6 +66,7 @@ export const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   visit,
   visitId,
   projectId,
+  companyId,
   isOpen = true,
   onClose,
   onCancel,
@@ -350,6 +353,7 @@ export const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       if (visit) {
         updatedVisit = {
           ...visit,
+          companyId: companyId ?? visit.companyId,
           signatureDataUrl: dataUrl,
           foremanName: metadata.signerName,
           signerDpi: metadata.signerDpi,
@@ -360,6 +364,7 @@ export const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       } else if (targetVisitId) {
         updatedVisit = {
           id: targetVisitId,
+          companyId,
           projectId: projectId || 'p1',
           projectName: 'Visita de Campo',
           date: new Date().toISOString().split('T')[0],
@@ -377,11 +382,18 @@ export const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
 
       // Persist directly to Firestore if autoSaveToFirestore is enabled and we have an authorized user or visit
       if (autoSaveToFirestore && updatedVisit) {
-        const userId = auth.currentUser?.uid || 'anonymous-foreman';
-        try {
-          await saveFieldVisitToFirestore(updatedVisit, userId);
-        } catch (firestoreErr) {
-          console.warn('Could not persist to Firestore directly, proceeding with local callback:', firestoreErr);
+        const userId = auth.currentUser?.uid;
+        const workspaceId = companyId ?? updatedVisit.companyId;
+        if (!userId || !workspaceId) {
+          setValidationError('Inicia sesión y selecciona un espacio de empresa para guardar la firma.');
+          setIsSaving(false);
+          return;
+        }
+        const saved = await saveFieldVisitToFirestore(updatedVisit, workspaceId, userId);
+        if (!saved) {
+          setValidationError('No se pudo guardar la firma en la empresa. Revisa tu conexión e inténtalo de nuevo.');
+          setIsSaving(false);
+          return;
         }
       }
 

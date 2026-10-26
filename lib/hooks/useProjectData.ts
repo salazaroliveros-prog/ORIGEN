@@ -1,45 +1,83 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import type { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings, Employee } from '@/lib/types';
-import { initialEmployees } from '@/lib/data';
+import type {
+  Project,
+  FieldVisit,
+  ExpenseRecord,
+  AttendanceRecord,
+  CompanySettings,
+  Employee,
+  EmployeeDirectoryEntry,
+  CompanyRole,
+  Machinery,
+  MachineryLog,
+  QuoteRecord,
+  APUItem,
+} from '@/lib/types';
 import {
   subscribeProjects,
   subscribeFieldVisits,
   subscribeExpenses,
   subscribeAttendance,
   subscribeEmployees,
+  subscribeEmployeeDirectory,
   subscribeCompanySettings,
   saveProjectToFirestore,
-  deleteProjectFromFirestore,
   saveExpenseToFirestore,
   deleteExpenseFromFirestore,
   saveAttendanceToFirestore,
+  deleteAttendanceFromFirestore,
   saveEmployeeToFirestore,
   saveCompanySettingsToFirestore,
-  deleteExpensesByProject,
-  deleteFieldVisitsByProject,
-  deleteAttendanceByProject,
+  subscribeQuotes,
+  subscribeAPUItems,
+  saveAPUItemsToFirestore,
+  deleteAPUItemFromFirestore,
+  saveQuoteToFirestore,
+  updateQuoteStatusInFirestore,
+  subscribeMachinery,
+  saveMachineryToFirestore,
+  updateMachineryStatusInFirestore,
+  subscribeMachineryLogs,
+  recordMachineryUse,
 } from '@/lib/firebaseService';
 import { validateProjectForm, getDefaultProjectValues, type ProjectFormValues } from '@/lib/validation/project.schema';
 import { toast } from 'react-hot-toast';
+import {
+  canReadAttendance,
+  canReadEmployeeDirectory,
+  canReadFullPersonnel,
+} from '@/lib/permissions';
 
-export function useProjectData(currentUserId?: string) {
+export function useProjectData(
+  companyId?: string,
+  currentUserId?: string,
+  role?: CompanyRole
+) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [fieldVisits, setFieldVisits] = useState<FieldVisit[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const [employees, setEmployees] = useState<Array<Employee | EmployeeDirectoryEntry>>([]);
+  const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
+  const [apuItems, setApuItems] = useState<APUItem[]>([]);
+  const [machinery, setMachinery] = useState<Machinery[]>([]);
+  const [machineryLogs, setMachineryLogs] = useState<MachineryLog[]>([]);
   const [company, setCompany] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!currentUserId) {
+    if (!companyId || !currentUserId || !role) {
       setProjects([]);
       setFieldVisits([]);
       setExpenses([]);
       setAttendance([]);
-      setEmployees(initialEmployees);
+      setEmployees([]);
+      setQuotes([]);
+      setApuItems([]);
+      setMachinery([]);
+      setMachineryLogs([]);
       setCompany(null);
       setLoading(false);
       return;
@@ -49,21 +87,33 @@ export function useProjectData(currentUserId?: string) {
     setFieldVisits([]);
     setExpenses([]);
     setAttendance([]);
-    setEmployees(initialEmployees);
+    setEmployees([]);
+    setQuotes([]);
+    setApuItems([]);
+    setMachinery([]);
+    setMachineryLogs([]);
     setCompany(null);
     setLoading(true);
 
-    const unsubProjects = subscribeProjects(currentUserId, (nextProjects) => {
+    const unsubProjects = subscribeProjects(companyId, (nextProjects) => {
       setProjects(nextProjects);
       setLoading(false);
     });
-    const unsubFieldVisits = subscribeFieldVisits(currentUserId, setFieldVisits);
-    const unsubExpenses = subscribeExpenses(currentUserId, setExpenses);
-    const unsubAttendance = subscribeAttendance(currentUserId, setAttendance);
-    const unsubEmployees = subscribeEmployees(currentUserId, (customEmployees) =>
-      setEmployees([...initialEmployees, ...customEmployees])
-    );
-    const unsubCompany = subscribeCompanySettings(currentUserId, setCompany);
+    const unsubFieldVisits = subscribeFieldVisits(companyId, setFieldVisits);
+    const unsubExpenses = subscribeExpenses(companyId, setExpenses);
+    const unsubAttendance = canReadAttendance(role)
+      ? subscribeAttendance(companyId, setAttendance)
+      : () => setAttendance([]);
+    const unsubEmployees = canReadFullPersonnel(role)
+      ? subscribeEmployees(companyId, setEmployees)
+      : canReadEmployeeDirectory(role)
+        ? subscribeEmployeeDirectory(companyId, setEmployees)
+        : () => setEmployees([]);
+    const unsubCompany = subscribeCompanySettings(companyId, setCompany);
+    const unsubQuotes = subscribeQuotes(companyId, setQuotes);
+    const unsubAPUItems = subscribeAPUItems(companyId, setApuItems);
+    const unsubMachinery = subscribeMachinery(companyId, setMachinery);
+    const unsubMachineryLogs = subscribeMachineryLogs(companyId, setMachineryLogs);
 
     return () => {
       unsubProjects();
@@ -72,12 +122,16 @@ export function useProjectData(currentUserId?: string) {
       unsubAttendance();
       unsubEmployees();
       unsubCompany();
+      unsubQuotes();
+      unsubAPUItems();
+      unsubMachinery();
+      unsubMachineryLogs();
     };
-  }, [currentUserId]);
+  }, [companyId, currentUserId, role]);
 
   const createProject = useCallback(
     async (data: ProjectFormValues) => {
-      if (!currentUserId) {
+      if (!companyId || !currentUserId) {
         toast.error('Usuario no autenticado');
         return false;
       }
@@ -94,9 +148,11 @@ export function useProjectData(currentUserId?: string) {
         const project: Project = {
           ...validation.data,
           id: projectId,
-          ownerId: currentUserId,
+          companyId,
+          ownerId: companyId,
+          createdBy: currentUserId,
         };
-        const success = await saveProjectToFirestore(project, currentUserId);
+        const success = await saveProjectToFirestore(project, companyId, currentUserId);
         if (success) {
           toast.success('Proyecto creado correctamente');
           return true;
@@ -110,12 +166,12 @@ export function useProjectData(currentUserId?: string) {
         setLoading(false);
       }
     },
-    [currentUserId]
+    [companyId, currentUserId]
   );
 
   const updateProject = useCallback(
     async (projectId: string, data: Partial<ProjectFormValues>) => {
-      if (!currentUserId) {
+      if (!companyId || !currentUserId) {
         toast.error('Usuario no autenticado');
         return false;
       }
@@ -132,9 +188,10 @@ export function useProjectData(currentUserId?: string) {
           ...existing,
           ...data,
           id: projectId,
-          ownerId: currentUserId,
+          companyId,
+          ownerId: companyId,
         };
-        const success = await saveProjectToFirestore(updated, currentUserId);
+        const success = await saveProjectToFirestore(updated, companyId, currentUserId);
         if (success) {
           toast.success('Proyecto actualizado correctamente');
           return true;
@@ -148,59 +205,92 @@ export function useProjectData(currentUserId?: string) {
         setLoading(false);
       }
     },
-    [currentUserId, projects]
+    [companyId, currentUserId, projects]
   );
 
-  const deleteProject = useCallback(
+  const archiveProject = useCallback(
     async (projectId: string) => {
-      if (!currentUserId) {
+      if (!companyId || !currentUserId) {
         toast.error('Usuario no autenticado');
         return false;
       }
-
-      if (!window.confirm('¿Está seguro de que desea eliminar este proyecto? Esta acción no se puede deshacer.')) {
+      const project = projects.find((item) => item.id === projectId);
+      if (!project) {
+        toast.error('No se encontró el proyecto que quieres archivar.');
         return false;
       }
-
+      if (project.status === 'Archivado') {
+        toast.error('Este proyecto ya está archivado.');
+        return false;
+      }
       setLoading(true);
       try {
-        const relatedRecordsDeleted = await Promise.all([
-          deleteExpensesByProject(projectId, currentUserId),
-          deleteFieldVisitsByProject(projectId, currentUserId),
-          deleteAttendanceByProject(projectId, currentUserId),
-        ]);
-
-        if (relatedRecordsDeleted.some((deleted) => !deleted)) {
-          toast.error('No se pudieron eliminar todos los registros. El proyecto se conserva.');
+        const archived = await saveProjectToFirestore({
+          ...project,
+          status: 'Archivado',
+          archivedAt: new Date().toISOString(),
+          archivedFromStatus: project.status,
+        }, companyId, currentUserId);
+        if (!archived) {
+          toast.error('No se pudo archivar el proyecto. No se eliminó ningún dato relacionado.');
           return false;
         }
-
-        const projectDeleted = await deleteProjectFromFirestore(projectId);
-        if (!projectDeleted) {
-          toast.error('No se pudo eliminar el proyecto');
-          return false;
-        }
-
-        toast.success('Proyecto eliminado correctamente');
+        toast.success('Proyecto archivado. Su historial y registros relacionados se conservaron.');
         return true;
       } catch (err) {
-        toast.error('Error inesperado al eliminar el proyecto');
+        console.error('No se pudo archivar el proyecto:', err);
+        toast.error('Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.');
         return false;
       } finally {
         setLoading(false);
       }
     },
-    [currentUserId]
+    [companyId, currentUserId, projects]
+  );
+
+  const restoreProject = useCallback(
+    async (projectId: string) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Usuario no autenticado');
+        return false;
+      }
+      const project = projects.find((item) => item.id === projectId);
+      if (!project || project.status !== 'Archivado') {
+        toast.error('No se encontró un proyecto archivado para restaurar.');
+        return false;
+      }
+      setLoading(true);
+      try {
+        const restored = await saveProjectToFirestore({
+          ...project,
+          status: project.archivedFromStatus ?? 'Planificación',
+          archivedAt: null,
+        }, companyId, currentUserId);
+        if (!restored) {
+          toast.error('No se pudo restaurar el proyecto.');
+          return false;
+        }
+        toast.success('Proyecto restaurado.');
+        return true;
+      } catch (error) {
+        console.error('No se pudo restaurar el proyecto:', error);
+        toast.error('Error inesperado al restaurar el proyecto.');
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [companyId, currentUserId, projects]
   );
 
   const addExpense = useCallback(
     async (expense: ExpenseRecord) => {
-      if (!currentUserId) {
+      if (!companyId || !currentUserId) {
         toast.error('Usuario no autenticado');
         return false;
       }
       try {
-        const ok = await saveExpenseToFirestore(expense, currentUserId);
+        const ok = await saveExpenseToFirestore(expense, companyId, currentUserId);
         if (ok) {
           toast.success('Gasto registrado correctamente');
           return true;
@@ -212,12 +302,12 @@ export function useProjectData(currentUserId?: string) {
         return false;
       }
     },
-    [currentUserId]
+    [companyId, currentUserId]
   );
 
   const deleteExpense = useCallback(
     async (expenseId: string) => {
-      if (!currentUserId) {
+      if (!companyId || !currentUserId) {
         toast.error('Usuario no autenticado');
         return false;
       }
@@ -234,17 +324,17 @@ export function useProjectData(currentUserId?: string) {
         return false;
       }
     },
-    [currentUserId]
+    [companyId, currentUserId]
   );
 
   const addAttendance = useCallback(
     async (record: AttendanceRecord) => {
-      if (!currentUserId) {
+      if (!companyId || !currentUserId) {
         toast.error('Usuario no autenticado');
         return false;
       }
       try {
-        const saved = await saveAttendanceToFirestore(record, currentUserId);
+        const saved = await saveAttendanceToFirestore(record, companyId, currentUserId);
         if (saved) {
           toast.success('Asistencia registrada correctamente');
           return true;
@@ -256,17 +346,37 @@ export function useProjectData(currentUserId?: string) {
         return false;
       }
     },
-    [currentUserId]
+    [companyId, currentUserId]
+  );
+
+  const deleteAttendance = useCallback(
+    async (attendanceId: string) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión para eliminar un registro de asistencia.');
+        return false;
+      }
+      if (!attendance.some((record) => record.id === attendanceId)) {
+        toast.error('No se encontró el registro de asistencia.');
+        return false;
+      }
+      if (!window.confirm('¿Eliminar este registro de asistencia?')) return false;
+
+      const deleted = await deleteAttendanceFromFirestore(attendanceId);
+      if (deleted) toast.success('Registro de asistencia eliminado.');
+      else toast.error('No se pudo eliminar el registro de asistencia.');
+      return deleted;
+    },
+    [attendance, companyId, currentUserId]
   );
 
   const addEmployee = useCallback(
     async (employee: Employee) => {
-      if (!currentUserId) {
+      if (!companyId || !currentUserId) {
         toast.error('Inicia sesión para guardar empleados.');
         return false;
       }
 
-      const saved = await saveEmployeeToFirestore(employee, currentUserId);
+      const saved = await saveEmployeeToFirestore(employee, companyId, currentUserId);
       if (!saved) {
         toast.error('No se pudo guardar el empleado.');
         return false;
@@ -275,7 +385,121 @@ export function useProjectData(currentUserId?: string) {
       toast.success('Empleado registrado correctamente.');
       return true;
     },
-    [currentUserId]
+    [companyId, currentUserId]
+  );
+
+  const addQuote = useCallback(
+    async (quote: QuoteRecord) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para guardar cotizaciones.');
+        return false;
+      }
+      const saved = await saveQuoteToFirestore(quote, companyId, currentUserId);
+      if (!saved) toast.error('No se pudo guardar la cotización.');
+      return saved;
+    },
+    [companyId, currentUserId]
+  );
+
+  const updateQuoteStatus = useCallback(
+    async (quoteId: string, status: QuoteRecord['status']) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para actualizar cotizaciones.');
+        return false;
+      }
+      const quote = quotes.find((item) => item.id === quoteId);
+      if (!quote) {
+        toast.error('No se encontró la cotización.');
+        return false;
+      }
+      const saved = await updateQuoteStatusInFirestore(quote, status, companyId, currentUserId);
+      if (!saved) toast.error('No se pudo actualizar el estado de la cotización.');
+      return saved;
+    },
+    [companyId, currentUserId, quotes]
+  );
+
+  const saveAPUItems = useCallback(
+    async (items: APUItem[], projectId: string) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para guardar el presupuesto APU.');
+        return false;
+      }
+      if (!projectId || !projects.some((project) => project.id === projectId)) {
+        toast.error('Selecciona un proyecto válido para guardar las partidas APU.');
+        return false;
+      }
+      const saved = await saveAPUItemsToFirestore(items, projectId, companyId, currentUserId);
+      if (!saved) toast.error('No se pudo guardar el presupuesto APU.');
+      return saved;
+    },
+    [companyId, currentUserId, projects]
+  );
+
+  const deleteAPUItem = useCallback(
+    async (itemId: string) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para eliminar partidas APU.');
+        return false;
+      }
+      if (!apuItems.some((item) => item.id === itemId && item.companyId === companyId)) {
+        toast.error('No se encontró la partida APU en esta empresa.');
+        return false;
+      }
+      const deleted = await deleteAPUItemFromFirestore(itemId);
+      if (!deleted) toast.error('No se pudo eliminar la partida APU.');
+      return deleted;
+    },
+    [apuItems, companyId, currentUserId]
+  );
+
+  const addMachinery = useCallback(
+    async (item: Machinery) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para registrar maquinaria.');
+        return false;
+      }
+      const saved = await saveMachineryToFirestore(item, companyId, currentUserId);
+      if (!saved) toast.error('No se pudo guardar la maquinaria.');
+      return saved;
+    },
+    [companyId, currentUserId]
+  );
+
+  const addMachineryLog = useCallback(
+    async (log: MachineryLog) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para registrar horas de maquinaria.');
+        return false;
+      }
+      const equipment = machinery.find((item) => item.id === log.machineryId);
+      if (!equipment) {
+        toast.error('No se encontró la maquinaria seleccionada.');
+        return false;
+      }
+      const saved = await recordMachineryUse(log, equipment, companyId, currentUserId);
+      if (!saved) toast.error('No se pudo registrar el uso y costo de maquinaria.');
+      return saved;
+    },
+    [companyId, currentUserId, machinery]
+  );
+
+  const setMachineryStatus = useCallback(
+    async (machineryId: string, status: Machinery['status']) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para actualizar maquinaria.');
+        return false;
+      }
+      const equipment = machinery.find((item) => item.id === machineryId);
+      if (!equipment) {
+        toast.error('No se encontró la maquinaria seleccionada.');
+        return false;
+      }
+      const saved = await updateMachineryStatusInFirestore(equipment, status, companyId, currentUserId);
+      if (!saved) toast.error('No se pudo actualizar el estado de la maquinaria.');
+      return saved;
+    },
+    [companyId, currentUserId, machinery]
   );
 
   return {
@@ -284,17 +508,32 @@ export function useProjectData(currentUserId?: string) {
     expenses,
     attendance,
     employees,
+    quotes,
+    apuItems,
+    machinery,
+    machineryLogs,
     company,
     loading,
     createProject,
     updateProject,
-    deleteProject,
+    archiveProject,
+    restoreProject,
     addExpense,
     deleteExpense,
     addAttendance,
+    deleteAttendance,
     addEmployee,
+    addQuote,
+    updateQuoteStatus,
+    saveAPUItems,
+    deleteAPUItem,
+    addMachinery,
+    addMachineryLog,
+    setMachineryStatus,
     saveCompanySettings: (settings: CompanySettings) =>
-      saveCompanySettingsToFirestore(settings, currentUserId || ''),
+      companyId
+        ? saveCompanySettingsToFirestore(settings, companyId)
+        : Promise.resolve(false),
     getDefaultValues: () => getDefaultProjectValues(),
     validateForm: (data: unknown) => validateProjectForm(data),
   };

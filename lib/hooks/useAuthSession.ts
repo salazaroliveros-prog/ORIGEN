@@ -1,47 +1,83 @@
 import { useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { initAuth, googleSignIn, googleSignOut } from '@/lib/googleCalendar';
+import {
+  createEmailAccount,
+  authorizeGmailSend,
+  signInWithEmail,
+  signInWithGoogle,
+  signOutUser,
+  subscribeToAuthState,
+  resetEmailPassword,
+  type AuthSessionStatus,
+} from '@/lib/firebaseAuth';
+import { getAuthErrorMessage } from '@/lib/authErrors';
 import { toast } from 'react-hot-toast';
 
 export function useAuthSession() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [status, setStatus] = useState<AuthSessionStatus>('loading');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [gmailAccess, setGmailAccess] = useState<{ accessToken: string; expiresAt: number } | null>(null);
 
   useEffect(() => {
-    const unsubscribe = initAuth(
-      (user) => setCurrentUser(user),
-      () => setCurrentUser(null)
+    const unsubscribe = subscribeToAuthState(
+      (user) => {
+        setCurrentUser(user);
+        setGmailAccess(null);
+        setStatus(user ? 'authenticated' : 'unauthenticated');
+        setAuthError(null);
+      },
+      (error) => {
+        const message = getAuthErrorMessage(error);
+        setStatus('error');
+        setAuthError(message);
+        toast.error(message);
+      }
     );
 
     return () => unsubscribe();
   }, []);
 
-  const signIn = async () => {
+  const signOut = async () => {
+    setIsSigningOut(true);
     try {
-      const { user } = await googleSignIn();
-      setCurrentUser(user);
+      await signOutUser();
+      setGmailAccess(null);
+      toast.success('Sesión cerrada correctamente.');
+      return true;
     } catch (error) {
-      const code =
-        typeof error === 'object' && error !== null && 'code' in error
-          ? error.code
-          : undefined;
-
-      if (code === 'auth/unauthorized-domain') {
-        toast.error('Autoriza localhost en los dominios de Firebase Authentication para iniciar sesión.');
-      } else if (code === 'auth/popup-closed-by-user') {
-        toast('Inicio de sesión cancelado.');
-      } else if (code === 'auth/api-key-not-valid') {
-        toast.error('La configuración de Firebase no permite iniciar sesión.');
-      } else {
-        console.error('No se pudo iniciar sesión con Google:', error);
-        toast.error('No se pudo iniciar sesión con Google.');
-      }
+      toast.error(getAuthErrorMessage(error));
+      return false;
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
-  const signOut = async () => {
-    await googleSignOut();
-    setCurrentUser(null);
+  const authorizeGmail = async () => {
+    try {
+      const access = await authorizeGmailSend();
+      setGmailAccess(access);
+      toast.success('Permiso temporal de envío de Gmail concedido.');
+      return access;
+    } catch (error) {
+      const message = getAuthErrorMessage(error);
+      toast.error(message);
+      throw error;
+    }
   };
 
-  return { currentUser, signIn, signOut };
+  return {
+    currentUser,
+    status,
+    authError,
+    isSigningOut,
+    signInWithGoogle,
+    signInWithEmail,
+    createEmailAccount,
+    resetEmailPassword,
+    signOut,
+    gmailAccess,
+    authorizeGmail,
+  };
 }

@@ -30,9 +30,10 @@ interface BudgetAndAPUProps {
   budgetItems: APUItem[];
   activeProjectId: string;
   projects: Project[];
-  onAddBudgetItem: (item: APUItem) => void;
-  onUpdateBudgetItems?: (items: APUItem[]) => void;
-  onDeleteBudgetItem?: (id: string) => void;
+  canWrite?: boolean;
+  onAddBudgetItem: (item: APUItem) => Promise<boolean>;
+  onUpdateBudgetItems?: (items: APUItem[]) => Promise<boolean>;
+  onDeleteBudgetItem?: (id: string) => Promise<boolean>;
   currency: 'GTQ' | 'USD';
   company: CompanySettings;
   expenses: ExpenseRecord[];
@@ -44,6 +45,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
   budgetItems,
   activeProjectId,
   projects,
+  canWrite = false,
   onAddBudgetItem,
   onUpdateBudgetItems,
   onDeleteBudgetItem,
@@ -53,8 +55,8 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
   // Regional Department State
-  const [selectedDept, setSelectedDept] = useState<string>(activeProject.department || 'Guatemala');
-  const [appliedDept, setAppliedDept] = useState<string>(activeProject.department || 'Guatemala');
+  const [selectedDept, setSelectedDept] = useState<string>(activeProject?.department || 'Guatemala');
+  const [appliedDept, setAppliedDept] = useState<string>(activeProject?.department || 'Guatemala');
 
   // Modals
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
@@ -79,6 +81,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
   const [aiQty, setAiQty] = useState('100');
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [aiResult, setAiResult] = useState<any | null>(null);
+  const [aiSource, setAiSource] = useState<string | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
 
   // AI Audit State
@@ -92,12 +95,14 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
   const currentDeptInfo = GUATEMALA_DEPARTMENTS_INDEX[selectedDept] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
   const appliedDeptInfo = GUATEMALA_DEPARTMENTS_INDEX[appliedDept] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
 
+  if (!activeProject) return null;
+
   const formatMoney = (amount: number) => {
     return currency === 'GTQ' ? formatGTQ(amount) : formatUSD(amount, company.exchangeRate);
   };
 
   // Recalculate all APU items direct costs for target department
-  const handleRecalculateBudgetForDepartment = () => {
+  const handleRecalculateBudgetForDepartment = async () => {
     if (!onUpdateBudgetItems) return;
     const updated = budgetItems.map((item) => {
       const adjusted = adjustApuDirectCostsForDepartment(
@@ -118,7 +123,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
       };
     });
 
-    onUpdateBudgetItems(updated);
+    if (!(await onUpdateBudgetItems(updated))) return;
     setAppliedDept(selectedDept);
     setRecalcToast(
       `Presupuesto recalculado para ${selectedDept}. Factor de flete: ${currentDeptInfo.freightFactor}x, mano de obra: ${currentDeptInfo.laborFactor}x.`
@@ -127,7 +132,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
   };
 
   // Manual APU creation
-  const handleCreateManualAPU = (e: React.FormEvent) => {
+  const handleCreateManualAPU = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!desc.trim()) return;
 
@@ -138,7 +143,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
     const q = Number(qty) || 1;
 
     const newItem: APUItem = {
-      id: `apu-${Date.now()}`,
+      id: `apu-${globalThis.crypto.randomUUID()}`,
       code,
       description: desc,
       unit,
@@ -151,7 +156,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
       department: appliedDept,
     };
 
-    onAddBudgetItem(newItem);
+    if (!(await onAddBudgetItem(newItem))) return;
     setIsManualModalOpen(false);
     setDesc('');
   };
@@ -164,6 +169,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
     setIsGeneratingAi(true);
     setAiError(null);
     setAiResult(null);
+    setAiSource(null);
 
     try {
       const res = await fetch('/api/gemini', {
@@ -185,6 +191,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
       }
 
       setAiResult(data.data);
+      setAiSource(typeof data.source === 'string' ? data.source : null);
     } catch (err: any) {
       console.error('Error generating AI APU:', err);
       setAiError(err.message || 'No se pudo conectar con el motor de IA.');
@@ -194,11 +201,11 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
   };
 
   // Add AI Result to Project Budget
-  const handleAddAiApuToBudget = () => {
+  const handleAddAiApuToBudget = async () => {
     if (!aiResult) return;
 
     const newItem: APUItem = {
-      id: `apu-${Date.now()}`,
+      id: `apu-${globalThis.crypto.randomUUID()}`,
       code: aiResult.code || '03.99',
       description: aiResult.title || aiPrompt,
       unit: aiResult.unit || aiUnit,
@@ -218,7 +225,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
       },
     };
 
-    onAddBudgetItem(newItem);
+    if (!(await onAddBudgetItem(newItem))) return;
     setIsAiStudioOpen(false);
     setAiPrompt('');
     setAiResult(null);
@@ -286,6 +293,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setIsAiStudioOpen(true)}
+              disabled={!canWrite}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
@@ -302,6 +310,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
 
             <button
               onClick={() => setIsMarketCatalogueOpen(true)}
+              disabled={!canWrite}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs transition cursor-pointer"
             >
               <TrendingUp className="w-4 h-4 text-emerald-600" />
@@ -310,6 +319,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
 
             <button
               onClick={() => setIsManualModalOpen(true)}
+              disabled={!canWrite}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -349,6 +359,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
             {appliedDept !== selectedDept ? (
               <button
                 onClick={handleRecalculateBudgetForDepartment}
+                disabled={!canWrite}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs transition cursor-pointer animate-pulse"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -473,9 +484,12 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      {onDeleteBudgetItem && (
+                      {onDeleteBudgetItem && canWrite && (
                         <button
-                          onClick={() => onDeleteBudgetItem(item.id)}
+                          onClick={async () => {
+                            if (!window.confirm('¿Eliminar esta partida APU?')) return;
+                            await onDeleteBudgetItem(item.id);
+                          }}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                           title="Eliminar partida"
                         >
@@ -616,6 +630,17 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
               {/* AI RESULT DISPLAY */}
               {aiResult && (
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-300 space-y-4 animate-in fade-in">
+                  <p role="status" className={`rounded-lg border p-2 text-xs ${
+                    aiSource === 'gemini-ai'
+                      ? 'border-sky-200 bg-sky-50 text-sky-900'
+                      : 'border-amber-300 bg-amber-50 text-amber-950'
+                  }`}>
+                    {aiSource === 'gemini-ai'
+                      ? 'Generado con Gemini. Revisa precios, cantidades y normativa antes de aprobar.'
+                      : aiSource
+                        ? 'Estimación automática de referencia (no generada por Gemini). Verifica todos los costos antes de usarla.'
+                        : 'No se pudo verificar el origen de esta estimación. Valida los datos antes de usarla.'}
+                  </p>
                   <div className="flex items-start justify-between">
                     <div>
                       <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">
@@ -676,6 +701,7 @@ export const BudgetAndAPU: React.FC<BudgetAndAPUProps> = ({
 
                   <button
                     onClick={handleAddAiApuToBudget}
+                    disabled={!canWrite}
                     className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <Check className="w-4 h-4" /> Incorporar este Renglón al Presupuesto

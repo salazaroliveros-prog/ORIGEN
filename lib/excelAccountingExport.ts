@@ -293,10 +293,13 @@ export async function exportProjectAccountingWorkbook({
   attendance = [],
   employees = [],
 }: ExportExcelOptions): Promise<void> {
-  // Dynamically load xlsx to conserve build and runtime memory
-  const XLSX = await import('xlsx');
-  // Create workbook
-  const wb = XLSX.utils.book_new();
+  const ExcelJS = await import('exceljs');
+  const wb = new ExcelJS.Workbook();
+  const addWorksheet = (name: string, rows: (string | number)[][], widths: number[]) => {
+    const worksheet = wb.addWorksheet(name);
+    worksheet.addRows(rows);
+    worksheet.columns = widths.map((width) => ({ width }));
+  };
 
   // -------------------------------------------------------------
   // 1. SHEET: Resumen_Ejecutivo
@@ -349,18 +352,7 @@ export async function exportProjectAccountingWorkbook({
   const totalIva = Math.round((totalSpent - totalSub) * 100) / 100;
   summaryData.push(['TOTAL GENERAL DE GASTOS', filteredExpenses.length, totalSub, totalIva, totalSpent]);
 
-  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
-
-  // Set column widths
-  wsSummary['!cols'] = [
-    { wch: 35 },
-    { wch: 25 },
-    { wch: 25 },
-    { wch: 25 },
-    { wch: 28 },
-  ];
-
-  XLSX.utils.book_append_sheet(wb, wsSummary, 'Resumen_Ejecutivo');
+  addWorksheet('Resumen_Ejecutivo', summaryData, [35, 25, 25, 25, 28]);
 
   // -------------------------------------------------------------
   // 2. SHEET: Registro_Gastos_Contable
@@ -438,27 +430,9 @@ export async function exportProjectAccountingWorkbook({
     '',
   ]);
 
-  const wsExpenses = XLSX.utils.aoa_to_sheet(expensesRows);
-  wsExpenses['!cols'] = [
-    { wch: 6 },
-    { wch: 12 },
-    { wch: 30 },
-    { wch: 14 },
-    { wch: 18 },
-    { wch: 28 },
-    { wch: 40 },
-    { wch: 18 },
-    { wch: 20 },
-    { wch: 22 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 20 },
-    { wch: 16 },
-    { wch: 35 },
-  ];
-
-  XLSX.utils.book_append_sheet(wb, wsExpenses, 'Registro_Gastos_Contable');
+  addWorksheet('Registro_Gastos_Contable', expensesRows, [
+    6, 12, 30, 14, 18, 28, 40, 18, 20, 22, 18, 18, 18, 20, 16, 35,
+  ]);
 
   // -------------------------------------------------------------
   // 3. SHEET: Auditoria_Asistencia_SAT_IGSS
@@ -561,28 +535,9 @@ export async function exportProjectAccountingWorkbook({
     'Conciliado',
   ]);
 
-  const wsAttendance = XLSX.utils.aoa_to_sheet(attendanceRows);
-  wsAttendance['!cols'] = [
-    { wch: 6 },
-    { wch: 14 },
-    { wch: 28 },
-    { wch: 22 },
-    { wch: 18 },
-    { wch: 14 },
-    { wch: 22 },
-    { wch: 25 },
-    { wch: 25 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 22 },
-    { wch: 26 },
-    { wch: 22 },
-    { wch: 35 },
-    { wch: 32 },
-    { wch: 26 },
-  ];
-
-  XLSX.utils.book_append_sheet(wb, wsAttendance, 'Auditoria_Asistencia_SAT_IGSS');
+  addWorksheet('Auditoria_Asistencia_SAT_IGSS', attendanceRows, [
+    6, 14, 28, 22, 18, 14, 22, 25, 25, 18, 18, 22, 26, 22, 35, 32, 26,
+  ]);
 
   // -------------------------------------------------------------
   // 4. SHEET: Bitacoras_Campo_Diarias
@@ -626,24 +581,9 @@ export async function exportProjectAccountingWorkbook({
     ]);
   });
 
-  const wsVisits = XLSX.utils.aoa_to_sheet(visitsRows);
-  wsVisits['!cols'] = [
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 18 },
-    { wch: 24 },
-    { wch: 25 },
-    { wch: 18 },
-    { wch: 24 },
-    { wch: 50 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 18 },
-    { wch: 22 },
-    { wch: 28 },
-  ];
-
-  XLSX.utils.book_append_sheet(wb, wsVisits, 'Bitacoras_Campo_Diarias');
+  addWorksheet('Bitacoras_Campo_Diarias', visitsRows, [
+    14, 14, 18, 24, 25, 18, 24, 50, 14, 14, 18, 22, 28,
+  ]);
 
   // -------------------------------------------------------------
   // 5. SHEET: Macros_Contabilidad_VBA
@@ -676,14 +616,22 @@ export async function exportProjectAccountingWorkbook({
     vbaInstructionRows.push([line]);
   });
 
-  const wsVba = XLSX.utils.aoa_to_sheet(vbaInstructionRows);
-  wsVba['!cols'] = [{ wch: 110 }];
-  XLSX.utils.book_append_sheet(wb, wsVba, 'Macros_Contabilidad_VBA');
+  addWorksheet('Macros_Contabilidad_VBA', vbaInstructionRows, [110]);
 
   // Generate binary XLSX buffer and trigger download
   const dateStr = new Date().toISOString().split('T')[0];
   const fileName = `ConstructERP_${project.code}_Contabilidad_Bitacoras_${dateStr}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+  const workbookBuffer = await wb.xlsx.writeBuffer();
+  const downloadUrl = URL.createObjectURL(
+    new Blob([workbookBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+  );
+  const downloadLink = document.createElement('a');
+  downloadLink.href = downloadUrl;
+  downloadLink.download = fileName;
+  downloadLink.click();
+  URL.revokeObjectURL(downloadUrl);
 }
 
 /**

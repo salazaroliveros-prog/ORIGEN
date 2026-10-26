@@ -1,4 +1,6 @@
 export interface CompanySettings {
+  companyId?: string;
+  ownerId?: string;
   legalName: string;
   commercialName: string;
   companyName: string;
@@ -15,10 +17,59 @@ export interface CompanySettings {
   logoSmallUrl?: string;
   logoSquareUrl?: string;
   bannerUrl?: string;
+  payrollEstimateRates?: {
+    employeeDeductionPercent: number;
+    employerCostPercent: number;
+    incentiveBonusGTQ: number;
+  };
 }
+
+export type CompanyRole = 'owner' | 'admin' | 'project_manager' | 'finance' | 'field_worker' | 'viewer';
+
+export interface CompanyWorkspace {
+  id: string;
+  name: string;
+  ownerId: string;
+  createdAt: string;
+  dataSchemaVersion?: number;
+}
+
+export interface CompanyWorkspaceOption {
+  workspace: CompanyWorkspace;
+  membership: CompanyMembership;
+}
+
+export interface CompanyMembership {
+  companyId: string;
+  uid: string;
+  email: string;
+  role: CompanyRole;
+  joinedAt: string;
+  invitationId?: string;
+}
+
+export interface CompanyInvitation {
+  id: string;
+  companyId: string;
+  email: string;
+  role: Exclude<CompanyRole, 'owner'>;
+  status: 'pending' | 'accepted';
+  createdBy: string;
+  createdAt: { toDate: () => Date };
+  expiresAt: { toDate: () => Date };
+  acceptedBy?: string;
+}
+
+export type ProjectStatus =
+  | 'En Ejecución'
+  | 'Planificación'
+  | 'Finalizado'
+  | 'Suspendido'
+  | 'Archivado';
 
 export interface Project {
   id: string;
+  companyId?: string;
   code: string;
   name: string;
   client: string;
@@ -30,10 +81,13 @@ export interface Project {
   progressPercent: number;
   startDate: string;
   endDate: string;
-  status: 'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido';
+  status: ProjectStatus;
+  archivedAt?: string | null;
+  archivedFromStatus?: Exclude<ProjectStatus, 'Archivado'>;
   lat: number;
   lng: number;
   ownerId?: string;
+  createdBy?: string;
   expectedProfitMarginPercent?: number;
   scheduleTasks?: ScheduleTask[];
   scheduleMilestones?: Milestone[];
@@ -52,6 +106,7 @@ export interface FieldPhoto {
 
 export interface FieldVisit {
   id: string;
+  companyId?: string;
   projectId: string;
   projectName: string;
   date: string;
@@ -75,16 +130,22 @@ export interface FieldVisit {
 
 export interface Machinery {
   id: string;
+  companyId?: string;
+  createdBy?: string;
   name: string;
   model: string;
   plateOrCode: string;
   hourlyRateGTQ: number;
   currentHorometer: number;
   status: 'Disponible' | 'En Obra' | 'Mantenimiento';
+  currentProjectId?: string;
 }
 
 export interface MachineryLog {
   id: string;
+  companyId?: string;
+  createdBy?: string;
+  expenseId?: string;
   machineryId: string;
   machineryName: string;
   projectId: string;
@@ -97,10 +158,25 @@ export interface MachineryLog {
   signerName?: string;
 }
 
+export type EmployeeRole =
+  | 'Capataz'
+  | 'Albañil'
+  | 'Ayudante'
+  | 'Arquitecto Residente'
+  | 'Bodeguero'
+  | 'Electricista';
+
+export interface EmployeeDirectoryEntry {
+  id: string;
+  companyId: string;
+  name: string;
+  role: EmployeeRole;
+}
+
 export interface Employee {
   id: string;
   name: string;
-  role: 'Capataz' | 'Albañil' | 'Ayudante' | 'Arquitecto Residente' | 'Bodeguero' | 'Electricista';
+  role: EmployeeRole;
   dailyRateGTQ: number;
   igssAffiliated: boolean;
   phone: string;
@@ -148,7 +224,7 @@ export interface ExpenseRecord {
   facturaNumber: string;
   amount: number; // in GTQ
   currency: 'GTQ' | 'USD';
-  paymentMethod: 'Efectivo' | 'Cheque' | 'Transferencia BI' | 'Tarjeta';
+  paymentMethod: 'Pendiente' | 'Efectivo' | 'Cheque' | 'Transferencia BI' | 'Tarjeta';
   receiptPhotoUrl?: string;
   receiptPhotoDate?: string;
   receiptCoords?: { lat: number; lng: number };
@@ -162,18 +238,31 @@ export interface ExpenseRecord {
 
 export interface QuoteRecord {
   id: string;
+  companyId?: string;
   projectId: string;
   clientName: string;
   clientNit: string;
+  clientPhone?: string;
+  clientEmail?: string;
+  clientAddress?: string;
   date: string;
   validUntil: string;
   items: { description: string; qty: number; unit: string; unitPriceGTQ: number }[];
   totalGTQ: number;
   status: 'Aceptada' | 'Enviada' | 'Borrador' | 'Rechazada';
+  notes?: string;
+  estimatedDuration?: string;
+  subtotalGTQ?: number;
+  discountPercent?: number;
+  taxPercent?: number;
+  taxGTQ?: number;
 }
 
 export interface APUItem {
   id: string;
+  companyId?: string;
+  projectId?: string;
+  createdBy?: string;
   code: string;
   description: string;
   unit: string;
