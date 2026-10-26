@@ -1,13 +1,24 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Plus, Edit2, Archive, ArchiveRestore, Download, Calendar, Building } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Archive,
+  ArchiveRestore,
+  Download,
+  Calendar,
+  Building,
+  Image as ImageIcon,
+  X,
+} from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { ProjectForm } from '@/components/ProjectForm';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TouchTarget } from '@/components/ui/TouchTarget';
+import { ProjectPhotoDropzone } from '@/components/ProjectPhotoDropzone';
 import { toast } from 'react-hot-toast';
 import type { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
@@ -43,6 +54,8 @@ export function ProjectsView({
   const [formOpen, setFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectFormProject | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [selectedProjectForPhotos, setSelectedProjectForPhotos] = useState<Project | null>(null);
   const visibleProjects = useMemo(
     () => projects.filter((project) => (project.status === 'Archivado') === showArchived),
     [projects, showArchived]
@@ -61,6 +74,17 @@ export function ProjectsView({
     if (status === 'Archivado') return;
     setEditingProject({ ...project, status });
     setFormOpen(true);
+  };
+
+  const openPhotoModal = (project: Project) => {
+    setSelectedProjectForPhotos(project);
+    setPhotoModalOpen(true);
+  };
+
+  const handlePhotoUploaded = (photoUrl: string, metadata: any) => {
+    // Aquí podrías guardar la referencia de la foto en el proyecto
+    // Por ahora solo mostramos un toast de éxito
+    toast.success(`Foto guardada para ${selectedProjectForPhotos?.name}`);
   };
 
   const exportProjects = () => {
@@ -208,6 +232,14 @@ export function ProjectsView({
                       </span>
                     </div>
                     <div className="flex gap-2">
+                      <TouchTarget
+                        onPress={() => openPhotoModal(p)}
+                        className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 transition-all hover:bg-blue-500/20 hover:text-blue-300"
+                        aria-label={`Subir fotos de avance ${p.code}`}
+                        title={`Subir fotos de avance`}
+                      >
+                        <ImageIcon className="h-4 w-4" aria-hidden="true" />
+                      </TouchTarget>
                       {canManageProjects && p.status !== 'Archivado' && (
                         <TouchTarget
                           onPress={() => openEdit(p)}
@@ -280,6 +312,40 @@ export function ProjectsView({
           }
           editingProject={editingProject}
         />
+      )}
+
+      {/* Modal para subir fotos de avance */}
+      {photoModalOpen && selectedProjectForPhotos && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 p-5">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Fotos de Avance - {selectedProjectForPhotos.name}
+                </h3>
+                <p className="text-sm text-slate-600">{selectedProjectForPhotos.code}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setPhotoModalOpen(false);
+                  setSelectedProjectForPhotos(null);
+                }}
+                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-5">
+              <ProjectPhotoDropzone
+                projectId={selectedProjectForPhotos.id}
+                projectCode={selectedProjectForPhotos.code || 'PROYECTO'}
+                onPhotoUploaded={handlePhotoUploaded}
+                maxFiles={5}
+                maxSizeMB={10}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

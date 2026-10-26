@@ -17,6 +17,7 @@ import {
   writeBatch,
   Unsubscribe,
 } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
 import {
   Project,
@@ -95,6 +96,32 @@ if (firestoreEmulatorHost) {
     );
   }
   connectFirestoreEmulator(db, host, port);
+}
+
+// Initialize Firebase Storage
+export const storage = getStorage(app);
+
+const storageEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_EMULATOR_HOST?.trim();
+if (storageEmulatorHost) {
+  const emulatorUrl = storageEmulatorHost.includes('://')
+    ? storageEmulatorHost
+    : `http://${storageEmulatorHost}`;
+  const parsedEmulatorUrl = new URL(emulatorUrl);
+  if (
+    parsedEmulatorUrl.protocol !== 'http:' ||
+    !parsedEmulatorUrl.hostname ||
+    (parsedEmulatorUrl.port &&
+      (!Number.isInteger(Number(parsedEmulatorUrl.port)) ||
+        Number(parsedEmulatorUrl.port) < 1 ||
+        Number(parsedEmulatorUrl.port) > 65535))
+  ) {
+    throw new Error('NEXT_PUBLIC_FIREBASE_STORAGE_EMULATOR_HOST must be an HTTP emulator URL.');
+  }
+  connectStorageEmulator(
+    storage,
+    parsedEmulatorUrl.hostname,
+    Number(parsedEmulatorUrl.port || 9199)
+  );
 }
 
 export async function testConnection(): Promise<boolean> {
