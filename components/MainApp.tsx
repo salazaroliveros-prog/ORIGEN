@@ -253,6 +253,13 @@ export default function MainApp() {
     }
   }, [activeProjects, activeProjectId]);
 
+  // Mostrar AuthDialog automáticamente si no hay usuario autenticado después de cargar
+  useEffect(() => {
+    if (authStatus === 'unauthenticated' && !authDialogOpen && !hasInviteLink) {
+      setAuthDialogOpen(true);
+    }
+  }, [authStatus, authDialogOpen, hasInviteLink]);
+
   const handleUpdateCompany = async (updates: Partial<CompanySettings>) => {
     if (!permissions.canManageCompany) {
       toast.error(

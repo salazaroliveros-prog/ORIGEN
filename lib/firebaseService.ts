@@ -32,6 +32,14 @@ import {
   APUItem,
 } from './types';
 import { notifySyncStart, notifySyncEnd } from './hooks/useFirebaseSyncStatus';
+import {
+  validateExpenseRecord,
+  validateAttendanceRecord,
+  validateEmployee,
+  validateAPUItem,
+  validateQuoteRecord,
+  validateMachinery,
+} from './validation/entity.schemas';
 
 const firebaseConfig = getFirebaseConfig();
 
@@ -164,6 +172,38 @@ export function handleFirestoreError(
 
   const serialized = JSON.stringify(errInfo);
   console.error('Firestore Error: ', serialized);
+
+  // Mostrar notificación al usuario si estamos en el navegador
+  if (typeof window !== 'undefined') {
+    // Import dinámico para evitar problemas en SSR
+    import('react-hot-toast')
+      .then(({ toast }) => {
+        const isPermissionError =
+          errMsg.includes('permission-denied') ||
+          errMsg.includes('Missing or insufficient permissions');
+        const isNetworkError = errMsg.includes('network') || errMsg.includes('unavailable');
+        const isAuthError = errMsg.includes('unauthenticated') || errMsg.includes('unauthorized');
+
+        let userMessage = 'Error de conexión con la base de datos';
+        if (isPermissionError) {
+          userMessage = 'No tienes permisos para realizar esta acción';
+        } else if (isNetworkError) {
+          userMessage = 'Error de red. Verifica tu conexión a internet';
+        } else if (isAuthError) {
+          userMessage = 'Sesión expirada. Inicia sesión nuevamente';
+        }
+
+        toast.error(userMessage, {
+          duration: 5000,
+          position: 'top-center',
+        });
+      })
+      .catch(() => {
+        // Fallback si toast no está disponible
+        console.warn('Toast notification not available');
+      });
+  }
+
   return new Error(serialized);
 }
 
@@ -310,6 +350,16 @@ export async function saveExpenseToFirestore(
   userId: string
 ) {
   const path = `expenses/${expense.id}`;
+
+  // Validar datos antes de guardar
+  const validation = validateExpenseRecord(expense);
+  if (!validation.success) {
+    console.error('Expense validation failed:', validation.error);
+    throw new Error(
+      `Datos de gasto inválidos: ${validation.error.issues.map((i) => i.message).join(', ')}`
+    );
+  }
+
   try {
     const docRef = doc(db, 'expenses', expense.id);
     await setDoc(
@@ -335,6 +385,37 @@ export async function deleteExpenseFromFirestore(expenseId: string): Promise<boo
     return true;
   } catch (err) {
     handleFirestoreError(err, OperationType.DELETE, path);
+    return false;
+  }
+}
+
+export async function updateExpenseToFirestore(
+  expense: ExpenseRecord,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `expenses/${expense.id}`;
+
+  // Validar datos antes de guardar
+  const validation = validateExpenseRecord(expense);
+  if (!validation.success) {
+    console.error('Expense validation failed:', validation.error);
+    throw new Error(
+      `Datos de gasto inválidos: ${validation.error.issues.map((i) => i.message).join(', ')}`
+    );
+  }
+
+  try {
+    const docRef = doc(db, 'expenses', expense.id);
+    await updateDoc(docRef, {
+      ...expense,
+      companyId,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString(),
+    });
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.UPDATE, path);
     return false;
   }
 }
@@ -369,6 +450,16 @@ export async function saveAttendanceToFirestore(
   userId: string
 ) {
   const path = `attendance/${record.id}`;
+
+  // Validar datos antes de guardar
+  const validation = validateAttendanceRecord(record);
+  if (!validation.success) {
+    console.error('Attendance validation failed:', validation.error);
+    throw new Error(
+      `Datos de asistencia inválidos: ${validation.error.issues.map((i) => i.message).join(', ')}`
+    );
+  }
+
   try {
     const docRef = doc(db, 'attendance', record.id);
     await setDoc(
@@ -417,6 +508,16 @@ export async function saveEmployeeToFirestore(
   userId: string
 ): Promise<boolean> {
   const path = `employees/${employee.id}`;
+
+  // Validar datos antes de guardar
+  const validation = validateEmployee(employee);
+  if (!validation.success) {
+    console.error('Employee validation failed:', validation.error);
+    throw new Error(
+      `Datos de empleado inválidos: ${validation.error.issues.map((i) => i.message).join(', ')}`
+    );
+  }
+
   try {
     const batch = writeBatch(db);
     batch.set(
@@ -598,13 +699,14 @@ export async function saveAPUItemsToFirestore(
     throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
   }
 
-  // Validate structure of each item
+  // Validar cada item con Zod
   for (const item of items) {
-    if (!item.id || !item.code || !item.description || !item.unit) {
-      throw new Error('Cada partida APU debe tener id, código, descripción y unidad');
-    }
-    if (item.totalUnitCostGTQ < 0 || item.totalPriceGTQ < 0) {
-      throw new Error('Los costos no pueden ser negativos');
+    const validation = validateAPUItem(item);
+    if (!validation.success) {
+      console.error('APU Item validation failed:', validation.error);
+      throw new Error(
+        `Datos de partida APU inválidos (${item.code}): ${validation.error.issues.map((i) => i.message).join(', ')}`
+      );
     }
   }
 
@@ -643,6 +745,16 @@ export async function saveQuoteToFirestore(
   userId: string
 ): Promise<boolean> {
   const path = `quotes/${quote.id}`;
+
+  // Validar datos antes de guardar
+  const validation = validateQuoteRecord(quote);
+  if (!validation.success) {
+    console.error('Quote validation failed:', validation.error);
+    throw new Error(
+      `Datos de cotización inválidos: ${validation.error.issues.map((i) => i.message).join(', ')}`
+    );
+  }
+
   try {
     await setDoc(
       doc(db, 'quotes', quote.id),

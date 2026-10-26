@@ -283,6 +283,11 @@ export interface APUItem {
     notes?: string;
     technicalNorm?: string;
   };
+  metadata?: {
+    source?: string;
+    validated?: boolean;
+    aiGenerated?: boolean;
+  };
 }
 
 export interface ScheduleTask {

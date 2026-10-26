@@ -25,6 +25,7 @@ import {
   subscribeCompanySettings,
   saveProjectToFirestore,
   saveExpenseToFirestore,
+  updateExpenseToFirestore,
   deleteExpenseFromFirestore,
   saveAttendanceToFirestore,
   deleteAttendanceFromFirestore,
@@ -53,6 +54,11 @@ import {
   canReadEmployeeDirectory,
   canReadFullPersonnel,
 } from '@/lib/permissions';
+import {
+  updateProjectWithCalculatedMetrics,
+  calculateProjectSpentById,
+  calculateProjectProgress,
+} from '@/lib/projectCalculations';
 
 export function useProjectData(companyId?: string, currentUserId?: string, role?: CompanyRole) {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -134,6 +140,65 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       unsubMachineryLogs();
     };
   }, [companyId, currentUserId, role]);
+
+  // Recalcular automáticamente métricas de proyectos cuando cambian expenses o proyectos
+  useEffect(() => {
+    if (projects.length === 0) return;
+
+    const updatedProjects = projects.map((project) => {
+      const calculatedSpent = calculateProjectSpentById(expenses, project.id);
+
+      // Solo actualizar si el gasto calculado es diferente al actual
+      if (calculatedSpent !== project.spentTotal) {
+        return {
+          ...project,
+          spentTotal: calculatedSpent,
+        };
+      }
+
+      return project;
+    });
+
+    // Solo actualizar si hubo cambios
+    const hasChanges = updatedProjects.some(
+      (updated, index) => updated.spentTotal !== projects[index].spentTotal
+    );
+
+    if (hasChanges) {
+      setProjects(updatedProjects);
+    }
+  }, [expenses, projects]);
+
+  // Recalcular progreso automáticamente cuando cambian tareas/milestones
+  useEffect(() => {
+    if (projects.length === 0) return;
+
+    const updatedProjects = projects.map((project) => {
+      const calculatedProgress = calculateProjectProgress(
+        project.scheduleTasks,
+        project.scheduleMilestones
+      );
+
+      // Solo actualizar si el progreso calculado es diferente al actual
+      if (calculatedProgress !== project.progressPercent) {
+        return {
+          ...project,
+          progressPercent: calculatedProgress,
+        };
+      }
+
+      return project;
+    });
+
+    // Solo actualizar si hubo cambios
+    const hasChanges = updatedProjects.some(
+      (updated, index) => updated.progressPercent !== projects[index].progressPercent
+    );
+
+    if (hasChanges) {
+      setProjects(updatedProjects);
+    }
+  }, [projects]);
 
   const createProject = useCallback(
     async (data: ProjectFormValues, onCreated?: (projectId: string) => void) => {
@@ -344,6 +409,28 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     [companyId, currentUserId]
   );
 
+  const updateExpense = useCallback(
+    async (expense: ExpenseRecord) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Usuario no autenticado');
+        return false;
+      }
+      try {
+        const ok = await updateExpenseToFirestore(expense, companyId, currentUserId);
+        if (ok) {
+          toast.success('Gasto actualizado correctamente');
+          return true;
+        }
+        toast.error('Error al actualizar el gasto');
+        return false;
+      } catch (err) {
+        toast.error('Error inesperado al actualizar el gasto');
+        return false;
+      }
+    },
+    [companyId, currentUserId]
+  );
+
   const addAttendance = useCallback(
     async (record: AttendanceRecord) => {
       if (!companyId || !currentUserId) {
@@ -542,6 +629,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     archiveProject,
     restoreProject,
     addExpense,
+    updateExpense,
     deleteExpense,
     addAttendance,
     deleteAttendance,

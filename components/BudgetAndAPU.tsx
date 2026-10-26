@@ -38,6 +38,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface BudgetAndAPUProps {
   budgetItems: APUItem[];
@@ -223,16 +224,61 @@ export function BudgetAndAPU({
   const handleAddAiApuToBudget = async () => {
     if (!aiResult) return;
 
+    // Validar datos generados por IA
+    const quantity = Number(aiResult.quantity) || Number(aiQty) || 100;
+    const materialCost = Number(aiResult.materialUnitCostGTQ) || 0;
+    const laborCost = Number(aiResult.laborUnitCostGTQ) || 0;
+    const equipmentCost = Number(aiResult.equipmentUnitCostGTQ) || 0;
+    const totalUnitCost = Number(aiResult.totalUnitCostGTQ) || 0;
+
+    // Validar que no haya valores negativos
+    if (
+      quantity < 0 ||
+      materialCost < 0 ||
+      laborCost < 0 ||
+      equipmentCost < 0 ||
+      totalUnitCost < 0
+    ) {
+      toast.error('La IA generó valores negativos. Por favor revisa y corrige los datos.');
+      return;
+    }
+
+    // Validar que la suma de componentes sea consistente con el total
+    const calculatedTotal = materialCost + laborCost + equipmentCost;
+    const totalTolerance = Math.abs(calculatedTotal - totalUnitCost);
+    const tolerancePercent = totalUnitCost > 0 ? (totalTolerance / totalUnitCost) * 100 : 0;
+
+    // Si la diferencia es mayor al 10%, mostrar advertencia
+    if (tolerancePercent > 10) {
+      toast.error(
+        `Discrepancia detectada: suma de componentes (${formatMoney(calculatedTotal)}) difiere del total (${formatMoney(totalUnitCost)}). Verifica antes de aprobar.`
+      );
+    }
+
+    // Validar rangos razonables para Guatemala
+    const MAX_REASONABLE_UNIT_COST = 100000; // Q100,000 por unidad máximo razonable
+    const MAX_REASONABLE_QUANTITY = 1000000; // 1M unidades máximo razonable
+
+    if (totalUnitCost > MAX_REASONABLE_UNIT_COST) {
+      toast.error(
+        `El costo unitario (${formatMoney(totalUnitCost)}) parece fuera de rango para Guatemala. Verifica antes de aprobar.`
+      );
+    }
+
+    if (quantity > MAX_REASONABLE_QUANTITY) {
+      toast.error(`La cantidad (${quantity}) parece excesiva. Verifica antes de aprobar.`);
+    }
+
     const newItem: APUItem = {
       id: `apu-${globalThis.crypto.randomUUID()}`,
       code: aiResult.code || '03.99',
       description: aiResult.title || aiPrompt,
       unit: aiResult.unit || aiUnit,
-      quantity: Number(aiResult.quantity) || Number(aiQty) || 100,
-      materialUnitCostGTQ: Number(aiResult.materialUnitCostGTQ) || 0,
-      laborUnitCostGTQ: Number(aiResult.laborUnitCostGTQ) || 0,
-      equipmentUnitCostGTQ: Number(aiResult.equipmentUnitCostGTQ) || 0,
-      totalUnitCostGTQ: Number(aiResult.totalUnitCostGTQ) || 0,
+      quantity,
+      materialUnitCostGTQ: materialCost,
+      laborUnitCostGTQ: laborCost,
+      equipmentUnitCostGTQ: equipmentCost,
+      totalUnitCostGTQ: totalUnitCost,
       totalPriceGTQ: Number(aiResult.totalPriceGTQ) || 0,
       department: selectedDept,
       breakdown: {
@@ -241,6 +287,10 @@ export function BudgetAndAPU({
         equipment: aiResult.equipmentBreakdown,
         notes: aiResult.regionalAdjustmentNote,
         technicalNorm: aiResult.technicalNorm,
+      },
+      metadata: {
+        source: aiSource || 'ai-studio',
+        validated: tolerancePercent <= 10, // Marcar como validado si la discrepancia es <= 10%
       },
     };
 
