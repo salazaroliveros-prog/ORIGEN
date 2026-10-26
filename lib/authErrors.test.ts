@@ -14,6 +14,15 @@ describe('getAuthErrorMessage', () => {
     );
   });
 
+  it('guides users through a Google and email/password account conflict', () => {
+    expect(
+      getAuthErrorMessageForMethod(
+        { code: 'auth/account-exists-with-different-credential' },
+        'google'
+      )
+    ).toContain('vincularemos Google');
+  });
+
   it('does not expose provider internals for unknown errors', () => {
     expect(getAuthErrorMessage(new Error('internal database response'))).toBe(
       'No se pudo completar la autenticación. Inténtalo de nuevo.'

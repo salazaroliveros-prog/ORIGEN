@@ -1,8 +1,11 @@
+import { FirebaseError } from 'firebase/app';
 import { auth } from './firebaseService';
 import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  getRedirectResult,
+  linkWithCredential,
   linkWithPopup,
   onAuthStateChanged,
   reauthenticateWithPopup,
@@ -11,12 +14,17 @@ import {
   setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   type Unsubscribe,
+  type OAuthCredential,
   type User,
 } from 'firebase/auth';
 
 export type AuthSessionStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error';
+
+const PRIMARY_ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+let pendingGoogleCredential: { credential: OAuthCredential; email: string } | null = null;
 
 export type EmailAccountCreationResult =
   | { user: User; verificationEmailSent: true }
@@ -26,12 +34,47 @@ async function ensurePersistentSession(): Promise<void> {
   await setPersistence(auth, browserLocalPersistence);
 }
 
-export async function signInWithGoogle(): Promise<User> {
+export async function signInWithGoogle(): Promise<User | null> {
   await ensurePersistentSession();
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
-  const result = await signInWithPopup(auth, provider);
-  return result.user;
+  try {
+    const result = await signInWithPopup(auth, provider);
+    return result.user;
+  } catch (error) {
+    const code =
+      typeof error === 'object' && error !== null && 'code' in error
+        ? error.code
+        : undefined;
+    if (code === 'auth/account-exists-with-different-credential') {
+      const credential =
+        error instanceof FirebaseError
+          ? GoogleAuthProvider.credentialFromError(error)
+          : null;
+      const email =
+        typeof error === 'object' &&
+        error !== null &&
+        'customData' in error &&
+        typeof error.customData === 'object' &&
+        error.customData !== null &&
+        'email' in error.customData &&
+        typeof error.customData.email === 'string'
+          ? error.customData.email.trim().toLowerCase()
+          : '';
+      if (credential && email) pendingGoogleCredential = { credential, email };
+    } else if (
+      code === 'auth/popup-blocked' ||
+      code === 'auth/operation-not-supported-in-this-environment'
+    ) {
+      await signInWithRedirect(auth, provider);
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function completeGoogleRedirect(): Promise<void> {
+  await getRedirectResult(auth);
 }
 
 export async function authorizeGmailSend(): Promise<{ accessToken: string; expiresAt: number }> {
@@ -56,7 +99,24 @@ export async function authorizeGmailSend(): Promise<{ accessToken: string; expir
 export async function signInWithEmail(email: string, password: string): Promise<User> {
   await ensurePersistentSession();
   const result = await signInWithEmailAndPassword(auth, email, password);
+  const pending = pendingGoogleCredential;
+  if (
+    pending &&
+    result.user.email?.trim().toLowerCase() === pending.email
+  ) {
+    try {
+      await linkWithCredential(result.user, pending.credential);
+      pendingGoogleCredential = null;
+    } catch (error) {
+      pendingGoogleCredential = null;
+      throw error;
+    }
+  }
   return result.user;
+}
+
+export function isPrimaryAdministrator(email: string | null | undefined): boolean {
+  return email?.trim().toLowerCase() === PRIMARY_ADMIN_EMAIL;
 }
 
 export async function createEmailAccount(

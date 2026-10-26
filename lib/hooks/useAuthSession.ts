@@ -3,6 +3,7 @@ import type { User } from 'firebase/auth';
 import {
   createEmailAccount,
   authorizeGmailSend,
+  completeGoogleRedirect,
   signInWithEmail,
   signInWithGoogle,
   signOutUser,
@@ -21,6 +22,12 @@ export function useAuthSession() {
   const [gmailAccess, setGmailAccess] = useState<{ accessToken: string; expiresAt: number } | null>(null);
 
   useEffect(() => {
+    void completeGoogleRedirect().catch((error) => {
+      const message = getAuthErrorMessage(error);
+      setAuthError(message);
+      toast.error(message);
+    });
+
     const unsubscribe = subscribeToAuthState(
       (user) => {
         setCurrentUser(user);

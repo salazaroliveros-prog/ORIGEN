@@ -86,7 +86,8 @@ export function AuthDialog({
     setErrorMessage(null);
     setIsSubmitting(true);
     try {
-      await onSignInWithGoogle();
+      const user = await onSignInWithGoogle();
+      if (user === null) return;
       toast.success('Sesión iniciada con Google.');
       onClose();
     } catch (error) {

@@ -30,6 +30,7 @@ import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
 import { useProjectData } from '@/lib/services/projectData';
 import type { CompanySettings, Employee, TaskReminder } from '@/lib/types';
+import { isPrimaryAdministrator } from '@/lib/firebaseAuth';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import {
@@ -358,6 +359,29 @@ export default function MainApp() {
         {authStatus === 'authenticated' && workspaceLoading && (
           <div role="status" className="mt-4 rounded-xl border border-sky-400/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
             Preparando el espacio de trabajo y sincronizando los datos de la empresa...
+          </div>
+        )}
+        {currentUser && isPrimaryAdministrator(currentUser.email) && !workspaceLoading && (
+          <div
+            role={
+              currentUser.emailVerified &&
+              (membership?.role === 'owner' || membership?.role === 'admin')
+                ? 'status'
+                : 'alert'
+            }
+            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
+              currentUser.emailVerified &&
+              (membership?.role === 'owner' || membership?.role === 'admin')
+                ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-100'
+                : 'border-amber-400/30 bg-amber-500/10 text-amber-100'
+            }`}
+          >
+            Correo de administración configurado: <strong>{currentUser.email}</strong>.{' '}
+            {!currentUser.emailVerified
+              ? 'El correo aún no está verificado.'
+              : membership
+                ? `Rol en ${workspace?.name ?? 'la empresa'}: ${membership.role}.`
+                : 'No se encontró una membresía de empresa. Revisa la configuración del espacio de trabajo.'}
           </div>
         )}
         {(authStatus === 'unauthenticated' || authStatus === 'error' || Boolean(workspaceError)) && (

@@ -1,6 +1,6 @@
 const authErrorMessages: Record<string, string> = {
   'auth/account-exists-with-different-credential':
-    'Este correo ya está asociado a otro método de acceso. Inicia sesión con ese método.',
+    'Este correo ya tiene una cuenta con otro método. Inicia sesión aquí con ese correo y su contraseña; después vincularemos Google para futuros accesos.',
   'auth/api-key-not-valid':
     'La configuración de Firebase no es válida. Revisa las variables públicas de Firebase.',
   'auth/cancelled-popup-request': 'Ya hay otra ventana de acceso abierta.',
@@ -13,6 +13,15 @@ const authErrorMessages: Record<string, string> = {
     'Este método de acceso no está habilitado en Firebase Authentication.',
   'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Permite las ventanas emergentes.',
   'auth/popup-closed-by-user': 'Se canceló el acceso con Google.',
+  'auth/provider-already-linked': 'Esta cuenta ya tiene Google vinculado. Inicia sesión con Google.',
+  'auth/credential-already-in-use':
+    'Esta cuenta de Google ya está vinculada a otro usuario de ORIGEN. Inicia sesión con la cuenta vinculada o contacta al administrador.',
+  'auth/web-storage-unsupported':
+    'El navegador no permite guardar la sesión de forma segura. Habilita cookies y almacenamiento del sitio e inténtalo de nuevo.',
+  'auth/invalid-oauth-client-id':
+    'La configuración OAuth de Google no es válida para este proyecto. Revisa el proveedor Google en Firebase Authentication.',
+  'auth/unauthorized-continue-uri':
+    'La URL de acceso no está autorizada en Firebase Authentication. Agrega el dominio actual a los dominios permitidos.',
   'auth/too-many-requests': 'Hubo demasiados intentos. Espera un momento antes de volver a intentarlo.',
   'auth/unauthorized-domain':
     'Este dominio no está autorizado en Firebase Authentication. Agrégalo a los dominios permitidos.',
