@@ -40,6 +40,7 @@ interface StaffAndAttendanceProps {
   company?: CompanySettings;
   projects: Project[];
   activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
   onAddEmployee?: (emp: Employee) => Promise<boolean>;
   onAddAttendance?: (record: AttendanceRecord) => Promise<boolean>;
   onDeleteAttendance?: (id: string) => Promise<boolean>;
@@ -52,6 +53,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   company,
   projects,
   activeProjectId,
+  onSelectProject,
   onAddEmployee,
   onAddAttendance,
   onDeleteAttendance,
@@ -69,7 +71,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   const [isSavingEmployee, setIsSavingEmployee] = useState(false);
 
   // Attendance Form State
-  const [selectedProjectId, setSelectedProjectId] = useState<string>(activeProjectId);
+  const selectedProjectId = activeProjectId;
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>(employees[0]?.id || '');
   const [attendanceDate, setAttendanceDate] = useState<string>(() =>
     new Intl.DateTimeFormat('en-CA', {
@@ -96,7 +98,8 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   const [saveSuccessToast, setSaveSuccessToast] = useState<string | null>(null);
 
   // Filter for history
-  const [historyProjectFilter, setHistoryProjectFilter] = useState<string>(activeProjectId);
+  const [showAllHistoryProjects, setShowAllHistoryProjects] = useState(false);
+  const historyProjectFilter = showAllHistoryProjects ? 'all' : activeProjectId;
 
   const currentProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
   const employeesWithDetails = employees.filter(
@@ -108,13 +111,6 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
       setActiveTab('asistencia');
     }
   }, [activeTab, canViewEmployeeDetails]);
-
-  useEffect(() => {
-    if (projects.length === 0 || projects.some((project) => project.id === selectedProjectId)) return;
-    setSelectedProjectId(
-      projects.some((project) => project.id === activeProjectId) ? activeProjectId : projects[0].id
-    );
-  }, [activeProjectId, projects, selectedProjectId]);
 
   // Recalculate distance whenever user coords or selected project changes
   const runGeofenceCheck = (coords: { lat: number; lng: number }) => {
@@ -486,7 +482,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                     id="attendance-project"
                     value={selectedProjectId}
                     onChange={(e) => {
-                      setSelectedProjectId(e.target.value);
+                      onSelectProject(e.target.value);
                       if (userCoords) {
                         const proj = projects.find((p) => p.id === e.target.value);
                         if (proj) {
@@ -736,7 +732,11 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   <Filter className="w-3.5 h-3.5 text-slate-400" />
                   <select
                     value={historyProjectFilter}
-                    onChange={(e) => setHistoryProjectFilter(e.target.value)}
+                    onChange={(e) => {
+                      const projectId = e.target.value;
+                      setShowAllHistoryProjects(projectId === 'all');
+                      if (projectId !== 'all') onSelectProject(projectId);
+                    }}
                     className="px-2.5 py-1 text-xs rounded-lg border border-slate-300 bg-slate-50 text-slate-800"
                   >
                     <option value="all">Todos los Proyectos</option>

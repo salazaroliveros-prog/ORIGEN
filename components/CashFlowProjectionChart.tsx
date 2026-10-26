@@ -43,15 +43,24 @@ import {
 interface CashFlowProjectionChartProps {
   projects: Project[];
   milestones?: Milestone[];
+  activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
   className?: string;
 }
 
 export function CashFlowProjectionChart({
   projects = [],
   milestones = [],
+  activeProjectId,
+  onSelectProject,
   className = '',
 }: CashFlowProjectionChartProps) {
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  const selectedProjectId = showAllProjects
+    ? 'all'
+    : projects.some((project) => project.id === activeProjectId)
+      ? activeProjectId
+      : projects[0]?.id ?? 'all';
   const [chartMode, setChartMode] = useState<'inflow_outflow' | 'net_cumulative'>('inflow_outflow');
   const [showMilestonesList, setShowMilestonesList] = useState<boolean>(true);
   const [startOffsetMonths, setStartOffsetMonths] = useState<number>(0); // 0 = Nov 2026, 1 = Dic 2026, etc.
@@ -104,7 +113,11 @@ export function CashFlowProjectionChart({
             <select
               aria-label="Filtrar flujo de caja por proyecto"
               value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
+              onChange={(e) => {
+                const projectId = e.target.value;
+                setShowAllProjects(projectId === 'all');
+                if (projectId !== 'all') onSelectProject(projectId);
+              }}
               className="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer"
             >
               <option value="all" className="bg-slate-800 text-white">

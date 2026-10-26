@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckCircle2, Mail, ShieldCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import type { CompanySettings, Project } from '@/lib/types';
@@ -9,6 +9,8 @@ import { sendGmailMessage } from '@/lib/gmail';
 interface GmailManagerProps {
   company: CompanySettings;
   projects: Project[];
+  activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
   userEmail?: string | null;
   accessToken?: string | null;
   tokenExpiresAt?: number | null;
@@ -18,6 +20,8 @@ interface GmailManagerProps {
 export function GmailManager({
   company,
   projects,
+  activeProjectId,
+  onSelectProject,
   userEmail,
   accessToken,
   tokenExpiresAt,
@@ -26,13 +30,19 @@ export function GmailManager({
   const [recipient, setRecipient] = useState('');
   const [subject, setSubject] = useState('Actualización de proyecto');
   const [body, setBody] = useState('');
-  const [projectId, setProjectId] = useState('');
+  const [linkProject, setLinkProject] = useState(true);
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [previewReady, setPreviewReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const project = projects.find((item) => item.id === projectId);
+  const project = linkProject
+    ? projects.find((item) => item.id === activeProjectId)
+    : undefined;
   const hasActiveGrant = Boolean(accessToken && tokenExpiresAt && tokenExpiresAt > Date.now());
+
+  useEffect(() => {
+    setPreviewReady(false);
+  }, [activeProjectId, linkProject]);
 
   const preparePreview = () => {
     if (!recipient.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient.trim())) {
@@ -124,7 +134,12 @@ export function GmailManager({
           </label>
           <label className="block text-xs font-semibold text-slate-300">
             Vincular proyecto (opcional)
-            <select value={projectId} onChange={(event) => { setProjectId(event.target.value); setPreviewReady(false); }} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white">
+            <select value={linkProject ? activeProjectId : ''} onChange={(event) => {
+              const projectId = event.target.value;
+              setLinkProject(Boolean(projectId));
+              if (projectId) onSelectProject(projectId);
+              setPreviewReady(false);
+            }} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white">
               <option value="">Sin proyecto vinculado</option>
               {projects.map((item) => <option key={item.id} value={item.id}>{item.code} · {item.name}</option>)}
             </select>

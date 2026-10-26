@@ -62,6 +62,7 @@ export function useProjectData(
   const [employees, setEmployees] = useState<Array<Employee | EmployeeDirectoryEntry>>([]);
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
   const [apuItems, setApuItems] = useState<APUItem[]>([]);
+  const [apuItemsLoading, setApuItemsLoading] = useState(false);
   const [machinery, setMachinery] = useState<Machinery[]>([]);
   const [machineryLogs, setMachineryLogs] = useState<MachineryLog[]>([]);
   const [company, setCompany] = useState<CompanySettings | null>(null);
@@ -76,6 +77,7 @@ export function useProjectData(
       setEmployees([]);
       setQuotes([]);
       setApuItems([]);
+      setApuItemsLoading(false);
       setMachinery([]);
       setMachineryLogs([]);
       setCompany(null);
@@ -90,6 +92,7 @@ export function useProjectData(
     setEmployees([]);
     setQuotes([]);
     setApuItems([]);
+    setApuItemsLoading(true);
     setMachinery([]);
     setMachineryLogs([]);
     setCompany(null);
@@ -111,7 +114,10 @@ export function useProjectData(
         : () => setEmployees([]);
     const unsubCompany = subscribeCompanySettings(companyId, setCompany);
     const unsubQuotes = subscribeQuotes(companyId, setQuotes);
-    const unsubAPUItems = subscribeAPUItems(companyId, setApuItems);
+    const unsubAPUItems = subscribeAPUItems(companyId, (nextItems) => {
+      setApuItems(nextItems);
+      setApuItemsLoading(false);
+    });
     const unsubMachinery = subscribeMachinery(companyId, setMachinery);
     const unsubMachineryLogs = subscribeMachineryLogs(companyId, setMachineryLogs);
 
@@ -130,7 +136,7 @@ export function useProjectData(
   }, [companyId, currentUserId, role]);
 
   const createProject = useCallback(
-    async (data: ProjectFormValues) => {
+    async (data: ProjectFormValues, onCreated?: (projectId: string) => void) => {
       if (!companyId || !currentUserId) {
         toast.error('Usuario no autenticado');
         return false;
@@ -154,6 +160,7 @@ export function useProjectData(
         };
         const success = await saveProjectToFirestore(project, companyId, currentUserId);
         if (success) {
+          onCreated?.(projectId);
           toast.success('Proyecto creado correctamente');
           return true;
         }
@@ -510,6 +517,7 @@ export function useProjectData(
     employees,
     quotes,
     apuItems,
+    apuItemsLoading,
     machinery,
     machineryLogs,
     company,

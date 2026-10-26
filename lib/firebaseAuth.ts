@@ -18,6 +18,10 @@ import {
 
 export type AuthSessionStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error';
 
+export type EmailAccountCreationResult =
+  | { user: User; verificationEmailSent: true }
+  | { user: User; verificationEmailSent: false; verificationEmailError: unknown };
+
 async function ensurePersistentSession(): Promise<void> {
   await setPersistence(auth, browserLocalPersistence);
 }
@@ -55,11 +59,22 @@ export async function signInWithEmail(email: string, password: string): Promise<
   return result.user;
 }
 
-export async function createEmailAccount(email: string, password: string): Promise<User> {
+export async function createEmailAccount(
+  email: string,
+  password: string
+): Promise<EmailAccountCreationResult> {
   await ensurePersistentSession();
   const result = await createUserWithEmailAndPassword(auth, email, password);
-  await sendEmailVerification(result.user, { url: window.location.href });
-  return result.user;
+  try {
+    const redirectUrl = `${window.location.origin}/?verified=true`;
+    await sendEmailVerification(result.user, {
+      url: redirectUrl,
+      handleCodeInApp: false,
+    });
+    return { user: result.user, verificationEmailSent: true };
+  } catch (verificationEmailError) {
+    return { user: result.user, verificationEmailSent: false, verificationEmailError };
+  }
 }
 
 export function resetEmailPassword(email: string): Promise<void> {

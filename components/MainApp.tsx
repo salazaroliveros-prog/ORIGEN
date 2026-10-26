@@ -30,7 +30,7 @@ import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
 import { useProjectData } from '@/lib/services/projectData';
 import type { CompanySettings, Employee, TaskReminder } from '@/lib/types';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import {
   canManagePersonnel,
@@ -180,11 +180,27 @@ export default function MainApp() {
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
   const [activeProjectId, setActiveProjectId] = useState<string>('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const pendingProjectIdRef = useRef<string | null>(null);
 
   const tabConfig = TAB_CONFIG[activeTab];
   const hasInviteLink =
     typeof window !== 'undefined' &&
     new URLSearchParams(window.location.search).has('invite');
+  const verifiedEmailHandled = useRef(false);
+
+  useEffect(() => {
+    const params = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search);
+    if (!params || !currentUser || !currentUser.emailVerified || params.get('verified') !== 'true') {
+      return;
+    }
+    if (verifiedEmailHandled.current) return;
+
+    verifiedEmailHandled.current = true;
+    params.delete('verified');
+    const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}${window.location.hash}`;
+    window.history.replaceState(window.history.state, '', nextUrl);
+    toast.success('Correo verificado correctamente. Ya puedes aceptar invitaciones y acceder a tu espacio.');
+  }, [currentUser]);
 
   useEffect(() => {
     if (data.company) {
@@ -198,6 +214,16 @@ export default function MainApp() {
     if (activeProjects.length === 0) {
       if (activeProjectId) setActiveProjectId('');
       return;
+    }
+
+    const pendingProjectId = pendingProjectIdRef.current;
+    if (pendingProjectId) {
+      if (activeProjects.some((project) => project.id === pendingProjectId)) {
+        pendingProjectIdRef.current = null;
+        if (activeProjectId !== pendingProjectId) setActiveProjectId(pendingProjectId);
+        return;
+      }
+      if (activeProjectId === pendingProjectId) return;
     }
 
     if (!activeProjects.some((project) => project.id === activeProjectId)) {
@@ -214,12 +240,11 @@ export default function MainApp() {
       toast.error('Inicia sesión para guardar la configuración de empresa.');
       return false;
     }
-    setCompany((prev) => ({ ...prev, ...updates }));
+
+    const nextSettings: CompanySettings = { ...company, ...updates, companyId: workspace.id, ownerId: workspace.id };
+    setCompany(nextSettings);
     try {
-      const saved = await saveCompanySettingsToFirestore(
-        { ...company, ...updates, companyId: workspace.id, ownerId: workspace.id },
-        workspace.id
-      );
+      const saved = await saveCompanySettingsToFirestore(nextSettings, workspace.id);
       if (!saved) {
         toast.error('No se pudo guardar la configuración de empresa.');
         return false;
@@ -233,6 +258,12 @@ export default function MainApp() {
   };
 
   const handleSelectProject = (projectId: string) => {
+    pendingProjectIdRef.current = null;
+    setActiveProjectId(projectId);
+  };
+
+  const handleProjectCreated = (projectId: string) => {
+    pendingProjectIdRef.current = projectId;
     setActiveProjectId(projectId);
   };
 
@@ -242,6 +273,7 @@ export default function MainApp() {
       toast.error('No se pudo cambiar de empresa. Revisa tu acceso e inténtalo de nuevo.');
       return;
     }
+    pendingProjectIdRef.current = null;
     setActiveProjectId('');
     setActiveTab('dashboard');
     toast.success('Espacio de trabajo cambiado.');
@@ -373,6 +405,8 @@ export default function MainApp() {
             projects={activeProjects}
             expenses={activeExpenses}
             company={company}
+            activeProjectId={activeProject?.id ?? ''}
+            onSelectProject={handleSelectProject}
             milestones={activeProjects.flatMap((project) => project.scheduleMilestones ?? [])}
             employees={fullEmployees}
             attendance={activeAttendance}
@@ -385,6 +419,7 @@ export default function MainApp() {
             expenses={data.expenses}
             loading={data.loading}
             onCreateProject={data.createProject}
+            onProjectCreated={handleProjectCreated}
             onUpdateProject={data.updateProject}
             onArchiveProject={data.archiveProject}
             onRestoreProject={data.restoreProject}
@@ -411,6 +446,7 @@ export default function MainApp() {
             projects={activeProjects}
             employees={data.employees}
             activeProjectId={activeProject?.id ?? ''}
+            onSelectProject={handleSelectProject}
             onAddEmployee={canManageEmployees ? data.addEmployee : undefined}
             onAddAttendance={canManageAttendance ? data.addAttendance : undefined}
             onDeleteAttendance={canManageAttendance ? data.deleteAttendance : undefined}
@@ -419,10 +455,12 @@ export default function MainApp() {
         )}
         {activeTab === 'reportes' && (
           <ReportsView
-            projects={data.projects}
+            projects={activeProjects}
             expenses={data.expenses}
             fieldVisits={data.fieldVisits}
             company={company}
+            activeProjectId={activeProject?.id ?? ''}
+            onSelectProject={handleSelectProject}
           />
         )}
         {activeTab === 'gastos' && (
@@ -430,6 +468,8 @@ export default function MainApp() {
             projects={data.projects}
             expenses={data.expenses}
             company={company}
+            activeProjectId={activeProject?.id ?? ''}
+            onSelectProject={handleSelectProject}
             onAddExpense={canManageExpenses ? data.addExpense : undefined}
             onDeleteExpense={canManageExpenses ? data.deleteExpense : undefined}
           />
@@ -437,9 +477,13 @@ export default function MainApp() {
         {activeTab === 'cotizaciones' && (
           <CotizacionesView
             projects={activeProjects}
+            budgetItems={data.apuItems}
+            budgetItemsLoading={data.apuItemsLoading}
             company={company}
             quotes={data.quotes}
             canWrite={canManageQuotes}
+            activeProjectId={activeProject?.id ?? ''}
+            onSelectProject={handleSelectProject}
             onSaveQuote={data.addQuote}
             onUpdateQuoteStatus={data.updateQuoteStatus}
           />
@@ -456,6 +500,8 @@ export default function MainApp() {
           <GmailManager
             company={company}
             projects={activeProjects}
+            activeProjectId={activeProject?.id ?? ''}
+            onSelectProject={handleSelectProject}
             userEmail={currentUser?.email}
             accessToken={gmailAccess?.accessToken}
             tokenExpiresAt={gmailAccess?.expiresAt}

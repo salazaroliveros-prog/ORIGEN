@@ -25,7 +25,11 @@ interface ProjectsViewProps {
   projects: Project[];
   expenses: ExpenseRecord[];
   loading: boolean;
-  onCreateProject: (values: ProjectFormValues) => Promise<boolean>;
+  onCreateProject: (
+    values: ProjectFormValues,
+    onCreated?: (projectId: string) => void
+  ) => Promise<boolean>;
+  onProjectCreated: (projectId: string) => void;
   onUpdateProject: (projectId: string, values: Partial<ProjectFormValues>) => Promise<boolean>;
   onArchiveProject: (projectId: string) => Promise<boolean>;
   onRestoreProject: (projectId: string) => Promise<boolean>;
@@ -38,6 +42,7 @@ export function ProjectsView({
   expenses,
   loading,
   onCreateProject,
+  onProjectCreated,
   onUpdateProject,
   onArchiveProject,
   onRestoreProject,
@@ -276,7 +281,7 @@ export function ProjectsView({
         onSave={(values) =>
           editingProject
             ? onUpdateProject(editingProject.id, values)
-            : onCreateProject(values)
+            : onCreateProject(values, onProjectCreated)
         }
         editingProject={editingProject}
       />}

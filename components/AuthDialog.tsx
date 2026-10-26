@@ -7,6 +7,7 @@ import { FocusTrap } from '@/components/a11y/FocusTrap';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { getAuthErrorMessageForMethod } from '@/lib/authErrors';
+import type { EmailAccountCreationResult } from '@/lib/firebaseAuth';
 
 type AuthMode = 'sign-in' | 'sign-up' | 'reset-password';
 
@@ -14,7 +15,7 @@ interface AuthDialogProps {
   onClose: () => void;
   onSignInWithGoogle: () => Promise<unknown>;
   onSignInWithEmail: (email: string, password: string) => Promise<unknown>;
-  onCreateAccount: (email: string, password: string) => Promise<unknown>;
+  onCreateAccount: (email: string, password: string) => Promise<EmailAccountCreationResult>;
   onResetPassword: (email: string) => Promise<void>;
 }
 
@@ -58,11 +59,16 @@ export function AuthDialog({
       }
 
       if (mode === 'sign-up') {
-        await onCreateAccount(email.trim(), password);
+        const result = await onCreateAccount(email.trim(), password);
         setPassword('');
-        setMode('sign-in');
-        setNotice('Cuenta creada. Verifica tu dirección desde el correo que te enviamos y luego inicia sesión para continuar.');
-        toast.success('Cuenta creada. Revisa tu correo para verificar la dirección.');
+        setConfirmPassword('');
+        if (result.verificationEmailSent) {
+          toast.success('Cuenta creada y sesión iniciada. Revisa tu correo para verificar la dirección.');
+        } else {
+          const verificationError = getAuthErrorMessageForMethod(result.verificationEmailError, 'email');
+          toast.error(`Cuenta creada y sesión iniciada, pero no se envió el correo de verificación: ${verificationError}`);
+        }
+        onClose();
         return;
       } else {
         await onSignInWithEmail(email.trim(), password);

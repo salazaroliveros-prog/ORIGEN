@@ -382,7 +382,8 @@ service cloud.firestore {
 
     // Company Settings collection
     match /companySettings/{settingId} {
-      allow get: if isCompanyMember(existing().companyId) ||
+      allow get: if (resource == null && isSignedIn() && settingId == request.auth.uid) ||
+        isCompanyMember(existing().companyId) ||
         (isSignedIn() && existing().ownerId == request.auth.uid);
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.ownerId == request.auth.uid);

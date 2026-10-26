@@ -12,6 +12,8 @@ interface ReportsViewProps {
   expenses: ExpenseRecord[];
   fieldVisits: FieldVisit[];
   company?: CompanySettings;
+  activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
 }
 
 function escapeHtml(value: string): string {
@@ -42,17 +44,23 @@ function openPrintDocument(title: string, body: string): boolean {
   return true;
 }
 
-export function ReportsView({ projects, expenses, fieldVisits, company }: ReportsViewProps) {
-  const [projectId, setProjectId] = useState(projects[0]?.id ?? '');
+export function ReportsView({
+  projects,
+  expenses,
+  fieldVisits,
+  company,
+  activeProjectId,
+  onSelectProject,
+}: ReportsViewProps) {
   const [actaNotes, setActaNotes] = useState('');
-  const project = projects.find((item) => item.id === projectId);
+  const project = projects.find((item) => item.id === activeProjectId);
   const projectExpenses = useMemo(
-    () => expenses.filter((expense) => expense.projectId === projectId),
-    [expenses, projectId]
+    () => expenses.filter((expense) => expense.projectId === activeProjectId),
+    [expenses, activeProjectId]
   );
   const projectVisits = useMemo(
-    () => fieldVisits.filter((visit) => visit.projectId === projectId).sort((a, b) => b.date.localeCompare(a.date)),
-    [fieldVisits, projectId]
+    () => fieldVisits.filter((visit) => visit.projectId === activeProjectId).sort((a, b) => b.date.localeCompare(a.date)),
+    [fieldVisits, activeProjectId]
   );
   const totalExpenses = projectExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -116,7 +124,7 @@ export function ReportsView({ projects, expenses, fieldVisits, company }: Report
       <section className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:grid-cols-2">
         <label className="text-xs font-semibold text-slate-300">
           Proyecto
-          <select value={projectId} onChange={(event) => setProjectId(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white">
+          <select value={activeProjectId} onChange={(event) => onSelectProject(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white">
             <option value="">Selecciona proyecto</option>
             {projects.map((item) => <option key={item.id} value={item.id}>{item.code} · {item.name}</option>)}
           </select>

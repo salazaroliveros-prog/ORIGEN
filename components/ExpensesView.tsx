@@ -48,6 +48,8 @@ export interface ExpensesViewProps {
   projects: Project[];
   expenses: ExpenseRecord[];
   company: CompanySettings;
+  activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
   onAddExpense?: (expense: ExpenseRecord) => Promise<boolean>;
   onDeleteExpense?: (expenseId: string) => Promise<boolean>;
 }
@@ -56,6 +58,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   projects,
   expenses = [],
   company,
+  activeProjectId,
+  onSelectProject,
   onAddExpense,
   onDeleteExpense,
 }) => {
@@ -63,7 +67,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const [activeTab, setActiveTab] = useState<'tabla' | 'nuevo' | 'resumen'>('tabla');
 
   // Filters state
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('todos');
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  const selectedProjectId = showAllProjects ? 'todos' : activeProjectId;
   const [selectedCategory, setSelectedCategory] = useState<string>('todas');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedMonthYear, setSelectedMonthYear] = useState<string>('2026-10');
@@ -72,7 +77,6 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
 
   // Form State
-  const [formProjectId, setFormProjectId] = useState<string>(projects[0]?.id || '');
   const [formDate, setFormDate] = useState<string>(getGuatemalaDate);
   const [formCategory, setFormCategory] = useState<ExpenseRecord['category']>('Materiales (Cementos, Hierro)');
   const [formDescription, setFormDescription] = useState<string>('');
@@ -89,14 +93,6 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
     () => projects.filter((project) => project.status !== 'Archivado'),
     [projects]
   );
-
-  useEffect(() => {
-    if (activeProjects.length > 0 && !activeProjects.some((project) => project.id === formProjectId)) {
-      setFormProjectId(activeProjects[0].id);
-    } else if (activeProjects.length === 0) {
-      setFormProjectId('');
-    }
-  }, [activeProjects, formProjectId]);
 
   useEffect(() => {
     if (!onAddExpense && activeTab === 'nuevo') setActiveTab('tabla');
@@ -200,7 +196,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       alert('Por favor complete la descripción y un monto válido mayor a Q0.00.');
       return;
     }
-    if (!activeProjects.some((project) => project.id === formProjectId)) {
+    if (!activeProjects.some((project) => project.id === activeProjectId)) {
       setSaveError('Selecciona un proyecto válido antes de registrar el gasto.');
       return;
     }
@@ -217,7 +213,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
     const newExpense: ExpenseRecord = {
       id: `ex-${Date.now()}`,
-      projectId: formProjectId,
+      projectId: activeProjectId,
       date: formDate,
       category: formCategory,
       description: formDescription,
@@ -410,11 +406,15 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 <span className="text-xs font-bold text-slate-700">Proyecto:</span>
                 <select
                   value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                  onChange={(e) => {
+                    const projectId = e.target.value;
+                    setShowAllProjects(projectId === 'todos');
+                    if (projectId !== 'todos') onSelectProject(projectId);
+                  }}
                   className="text-xs bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 cursor-pointer focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="todos">Todos los Proyectos ({projects.length})</option>
-                  {projects.map((p) => (
+                  <option value="todos">Todos los Proyectos ({activeProjects.length})</option>
+                  {activeProjects.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name} ({p.code || p.id})
                     </option>
@@ -612,8 +612,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 <label htmlFor="expense-project" className="font-bold text-slate-700 block mb-1">Proyecto Asignado *</label>
                 <select
                   id="expense-project"
-                  value={formProjectId}
-                  onChange={(e) => setFormProjectId(e.target.value)}
+                  value={activeProjectId}
+                  onChange={(e) => onSelectProject(e.target.value)}
                   className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-800"
                   required
                   disabled={activeProjects.length === 0}

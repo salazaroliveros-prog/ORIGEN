@@ -16,6 +16,7 @@ interface StaffViewProps {
   employees?: Array<Employee | EmployeeDirectoryEntry>;
   projects?: Project[];
   activeProjectId?: string;
+  onSelectProject: (projectId: string) => void;
   onAddEmployee?: (emp: Employee) => Promise<boolean>;
   onAddAttendance?: (record: AttendanceRecord) => Promise<boolean>;
   onDeleteAttendance?: (id: string) => Promise<boolean>;
@@ -28,6 +29,7 @@ export function StaffView({
   employees = [],
   projects = [],
   activeProjectId = '',
+  onSelectProject,
   onAddEmployee,
   onAddAttendance,
   onDeleteAttendance,
@@ -41,6 +43,7 @@ export function StaffView({
         company={company}
         projects={projects}
         activeProjectId={activeProjectId}
+        onSelectProject={onSelectProject}
         onAddEmployee={onAddEmployee}
         onAddAttendance={onAddAttendance}
         onDeleteAttendance={onDeleteAttendance}

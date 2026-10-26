@@ -48,6 +48,8 @@ interface DashboardViewProps {
   projects: Project[];
   expenses?: ExpenseRecord[];
   company?: CompanySettings;
+  activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
   milestones?: Milestone[];
   employees?: Employee[];
   attendance?: AttendanceRecord[];
@@ -144,6 +146,8 @@ export function DashboardView({
   projects = [],
   expenses = [],
   company = initialCompanySettings,
+  activeProjectId,
+  onSelectProject,
   milestones = [],
   employees = [],
   attendance = [],
@@ -151,7 +155,6 @@ export function DashboardView({
   const [statusFilter, setStatusFilter] = useState<'todos' | 'En Ejecución' | 'Planificación' | 'Finalizado'>('todos');
   const [visibleWidgets, setVisibleWidgets] = useState<Record<WidgetId, boolean>>(DEFAULT_VISIBLE_WIDGETS);
   const [isWidgetModalOpen, setIsWidgetModalOpen] = useState(false);
-  const [activeProjectId, setActiveProjectId] = useState<string>('');
 
   // Load saved widget preferences
   useEffect(() => {
@@ -211,11 +214,9 @@ export function DashboardView({
     return projects.filter((p) => p.status === statusFilter);
   }, [projects, statusFilter]);
 
-  useEffect(() => {
-    if (filteredProjects.length > 0 && !activeProjectId) {
-      setActiveProjectId(filteredProjects[0].id);
-    }
-  }, [filteredProjects, activeProjectId]);
+  const displayedActiveProjectId = filteredProjects.some((project) => project.id === activeProjectId)
+    ? activeProjectId
+    : filteredProjects[0]?.id ?? '';
 
   // Aggregate totals
   const totals = useMemo(() => {
@@ -336,7 +337,17 @@ export function DashboardView({
           <select
             aria-label="Filtrar proyectos por estado"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => {
+              const nextFilter = e.target.value as typeof statusFilter;
+              setStatusFilter(nextFilter);
+              if (
+                nextFilter !== 'todos' &&
+                !projects.some((project) => project.id === activeProjectId && project.status === nextFilter)
+              ) {
+                const firstMatchingProject = projects.find((project) => project.status === nextFilter);
+                if (firstMatchingProject) onSelectProject(firstMatchingProject.id);
+              }
+            }}
             className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
           >
             <option value="todos">Todos los proyectos ({projects.length})</option>
@@ -470,7 +481,12 @@ export function DashboardView({
                 <EyeOff className="w-3.5 h-3.5" />
               </button>
             </div>
-            <CashFlowProjectionChart projects={filteredProjects} milestones={milestones} />
+            <CashFlowProjectionChart
+              projects={filteredProjects}
+              milestones={milestones}
+              activeProjectId={displayedActiveProjectId}
+              onSelectProject={onSelectProject}
+            />
           </div>
         )}
 
@@ -490,7 +506,7 @@ export function DashboardView({
               employees={employees}
               attendance={attendance}
               projects={filteredProjects}
-              activeProjectId={activeProjectId}
+              activeProjectId={displayedActiveProjectId}
               company={company}
               currency="GTQ"
             />
@@ -628,6 +644,8 @@ export function DashboardView({
               expenses={expenses}
               company={company}
               currency="GTQ"
+              activeProjectId={displayedActiveProjectId}
+              onSelectProject={onSelectProject}
             />
           </div>
         )}
@@ -646,8 +664,8 @@ export function DashboardView({
             </div>
             <D3BudgetUtilizationChart
               projects={filteredProjects}
-              activeProjectId={activeProjectId || filteredProjects[0]?.id || ''}
-              onSelectProject={setActiveProjectId}
+              activeProjectId={displayedActiveProjectId}
+              onSelectProject={onSelectProject}
               currency="GTQ"
               company={company}
             />

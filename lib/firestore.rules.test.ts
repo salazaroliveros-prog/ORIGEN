@@ -138,6 +138,53 @@ describe('Firestore APU permissions', () => {
     );
   });
 
+  it('allows users to check only their own missing company settings document', async () => {
+    const ownerDb = testEnv.authenticatedContext('new-owner-user').firestore();
+    const missingOwnSettings = await assertSucceeds(
+      getDoc(doc(ownerDb, 'companySettings', 'new-owner-user'))
+    );
+    expect(missingOwnSettings.exists()).toBe(false);
+
+    await assertFails(getDoc(doc(ownerDb, 'companySettings', 'another-user')));
+  });
+
+  it('allows owners to create and read their own company settings document', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, 'companies', 'new-owner-user'), {
+        id: 'new-owner-user',
+        ownerId: 'new-owner-user',
+        name: 'Empresa de prueba',
+      });
+      await setDoc(doc(db, 'companies', 'new-owner-user', 'members', 'new-owner-user'), {
+        uid: 'new-owner-user',
+        companyId: 'new-owner-user',
+        email: 'new-owner@example.test',
+        role: 'owner',
+      });
+    });
+
+    const ownerDb = testEnv.authenticatedContext('new-owner-user').firestore();
+    const settingsRef = doc(ownerDb, 'companySettings', 'new-owner-user');
+
+    await assertSucceeds(
+      setDoc(settingsRef, {
+        legalName: 'Empresa de prueba S.A.',
+        commercialName: 'Empresa de prueba',
+        companyId: 'new-owner-user',
+        ownerId: 'new-owner-user',
+      })
+    );
+
+    const savedSettings = await assertSucceeds(getDoc(settingsRef));
+    expect(savedSettings.data()).toMatchObject({
+      legalName: 'Empresa de prueba S.A.',
+      commercialName: 'Empresa de prueba',
+      companyId: 'new-owner-user',
+      ownerId: 'new-owner-user',
+    });
+  });
+
   it('allows owners to list only their own legacy records while migrating them', async () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
       const db = context.firestore();

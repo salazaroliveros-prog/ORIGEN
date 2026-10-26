@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   FileText,
   Plus,
@@ -28,16 +28,20 @@ import {
   Briefcase,
   AlertCircle,
 } from 'lucide-react';
-import { Project, CompanySettings, QuoteRecord } from '@/lib/types';
+import { Project, CompanySettings, QuoteRecord, APUItem } from '@/lib/types';
 import { formatGTQ, formatUSD, initialCompanySettings } from '@/lib/data';
 import { generateQuoteCommercialPdf, QuotePdfData, QuoteItem } from '@/lib/quotePdfService';
 import { toast } from 'react-hot-toast';
 
 interface CotizacionesViewProps {
   projects?: Project[];
+  budgetItems: APUItem[];
+  budgetItemsLoading: boolean;
   company?: CompanySettings;
   quotes: QuoteRecord[];
   canWrite: boolean;
+  activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
   onSaveQuote: (quote: QuoteRecord) => Promise<boolean>;
   onUpdateQuoteStatus: (quoteId: string, status: QuoteRecord['status']) => Promise<boolean>;
 }
@@ -133,9 +137,13 @@ const QUOTE_TEMPLATES: QuoteTemplate[] = [
 
 export function CotizacionesView({
   projects = [],
+  budgetItems,
+  budgetItemsLoading,
   company = initialCompanySettings,
   quotes,
   canWrite,
+  activeProjectId,
+  onSelectProject,
   onSaveQuote,
   onUpdateQuoteStatus,
 }: CotizacionesViewProps) {
@@ -145,7 +153,22 @@ export function CotizacionesView({
   // Modal State for New/Edit Quote
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('tpl-residencial');
-  const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id ?? '');
+  const [editorProjectId, setEditorProjectId] = useState('');
+  const selectedProjectId = projects.some((project) => project.id === activeProjectId)
+    ? activeProjectId
+    : projects[0]?.id ?? '';
+  const projectBudgetItems = useMemo(
+    () =>
+      budgetItems
+        .filter((item) => item.projectId === selectedProjectId)
+        .map((item) => ({
+          description: `${item.code} - ${item.description}`,
+          qty: item.quantity,
+          unit: item.unit,
+          unitPriceGTQ: item.totalUnitCostGTQ,
+        })),
+    [budgetItems, selectedProjectId]
+  );
 
   // Form Fields
   const [clientName, setClientName] = useState('');
@@ -167,6 +190,10 @@ export function CotizacionesView({
   const [newItemPrice, setNewItemPrice] = useState('10000');
 
   const openNewQuote = () => {
+    if (budgetItemsLoading) {
+      toast.error('Espera a que se complete la carga del presupuesto del proyecto.');
+      return;
+    }
     setClientName('');
     setClientNit('');
     setClientPhone('');
@@ -175,20 +202,20 @@ export function CotizacionesView({
     setDiscountPercent(0);
     setTaxPercent(12);
     setNotes('');
-    setSelectedProjectId(projects[0]?.id ?? '');
     setNewItemDesc('');
     setNewItemQty('1');
     setNewItemUnit('Global');
     setNewItemPrice('10000');
-    handleApplyTemplate('tpl-residencial');
+    setSelectedTemplateId('tpl-residencial');
+    setEditorProjectId(selectedProjectId);
+    if (projectBudgetItems.length > 0) {
+      setQuoteItems(projectBudgetItems);
+      toast.success('Partidas y costos del presupuesto APU cargados para el proyecto.');
+    } else {
+      handleApplyTemplate('tpl-residencial');
+    }
     setIsModalOpen(true);
   };
-
-  useEffect(() => {
-    if (!projects.some((project) => project.id === selectedProjectId)) {
-      setSelectedProjectId(projects[0]?.id ?? '');
-    }
-  }, [projects, selectedProjectId]);
 
   // Load a template into the active editor
   const handleApplyTemplate = (tplId: string) => {
@@ -200,6 +227,32 @@ export function CotizacionesView({
       toast.success(`Plantilla "${tpl.name}" cargada correctamente`);
     }
   };
+
+  useEffect(() => {
+    if (!isModalOpen || editorProjectId === selectedProjectId) return;
+
+    setEditorProjectId(selectedProjectId);
+    const projectItems = budgetItems
+      .filter((item) => item.projectId === selectedProjectId)
+      .map((item) => ({
+        description: `${item.code} - ${item.description}`,
+        qty: item.quantity,
+        unit: item.unit,
+        unitPriceGTQ: item.totalUnitCostGTQ,
+      }));
+
+    if (projectItems.length > 0) {
+      setQuoteItems(projectItems);
+      toast.success('Partidas actualizadas con el presupuesto APU del proyecto seleccionado.');
+      return;
+    }
+
+    const template = QUOTE_TEMPLATES.find((item) => item.id === selectedTemplateId);
+    if (template) {
+      setQuoteItems([...template.items]);
+      setEstimatedDuration(template.duration);
+    }
+  }, [budgetItems, editorProjectId, isModalOpen, selectedProjectId, selectedTemplateId]);
 
   // Add Item to Current Quote
   const handleAddItem = () => {
@@ -425,8 +478,16 @@ export function CotizacionesView({
         <button
           type="button"
           onClick={openNewQuote}
-          disabled={!canWrite || projects.length === 0}
-          title={!canWrite ? 'Tu rol no permite crear cotizaciones' : projects.length === 0 ? 'Primero crea un proyecto para asociar la cotización' : undefined}
+          disabled={!canWrite || projects.length === 0 || budgetItemsLoading}
+          title={
+            !canWrite
+              ? 'Tu rol no permite crear cotizaciones'
+              : projects.length === 0
+                ? 'Primero crea un proyecto para asociar la cotización'
+                : budgetItemsLoading
+                  ? 'Espera a que cargue el presupuesto APU del proyecto'
+                  : undefined
+          }
           className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-500/20 cursor-pointer flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus className="w-4 h-4" />
@@ -734,7 +795,7 @@ export function CotizacionesView({
                     </label>
                     <select
                       value={selectedProjectId}
-                      onChange={(e) => setSelectedProjectId(e.target.value)}
+                      onChange={(e) => onSelectProject(e.target.value)}
                       className="w-full px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
                     >
                       <option value="" disabled>Selecciona un proyecto</option>
@@ -744,6 +805,11 @@ export function CotizacionesView({
                         </option>
                       ))}
                     </select>
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      {projectBudgetItems.length > 0
+                        ? `${projectBudgetItems.length} partidas APU del proyecto se cargarán con sus costos unitarios.`
+                        : 'Sin partidas APU para este proyecto; se usará la plantilla seleccionada.'}
+                    </p>
                   </div>
                 </div>
 
