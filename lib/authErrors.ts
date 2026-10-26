@@ -5,8 +5,12 @@ const authErrorMessages: Record<string, string> = {
     'La configuración de Firebase no es válida. Revisa las variables públicas de Firebase.',
   'auth/cancelled-popup-request': 'Ya hay otra ventana de acceso abierta.',
   'auth/email-already-in-use': 'Ya existe una cuenta con este correo. Inicia sesión.',
+  'auth/missing-email': 'Escribe tu correo electrónico para iniciar sesión.',
+  'auth/missing-password': 'Escribe tu contraseña para iniciar sesión.',
   'auth/invalid-credential':
     'Firebase no pudo validar estas credenciales. Verifica el método de acceso e inténtalo de nuevo.',
+  'auth/invalid-api-key':
+    'La clave pública de Firebase no es válida. Revisa la configuración de Firebase de la aplicación.',
   'auth/invalid-email': 'Escribe un correo electrónico válido.',
   'auth/network-request-failed': 'No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.',
   'auth/operation-not-allowed':
@@ -54,5 +58,11 @@ export function getAuthErrorMessageForMethod(
     }
   }
 
-  return authErrorMessages[code] ?? 'No se pudo completar la autenticación. Inténtalo de nuevo.';
+  const knownMessage = authErrorMessages[code];
+  if (knownMessage) return knownMessage;
+
+  const fallback = 'No se pudo completar la autenticación. Inténtalo de nuevo.';
+  if (!/^auth\/[a-z0-9-]+$/i.test(code)) return fallback;
+
+  return `${fallback} Código: ${code}. Si continúa, comparte solo ese código; nunca envíes tu contraseña ni códigos de verificación.`;
 }

@@ -8,6 +8,18 @@ describe('getAuthErrorMessage', () => {
     );
   });
 
+  it('asks for an email when the email field was submitted empty', () => {
+    expect(getAuthErrorMessageForMethod({ code: 'auth/missing-email' }, 'email')).toContain(
+      'Escribe tu correo electrónico'
+    );
+  });
+
+  it('shows a safe Firebase code when no specific message exists', () => {
+    expect(getAuthErrorMessage({ code: 'auth/internal-error' })).toContain(
+      'Código: auth/internal-error'
+    );
+  });
+
   it('explains unauthorized Firebase domains', () => {
     expect(getAuthErrorMessage({ code: 'auth/unauthorized-domain' })).toContain(
       'dominios permitidos'
