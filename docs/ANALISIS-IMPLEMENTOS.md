@@ -213,36 +213,61 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 
 ---
 
-### 4. 🔄 Sistema de mantenimiento preventivo maquinaria
+### 4. ✅ Sistema de mantenimiento preventivo maquinaria
 
-**Estado**: NECESITA IMPLEMENTACIÓN  
+**Estado**: IMPLEMENTADO  
 **Archivo**: `components/MachineryManager.tsx`  
-**Estado actual**: Tiene registro de horas de uso pero sin alertas automáticas
+**Funcionalidades implementadas**:
 
-**Requerimientos**:
+- ✅ Sistema de alertas automáticas basado en horas de uso
+- ✅ Umbral crítico: 250 horas de uso (alerta roja)
+- ✅ Umbral de advertencia: 200 horas de uso (alerta ámbar)
+- ✅ Cálculo de horas totales desde bitácora de telemetría
+- ✅ Indicadores visuales en tarjetas de maquinaria
+- ✅ Panel de alertas con botón para enviar a mantenimiento
+- ✅ Icono de reloj mostrando uso total por máquina
+- ✅ Ordenamiento de alertas por urgencia (más horas primero)
 
-- Generar alertas automáticas basadas en horas de uso
-- Bitácora de telemetría
-- Umbral configurable para mantenimiento
+**Umbrados configurables**:
 
-**Acción pendiente**: Implementar sistema de alertas
+- `MAINTENANCE_THRESHOLD_HOURS = 250` (crítico)
+- `MAINTENANCE_WARNING_HOURS = 200` (advertencia)
+
+**Mejoras realizadas**:
+
+- Colores dinámicos en tarjetas según estado de mantenimiento
+- Resumen de alertas en sección dedicada
+- Acción directa para enviar a mantenimiento desde alerta
 
 ---
 
-### 5. 🔄 Botón en módulo Reportes para PDF profesional
+### 5. ✅ Botón en módulo Reportes para PDF profesional
 
-**Estado**: NECESITA MEJORA  
+**Estado**: MEJORADO  
 **Archivo**: `features/reports/ReportsView.tsx`  
-**Estado actual**: Tiene generación de PDF pero podría mejorarse
+**Funcionalidades implementadas**:
 
-**Requerimientos**:
+- ✅ Plantilla PDF profesional mejorada
+- ✅ Incluye fotografía capturada en visitas
+- ✅ Validación de GPS con coordenadas
+- ✅ Indicador de firma digital del capataz
+- ✅ Sección de evidencia fotográfica con grid
+- ✅ Sección de validación geográfica (GPS)
+- ✅ Metadatos completos del proyecto
+- ✅ Tabla de visitas con GPS, firma y fotos
+- ✅ Sección de firmas mejorada
+- ✅ Pie de página con confirmación de recepción
 
-- PDF profesional con datos de visita
-- Fotografía capturada
-- Ubicación GPS validada
-- Firma digital del capataz
+**Mejoras realizadas**:
 
-**Acción pendiente**: Revisar y mejorar plantilla de PDF
+- Cabecera con datos completos del proyecto
+- Tabla de visitas con 8 columnas (GPS, firma, fotos)
+- Sección de fotos si hay evidencia
+- Sección de validación GPS con precisión
+- Indicadores visuales (✓/✗) para GPS y firma
+- Grid responsivo para fotos
+- Coordenadas GPS con 6 decimales
+- Estado de geocerca (Válido/Fuera de geocerca)
 
 ---
 
@@ -253,11 +278,13 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 1. `components/ProjectPhotoDropzone.tsx` - Componente Dropzone para fotos
 2. `app/api/upload-project-photo/route.ts` - API route para subir fotos
 
-### Archivos Modificados (3)
+### Archivos Modificados (5)
 
 1. `features/projects/ProjectsView.tsx` - Integración de Dropzone
 2. `lib/firebaseService.ts` - Inicialización de Storage
 3. `components/GuatemalanPayroll.tsx` - Selector de periodo y búsqueda
+4. `components/MachineryManager.tsx` - Sistema de mantenimiento preventivo
+5. `features/reports/ReportsView.tsx` - Mejora de plantilla PDF
 
 ### Dependencias Instaladas (1)
 
@@ -272,12 +299,12 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 1. ✅ Subir cambios de Dropzone a GitHub
 2. ✅ Verificar despliegue en Vercel
 3. ✅ Implementar selector de periodo en Planillas Guate
-4. 🔄 Implementar sistema de mantenimiento preventivo maquinaria
+4. ✅ Implementar sistema de mantenimiento preventivo maquinaria
+5. ✅ Mejorar plantilla de PDF en módulo Reportes
 
 ### Prioridad Media
 
-5. 🔄 Revisar next.config.ts para standalone output
-6. 🔄 Mejorar plantilla de PDF en módulo Reportes
+6. 🔄 Revisar next.config.ts para standalone output
 
 ### Prioridad Baja
 
@@ -289,12 +316,12 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 ## 📊 MÉTRICAS DE IMPLEMENTACIÓN
 
 **Implementos analizados**: 12  
-**Completos**: 8 (67%)  
+**Completos**: 10 (83%)  
 **En progreso**: 0 (0%)  
-**Pendientes**: 4 (33%)
+**Pendientes**: 2 (17%)
 
-**Porcentaje de funcionalidad existente**: 67%  
-**Porcentaje de funcionalidad nueva/mejorada**: 33%
+**Porcentaje de funcionalidad existente**: 83%  
+**Porcentaje de funcionalidad nueva/mejorada**: 17%
 
 ---
 

@@ -2,8 +2,17 @@
 
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { CompanySettings, Machinery, MachineryLog, Project } from '@/lib/types';
-import { CheckCircle2, ClipboardList, Fuel, Gauge, Plus, Wrench } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import {
+  CheckCircle2,
+  ClipboardList,
+  Fuel,
+  Gauge,
+  Plus,
+  Wrench,
+  AlertTriangle,
+  Clock,
+} from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
 interface MachineryManagerProps {
@@ -54,6 +63,60 @@ export function MachineryManager({
     selectedMachine && hoursWorked > 0
       ? Math.round(hoursWorked * selectedMachine.hourlyRateGTQ * 100) / 100
       : 0;
+
+  // Sistema de mantenimiento preventivo
+  const MAINTENANCE_THRESHOLD_HOURS = 250; // Umbral: 250 horas de uso
+  const MAINTENANCE_WARNING_HOURS = 200; // Advertencia: 200 horas de uso
+
+  // Calcular horas totales de uso por máquina desde los logs
+  const machineryUsageHours = useMemo(() => {
+    const usageMap = new Map<string, number>();
+
+    machineryLogs.forEach((log) => {
+      const currentHours = usageMap.get(log.machineryId) || 0;
+      usageMap.set(log.machineryId, currentHours + log.hoursWorked);
+    });
+
+    return usageMap;
+  }, [machineryLogs]);
+
+  // Calcular alertas de mantenimiento
+  const maintenanceAlerts = useMemo(() => {
+    const alerts: Array<{
+      machineryId: string;
+      machineryName: string;
+      currentHours: number;
+      threshold: number;
+      urgency: 'critical' | 'warning' | 'info';
+      message: string;
+    }> = [];
+
+    machinery.forEach((mach) => {
+      const totalHours = machineryUsageHours.get(mach.id) || 0;
+
+      if (totalHours >= MAINTENANCE_THRESHOLD_HOURS) {
+        alerts.push({
+          machineryId: mach.id,
+          machineryName: mach.name,
+          currentHours: totalHours,
+          threshold: MAINTENANCE_THRESHOLD_HOURS,
+          urgency: 'critical',
+          message: `Mantenimiento requerido inmediatamente (${totalHours}h de uso)`,
+        });
+      } else if (totalHours >= MAINTENANCE_WARNING_HOURS) {
+        alerts.push({
+          machineryId: mach.id,
+          machineryName: mach.name,
+          currentHours: totalHours,
+          threshold: MAINTENANCE_THRESHOLD_HOURS,
+          urgency: 'warning',
+          message: `Mantenimiento recomendado pronto (${totalHours}h de uso)`,
+        });
+      }
+    });
+
+    return alerts.sort((a, b) => b.currentHours - a.currentHours);
+  }, [machinery, machineryUsageHours]);
 
   useEffect(() => {
     if (!projects.some((project) => project.id === selectedProject)) {
@@ -204,64 +267,148 @@ export function MachineryManager({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {machinery.map((mach) => (
-          <div
-            key={mach.id}
-            className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
-          >
-            <div className="flex items-start justify-between">
-              <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
-                {mach.plateOrCode}
-              </span>
-              <span
-                className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
-                  mach.status === 'Mantenimiento'
-                    ? 'border-amber-200 bg-amber-50 text-amber-700'
-                    : mach.status === 'En Obra'
-                      ? 'border-blue-200 bg-blue-50 text-blue-700'
-                      : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      {/* Alertas de Mantenimiento Preventivo */}
+      {maintenanceAlerts.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Wrench className="h-5 w-5 text-amber-600" />
+            <h3 className="text-sm font-bold text-slate-900">
+              Alertas de Mantenimiento Preventivo
+            </h3>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">
+              {maintenanceAlerts.length}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {maintenanceAlerts.map((alert) => (
+              <div
+                key={alert.machineryId}
+                className={`flex items-start gap-3 rounded-xl border p-4 ${
+                  alert.urgency === 'critical'
+                    ? 'border-red-300 bg-red-50'
+                    : 'border-amber-300 bg-amber-50'
                 }`}
               >
-                {mach.status}
-              </span>
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">{mach.name}</h3>
-              <p className="text-xs text-slate-500">Modelo: {mach.model}</p>
-            </div>
-            <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
-              <span className="text-slate-500">
-                <Gauge className="mr-1 inline h-3.5 w-3.5" />
-                Horómetro: {mach.currentHorometer}
-              </span>
-              <span className="font-bold text-slate-900">
-                {formatMoney(mach.hourlyRateGTQ)} / h
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                void handleStatusChange(
-                  mach,
-                  mach.status === 'En Obra'
-                    ? 'Disponible'
-                    : mach.status === 'Disponible'
-                      ? 'Mantenimiento'
-                      : 'Disponible'
-                )
-              }
-              disabled={!canWrite}
-              className="w-full rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {mach.status === 'En Obra'
-                ? 'Finalizar uso en obra'
-                : mach.status === 'Disponible'
-                  ? 'Enviar a mantenimiento'
-                  : 'Marcar disponible'}
-            </button>
+                <div
+                  className={`rounded-full p-2 ${
+                    alert.urgency === 'critical'
+                      ? 'bg-red-100 text-red-600'
+                      : 'bg-amber-100 text-amber-600'
+                  }`}
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-bold text-slate-900">{alert.machineryName}</p>
+                    <p className="font-mono text-xs text-slate-600">
+                      {alert.currentHours}h / {alert.threshold}h
+                    </p>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-700">{alert.message}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const mach = machinery.find((m) => m.id === alert.machineryId);
+                    if (mach) {
+                      handleStatusChange(mach, 'Mantenimiento');
+                    }
+                  }}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  Enviar a Mantenimiento
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {machinery.map((mach) => {
+          const totalUsageHours = machineryUsageHours.get(mach.id) || 0;
+          const needsMaintenance = totalUsageHours >= MAINTENANCE_THRESHOLD_HOURS;
+          const maintenanceWarning = totalUsageHours >= MAINTENANCE_WARNING_HOURS;
+
+          return (
+            <div
+              key={mach.id}
+              className={`space-y-3 rounded-2xl border p-5 shadow-xs ${
+                needsMaintenance
+                  ? 'border-red-300 bg-red-50/50'
+                  : maintenanceWarning
+                    ? 'border-amber-300 bg-amber-50/50'
+                    : 'border-slate-200 bg-white'
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
+                  {mach.plateOrCode}
+                </span>
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
+                    mach.status === 'Mantenimiento'
+                      ? 'border-amber-200 bg-amber-50 text-amber-700'
+                      : mach.status === 'En Obra'
+                        ? 'border-blue-200 bg-blue-50 text-blue-700'
+                        : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  }`}
+                >
+                  {mach.status}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">{mach.name}</h3>
+                <p className="text-xs text-slate-500">Modelo: {mach.model}</p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
+                  <span className="text-slate-500">
+                    <Gauge className="mr-1 inline h-3.5 w-3.5" />
+                    Horómetro: {mach.currentHorometer}
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    {formatMoney(mach.hourlyRateGTQ)} / h
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">
+                    <Clock className="mr-1 inline h-3.5 w-3.5" />
+                    Uso total: {totalUsageHours}h
+                  </span>
+                  {needsMaintenance ? (
+                    <span className="font-bold text-red-600">¡Mantenimiento!</span>
+                  ) : maintenanceWarning ? (
+                    <span className="font-bold text-amber-600">Próximo</span>
+                  ) : (
+                    <span className="font-bold text-emerald-600">OK</span>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  void handleStatusChange(
+                    mach,
+                    mach.status === 'En Obra'
+                      ? 'Disponible'
+                      : mach.status === 'Disponible'
+                        ? 'Mantenimiento'
+                        : 'Disponible'
+                  )
+                }
+                disabled={!canWrite}
+                className="w-full rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {mach.status === 'En Obra'
+                  ? 'Finalizar uso en obra'
+                  : mach.status === 'Disponible'
+                    ? 'Enviar a mantenimiento'
+                    : 'Marcar disponible'}
+              </button>
+            </div>
+          );
+        })}
         {machinery.length === 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500 md:col-span-2 lg:col-span-4">
             Aún no hay maquinaria registrada en este espacio de empresa.

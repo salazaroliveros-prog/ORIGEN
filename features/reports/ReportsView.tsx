@@ -79,30 +79,177 @@ export function ReportsView({
     }
     const title = acta ? `Acta de obra - ${project.code}` : `Resumen de obra - ${project.code}`;
     const companyName = escapeHtml(company?.commercialName || company?.companyName || 'Empresa');
+
+    // Generar filas de visitas con datos adicionales
     const visits = projectVisits
-      .map(
-        (visit) =>
-          `<tr><td>${escapeHtml(visit.date)}</td><td>${escapeHtml(visit.foremanName)}</td><td>${escapeHtml(visit.status)}</td><td>${escapeHtml(visit.notes)}</td></tr>`
-      )
+      .map((visit) => {
+        const hasSignature = visit.signatureDataUrl ? '✓' : '✗';
+        const hasGps = visit.gpsCoords ? '✓' : '✗';
+        const hasPhotos =
+          visit.photos && visit.photos.length > 0 ? `${visit.photos.length} fotos` : '0 fotos';
+        const gpsInfo = visit.gpsCoords
+          ? `Lat: ${visit.gpsCoords.lat.toFixed(6)}, Lng: ${visit.gpsCoords.lng.toFixed(6)}`
+          : 'Sin GPS';
+
+        return `<tr>
+          <td>${escapeHtml(visit.date)}</td>
+          <td>${escapeHtml(visit.foremanName)}</td>
+          <td>${escapeHtml(visit.status)}</td>
+          <td>${hasGps}</td>
+          <td>${hasSignature}</td>
+          <td>${hasPhotos}</td>
+          <td><small class="text-slate-500">${escapeHtml(gpsInfo)}</small></td>
+          <td>${escapeHtml(visit.notes)}</td>
+        </tr>`;
+      })
       .join('');
+
+    // Generar filas de gastos
     const expensesRows = projectExpenses
       .map(
         (expense) =>
           `<tr><td>${escapeHtml(expense.date)}</td><td>${escapeHtml(expense.category)}</td><td>${escapeHtml(expense.description)}</td><td>${escapeHtml(expense.supplier)}</td><td>${escapeHtml(formatGTQ(expense.amount))}</td></tr>`
       )
       .join('');
+
+    // Generar sección de fotos si hay visitas con fotos
+    const photosSection = projectVisits.some((v) => v.photos && v.photos.length > 0)
+      ? `<h2>Evidencia Fotográfica</h2>
+         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:24px 0;">
+           ${projectVisits
+             .filter((v) => v.photos && v.photos.length > 0)
+             .map((visit) =>
+               (visit.photos || [])
+                 .map(
+                   (photo) =>
+                     `<div style="border:1px solid #ccd2dc;border-radius:8px;overflow:hidden;">
+                      <img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || 'Foto de obra')}" style="width:100%;height:150px;object-fit:cover;">
+                      <div style="padding:8px;font-size:11px;background:#f8f9fa;">
+                        <strong>${escapeHtml(visit.date)}</strong><br>
+                        <small>${escapeHtml(photo.caption || 'Sin descripción')}</small>
+                      </div>
+                    </div>`
+                 )
+                 .join('')
+             )
+             .join('')}
+         </div>`
+      : '';
+
+    // Generar sección de validación GPS
+    const gpsValidationSection = projectVisits.some((v) => v.gpsCoords)
+      ? `<h2>Validación Geográfica (GPS)</h2>
+         <table>
+           <thead>
+             <tr>
+               <th>Fecha</th>
+               <th>Capataz</th>
+               <th>Estado GPS</th>
+               <th>Coordenadas</th>
+               <th>Precisión</th>
+             </tr>
+           </thead>
+           <tbody>
+             ${projectVisits
+               .filter((v) => v.gpsCoords)
+               .map((visit) => {
+                 const accuracy = visit.accuracy ? `±${Math.round(visit.accuracy)}m` : 'N/A';
+                 const valid = visit.geofenceValid ? 'Válido' : 'Fuera de geocerca';
+                 const coords = visit.gpsCoords
+                   ? `Lat: ${visit.gpsCoords.lat.toFixed(6)}, Lng: ${visit.gpsCoords.lng.toFixed(6)}`
+                   : 'Sin GPS';
+                 return `<tr>
+                   <td>${escapeHtml(visit.date)}</td>
+                   <td>${escapeHtml(visit.foremanName)}</td>
+                   <td><span style="color:${visit.geofenceValid ? '#16a34a' : '#dc2626'}">${escapeHtml(valid)}</span></td>
+                   <td>${escapeHtml(coords)}</td>
+                   <td>${escapeHtml(accuracy)}</td>
+                 </tr>`;
+               })
+               .join('')}
+           </tbody>
+         </table>`
+      : '';
+
     const actaBody = acta
-      ? `<h2>Objeto y observaciones</h2><p>${escapeHtml(actaNotes || 'Sin observaciones registradas.')}</p>
+      ? `<h2>Objeto y observaciones</h2>
+         <p>${escapeHtml(actaNotes || 'Sin observaciones registradas.')}</p>
          <p>Las partes dejan constancia del estado de avance reportado en la fecha de emisión. Este documento es un borrador imprimible y requiere revisión y firmas de las partes antes de considerarse formal.</p>
-         <div class="signatures"><div class="signature">Representante de la empresa</div><div class="signature">Representante del cliente</div></div>`
-      : `<h2>Resumen financiero</h2><p>Presupuesto registrado: ${escapeHtml(formatGTQ(project.budgetTotal))} · Gastos registrados: ${escapeHtml(formatGTQ(totalExpenses))}</p>`;
+         <div class="signatures">
+           <div class="signature">
+             <strong>Representante de la empresa</strong><br>
+             <small>Nombre: ___________________</small><br>
+             <small>Firma: ___________________</small><br>
+             <small>Fecha: ___________________</small>
+           </div>
+           <div class="signature">
+             <strong>Representante del cliente</strong><br>
+             <small>Nombre: ___________________</small><br>
+             <small>Firma: ___________________</small><br>
+             <small>Fecha: ___________________</small>
+           </div>
+         </div>`
+      : `<h2>Resumen financiero</h2>
+         <p>Presupuesto registrado: ${escapeHtml(formatGTQ(project.budgetTotal))} · Gastos registrados: ${escapeHtml(formatGTQ(totalExpenses))}</p>`;
+
     const html = `<header><p class="meta">${companyName}${company?.nit ? ` · NIT ${escapeHtml(company.nit)}` : ''}</p>
-      <h1>${escapeHtml(title)}</h1><p class="meta">Emitido: ${new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).format(new Date())}</p></header>
-      <h2>Datos del proyecto</h2><p><strong>${escapeHtml(project.name)}</strong> (${escapeHtml(project.code)})<br>
-      Cliente: ${escapeHtml(project.client)}<br>Ubicación: ${escapeHtml([project.location, project.municipality, project.department].filter(Boolean).join(', '))}<br>
-      Estado: ${escapeHtml(project.status)} · Avance: ${escapeHtml(String(project.progressPercent))}%</p>${actaBody}
-      <h2>Bitácoras registradas (${projectVisits.length})</h2><table><thead><tr><th>Fecha</th><th>Responsable</th><th>Estado</th><th>Notas</th></tr></thead><tbody>${visits || '<tr><td colspan="4">No hay bitácoras registradas.</td></tr>'}</tbody></table>
-      <h2>Gastos registrados (${projectExpenses.length})</h2><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Proveedor</th><th>Monto</th></tr></thead><tbody>${expensesRows || '<tr><td colspan="5">No hay gastos registrados.</td></tr>'}</tbody></table>`;
+      <h1>${escapeHtml(title)}</h1>
+      <p class="meta">Emitido: ${new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).format(new Date())}</p>
+      <p class="meta">Proyecto: ${escapeHtml(project.name)} (${escapeHtml(project.code)})</p>
+      <p class="meta">Cliente: ${escapeHtml(project.client)}</p>
+      <p class="meta">Ubicación: ${escapeHtml(project.location)}, ${escapeHtml(project.municipality)}, ${escapeHtml(project.department)}</p>
+      <p class="meta">Estado: ${escapeHtml(project.status)} · Avance: ${project.progressPercent}%</p>
+      </header>
+      <h2>Bitácora de Visitas de Campo</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Capataz</th>
+            <th>Estado</th>
+            <th>GPS</th>
+            <th>Firma</th>
+            <th>Fotos</th>
+            <th>Ubicación</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody>${visits || '<tr><td colspan="8">No hay bitácoras registradas.</td></tr>'}</tbody>
+      </table>
+      ${gpsValidationSection}
+      ${photosSection}
+      <h2>Gastos y Facturas</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Categoría</th>
+            <th>Descripción</th>
+            <th>Proveedor</th>
+            <th>Monto (GTQ)</th>
+          </tr>
+        </thead>
+        <tbody>${expensesRows || '<tr><td colspan="5">No hay gastos registrados.</td></tr>'}</tbody>
+        <tfoot>
+          <tr>
+            <th colspan="4" style="text-align:right">Total:</th>
+            <th style="font-weight:bold">${escapeHtml(formatGTQ(totalExpenses))}</th>
+          </tr>
+        </tfoot>
+      </table>
+      ${actaBody}
+      <div class="signatures">
+        <div class="signature">
+          <strong>Generado por ConstructERP Guatemala</strong><br>
+          <small>Sistema de Gestión de Obras</small><br>
+          <small>www.origin-erp.com</small>
+        </div>
+        <div class="signature">
+          <strong>Confirmación de recepción</strong><br>
+          <small>Fecha: ___________________</small><br>
+          <small>Firma: ___________________</small>
+        </div>
+      </div>`;
     if (!openPrintDocument(title, html)) {
       toast.error(
         'El navegador bloqueó la ventana del documento. Permite ventanas emergentes para imprimir o guardar como PDF.'
