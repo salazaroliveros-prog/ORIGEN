@@ -246,7 +246,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]"></span>
               CONTROL DE OBRA • GUATEMALA
             </span>
-            <span className="text-amber-400 font-bold">Q {company.exchangeRate.toFixed(2)}/USD</span>
+            <span className="text-amber-400 font-bold">
+              {company.exchangeRate > 0
+                ? `Q ${company.exchangeRate.toFixed(2)}/USD`
+                : 'Tipo de cambio sin configurar'}
+            </span>
           </div>
         </div>
       </aside>

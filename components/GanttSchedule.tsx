@@ -73,7 +73,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
   onToggleReminder,
   onDeleteReminder,
 }) => {
-  const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
+  const activeProject = projects.find((p) => p.id === activeProjectId);
 
   // Local state fallbacks if parent does not pass full handlers
   const [localMilestones, setLocalMilestones] = useState<Milestone[]>(propMilestones ?? []);
@@ -114,12 +114,12 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
 
   // Filter tasks for active project
   const projectTasks = useMemo(() => {
-    return tasks.filter((t) => t.projectId === activeProjectId || !t.projectId);
+    return tasks.filter((t) => t.projectId === activeProjectId);
   }, [tasks, activeProjectId]);
 
   // Filter milestones for active project
   const projectMilestones = useMemo(() => {
-    return currentMilestones.filter((m) => m.projectId === activeProjectId || !m.projectId);
+    return currentMilestones.filter((m) => m.projectId === activeProjectId);
   }, [currentMilestones, activeProjectId]);
 
   // Overall progress calculations
@@ -171,7 +171,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
 
     // Recalculate and notify project progress
     const newStats = calculateOverallProjectProgress(
-      updated.filter((t) => t.projectId === activeProjectId || !t.projectId),
+      updated.filter((t) => t.projectId === activeProjectId),
       projectMilestones
     );
     if (onUpdateProjectProgress) {
@@ -363,6 +363,14 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
     });
   }, [projectTasks]);
 
+  if (!activeProject) {
+    return (
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8 text-center text-slate-300">
+        Selecciona un proyecto para consultar su cronograma.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* FLOW VIOLATION WARNING BANNER */}
@@ -480,7 +488,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
             <div className="mt-3 w-full text-center">
               <span className="text-xs font-semibold text-slate-300 flex items-center justify-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Meta: Entrega Final ({activeProject.endDate || '2026-03-30'})
+                Meta: Entrega Final ({activeProject.endDate || 'Sin fecha configurada'})
               </span>
             </div>
           </div>

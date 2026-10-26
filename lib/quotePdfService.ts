@@ -1,5 +1,5 @@
 import { CompanySettings } from './types';
-import { formatGTQ, formatUSD } from './data';
+import { formatGTQ } from './data';
 
 export interface QuoteItem {
   id?: string;
@@ -181,11 +181,11 @@ export async function generateQuoteCommercialPdf(
   });
   clientY += 4;
 
-  addText(`NIT: ${quote.clientNit || 'CF'} ${quote.clientPhone ? `• Tel: ${quote.clientPhone}` : ''}`, col1X, clientY, {
+  addText(`NIT: ${quote.clientNit || 'No especificado'} ${quote.clientPhone ? `• Tel: ${quote.clientPhone}` : ''}`, col1X, clientY, {
     fontSize: 8,
     color: [71, 85, 105],
   });
-  addText(`Plazo Estimado de Ejecución: ${quote.estimatedDuration || '4 a 6 meses'}`, col2X, clientY, {
+  addText(`Plazo Estimado de Ejecución: ${quote.estimatedDuration || 'No especificado'}`, col2X, clientY, {
     fontSize: 8,
     color: [71, 85, 105],
   });
@@ -195,7 +195,7 @@ export async function generateQuoteCommercialPdf(
     fontSize: 7.5,
     color: [100, 116, 139],
   });
-  addText(`Ubicación: ${quote.clientAddress || 'Departamento de Guatemala'}`, col2X, clientY, {
+  addText(`Ubicación: ${quote.clientAddress || 'No especificada'}`, col2X, clientY, {
     fontSize: 7.5,
     color: [100, 116, 139],
   });
@@ -290,9 +290,8 @@ export async function generateQuoteCommercialPdf(
   // Calculations for Discount, VAT (IVA), and Grand Total
   const discountVal = quote.discountPercent ? (grossSubtotal * quote.discountPercent) / 100 : 0;
   const netBeforeTax = grossSubtotal - discountVal;
-  const ivaTaxVal = quote.taxPercent ? (netBeforeTax * quote.taxPercent) / 100 : netBeforeTax * 0.12; // default 12% SAT
+  const ivaTaxVal = (netBeforeTax * (quote.taxPercent ?? 12)) / 100;
   const grandTotalGTQ = netBeforeTax + ivaTaxVal;
-  const grandTotalUSD = grandTotalGTQ / (company.exchangeRate || 7.82);
 
   // Bottom Financial Summary Box
   const summaryBoxW = 75;

@@ -384,11 +384,13 @@ export async function exportProjectAccountingWorkbook({
   filteredExpenses.forEach((exp: any, index) => {
     const subtotal = Math.round((exp.amount / 1.12) * 100) / 100;
     const iva = Math.round((exp.amount - subtotal) * 100) / 100;
-    const usd = Math.round((exp.amount / company.exchangeRate) * 100) / 100;
-    const approvalStatus = exp.approvalStatus || 'Aprobado';
-    const approvedBy = exp.approvedBy || 'Ing. Residente';
-    const approvedAt = exp.approvedAt || exp.date;
-    const auditNotes = exp.auditObservations || 'Verificado conforme SAT y APU';
+    const usd = company.exchangeRate > 0
+      ? Math.round((exp.amount / company.exchangeRate) * 100) / 100
+      : '';
+    const approvalStatus = exp.approvalStatus || 'Sin estado registrado';
+    const approvedBy = exp.approvedBy || '';
+    const approvedAt = exp.approvedAt || '';
+    const auditNotes = exp.auditObservations || '';
 
     expensesRows.push([
       index + 1,
@@ -398,7 +400,7 @@ export async function exportProjectAccountingWorkbook({
       exp.facturaNumber,
       exp.category,
       exp.description,
-      exp.paymentMethod || 'Transferencia BI',
+      exp.paymentMethod || '',
       subtotal,
       iva,
       exp.amount,
@@ -423,7 +425,9 @@ export async function exportProjectAccountingWorkbook({
     totalSub,
     totalIva,
     totalSpent,
-    Math.round((totalSpent / company.exchangeRate) * 100) / 100,
+    company.exchangeRate > 0
+      ? Math.round((totalSpent / company.exchangeRate) * 100) / 100
+      : '',
     '',
     '',
     '',

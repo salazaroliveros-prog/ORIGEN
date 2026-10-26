@@ -46,7 +46,9 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         status: editingProject.status,
         lat: editingProject.lat,
         lng: editingProject.lng,
-        expectedProfitMarginPercent: editingProject.expectedProfitMarginPercent ?? 15,
+        ...(editingProject.expectedProfitMarginPercent !== undefined
+          ? { expectedProfitMarginPercent: editingProject.expectedProfitMarginPercent }
+          : {}),
       });
     } else if (isOpen && !editingProject) {
       setFormData(getDefaultProjectValues());
@@ -55,7 +57,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   }, [isOpen, editingProject]);
 
   const handleChange = useCallback(
-    (field: keyof ProjectFormValues, value: string | number) => {
+    (field: keyof ProjectFormValues, value: string | number | null | undefined) => {
       setFormData((prev) => ({ ...prev, [field]: value } as ProjectFormProject));
       if (errors[field]) {
         setErrors((prev) => {
@@ -419,11 +421,17 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
               <label htmlFor="project-profit-margin" className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
                 Margen de Utilidad Esperado (%)
               </label>
+              <p className="text-xs text-slate-500">
+                Opcional. Solo se usará para estimar costos cuando se configure.
+              </p>
               <input
                 id="project-profit-margin"
                 type="number"
-                value={formData.expectedProfitMarginPercent ?? 15}
-                onChange={(e) => handleChange('expectedProfitMarginPercent', parseFloat(e.target.value) || 15)}
+                value={formData.expectedProfitMarginPercent ?? ''}
+                onChange={(e) => handleChange(
+                  'expectedProfitMarginPercent',
+                  e.target.value === '' ? null : Number(e.target.value)
+                )}
                 min="0"
                 max="100"
                 className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition bg-slate-50 border-slate-200"

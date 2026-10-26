@@ -43,6 +43,7 @@ const getGuatemalaDate = () =>
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
+const getGuatemalaMonth = () => getGuatemalaDate().slice(0, 7);
 
 export interface ExpensesViewProps {
   projects: Project[];
@@ -71,7 +72,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const selectedProjectId = showAllProjects ? 'todos' : activeProjectId;
   const [selectedCategory, setSelectedCategory] = useState<string>('todas');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedMonthYear, setSelectedMonthYear] = useState<string>('2026-10');
+  const [selectedMonthYear, setSelectedMonthYear] = useState<string>(getGuatemalaMonth);
 
   // Modal image preview
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
@@ -93,6 +94,14 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
     () => projects.filter((project) => project.status !== 'Archivado'),
     [projects]
   );
+  const projectsWithExpensesCount = useMemo(() => {
+    const activeProjectIds = new Set(activeProjects.map((project) => project.id));
+    return new Set(
+      expenses
+        .filter((expense) => activeProjectIds.has(expense.projectId))
+        .map((expense) => expense.projectId)
+    ).size;
+  }, [activeProjects, expenses]);
 
   useEffect(() => {
     if (!onAddExpense && activeTab === 'nuevo') setActiveTab('tabla');
@@ -153,9 +162,10 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
     return expenses.filter((ex) => {
       if (!ex.date) return false;
       const exMonth = ex.date.substring(0, 7); // 'YYYY-MM'
-      return exMonth === selectedMonthYear;
+      const matchesProject = selectedProjectId === 'todos' || ex.projectId === selectedProjectId;
+      return matchesProject && exMonth === selectedMonthYear;
     });
-  }, [expenses, selectedMonthYear]);
+  }, [expenses, selectedMonthYear, selectedProjectId]);
 
   // Monthly totals by category
   const monthlyCategoryTotals = useMemo(() => {
@@ -204,12 +214,16 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       setSaveError('El registro de gastos no está disponible en este momento.');
       return;
     }
+    if (formCurrency === 'USD' && (!Number.isFinite(company.exchangeRate) || company.exchangeRate <= 0)) {
+      setSaveError('Configura un tipo de cambio válido en la configuración de empresa antes de registrar gastos en USD.');
+      return;
+    }
 
     setIsSubmitting(true);
     setSaveError(null);
 
     const amountGTQ =
-      formCurrency === 'GTQ' ? Number(formAmount) : Number(formAmount) * (company.exchangeRate || 7.8);
+      formCurrency === 'GTQ' ? Number(formAmount) : Number(formAmount) * company.exchangeRate;
 
     const newExpense: ExpenseRecord = {
       id: `ex-${Date.now()}`,
@@ -217,16 +231,14 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       date: formDate,
       category: formCategory,
       description: formDescription,
-      supplier: formSupplier || 'Proveedor Varios',
-      nitSupplier: formNitSupplier || 'CF',
-      facturaNumber: formFacturaNumber || 'S/N',
+      supplier: formSupplier.trim(),
+      nitSupplier: formNitSupplier.trim(),
+      facturaNumber: formFacturaNumber.trim(),
       amount: amountGTQ,
       currency: formCurrency,
       paymentMethod: formPaymentMethod,
-      receiptPhotoUrl:
-        formReceiptPhotoUrl ||
-        'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80',
-      approvalStatus: 'Aprobado',
+      ...(formReceiptPhotoUrl ? { receiptPhotoUrl: formReceiptPhotoUrl } : {}),
+      approvalStatus: 'Pendiente',
     };
 
     try {
@@ -391,7 +403,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 Proyectos con Egreso
               </p>
               <p className="text-xl font-extrabold text-amber-700 mt-1">
-                {activeProjects.length} Obras Activas
+                {projectsWithExpensesCount} proyectos
               </p>
               <p className="text-[10px] text-slate-400 mt-0.5">Control presupuestario</p>
             </div>

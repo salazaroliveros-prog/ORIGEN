@@ -152,7 +152,7 @@ export function CotizacionesView({
 
   // Modal State for New/Edit Quote
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('tpl-residencial');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [editorProjectId, setEditorProjectId] = useState('');
   const selectedProjectId = projects.some((project) => project.id === activeProjectId)
     ? activeProjectId
@@ -176,11 +176,11 @@ export function CotizacionesView({
   const [clientPhone, setClientPhone] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [clientAddress, setClientAddress] = useState('');
-  const [estimatedDuration, setEstimatedDuration] = useState('6 meses');
+  const [estimatedDuration, setEstimatedDuration] = useState('');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [taxPercent, setTaxPercent] = useState<number>(12); // SAT Guatemala 12%
   const [notes, setNotes] = useState('');
-  const [quoteItems, setQuoteItems] = useState<QuoteItem[]>(QUOTE_TEMPLATES[0].items);
+  const [quoteItems, setQuoteItems] = useState<QuoteItem[]>([]);
   const [isSavingQuote, setIsSavingQuote] = useState(false);
 
   // New custom item row inputs
@@ -199,6 +199,7 @@ export function CotizacionesView({
     setClientPhone('');
     setClientEmail('');
     setClientAddress('');
+    setEstimatedDuration('');
     setDiscountPercent(0);
     setTaxPercent(12);
     setNotes('');
@@ -206,13 +207,15 @@ export function CotizacionesView({
     setNewItemQty('1');
     setNewItemUnit('Global');
     setNewItemPrice('10000');
-    setSelectedTemplateId('tpl-residencial');
+    setSelectedTemplateId('');
     setEditorProjectId(selectedProjectId);
     if (projectBudgetItems.length > 0) {
       setQuoteItems(projectBudgetItems);
       toast.success('Partidas y costos del presupuesto APU cargados para el proyecto.');
     } else {
-      handleApplyTemplate('tpl-residencial');
+      setQuoteItems([]);
+      setEstimatedDuration('');
+      toast('El proyecto no tiene partidas APU. Elige una plantilla o agrega renglones para continuar.');
     }
     setIsModalOpen(true);
   };
@@ -242,6 +245,7 @@ export function CotizacionesView({
       }));
 
     if (projectItems.length > 0) {
+      setSelectedTemplateId('');
       setQuoteItems(projectItems);
       toast.success('Partidas actualizadas con el presupuesto APU del proyecto seleccionado.');
       return;
@@ -251,6 +255,9 @@ export function CotizacionesView({
     if (template) {
       setQuoteItems([...template.items]);
       setEstimatedDuration(template.duration);
+    } else {
+      setQuoteItems([]);
+      setEstimatedDuration('');
     }
   }, [budgetItems, editorProjectId, isModalOpen, selectedProjectId, selectedTemplateId]);
 
@@ -298,9 +305,14 @@ export function CotizacionesView({
   const computedTax = (computedNet * taxPercent) / 100;
   const computedTotal = computedNet + computedTax;
 
+  const projectQuotes = useMemo(
+    () => quotes.filter((quote) => quote.projectId === selectedProjectId),
+    [quotes, selectedProjectId]
+  );
+
   // Filtered quotes list
   const filteredQuotes = useMemo(() => {
-    return quotes.filter((q) => {
+    return projectQuotes.filter((q) => {
       if (statusFilter !== 'todos' && q.status !== statusFilter) return false;
       if (searchQuery.trim() !== '') {
         const query = searchQuery.toLowerCase();
@@ -312,17 +324,17 @@ export function CotizacionesView({
       }
       return true;
     });
-  }, [quotes, statusFilter, searchQuery]);
+  }, [projectQuotes, statusFilter, searchQuery]);
 
   // Aggregate stats
   const stats = useMemo(() => {
-    const activeQuotes = quotes.filter((quote) => quote.status !== 'Rechazada');
+    const activeQuotes = projectQuotes.filter((quote) => quote.status !== 'Rechazada');
     const totalPipeline = activeQuotes.reduce((sum, q) => sum + q.totalGTQ, 0);
-    const acceptedTotal = quotes
+    const acceptedTotal = projectQuotes
       .filter((q) => q.status === 'Aceptada')
       .reduce((sum, q) => sum + q.totalGTQ, 0);
-    const acceptedCount = quotes.filter((q) => q.status === 'Aceptada').length;
-    const pendingCount = quotes.filter((q) => q.status === 'Enviada').length;
+    const acceptedCount = projectQuotes.filter((q) => q.status === 'Aceptada').length;
+    const pendingCount = projectQuotes.filter((q) => q.status === 'Enviada').length;
 
     return {
       totalPipeline,
@@ -331,7 +343,7 @@ export function CotizacionesView({
       pendingCount,
       activeCount: activeQuotes.length,
     };
-  }, [quotes]);
+  }, [projectQuotes]);
 
   // Save new quote
   const handleSaveQuote = async (status: 'Borrador' | 'Enviada' = 'Enviada') => {
@@ -576,7 +588,7 @@ export function CotizacionesView({
         </div>
 
         <span className="text-xs text-slate-400 font-mono">
-          Mostrando <strong>{filteredQuotes.length}</strong> de {quotes.length} cotizaciones
+          Mostrando <strong>{filteredQuotes.length}</strong> de {projectQuotes.length} cotizaciones del proyecto seleccionado
         </span>
       </div>
 
@@ -585,10 +597,10 @@ export function CotizacionesView({
         <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-8 text-center">
           <FileText className="mx-auto mb-3 h-8 w-8 text-slate-500" />
           <h2 className="font-bold text-white">
-            {quotes.length === 0 ? 'Aún no hay cotizaciones' : 'No hay resultados para esta búsqueda'}
+            {projectQuotes.length === 0 ? 'Aún no hay cotizaciones para este proyecto' : 'No hay resultados para esta búsqueda'}
           </h2>
           <p className="mt-2 text-sm text-slate-400">
-            {quotes.length === 0
+            {projectQuotes.length === 0
               ? !canWrite
                 ? 'No tienes permisos para crear cotizaciones en este espacio de empresa.'
                 : projects.length > 0
@@ -808,7 +820,7 @@ export function CotizacionesView({
                     <p className="mt-1 text-[10px] text-slate-400">
                       {projectBudgetItems.length > 0
                         ? `${projectBudgetItems.length} partidas APU del proyecto se cargarán con sus costos unitarios.`
-                        : 'Sin partidas APU para este proyecto; se usará la plantilla seleccionada.'}
+                        : 'Este proyecto no tiene partidas APU. Selecciona una plantilla o agrega renglones; no se cargan costos automáticamente.'}
                     </p>
                   </div>
                 </div>
@@ -922,6 +934,13 @@ export function CotizacionesView({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/60 font-mono">
+                      {quoteItems.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="py-6 px-3 text-center font-sans text-slate-400">
+                            Sin partidas. Carga un presupuesto APU, selecciona una plantilla o agrega renglones.
+                          </td>
+                        </tr>
+                      )}
                       {quoteItems.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-800/30">
                           <td className="py-2 pl-3 font-sans text-white text-[11px]">{item.description}</td>
@@ -997,7 +1016,7 @@ export function CotizacionesView({
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="text-xs text-slate-400 space-y-1">
                   <p>• Impuesto configurado: <strong>{taxPercent}%</strong> incluido en la propuesta.</p>
-                  <p>• Tipo de cambio referencial: <strong>Q{company.exchangeRate} / USD</strong>.</p>
+                  <p>• Tipo de cambio: <strong>{company.exchangeRate > 0 ? `Q${company.exchangeRate} / USD` : 'No configurado'}</strong>.</p>
                 </div>
 
                 <div className="text-right space-y-1 font-mono">

@@ -176,6 +176,7 @@ export default function MainApp() {
   const canViewFullPersonnel = canReadFullPersonnel(membership?.role);
   const canManageCompany = ['owner', 'admin'].includes(membership?.role ?? '');
   const [company, setCompany] = useState<CompanySettings>(initialCompanySettings);
+  const [exchangeRateInput, setExchangeRateInput] = useState('');
   const [brandingOpen, setBrandingOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
@@ -210,6 +211,10 @@ export default function MainApp() {
       setCompany(initialCompanySettings);
     }
   }, [data.company]);
+
+  useEffect(() => {
+    setExchangeRateInput(company.exchangeRate > 0 ? String(company.exchangeRate) : '');
+  }, [company.exchangeRate]);
 
   useEffect(() => {
     if (activeProjects.length === 0) {
@@ -255,6 +260,18 @@ export default function MainApp() {
       console.error('No se pudo guardar la configuración de marca en Firestore:', error);
       toast.error('No se pudo guardar la configuración de marca.');
       return false;
+    }
+  };
+
+  const handleSaveExchangeRate = async () => {
+    const exchangeRate = Number(exchangeRateInput);
+    if (!exchangeRateInput.trim() || !Number.isFinite(exchangeRate) || exchangeRate <= 0) {
+      toast.error('Ingresa un tipo de cambio mayor a cero.');
+      return;
+    }
+
+    if (await handleUpdateCompany({ exchangeRate })) {
+      toast.success('Tipo de cambio guardado.');
     }
   };
 
@@ -642,6 +659,29 @@ export default function MainApp() {
             </div>
             <div className="space-y-4">
               <p className="text-sm text-slate-400">Sube el logo de tu empresa y personaliza los colores de marca.</p>
+              <div className="space-y-2 rounded-xl border border-white/10 p-3">
+                <label htmlFor="company-exchange-rate" className="block text-xs font-semibold text-slate-200">
+                  Tipo de cambio configurado (GTQ por USD)
+                </label>
+                <input
+                  id="company-exchange-rate"
+                  type="number"
+                  min="0.0001"
+                  step="0.0001"
+                  value={exchangeRateInput}
+                  onChange={(event) => setExchangeRateInput(event.target.value)}
+                  disabled={!canManageCompany}
+                  className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white disabled:opacity-60"
+                />
+                <p className="text-xs text-slate-400">
+                  No se usa una tasa automática o simulada; configura la tasa que debe aplicar la empresa.
+                </p>
+                {canManageCompany && (
+                  <Button variant="primary" size="sm" onClick={() => void handleSaveExchangeRate()}>
+                    Guardar tipo de cambio
+                  </Button>
+                )}
+              </div>
               <LogoUpload
                 company={{
                   logoUrl: company.logoUrl,

@@ -37,7 +37,7 @@ import {
 } from 'recharts';
 import * as d3 from 'd3';
 import { Project, ScheduleTask, Milestone, CompanySettings } from '@/lib/types';
-import { initialScheduleTasks, initialMilestones, formatGTQ } from '@/lib/data';
+import { formatGTQ } from '@/lib/data';
 import { Card } from '@/components/ui/Card';
 
 interface CronogramaGanttProps {
@@ -49,19 +49,16 @@ interface CronogramaGanttProps {
   onUpdateTaskProgress?: (taskId: string, newProgress: number) => void;
 }
 
-// Current simulated local date in Guatemala
-const SIMULATED_TODAY = new Date('2026-10-24T00:00:00');
-
 export function CronogramaGantt({
   projects = [],
-  tasks = initialScheduleTasks,
-  milestones = initialMilestones,
+  tasks = [],
+  milestones = [],
   activeProjectId: initialActiveProjectId,
   company,
   onUpdateTaskProgress,
 }: CronogramaGanttProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(
-    initialActiveProjectId || projects[0]?.id || 'p1'
+    initialActiveProjectId || projects[0]?.id || ''
   );
   const [phaseFilter, setPhaseFilter] = useState<string>('all');
   const [onlyCriticalPath, setOnlyCriticalPath] = useState<boolean>(false);
@@ -70,27 +67,36 @@ export function CronogramaGantt({
 
   // Selected project object
   const currentProject = useMemo(() => {
-    return projects.find((p) => p.id === selectedProjectId) || projects[0] || {
-      id: 'p1',
-      code: 'OBRA-2026-01',
-      name: 'Torre Residencial Vista Hermosa IV',
-      budgetTotal: 14500000,
-      progressPercent: 43,
-      startDate: '2026-01-15',
-      endDate: '2027-04-30',
-      status: 'En Ejecución',
-    };
+    return projects.find((p) => p.id === selectedProjectId) || projects[0] || null;
   }, [projects, selectedProjectId]);
 
   // Tasks belonging to this project
   const projectTasks = useMemo(() => {
-    return tasks.filter((t) => t.projectId === currentProject.id);
-  }, [tasks, currentProject.id]);
+    return currentProject ? tasks.filter((t) => t.projectId === currentProject.id) : [];
+  }, [tasks, currentProject]);
 
   // Milestones belonging to this project
   const projectMilestones = useMemo(() => {
-    return milestones.filter((m) => m.projectId === currentProject.id);
-  }, [milestones, currentProject.id]);
+    return currentProject ? milestones.filter((m) => m.projectId === currentProject.id) : [];
+  }, [milestones, currentProject]);
+
+  const scheduleRange = useMemo(() => {
+    const validDates = (values: string[]) => values
+      .map((value) => new Date(value))
+      .filter((date) => Number.isFinite(date.getTime()));
+    const taskStarts = validDates(projectTasks.map((task) => task.startDate));
+    const taskEnds = validDates(projectTasks.map((task) => task.endDate));
+    const projectStart = currentProject?.startDate ? new Date(currentProject.startDate) : null;
+    const projectEnd = currentProject?.endDate ? new Date(currentProject.endDate) : null;
+    const startDate = projectStart && Number.isFinite(projectStart.getTime())
+      ? projectStart
+      : taskStarts.length > 0 ? new Date(Math.min(...taskStarts.map((date) => date.getTime()))) : null;
+    const endDate = projectEnd && Number.isFinite(projectEnd.getTime())
+      ? projectEnd
+      : taskEnds.length > 0 ? new Date(Math.max(...taskEnds.map((date) => date.getTime()))) : null;
+
+    return startDate && endDate && startDate <= endDate ? { startDate, endDate } : null;
+  }, [currentProject, projectTasks]);
 
   // Phases in this project
   const uniquePhases = useMemo(() => {
@@ -118,7 +124,7 @@ export function CronogramaGantt({
 
   // Compute Planned Progress vs Real Progress for each task
   const enrichedTasks = useMemo(() => {
-    const todayMs = SIMULATED_TODAY.getTime();
+    const todayMs = Date.now();
 
     return filteredTasks.map((t) => {
       const startMs = new Date(t.startDate).getTime();
@@ -203,8 +209,14 @@ export function CronogramaGantt({
 
   // S-Curve monthly timeline data
   const sCurveData = useMemo(() => {
-    const projStart = new Date(currentProject.startDate || '2026-01-01');
-    const projEnd = new Date(currentProject.endDate || '2027-04-30');
+    if (!scheduleRange) return [];
+    const { startDate: projStart, endDate: projEnd } = scheduleRange;
+    const today = new Date();
+    const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const totalTaskWeight = projectTasks.reduce((sum, task) => sum + (task.weightPercent || 10), 0);
+    const currentProgress = totalTaskWeight > 0
+      ? Math.round(projectTasks.reduce((sum, task) => sum + task.progress * (task.weightPercent || 10), 0) / totalTaskWeight)
+      : null;
 
     const months: {
       monthKey: string;
@@ -248,34 +260,25 @@ export function CronogramaGantt({
 
       const cumPlanned = totalWeight > 0 ? Math.round(monthlyPlannedSum / totalWeight) : 0;
 
-      // Real cumulative progress only up to today's month
-      let cumReal: number | null = null;
-      if (cursor <= SIMULATED_TODAY) {
-        // Compute real progress to date
-        const realWeightSum = projectTasks.reduce((sum, t) => sum + (t.progress || 0) * (t.weightPercent || 10), 0);
-        const ratio = Math.min(1, Math.max(0, (monthMidDate.getTime() - projStart.getTime()) / (SIMULATED_TODAY.getTime() - projStart.getTime())));
-        cumReal = Math.round((realWeightSum / (totalWeight || 1)) * (0.3 + 0.7 * ratio));
-        cumReal = Math.min(100, Math.max(0, cumReal));
-      }
-
       months.push({
         monthKey,
         label,
         date: new Date(cursor),
         avancePlanificado: cumPlanned,
-        avanceReal: cursor <= SIMULATED_TODAY ? cumReal : null,
+        avanceReal: monthKey === currentMonthKey ? currentProgress : null,
       });
 
       cursor.setMonth(cursor.getMonth() + 1);
     }
 
     return months;
-  }, [currentProject, projectTasks]);
+  }, [scheduleRange, projectTasks]);
 
   // D3 Scales for Interactive Gantt Canvas
   const ganttConfig = useMemo(() => {
-    const projStart = new Date(currentProject.startDate || '2026-01-01');
-    const projEnd = new Date(currentProject.endDate || '2027-04-30');
+    if (!scheduleRange) return null;
+    const { startDate: projStart, endDate: projEnd } = scheduleRange;
+    const today = new Date();
 
     // Add 10 days padding on each side
     const minDate = new Date(projStart.getTime() - 10 * 24 * 60 * 60 * 1000);
@@ -293,9 +296,25 @@ export function CronogramaGantt({
       maxDate,
       ticks,
       width: 920,
-      todayX: timeScale(SIMULATED_TODAY),
+      todayX: timeScale(today),
     };
-  }, [currentProject]);
+  }, [scheduleRange]);
+
+  if (!currentProject) {
+    return (
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8 text-center text-slate-300">
+        No hay proyectos disponibles para mostrar en el cronograma.
+      </div>
+    );
+  }
+
+  if (!ganttConfig) {
+    return (
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8 text-center text-slate-300">
+        Registra fechas de inicio y fin del proyecto o de sus tareas para mostrar el cronograma.
+      </div>
+    );
+  }
 
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-6">

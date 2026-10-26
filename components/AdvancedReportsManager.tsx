@@ -149,7 +149,7 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
         doc.setTextColor(203, 213, 225); // slate-300
         doc.text(`NIT: ${company.nit} • ${company.address} • Tel: ${company.phone}`, margin + 25, y + 13);
         doc.text(
-          `Documento Oficial de Control y Liquidación de Obra • Moneda: ${currency} • T.C.: Q ${company.exchangeRate.toFixed(2)}`,
+          `Documento Oficial de Control y Liquidación de Obra • Moneda: ${currency} • T.C.: ${company.exchangeRate > 0 ? `Q ${company.exchangeRate.toFixed(2)}/USD` : 'No configurado'}`,
           margin + 25,
           y + 19
         );

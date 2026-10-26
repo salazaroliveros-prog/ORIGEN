@@ -5,11 +5,7 @@ import { loadReportLetterheadLogo } from './pdfBranding';
 export interface MonthlyHistogramItem {
   mes: string;
   mesCompleto: string;
-  presupuesto: number;
   gastos: number;
-  desviacion: number;
-  porcentaje: number;
-  estado: 'En Rango' | 'Sobrecosto' | 'Equilibrado';
 }
 
 export interface ExportPdfOptions {
@@ -297,16 +293,16 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
 
   y += 5;
 
-  // 3. Section: Histograma Mensual - Gastos vs Presupuesto Proyectado
+  // 3. Section: Monthly expenses from recorded invoices
   checkPageBreak(40);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9.5);
   doc.setTextColor(15, 23, 42);
-  doc.text('2. HISTOGRAMA MENSUAL: GASTOS REALES VS PRESUPUESTO PROYECTADO', margin, y);
+  doc.text('2. GASTOS REGISTRADOS POR MES', margin, y);
   y += 4;
 
-  const histColWidths = [28, 36, 36, 30, 24, 28];
-  const histHeaders = ['Mes / Periodo', 'Presup. Proyectado', 'Gasto Real Ejecutado', 'Desviación (Delta)', '% Ejecutado', 'Diagnóstico'];
+  const histColWidths = [110, 72];
+  const histHeaders = ['Mes / Periodo', 'Gastos registrados'];
 
   doc.setFillColor(30, 41, 59); // slate-800
   doc.rect(margin, y, usableWidth, 6, 'F');
@@ -316,8 +312,8 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
 
   let hx = margin;
   histHeaders.forEach((h, i) => {
-    const align = i >= 1 && i <= 4 ? 'right' : i === 5 ? 'center' : 'left';
-    const textX = align === 'right' ? hx + histColWidths[i] - 2 : align === 'center' ? hx + histColWidths[i] / 2 : hx + 2;
+    const align = i === 1 ? 'right' : 'left';
+    const textX = align === 'right' ? hx + histColWidths[i] - 2 : hx + 2;
     doc.text(h, textX, y + 4.2, { align });
     hx += histColWidths[i];
   });
@@ -339,40 +335,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     // Mes
     doc.text(item.mesCompleto || item.mes, cx + 2, y + 4.2);
     cx += histColWidths[0];
-    // Presupuesto
-    doc.text(formatMoney(item.presupuesto), cx + histColWidths[1] - 2, y + 4.2, { align: 'right' });
-    cx += histColWidths[1];
-    // Gastos
-    doc.text(formatMoney(item.gastos), cx + histColWidths[2] - 2, y + 4.2, { align: 'right' });
-    cx += histColWidths[2];
-    // Desviación
-    const isOver = item.desviacion > 0;
-    if (isOver) {
-      doc.setTextColor(225, 29, 72); // rose
-      doc.text(`+${formatMoney(item.desviacion)}`, cx + histColWidths[3] - 2, y + 4.2, { align: 'right' });
-    } else {
-      doc.setTextColor(5, 150, 105); // emerald
-      doc.text(formatMoney(item.desviacion), cx + histColWidths[3] - 2, y + 4.2, { align: 'right' });
-    }
-    cx += histColWidths[3];
-    // % Ejecutado
-    doc.setTextColor(15, 23, 42);
-    doc.text(`${item.porcentaje.toFixed(1)}%`, cx + histColWidths[4] - 2, y + 4.2, { align: 'right' });
-    cx += histColWidths[4];
-    // Diagnóstico badge
-    if (isOver) {
-      doc.setFillColor(254, 226, 226); // red-100
-      doc.rect(cx + 2, y + 1.2, histColWidths[5] - 4, 3.8, 'F');
-      doc.setTextColor(185, 28, 28); // red-700
-      doc.setFont('helvetica', 'bold');
-      doc.text('SOBRECOSTO', cx + histColWidths[5] / 2, y + 4, { align: 'center' });
-    } else {
-      doc.setFillColor(209, 250, 229); // green-100
-      doc.rect(cx + 2, y + 1.2, histColWidths[5] - 4, 3.8, 'F');
-      doc.setTextColor(4, 120, 87); // green-700
-      doc.setFont('helvetica', 'bold');
-      doc.text('EN MARGEN', cx + histColWidths[5] / 2, y + 4, { align: 'center' });
-    }
+    doc.text(formatMoney(item.gastos), cx + histColWidths[1] - 2, y + 4.2, { align: 'right' });
 
     y += 6;
   });

@@ -8,7 +8,7 @@ Calendar,
 Clock,
 Users
 } from 'lucide-react';
-import React,{ useMemo,useState } from 'react';
+import React,{ useEffect,useMemo,useState } from 'react';
 import {
 Bar,
 BarChart,
@@ -34,10 +34,15 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
   attendance,
   projects,
   activeProjectId,
-  company,
 }) => {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(activeProjectId || 'all');
   const [viewScope, setViewScope] = useState<'empleado' | 'rol' | 'proyecto'>('empleado');
+
+  useEffect(() => {
+    if (activeProjectId && projects.some((project) => project.id === activeProjectId)) {
+      setSelectedProjectId(activeProjectId);
+    }
+  }, [activeProjectId, projects]);
 
   const activeProject = useMemo(() => {
     return projects.find((p) => p.id === selectedProjectId) || null;
@@ -48,91 +53,67 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
     const targetAttendance = selectedProjectId === 'all'
       ? attendance
       : attendance.filter((a) => a.projectId === selectedProjectId);
+    const targetProjects = selectedProjectId === 'all'
+      ? projects
+      : projects.filter((project) => project.id === selectedProjectId);
 
     if (viewScope === 'empleado') {
-      // Map each employee
       return employees.map((emp) => {
         const empAtt = targetAttendance.filter((a) => a.employeeId === emp.id);
         const presentDays = empAtt.filter((a) => a.status === 'Presente').length;
         const overtime = empAtt.reduce((sum, a) => sum + (a.overtimeHours || 0), 0);
-        const realHours = presentDays * 8 + overtime;
-
-        // Budgeted hours baseline (e.g. 160 hrs/month or based on role seniority)
-        let baseBudgetedHours = 160;
-        if (emp.role === 'Capataz' || emp.role === 'Arquitecto Residente') {
-          baseBudgetedHours = 175;
-        } else if (emp.role === 'Ayudante') {
-          baseBudgetedHours = 150;
-        }
-
-        const efficiency = baseBudgetedHours > 0 ? (realHours / baseBudgetedHours) * 100 : 100;
 
         return {
           name: emp.name.split(' ')[0] + (emp.name.split(' ')[1] ? ' ' + emp.name.split(' ')[1][0] + '.' : ''),
           fullName: emp.name,
           jobTitle: emp.role,
-          trabajadas: realHours,
-          presupuestadas: baseBudgetedHours,
-          diferencia: realHours - baseBudgetedHours,
-          eficiencia: efficiency,
-          estado: realHours <= baseBudgetedHours ? 'Óptimo' : 'Exceso Horas',
+          diasPresente: presentDays,
+          horasExtra: overtime,
+          horasEstimadas: presentDays * 8 + overtime,
         };
       });
-    } else if (viewScope === 'rol') {
-      // Group by Role
-      const roles = ['Capataz', 'Albañil', 'Ayudante', 'Arquitecto Residente', 'Bodeguero', 'Electricista'] as const;
+    }
+
+    if (viewScope === 'rol') {
+      const roles = [...new Set(employees.map((employee) => employee.role))];
       return roles.map((role) => {
-        const roleEmps = employees.filter((e) => e.role === role);
+        const roleEmps = employees.filter((employee) => employee.role === role);
         const roleEmpIds = new Set(roleEmps.map((e) => e.id));
         const roleAtt = targetAttendance.filter((a) => roleEmpIds.has(a.employeeId));
-
         const presentDays = roleAtt.filter((a) => a.status === 'Presente').length;
         const overtime = roleAtt.reduce((sum, a) => sum + (a.overtimeHours || 0), 0);
-        const realHours = presentDays * 8 + overtime;
-        const budgetedHours = roleEmps.length * 160;
-
-        const efficiency = budgetedHours > 0 ? (realHours / budgetedHours) * 100 : 100;
 
         return {
           name: role,
           fullName: role,
-          trabajadas: realHours,
-          presupuestadas: budgetedHours,
-          diferencia: realHours - budgetedHours,
-          eficiencia: efficiency,
-          estado: realHours <= budgetedHours ? 'Óptimo' : 'Exceso Horas',
-        };
-      });
-    } else {
-      // Group by Project
-      return projects.map((proj) => {
-        const projAtt = attendance.filter((a) => a.projectId === proj.id);
-        const presentDays = projAtt.filter((a) => a.status === 'Presente').length;
-        const overtime = projAtt.reduce((sum, a) => sum + (a.overtimeHours || 0), 0);
-        const realHours = presentDays * 8 + overtime;
-
-        // Budgeted hours from project budget scale
-        const budgetedHours = Math.round(proj.budgetTotal / 1200);
-
-        const efficiency = budgetedHours > 0 ? (realHours / budgetedHours) * 100 : 100;
-
-        return {
-          name: proj.code,
-          fullName: proj.name,
-          trabajadas: realHours,
-          presupuestadas: budgetedHours,
-          diferencia: realHours - budgetedHours,
-          eficiencia: efficiency,
-          estado: realHours <= budgetedHours ? 'Óptimo' : 'Exceso Horas',
+          diasPresente: presentDays,
+          horasExtra: overtime,
+          horasEstimadas: presentDays * 8 + overtime,
         };
       });
     }
+
+    return targetProjects.map((proj) => {
+        const projAtt = attendance.filter((a) => a.projectId === proj.id);
+        const presentDays = projAtt.filter((a) => a.status === 'Presente').length;
+        const overtime = projAtt.reduce((sum, a) => sum + (a.overtimeHours || 0), 0);
+
+        return {
+          name: proj.code || proj.name,
+          fullName: proj.name,
+          diasPresente: presentDays,
+          horasExtra: overtime,
+          horasEstimadas: presentDays * 8 + overtime,
+        };
+      });
   }, [employees, attendance, projects, selectedProjectId, viewScope]);
 
-  // Aggregate metrics
-  const totalWorkedHours = chartData.reduce((acc, curr) => acc + curr.trabajadas, 0);
-  const totalBudgetedHours = chartData.reduce((acc, curr) => acc + curr.presupuestadas, 0);
-  const avgEfficiency = chartData.length > 0 ? chartData.reduce((acc, curr) => acc + curr.eficiencia, 0) / chartData.length : 100;
+  const totalEstimatedHours = chartData.reduce((total, item) => total + item.horasEstimadas, 0);
+  const totalPresentDays = chartData.reduce((total, item) => total + item.diasPresente, 0);
+  const totalOvertimeHours = chartData.reduce((total, item) => total + item.horasExtra, 0);
+  const hasAttendanceData = attendance.some((record) =>
+    selectedProjectId === 'all' || record.projectId === selectedProjectId
+  );
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-6">
@@ -144,16 +125,16 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
               <Users className="w-5 h-5" />
             </span>
             <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
-              Rendimiento & Productividad Laboral (Horas Reales vs. Presupuestadas)
+              Asistencia y horas estimadas de mano de obra
             </h3>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              Recharts Gantt & APU Yield
+              Estimación: 8 h por día presente
             </span>
           </div>
           <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-            Comparativa de horas trabajadas (incluyendo asistencia y horas extra) frente a las horas presupuestadas en la planificación del cronograma para{' '}
+            Horas estimadas a partir de días con asistencia registrada y horas extra para{' '}
             <strong className="text-slate-200">
-              {activeProject ? activeProject.name : 'Todas las Obras de ConstructERP Guatemala'}
+              {activeProject ? activeProject.name : 'Todos los proyectos'}
             </strong>
             .
           </p>
@@ -214,10 +195,10 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
         <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              Horas Trabajadas Reales
+              Horas Estimadas
             </span>
-            <p className="text-xl font-extrabold text-amber-400 mt-0.5">{totalWorkedHours.toLocaleString('es-GT')} hrs</p>
-            <span className="text-[11px] text-slate-400">Registradas en bitácora de asistencia</span>
+            <p className="text-xl font-extrabold text-amber-400 mt-0.5">{totalEstimatedHours.toLocaleString('es-GT')} hrs</p>
+            <span className="text-[11px] text-slate-400">8 h por día presente + horas extra</span>
           </div>
           <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
             <Clock className="w-5 h-5" />
@@ -227,10 +208,10 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
         <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              Horas Presupuestadas (APU)
+              Días con asistencia
             </span>
-            <p className="text-xl font-extrabold text-sky-400 mt-0.5">{totalBudgetedHours.toLocaleString('es-GT')} hrs</p>
-            <span className="text-[11px] text-slate-400">Asignadas según cronograma</span>
+            <p className="text-xl font-extrabold text-sky-400 mt-0.5">{totalPresentDays.toLocaleString('es-GT')}</p>
+            <span className="text-[11px] text-slate-400">Registros con estado Presente</span>
           </div>
           <div className="p-3 bg-sky-500/10 text-sky-400 rounded-xl border border-sky-500/20">
             <Calendar className="w-5 h-5" />
@@ -240,10 +221,10 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
         <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              Índice Promedio de Eficiencia
+              Horas extra registradas
             </span>
-            <p className="text-xl font-extrabold text-emerald-400 mt-0.5">{avgEfficiency.toFixed(1)}%</p>
-            <span className="text-[11px] text-slate-400">Rendimiento de mano de obra</span>
+            <p className="text-xl font-extrabold text-emerald-400 mt-0.5">{totalOvertimeHours.toLocaleString('es-GT')} hrs</p>
+            <span className="text-[11px] text-slate-400">Suma de horas extra en asistencia</span>
           </div>
           <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
             <Award className="w-5 h-5" />
@@ -251,7 +232,11 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
         </div>
       </div>
 
-      {/* Recharts BarChart */}
+      {!hasAttendanceData ? (
+        <p className="rounded-xl border border-slate-800 bg-slate-950/50 p-6 text-center text-sm text-slate-400">
+          No hay registros de asistencia para el proyecto seleccionado.
+        </p>
+      ) : (
       <div className="h-80 sm:h-96 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -284,22 +269,16 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
                       {data.jobTitle && <p className="text-slate-400 font-medium">Especialidad: {data.jobTitle}</p>}
                       <div className="pt-1 border-t border-slate-800 space-y-1">
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Horas Trabajadas:</span>
-                          <span className="font-bold text-amber-400">{data.trabajadas} hrs</span>
+                          <span className="text-slate-400">Horas estimadas:</span>
+                          <span className="font-bold text-amber-400">{data.horasEstimadas} hrs</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Horas Presupuestadas:</span>
-                          <span className="font-semibold text-sky-400">{data.presupuestadas} hrs</span>
+                          <span className="text-slate-400">Días presente:</span>
+                          <span className="font-semibold text-sky-400">{data.diasPresente}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Desviación:</span>
-                          <span className={data.diferencia <= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                            {data.diferencia > 0 ? `+${data.diferencia}` : data.diferencia} hrs
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Eficiencia:</span>
-                          <span className="font-bold text-white">{data.eficiencia.toFixed(1)}%</span>
+                          <span className="text-slate-400">Horas extra:</span>
+                          <span className="font-semibold text-emerald-400">{data.horasExtra} hrs</span>
                         </div>
                       </div>
                     </div>
@@ -315,22 +294,16 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
               wrapperStyle={{ paddingBottom: '10px', fontSize: '12px' }}
             />
             <Bar
-              dataKey="presupuestadas"
-              name="Horas Presupuestadas (Cronograma)"
-              fill="#38bdf8"
-              radius={[4, 4, 0, 0]}
-              barSize={16}
-            />
-            <Bar
-              dataKey="trabajadas"
-              name="Horas Trabajadas Reales"
+              dataKey="horasEstimadas"
+              name="Horas estimadas (8 h por día presente)"
               fill="#f59e0b"
               radius={[4, 4, 0, 0]}
-              barSize={16}
+              barSize={24}
             />
           </BarChart>
         </ResponsiveContainer>
       </div>
+      )}
     </div>
   );
 };

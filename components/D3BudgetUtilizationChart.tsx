@@ -171,9 +171,10 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
         .ticks(width < 450 ? 3 : 5)
         .tickFormat((d) => {
           const val = Number(d);
-          return currency === 'GTQ'
-            ? `Q${(val / 1000000).toFixed(1)}M`
-            : `$${(val / company.exchangeRate / 1000000).toFixed(1)}M`;
+          if (currency === 'GTQ') return `Q${(val / 1000000).toFixed(1)}M`;
+          return company.exchangeRate > 0
+            ? `$${(val / company.exchangeRate / 1000000).toFixed(1)}M`
+            : 'N/D';
         });
 
       const xAxisGroup = g

@@ -44,6 +44,7 @@ export const ProjectFormSchema = z.object({
   expectedProfitMarginPercent: z.number()
     .min(0, 'El margen no puede ser negativo')
     .max(100, 'El margen no puede exceder 100')
+    .nullable()
     .optional(),
 }).refine((project) => project.endDate >= project.startDate, {
   message: 'La fecha de finalización debe ser igual o posterior a la fecha de inicio',
@@ -68,7 +69,7 @@ export interface ProjectFormProject {
   status: 'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido';
   lat: number;
   lng: number;
-  expectedProfitMarginPercent?: number;
+  expectedProfitMarginPercent?: number | null;
 }
 
 export function validateProjectForm(data: unknown) {
@@ -92,6 +93,5 @@ export function getDefaultProjectValues(): ProjectFormProject {
     status: 'Planificación',
     lat: 14.6133,
     lng: -90.4875,
-    expectedProfitMarginPercent: 15,
   };
 }

@@ -24,6 +24,25 @@ describe('validateProjectForm', () => {
     expect(validateProjectForm(validProject).success).toBe(true);
   });
 
+  it('keeps an unconfigured profit margin unset', () => {
+    const { expectedProfitMarginPercent: _margin, ...projectWithoutMargin } = validProject;
+    const result = validateProjectForm(projectWithoutMargin);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).not.toHaveProperty('expectedProfitMarginPercent');
+    }
+  });
+
+  it('accepts a cleared optional profit margin', () => {
+    const result = validateProjectForm({ ...validProject, expectedProfitMarginPercent: null });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.expectedProfitMarginPercent).toBeNull();
+    }
+  });
+
   it('rejects an end date earlier than the start date', () => {
     const result = validateProjectForm({
       ...validProject,

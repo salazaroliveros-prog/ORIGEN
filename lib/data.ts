@@ -16,22 +16,18 @@ import {
 } from './types';
 
 export const initialCompanySettings: CompanySettings = {
-  legalName: 'Constructora e Inmobiliaria Los Volcanes, S.A.',
-  commercialName: 'Volcanes Proyectos & Ingeniería',
-  companyName: 'Volcanes Proyectos & Ingeniería',
-  nit: '8492019-2',
-  architectName: 'Arq. Alejandro Morales',
-  architectColNumber: 'CIG-12940',
-  address: 'Diagonal 6, 12-42 Zona 10, Edificio Reformas, Ciudad de Guatemala',
-  phone: '+502 2389-4400',
-  email: 'proyectos@volcanes.com.gt',
-  exchangeRate: 7.82, // GTQ per USD
+  legalName: '',
+  commercialName: '',
+  companyName: '',
+  nit: '',
+  architectName: '',
+  architectColNumber: '',
+  address: '',
+  phone: '',
+  email: '',
+  exchangeRate: 0,
   primaryColor: '#1e3a8a',
   secondaryColor: '#d97706',
-  logoUrl: '/assets/branding/web-banner-logo.png',
-  logoSmallUrl: '/assets/branding/icon-192x192.png',
-  logoSquareUrl: '/assets/branding/icon-512x512.png',
-  bannerUrl: '/assets/branding/web-banner-logo.png',
 };
 
 export const initialProjects: Project[] = [
@@ -986,7 +982,11 @@ export function formatGTQ(amount: number): string {
   }).format(amount);
 }
 
-export function formatUSD(amount: number, exchangeRate: number = 7.82): string {
+export function formatUSD(amount: number, exchangeRate?: number): string {
+  if (!Number.isFinite(exchangeRate) || exchangeRate === undefined || exchangeRate <= 0) {
+    return 'N/D (tipo de cambio)';
+  }
+
   const usdAmount = amount / exchangeRate;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

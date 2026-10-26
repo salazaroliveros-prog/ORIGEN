@@ -58,17 +58,18 @@ export function CashFlowProjectionChart({
   const [showAllProjects, setShowAllProjects] = useState(false);
   const selectedProjectId = showAllProjects
     ? 'all'
-    : projects.some((project) => project.id === activeProjectId)
+    : projects.some((project) =>
+      project.id === activeProjectId && project.status !== 'Finalizado' && project.status !== 'Archivado'
+    )
       ? activeProjectId
-      : projects[0]?.id ?? 'all';
+      : projects.find((project) => project.status !== 'Finalizado' && project.status !== 'Archivado')?.id ?? 'all';
   const [chartMode, setChartMode] = useState<'inflow_outflow' | 'net_cumulative'>('inflow_outflow');
   const [showMilestonesList, setShowMilestonesList] = useState<boolean>(true);
-  const [startOffsetMonths, setStartOffsetMonths] = useState<number>(0); // 0 = Nov 2026, 1 = Dic 2026, etc.
+  const [startOffsetMonths, setStartOffsetMonths] = useState<number>(0);
 
-  // Base date calculation: defaults to local November 2026 (local context 2026-10-23)
   const baseDate = useMemo(() => {
-    const d = new Date(2026, 10 + startOffsetMonths, 1);
-    return d;
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + startOffsetMonths, 1);
   }, [startOffsetMonths]);
 
   // Compute 6-month cash flow summary
@@ -80,10 +81,13 @@ export function CashFlowProjectionChart({
   }, [projects, milestones, baseDate, selectedProjectId]);
 
   const activeProjects = useMemo(() => {
-    return projects.filter((p) => p.status !== 'Finalizado');
+    return projects.filter((p) => p.status !== 'Finalizado' && p.status !== 'Archivado');
   }, [projects]);
 
-  const isNetPositive = summary.totalFlujoNeto >= 0;
+  const isNetPositive = summary.costEstimatesComplete && summary.totalFlujoNeto >= 0;
+  const netColor = !summary.costEstimatesComplete
+    ? 'text-slate-300'
+    : isNetPositive ? 'text-emerald-400' : 'text-rose-400';
 
   return (
     <div className={`bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5 ${className}`}>
@@ -99,7 +103,7 @@ export function CashFlowProjectionChart({
                 Proyección de Flujo de Caja Semestral (Basado en Hitos)
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                Estimación de ingresos por valuaciones de hitos de obra vs. egresos operativos para los próximos 6 meses ({summary.months[0]?.monthLabel} - {summary.months[5]?.monthLabel}).
+                Ingresos por hitos guardados y costos estimados con margen configurado ({summary.months[0]?.monthLabel} - {summary.months[5]?.monthLabel}).
               </p>
             </div>
           </div>
@@ -123,7 +127,7 @@ export function CashFlowProjectionChart({
               <option value="all" className="bg-slate-800 text-white">
                 Todos los Proyectos Activos ({activeProjects.length})
               </option>
-              {projects.map((p) => (
+              {activeProjects.map((p) => (
                 <option key={p.id} value={p.id} className="bg-slate-800 text-white">
                   {p.code ? `${p.code} - ${p.name.substring(0, 20)}...` : p.name}
                 </option>
@@ -213,43 +217,37 @@ export function CashFlowProjectionChart({
             {formatGTQ(summary.totalEgresos)}
           </p>
           <p className="text-[10px] text-slate-400 mt-0.5">
-            Costo de materiales, mano de obra y equipos
+            Solo incluye hitos con margen configurado
           </p>
         </div>
 
         <div
           className={`border p-3.5 rounded-xl ${
-            isNetPositive
+            !summary.costEstimatesComplete
+              ? 'bg-slate-800/50 border-slate-700/60'
+              : isNetPositive
               ? 'bg-emerald-950/20 border-emerald-800/60'
               : 'bg-rose-950/20 border-rose-800/60'
           }`}
         >
           <div className="flex justify-between items-start">
-            <span
-              className={`text-[11px] font-bold uppercase tracking-wider ${
-                isNetPositive ? 'text-emerald-400' : 'text-rose-400'
-              }`}
-            >
-              Flujo Neto del Semestre
+            <span className={`text-[11px] font-bold uppercase tracking-wider ${netColor}`}>
+              {summary.costEstimatesComplete ? 'Flujo Neto del Semestre' : 'Flujo Neto Parcial'}
             </span>
-            <span
-              className={`p-1 rounded-lg ${
-                isNetPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
-              }`}
-            >
+            <span className={`p-1 rounded-lg ${summary.costEstimatesComplete
+              ? isNetPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+              : 'bg-slate-700 text-slate-300'}`}>
               <DollarSign className="w-3.5 h-3.5" />
             </span>
           </div>
-          <p
-            className={`text-lg sm:text-xl font-black mt-1 font-mono ${
-              isNetPositive ? 'text-emerald-300' : 'text-rose-400'
-            }`}
-          >
+          <p className={`text-lg sm:text-xl font-black mt-1 font-mono ${netColor}`}>
             {isNetPositive ? '+' : ''}
             {formatGTQ(summary.totalFlujoNeto)}
           </p>
           <p className="text-[10px] text-slate-400 mt-0.5">
-            {isNetPositive ? 'Superávit operativo proyectado' : 'Requiere financiamiento o anticipos'}
+            {!summary.costEstimatesComplete
+              ? 'Parcial: hay hitos sin margen para estimar costos'
+              : isNetPositive ? 'Saldo proyectado según hitos' : 'Saldo negativo según hitos'}
           </p>
         </div>
 
@@ -266,7 +264,9 @@ export function CashFlowProjectionChart({
             {summary.totalHitosCount} Hitos Programados
           </p>
           <p className="text-[10px] text-slate-400 mt-0.5">
-            Pico de cobro en: <strong className="text-slate-200">{summary.maxMonthIngreso.monthLabel}</strong>
+            {summary.totalHitosCount > 0 ? (
+              <>Pico de cobro en: <strong className="text-slate-200">{summary.maxMonthIngreso.monthLabel}</strong></>
+            ) : 'Basado únicamente en hitos guardados'}
           </p>
         </div>
       </div>
@@ -338,7 +338,7 @@ export function CashFlowProjectionChart({
                 <Area
                   type="monotone"
                   dataKey="egresos"
-                  name="Egresos Estimados (Costos Obra)"
+                  name="Costos Estimados (Hitos con Margen)"
                   stroke="#f59e0b"
                   strokeWidth={2.5}
                   fillOpacity={1}
@@ -350,7 +350,9 @@ export function CashFlowProjectionChart({
                 <Area
                   type="monotone"
                   dataKey="flujoNeto"
-                  name="Flujo Neto Mensual (Q)"
+                  name={summary.costEstimatesComplete
+                    ? 'Flujo Neto Mensual (Q)'
+                    : 'Flujo Neto Parcial (faltan márgenes)'}
                   stroke="#06b6d4"
                   strokeWidth={2.5}
                   fillOpacity={1}
@@ -359,7 +361,9 @@ export function CashFlowProjectionChart({
                 <Area
                   type="monotone"
                   dataKey="flujoAcumulado"
-                  name="Saldo de Tesorería Acumulado"
+                  name={summary.costEstimatesComplete
+                    ? 'Saldo de Tesorería Acumulado'
+                    : 'Saldo Acumulado Parcial'}
                   stroke="#818cf8"
                   strokeWidth={2.5}
                   fillOpacity={1}
@@ -379,8 +383,15 @@ export function CashFlowProjectionChart({
             Análisis de Tesorería por Calendario de Hitos:
           </p>
           <p className="text-slate-400">
-            El mes con mayor concentración de facturación es <strong className="text-emerald-400">{summary.maxMonthIngreso.monthLabel}</strong> ({formatGTQ(summary.maxMonthIngreso.amount)}). Se recomienda coordinar con los comités de supervisión técnica con 15 días de anticipación la certificación de pruebas de laboratorio para evitar demoras en la liberación de cheques de estimación.
+            {summary.totalHitosCount > 0
+              ? <>El mes con mayor concentración de facturación proyectada es <strong className="text-emerald-400">{summary.maxMonthIngreso.monthLabel}</strong> ({formatGTQ(summary.maxMonthIngreso.amount)}). Los ingresos estimados usan hitos guardados y el presupuesto de cada proyecto; los costos requieren un margen configurado.</>
+              : 'No hay hitos guardados dentro del periodo seleccionado. Registra el cronograma del proyecto para calcular una proyección; no se generan hitos automáticamente.'}
           </p>
+          {!summary.costEstimatesComplete && summary.totalHitosCount > 0 && (
+            <p className="text-amber-300">
+              El flujo neto es parcial: configura el margen de utilidad de cada proyecto para estimar el costo de todos sus hitos.
+            </p>
+          )}
         </div>
       </div>
 
@@ -406,7 +417,7 @@ export function CashFlowProjectionChart({
           <div className="p-3 overflow-x-auto">
             {summary.allMilestonesInPeriod.length === 0 ? (
               <p className="text-xs text-slate-400 py-3 text-center">
-                No hay hitos programados en los 6 meses seleccionados. Modifica el horizonte temporal con los controles superiores.
+                No hay hitos registrados en los 6 meses seleccionados. La proyección utiliza únicamente datos guardados en el cronograma.
               </p>
             ) : (
               <table className="w-full text-left text-xs">
@@ -423,7 +434,7 @@ export function CashFlowProjectionChart({
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-mono">
                   {summary.allMilestonesInPeriod.map((m) => (
-                    <tr key={m.id} className="hover:bg-slate-800/30 transition">
+                    <tr key={`${m.projectId}:${m.id}`} className="hover:bg-slate-800/30 transition">
                       <td className="py-2.5 text-slate-300 flex items-center gap-1.5 font-sans">
                         <Clock className="w-3 h-3 text-cyan-400 shrink-0" />
                         {m.targetDate}
@@ -447,7 +458,7 @@ export function CashFlowProjectionChart({
                         {formatGTQ(m.estimatedBillingGTQ)}
                       </td>
                       <td className="py-2.5 text-right text-amber-400">
-                        {formatGTQ(m.estimatedCostGTQ)}
+                        {m.estimatedCostGTQ === null ? 'Sin margen configurado' : formatGTQ(m.estimatedCostGTQ)}
                       </td>
                       <td className="py-2.5 text-center font-sans">
                         {m.completed ? (
