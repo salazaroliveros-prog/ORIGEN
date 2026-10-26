@@ -3,6 +3,7 @@
 Sistema de gestión para control total de proyectos de construcción.
 
 ## Stack
+
 - Next.js
 - TypeScript
 - Firebase Auth
@@ -10,12 +11,14 @@ Sistema de gestión para control total de proyectos de construcción.
 - Gemini AI (opcional)
 
 ## Requisitos
+
 - Node.js 18+
 - npm o pnpm
 - Firebase project
 - Vercel account (o cualquier hosting compatible con Next.js)
 
 ## Instalación
+
 ```bash
 npm install
 cp .env.example .env.local
@@ -24,17 +27,20 @@ cp .env.example .env.local
 Completa las variables de entorno con tus credenciales reales de Firebase y Gemini.
 
 ## Desarrollo
+
 ```bash
 npm run dev
 ```
 
 ## Producción
+
 ```bash
 npm run build
 npm run start
 ```
 
 ## Estructura principal
+
 - app/
 - components/
 - features/
@@ -47,6 +53,7 @@ npm run start
   - services/
 
 ## Módulos
+
 - Conectados a datos de empresa en Firestore: proyectos, visitas, gastos, asistencia, personal, cotizaciones, maquinaria y partidas APU.
 - Presupuestos APU: partidas manuales, estimación asistida y ajuste de costos de referencia por departamento. Las estimaciones generadas deben verificarse antes de aprobar o contratar.
 - Planillas: cálculo estimado para revisión; no es una nómina oficial ni sustituye la validación profesional, laboral o tributaria.
@@ -58,6 +65,7 @@ npm run start
 - Proyectos: archivar conserva el proyecto y sus relaciones; se puede filtrar por activos/archivados y restaurar el estado operativo anterior. El archivo no es eliminación permanente.
 
 ## Colecciones Firestore esperadas
+
 - projects
 - expenses
 - attendance
@@ -73,6 +81,7 @@ npm run start
 - employeeDirectory (directorio operativo mínimo para asistencia)
 
 ## Seguridad
+
 - Usa Firebase Auth real
 - Las reglas de Firestore limitan el acceso a miembros autenticados de la empresa y aplican permisos por rol.
 - Las fichas completas de personal (teléfono, jornal e información IGSS) se limitan a `owner`, `admin` y `finance`; `project_manager` y `field_worker` consultan un directorio mínimo. El rol `viewer` no accede a datos de personal ni asistencia.
@@ -82,6 +91,7 @@ npm run start
 - Nunca expongas claves privadas en el frontend
 
 ## Acceso a la aplicación
+
 En escritorio, usa **Iniciar sesión** en la barra superior. En móvil, abre **Más** y elige **Iniciar sesión**. La ventana permite acceder o crear una cuenta con correo y contraseña, recuperar la contraseña o continuar con Google.
 
 En Firebase Console, habilita los proveedores **Correo electrónico/contraseña** y **Google** en Authentication, agrega el dominio de la aplicación (incluido `localhost` para desarrollo) a los dominios autorizados y verifica el cliente OAuth web/secreto asociado al proveedor Google. El cliente y secreto OAuth deben configurarse en Firebase Console, nunca en variables públicas ni en el código del navegador.
@@ -89,6 +99,8 @@ En Firebase Console, habilita los proveedores **Correo electrónico/contraseña*
 Para conectar Gmail, el usuario debe autorizar el permiso de envío solicitado por separado. Revisa que el proyecto OAuth y la pantalla de consentimiento estén configurados para los dominios y usuarios esperados. La autorización es temporal y se solicita de nuevo cuando vence.
 
 ## Deploy
+
 Recomendado:
+
 - Vercel para frontend
 - Firebase para Auth + Firestore

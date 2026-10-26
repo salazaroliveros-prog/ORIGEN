@@ -6,7 +6,7 @@ export interface GuatemalaDepartmentIndex {
   name: string;
   region: 'Metropolitana' | 'Central' | 'Sur / Costa' | 'Occidente' | 'Norte' | 'Oriente';
   freightFactor: number; // Factor de flete sobre materiales centrales (1.00 = Base Ciudad de Guatemala)
-  laborFactor: number;   // Factor de mano de obra según circunscripción económica y oferta local
+  laborFactor: number; // Factor de mano de obra según circunscripción económica y oferta local
   overallFactor: number; // Factor compuesto ponderado (60% materiales, 35% mano de obra, 5% equipo)
   distanceKmFromCapital: number;
   logisticsNotes: string;
@@ -16,7 +16,15 @@ export interface GuatemalaDepartmentIndex {
 export interface MarketMaterialItem {
   id: string;
   name: string;
-  category: 'Cementos & Aglomerantes' | 'Aceros & Metales' | 'Agregados Pétreos' | 'Mampostería' | 'Formaleta & Madera' | 'Concretos Premezclados' | 'Mano de Obra (Jornal)' | 'Maquinaria & Equipo';
+  category:
+    | 'Cementos & Aglomerantes'
+    | 'Aceros & Metales'
+    | 'Agregados Pétreos'
+    | 'Mampostería'
+    | 'Formaleta & Madera'
+    | 'Concretos Premezclados'
+    | 'Mano de Obra (Jornal)'
+    | 'Maquinaria & Equipo';
   unit: string;
   basePriceGTQ: number; // Precio base en Ciudad de Guatemala (Zona Metropolitana)
   supplierReference: string;
@@ -29,12 +37,18 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     code: 'GUA',
     name: 'Guatemala',
     region: 'Metropolitana',
-    freightFactor: 1.00,
-    laborFactor: 1.00,
-    overallFactor: 1.00,
+    freightFactor: 1.0,
+    laborFactor: 1.0,
+    overallFactor: 1.0,
     distanceKmFromCapital: 0,
-    logisticsNotes: 'Centro de distribución nacional. Cercanía directa a plantas cementeras San Miguel / San Gabriel y centros de acopio de acero.',
-    majorSuppliersNearby: ['Planta San Gabriel Progreso', 'Aceros de Guatemala', 'Mixto Listo Calzada La Paz', 'Canteras Río Las Vacas'],
+    logisticsNotes:
+      'Centro de distribución nacional. Cercanía directa a plantas cementeras San Miguel / San Gabriel y centros de acopio de acero.',
+    majorSuppliersNearby: [
+      'Planta San Gabriel Progreso',
+      'Aceros de Guatemala',
+      'Mixto Listo Calzada La Paz',
+      'Canteras Río Las Vacas',
+    ],
   },
   Sacatepéquez: {
     code: 'SAC',
@@ -44,8 +58,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 1.03,
     overallFactor: 1.036,
     distanceKmFromCapital: 45,
-    logisticsNotes: 'Regulaciones estrictas CNPAG en Antigua Guatemala (restricción de camiones pesados en casco histórico, carga nocturna).',
-    majorSuppliersNearby: ['Distribuidora El Tejar', 'Ferreterías San Lucas', 'Planta Mixto Listo Carretera Interamericana'],
+    logisticsNotes:
+      'Regulaciones estrictas CNPAG en Antigua Guatemala (restricción de camiones pesados en casco histórico, carga nocturna).',
+    majorSuppliersNearby: [
+      'Distribuidora El Tejar',
+      'Ferreterías San Lucas',
+      'Planta Mixto Listo Carretera Interamericana',
+    ],
   },
   Chimaltenango: {
     code: 'CHIM',
@@ -55,8 +74,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.98,
     overallFactor: 1.01,
     distanceKmFromCapital: 55,
-    logisticsNotes: 'Excelente disponibilidad de mano de obra de albañilería calificada. Canteras de arena de mina cercanas.',
-    majorSuppliersNearby: ['Ferretería La Económica Chimaltenango', 'Canteras Zaragoza', 'Discosa Occidente'],
+    logisticsNotes:
+      'Excelente disponibilidad de mano de obra de albañilería calificada. Canteras de arena de mina cercanas.',
+    majorSuppliersNearby: [
+      'Ferretería La Económica Chimaltenango',
+      'Canteras Zaragoza',
+      'Discosa Occidente',
+    ],
   },
   'El Progreso': {
     code: 'PROG',
@@ -66,8 +90,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.97,
     overallFactor: 0.964,
     distanceKmFromCapital: 85,
-    logisticsNotes: 'Cercanía a la Megaplanta San Gabriel de Cementos Progreso en Sanarate. Costo de cemento más bajo del país.',
-    majorSuppliersNearby: ['Cementos Progreso San Gabriel', 'Canteras Guastatoya', 'Ferreterías Sanarate'],
+    logisticsNotes:
+      'Cercanía a la Megaplanta San Gabriel de Cementos Progreso en Sanarate. Costo de cemento más bajo del país.',
+    majorSuppliersNearby: [
+      'Cementos Progreso San Gabriel',
+      'Canteras Guastatoya',
+      'Ferreterías Sanarate',
+    ],
   },
   Escuintla: {
     code: 'ESC',
@@ -77,8 +106,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 1.02,
     overallFactor: 1.032,
     distanceKmFromCapital: 60,
-    logisticsNotes: 'Clima cálido tropical requiere aditivos retardantes de fraguado y curado acelerado. Cercanía a Puerto Quetzal.',
-    majorSuppliersNearby: ['Aceros de Guatemala Planta Tiquisate/Masagua', 'Mixto Listo Costa Sur', 'Agregados Río María Linda'],
+    logisticsNotes:
+      'Clima cálido tropical requiere aditivos retardantes de fraguado y curado acelerado. Cercanía a Puerto Quetzal.',
+    majorSuppliersNearby: [
+      'Aceros de Guatemala Planta Tiquisate/Masagua',
+      'Mixto Listo Costa Sur',
+      'Agregados Río María Linda',
+    ],
   },
   'Santa Rosa': {
     code: 'SROS',
@@ -88,7 +122,8 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.98,
     overallFactor: 1.034,
     distanceKmFromCapital: 95,
-    logisticsNotes: 'Acarreos sobre Carretera a El Salvador. Acceso a canteras de piedra volcánica.',
+    logisticsNotes:
+      'Acarreos sobre Carretera a El Salvador. Acceso a canteras de piedra volcánica.',
     majorSuppliersNearby: ['Ferreterías Barberena', 'Agregados Cuilapa', 'Distribuidora del Sur'],
   },
   Suchitepéquez: {
@@ -96,17 +131,22 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     name: 'Suchitepéquez',
     region: 'Sur / Costa',
     freightFactor: 1.09,
-    laborFactor: 1.00,
+    laborFactor: 1.0,
     overallFactor: 1.054,
     distanceKmFromCapital: 160,
-    logisticsNotes: 'Alto régimen pluviométrico en invierno. Canteras fluviales de arena de río de alta calidad.',
-    majorSuppliersNearby: ['Ferretería El Cóndor Mazatenango', 'Discosa Mazatenango', 'Mixto Listo Cuyotenango'],
+    logisticsNotes:
+      'Alto régimen pluviométrico en invierno. Canteras fluviales de arena de río de alta calidad.',
+    majorSuppliersNearby: [
+      'Ferretería El Cóndor Mazatenango',
+      'Discosa Mazatenango',
+      'Mixto Listo Cuyotenango',
+    ],
   },
   Retalhuleu: {
     code: 'REU',
     name: 'Retalhuleu',
     region: 'Sur / Costa',
-    freightFactor: 1.10,
+    freightFactor: 1.1,
     laborFactor: 0.99,
     overallFactor: 1.056,
     distanceKmFromCapital: 185,
@@ -121,8 +161,14 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 1.04,
     overallFactor: 1.064,
     distanceKmFromCapital: 200,
-    logisticsNotes: 'Segundo polo de desarrollo. Bajas temperaturas nocturnas exigen tiempos extendidos de desencofrado. Flete de acero desde la capital.',
-    majorSuppliersNearby: ['Mixto Listo Xela', 'Aceros del Altiplano', 'Ferreterías La Paz Quetzaltenango', 'Canteras Cantel'],
+    logisticsNotes:
+      'Segundo polo de desarrollo. Bajas temperaturas nocturnas exigen tiempos extendidos de desencofrado. Flete de acero desde la capital.',
+    majorSuppliersNearby: [
+      'Mixto Listo Xela',
+      'Aceros del Altiplano',
+      'Ferreterías La Paz Quetzaltenango',
+      'Canteras Cantel',
+    ],
   },
   'San Marcos': {
     code: 'SMAR',
@@ -132,8 +178,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 1.02,
     overallFactor: 1.092,
     distanceKmFromCapital: 250,
-    logisticsNotes: 'Alta sismicidad (zona de subducción e intraplaca). Fletes de montaña escarpada con pendientes de más del 12%.',
-    majorSuppliersNearby: ['Ferreterías San Pedro Sacatepéquez', 'Distribuidora Malacatán', 'Canteras Tacaná'],
+    logisticsNotes:
+      'Alta sismicidad (zona de subducción e intraplaca). Fletes de montaña escarpada con pendientes de más del 12%.',
+    majorSuppliersNearby: [
+      'Ferreterías San Pedro Sacatepéquez',
+      'Distribuidora Malacatán',
+      'Canteras Tacaná',
+    ],
   },
   Huehuetenango: {
     code: 'HUE',
@@ -143,8 +194,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 1.01,
     overallFactor: 1.094,
     distanceKmFromCapital: 270,
-    logisticsNotes: 'Carretera Interamericana de montaña. Alta demanda en vivienda unifamiliar y remesas.',
-    majorSuppliersNearby: ['Ferretería El Triunfo Huehue', 'Discosa Huehuetenango', 'Canteras Chiantla'],
+    logisticsNotes:
+      'Carretera Interamericana de montaña. Alta demanda en vivienda unifamiliar y remesas.',
+    majorSuppliersNearby: [
+      'Ferretería El Triunfo Huehue',
+      'Discosa Huehuetenango',
+      'Canteras Chiantla',
+    ],
   },
   Totonicapán: {
     code: 'TOTO',
@@ -165,8 +221,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.99,
     overallFactor: 1.038,
     distanceKmFromCapital: 140,
-    logisticsNotes: 'Topografía de cuenca del Lago de Atitlán. Dificultad de maniobra para camiones trompo de más de 8 m³.',
-    majorSuppliersNearby: ['Ferretería Panajachel', 'Agregados Los Encuentros', 'Distribuidora Sololá'],
+    logisticsNotes:
+      'Topografía de cuenca del Lago de Atitlán. Dificultad de maniobra para camiones trompo de más de 8 m³.',
+    majorSuppliersNearby: [
+      'Ferretería Panajachel',
+      'Agregados Los Encuentros',
+      'Distribuidora Sololá',
+    ],
   },
   Quiché: {
     code: 'QUIC',
@@ -176,8 +237,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.96,
     overallFactor: 1.062,
     distanceKmFromCapital: 165,
-    logisticsNotes: 'Caminos secundarios no pavimentados en el norte del departamento elevan fletes de acarreo en volteo.',
-    majorSuppliersNearby: ['Ferreterías Santa Cruz del Quiché', 'Distribuidora Nebaj', 'Canteras Chichicastenango'],
+    logisticsNotes:
+      'Caminos secundarios no pavimentados en el norte del departamento elevan fletes de acarreo en volteo.',
+    majorSuppliersNearby: [
+      'Ferreterías Santa Cruz del Quiché',
+      'Distribuidora Nebaj',
+      'Canteras Chichicastenango',
+    ],
   },
   'Alta Verapaz': {
     code: 'AVEP',
@@ -187,8 +253,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.98,
     overallFactor: 1.082,
     distanceKmFromCapital: 215,
-    logisticsNotes: 'Constante humedad (chipi-chipi) requiere techado provisional de obras y almacén de cemento estanco.',
-    majorSuppliersNearby: ['Ferretería Cobán Imperial', 'Discosa Alta Verapaz', 'Canteras San Pedro Carchá'],
+    logisticsNotes:
+      'Constante humedad (chipi-chipi) requiere techado provisional de obras y almacén de cemento estanco.',
+    majorSuppliersNearby: [
+      'Ferretería Cobán Imperial',
+      'Discosa Alta Verapaz',
+      'Canteras San Pedro Carchá',
+    ],
   },
   'Baja Verapaz': {
     code: 'BVEP',
@@ -198,7 +269,8 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.96,
     overallFactor: 1.026,
     distanceKmFromCapital: 150,
-    logisticsNotes: 'Corredor seco en Salamá / San Jerónimo. Facilidad de acceso por Carretera al Atlántico CA-9.',
+    logisticsNotes:
+      'Corredor seco en Salamá / San Jerónimo. Facilidad de acceso por Carretera al Atlántico CA-9.',
     majorSuppliersNearby: ['Ferreterías Salamá', 'Canteras San Jerónimo', 'Distribuidora El Norte'],
   },
   Petén: {
@@ -209,8 +281,14 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 1.06,
     overallFactor: 1.168,
     distanceKmFromCapital: 490,
-    logisticsNotes: 'Flete largo (>480 km). Acero y cemento con sobrecosto por tonelada/km. Agregados calizos locales requieren dosificación especial.',
-    majorSuppliersNearby: ['Ferretería El Encanto Flores', 'Distribuidora Santa Elena', 'Mixto Listo San Benito', 'Canteras Poptún'],
+    logisticsNotes:
+      'Flete largo (>480 km). Acero y cemento con sobrecosto por tonelada/km. Agregados calizos locales requieren dosificación especial.',
+    majorSuppliersNearby: [
+      'Ferretería El Encanto Flores',
+      'Distribuidora Santa Elena',
+      'Mixto Listo San Benito',
+      'Canteras Poptún',
+    ],
   },
   Izabal: {
     code: 'IZAB',
@@ -220,7 +298,8 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 1.02,
     overallFactor: 1.104,
     distanceKmFromCapital: 295,
-    logisticsNotes: 'Ambiente marino corrosivo en Puerto Barrios requiere recubrimientos epóxicos y mayor espesor en columnas.',
+    logisticsNotes:
+      'Ambiente marino corrosivo en Puerto Barrios requiere recubrimientos epóxicos y mayor espesor en columnas.',
     majorSuppliersNearby: ['Ferreterías Puerto Barrios', 'Discosa Morales', 'Aceros del Atlántico'],
   },
   Zacapa: {
@@ -232,7 +311,11 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     overallFactor: 1.022,
     distanceKmFromCapital: 145,
     logisticsNotes: 'Clima muy seco y cálido. Extracción directa de arena del Río Motagua.',
-    majorSuppliersNearby: ['Areneras Río Motagua', 'Ferreterías Estanzuela', 'Distribuidora Teculután'],
+    majorSuppliersNearby: [
+      'Areneras Río Motagua',
+      'Ferreterías Estanzuela',
+      'Distribuidora Teculután',
+    ],
   },
   Chiquimula: {
     code: 'CHIQ',
@@ -242,8 +325,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.97,
     overallFactor: 1.03,
     distanceKmFromCapital: 170,
-    logisticsNotes: 'Polo comercial oriental. Buena disponibilidad de blocks y ladrilleras artesanales.',
-    majorSuppliersNearby: ['Ferretería El Obrero Chiquimula', 'Ladrilleras San José La Arada', 'Discosa Chiquimula'],
+    logisticsNotes:
+      'Polo comercial oriental. Buena disponibilidad de blocks y ladrilleras artesanales.',
+    majorSuppliersNearby: [
+      'Ferretería El Obrero Chiquimula',
+      'Ladrilleras San José La Arada',
+      'Discosa Chiquimula',
+    ],
   },
   Jalapa: {
     code: 'JAL',
@@ -254,7 +342,11 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     overallFactor: 1.024,
     distanceKmFromCapital: 105,
     logisticsNotes: 'Topografía quebrada pero distancias moderadas desde la capital.',
-    majorSuppliersNearby: ['Ferreterías Jalapa Centro', 'Canteras Monjas', 'Distribuidora El Progreso Jalapa'],
+    majorSuppliersNearby: [
+      'Ferreterías Jalapa Centro',
+      'Canteras Monjas',
+      'Distribuidora El Progreso Jalapa',
+    ],
   },
   Jutiapa: {
     code: 'JUT',
@@ -264,8 +356,13 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     laborFactor: 0.98,
     overallFactor: 1.04,
     distanceKmFromCapital: 125,
-    logisticsNotes: 'Zona fronteriza con El Salvador. Disponibilidad de piedra pómez y arenas locales.',
-    majorSuppliersNearby: ['Ferretería Jutiapaneca', 'Agregados Asunción Mita', 'Distribuidora El Oriente'],
+    logisticsNotes:
+      'Zona fronteriza con El Salvador. Disponibilidad de piedra pómez y arenas locales.',
+    majorSuppliersNearby: [
+      'Ferretería Jutiapaneca',
+      'Agregados Asunción Mita',
+      'Distribuidora El Oriente',
+    ],
   },
 };
 
@@ -277,7 +374,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Cemento Progreso Uso General (UGC) 4060 PSI',
     category: 'Cementos & Aglomerantes',
     unit: 'Saco 42.5 kg',
-    basePriceGTQ: 89.50,
+    basePriceGTQ: 89.5,
     supplierReference: 'Cementos Progreso / Discosa',
     specifications: 'Norma COGUANOR NTG 41001. Ideal para losas, columnas, zapatas y soleras.',
   },
@@ -286,7 +383,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Cemento Blanco Progreso Tipo I',
     category: 'Cementos & Aglomerantes',
     unit: 'Saco 40 kg',
-    basePriceGTQ: 118.00,
+    basePriceGTQ: 118.0,
     supplierReference: 'Cementos Progreso',
     specifications: 'Para acabados arquitectónicos vistos, terrazos y granitos.',
   },
@@ -295,7 +392,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Mortero Seco Predosificado Pegablock',
     category: 'Cementos & Aglomerantes',
     unit: 'Saco 40 kg',
-    basePriceGTQ: 42.00,
+    basePriceGTQ: 42.0,
     supplierReference: 'Mezclas Listas Progreso',
     specifications: 'Rendimiento ~35 blocks por saco de 40 kg.',
   },
@@ -306,7 +403,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Hierro Corrugado Grado 60 (3/8", 1/2", 3/4")',
     category: 'Aceros & Metales',
     unit: 'Quintal (100 lbs)',
-    basePriceGTQ: 395.00,
+    basePriceGTQ: 395.0,
     supplierReference: 'Aceros de Guatemala (AG)',
     specifications: 'Norma ASTM A615 / AGIES NSE 2. Límite de fluencia fy = 4,200 kg/cm².',
   },
@@ -315,7 +412,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Alambre de Amarre Calibre 16',
     category: 'Aceros & Metales',
     unit: 'Libra',
-    basePriceGTQ: 12.50,
+    basePriceGTQ: 12.5,
     supplierReference: 'Aceros de Guatemala',
     specifications: 'Alambre negro recocido para amarre de armaduras y estribos.',
   },
@@ -333,7 +430,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Electromalla 6x6 - 9/9 para losas y banquetas',
     category: 'Aceros & Metales',
     unit: 'm²',
-    basePriceGTQ: 24.50,
+    basePriceGTQ: 24.5,
     supplierReference: 'Aceros de Guatemala',
     specifications: 'Refuerzo por retracción y temperatura en contrapisos.',
   },
@@ -344,7 +441,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Arena de Río Lavada de Mina',
     category: 'Agregados Pétreos',
     unit: 'm³',
-    basePriceGTQ: 185.00,
+    basePriceGTQ: 185.0,
     supplierReference: 'Canteras Río Pixcayá / Motagua',
     specifications: 'Módulo de finura 2.6 - 2.9, libre de materia orgánica y limos arcillosos.',
   },
@@ -353,7 +450,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Piedrín Triturado 3/4" y 1/2"',
     category: 'Agregados Pétreos',
     unit: 'm³',
-    basePriceGTQ: 235.00,
+    basePriceGTQ: 235.0,
     supplierReference: 'Agregados San Jerónimo / San Miguel',
     specifications: 'Trituración basáltica o caliza de alta densidad para concretos estructurales.',
   },
@@ -362,7 +459,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Material Selecto Compactable para Relleno',
     category: 'Agregados Pétreos',
     unit: 'm³',
-    basePriceGTQ: 95.00,
+    basePriceGTQ: 95.0,
     supplierReference: 'Canteras Locales',
     specifications: 'CBR > 20%, compactable a 95% Proctor Modificado.',
   },
@@ -382,7 +479,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Block Estructural 14x19x39 cm - 50 kg/cm²',
     category: 'Mampostería',
     unit: 'Unidad',
-    basePriceGTQ: 6.50,
+    basePriceGTQ: 6.5,
     supplierReference: 'Prefabricados Estructurales',
     specifications: 'Mampostería confinada según norma AGIES NSE 3 / COGUANOR 41007.',
   },
@@ -391,7 +488,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Block Estructural 14x19x39 cm - 70 kg/cm²',
     category: 'Mampostería',
     unit: 'Unidad',
-    basePriceGTQ: 7.80,
+    basePriceGTQ: 7.8,
     supplierReference: 'Bloqueras Certificadas FHA',
     specifications: 'Para edificaciones de más de 3 niveles y muros de contención.',
   },
@@ -402,7 +499,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Tabla de Pino de 1" x 12" x 10 pies (Formaleta)',
     category: 'Formaleta & Madera',
     unit: 'Unidad',
-    basePriceGTQ: 58.00,
+    basePriceGTQ: 58.0,
     supplierReference: 'Aserraderos del Altiplano',
     specifications: 'Madera de pino blanco rústica, reutilización estimada en obra: 4 a 5 usos.',
   },
@@ -411,7 +508,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Costanera de Pino 2" x 3" x 10 pies',
     category: 'Formaleta & Madera',
     unit: 'Unidad',
-    basePriceGTQ: 38.00,
+    basePriceGTQ: 38.0,
     supplierReference: 'Aserraderos',
     specifications: 'Refuerzo longitudinal y cerchas temporales.',
   },
@@ -420,7 +517,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Playwood Fenólico Marino 18mm para Losa',
     category: 'Formaleta & Madera',
     unit: 'Hoja 4x8 pies',
-    basePriceGTQ: 265.00,
+    basePriceGTQ: 265.0,
     supplierReference: 'Maderas Especializadas',
     specifications: 'Para acabados de concreto visto liso con 10 a 12 reusos.',
   },
@@ -428,19 +525,20 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
   // CONCRETOS PREMEZCLADOS
   {
     id: 'mat-concreto-3000',
-    name: 'Concreto Premezclado Bombeado 3000 PSI (f\'c=210 kg/cm²)',
+    name: "Concreto Premezclado Bombeado 3000 PSI (f'c=210 kg/cm²)",
     category: 'Concretos Premezclados',
     unit: 'm³',
-    basePriceGTQ: 1120.00,
+    basePriceGTQ: 1120.0,
     supplierReference: 'Mixto Listo / Precon',
-    specifications: 'Revenimiento 4" a 6", tamaño máximo agregado 3/4". Descuento por volumen >50m³.',
+    specifications:
+      'Revenimiento 4" a 6", tamaño máximo agregado 3/4". Descuento por volumen >50m³.',
   },
   {
     id: 'mat-concreto-4000',
-    name: 'Concreto Premezclado Estructural 4000 PSI (f\'c=280 kg/cm²)',
+    name: "Concreto Premezclado Estructural 4000 PSI (f'c=280 kg/cm²)",
     category: 'Concretos Premezclados',
     unit: 'm³',
-    basePriceGTQ: 1280.00,
+    basePriceGTQ: 1280.0,
     supplierReference: 'Mixto Listo',
     specifications: 'Especial para vigas primarias, marcos de momento y columnas esbeltas.',
   },
@@ -451,16 +549,17 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Jornal Maestro de Obras / Capataz General',
     category: 'Mano de Obra (Jornal)',
     unit: 'Jornal (8 hrs)',
-    basePriceGTQ: 290.00,
+    basePriceGTQ: 290.0,
     supplierReference: 'Convenio de Obra / Mercado Local',
-    specifications: 'Dirección de cuadrillas, lectura de planos estructurales, replanteo y control de calidad.',
+    specifications:
+      'Dirección de cuadrillas, lectura de planos estructurales, replanteo y control de calidad.',
   },
   {
     id: 'mo-albanil',
     name: 'Jornal Albañil Oficial Calificado',
     category: 'Mano de Obra (Jornal)',
     unit: 'Jornal (8 hrs)',
-    basePriceGTQ: 185.00,
+    basePriceGTQ: 185.0,
     supplierReference: 'Convenio Laboral Construcción',
     specifications: 'Armado de acero, fundiciones, levantado de mampostería plomada y repello.',
   },
@@ -469,9 +568,10 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Jornal Ayudante de Albañilería',
     category: 'Mano de Obra (Jornal)',
     unit: 'Jornal (8 hrs)',
-    basePriceGTQ: 135.00,
+    basePriceGTQ: 135.0,
     supplierReference: 'Convenio Laboral Construcción',
-    specifications: 'Acarreo de materiales, mezclado en trompo, zarandeo de arena y limpieza de obra.',
+    specifications:
+      'Acarreo de materiales, mezclado en trompo, zarandeo de arena y limpieza de obra.',
   },
 
   // MAQUINARIA Y EQUIPO
@@ -480,7 +580,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Alquiler Concretera 1 Bolsa a Gasolina (Trompo)',
     category: 'Maquinaria & Equipo',
     unit: 'Día',
-    basePriceGTQ: 320.00,
+    basePriceGTQ: 320.0,
     supplierReference: 'Alquiler de Maquinaria Ligera',
     specifications: 'Motor Honda 9 HP con capacidad de 1 bolsa completa + agregados.',
   },
@@ -489,7 +589,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Alquiler Vibrador de Concreto 2" a Gasolina',
     category: 'Maquinaria & Equipo',
     unit: 'Día',
-    basePriceGTQ: 160.00,
+    basePriceGTQ: 160.0,
     supplierReference: 'Alquiler de Maquinaria',
     specifications: 'Manguera flexible de 6 metros para consolidación y vaciado.',
   },
@@ -498,7 +598,7 @@ export const GUATEMALA_BASE_MARKET_CATALOGUE: MarketMaterialItem[] = [
     name: 'Hora Máquina Retroexcavadora CAT 416 (Con operador y diésel)',
     category: 'Maquinaria & Equipo',
     unit: 'Hora',
-    basePriceGTQ: 380.00,
+    basePriceGTQ: 380.0,
     supplierReference: 'Maquinaria Pesada Guatemala',
     specifications: 'Cucharon frontal 1 m³ y retro posterior para zanjas y excavaciones.',
   },
@@ -510,8 +610,9 @@ export function calculateRegionalPrice(
   department: string,
   category: MarketMaterialItem['category']
 ): { adjustedPrice: number; diffPercent: number; factorUsed: number } {
-  const deptData = GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
-  
+  const deptData =
+    GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
+
   let factor = deptData.overallFactor;
   // If it's heavy freight like aggregates, cement or steel, freight dominates
   if (
@@ -545,8 +646,10 @@ export function adjustApuDirectCostsForDepartment(
   totalUnitCostGTQ: number;
   factorDiffPercent: number;
 } {
-  const target = GUATEMALA_DEPARTMENTS_INDEX[targetDept] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
-  const source = GUATEMALA_DEPARTMENTS_INDEX[sourceDept] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
+  const target =
+    GUATEMALA_DEPARTMENTS_INDEX[targetDept] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
+  const source =
+    GUATEMALA_DEPARTMENTS_INDEX[sourceDept] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
 
   const matRatio = target.freightFactor / source.freightFactor;
   const labRatio = target.laborFactor / source.laborFactor;
@@ -558,9 +661,8 @@ export function adjustApuDirectCostsForDepartment(
   const total = Math.round((newMat + newLab + newEq) * 100) / 100;
 
   const originalTotal = matCost + labCost + eqCost;
-  const factorDiffPercent = originalTotal > 0
-    ? Math.round(((total - originalTotal) / originalTotal) * 1000) / 10
-    : 0;
+  const factorDiffPercent =
+    originalTotal > 0 ? Math.round(((total - originalTotal) / originalTotal) * 1000) / 10 : 0;
 
   return {
     materialUnitCostGTQ: newMat,

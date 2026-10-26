@@ -24,7 +24,8 @@ export interface CompanySettings {
   };
 }
 
-export type CompanyRole = 'owner' | 'admin' | 'project_manager' | 'finance' | 'field_worker' | 'viewer';
+export type CompanyRole =
+  'owner' | 'admin' | 'project_manager' | 'finance' | 'field_worker' | 'viewer';
 
 export interface CompanyWorkspace {
   id: string;
@@ -61,11 +62,7 @@ export interface CompanyInvitation {
 }
 
 export type ProjectStatus =
-  | 'En Ejecución'
-  | 'Planificación'
-  | 'Finalizado'
-  | 'Suspendido'
-  | 'Archivado';
+  'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado';
 
 export interface Project {
   id: string;
@@ -159,12 +156,7 @@ export interface MachineryLog {
 }
 
 export type EmployeeRole =
-  | 'Capataz'
-  | 'Albañil'
-  | 'Ayudante'
-  | 'Arquitecto Residente'
-  | 'Bodeguero'
-  | 'Electricista';
+  'Capataz' | 'Albañil' | 'Ayudante' | 'Arquitecto Residente' | 'Bodeguero' | 'Electricista';
 
 export interface EmployeeDirectoryEntry {
   id: string;
@@ -217,7 +209,12 @@ export interface ExpenseRecord {
   id: string;
   projectId: string;
   date: string;
-  category: 'Materiales (Cementos, Hierro)' | 'Mano de Obra' | 'Maquinaria y Combustible' | 'Permisos & Licencias' | 'Imprevistos';
+  category:
+    | 'Materiales (Cementos, Hierro)'
+    | 'Mano de Obra'
+    | 'Maquinaria y Combustible'
+    | 'Permisos & Licencias'
+    | 'Imprevistos';
   description: string;
   supplier: string;
   nitSupplier: string;
@@ -274,7 +271,13 @@ export interface APUItem {
   totalPriceGTQ: number;
   department?: string;
   breakdown?: {
-    materials?: { name: string; quantity: number; unit: string; unitPriceGTQ: number; subtotalGTQ: number }[];
+    materials?: {
+      name: string;
+      quantity: number;
+      unit: string;
+      unitPriceGTQ: number;
+      subtotalGTQ: number;
+    }[];
     labor?: { role: string; yieldHours: number; unitPriceGTQ: number; subtotalGTQ: number }[];
     equipment?: { name: string; subtotalGTQ: number }[];
     notes?: string;
@@ -315,12 +318,7 @@ export interface Milestone {
 }
 
 export type ReminderAdvanceOption =
-  | 'same_day'
-  | '1_day_before'
-  | '2_days_before'
-  | '3_days_before'
-  | '1_week_before'
-  | 'custom';
+  'same_day' | '1_day_before' | '2_days_before' | '3_days_before' | '1_week_before' | 'custom';
 
 export interface TaskReminder {
   id: string;
@@ -341,12 +339,38 @@ export interface TaskReminder {
   followFlowRequirement?: boolean; // Ensure preceding milestones are met
 }
 
+export interface AttendancePayload {
+  projectId: string;
+  employeeId: string;
+  date: string;
+  hoursWorked: number;
+  task: string;
+}
+
+export interface ProgressPayload {
+  projectId: string;
+  milestoneId: string;
+  progressPercent: number;
+  notes?: string;
+}
+
+export interface FieldVisitPayload {
+  projectId: string;
+  date: string;
+  foreman: string;
+  notes: string;
+  weather?: string;
+  workersCount?: number;
+}
+
+export type OfflineQueuePayload = AttendancePayload | ProgressPayload | FieldVisitPayload;
+
 export interface OfflineQueueItem {
   id: string;
   type: 'attendance' | 'progress' | 'fieldVisit';
   timestamp: string;
   description: string;
-  payload: any;
+  payload: OfflineQueuePayload;
   synced: boolean;
 }
 
@@ -367,4 +391,195 @@ export interface AiRecommendation {
   description: string;
   impact: 'Alto' | 'Medio' | 'Bajo';
   actionPrompt?: string;
+}
+
+// APU AI Generated Types
+export interface AIGeneratedMaterial {
+  name: string;
+  quantity: number;
+  unit: string;
+  unitPriceGTQ: number;
+  subtotalGTQ: number;
+}
+
+export interface AIGeneratedLabor {
+  role: string;
+  yieldHours: number;
+  unitPriceGTQ: number;
+  subtotalGTQ: number;
+}
+
+export interface AIGeneratedEquipment {
+  name: string;
+  subtotalGTQ: number;
+}
+
+export interface AIGeneratedAPUItem {
+  code: string;
+  title: string;
+  unit: string;
+  quantity: number;
+  materialUnitCostGTQ: number;
+  laborUnitCostGTQ: number;
+  equipmentUnitCostGTQ: number;
+  totalUnitCostGTQ: number;
+  totalPriceGTQ: number;
+  materialsBreakdown: AIGeneratedMaterial[];
+  laborBreakdown: AIGeneratedLabor[];
+  equipmentBreakdown: AIGeneratedEquipment[];
+  regionalAdjustmentNote: string;
+  technicalNorm: string;
+}
+
+// Gemini Audit Types
+export interface AuditAlert {
+  type: 'sobrecosto' | 'subestimado' | 'omision';
+  itemCode: string;
+  description: string;
+  recommendation: string;
+}
+
+export interface AuditData {
+  riskLevel: 'Bajo' | 'Medio' | 'Alto';
+  estimatedVariancePercent: number;
+  summary: string;
+  alerts: AuditAlert[];
+  recommendations: string[];
+  regionalConsiderations: string;
+}
+
+// Gemini Logbook Types
+export interface LogbookContext {
+  notes?: string;
+  weather?: string;
+  workersCount?: number;
+  status?: string;
+}
+
+export interface LogbookRequest {
+  image: string;
+  mimeType?: string;
+  date?: string;
+  visitId?: string;
+  foremanName?: string;
+  question?: string;
+  visitContext?: LogbookContext;
+  projectName?: string;
+  department?: string;
+}
+
+// GPS Error Type
+export interface GPSError {
+  code: number;
+  message?: string;
+}
+
+// React Event Types
+export interface ReactChangeEvent extends React.ChangeEvent<HTMLSelectElement | HTMLInputElement> {
+  target: EventTarget & (HTMLSelectElement | HTMLInputElement);
+}
+
+// Recharts Tooltip Types
+export interface RechartsTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: any;
+    dataKey: string;
+    name: string;
+    value: number;
+    color?: string;
+  }>;
+  label?: string;
+}
+
+// Speech Recognition Types
+export interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: Array<{
+    [0]: {
+      transcript: string;
+      confidence: number;
+    };
+  }>;
+}
+
+export interface SpeechRecognitionErrorEvent {
+  error: string;
+  message?: string;
+}
+
+// API Error Types
+export interface APIError {
+  message?: string;
+  code?: string | number;
+  status?: number;
+}
+
+// Budget Item Type for APU Audit
+export interface BudgetItem {
+  code: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  totalUnitCostGTQ: number;
+  totalPriceGTQ: number;
+}
+
+// Smart Bitacora Types
+export interface SmartBitacoraEntry {
+  id: string;
+  folioNumber: string;
+  projectName: string;
+  date: string;
+  capatazName: string;
+  climaYCondiciones: string;
+  resumenEjecutivo: string;
+  personalEnCampo: {
+    cuadrillas: string;
+    totalOperarios: number;
+    detalles: string;
+  };
+  trabajosEjecutados: Array<{
+    item: string;
+    descripcion: string;
+    cantidadUnidad: string;
+    renglonApu?: string;
+  }>;
+  materialesRecibidos: Array<{
+    material: string;
+    cantidad: string;
+    proveedor?: string;
+  }>;
+  incidentesYObservaciones: string;
+  cumplimientoNormativoAgies: string;
+  planificacionManana: string;
+  projectId?: string;
+  createdAt?: string;
+}
+
+// Receipt Analysis Result
+export interface ReceiptAnalysisResult {
+  supplier: string;
+  nitSupplier: string;
+  facturaNumber: string;
+  amount: number;
+  category:
+    | 'Materiales (Cementos, Hierro)'
+    | 'Mano de Obra'
+    | 'Maquinaria y Combustible'
+    | 'Permisos & Licencias'
+    | 'Imprevistos';
+  description: string;
+}
+
+// Cash Flow Month Type
+export interface CashFlowMonth {
+  fullMonthName: string;
+  mes: string;
+  año: number;
+  ingresosProyectados: number;
+  gastosProyectados: number;
+  flujoNeto: number;
+  acumulado: number;
+  hitosCount: number;
 }

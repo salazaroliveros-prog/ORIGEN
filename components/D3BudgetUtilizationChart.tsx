@@ -1,14 +1,10 @@
 'use client';
 
-import { formatGTQ,formatUSD } from '@/lib/data';
-import { CompanySettings,Project } from '@/lib/types';
+import { formatGTQ, formatUSD } from '@/lib/data';
+import { CompanySettings, Project } from '@/lib/types';
 import * as d3 from 'd3';
-import {
-BarChart2,
-PieChart as PieChartIcon,
-TrendingUp
-} from 'lucide-react';
-import React,{ useEffect,useRef,useState } from 'react';
+import { BarChart2, PieChart as PieChartIcon, TrendingUp } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export interface D3BudgetUtilizationChartProps {
   projects: Project[];
@@ -19,14 +15,14 @@ export interface D3BudgetUtilizationChartProps {
   className?: string;
 }
 
-export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> = ({
+export function D3BudgetUtilizationChart({
   projects,
   activeProjectId,
   onSelectProject,
   currency,
   company,
   className = '',
-}) => {
+}: D3BudgetUtilizationChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({
@@ -66,7 +62,8 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
       if (rect.width > 0) {
         setDimensions({
           width: Math.max(300, rect.width),
-          height: viewType === 'bars' ? Math.max(340, Math.min(420, projects.length * 52 + 70)) : 340,
+          height:
+            viewType === 'bars' ? Math.max(340, Math.min(420, projects.length * 52 + 70)) : 340,
         });
       }
     };
@@ -95,9 +92,7 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
 
-      const g = svg
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+      const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
       // Color Defs & Gradients
       const defs = svg.append('defs');
@@ -140,7 +135,10 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
 
       // Scales
       const maxVal = d3.max(projects, (p) => Math.max(p.budgetTotal, p.spentTotal)) || 1000000;
-      const xScale = d3.scaleLinear().domain([0, maxVal * 1.08]).range([0, innerWidth]);
+      const xScale = d3
+        .scaleLinear()
+        .domain([0, maxVal * 1.08])
+        .range([0, innerWidth]);
 
       const yScale = d3
         .scaleBand()
@@ -177,10 +175,7 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
             : 'N/D';
         });
 
-      const xAxisGroup = g
-        .append('g')
-        .attr('transform', `translate(0,${innerHeight})`)
-        .call(xAxis);
+      const xAxisGroup = g.append('g').attr('transform', `translate(0,${innerHeight})`).call(xAxis);
 
       xAxisGroup.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.15)');
       xAxisGroup.selectAll('text').attr('fill', '#94a3b8').attr('font-size', '11px');
@@ -277,8 +272,8 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
         const fillGrad = isOverBudget
           ? 'url(#d3-spend-over)'
           : isSelected
-          ? 'url(#d3-spend-active)'
-          : 'url(#d3-spend-normal)';
+            ? 'url(#d3-spend-active)'
+            : 'url(#d3-spend-normal)';
 
         rowG
           .append('rect')
@@ -324,9 +319,7 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
       const centerY = height / 2 + 10;
       const radius = Math.min(width, height) / 2 - 25;
 
-      const g = svg
-        .append('g')
-        .attr('transform', `translate(${centerX},${centerY})`);
+      const g = svg.append('g').attr('transform', `translate(${centerX},${centerY})`);
 
       // Define Arc generators (semi-circle gauge from -Math.PI*0.75 to Math.PI*0.75)
       const startAngle = -Math.PI * 0.75;
@@ -359,8 +352,7 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
         .attr('stroke-width', 1);
 
       // Determine color based on threshold
-      const gaugeColor =
-        globalPct > 100 ? '#f43f5e' : globalPct >= 85 ? '#fbbf24' : '#38bdf8';
+      const gaugeColor = globalPct > 100 ? '#f43f5e' : globalPct >= 85 ? '#fbbf24' : '#38bdf8';
 
       // Gradient for active gauge
       const defs = svg.append('defs');
@@ -432,92 +424,118 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
           globalPct > 100
             ? '⚠ ALERTA DE SOBRECOSTO'
             : globalPct >= 85
-            ? 'EN REVISIÓN PREVENTIVA'
-            : '✓ DENTRO DE MARGEN PROGRAMADO'
+              ? 'EN REVISIÓN PREVENTIVA'
+              : '✓ DENTRO DE MARGEN PROGRAMADO'
         );
     }
-  }, [dimensions, projects, activeProjectId, viewType, currency, company.exchangeRate, globalPct, onSelectProject]);
+  }, [
+    dimensions,
+    projects,
+    activeProjectId,
+    viewType,
+    currency,
+    company.exchangeRate,
+    globalPct,
+    onSelectProject,
+  ]);
 
   return (
     <div
       ref={containerRef}
-      className={`glass-panel p-5 space-y-4 relative select-none ${className}`}
+      className={`glass-panel relative space-y-4 p-5 select-none ${className}`}
     >
       {/* Top Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+      <div className="flex flex-col justify-between gap-3 border-b border-white/10 pb-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-400/30">
-            <TrendingUp className="w-5 h-5" />
+          <div className="rounded-xl border border-sky-400/30 bg-sky-500/20 p-2 text-sky-400">
+            <TrendingUp className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-white text-base">
+              <h3 className="text-base font-bold text-white">
                 Monitoreo D3.js: Utilización Presupuestaria & Gasto Real
               </h3>
-              <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/10 text-emerald-400 border border-emerald-400/25">
+              <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-400">
                 D3 v7 Live
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Análisis comparativo en tiempo real del presupuesto asignado vs. desembolsos ejecutados
+              Análisis comparativo en tiempo real del presupuesto asignado vs. desembolsos
+              ejecutados
             </p>
           </div>
         </div>
 
         {/* Chart View Toggle */}
-        <div className="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-white/10 self-start sm:self-auto">
+        <div className="flex items-center gap-1.5 self-start rounded-xl border border-white/10 bg-slate-900/80 p-1 sm:self-auto">
           <button
             type="button"
             onClick={() => setViewType('bars')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
               viewType === 'bars'
-                ? 'bg-sky-400 text-slate-950 font-bold shadow-sm'
+                ? 'bg-sky-400 font-bold text-slate-950 shadow-sm'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <BarChart2 className="w-3.5 h-3.5" />
+            <BarChart2 className="h-3.5 w-3.5" />
             <span>Barras por Obra</span>
           </button>
           <button
             type="button"
             onClick={() => setViewType('gauge')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
               viewType === 'gauge'
-                ? 'bg-sky-400 text-slate-950 font-bold shadow-sm'
+                ? 'bg-sky-400 font-bold text-slate-950 shadow-sm'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <PieChartIcon className="w-3.5 h-3.5" />
+            <PieChartIcon className="h-3.5 w-3.5" />
             <span>Medidor Global</span>
           </button>
         </div>
       </div>
 
       {/* Quick Summary Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
-          <span className="text-[10px] font-mono text-slate-400 uppercase block">Presupuesto Global</span>
-          <div className="text-sm sm:text-base font-bold text-white mt-0.5">{formatMoney(totalBudget)}</div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+            Presupuesto Global
+          </span>
+          <div className="mt-0.5 text-sm font-bold text-white sm:text-base">
+            {formatMoney(totalBudget)}
+          </div>
           <span className="text-[10px] text-slate-400">{projects.length} Obras en curso</span>
         </div>
 
-        <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
-          <span className="text-[10px] font-mono text-slate-400 uppercase block">Gasto Real Ejecutado</span>
-          <div className="text-sm sm:text-base font-bold text-sky-400 mt-0.5">{formatMoney(totalSpent)}</div>
-          <span className="text-[10px] text-sky-300 font-semibold">{globalPct.toFixed(1)}% utilizado</span>
+        <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+            Gasto Real Ejecutado
+          </span>
+          <div className="mt-0.5 text-sm font-bold text-sky-400 sm:text-base">
+            {formatMoney(totalSpent)}
+          </div>
+          <span className="text-[10px] font-semibold text-sky-300">
+            {globalPct.toFixed(1)}% utilizado
+          </span>
         </div>
 
-        <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
-          <span className="text-[10px] font-mono text-slate-400 uppercase block">Remanente Disponible</span>
-          <div className="text-sm sm:text-base font-bold text-emerald-400 mt-0.5">
+        <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+            Remanente Disponible
+          </span>
+          <div className="mt-0.5 text-sm font-bold text-emerald-400 sm:text-base">
             {formatMoney(remainingBudget)}
           </div>
-          <span className="text-[10px] text-emerald-300">{(100 - globalPct).toFixed(1)}% disponible</span>
+          <span className="text-[10px] text-emerald-300">
+            {(100 - globalPct).toFixed(1)}% disponible
+          </span>
         </div>
 
-        <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
-          <span className="text-[10px] font-mono text-slate-400 uppercase block">Control de Desvío</span>
-          <div className="text-sm sm:text-base font-bold text-amber-400 mt-0.5">
+        <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+            Control de Desvío
+          </span>
+          <div className="mt-0.5 text-sm font-bold text-amber-400 sm:text-base">
             {globalPct > 100 ? 'Sobrecosto' : 'Control Óptimo'}
           </div>
           <span className="text-[10px] text-slate-300">Tolerancia ±5%</span>
@@ -525,27 +543,29 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
       </div>
 
       {/* SVG Canvas for D3 */}
-      <div className="w-full relative min-h-[300px] flex items-center justify-center">
+      <div className="relative flex min-h-[300px] w-full items-center justify-center">
         <svg
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="overflow-visible block max-w-full"
+          className="block max-w-full overflow-visible"
         />
 
         {/* D3 Interactive Tooltip Overlay */}
         {tooltipData && tooltipData.visible && (
           <div
-            className="absolute pointer-events-none z-30 p-3 bg-slate-900/95 backdrop-blur-md border border-sky-400/40 rounded-xl shadow-2xl text-xs space-y-1 text-white min-w-[210px] animate-in fade-in duration-150"
+            className="animate-in fade-in pointer-events-none absolute z-30 min-w-[210px] space-y-1 rounded-xl border border-sky-400/40 bg-slate-900/95 p-3 text-xs text-white shadow-2xl backdrop-blur-md duration-150"
             style={{
               left: Math.min(dimensions.width - 230, Math.max(10, tooltipData.x + 15)),
               top: Math.max(10, tooltipData.y - 45),
             }}
           >
-            <div className="flex items-center justify-between pb-1 border-b border-white/10">
-              <span className="font-mono text-[10px] font-bold text-sky-400">{tooltipData.code}</span>
+            <div className="flex items-center justify-between border-b border-white/10 pb-1">
+              <span className="font-mono text-[10px] font-bold text-sky-400">
+                {tooltipData.code}
+              </span>
               <span
-                className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
                   tooltipData.pct > 100
                     ? 'bg-rose-500/20 text-rose-300'
                     : 'bg-emerald-500/20 text-emerald-300'
@@ -554,17 +574,19 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
                 {tooltipData.pct}%
               </span>
             </div>
-            <p className="font-bold text-slate-100 truncate max-w-[190px]">{tooltipData.title}</p>
-            <div className="text-[11px] text-slate-300 space-y-0.5 pt-1">
+            <p className="max-w-[190px] truncate font-bold text-slate-100">{tooltipData.title}</p>
+            <div className="space-y-0.5 pt-1 text-[11px] text-slate-300">
               <div className="flex justify-between">
                 <span className="text-slate-400">Presupuesto:</span>
                 <span className="font-mono">{formatMoney(tooltipData.budget)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Inversión Real:</span>
-                <span className="font-mono text-sky-300 font-bold">{formatMoney(tooltipData.spent)}</span>
+                <span className="font-mono font-bold text-sky-300">
+                  {formatMoney(tooltipData.spent)}
+                </span>
               </div>
-              <div className="flex justify-between pt-1 border-t border-white/10">
+              <div className="flex justify-between border-t border-white/10 pt-1">
                 <span className="text-slate-400">
                   {tooltipData.variance >= 0 ? 'Saldo a Favor:' : 'Exceso:'}
                 </span>
@@ -577,24 +599,26 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
                 </span>
               </div>
             </div>
-            <p className="text-[10px] text-slate-400 pt-1 italic">Haga clic para seleccionar obra</p>
+            <p className="pt-1 text-[10px] text-slate-400 italic">
+              Haga clic para seleccionar obra
+            </p>
           </div>
         )}
       </div>
 
       {/* Legend & Guidance Footer */}
-      <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-2 text-xs text-slate-400">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-slate-600 inline-block" />
+            <span className="inline-block h-3 w-3 rounded bg-slate-600" />
             <span>Presupuesto Programado</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-sky-400 inline-block" />
+            <span className="inline-block h-3 w-3 rounded bg-sky-400" />
             <span>Gasto Real Ejecutado</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-rose-500 inline-block" />
+            <span className="inline-block h-3 w-3 rounded bg-rose-500" />
             <span>Sobrecosto &gt;100%</span>
           </div>
         </div>
@@ -608,5 +632,5 @@ export const D3BudgetUtilizationChart: React.FC<D3BudgetUtilizationChartProps> =
       </div>
     </div>
   );
-};
+}
 export default D3BudgetUtilizationChart;

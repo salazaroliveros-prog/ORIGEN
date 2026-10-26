@@ -19,7 +19,9 @@ export function useAuthSession() {
   const [status, setStatus] = useState<AuthSessionStatus>('loading');
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const [gmailAccess, setGmailAccess] = useState<{ accessToken: string; expiresAt: number } | null>(null);
+  const [gmailAccess, setGmailAccess] = useState<{ accessToken: string; expiresAt: number } | null>(
+    null
+  );
 
   useEffect(() => {
     void completeGoogleRedirect().catch((error) => {

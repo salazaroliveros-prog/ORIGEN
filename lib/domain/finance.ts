@@ -1,6 +1,8 @@
 import type { Project } from '@/lib/types';
 
-export function getBudgetUsagePercent(project: Pick<Project, 'budgetTotal' | 'spentTotal'>): number {
+export function getBudgetUsagePercent(
+  project: Pick<Project, 'budgetTotal' | 'spentTotal'>
+): number {
   if (!project.budgetTotal || project.budgetTotal <= 0) return 0;
   return (project.spentTotal / project.budgetTotal) * 100;
 }

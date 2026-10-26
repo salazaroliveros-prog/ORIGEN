@@ -1,26 +1,33 @@
 'use client';
 
-import { formatGTQ,formatUSD } from '@/lib/data';
+import { formatGTQ, formatUSD } from '@/lib/data';
 import {
-downloadVbaMacroFile,
-exportProjectAccountingWorkbook,
-GUATEMALAN_ACCOUNTING_VBA_MACROS,
+  downloadVbaMacroFile,
+  exportProjectAccountingWorkbook,
+  GUATEMALAN_ACCOUNTING_VBA_MACROS,
 } from '@/lib/excelAccountingExport';
 import { loadReportLetterheadLogo } from '@/lib/pdfBranding';
-import { AttendanceRecord,CompanySettings,Employee,ExpenseRecord,FieldVisit,Project } from '@/lib/types';
 import {
-Check,
-Code2,
-Copy,
-Download,
-FileSpreadsheet,
-FileText,
-Printer,
-Receipt,
-ShieldCheck,
-Terminal
+  AttendanceRecord,
+  CompanySettings,
+  Employee,
+  ExpenseRecord,
+  FieldVisit,
+  Project,
+} from '@/lib/types';
+import {
+  Check,
+  Code2,
+  Copy,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Printer,
+  Receipt,
+  ShieldCheck,
+  Terminal,
 } from 'lucide-react';
-import React,{ useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 interface AdvancedReportsManagerProps {
@@ -36,7 +43,7 @@ interface AdvancedReportsManagerProps {
 
 type ReportType = 'project_summary' | 'expense_report' | 'field_visits' | 'consolidated';
 
-export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
+export function AdvancedReportsManager({
   projects,
   activeProjectId,
   company,
@@ -45,7 +52,7 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
   currency,
   attendance = [],
   employees = [],
-}) => {
+}: AdvancedReportsManagerProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(activeProjectId);
   const [reportType, setReportType] = useState<ReportType>('consolidated');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -69,9 +76,10 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
   });
 
   const totalSpent = projectExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const totalBudget = selectedProjectId === 'all'
-    ? projects.reduce((sum, p) => sum + p.budgetTotal, 0)
-    : activeProject.budgetTotal;
+  const totalBudget =
+    selectedProjectId === 'all'
+      ? projects.reduce((sum, p) => sum + p.budgetTotal, 0)
+      : activeProject.budgetTotal;
   const balance = totalBudget - totalSpent;
 
   const formatMoney = (val: number) => {
@@ -100,8 +108,7 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
   };
 
   const handleCopyVba = () => {
-    const code = GUATEMALAN_ACCOUNTING_VBA_MACROS
-      .replace(/{PROJECT_CODE}/g, activeProject.code)
+    const code = GUATEMALAN_ACCOUNTING_VBA_MACROS.replace(/{PROJECT_CODE}/g, activeProject.code)
       .replace(/{PROJECT_NAME}/g, activeProject.name)
       .replace(/{DATE_GENERATED}/g, new Date().toLocaleString('es-GT'));
     navigator.clipboard.writeText(code);
@@ -147,7 +154,11 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
         doc.setTextColor(203, 213, 225); // slate-300
-        doc.text(`NIT: ${company.nit} • ${company.address} • Tel: ${company.phone}`, margin + 25, y + 13);
+        doc.text(
+          `NIT: ${company.nit} • ${company.address} • Tel: ${company.phone}`,
+          margin + 25,
+          y + 13
+        );
         doc.text(
           `Documento Oficial de Control y Liquidación de Obra • Moneda: ${currency} • T.C.: ${company.exchangeRate > 0 ? `Q ${company.exchangeRate.toFixed(2)}/USD` : 'No configurado'}`,
           margin + 25,
@@ -189,8 +200,14 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
           doc.setFontSize(7);
           doc.setFont('helvetica', 'italic');
           doc.addImage(reportLogo, 'PNG', margin + 1, y + 0.5, 6, 6);
-          doc.text(`ConstructERP Guatemala • ${activeProject.code} - ${activeProject.name}`, margin + 9, y + 4.5);
-          doc.text(`Página ${doc.getNumberOfPages()}`, pageWidth - margin - 3, y + 4.5, { align: 'right' });
+          doc.text(
+            `ConstructERP Guatemala • ${activeProject.code} - ${activeProject.name}`,
+            margin + 9,
+            y + 4.5
+          );
+          doc.text(`Página ${doc.getNumberOfPages()}`, pageWidth - margin - 3, y + 4.5, {
+            align: 'right',
+          });
           y += 12;
         }
       };
@@ -233,7 +250,11 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
         // Col 1
         doc.text(`Cliente / Propietario: ${activeProject.client}`, margin + 4, y + 12);
         doc.text(`Ubicación: ${activeProject.location}`, margin + 4, y + 17);
-        doc.text(`Municipio / Depto: ${activeProject.municipality}, ${activeProject.department}`, margin + 4, y + 22);
+        doc.text(
+          `Municipio / Depto: ${activeProject.municipality}, ${activeProject.department}`,
+          margin + 4,
+          y + 22
+        );
 
         // Col 2
         const col2X = margin + 95;
@@ -335,12 +356,16 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
           doc.text(exp.date, margin + 2, y + 4.5);
 
           // Truncate supplier if too long
-          const supplierClean = exp.supplier.length > 25 ? exp.supplier.substring(0, 25) + '...' : exp.supplier;
+          const supplierClean =
+            exp.supplier.length > 25 ? exp.supplier.substring(0, 25) + '...' : exp.supplier;
           doc.text(supplierClean, margin + 20, y + 4.5);
           doc.text(exp.nitSupplier, margin + 65, y + 4.5);
           doc.text(exp.facturaNumber, margin + 88, y + 4.5);
 
-          const descClean = exp.description.length > 30 ? exp.description.substring(0, 30) + '...' : exp.description;
+          const descClean =
+            exp.description.length > 30
+              ? exp.description.substring(0, 30) + '...'
+              : exp.description;
           doc.text(descClean, margin + 112, y + 4.5);
 
           doc.setFont('helvetica', 'bold');
@@ -382,17 +407,24 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(7.5);
           doc.setTextColor(30, 41, 59);
-          doc.text(`Fecha: ${visit.date} • Clima: ${visit.weather} • Obreros: ${visit.workersCount}`, margin + 3, y + 5);
+          doc.text(
+            `Fecha: ${visit.date} • Clima: ${visit.weather} • Obreros: ${visit.workersCount}`,
+            margin + 3,
+            y + 5
+          );
 
           // Status stamp
           doc.setTextColor(16, 185, 129); // emerald
-          doc.text(`[ ${visit.status.toUpperCase()} ]`, pageWidth - margin - 4, y + 5, { align: 'right' });
+          doc.text(`[ ${visit.status.toUpperCase()} ]`, pageWidth - margin - 4, y + 5, {
+            align: 'right',
+          });
 
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(7);
           doc.setTextColor(71, 85, 105);
 
-          const notesClean = visit.notes.length > 95 ? visit.notes.substring(0, 95) + '...' : visit.notes;
+          const notesClean =
+            visit.notes.length > 95 ? visit.notes.substring(0, 95) + '...' : visit.notes;
           doc.text(`Novedades: "${notesClean}"`, margin + 3, y + 10);
 
           doc.setFont('helvetica', 'bold');
@@ -404,9 +436,14 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
             doc.setFont('courier', 'normal');
             doc.setFontSize(6.5);
             doc.setTextColor(100, 116, 139);
-            doc.text(`GPS: ${visit.gpsCoords.lat.toFixed(4)}°N, ${visit.gpsCoords.lng.toFixed(4)}°W`, pageWidth - margin - 4, y + 15, {
-              align: 'right',
-            });
+            doc.text(
+              `GPS: ${visit.gpsCoords.lat.toFixed(4)}°N, ${visit.gpsCoords.lng.toFixed(4)}°W`,
+              pageWidth - margin - 4,
+              y + 15,
+              {
+                align: 'right',
+              }
+            );
           }
 
           y += 22;
@@ -444,7 +481,9 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.5);
       doc.setTextColor(100, 116, 139);
-      doc.text('Supervisión y Validación en Sitio', sig2X + sigWidth / 2, y + 19.5, { align: 'center' });
+      doc.text('Supervisión y Validación en Sitio', sig2X + sigWidth / 2, y + 19.5, {
+        align: 'center',
+      });
 
       // Sig 3: Auditoria Financiera
       const sig3X = sig2X + sigWidth + 10;
@@ -470,7 +509,9 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
           margin,
           pageHeight - 6
         );
-        doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin, pageHeight - 6, { align: 'right' });
+        doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin, pageHeight - 6, {
+          align: 'right',
+        });
       }
 
       // Save PDF file
@@ -487,55 +528,58 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header & Export Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-              <FileText className="w-5 h-5" />
+            <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
+              <FileText className="h-5 w-5" />
             </div>
-            <h2 className="text-lg font-bold text-slate-900">Centro de Reportes Ejecutivos & Exportación PDF</h2>
+            <h2 className="text-lg font-bold text-slate-900">
+              Centro de Reportes Ejecutivos & Exportación PDF
+            </h2>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Generación de informes formales de costos, facturación SAT, avance físico y bitácoras para auditorías y juntas directivas.
+          <p className="mt-1 text-xs text-slate-500">
+            Generación de informes formales de costos, facturación SAT, avance físico y bitácoras
+            para auditorías y juntas directivas.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2.5">
           {/* Export to Excel Button with Macros */}
           <button
             onClick={handleExportExcel}
             disabled={isExportingExcel}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer disabled:opacity-50"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
             title="Exportar todas las bitácoras y registros de gastos a formato .xlsx profesional con macros preconfiguradas"
           >
-            <FileSpreadsheet className="w-4 h-4" />
+            <FileSpreadsheet className="h-4 w-4" />
             {isExportingExcel ? 'Generando .xlsx...' : 'Exportar .xlsx Contable'}
           </button>
 
           {/* View Preconfigured VBA Macros */}
           <button
             onClick={() => setShowMacroModal(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
             title="Ver las macros contables preconfiguradas para SAT y pólizas de diario"
           >
-            <Code2 className="w-4 h-4 text-emerald-700" />
+            <Code2 className="h-4 w-4 text-emerald-700" />
             Macros VBA
           </button>
 
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
           >
-            <Printer className="w-4 h-4 text-slate-500" />
+            <Printer className="h-4 w-4 text-slate-500" />
             Imprimir
           </button>
 
           <button
             onClick={generatePDF}
             disabled={isGenerating}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition cursor-pointer disabled:opacity-50"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
           >
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
             {isGenerating ? 'Generando PDF...' : 'Descargar PDF'}
           </button>
         </div>
@@ -543,21 +587,28 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
 
       {/* Excel Success Notification Banner */}
       {excelSuccessToast && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3 text-emerald-900 shadow-xs animate-in fade-in">
+        <div className="animate-in fade-in flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-xs">
           <div className="flex items-center gap-3">
-            <span className="p-2 rounded-xl bg-emerald-100 text-emerald-800">
-              <FileSpreadsheet className="w-5 h-5" />
+            <span className="rounded-xl bg-emerald-100 p-2 text-emerald-800">
+              <FileSpreadsheet className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-xs font-bold">¡Libro de Excel (.xlsx) generado y descargado exitosamente!</p>
-              <p className="text-[11px] text-emerald-700 mt-0.5">
-                Incluye 5 hojas especializadas para auditoría fiscal SAT e IGSS: <strong>Resumen_Ejecutivo</strong>, <strong>Registro_Gastos_Contable</strong> (desglose IVA 12% SAT), <strong>Auditoria_Asistencia_SAT_IGSS</strong> (marcajes GPS, cuotas patronales y retenciones laborales), <strong>Bitacoras_Campo_Diarias</strong> (firmas de capataces) y <strong>Macros_Contabilidad_VBA</strong>.
+              <p className="text-xs font-bold">
+                ¡Libro de Excel (.xlsx) generado y descargado exitosamente!
+              </p>
+              <p className="mt-0.5 text-[11px] text-emerald-700">
+                Incluye 5 hojas especializadas para auditoría fiscal SAT e IGSS:{' '}
+                <strong>Resumen_Ejecutivo</strong>, <strong>Registro_Gastos_Contable</strong>{' '}
+                (desglose IVA 12% SAT), <strong>Auditoria_Asistencia_SAT_IGSS</strong> (marcajes
+                GPS, cuotas patronales y retenciones laborales),{' '}
+                <strong>Bitacoras_Campo_Diarias</strong> (firmas de capataces) y{' '}
+                <strong>Macros_Contabilidad_VBA</strong>.
               </p>
             </div>
           </div>
           <button
             onClick={() => setExcelSuccessToast(false)}
-            className="text-xs text-emerald-700 hover:text-emerald-900 font-bold px-2 py-1"
+            className="px-2 py-1 text-xs font-bold text-emerald-700 hover:text-emerald-900"
           >
             Cerrar
           </button>
@@ -565,13 +616,15 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
       )}
 
       {/* Filter & Configuration Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:grid-cols-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Proyecto Seleccionado</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
+            Proyecto Seleccionado
+          </label>
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-medium"
+            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800"
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -582,13 +635,17 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Tipo de Reporte a Exportar</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
+            Tipo de Reporte a Exportar
+          </label>
           <select
             value={reportType}
             onChange={(e) => setReportType(e.target.value as ReportType)}
-            className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-medium"
+            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800"
           >
-            <option value="consolidated">Informe Integral Consolidado (Proyecto + Gastos + Bitácoras)</option>
+            <option value="consolidated">
+              Informe Integral Consolidado (Proyecto + Gastos + Bitácoras)
+            </option>
             <option value="project_summary">Resumen Ejecutivo & Avances Físicos</option>
             <option value="expense_report">Reporte de Gastos, Inversión & Facturas SAT</option>
             <option value="field_visits">Bitácoras de Campo & Firmas de Capataces</option>
@@ -596,11 +653,13 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Filtro de Categoría</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
+            Filtro de Categoría
+          </label>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-medium"
+            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800"
           >
             <option value="all">Todas las Categorías ({expenses.length} gastos)</option>
             <option value="Materiales (Cementos, Hierro)">Materiales (Cementos, Hierro)</option>
@@ -612,59 +671,64 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
       </div>
 
       {/* Printable Preview Canvas / Document Container */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6 print:p-0 print:border-none print:shadow-none">
+      <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 print:border-none print:p-0 print:shadow-none">
         {/* Document Header */}
-        <div className="border-b border-slate-200 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+              <span className="rounded bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold text-blue-700 uppercase">
                 {activeProject.code}
               </span>
-              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                 {activeProject.status}
               </span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mt-1">{activeProject.name}</h3>
+            <h3 className="mt-1 text-xl font-bold text-slate-900">{activeProject.name}</h3>
             <p className="text-xs text-slate-500">
-              Cliente: {activeProject.client} • {activeProject.location}, {activeProject.municipality}
+              Cliente: {activeProject.client} • {activeProject.location},{' '}
+              {activeProject.municipality}
             </p>
           </div>
 
           <div className="text-right text-xs text-slate-500 sm:border-l sm:border-slate-100 sm:pl-6">
             <p className="font-bold text-slate-900">{company.companyName}</p>
             <p>NIT: {company.nit}</p>
-            <p className="font-mono text-[11px] text-slate-400 mt-0.5">
+            <p className="mt-0.5 font-mono text-[11px] text-slate-400">
               Emisión: {new Date().toLocaleDateString('es-GT')}
             </p>
           </div>
         </div>
 
         {/* Financial KPI Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
             <p className="text-[11px] font-bold text-blue-900 uppercase">Presupuesto Autorizado</p>
-            <p className="text-xl font-bold text-blue-950 mt-1">{formatMoney(totalBudget)}</p>
-            <p className="text-[10px] text-blue-700 mt-0.5">Monto contractual de obra</p>
+            <p className="mt-1 text-xl font-bold text-blue-950">{formatMoney(totalBudget)}</p>
+            <p className="mt-0.5 text-[10px] text-blue-700">Monto contractual de obra</p>
           </div>
 
-          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
             <p className="text-[11px] font-bold text-rose-900 uppercase">Inversión Ejecutada</p>
-            <p className="text-xl font-bold text-rose-950 mt-1">{formatMoney(totalSpent)}</p>
-            <p className="text-[10px] text-rose-700 mt-0.5">{((totalSpent / totalBudget) * 100).toFixed(1)}% del presupuesto</p>
+            <p className="mt-1 text-xl font-bold text-rose-950">{formatMoney(totalSpent)}</p>
+            <p className="mt-0.5 text-[10px] text-rose-700">
+              {((totalSpent / totalBudget) * 100).toFixed(1)}% del presupuesto
+            </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
             <p className="text-[11px] font-bold text-emerald-900 uppercase">Saldo Disponible</p>
-            <p className="text-xl font-bold text-emerald-950 mt-1">{formatMoney(balance)}</p>
-            <p className="text-[10px] text-emerald-700 mt-0.5">Avance Físico: {activeProject.progressPercent}%</p>
+            <p className="mt-1 text-xl font-bold text-emerald-950">{formatMoney(balance)}</p>
+            <p className="mt-0.5 text-[10px] text-emerald-700">
+              Avance Físico: {activeProject.progressPercent}%
+            </p>
           </div>
         </div>
 
         {/* Expenses Table Preview */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-              <Receipt className="w-4 h-4 text-slate-500" />
+            <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+              <Receipt className="h-4 w-4 text-slate-500" />
               Detalle de Gastos y Facturas para Auditoría
             </h4>
             <span className="text-xs text-slate-500">{projectExpenses.length} registros</span>
@@ -672,34 +736,42 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
 
           <div className="overflow-x-auto rounded-xl border border-slate-200">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+              <thead className="border-b border-slate-200 bg-slate-100 font-bold text-slate-700">
                 <tr>
-                  <th className="py-2.5 px-3">Fecha</th>
-                  <th className="py-2.5 px-3">Proveedor</th>
-                  <th className="py-2.5 px-3">NIT</th>
-                  <th className="py-2.5 px-3">Factura</th>
-                  <th className="py-2.5 px-3">Concepto</th>
-                  <th className="py-2.5 px-3 text-right">Monto</th>
+                  <th className="px-3 py-2.5">Fecha</th>
+                  <th className="px-3 py-2.5">Proveedor</th>
+                  <th className="px-3 py-2.5">NIT</th>
+                  <th className="px-3 py-2.5">Factura</th>
+                  <th className="px-3 py-2.5">Concepto</th>
+                  <th className="px-3 py-2.5 text-right">Monto</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {projectExpenses.slice(0, 10).map((exp) => (
                   <tr key={exp.id} className="hover:bg-slate-50">
-                    <td className="py-2 px-3 text-slate-600 font-mono text-[11px]">{exp.date}</td>
-                    <td className="py-2 px-3 font-semibold text-slate-800">{exp.supplier}</td>
-                    <td className="py-2 px-3 text-slate-500 font-mono text-[11px]">{exp.nitSupplier}</td>
-                    <td className="py-2 px-3 text-slate-600 font-mono text-[11px]">{exp.facturaNumber}</td>
-                    <td className="py-2 px-3 text-slate-600">{exp.description}</td>
-                    <td className="py-2 px-3 text-right font-bold text-slate-900">{formatMoney(exp.amount)}</td>
+                    <td className="px-3 py-2 font-mono text-[11px] text-slate-600">{exp.date}</td>
+                    <td className="px-3 py-2 font-semibold text-slate-800">{exp.supplier}</td>
+                    <td className="px-3 py-2 font-mono text-[11px] text-slate-500">
+                      {exp.nitSupplier}
+                    </td>
+                    <td className="px-3 py-2 font-mono text-[11px] text-slate-600">
+                      {exp.facturaNumber}
+                    </td>
+                    <td className="px-3 py-2 text-slate-600">{exp.description}</td>
+                    <td className="px-3 py-2 text-right font-bold text-slate-900">
+                      {formatMoney(exp.amount)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="bg-slate-50 font-bold border-t border-slate-200 text-slate-900">
+              <tfoot className="border-t border-slate-200 bg-slate-50 font-bold text-slate-900">
                 <tr>
-                  <td colSpan={5} className="py-2.5 px-3 text-right">
+                  <td colSpan={5} className="px-3 py-2.5 text-right">
                     Total Gastos en Este Reporte:
                   </td>
-                  <td className="py-2.5 px-3 text-right text-blue-600 font-bold">{formatMoney(totalSpent)}</td>
+                  <td className="px-3 py-2.5 text-right font-bold text-blue-600">
+                    {formatMoney(totalSpent)}
+                  </td>
                 </tr>
               </tfoot>
             </table>
@@ -708,25 +780,32 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
 
         {/* Bitácoras & Signatures Preview */}
         <div className="space-y-3 pt-2">
-          <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+            <ShieldCheck className="h-4 w-4 text-emerald-600" />
             Certificación de Bitácoras de Campo Firmadas ({projectVisits.length})
           </h4>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {projectVisits.map((visit) => (
-              <div key={visit.id} className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
+              <div
+                key={visit.id}
+                className="space-y-2 rounded-xl border border-slate-200 bg-slate-50/50 p-3.5"
+              >
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800">{visit.date}</span>
-                  <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px] font-semibold border border-emerald-200">
+                  <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                     {visit.status}
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 italic">&quot;{visit.notes}&quot;</p>
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200">
-                  <span>Capataz: <strong>{visit.foremanName}</strong></span>
+                <div className="flex items-center justify-between border-t border-slate-200 pt-1 text-[11px] text-slate-500">
+                  <span>
+                    Capataz: <strong>{visit.foremanName}</strong>
+                  </span>
                   {visit.gpsCoords && (
-                    <span>GPS: {visit.gpsCoords.lat.toFixed(4)}, {visit.gpsCoords.lng.toFixed(4)}</span>
+                    <span>
+                      GPS: {visit.gpsCoords.lat.toFixed(4)}, {visit.gpsCoords.lng.toFixed(4)}
+                    </span>
                   )}
                 </div>
               </div>
@@ -735,19 +814,19 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
         </div>
 
         {/* Official Signatures Block Preview */}
-        <div className="pt-6 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
+        <div className="grid grid-cols-1 gap-6 border-t border-slate-200 pt-6 text-center text-xs sm:grid-cols-3">
           <div className="space-y-2">
-            <div className="border-b border-slate-400 w-36 mx-auto h-8" />
+            <div className="mx-auto h-8 w-36 border-b border-slate-400" />
             <p className="font-bold text-slate-800">Ing. Residente de Obra</p>
             <p className="text-[10px] text-slate-500">Colegiado Activo No. 14,892</p>
           </div>
           <div className="space-y-2">
-            <div className="border-b border-slate-400 w-36 mx-auto h-8" />
+            <div className="mx-auto h-8 w-36 border-b border-slate-400" />
             <p className="font-bold text-slate-800">Capataz General de Campo</p>
             <p className="text-[10px] text-slate-500">Supervisión y Verificación</p>
           </div>
           <div className="space-y-2">
-            <div className="border-b border-slate-400 w-36 mx-auto h-8" />
+            <div className="mx-auto h-8 w-36 border-b border-slate-400" />
             <p className="font-bold text-slate-800">Auditoría Financiera & SAT</p>
             <p className="text-[10px] text-slate-500">Sello de Aprobación</p>
           </div>
@@ -756,85 +835,115 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
 
       {/* Modal: Preconfigured Accounting VBA Macros */}
       {showMacroModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+          <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             {/* Modal Header */}
-            <div className="bg-slate-900 text-white p-5 flex items-center justify-between border-b border-slate-800">
+            <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-5 text-white">
               <div className="flex items-center gap-2.5">
-                <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  <Code2 className="w-5 h-5" />
+                <span className="rounded-xl border border-emerald-500/30 bg-emerald-500/20 p-2 text-emerald-400">
+                  <Code2 className="h-5 w-5" />
                 </span>
                 <div>
-                  <h3 className="font-bold text-base text-white">Macros Contables Automatizadas (Excel VBA)</h3>
+                  <h3 className="text-base font-bold text-white">
+                    Macros Contables Automatizadas (Excel VBA)
+                  </h3>
                   <p className="text-xs text-slate-400">
-                    Preconfiguradas para {activeProject.code} • Libro de Compras SAT, Auditoría y Póliza de Diario
+                    Preconfiguradas para {activeProject.code} • Libro de Compras SAT, Auditoría y
+                    Póliza de Diario
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowMacroModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                className="rounded-lg p-1 text-slate-400 transition hover:text-white"
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Content */}
-            <div className="p-6 overflow-y-auto space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                  <span className="font-bold text-emerald-800 block mb-1">1. GenerarLibroComprasSAT</span>
+            <div className="space-y-4 overflow-y-auto p-6">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+                  <span className="mb-1 block font-bold text-emerald-800">
+                    1. GenerarLibroComprasSAT
+                  </span>
                   <p className="text-[11px] text-slate-600">
-                    Crea la hoja con formato oficial SAT separando Subtotal e IVA Crédito Fiscal (12%).
+                    Crea la hoja con formato oficial SAT separando Subtotal e IVA Crédito Fiscal
+                    (12%).
                   </p>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                  <span className="font-bold text-blue-800 block mb-1">2. AuditarFacturasDuplicadas</span>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+                  <span className="mb-1 block font-bold text-blue-800">
+                    2. AuditarFacturasDuplicadas
+                  </span>
                   <p className="text-[11px] text-slate-600">
                     Escanea los NITs y números de factura, resaltando en rojo cualquier duplicidad.
                   </p>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                  <span className="font-bold text-amber-800 block mb-1">3. GenerarPolizaContable</span>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+                  <span className="mb-1 block font-bold text-amber-800">
+                    3. GenerarPolizaContable
+                  </span>
                   <p className="text-[11px] text-slate-600">
-                    Asiento de partida doble: Obras en Proceso + IVA Crédito contra Bancos/Cuentas por Pagar.
+                    Asiento de partida doble: Obras en Proceso + IVA Crédito contra Bancos/Cuentas
+                    por Pagar.
                   </p>
                 </div>
               </div>
 
               {/* Instructions */}
-              <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 text-xs text-blue-900 space-y-1">
-                <p className="font-bold flex items-center gap-1.5 text-blue-950">
-                  <Terminal className="w-4 h-4 text-blue-700" /> Cómo usar las macros en Excel:
+              <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50/70 p-3.5 text-xs text-blue-900">
+                <p className="flex items-center gap-1.5 font-bold text-blue-950">
+                  <Terminal className="h-4 w-4 text-blue-700" /> Cómo usar las macros en Excel:
                 </p>
-                <ol className="list-decimal pl-4 space-y-0.5 text-[11px] text-blue-800">
-                  <li>Abra el archivo <strong>.xlsx</strong> descargado en Microsoft Excel.</li>
-                  <li>Presione <kbd className="px-1.5 py-0.5 rounded bg-white font-mono shadow-2xs border border-blue-300">Alt + F11</kbd> para abrir el editor de Visual Basic.</li>
-                  <li>Haga clic en <strong>Insertar &gt; Módulo</strong> y pegue el código inferior (o importe el archivo <strong>.bas</strong>).</li>
-                  <li>Presione <kbd className="px-1.5 py-0.5 rounded bg-white font-mono shadow-2xs border border-blue-300">Alt + F8</kbd> en Excel para ejecutar cualquier macro con 1 clic.</li>
+                <ol className="list-decimal space-y-0.5 pl-4 text-[11px] text-blue-800">
+                  <li>
+                    Abra el archivo <strong>.xlsx</strong> descargado en Microsoft Excel.
+                  </li>
+                  <li>
+                    Presione{' '}
+                    <kbd className="rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono shadow-2xs">
+                      Alt + F11
+                    </kbd>{' '}
+                    para abrir el editor de Visual Basic.
+                  </li>
+                  <li>
+                    Haga clic en <strong>Insertar &gt; Módulo</strong> y pegue el código inferior (o
+                    importe el archivo <strong>.bas</strong>).
+                  </li>
+                  <li>
+                    Presione{' '}
+                    <kbd className="rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono shadow-2xs">
+                      Alt + F8
+                    </kbd>{' '}
+                    en Excel para ejecutar cualquier macro con 1 clic.
+                  </li>
                 </ol>
               </div>
 
               {/* VBA Code Preview */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700">Código Fuente VBA (Visual Basic for Applications):</span>
+                  <span className="text-xs font-bold text-slate-700">
+                    Código Fuente VBA (Visual Basic for Applications):
+                  </span>
                   <button
                     onClick={handleCopyVba}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
                   >
                     {isCopiedVba ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" /> ¡Código Copiado!
+                        <Check className="h-3.5 w-3.5 text-emerald-600" /> ¡Código Copiado!
                       </>
                     ) : (
                       <>
-                        <Copy className="w-3.5 h-3.5" /> Copiar Código
+                        <Copy className="h-3.5 w-3.5" /> Copiar Código
                       </>
                     )}
                   </button>
                 </div>
-                <pre className="p-4 rounded-xl bg-slate-900 text-emerald-400 font-mono text-[11px] overflow-x-auto max-h-60 border border-slate-800 select-all leading-relaxed">
+                <pre className="max-h-60 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-4 font-mono text-[11px] leading-relaxed text-emerald-400 select-all">
                   {GUATEMALAN_ACCOUNTING_VBA_MACROS.replace(/{PROJECT_CODE}/g, activeProject.code)
                     .replace(/{PROJECT_NAME}/g, activeProject.name)
                     .replace(/{DATE_GENERATED}/g, new Date().toLocaleString('es-GT'))}
@@ -843,18 +952,18 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
             </div>
 
             {/* Modal Footer Actions */}
-            <div className="bg-slate-50 p-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 p-4">
               <button
                 onClick={() => downloadVbaMacroFile(activeProject)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition cursor-pointer"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100"
               >
-                <Download className="w-4 h-4" /> Descargar Archivo .BAS
+                <Download className="h-4 w-4" /> Descargar Archivo .BAS
               </button>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowMacroModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-800 transition"
+                  className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 transition hover:text-slate-800"
                 >
                   Cerrar
                 </button>
@@ -863,9 +972,9 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
                     handleExportExcel();
                     setShowMacroModal(false);
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
                 >
-                  <FileSpreadsheet className="w-4 h-4" /> Descargar .xlsx Completo
+                  <FileSpreadsheet className="h-4 w-4" /> Descargar .xlsx Completo
                 </button>
               </div>
             </div>
@@ -874,4 +983,4 @@ export const AdvancedReportsManager: React.FC<AdvancedReportsManagerProps> = ({
       )}
     </div>
   );
-};
+}

@@ -44,19 +44,45 @@ export interface CashFlowSummary {
 }
 
 const MONTH_NAMES_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 ];
 
 const MONTH_SHORT_ES = [
-  'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
 ];
 
-function collectProjectMilestones(projects: Project[], existingMilestones: Milestone[]): Milestone[] {
+function collectProjectMilestones(
+  projects: Project[],
+  existingMilestones: Milestone[]
+): Milestone[] {
   const milestones = new Map<string, Milestone>();
 
-  for (const milestone of [...existingMilestones, ...projects.flatMap((project) => project.scheduleMilestones ?? [])]) {
+  for (const milestone of [
+    ...existingMilestones,
+    ...projects.flatMap((project) => project.scheduleMilestones ?? []),
+  ]) {
     milestones.set(`${milestone.projectId}:${milestone.id}`, milestone);
   }
 
@@ -76,9 +102,10 @@ export function calculateSixMonthCashFlow(
   }
 ): CashFlowSummary {
   const selectedProjId = options?.selectedProjectId || 'all';
-  const relevantProjects = selectedProjId === 'all'
-    ? projects.filter((p) => p.status !== 'Finalizado' && p.status !== 'Archivado')
-    : projects.filter((p) => p.id === selectedProjId);
+  const relevantProjects =
+    selectedProjId === 'all'
+      ? projects.filter((p) => p.status !== 'Finalizado' && p.status !== 'Archivado')
+      : projects.filter((p) => p.id === selectedProjId);
 
   const allMilestones = collectProjectMilestones(projects, existingMilestones);
 
@@ -201,7 +228,9 @@ export function calculateSixMonthCashFlow(
     totalIngresos,
     totalEgresos,
     totalFlujoNeto: totalIngresos - totalEgresos,
-    costEstimatesComplete: allMilestonesInPeriod.every((milestone) => milestone.estimatedCostGTQ !== null),
+    costEstimatesComplete: allMilestonesInPeriod.every(
+      (milestone) => milestone.estimatedCostGTQ !== null
+    ),
     totalHitosCount: allMilestonesInPeriod.length,
     maxMonthIngreso: maxIngreso,
     maxMonthEgreso: maxEgreso,

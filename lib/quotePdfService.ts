@@ -154,7 +154,7 @@ export async function generateQuoteCommercialPdf(
   doc.roundedRect(margin, y, usableWidth, 24, 2, 2, 'F');
 
   const col1X = margin + 4;
-  const col2X = margin + (usableWidth / 2) + 4;
+  const col2X = margin + usableWidth / 2 + 4;
   let clientY = y + 5;
 
   addText('DATOS DEL CLIENTE / PROPIETARIO', col1X, clientY, {
@@ -181,14 +181,24 @@ export async function generateQuoteCommercialPdf(
   });
   clientY += 4;
 
-  addText(`NIT: ${quote.clientNit || 'No especificado'} ${quote.clientPhone ? `• Tel: ${quote.clientPhone}` : ''}`, col1X, clientY, {
-    fontSize: 8,
-    color: [71, 85, 105],
-  });
-  addText(`Plazo Estimado de Ejecución: ${quote.estimatedDuration || 'No especificado'}`, col2X, clientY, {
-    fontSize: 8,
-    color: [71, 85, 105],
-  });
+  addText(
+    `NIT: ${quote.clientNit || 'No especificado'} ${quote.clientPhone ? `• Tel: ${quote.clientPhone}` : ''}`,
+    col1X,
+    clientY,
+    {
+      fontSize: 8,
+      color: [71, 85, 105],
+    }
+  );
+  addText(
+    `Plazo Estimado de Ejecución: ${quote.estimatedDuration || 'No especificado'}`,
+    col2X,
+    clientY,
+    {
+      fontSize: 8,
+      color: [71, 85, 105],
+    }
+  );
   clientY += 4;
 
   addText(`Email: ${quote.clientEmail || 'No especificado'}`, col1X, clientY, {
@@ -241,11 +251,34 @@ export async function generateQuoteCommercialPdf(
   doc.rect(margin, y, usableWidth, 7, 'F');
 
   addText('#', xPos.num, y + 4.8, { fontSize: 7.5, fontStyle: 'bold', color: [255, 255, 255] });
-  addText('Descripción Técnica del Renglón', xPos.desc, y + 4.8, { fontSize: 7.5, fontStyle: 'bold', color: [255, 255, 255] });
-  addText('Cant.', xPos.qty, y + 4.8, { fontSize: 7.5, fontStyle: 'bold', color: [255, 255, 255], align: 'right' });
-  addText('Unidad', xPos.unit, y + 4.8, { fontSize: 7.5, fontStyle: 'bold', color: [255, 255, 255] });
-  addText('P. Unitario', xPos.unitPrice, y + 4.8, { fontSize: 7.5, fontStyle: 'bold', color: [255, 255, 255], align: 'right' });
-  addText('Subtotal (GTQ)', xPos.subtotal, y + 4.8, { fontSize: 7.5, fontStyle: 'bold', color: [255, 255, 255], align: 'right' });
+  addText('Descripción Técnica del Renglón', xPos.desc, y + 4.8, {
+    fontSize: 7.5,
+    fontStyle: 'bold',
+    color: [255, 255, 255],
+  });
+  addText('Cant.', xPos.qty, y + 4.8, {
+    fontSize: 7.5,
+    fontStyle: 'bold',
+    color: [255, 255, 255],
+    align: 'right',
+  });
+  addText('Unidad', xPos.unit, y + 4.8, {
+    fontSize: 7.5,
+    fontStyle: 'bold',
+    color: [255, 255, 255],
+  });
+  addText('P. Unitario', xPos.unitPrice, y + 4.8, {
+    fontSize: 7.5,
+    fontStyle: 'bold',
+    color: [255, 255, 255],
+    align: 'right',
+  });
+  addText('Subtotal (GTQ)', xPos.subtotal, y + 4.8, {
+    fontSize: 7.5,
+    fontStyle: 'bold',
+    color: [255, 255, 255],
+    align: 'right',
+  });
 
   y += 7;
 
@@ -265,13 +298,27 @@ export async function generateQuoteCommercialPdf(
     addText(String(index + 1), xPos.num, y + 4.5, { fontSize: 7.5, color: [100, 116, 139] });
 
     // Truncate description if too long
-    const cleanDesc = item.description.length > 58 ? `${item.description.substring(0, 56)}...` : item.description;
+    const cleanDesc =
+      item.description.length > 58 ? `${item.description.substring(0, 56)}...` : item.description;
     addText(cleanDesc, xPos.desc, y + 4.5, { fontSize: 8, fontStyle: 'bold', color: [30, 41, 59] });
 
-    addText(String(item.qty), xPos.qty, y + 4.5, { fontSize: 7.5, color: [51, 65, 85], align: 'right' });
+    addText(String(item.qty), xPos.qty, y + 4.5, {
+      fontSize: 7.5,
+      color: [51, 65, 85],
+      align: 'right',
+    });
     addText(item.unit, xPos.unit, y + 4.5, { fontSize: 7.5, color: [100, 116, 139] });
-    addText(formatGTQ(item.unitPriceGTQ), xPos.unitPrice, y + 4.5, { fontSize: 7.5, color: [51, 65, 85], align: 'right' });
-    addText(formatGTQ(itemSubtotal), xPos.subtotal, y + 4.5, { fontSize: 8, fontStyle: 'bold', color: [15, 23, 42], align: 'right' });
+    addText(formatGTQ(item.unitPriceGTQ), xPos.unitPrice, y + 4.5, {
+      fontSize: 7.5,
+      color: [51, 65, 85],
+      align: 'right',
+    });
+    addText(formatGTQ(itemSubtotal), xPos.subtotal, y + 4.5, {
+      fontSize: 8,
+      fontStyle: 'bold',
+      color: [15, 23, 42],
+      align: 'right',
+    });
 
     y += 6.5;
 
@@ -304,17 +351,36 @@ export async function generateQuoteCommercialPdf(
 
   let sY = summaryY + 5;
   addText('Subtotal Partidas:', summaryBoxX + 4, sY, { fontSize: 8, color: [71, 85, 105] });
-  addText(formatGTQ(grossSubtotal), summaryBoxX + summaryBoxW - 4, sY, { fontSize: 8, fontStyle: 'bold', align: 'right' });
+  addText(formatGTQ(grossSubtotal), summaryBoxX + summaryBoxW - 4, sY, {
+    fontSize: 8,
+    fontStyle: 'bold',
+    align: 'right',
+  });
   sY += 4.5;
 
   if (quote.discountPercent) {
-    addText(`Descuento (${quote.discountPercent}%):`, summaryBoxX + 4, sY, { fontSize: 8, color: [225, 29, 72] });
-    addText(`-${formatGTQ(discountVal)}`, summaryBoxX + summaryBoxW - 4, sY, { fontSize: 8, fontStyle: 'bold', color: [225, 29, 72], align: 'right' });
+    addText(`Descuento (${quote.discountPercent}%):`, summaryBoxX + 4, sY, {
+      fontSize: 8,
+      color: [225, 29, 72],
+    });
+    addText(`-${formatGTQ(discountVal)}`, summaryBoxX + summaryBoxW - 4, sY, {
+      fontSize: 8,
+      fontStyle: 'bold',
+      color: [225, 29, 72],
+      align: 'right',
+    });
     sY += 4.5;
   }
 
-  addText('IVA Débito Fiscal (12% SAT):', summaryBoxX + 4, sY, { fontSize: 8, color: [71, 85, 105] });
-  addText(formatGTQ(ivaTaxVal), summaryBoxX + summaryBoxW - 4, sY, { fontSize: 8, fontStyle: 'bold', align: 'right' });
+  addText('IVA Débito Fiscal (12% SAT):', summaryBoxX + 4, sY, {
+    fontSize: 8,
+    color: [71, 85, 105],
+  });
+  addText(formatGTQ(ivaTaxVal), summaryBoxX + summaryBoxW - 4, sY, {
+    fontSize: 8,
+    fontStyle: 'bold',
+    align: 'right',
+  });
   sY += 5;
 
   doc.setFillColor(30, 58, 138);
@@ -386,11 +452,16 @@ export async function generateQuoteCommercialPdf(
     color: [15, 23, 42],
     align: 'center',
   });
-  addText(`Arquitecto Responsable • Col. ${company.architectColNumber || 'CIG-12940'}`, sig1X + sigW / 2, y + 21.5, {
-    fontSize: 7,
-    color: [100, 116, 139],
-    align: 'center',
-  });
+  addText(
+    `Arquitecto Responsable • Col. ${company.architectColNumber || 'CIG-12940'}`,
+    sig1X + sigW / 2,
+    y + 21.5,
+    {
+      fontSize: 7,
+      color: [100, 116, 139],
+      align: 'center',
+    }
+  );
   addText(company.commercialName || company.companyName, sig1X + sigW / 2, y + 25, {
     fontSize: 7,
     color: [100, 116, 139],
@@ -408,11 +479,16 @@ export async function generateQuoteCommercialPdf(
     color: [100, 116, 139],
     align: 'center',
   });
-  addText(`NIT: ${quote.clientNit || 'CF'} • Fecha de Aceptación: ___________`, sig2X + sigW / 2, y + 25, {
-    fontSize: 7,
-    color: [100, 116, 139],
-    align: 'center',
-  });
+  addText(
+    `NIT: ${quote.clientNit || 'CF'} • Fecha de Aceptación: ___________`,
+    sig2X + sigW / 2,
+    y + 25,
+    {
+      fontSize: 7,
+      color: [100, 116, 139],
+      align: 'center',
+    }
+  );
 
   // Footer: Document Verification & Watermark
   addText(

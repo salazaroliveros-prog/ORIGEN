@@ -45,7 +45,11 @@ export function buildMonthlyExpenseSeries(
     endMonth = new Date(endYear, endNumber - 1, 1);
   } else {
     const monthsToShow = range === '6m' ? 6 : 12;
-    startMonth = new Date(referenceMonth.getFullYear(), referenceMonth.getMonth() - monthsToShow + 1, 1);
+    startMonth = new Date(
+      referenceMonth.getFullYear(),
+      referenceMonth.getMonth() - monthsToShow + 1,
+      1
+    );
     endMonth = referenceMonth;
   }
 
@@ -59,7 +63,9 @@ export function buildMonthlyExpenseSeries(
     result.push({
       monthKey,
       monthLabel: new Intl.DateTimeFormat('es-GT', { month: 'short' }).format(month),
-      fullMonthLabel: new Intl.DateTimeFormat('es-GT', { month: 'long', year: 'numeric' }).format(month),
+      fullMonthLabel: new Intl.DateTimeFormat('es-GT', { month: 'long', year: 'numeric' }).format(
+        month
+      ),
       amountGTQ: totals.get(monthKey) ?? 0,
     });
   }

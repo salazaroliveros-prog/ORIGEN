@@ -58,11 +58,16 @@ export function CashFlowProjectionChart({
   const [showAllProjects, setShowAllProjects] = useState(false);
   const selectedProjectId = showAllProjects
     ? 'all'
-    : projects.some((project) =>
-      project.id === activeProjectId && project.status !== 'Finalizado' && project.status !== 'Archivado'
-    )
+    : projects.some(
+          (project) =>
+            project.id === activeProjectId &&
+            project.status !== 'Finalizado' &&
+            project.status !== 'Archivado'
+        )
       ? activeProjectId
-      : projects.find((project) => project.status !== 'Finalizado' && project.status !== 'Archivado')?.id ?? 'all';
+      : (projects.find(
+          (project) => project.status !== 'Finalizado' && project.status !== 'Archivado'
+        )?.id ?? 'all');
   const [chartMode, setChartMode] = useState<'inflow_outflow' | 'net_cumulative'>('inflow_outflow');
   const [showMilestonesList, setShowMilestonesList] = useState<boolean>(true);
   const [startOffsetMonths, setStartOffsetMonths] = useState<number>(0);
@@ -87,23 +92,28 @@ export function CashFlowProjectionChart({
   const isNetPositive = summary.costEstimatesComplete && summary.totalFlujoNeto >= 0;
   const netColor = !summary.costEstimatesComplete
     ? 'text-slate-300'
-    : isNetPositive ? 'text-emerald-400' : 'text-rose-400';
+    : isNetPositive
+      ? 'text-emerald-400'
+      : 'text-rose-400';
 
   return (
-    <div className={`bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5 ${className}`}>
+    <div
+      className={`space-y-5 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl sm:p-6 ${className}`}
+    >
       {/* Header and Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-4 lg:flex-row lg:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Wallet className="w-5 h-5" />
+            <span className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-2 text-cyan-400">
+              <Wallet className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-base font-extrabold text-white flex items-center gap-2">
+              <h2 className="flex items-center gap-2 text-base font-extrabold text-white">
                 Proyección de Flujo de Caja Semestral (Basado en Hitos)
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Ingresos por hitos guardados y costos estimados con margen configurado ({summary.months[0]?.monthLabel} - {summary.months[5]?.monthLabel}).
+              <p className="mt-0.5 text-xs text-slate-400">
+                Ingresos por hitos guardados y costos estimados con margen configurado (
+                {summary.months[0]?.monthLabel} - {summary.months[5]?.monthLabel}).
               </p>
             </div>
           </div>
@@ -112,8 +122,8 @@ export function CashFlowProjectionChart({
         {/* Filter Bar */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {/* Project Filter */}
-          <div className="flex items-center gap-1.5 bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-1">
-            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-2.5 py-1">
+            <Building2 className="h-3.5 w-3.5 text-slate-400" />
             <select
               aria-label="Filtrar flujo de caja por proyecto"
               value={selectedProjectId}
@@ -122,7 +132,7 @@ export function CashFlowProjectionChart({
                 setShowAllProjects(projectId === 'all');
                 if (projectId !== 'all') onSelectProject(projectId);
               }}
-              className="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer"
+              className="cursor-pointer bg-transparent font-bold text-slate-200 focus:outline-none"
             >
               <option value="all" className="bg-slate-800 text-white">
                 Todos los Proyectos Activos ({activeProjects.length})
@@ -136,10 +146,10 @@ export function CashFlowProjectionChart({
           </div>
 
           {/* Mode Switcher */}
-          <div className="flex items-center bg-slate-800 border border-slate-700 p-0.5 rounded-xl font-bold">
+          <div className="flex items-center rounded-xl border border-slate-700 bg-slate-800 p-0.5 font-bold">
             <button
               onClick={() => setChartMode('inflow_outflow')}
-              className={`px-2.5 py-1 rounded-lg transition ${
+              className={`rounded-lg px-2.5 py-1 transition ${
                 chartMode === 'inflow_outflow'
                   ? 'bg-cyan-700 text-white shadow'
                   : 'text-slate-400 hover:text-white'
@@ -149,7 +159,7 @@ export function CashFlowProjectionChart({
             </button>
             <button
               onClick={() => setChartMode('net_cumulative')}
-              className={`px-2.5 py-1 rounded-lg transition ${
+              className={`rounded-lg px-2.5 py-1 transition ${
                 chartMode === 'net_cumulative'
                   ? 'bg-cyan-700 text-white shadow'
                   : 'text-slate-400 hover:text-white'
@@ -160,23 +170,23 @@ export function CashFlowProjectionChart({
           </div>
 
           {/* Timeline Offset Navigator */}
-          <div className="flex items-center gap-1 bg-slate-800/80 border border-slate-700 rounded-xl px-2 py-1">
-            <Calendar className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-1">
+            <Calendar className="h-3.5 w-3.5 text-amber-400" />
             <button
               onClick={() => setStartOffsetMonths((prev) => Math.max(-3, prev - 1))}
               disabled={startOffsetMonths <= -3}
-              className="text-slate-400 hover:text-white disabled:opacity-30 px-1 font-mono font-bold"
+              className="px-1 font-mono font-bold text-slate-400 hover:text-white disabled:opacity-30"
               title="Mes anterior"
             >
               ◀
             </button>
-            <span className="text-slate-300 font-mono text-[11px] px-1 font-bold">
+            <span className="px-1 font-mono text-[11px] font-bold text-slate-300">
               {summary.months[0]?.monthLabel}
             </span>
             <button
               onClick={() => setStartOffsetMonths((prev) => Math.min(12, prev + 1))}
               disabled={startOffsetMonths >= 12}
-              className="text-slate-400 hover:text-white disabled:opacity-30 px-1 font-mono font-bold"
+              className="px-1 font-mono font-bold text-slate-400 hover:text-white disabled:opacity-30"
               title="Mes siguiente"
             >
               ▶
@@ -186,87 +196,98 @@ export function CashFlowProjectionChart({
       </div>
 
       {/* KPI Cards for the 6-Month Projection */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-slate-800/50 border border-slate-700/60 p-3.5 rounded-xl">
-          <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-3.5">
+          <div className="flex items-start justify-between">
+            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               Ingresos Proyectados (6M)
             </span>
-            <span className="p-1 rounded-lg bg-emerald-500/10 text-emerald-400">
-              <ArrowUpRight className="w-3.5 h-3.5" />
+            <span className="rounded-lg bg-emerald-500/10 p-1 text-emerald-400">
+              <ArrowUpRight className="h-3.5 w-3.5" />
             </span>
           </div>
-          <p className="text-lg sm:text-xl font-black text-emerald-400 mt-1 font-mono">
+          <p className="mt-1 font-mono text-lg font-black text-emerald-400 sm:text-xl">
             {formatGTQ(summary.totalIngresos)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">
-            Por cobro de estimaciones de hitos
-          </p>
+          <p className="mt-0.5 text-[10px] text-slate-400">Por cobro de estimaciones de hitos</p>
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-700/60 p-3.5 rounded-xl">
-          <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-3.5">
+          <div className="flex items-start justify-between">
+            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               Egresos Proyectados (6M)
             </span>
-            <span className="p-1 rounded-lg bg-amber-500/10 text-amber-400">
-              <ArrowDownRight className="w-3.5 h-3.5" />
+            <span className="rounded-lg bg-amber-500/10 p-1 text-amber-400">
+              <ArrowDownRight className="h-3.5 w-3.5" />
             </span>
           </div>
-          <p className="text-lg sm:text-xl font-black text-amber-400 mt-1 font-mono">
+          <p className="mt-1 font-mono text-lg font-black text-amber-400 sm:text-xl">
             {formatGTQ(summary.totalEgresos)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">
+          <p className="mt-0.5 text-[10px] text-slate-400">
             Solo incluye hitos con margen configurado
           </p>
         </div>
 
         <div
-          className={`border p-3.5 rounded-xl ${
+          className={`rounded-xl border p-3.5 ${
             !summary.costEstimatesComplete
-              ? 'bg-slate-800/50 border-slate-700/60'
+              ? 'border-slate-700/60 bg-slate-800/50'
               : isNetPositive
-              ? 'bg-emerald-950/20 border-emerald-800/60'
-              : 'bg-rose-950/20 border-rose-800/60'
+                ? 'border-emerald-800/60 bg-emerald-950/20'
+                : 'border-rose-800/60 bg-rose-950/20'
           }`}
         >
-          <div className="flex justify-between items-start">
-            <span className={`text-[11px] font-bold uppercase tracking-wider ${netColor}`}>
+          <div className="flex items-start justify-between">
+            <span className={`text-[11px] font-bold tracking-wider uppercase ${netColor}`}>
               {summary.costEstimatesComplete ? 'Flujo Neto del Semestre' : 'Flujo Neto Parcial'}
             </span>
-            <span className={`p-1 rounded-lg ${summary.costEstimatesComplete
-              ? isNetPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
-              : 'bg-slate-700 text-slate-300'}`}>
-              <DollarSign className="w-3.5 h-3.5" />
+            <span
+              className={`rounded-lg p-1 ${
+                summary.costEstimatesComplete
+                  ? isNetPositive
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : 'bg-rose-500/20 text-rose-400'
+                  : 'bg-slate-700 text-slate-300'
+              }`}
+            >
+              <DollarSign className="h-3.5 w-3.5" />
             </span>
           </div>
-          <p className={`text-lg sm:text-xl font-black mt-1 font-mono ${netColor}`}>
+          <p className={`mt-1 font-mono text-lg font-black sm:text-xl ${netColor}`}>
             {isNetPositive ? '+' : ''}
             {formatGTQ(summary.totalFlujoNeto)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">
+          <p className="mt-0.5 text-[10px] text-slate-400">
             {!summary.costEstimatesComplete
               ? 'Parcial: hay hitos sin margen para estimar costos'
-              : isNetPositive ? 'Saldo proyectado según hitos' : 'Saldo negativo según hitos'}
+              : isNetPositive
+                ? 'Saldo proyectado según hitos'
+                : 'Saldo negativo según hitos'}
           </p>
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-700/60 p-3.5 rounded-xl">
-          <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-3.5">
+          <div className="flex items-start justify-between">
+            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               Hitos en el Semestre
             </span>
-            <span className="p-1 rounded-lg bg-cyan-500/10 text-cyan-400">
-              <Target className="w-3.5 h-3.5" />
+            <span className="rounded-lg bg-cyan-500/10 p-1 text-cyan-400">
+              <Target className="h-3.5 w-3.5" />
             </span>
           </div>
-          <p className="text-lg sm:text-xl font-black text-cyan-400 mt-1">
+          <p className="mt-1 text-lg font-black text-cyan-400 sm:text-xl">
             {summary.totalHitosCount} Hitos Programados
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">
+          <p className="mt-0.5 text-[10px] text-slate-400">
             {summary.totalHitosCount > 0 ? (
-              <>Pico de cobro en: <strong className="text-slate-200">{summary.maxMonthIngreso.monthLabel}</strong></>
-            ) : 'Basado únicamente en hitos guardados'}
+              <>
+                Pico de cobro en:{' '}
+                <strong className="text-slate-200">{summary.maxMonthIngreso.monthLabel}</strong>
+              </>
+            ) : (
+              'Basado únicamente en hitos guardados'
+            )}
           </p>
         </div>
       </div>
@@ -274,10 +295,7 @@ export function CashFlowProjectionChart({
       {/* Main Area Chart */}
       <div className="h-80 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={summary.months}
-            margin={{ top: 15, right: 25, left: 10, bottom: 15 }}
-          >
+          <AreaChart data={summary.months} margin={{ top: 15, right: 25, left: 10, bottom: 15 }}>
             <defs>
               {/* Gradient for Ingresos (Emerald) */}
               <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
@@ -306,13 +324,7 @@ export function CashFlowProjectionChart({
 
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
 
-            <XAxis
-              dataKey="monthLabel"
-              stroke="#94a3b8"
-              fontSize={11}
-              tickLine={false}
-              dy={5}
-            />
+            <XAxis dataKey="monthLabel" stroke="#94a3b8" fontSize={11} tickLine={false} dy={5} />
 
             <YAxis
               stroke="#94a3b8"
@@ -350,9 +362,11 @@ export function CashFlowProjectionChart({
                 <Area
                   type="monotone"
                   dataKey="flujoNeto"
-                  name={summary.costEstimatesComplete
-                    ? 'Flujo Neto Mensual (Q)'
-                    : 'Flujo Neto Parcial (faltan márgenes)'}
+                  name={
+                    summary.costEstimatesComplete
+                      ? 'Flujo Neto Mensual (Q)'
+                      : 'Flujo Neto Parcial (faltan márgenes)'
+                  }
                   stroke="#06b6d4"
                   strokeWidth={2.5}
                   fillOpacity={1}
@@ -361,9 +375,11 @@ export function CashFlowProjectionChart({
                 <Area
                   type="monotone"
                   dataKey="flujoAcumulado"
-                  name={summary.costEstimatesComplete
-                    ? 'Saldo de Tesorería Acumulado'
-                    : 'Saldo Acumulado Parcial'}
+                  name={
+                    summary.costEstimatesComplete
+                      ? 'Saldo de Tesorería Acumulado'
+                      : 'Saldo Acumulado Parcial'
+                  }
                   stroke="#818cf8"
                   strokeWidth={2.5}
                   fillOpacity={1}
@@ -376,48 +392,60 @@ export function CashFlowProjectionChart({
       </div>
 
       {/* Strategic Insight Alert */}
-      <div className="bg-slate-800/40 border border-slate-700/80 rounded-xl p-3.5 flex items-start gap-3 text-xs">
-        <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 rounded-xl border border-slate-700/80 bg-slate-800/40 p-3.5 text-xs">
+        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
         <div className="space-y-0.5">
-          <p className="text-slate-200 font-bold">
-            Análisis de Tesorería por Calendario de Hitos:
-          </p>
+          <p className="font-bold text-slate-200">Análisis de Tesorería por Calendario de Hitos:</p>
           <p className="text-slate-400">
-            {summary.totalHitosCount > 0
-              ? <>El mes con mayor concentración de facturación proyectada es <strong className="text-emerald-400">{summary.maxMonthIngreso.monthLabel}</strong> ({formatGTQ(summary.maxMonthIngreso.amount)}). Los ingresos estimados usan hitos guardados y el presupuesto de cada proyecto; los costos requieren un margen configurado.</>
-              : 'No hay hitos guardados dentro del periodo seleccionado. Registra el cronograma del proyecto para calcular una proyección; no se generan hitos automáticamente.'}
+            {summary.totalHitosCount > 0 ? (
+              <>
+                El mes con mayor concentración de facturación proyectada es{' '}
+                <strong className="text-emerald-400">{summary.maxMonthIngreso.monthLabel}</strong> (
+                {formatGTQ(summary.maxMonthIngreso.amount)}). Los ingresos estimados usan hitos
+                guardados y el presupuesto de cada proyecto; los costos requieren un margen
+                configurado.
+              </>
+            ) : (
+              'No hay hitos guardados dentro del periodo seleccionado. Registra el cronograma del proyecto para calcular una proyección; no se generan hitos automáticamente.'
+            )}
           </p>
           {!summary.costEstimatesComplete && summary.totalHitosCount > 0 && (
             <p className="text-amber-300">
-              El flujo neto es parcial: configura el margen de utilidad de cada proyecto para estimar el costo de todos sus hitos.
+              El flujo neto es parcial: configura el margen de utilidad de cada proyecto para
+              estimar el costo de todos sus hitos.
             </p>
           )}
         </div>
       </div>
 
       {/* Collapsible Milestone Breakdown Drawer */}
-      <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/40">
+      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40">
         <button
           onClick={() => setShowMilestonesList(!showMilestonesList)}
-          className="w-full flex items-center justify-between p-3.5 bg-slate-800/50 hover:bg-slate-800 text-left transition"
+          className="flex w-full items-center justify-between bg-slate-800/50 p-3.5 text-left transition hover:bg-slate-800"
         >
           <div className="flex items-center gap-2">
-            <CalendarDays className="w-4 h-4 text-cyan-400" />
-            <span className="text-xs font-bold text-white uppercase tracking-wider">
+            <CalendarDays className="h-4 w-4 text-cyan-400" />
+            <span className="text-xs font-bold tracking-wider text-white uppercase">
               Detalle de Hitos del Cronograma en el Periodo ({summary.allMilestonesInPeriod.length})
             </span>
           </div>
-          <span className="text-xs text-slate-400 flex items-center gap-1 font-semibold">
+          <span className="flex items-center gap-1 text-xs font-semibold text-slate-400">
             {showMilestonesList ? 'Ocultar' : 'Ver detalle'}
-            {showMilestonesList ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {showMilestonesList ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
           </span>
         </button>
 
         {showMilestonesList && (
-          <div className="p-3 overflow-x-auto">
+          <div className="overflow-x-auto p-3">
             {summary.allMilestonesInPeriod.length === 0 ? (
-              <p className="text-xs text-slate-400 py-3 text-center">
-                No hay hitos registrados en los 6 meses seleccionados. La proyección utiliza únicamente datos guardados en el cronograma.
+              <p className="py-3 text-center text-xs text-slate-400">
+                No hay hitos registrados en los 6 meses seleccionados. La proyección utiliza
+                únicamente datos guardados en el cronograma.
               </p>
             ) : (
               <table className="w-full text-left text-xs">
@@ -434,40 +462,40 @@ export function CashFlowProjectionChart({
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-mono">
                   {summary.allMilestonesInPeriod.map((m) => (
-                    <tr key={`${m.projectId}:${m.id}`} className="hover:bg-slate-800/30 transition">
-                      <td className="py-2.5 text-slate-300 flex items-center gap-1.5 font-sans">
-                        <Clock className="w-3 h-3 text-cyan-400 shrink-0" />
+                    <tr key={`${m.projectId}:${m.id}`} className="transition hover:bg-slate-800/30">
+                      <td className="flex items-center gap-1.5 py-2.5 font-sans text-slate-300">
+                        <Clock className="h-3 w-3 shrink-0 text-cyan-400" />
                         {m.targetDate}
                       </td>
                       <td className="py-2.5 font-sans text-slate-200">
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-amber-400 font-bold mr-1">
+                        <span className="mr-1 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
                           {m.projectCode}
                         </span>
                         {m.projectName.substring(0, 20)}
                       </td>
-                      <td className="py-2.5 font-sans text-white font-medium">
+                      <td className="py-2.5 font-sans font-medium text-white">
                         {m.title}
-                        <span className="text-[10px] text-slate-400 block font-sans">
+                        <span className="block font-sans text-[10px] text-slate-400">
                           Fase: {m.phase}
                         </span>
                       </td>
-                      <td className="py-2.5 text-right text-slate-300">
-                        {m.weightPercent}%
-                      </td>
+                      <td className="py-2.5 text-right text-slate-300">{m.weightPercent}%</td>
                       <td className="py-2.5 text-right font-bold text-emerald-400">
                         {formatGTQ(m.estimatedBillingGTQ)}
                       </td>
                       <td className="py-2.5 text-right text-amber-400">
-                        {m.estimatedCostGTQ === null ? 'Sin margen configurado' : formatGTQ(m.estimatedCostGTQ)}
+                        {m.estimatedCostGTQ === null
+                          ? 'Sin margen configurado'
+                          : formatGTQ(m.estimatedCostGTQ)}
                       </td>
                       <td className="py-2.5 text-center font-sans">
                         {m.completed ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
-                            <CheckCircle2 className="w-2.5 h-2.5" /> Cumplido
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                            <CheckCircle2 className="h-2.5 w-2.5" /> Cumplido
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800">
-                            <Clock className="w-2.5 h-2.5" /> Programado
+                          <span className="inline-flex items-center gap-1 rounded-full border border-cyan-800 bg-cyan-950 px-2 py-0.5 text-[10px] font-bold text-cyan-300">
+                            <Clock className="h-2.5 w-2.5" /> Programado
                           </span>
                         )}
                       </td>
@@ -492,33 +520,33 @@ function CustomCashFlowTooltip({ active, payload, label }: any) {
     const isPositive = data.flujoNeto >= 0;
 
     return (
-      <div className="bg-slate-950 border border-slate-700 p-3.5 rounded-xl shadow-2xl text-xs space-y-2 font-sans min-w-[240px]">
-        <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
-          <strong className="text-white text-sm">{data.fullMonthName}</strong>
-          <span className="text-[10px] font-mono text-cyan-400 font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800">
+      <div className="min-w-[240px] space-y-2 rounded-xl border border-slate-700 bg-slate-950 p-3.5 font-sans text-xs shadow-2xl">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <strong className="text-sm text-white">{data.fullMonthName}</strong>
+          <span className="rounded border border-cyan-800 bg-cyan-950/60 px-2 py-0.5 font-mono text-[10px] font-bold text-cyan-400">
             {data.hitosCount} {data.hitosCount === 1 ? 'Hito' : 'Hitos'}
           </span>
         </div>
 
         <div className="space-y-1 font-mono text-[11px]">
-          <div className="flex justify-between items-center text-emerald-400 font-bold">
+          <div className="flex items-center justify-between font-bold text-emerald-400">
             <span className="flex items-center gap-1 font-sans">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500" />
               Ingresos (Cobros):
             </span>
             <span>{formatGTQ(data.ingresos)}</span>
           </div>
 
-          <div className="flex justify-between items-center text-amber-400 font-bold">
+          <div className="flex items-center justify-between font-bold text-amber-400">
             <span className="flex items-center gap-1 font-sans">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-500" />
               Egresos (Costos):
             </span>
             <span>{formatGTQ(data.egresos)}</span>
           </div>
 
           <div
-            className={`flex justify-between items-center font-extrabold pt-1 border-t border-slate-800 ${
+            className={`flex items-center justify-between border-t border-slate-800 pt-1 font-extrabold ${
               isPositive ? 'text-cyan-300' : 'text-rose-400'
             }`}
           >
@@ -529,18 +557,19 @@ function CustomCashFlowTooltip({ active, payload, label }: any) {
             </span>
           </div>
 
-          <div className="flex justify-between items-center text-indigo-300 font-bold">
+          <div className="flex items-center justify-between font-bold text-indigo-300">
             <span className="font-sans">Saldo Acumulado:</span>
             <span>{formatGTQ(data.flujoAcumulado)}</span>
           </div>
         </div>
 
         {data.hitos && data.hitos.length > 0 && (
-          <div className="border-t border-slate-800/80 pt-1.5 space-y-1 text-[10px]">
-            <p className="text-slate-400 font-bold font-sans uppercase">Hitos a entregar:</p>
+          <div className="space-y-1 border-t border-slate-800/80 pt-1.5 text-[10px]">
+            <p className="font-sans font-bold text-slate-400 uppercase">Hitos a entregar:</p>
             {data.hitos.map((h, i) => (
-              <div key={i} className="text-slate-300 truncate">
-                • <strong className="text-white">{h.projectCode}:</strong> {h.title} ({formatGTQ(h.estimatedBillingGTQ)})
+              <div key={i} className="truncate text-slate-300">
+                • <strong className="text-white">{h.projectCode}:</strong> {h.title} (
+                {formatGTQ(h.estimatedBillingGTQ)})
               </div>
             ))}
           </div>

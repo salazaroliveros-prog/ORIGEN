@@ -1,7 +1,7 @@
 'use client';
 
-import { AlertCircle,CheckCircle2,MapPin,PenTool,RotateCcw,Undo2,X } from 'lucide-react';
-import React,{ useCallback,useEffect,useRef,useState } from 'react';
+import { AlertCircle, CheckCircle2, MapPin, PenTool, RotateCcw, Undo2, X } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface SignatureResult {
   dataUrl: string;
@@ -28,7 +28,7 @@ export interface SignaturePadProps {
   className?: string;
 }
 
-export const SignaturePad: React.FC<SignaturePadProps> = ({
+export function SignaturePad({
   isOpen = true,
   onClose,
   onSaveSignature,
@@ -42,7 +42,7 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
   subtitle = 'Autorización formal de bitácora y reporte de campo',
   visitId,
   className = '',
-}) => {
+}: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
@@ -142,7 +142,9 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
     setStrokeHistory((prev) => [...prev.slice(-10), imageData]);
   };
 
-  const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const getCoordinates = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
@@ -159,7 +161,9 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
     };
   };
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const startDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     e.preventDefault();
     setValidationError(null);
     saveState();
@@ -255,9 +259,9 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
 
   const content = (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
             Nombre del Capataz / Residente <span className="text-rose-500">*</span>
           </label>
           <input
@@ -265,12 +269,12 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
             value={signerName}
             onChange={(e) => setSignerName(e.target.value)}
             placeholder="Ej. Don Mario Cifuentes"
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
             DPI (CUI Guatemala) <span className="text-rose-500">*</span>
           </label>
           <input
@@ -278,28 +282,30 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
             value={signerDpi}
             onChange={(e) => setSignerDpi(e.target.value)}
             placeholder="XXXX XXXXX XXXX"
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-slate-700 mb-1">Puesto o Cargo en Obra</label>
+        <label className="mb-1 block text-xs font-semibold text-slate-700">
+          Puesto o Cargo en Obra
+        </label>
         <input
           type="text"
           value={signerRole}
           onChange={(e) => setSignerRole(e.target.value)}
           placeholder="Ej. Capataz General de Obra"
-          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
       </div>
 
       {/* Canvas Area */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-            <PenTool className="w-3.5 h-3.5 text-blue-600" />
+          <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
+            <PenTool className="h-3.5 w-3.5 text-blue-600" />
             Lienzo de Firma Digital (HTML5 Canvas):
           </label>
 
@@ -309,13 +315,13 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
               <button
                 type="button"
                 onClick={() => setPenColor('#0f172a')}
-                className={`w-4 h-4 rounded-full bg-slate-900 border ${penColor === '#0f172a' ? 'ring-2 ring-blue-500' : ''}`}
+                className={`h-4 w-4 rounded-full border bg-slate-900 ${penColor === '#0f172a' ? 'ring-2 ring-blue-500' : ''}`}
                 title="Tinta Negra"
               />
               <button
                 type="button"
                 onClick={() => setPenColor('#1e40af')}
-                className={`w-4 h-4 rounded-full bg-blue-800 border ${penColor === '#1e40af' ? 'ring-2 ring-blue-500' : ''}`}
+                className={`h-4 w-4 rounded-full border bg-blue-800 ${penColor === '#1e40af' ? 'ring-2 ring-blue-500' : ''}`}
                 title="Tinta Azul Obra"
               />
             </div>
@@ -324,21 +330,21 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
               type="button"
               onClick={handleUndo}
               disabled={strokeHistory.length === 0}
-              className="text-xs text-slate-600 hover:text-slate-900 disabled:opacity-40 flex items-center gap-1 cursor-pointer"
+              className="flex cursor-pointer items-center gap-1 text-xs text-slate-600 hover:text-slate-900 disabled:opacity-40"
             >
-              <Undo2 className="w-3.5 h-3.5" /> Deshacer
+              <Undo2 className="h-3.5 w-3.5" /> Deshacer
             </button>
             <button
               type="button"
               onClick={handleClear}
-              className="text-xs text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 cursor-pointer"
+              className="flex cursor-pointer items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> Limpiar
+              <RotateCcw className="h-3.5 w-3.5" /> Limpiar
             </button>
           </div>
         </div>
 
-        <div className="border-2 border-slate-300 rounded-xl bg-white overflow-hidden touch-none shadow-inner flex justify-center">
+        <div className="flex touch-none justify-center overflow-hidden rounded-xl border-2 border-slate-300 bg-white shadow-inner">
           <canvas
             ref={canvasRef}
             style={{ width: '100%', height: '180px', touchAction: 'none' }}
@@ -356,40 +362,45 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
 
       {/* Validation alert */}
       {validationError && (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+        <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700">
+          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
           <span>{validationError}</span>
         </div>
       )}
 
       {/* GPS, Timestamp & Compliance stamp */}
-      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+      <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
         <div className="flex flex-wrap items-center justify-between gap-2">
           {gpsCoords && (
             <p className="flex items-center gap-1 font-mono text-[11px] text-slate-700">
-              <MapPin className="w-3.5 h-3.5 text-rose-500" />
-              <span>GPS Obra: {gpsCoords.lat.toFixed(5)}° N, {gpsCoords.lng.toFixed(5)}° W</span>
+              <MapPin className="h-3.5 w-3.5 text-rose-500" />
+              <span>
+                GPS Obra: {gpsCoords.lat.toFixed(5)}° N, {gpsCoords.lng.toFixed(5)}° W
+              </span>
               {gpsStatus === 'success' && (
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-sans font-bold">
+                <span className="py-0.2 rounded bg-emerald-100 px-1.5 font-sans text-[10px] font-bold text-emerald-800">
                   En Vivo
                 </span>
               )}
             </p>
           )}
-          <span className="text-[11px] text-slate-500">Hora: {new Date().toLocaleTimeString('es-GT')}</span>
+          <span className="text-[11px] text-slate-500">
+            Hora: {new Date().toLocaleTimeString('es-GT')}
+          </span>
         </div>
-        <p className="text-[11px] text-slate-500 leading-tight">
-          Sello digital vinculante: La firma en lienzo HTML5 valida las partidas de obra y garantiza trazabilidad jurídica en Guatemala.
+        <p className="text-[11px] leading-tight text-slate-500">
+          Sello digital vinculante: La firma en lienzo HTML5 valida las partidas de obra y garantiza
+          trazabilidad jurídica en Guatemala.
         </p>
       </div>
 
       {/* Actions */}
-      <div className="pt-2 flex items-center justify-end gap-2.5">
+      <div className="flex items-center justify-end gap-2.5 pt-2">
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 cursor-pointer transition"
+            className="cursor-pointer rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
           >
             Cancelar
           </button>
@@ -397,31 +408,33 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
         <button
           type="button"
           onClick={handleConfirm}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm cursor-pointer transition"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700"
         >
-          <CheckCircle2 className="w-4 h-4" /> Autorizar con Firma Digital
+          <CheckCircle2 className="h-4 w-4" /> Autorizar con Firma Digital
         </button>
       </div>
     </div>
   );
 
   if (inline) {
-    return <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">{content}</div>;
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">{content}</div>
+    );
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden my-6 animate-in fade-in zoom-in-95 duration-200">
-        <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4 backdrop-blur-xs">
+      <div className="animate-in fade-in zoom-in-95 my-6 w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl duration-200">
+        <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-blue-600 text-white">
-              <PenTool className="w-4 h-4" />
+            <div className="rounded-lg bg-blue-600 p-1.5 text-white">
+              <PenTool className="h-4 w-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-sm sm:text-base">{title}</h3>
+                <h3 className="text-sm font-bold sm:text-base">{title}</h3>
                 {visitId && (
-                  <span className="text-[10px] font-mono font-bold bg-blue-500/30 text-blue-200 px-1.5 py-0.5 rounded">
+                  <span className="rounded bg-blue-500/30 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-200">
                     ID: {visitId}
                   </span>
                 )}
@@ -430,8 +443,8 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
             </div>
           </div>
           {onClose && (
-            <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-lg">
-              <X className="w-5 h-5" />
+            <button onClick={onClose} className="rounded-lg p-1 text-slate-400 hover:text-white">
+              <X className="h-5 w-5" />
             </button>
           )}
         </div>
@@ -440,6 +453,6 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default SignaturePad;

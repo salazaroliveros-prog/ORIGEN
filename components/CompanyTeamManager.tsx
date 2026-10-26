@@ -12,7 +12,12 @@ import {
   subscribeCompanyInvitations,
   subscribeCompanyMembers,
 } from '@/lib/companyInvitations';
-import type { CompanyInvitation, CompanyMembership, CompanyRole, CompanySettings } from '@/lib/types';
+import type {
+  CompanyInvitation,
+  CompanyMembership,
+  CompanyRole,
+  CompanySettings,
+} from '@/lib/types';
 
 const ROLE_LABELS: Record<CompanyRole, string> = {
   owner: 'Propietario',
@@ -133,15 +138,21 @@ export function CompanyTeamManager({
 
       <Card variant="elevated" padding="lg">
         <div className="mb-4 flex items-start gap-3">
-          <span className="rounded-xl bg-sky-500/10 p-2 text-sky-300"><UserPlus className="h-5 w-5" /></span>
+          <span className="rounded-xl bg-sky-500/10 p-2 text-sky-300">
+            <UserPlus className="h-5 w-5" />
+          </span>
           <div>
             <h2 className="font-semibold text-white">Invitar por correo</h2>
             <p className="mt-1 text-sm text-slate-400">
-              El destinatario debe iniciar sesión con este mismo correo y verificarlo. Los enlaces vencen en 7 días y sólo se usan una vez.
+              El destinatario debe iniciar sesión con este mismo correo y verificarlo. Los enlaces
+              vencen en 7 días y sólo se usan una vez.
             </p>
           </div>
         </div>
-        <form onSubmit={(event) => void sendInvitation(event)} className="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem_auto]">
+        <form
+          onSubmit={(event) => void sendInvitation(event)}
+          className="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem_auto]"
+        >
           <label className="space-y-1 text-sm text-slate-300">
             Correo electrónico
             <input
@@ -163,11 +174,25 @@ export function CompanyTeamManager({
               disabled={isLoading}
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
             >
-              {INVITABLE_ROLES.map((item) => <option key={item} value={item}>{ROLE_LABELS[item]}</option>)}
+              {INVITABLE_ROLES.map((item) => (
+                <option key={item} value={item}>
+                  {ROLE_LABELS[item]}
+                </option>
+              ))}
             </select>
           </label>
-          <Button type="submit" variant="primary" size="md" disabled={isLoading} className="self-end">
-            {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={isLoading}
+            className="self-end"
+          >
+            {isLoading ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+              <UserPlus className="h-4 w-4" />
+            )}
             Crear invitación
           </Button>
         </form>
@@ -185,19 +210,33 @@ export function CompanyTeamManager({
                 onFocus={(event) => event.currentTarget.select()}
                 className="min-w-0 flex-1 rounded-lg border border-sky-200/20 bg-slate-950 px-3 py-2 text-xs text-slate-200"
               />
-              <Button type="button" variant="outline" size="sm" onClick={() => void copyInviteLink()}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => void copyInviteLink()}
+              >
                 {copySuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copySuccess ? 'Copiado' : 'Copiar enlace'}
               </Button>
             </div>
             <p className="mt-2 text-xs text-slate-300">
-              Comparte el enlace sólo con el destinatario. También puedes enviarlo con el módulo Correo &amp; Avisos.
+              Comparte el enlace sólo con el destinatario. También puedes enviarlo con el módulo
+              Correo &amp; Avisos.
             </p>
           </div>
         )}
-        {error && <p role="alert" className="mt-3 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">{error}</p>}
+        {error && (
+          <p
+            role="alert"
+            className="mt-3 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+          >
+            {error}
+          </p>
+        )}
         <p className="mt-3 text-xs text-slate-500">
-          Administrador actual: {currentUserEmail || 'cuenta autenticada'}. Los enlaces incluyen un token de acceso privado.
+          Administrador actual: {currentUserEmail || 'cuenta autenticada'}. Los enlaces incluyen un
+          token de acceso privado.
         </p>
       </Card>
 
@@ -210,7 +249,9 @@ export function CompanyTeamManager({
             {members.map((member) => (
               <li key={member.uid} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-slate-100">{member.email || member.uid}</p>
+                  <p className="truncate text-sm font-medium text-slate-100">
+                    {member.email || member.uid}
+                  </p>
                   <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
                     <Shield className="h-3 w-3" /> {ROLE_LABELS[member.role]}
                     {member.uid === currentUserId && ' · Tú'}
@@ -225,20 +266,25 @@ export function CompanyTeamManager({
                     onClick={() => void removeMember(member)}
                     aria-label={`Quitar a ${member.email || member.uid}`}
                   >
-                    {pendingAction === member.uid
-                      ? <LoaderCircle className="h-4 w-4 animate-spin" />
-                      : <Trash2 className="h-4 w-4 text-rose-300" />}
+                    {pendingAction === member.uid ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 text-rose-300" />
+                    )}
                   </Button>
                 )}
               </li>
             ))}
-            {members.length === 0 && <li className="py-4 text-sm text-slate-400">No se encontraron miembros.</li>}
+            {members.length === 0 && (
+              <li className="py-4 text-sm text-slate-400">No se encontraron miembros.</li>
+            )}
           </ul>
         </Card>
 
         <Card variant="elevated" padding="lg">
           <h2 className="mb-4 flex items-center gap-2 font-semibold text-white">
-            <Link2 className="h-5 w-5 text-amber-300" /> Invitaciones pendientes ({invitations.length})
+            <Link2 className="h-5 w-5 text-amber-300" /> Invitaciones pendientes (
+            {invitations.length})
           </h2>
           <ul className="divide-y divide-slate-800">
             {invitations.map((invitation) => (
@@ -246,7 +292,8 @@ export function CompanyTeamManager({
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-slate-100">{invitation.email}</p>
                   <p className="mt-1 text-xs text-slate-400">
-                    {ROLE_LABELS[invitation.role]} · vence {invitation.expiresAt.toDate().toLocaleDateString('es-GT')}
+                    {ROLE_LABELS[invitation.role]} · vence{' '}
+                    {invitation.expiresAt.toDate().toLocaleDateString('es-GT')}
                   </p>
                 </div>
                 <Button
@@ -257,13 +304,17 @@ export function CompanyTeamManager({
                   onClick={() => void revokeInvite(invitation.id)}
                   aria-label={`Revocar invitación para ${invitation.email}`}
                 >
-                  {pendingAction === invitation.id
-                    ? <LoaderCircle className="h-4 w-4 animate-spin" />
-                    : <Trash2 className="h-4 w-4 text-rose-300" />}
+                  {pendingAction === invitation.id ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 text-rose-300" />
+                  )}
                 </Button>
               </li>
             ))}
-            {invitations.length === 0 && <li className="py-4 text-sm text-slate-400">No hay invitaciones pendientes.</li>}
+            {invitations.length === 0 && (
+              <li className="py-4 text-sm text-slate-400">No hay invitaciones pendientes.</li>
+            )}
           </ul>
         </Card>
       </div>

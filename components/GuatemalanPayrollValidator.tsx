@@ -1,20 +1,20 @@
 'use client';
 
 import { formatGTQ } from '@/lib/data';
-import { AttendanceRecord,CompanySettings,Employee } from '@/lib/types';
+import { AttendanceRecord, CompanySettings, Employee } from '@/lib/types';
 import {
-AlertTriangle,
-CheckCircle2,
-Download,
-Edit2,
-Save,
-Scale,
-Search,
-Sparkles,
-X,
-XCircle
+  AlertTriangle,
+  CheckCircle2,
+  Download,
+  Edit2,
+  Save,
+  Scale,
+  Search,
+  Sparkles,
+  X,
+  XCircle,
 } from 'lucide-react';
-import React,{ useState } from 'react';
+import React, { useState } from 'react';
 
 export interface GuatemalanPayrollValidatorProps {
   employees: Employee[];
@@ -33,14 +33,16 @@ interface ValidationIssue {
   suggestedAction?: string;
 }
 
-export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProps> = ({
+export function GuatemalanPayrollValidator({
   employees,
   company,
   attendance = [],
   onUpdateEmployees,
-}) => {
+}: GuatemalanPayrollValidatorProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterSeverity, setFilterSeverity] = useState<'all' | 'errors' | 'warnings' | 'valid'>('all');
+  const [filterSeverity, setFilterSeverity] = useState<'all' | 'errors' | 'warnings' | 'valid'>(
+    'all'
+  );
   const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Employee>>({});
 
@@ -79,7 +81,8 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
           type: 'warning',
           code: 'MISSING_IGSS_NUMBER',
           title: 'Número de Afiliación IGSS Incompleto',
-          description: 'El colaborador cotiza IGSS pero no tiene registrado un número patronal/carnet de afiliación válido.',
+          description:
+            'El colaborador cotiza IGSS pero no tiene registrado un número patronal/carnet de afiliación válido.',
           lawReference: 'Reglamento de Inscripción de Patronos y Trabajadores IGSS',
           suggestedAction: 'Registrar número de afiliación de 8 a 11 dígitos.',
         });
@@ -137,7 +140,8 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
         type: 'info',
         code: 'IGSS_SUSPENSION_ACTIVE',
         title: `${igssSuspensions} Día(s) de Suspensión Médica IGSS`,
-        description: 'Constan días con incapacidad temporal avalada por el IGSS; se debe ajustar el cálculo proporcional del salario y no deducir doble.',
+        description:
+          'Constan días con incapacidad temporal avalada por el IGSS; se debe ajustar el cálculo proporcional del salario y no deducir doble.',
         lawReference: 'Reglamento de Prestaciones en Dinero del IGSS',
       });
     }
@@ -165,7 +169,8 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
     return issues.filter((i) => i.type === 'error').length === 0;
   }).length;
 
-  const complianceScore = totalEmployees > 0 ? Math.round((compliantEmployees / totalEmployees) * 100) : 100;
+  const complianceScore =
+    totalEmployees > 0 ? Math.round((compliantEmployees / totalEmployees) * 100) : 100;
 
   // Filter employees
   const filteredEmployees = employees.filter((emp) => {
@@ -231,7 +236,10 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
           dailyRateGTQ: Math.max(emp.dailyRateGTQ, Math.round(MIN_WAGE_DAILY_GTQ)),
           customBonoIncentivo: BONO_INCENTIVO_LAW,
           dpi: emp.dpi && emp.dpi.trim().length >= 10 ? emp.dpi : '2489 10293 0101',
-          igssNumber: emp.igssAffiliated && (!emp.igssNumber || emp.igssNumber.length < 5) ? '10984726' : emp.igssNumber,
+          igssNumber:
+            emp.igssAffiliated && (!emp.igssNumber || emp.igssNumber.length < 5)
+              ? '10984726'
+              : emp.igssNumber,
         };
       }
       return emp;
@@ -264,10 +272,11 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
       const statusText = issues.some((i) => i.type === 'error')
         ? 'INFRACCIÓN'
         : issues.some((i) => i.type === 'warning')
-        ? 'OBSERVACIÓN'
-        : 'CUMPLE 100%';
+          ? 'OBSERVACIÓN'
+          : 'CUMPLE 100%';
 
-      const findingsText = issues.map((i) => `[${i.code}] ${i.title} (${i.lawReference})`).join('; ') || 'Ninguno';
+      const findingsText =
+        issues.map((i) => `[${i.code}] ${i.title} (${i.lawReference})`).join('; ') || 'Ninguno';
 
       return [
         emp.id,
@@ -284,11 +293,15 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
       ].join(',');
     });
 
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
+    const csvContent =
+      'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Auditoria_Laboral_IGSS_MINTRAB_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute(
+      'download',
+      `Auditoria_Laboral_IGSS_MINTRAB_${new Date().toISOString().split('T')[0]}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -297,76 +310,90 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
   return (
     <div className="space-y-6">
       {/* Top Audit Scorecard */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center font-extrabold text-lg shrink-0 ${
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-extrabold ${
               complianceScore >= 90
-                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                ? 'border border-emerald-200 bg-emerald-50 text-emerald-600'
                 : complianceScore >= 70
-                ? 'bg-amber-50 text-amber-600 border border-amber-200'
-                : 'bg-rose-50 text-rose-600 border border-rose-200'
+                  ? 'border border-amber-200 bg-amber-50 text-amber-600'
+                  : 'border border-rose-200 bg-rose-50 text-rose-600'
             }`}
           >
             {complianceScore}%
           </div>
           <div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-semibold">
+            <span className="block font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
               Cumplimiento Legal
             </span>
             <h4 className="text-base font-bold text-slate-800">
-              {complianceScore >= 90 ? 'Auditoría Óptima' : complianceScore >= 70 ? 'Revisión Requerida' : 'Infracciones'}
+              {complianceScore >= 90
+                ? 'Auditoría Óptima'
+                : complianceScore >= 70
+                  ? 'Revisión Requerida'
+                  : 'Infracciones'}
             </h4>
-            <span className="text-xs text-slate-500">{compliantEmployees} de {totalEmployees} colaboradores en regla</span>
+            <span className="text-xs text-slate-500">
+              {compliantEmployees} de {totalEmployees} colaboradores en regla
+            </span>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold">Infracciones Críticas</span>
-            <XCircle className="w-4 h-4 text-rose-500" />
+            <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+              Infracciones Críticas
+            </span>
+            <XCircle className="h-4 w-4 text-rose-500" />
           </div>
-          <div className="text-2xl font-black text-rose-600 mt-2">{totalErrors}</div>
-          <p className="text-xs text-slate-500 mt-1">Salario mínimo o prestaciones deficientes</p>
+          <div className="mt-2 text-2xl font-black text-rose-600">{totalErrors}</div>
+          <p className="mt-1 text-xs text-slate-500">Salario mínimo o prestaciones deficientes</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold">Observaciones</span>
-            <AlertTriangle className="w-4 h-4 text-amber-500" />
+            <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+              Observaciones
+            </span>
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-black text-amber-600 mt-2">{totalWarnings}</div>
-          <p className="text-xs text-slate-500 mt-1">Falta de DPI o carnet IGSS incompleto</p>
+          <div className="mt-2 text-2xl font-black text-amber-600">{totalWarnings}</div>
+          <p className="mt-1 text-xs text-slate-500">Falta de DPI o carnet IGSS incompleto</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold">Marco Legal Vigente</span>
-            <Scale className="w-4 h-4 text-blue-600" />
+            <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+              Marco Legal Vigente
+            </span>
+            <Scale className="h-4 w-4 text-blue-600" />
           </div>
-          <div className="text-sm font-bold text-slate-800 mt-2">MINTRAB & IGSS 2026</div>
-          <p className="text-[11px] text-slate-500 mt-1">Acuerdo 1118 • Dto. 37-2001 • Dto. 42-92</p>
+          <div className="mt-2 text-sm font-bold text-slate-800">MINTRAB & IGSS 2026</div>
+          <p className="mt-1 text-[11px] text-slate-500">
+            Acuerdo 1118 • Dto. 37-2001 • Dto. 42-92
+          </p>
         </div>
       </div>
 
       {/* Control Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+      <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Buscar colaborador, puesto o DPI..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pr-3 pl-9 text-xs text-slate-800 focus:border-blue-500 focus:outline-none"
             />
           </div>
 
-          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
             <button
               onClick={() => setFilterSeverity('all')}
-              className={`px-2.5 py-1.5 rounded-lg transition ${
+              className={`rounded-lg px-2.5 py-1.5 transition ${
                 filterSeverity === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
@@ -374,24 +401,30 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
             </button>
             <button
               onClick={() => setFilterSeverity('errors')}
-              className={`px-2.5 py-1.5 rounded-lg transition ${
-                filterSeverity === 'errors' ? 'bg-rose-50 text-rose-700 font-bold shadow-xs' : 'text-slate-600'
+              className={`rounded-lg px-2.5 py-1.5 transition ${
+                filterSeverity === 'errors'
+                  ? 'bg-rose-50 font-bold text-rose-700 shadow-xs'
+                  : 'text-slate-600'
               }`}
             >
               Infracciones ({totalErrors})
             </button>
             <button
               onClick={() => setFilterSeverity('warnings')}
-              className={`px-2.5 py-1.5 rounded-lg transition ${
-                filterSeverity === 'warnings' ? 'bg-amber-50 text-amber-700 font-bold shadow-xs' : 'text-slate-600'
+              className={`rounded-lg px-2.5 py-1.5 transition ${
+                filterSeverity === 'warnings'
+                  ? 'bg-amber-50 font-bold text-amber-700 shadow-xs'
+                  : 'text-slate-600'
               }`}
             >
               Observaciones ({totalWarnings})
             </button>
             <button
               onClick={() => setFilterSeverity('valid')}
-              className={`px-2.5 py-1.5 rounded-lg transition ${
-                filterSeverity === 'valid' ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs' : 'text-slate-600'
+              className={`rounded-lg px-2.5 py-1.5 transition ${
+                filterSeverity === 'valid'
+                  ? 'bg-emerald-50 font-bold text-emerald-700 shadow-xs'
+                  : 'text-slate-600'
               }`}
             >
               En Regla ({compliantEmployees})
@@ -401,9 +434,9 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
 
         <button
           onClick={handleExportAuditCSV}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition cursor-pointer shrink-0"
+          className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
         >
-          <Download className="w-4 h-4" />
+          <Download className="h-4 w-4" />
           <span>Exportar Informe de Auditoría</span>
         </button>
       </div>
@@ -420,46 +453,54 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
           return (
             <div
               key={emp.id}
-              className={`bg-white rounded-2xl border p-4 sm:p-5 transition shadow-xs ${
+              className={`rounded-2xl border bg-white p-4 shadow-xs transition sm:p-5 ${
                 hasError
                   ? 'border-rose-300 bg-rose-50/20'
                   : hasWarning
-                  ? 'border-amber-300 bg-amber-50/20'
-                  : 'border-slate-200'
+                    ? 'border-amber-300 bg-amber-50/20'
+                    : 'border-slate-200'
               }`}
             >
               {isEditing ? (
                 /* Inline Edit Mode */
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <h4 className="text-sm font-bold text-slate-900">Editar Datos Laborales de {emp.name}</h4>
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Editar Datos Laborales de {emp.name}
+                    </h4>
                     <button
                       onClick={() => setEditingEmployeeId(null)}
-                      className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+                      className="rounded-lg p-1 text-slate-400 hover:text-slate-700"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="h-4 w-4" />
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Nombre Completo</label>
+                      <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                        Nombre Completo
+                      </label>
                       <input
                         type="text"
                         value={editForm.name || ''}
                         onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
-                        className="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-xs"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Tarifa Diaria (GTQ)</label>
+                      <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                        Tarifa Diaria (GTQ)
+                      </label>
                       <input
                         type="number"
                         step="0.5"
                         value={editForm.dailyRateGTQ || 0}
-                        onChange={(e) => setEditForm((prev) => ({ ...prev, dailyRateGTQ: Number(e.target.value) }))}
-                        className="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-xs font-mono"
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, dailyRateGTQ: Number(e.target.value) }))
+                        }
+                        className="w-full rounded-xl border border-slate-300 px-3 py-1.5 font-mono text-xs"
                       />
                       <span className="text-[10px] text-slate-400">
                         Mensual: {formatGTQ((editForm.dailyRateGTQ || 0) * 30)}
@@ -467,24 +508,30 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">DPI (13 Dígitos)</label>
+                      <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                        DPI (13 Dígitos)
+                      </label>
                       <input
                         type="text"
                         value={editForm.dpi || ''}
                         onChange={(e) => setEditForm((prev) => ({ ...prev, dpi: e.target.value }))}
                         placeholder="2489 10293 0101"
-                        className="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-xs font-mono"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-1.5 font-mono text-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Afiliación IGSS</label>
+                      <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                        Afiliación IGSS
+                      </label>
                       <input
                         type="text"
                         value={editForm.igssNumber || ''}
-                        onChange={(e) => setEditForm((prev) => ({ ...prev, igssNumber: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, igssNumber: e.target.value }))
+                        }
                         placeholder="No. Carnet IGSS"
-                        className="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-xs font-mono"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-1.5 font-mono text-xs"
                       />
                     </div>
                   </div>
@@ -492,49 +539,49 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
                   <div className="flex items-center justify-end gap-2 pt-2">
                     <button
                       onClick={() => setEditingEmployeeId(null)}
-                      className="px-3 py-1.5 rounded-xl text-xs text-slate-600 hover:bg-slate-100 font-semibold"
+                      className="rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={() => handleSaveEdit(emp.id)}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-blue-700"
                     >
-                      <Save className="w-3.5 h-3.5" /> Guardar Cambios
+                      <Save className="h-3.5 w-3.5" /> Guardar Cambios
                     </button>
                   </div>
                 </div>
               ) : (
                 /* Regular Display Card */
                 <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
                           hasError
                             ? 'bg-rose-100 text-rose-700'
                             : hasWarning
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-emerald-100 text-emerald-700'
+                              ? 'bg-amber-100 text-amber-700'
+                              : 'bg-emerald-100 text-emerald-700'
                         }`}
                       >
                         {hasError ? (
-                          <XCircle className="w-5 h-5" />
+                          <XCircle className="h-5 w-5" />
                         ) : hasWarning ? (
-                          <AlertTriangle className="w-5 h-5" />
+                          <AlertTriangle className="h-5 w-5" />
                         ) : (
-                          <CheckCircle2 className="w-5 h-5" />
+                          <CheckCircle2 className="h-5 w-5" />
                         )}
                       </div>
 
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-sm font-bold text-slate-900">{emp.name}</h4>
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold">
+                          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
                             {emp.role}
                           </span>
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                               emp.igssAffiliated
                                 ? 'bg-blue-100 text-blue-700'
                                 : 'bg-slate-100 text-slate-500'
@@ -544,16 +591,24 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-4 text-xs text-slate-500 mt-0.5">
+                        <div className="mt-0.5 flex items-center gap-4 text-xs text-slate-500">
                           <span>
-                            DPI: <strong className="font-mono text-slate-700">{emp.dpi || 'No registrado'}</strong>
+                            DPI:{' '}
+                            <strong className="font-mono text-slate-700">
+                              {emp.dpi || 'No registrado'}
+                            </strong>
                           </span>
                           <span>
-                            No. IGSS: <strong className="font-mono text-slate-700">{emp.igssNumber || 'Pendiente'}</strong>
+                            No. IGSS:{' '}
+                            <strong className="font-mono text-slate-700">
+                              {emp.igssNumber || 'Pendiente'}
+                            </strong>
                           </span>
                           <span>
                             Tarifa:{' '}
-                            <strong className="text-slate-800 font-semibold">{formatGTQ(emp.dailyRateGTQ)}/día</strong>{' '}
+                            <strong className="font-semibold text-slate-800">
+                              {formatGTQ(emp.dailyRateGTQ)}/día
+                            </strong>{' '}
                             ({formatGTQ(baseMonthly)}/mes)
                           </span>
                         </div>
@@ -564,41 +619,41 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
                       {issues.length > 0 && onUpdateEmployees && (
                         <button
                           onClick={() => handleAutoFixEmployee(emp.id)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition cursor-pointer"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 transition hover:bg-amber-100"
                           title="Ajustar automáticamente al salario mínimo y bonificación legal"
                         >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
                           <span>Subsanar por Ley</span>
                         </button>
                       )}
 
                       <button
                         onClick={() => handleStartEdit(emp)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
                       >
-                        <Edit2 className="w-3.5 h-3.5" /> Editar
+                        <Edit2 className="h-3.5 w-3.5" /> Editar
                       </button>
                     </div>
                   </div>
 
                   {/* Issues List */}
                   {issues.length > 0 ? (
-                    <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                    <div className="space-y-1.5 border-t border-slate-100 pt-2">
                       {issues.map((issue, idx) => (
                         <div
                           key={idx}
-                          className={`text-xs p-2.5 rounded-xl flex items-start justify-between gap-3 ${
+                          className={`flex items-start justify-between gap-3 rounded-xl p-2.5 text-xs ${
                             issue.type === 'error'
-                              ? 'bg-rose-50 text-rose-900 border border-rose-200/60'
+                              ? 'border border-rose-200/60 bg-rose-50 text-rose-900'
                               : issue.type === 'warning'
-                              ? 'bg-amber-50 text-amber-900 border border-amber-200/60'
-                              : 'bg-blue-50 text-blue-900 border border-blue-200/60'
+                                ? 'border border-amber-200/60 bg-amber-50 text-amber-900'
+                                : 'border border-blue-200/60 bg-blue-50 text-blue-900'
                           }`}
                         >
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
                               <span className="font-bold">{issue.title}</span>
-                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-black/5 font-semibold">
+                              <span className="py-0.2 rounded bg-black/5 px-1.5 font-mono text-[10px] font-semibold">
                                 {issue.lawReference}
                               </span>
                             </div>
@@ -606,7 +661,7 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
                           </div>
 
                           {issue.suggestedAction && (
-                            <span className="text-[10px] font-bold text-slate-600 shrink-0 italic">
+                            <span className="shrink-0 text-[10px] font-bold text-slate-600 italic">
                               Sugerencia: {issue.suggestedAction}
                             </span>
                           )}
@@ -614,9 +669,12 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
                       ))}
                     </div>
                   ) : (
-                    <div className="pt-2 border-t border-slate-100 flex items-center gap-2 text-xs text-emerald-700">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Cumplimiento 100% verificado: Salario mínimo, IGSS 4.83% y Bonificación Dto. 37-2001 conforme a ley.</span>
+                    <div className="flex items-center gap-2 border-t border-slate-100 pt-2 text-xs text-emerald-700">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>
+                        Cumplimiento 100% verificado: Salario mínimo, IGSS 4.83% y Bonificación Dto.
+                        37-2001 conforme a ley.
+                      </span>
                     </div>
                   )}
                 </div>
@@ -627,5 +685,5 @@ export const GuatemalanPayrollValidator: React.FC<GuatemalanPayrollValidatorProp
       </div>
     </div>
   );
-};
+}
 export default GuatemalanPayrollValidator;

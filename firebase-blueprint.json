@@ -17,7 +17,10 @@
         "progressPercent": { "type": "number" },
         "startDate": { "type": "string", "maxLength": 30 },
         "endDate": { "type": "string", "maxLength": 30 },
-        "status": { "type": "string", "enum": ["En Ejecución", "Planificación", "Finalizado", "Suspendido"] },
+        "status": {
+          "type": "string",
+          "enum": ["En Ejecución", "Planificación", "Finalizado", "Suspendido"]
+        },
         "lat": { "type": "number" },
         "lng": { "type": "number" },
         "ownerId": { "type": "string", "maxLength": 128 }
@@ -35,7 +38,10 @@
         "date": { "type": "string", "maxLength": 30 },
         "foremanName": { "type": "string", "maxLength": 150 },
         "notes": { "type": "string", "maxLength": 2000 },
-        "weather": { "type": "string", "enum": ["Soleado", "Lluvia Moderada", "Tormenta Fuerte", "Nublado"] },
+        "weather": {
+          "type": "string",
+          "enum": ["Soleado", "Lluvia Moderada", "Tormenta Fuerte", "Nublado"]
+        },
         "workersCount": { "type": "number" },
         "status": { "type": "string", "enum": ["Autorizado", "Pendiente", "Revisión"] },
         "latitude": { "type": "number" },
@@ -82,7 +88,10 @@
         "date": { "type": "string", "maxLength": 30 },
         "employeeId": { "type": "string", "maxLength": 128 },
         "employeeName": { "type": "string", "maxLength": 150 },
-        "status": { "type": "string", "enum": ["Presente", "Ausente", "Permiso", "Incapacidad IGSS"] },
+        "status": {
+          "type": "string",
+          "enum": ["Presente", "Ausente", "Permiso", "Incapacidad IGSS"]
+        },
         "overtimeHours": { "type": "number" },
         "authorId": { "type": "string", "maxLength": 128 }
       },

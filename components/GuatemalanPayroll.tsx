@@ -1,17 +1,17 @@
 'use client';
 
 import { formatGTQ } from '@/lib/data';
-import { AttendanceRecord,CompanySettings,Employee } from '@/lib/types';
+import { AttendanceRecord, CompanySettings, Employee } from '@/lib/types';
 import {
-Award,
-Banknote,
-Building,
-CheckCircle2,
-Download,
-Printer,
-ShieldCheck
+  Award,
+  Banknote,
+  Building,
+  CheckCircle2,
+  Download,
+  Printer,
+  ShieldCheck,
 } from 'lucide-react';
-import React,{ useState } from 'react';
+import React, { useState } from 'react';
 import { GuatemalanPayrollValidator } from './GuatemalanPayrollValidator';
 
 interface GuatemalanPayrollProps {
@@ -21,13 +21,15 @@ interface GuatemalanPayrollProps {
   onUpdateEmployees?: (updated: Employee[]) => void;
 }
 
-export const GuatemalanPayroll: React.FC<GuatemalanPayrollProps> = ({
+export function GuatemalanPayroll({
   employees,
   company,
   attendance = [],
   onUpdateEmployees,
-}) => {
-  const [viewMode, setViewMode] = useState<'validador' | 'summary_prestaciones' | 'regular'>('validador');
+}: GuatemalanPayrollProps) {
+  const [viewMode, setViewMode] = useState<'validador' | 'summary_prestaciones' | 'regular'>(
+    'validador'
+  );
   const [selectedMonth, setSelectedMonth] = useState<string>('Septiembre 2026');
 
   // Statutory calculation helpers for Guatemalan Labor Code
@@ -46,7 +48,8 @@ export const GuatemalanPayroll: React.FC<GuatemalanPayrollProps> = ({
     const provisionVacaciones = baseMonthly * 0.04167; // 15 días hábiles
 
     const liquidoPagar = baseMonthly + bonoIncentivo - igssLaboral;
-    const costoTotalPatron = baseMonthly + bonoIncentivo + igssPatronalTotal + provisionBono14 + provisionAguinaldo;
+    const costoTotalPatron =
+      baseMonthly + bonoIncentivo + igssPatronalTotal + provisionBono14 + provisionAguinaldo;
 
     return {
       baseMonthly,
@@ -130,11 +133,15 @@ export const GuatemalanPayroll: React.FC<GuatemalanPayrollProps> = ({
       ].join(',');
     });
 
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
+    const csvContent =
+      'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Planilla_IGSS_Bono14_Aguinaldo_${selectedMonth.replace(/\s+/g, '_')}.csv`);
+    link.setAttribute(
+      'download',
+      `Planilla_IGSS_Bono14_Aguinaldo_${selectedMonth.replace(/\s+/g, '_')}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -143,48 +150,55 @@ export const GuatemalanPayroll: React.FC<GuatemalanPayrollProps> = ({
   return (
     <div className="space-y-6">
       {/* Header with Print & Export Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-blue-50 text-blue-700">
-              <Banknote className="w-5 h-5" />
+            <span className="rounded-lg bg-blue-50 p-1.5 text-blue-700">
+              <Banknote className="h-5 w-5" />
             </span>
-            <h2 className="text-lg font-bold text-slate-900">Planilla & Prestaciones Laborales de Guatemala</h2>
+            <h2 className="text-lg font-bold text-slate-900">
+              Planilla & Prestaciones Laborales de Guatemala
+            </h2>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Cálculo formal de retenciones IGSS Laboral (4.83%), cuotas patronales (12.67%), Bono 14 (Decreto 42-92) y Aguinaldo (Decreto 76-78).
+          <p className="mt-1 text-xs text-slate-500">
+            Cálculo formal de retenciones IGSS Laboral (4.83%), cuotas patronales (12.67%), Bono 14
+            (Decreto 42-92) y Aguinaldo (Decreto 76-78).
           </p>
         </div>
 
-        <div className="flex items-center flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
             <button
               onClick={() => setViewMode('validador')}
-              className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                 viewMode === 'validador'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
+                  ? 'bg-blue-600 font-bold text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <ShieldCheck className="w-4 h-4" />
+              <ShieldCheck className="h-4 w-4" />
               <span>Validador Legal IGSS / Prestaciones</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-white/20 text-white font-mono">
+              <span className="py-0.2 rounded-full bg-white/20 px-1.5 font-mono text-[9px] text-white">
                 Auto
               </span>
             </button>
             <button
               onClick={() => setViewMode('summary_prestaciones')}
-              className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
-                viewMode === 'summary_prestaciones' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`cursor-pointer rounded-lg px-3 py-1.5 transition ${
+                viewMode === 'summary_prestaciones'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Resumen Prestaciones (PDF)
             </button>
             <button
               onClick={() => setViewMode('regular')}
-              className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
-                viewMode === 'regular' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`cursor-pointer rounded-lg px-3 py-1.5 transition ${
+                viewMode === 'regular'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Planilla Líquida
@@ -193,16 +207,16 @@ export const GuatemalanPayroll: React.FC<GuatemalanPayrollProps> = ({
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
             title="Descargar tabla en formato CSV"
           >
-            <Download className="w-3.5 h-3.5" /> CSV
+            <Download className="h-3.5 w-3.5" /> CSV
           </button>
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-sm cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800"
           >
-            <Printer className="w-3.5 h-3.5" /> Imprimir / PDF
+            <Printer className="h-3.5 w-3.5" /> Imprimir / PDF
           </button>
         </div>
       </div>
@@ -218,239 +232,300 @@ export const GuatemalanPayroll: React.FC<GuatemalanPayrollProps> = ({
       ) : (
         <>
           {/* Validation Status Banner when in table view */}
-          <div className="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between gap-3 text-xs text-blue-950">
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-blue-200/80 bg-blue-50/70 p-3.5 text-xs text-blue-950">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
               <span>
-                <strong>Cálculos Supervisados por Ley Guatemalteca:</strong> IGSS Laboral 4.83% (Acuerdo 1118), IGSS Patronal 12.67%, Bono 14 (Decreto 42-92), Aguinaldo (Decreto 76-78) y Bonificación Q250 (Decreto 37-2001).
+                <strong>Cálculos Supervisados por Ley Guatemalteca:</strong> IGSS Laboral 4.83%
+                (Acuerdo 1118), IGSS Patronal 12.67%, Bono 14 (Decreto 42-92), Aguinaldo (Decreto
+                76-78) y Bonificación Q250 (Decreto 37-2001).
               </span>
             </div>
             <button
               onClick={() => setViewMode('validador')}
-              className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] shrink-0 transition cursor-pointer"
+              className="shrink-0 cursor-pointer rounded-lg bg-blue-600 px-3 py-1 text-[11px] font-bold text-white transition hover:bg-blue-700"
             >
               Abrir Validador Legal
             </button>
           </div>
 
           {/* Summary KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Masa Salarial Base</p>
-          <p className="text-lg font-extrabold text-slate-900 mt-1">{formatGTQ(totals.base)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">{employees.length} colaboradores activos</p>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-[11px] font-bold text-rose-600 uppercase tracking-wider">IGSS Laboral (4.83%)</p>
-          <p className="text-lg font-extrabold text-rose-600 mt-1">-{formatGTQ(totals.igssLab)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Deducción de planilla</p>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">IGSS Patronal (12.67%)</p>
-          <p className="text-lg font-extrabold text-blue-600 mt-1">{formatGTQ(totals.igssPat)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Incluye 1% IRTRA + 1% INTECAP</p>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Provisión Bono 14 & Aguinaldo</p>
-          <p className="text-lg font-extrabold text-amber-600 mt-1">{formatGTQ(totals.bono14 + totals.aguinaldo)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Q{formatGTQ(totals.bono14)} c/u por mes</p>
-        </div>
-      </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                Masa Salarial Base
+              </p>
+              <p className="mt-1 text-lg font-extrabold text-slate-900">{formatGTQ(totals.base)}</p>
+              <p className="mt-0.5 text-[10px] text-slate-400">
+                {employees.length} colaboradores activos
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[11px] font-bold tracking-wider text-rose-600 uppercase">
+                IGSS Laboral (4.83%)
+              </p>
+              <p className="mt-1 text-lg font-extrabold text-rose-600">
+                -{formatGTQ(totals.igssLab)}
+              </p>
+              <p className="mt-0.5 text-[10px] text-slate-400">Deducción de planilla</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[11px] font-bold tracking-wider text-blue-600 uppercase">
+                IGSS Patronal (12.67%)
+              </p>
+              <p className="mt-1 text-lg font-extrabold text-blue-600">
+                {formatGTQ(totals.igssPat)}
+              </p>
+              <p className="mt-0.5 text-[10px] text-slate-400">Incluye 1% IRTRA + 1% INTECAP</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[11px] font-bold tracking-wider text-amber-600 uppercase">
+                Provisión Bono 14 & Aguinaldo
+              </p>
+              <p className="mt-1 text-lg font-extrabold text-amber-600">
+                {formatGTQ(totals.bono14 + totals.aguinaldo)}
+              </p>
+              <p className="mt-0.5 text-[10px] text-slate-400">
+                Q{formatGTQ(totals.bono14)} c/u por mes
+              </p>
+            </div>
+          </div>
 
-      {/* Printable Document Container (PDF Style) */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs print:shadow-none print:border-none">
-        {/* Printable Official Header */}
-        <div className="p-6 border-b border-slate-200 bg-slate-50/70 print:bg-white print:p-0 print:border-b-2 print:border-black">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-blue-600 print:text-black" />
-                <h3 className="font-extrabold text-base text-slate-900 print:text-lg">
-                  {company.commercialName || 'ConstructERP Guatemala, S.A.'}
-                </h3>
+          {/* Printable Document Container (PDF Style) */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs print:border-none print:shadow-none">
+            {/* Printable Official Header */}
+            <div className="border-b border-slate-200 bg-slate-50/70 p-6 print:border-b-2 print:border-black print:bg-white print:p-0">
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Building className="h-5 w-5 text-blue-600 print:text-black" />
+                    <h3 className="text-base font-extrabold text-slate-900 print:text-lg">
+                      {company.commercialName || 'ConstructERP Guatemala, S.A.'}
+                    </h3>
+                  </div>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    NIT: {company.nit || '1049281-2'} • No. Patronal IGSS: 08-94102-3 •{' '}
+                    {company.address || 'Guatemala, C.A.'}
+                  </p>
+                </div>
+                <div className="text-left sm:text-right">
+                  <span className="inline-block rounded-md bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-800 print:border print:border-black print:bg-transparent print:text-black">
+                    RESUMEN OFICIAL DE PRESTACIONES DE LEY
+                  </span>
+                  <p className="mt-1 text-xs text-slate-600">
+                    Período de Nómina: <span className="font-bold">{selectedMonth}</span>
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                NIT: {company.nit || '1049281-2'} • No. Patronal IGSS: 08-94102-3 • {company.address || 'Guatemala, C.A.'}
-              </p>
             </div>
-            <div className="text-left sm:text-right">
-              <span className="inline-block px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 font-bold text-xs print:border print:border-black print:bg-transparent print:text-black">
-                RESUMEN OFICIAL DE PRESTACIONES DE LEY
-              </span>
-              <p className="text-xs text-slate-600 mt-1">Período de Nómina: <span className="font-bold">{selectedMonth}</span></p>
-            </div>
-          </div>
-        </div>
 
-        {/* View Mode 1: Summary View with IGSS, Bono 14 and Aguinaldo */}
-        {viewMode === 'summary_prestaciones' ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200 print:bg-slate-200 print:text-black">
-                <tr>
-                  <th className="p-3 border-r border-slate-200">Colaborador / Puesto</th>
-                  <th className="p-3 text-right border-r border-slate-200">Sueldo Base (GTQ)</th>
-                  <th className="p-3 text-right border-r border-slate-200 text-rose-700">IGSS Lab. (4.83%)</th>
-                  <th className="p-3 text-right border-r border-slate-200 text-blue-700">IGSS Pat. (12.67%)</th>
-                  <th className="p-3 text-right border-r border-slate-200 text-amber-800">
-                    <div>Provisión Bono 14</div>
-                    <div className="text-[10px] font-normal normal-case text-slate-500">Decreto 42-92 (8.33%)</div>
-                  </th>
-                  <th className="p-3 text-right border-r border-slate-200 text-amber-800">
-                    <div>Provisión Aguinaldo</div>
-                    <div className="text-[10px] font-normal normal-case text-slate-500">Decreto 76-78 (8.33%)</div>
-                  </th>
-                  <th className="p-3 text-right border-r border-slate-200 font-bold">Líquido a Recibir</th>
-                  <th className="p-3 text-right font-bold text-slate-900">Costo Total Empleador</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700 print:divide-slate-300">
-                {employees.map((emp) => {
-                  const b = getPayrollBreakdown(emp);
-                  return (
-                    <tr key={emp.id} className="hover:bg-slate-50/80 transition">
-                      <td className="p-3 border-r border-slate-200">
-                        <div className="font-bold text-slate-900">{emp.name}</div>
-                        <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                          <span>{emp.role}</span>
-                          {emp.igssAffiliated && (
-                            <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-semibold">
-                              Afiliado
-                            </span>
-                          )}
+            {/* View Mode 1: Summary View with IGSS, Bono 14 and Aguinaldo */}
+            {viewMode === 'summary_prestaciones' ? (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-left text-xs">
+                  <thead className="border-b border-slate-200 bg-slate-100 font-bold text-slate-700 uppercase print:bg-slate-200 print:text-black">
+                    <tr>
+                      <th className="border-r border-slate-200 p-3">Colaborador / Puesto</th>
+                      <th className="border-r border-slate-200 p-3 text-right">
+                        Sueldo Base (GTQ)
+                      </th>
+                      <th className="border-r border-slate-200 p-3 text-right text-rose-700">
+                        IGSS Lab. (4.83%)
+                      </th>
+                      <th className="border-r border-slate-200 p-3 text-right text-blue-700">
+                        IGSS Pat. (12.67%)
+                      </th>
+                      <th className="border-r border-slate-200 p-3 text-right text-amber-800">
+                        <div>Provisión Bono 14</div>
+                        <div className="text-[10px] font-normal text-slate-500 normal-case">
+                          Decreto 42-92 (8.33%)
                         </div>
+                      </th>
+                      <th className="border-r border-slate-200 p-3 text-right text-amber-800">
+                        <div>Provisión Aguinaldo</div>
+                        <div className="text-[10px] font-normal text-slate-500 normal-case">
+                          Decreto 76-78 (8.33%)
+                        </div>
+                      </th>
+                      <th className="border-r border-slate-200 p-3 text-right font-bold">
+                        Líquido a Recibir
+                      </th>
+                      <th className="p-3 text-right font-bold text-slate-900">
+                        Costo Total Empleador
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700 print:divide-slate-300">
+                    {employees.map((emp) => {
+                      const b = getPayrollBreakdown(emp);
+                      return (
+                        <tr key={emp.id} className="transition hover:bg-slate-50/80">
+                          <td className="border-r border-slate-200 p-3">
+                            <div className="font-bold text-slate-900">{emp.name}</div>
+                            <div className="flex items-center gap-1 text-[11px] text-slate-500">
+                              <span>{emp.role}</span>
+                              {emp.igssAffiliated && (
+                                <span className="py-0.2 rounded bg-emerald-100 px-1.5 text-[9px] font-semibold text-emerald-800">
+                                  Afiliado
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="border-r border-slate-200 p-3 text-right font-mono font-medium">
+                            {formatGTQ(b.baseMonthly)}
+                          </td>
+                          <td className="border-r border-slate-200 p-3 text-right font-mono font-medium text-rose-600">
+                            -{formatGTQ(b.igssLaboral)}
+                          </td>
+                          <td className="border-r border-slate-200 p-3 text-right font-mono font-medium text-blue-600">
+                            {formatGTQ(b.igssPatronalTotal)}
+                          </td>
+                          <td className="border-r border-slate-200 bg-amber-50/40 p-3 text-right font-mono font-medium text-amber-700">
+                            {formatGTQ(b.provisionBono14)}
+                          </td>
+                          <td className="border-r border-slate-200 bg-amber-50/40 p-3 text-right font-mono font-medium text-amber-700">
+                            {formatGTQ(b.provisionAguinaldo)}
+                          </td>
+                          <td className="border-r border-slate-200 p-3 text-right font-mono font-bold text-emerald-700">
+                            {formatGTQ(b.liquidoPagar)}
+                          </td>
+                          <td className="bg-slate-50/50 p-3 text-right font-mono font-extrabold text-slate-900">
+                            {formatGTQ(b.costoTotalPatron)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot className="border-t-2 border-slate-300 bg-slate-100 font-bold text-slate-900 print:bg-slate-200">
+                    <tr>
+                      <td className="border-r border-slate-200 p-3 text-xs font-extrabold uppercase">
+                        Totales Planilla ({employees.length})
                       </td>
-                      <td className="p-3 text-right border-r border-slate-200 font-mono font-medium">
-                        {formatGTQ(b.baseMonthly)}
+                      <td className="border-r border-slate-200 p-3 text-right font-mono font-extrabold">
+                        {formatGTQ(totals.base)}
                       </td>
-                      <td className="p-3 text-right border-r border-slate-200 font-mono font-medium text-rose-600">
-                        -{formatGTQ(b.igssLaboral)}
+                      <td className="border-r border-slate-200 p-3 text-right font-mono font-extrabold text-rose-700">
+                        -{formatGTQ(totals.igssLab)}
                       </td>
-                      <td className="p-3 text-right border-r border-slate-200 font-mono font-medium text-blue-600">
-                        {formatGTQ(b.igssPatronalTotal)}
+                      <td className="border-r border-slate-200 p-3 text-right font-mono font-extrabold text-blue-700">
+                        {formatGTQ(totals.igssPat)}
                       </td>
-                      <td className="p-3 text-right border-r border-slate-200 font-mono font-medium text-amber-700 bg-amber-50/40">
-                        {formatGTQ(b.provisionBono14)}
+                      <td className="border-r border-slate-200 p-3 text-right font-mono font-extrabold text-amber-800">
+                        {formatGTQ(totals.bono14)}
                       </td>
-                      <td className="p-3 text-right border-r border-slate-200 font-mono font-medium text-amber-700 bg-amber-50/40">
-                        {formatGTQ(b.provisionAguinaldo)}
+                      <td className="border-r border-slate-200 p-3 text-right font-mono font-extrabold text-amber-800">
+                        {formatGTQ(totals.aguinaldo)}
                       </td>
-                      <td className="p-3 text-right border-r border-slate-200 font-mono font-bold text-emerald-700">
-                        {formatGTQ(b.liquidoPagar)}
+                      <td className="border-r border-slate-200 p-3 text-right font-mono font-extrabold text-emerald-800">
+                        {formatGTQ(totals.liquido)}
                       </td>
-                      <td className="p-3 text-right font-mono font-extrabold text-slate-900 bg-slate-50/50">
-                        {formatGTQ(b.costoTotalPatron)}
+                      <td className="p-3 text-right font-mono font-black text-slate-900">
+                        {formatGTQ(totals.costoPatronal)}
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-              <tfoot className="bg-slate-100 text-slate-900 font-bold border-t-2 border-slate-300 print:bg-slate-200">
-                <tr>
-                  <td className="p-3 border-r border-slate-200 font-extrabold uppercase text-xs">
-                    Totales Planilla ({employees.length})
-                  </td>
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-extrabold">
-                    {formatGTQ(totals.base)}
-                  </td>
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-extrabold text-rose-700">
-                    -{formatGTQ(totals.igssLab)}
-                  </td>
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-extrabold text-blue-700">
-                    {formatGTQ(totals.igssPat)}
-                  </td>
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-extrabold text-amber-800">
-                    {formatGTQ(totals.bono14)}
-                  </td>
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-extrabold text-amber-800">
-                    {formatGTQ(totals.aguinaldo)}
-                  </td>
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-extrabold text-emerald-800">
-                    {formatGTQ(totals.liquido)}
-                  </td>
-                  <td className="p-3 text-right font-mono font-black text-slate-900">
-                    {formatGTQ(totals.costoPatronal)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        ) : (
-          /* View Mode 2: Regular Liquid Pay Table */
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-700 font-semibold uppercase border-b border-slate-200">
-                <tr>
-                  <th className="p-3.5">Colaborador</th>
-                  <th className="p-3.5">Puesto</th>
-                  <th className="p-3.5 text-right">Sueldo Base (Q)</th>
-                  <th className="p-3.5 text-right">Bono Dto. 37-2001</th>
-                  <th className="p-3.5 text-right">IGSS Laboral (4.83%)</th>
-                  <th className="p-3.5 text-right">IGSS Patronal (12.67%)</th>
-                  <th className="p-3.5 text-right">Líquido a Recibir</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                {employees.map((emp) => {
-                  const b = getPayrollBreakdown(emp);
-                  return (
-                    <tr key={emp.id} className="hover:bg-slate-50/80 transition">
-                      <td className="p-3.5 font-bold text-slate-900">{emp.name}</td>
-                      <td className="p-3.5">{emp.role}</td>
-                      <td className="p-3.5 text-right font-mono">{formatGTQ(b.baseMonthly)}</td>
-                      <td className="p-3.5 text-right font-mono">{formatGTQ(b.bonoIncentivo)}</td>
-                      <td className="p-3.5 text-right font-mono text-rose-600">-{formatGTQ(b.igssLaboral)}</td>
-                      <td className="p-3.5 text-right font-mono text-blue-600">{formatGTQ(b.igssPatronalTotal)}</td>
-                      <td className="p-3.5 text-right font-mono font-bold text-emerald-700">
-                        {formatGTQ(b.liquidoPagar)}
-                      </td>
+                  </tfoot>
+                </table>
+              </div>
+            ) : (
+              /* View Mode 2: Regular Liquid Pay Table */
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-slate-200 bg-slate-50 font-semibold text-slate-700 uppercase">
+                    <tr>
+                      <th className="p-3.5">Colaborador</th>
+                      <th className="p-3.5">Puesto</th>
+                      <th className="p-3.5 text-right">Sueldo Base (Q)</th>
+                      <th className="p-3.5 text-right">Bono Dto. 37-2001</th>
+                      <th className="p-3.5 text-right">IGSS Laboral (4.83%)</th>
+                      <th className="p-3.5 text-right">IGSS Patronal (12.67%)</th>
+                      <th className="p-3.5 text-right">Líquido a Recibir</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {employees.map((emp) => {
+                      const b = getPayrollBreakdown(emp);
+                      return (
+                        <tr key={emp.id} className="transition hover:bg-slate-50/80">
+                          <td className="p-3.5 font-bold text-slate-900">{emp.name}</td>
+                          <td className="p-3.5">{emp.role}</td>
+                          <td className="p-3.5 text-right font-mono">{formatGTQ(b.baseMonthly)}</td>
+                          <td className="p-3.5 text-right font-mono">
+                            {formatGTQ(b.bonoIncentivo)}
+                          </td>
+                          <td className="p-3.5 text-right font-mono text-rose-600">
+                            -{formatGTQ(b.igssLaboral)}
+                          </td>
+                          <td className="p-3.5 text-right font-mono text-blue-600">
+                            {formatGTQ(b.igssPatronalTotal)}
+                          </td>
+                          <td className="p-3.5 text-right font-mono font-bold text-emerald-700">
+                            {formatGTQ(b.liquidoPagar)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-        {/* Legal Footnotes & Signatures */}
-        <div className="p-5 border-t border-slate-200 bg-slate-50/50 text-[11px] text-slate-600 space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <p className="font-bold text-slate-800 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> Base Legal de Retenciones y Prestaciones:
-              </p>
-              <ul className="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
-                <li><strong>IGSS Laboral:</strong> 4.83% sobre salario ordinario devengado.</li>
-                <li><strong>IGSS Patronal:</strong> 10.67% IGSS + 1.0% IRTRA + 1.0% INTECAP = 12.67% total.</li>
-                <li><strong>Bono 14 (Decreto 42-92):</strong> 100% de salario mensual computable del 1 julio al 30 junio.</li>
-                <li><strong>Aguinaldo (Decreto 76-78):</strong> 100% de salario mensual computable del 1 dic al 30 nov.</li>
-              </ul>
-            </div>
-            <div>
-              <p className="font-bold text-slate-800 flex items-center gap-1">
-                <Award className="w-3.5 h-3.5 text-amber-600" /> Bonificación Incentivo:
-              </p>
-              <p className="mt-1 text-slate-500 leading-relaxed">
-                De conformidad con el Decreto 37-2001 del Congreso de la República de Guatemala, se otorga a cada trabajador la bonificación mensual fija de Q250.00, la cual no está afecta al cálculo de IGSS, Bono 14 ni Aguinaldo.
-              </p>
-            </div>
-          </div>
+            {/* Legal Footnotes & Signatures */}
+            <div className="space-y-3 border-t border-slate-200 bg-slate-50/50 p-5 text-[11px] text-slate-600">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <p className="flex items-center gap-1 font-bold text-slate-800">
+                    <ShieldCheck className="h-3.5 w-3.5 text-blue-600" /> Base Legal de Retenciones
+                    y Prestaciones:
+                  </p>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-4 text-slate-500">
+                    <li>
+                      <strong>IGSS Laboral:</strong> 4.83% sobre salario ordinario devengado.
+                    </li>
+                    <li>
+                      <strong>IGSS Patronal:</strong> 10.67% IGSS + 1.0% IRTRA + 1.0% INTECAP =
+                      12.67% total.
+                    </li>
+                    <li>
+                      <strong>Bono 14 (Decreto 42-92):</strong> 100% de salario mensual computable
+                      del 1 julio al 30 junio.
+                    </li>
+                    <li>
+                      <strong>Aguinaldo (Decreto 76-78):</strong> 100% de salario mensual computable
+                      del 1 dic al 30 nov.
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1 font-bold text-slate-800">
+                    <Award className="h-3.5 w-3.5 text-amber-600" /> Bonificación Incentivo:
+                  </p>
+                  <p className="mt-1 leading-relaxed text-slate-500">
+                    De conformidad con el Decreto 37-2001 del Congreso de la República de Guatemala,
+                    se otorga a cada trabajador la bonificación mensual fija de Q250.00, la cual no
+                    está afecta al cálculo de IGSS, Bono 14 ni Aguinaldo.
+                  </p>
+                </div>
+              </div>
 
-          {/* Signature Lines for Print */}
-          <div className="pt-8 grid grid-cols-2 gap-8 text-center print:block">
-            <div className="border-t border-slate-400 pt-2">
-              <p className="font-bold text-slate-800">Elaborado por: Recursos Humanos / Nóminas</p>
-              <p className="text-[10px] text-slate-500">{company.commercialName}</p>
-            </div>
-            <div className="border-t border-slate-400 pt-2">
-              <p className="font-bold text-slate-800">Autorizado por: Gerente General / Representante Legal</p>
-              <p className="text-[10px] text-slate-500">Firma y Sello</p>
+              {/* Signature Lines for Print */}
+              <div className="grid grid-cols-2 gap-8 pt-8 text-center print:block">
+                <div className="border-t border-slate-400 pt-2">
+                  <p className="font-bold text-slate-800">
+                    Elaborado por: Recursos Humanos / Nóminas
+                  </p>
+                  <p className="text-[10px] text-slate-500">{company.commercialName}</p>
+                </div>
+                <div className="border-t border-slate-400 pt-2">
+                  <p className="font-bold text-slate-800">
+                    Autorizado por: Gerente General / Representante Legal
+                  </p>
+                  <p className="text-[10px] text-slate-500">Firma y Sello</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </>
-  )}
-</div>
-);
-};
+        </>
+      )}
+    </div>
+  );
+}

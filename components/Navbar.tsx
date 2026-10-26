@@ -70,23 +70,18 @@ function WorkspaceSelector({
 }) {
   if (workspaces.length < 2) return null;
 
-  const activeWorkspace = workspaces.find(
-    (option) => option.workspace.id === activeWorkspaceId
-  );
+  const activeWorkspace = workspaces.find((option) => option.workspace.id === activeWorkspaceId);
 
   return (
     <div className={`space-y-1.5 ${className ?? ''}`}>
-      <label
-        htmlFor={id}
-        className="text-xs font-semibold text-slate-300"
-      >
+      <label htmlFor={id} className="text-xs font-semibold text-slate-300">
         Empresa activa
       </label>
       <select
         id={id}
         value={activeWorkspaceId}
         onChange={(event) => onSelectWorkspace?.(event.target.value)}
-        className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-400"
+        className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
       >
         {workspaces.map(({ workspace: item, membership }) => (
           <option key={item.id} value={item.id}>
@@ -103,7 +98,7 @@ function WorkspaceSelector({
   );
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
+export function Navbar({
   company,
   projects,
   activeProjectId,
@@ -125,7 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   canViewPayroll = false,
   isMobileSidebarOpen,
   onToggleMobileSidebar,
-}) => {
+}: NavbarProps) {
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
@@ -160,11 +155,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* ================= FIXED GLASS SIDEBAR (Desktop) ================= */}
-      <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[280px] z-50 flex-col bg-slate-950/60 backdrop-blur-xl border-r border-white/10 p-6 overflow-y-auto select-none">
+      <aside className="fixed top-0 bottom-0 left-0 z-50 hidden w-[280px] flex-col overflow-y-auto border-r border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl select-none lg:flex">
         {/* Brand Header */}
-        <div className="pb-6 border-b border-white/10 space-y-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 flex items-center justify-center shadow-[0_8px_24px_rgba(56,189,248,0.4)]">
-            <Building2 className="w-6 h-6 text-white stroke-[2.5]" />
+        <div className="space-y-3 border-b border-white/10 pb-6">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 shadow-[0_8px_24px_rgba(56,189,248,0.4)]">
+            <Building2 className="h-6 w-6 stroke-[2.5] text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -173,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Guatemala
               </Badge>
             </div>
-            <p className="text-xs text-slate-400 font-medium mt-1 truncate">
+            <p className="mt-1 truncate text-xs font-medium text-slate-400">
               {company.commercialName || 'Volcanes Proyectos & Ingeniería'}
             </p>
           </div>
@@ -192,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Navigation List */}
         <nav
           aria-label="Navegación principal"
-          className="flex-1 py-6 space-y-1.5 overflow-y-auto no-scrollbar"
+          className="no-scrollbar flex-1 space-y-1.5 overflow-y-auto py-6"
         >
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -204,14 +199,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 size="sm"
                 onClick={() => onSelectTab(tab.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_12px_rgba(56,189,248,0.3)]' : ''}`}
+                className={`w-full justify-between text-left ${isActive ? 'shadow-[inset_0_0_12px_rgba(56,189,248,0.3)]' : ''}`}
               >
-                <div className="flex items-center gap-3 w-full">
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
+                <div className="flex w-full items-center gap-3">
+                  <Icon
+                    className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`}
+                  />
                   <span className="truncate">{tab.label}</span>
                 </div>
                 {tab.badge && (
-                  <Badge variant="primary" size="sm">{tab.badge}</Badge>
+                  <Badge variant="primary" size="sm">
+                    {tab.badge}
+                  </Badge>
                 )}
               </Button>
             );
@@ -219,34 +218,36 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Sidebar Footer Controls */}
-        <div className="pt-4 border-t border-white/10 space-y-3">
+        <div className="space-y-3 border-t border-white/10 pt-4">
           <div className="flex items-center justify-between">
             <Button
               variant="outline"
               size="sm"
               onClick={onOpenAiAssistant}
-              className="flex-1 flex items-center justify-center gap-2"
+              className="flex flex-1 items-center justify-center gap-2"
             >
-              <Sparkles className="w-4 h-4 text-amber-300" />
+              <Sparkles className="h-4 w-4 text-amber-300" />
               <span>Gemini IA Asistente</span>
             </Button>
-            {canManageCompany && <Button
-              variant="ghost"
-              size="sm"
-              onClick={onOpenBranding}
-              className="ml-2 p-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.05]"
-              title="Configuración de Empresa"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>}
+            {canManageCompany && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onOpenBranding}
+                className="ml-2 rounded-lg p-2.5 text-slate-300 hover:bg-white/[0.05] hover:text-white"
+                title="Configuración de Empresa"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            )}
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 font-mono">
+          <div className="flex items-center justify-between px-1 font-mono text-[11px] text-slate-400">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]"></span>
+              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]"></span>
               CONTROL DE OBRA • GUATEMALA
             </span>
-            <span className="text-amber-400 font-bold">
+            <span className="font-bold text-amber-400">
               {company.exchangeRate > 0
                 ? `Q ${company.exchangeRate.toFixed(2)}/USD`
                 : 'Tipo de cambio sin configurar'}
@@ -258,7 +259,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* ================= MOBILE DRAWER SIDEBAR ================= */}
       {isMobileSidebarOpen && (
         <FocusTrap onEscape={onToggleMobileSidebar}>
-          <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div className="fixed inset-0 z-50 flex lg:hidden">
             <div
               aria-hidden="true"
               className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
@@ -269,28 +270,33 @@ export const Navbar: React.FC<NavbarProps> = ({
               role="dialog"
               aria-modal="true"
               aria-labelledby="mobile-navigation-title"
-              className="relative w-72 max-w-[85vw] bg-slate-950/95 backdrop-blur-2xl border-r border-white/15 px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] flex flex-col z-50 h-full overflow-y-auto"
+              className="relative z-50 flex h-full w-72 max-w-[85vw] flex-col overflow-y-auto border-r border-white/15 bg-slate-950/95 px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] backdrop-blur-2xl"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-md">
-                    <Building2 className="w-5 h-5 text-white" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 shadow-md">
+                    <Building2 className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 id="mobile-navigation-title" className="text-base font-bold text-white leading-tight">
+                    <h2
+                      id="mobile-navigation-title"
+                      className="text-base leading-tight font-bold text-white"
+                    >
                       Menú de navegación
                     </h2>
-                    <span className="font-mono text-[9px] uppercase text-amber-400 font-bold">Guatemala</span>
+                    <span className="font-mono text-[9px] font-bold text-amber-400 uppercase">
+                      Guatemala
+                    </span>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="md"
                   onClick={onToggleMobileSidebar}
-                  className="p-1.5 text-slate-300 hover:text-white hover:bg-white/[0.05]"
+                  className="p-1.5 text-slate-300 hover:bg-white/[0.05] hover:text-white"
                   aria-label="Cerrar menú de navegación"
                 >
-                  <X className="w-5 h-5" aria-hidden="true" />
+                  <X className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </div>
 
@@ -306,7 +312,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <nav
                 aria-label="Navegación principal"
-                className="flex-1 py-4 space-y-1 overflow-y-auto"
+                className="flex-1 space-y-1 overflow-y-auto py-4"
               >
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
@@ -320,32 +326,38 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onClick={() => {
                         onSelectTab(tab.id);
                       }}
-                      className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]' : ''}`}
+                      className={`w-full justify-between text-left ${isActive ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]' : ''}`}
                     >
-                      <div className="flex items-center gap-3 w-full">
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
+                      <div className="flex w-full items-center gap-3">
+                        <Icon
+                          className={`h-4 w-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`}
+                        />
                         <span>{tab.label}</span>
                       </div>
                       {tab.badge && (
-                        <Badge variant="primary" size="sm">{tab.badge}</Badge>
+                        <Badge variant="primary" size="sm">
+                          {tab.badge}
+                        </Badge>
                       )}
                     </Button>
                   );
                 })}
               </nav>
               <div className="shrink-0 space-y-3 border-t border-white/10 pt-4">
-                {canManageCompany && <Button
-                  variant="outline"
-                  size="md"
-                  onClick={() => {
-                    onOpenBranding();
-                    onToggleMobileSidebar?.();
-                  }}
-                  className="w-full justify-start"
-                >
-                  <Settings className="mr-2 h-4 w-4" aria-hidden="true" />
-                  Marca y personalización
-                </Button>}
+                {canManageCompany && (
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={() => {
+                      onOpenBranding();
+                      onToggleMobileSidebar?.();
+                    }}
+                    className="w-full justify-start"
+                  >
+                    <Settings className="mr-2 h-4 w-4" aria-hidden="true" />
+                    Marca y personalización
+                  </Button>
+                )}
                 <div className="space-y-2">
                   <label
                     htmlFor="mobile-project-select"
@@ -358,7 +370,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     value={activeProjectId}
                     onChange={(event) => onSelectProject(event.target.value)}
                     disabled={projects.length === 0}
-                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-400 disabled:opacity-60"
+                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:opacity-60"
                   >
                     {projects.length === 0 ? (
                       <option value="">Sin proyectos disponibles</option>
@@ -455,16 +467,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       </nav>
 
       {/* ================= GLASS TOP NAV BAR (Desktop only - MobileHeader handles mobile) ================= */}
-      <header className="hidden lg:flex sticky top-0 z-40 bg-slate-950/40 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 lg:px-8 py-3 lg:ml-[280px]">
+      <header className="sticky top-0 z-40 hidden border-b border-white/10 bg-slate-950/40 px-4 py-3 backdrop-blur-xl sm:px-6 lg:ml-[280px] lg:flex lg:px-8">
         <div className="flex w-full min-w-0 items-center justify-between gap-4">
           {/* Current view */}
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
-              <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
+              <span className="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
                 VISTA DE {currentTabName.toUpperCase()} / Q (Quetzales)
               </span>
-              <span className="text-xs font-bold text-white hidden sm:block">
-                {activeProject ? `${activeProject.code} - ${activeProject.name}` : 'ConstructERP Guatemala'}
+              <span className="hidden text-xs font-bold text-white sm:block">
+                {activeProject
+                  ? `${activeProject.code} - ${activeProject.name}`
+                  : 'ConstructERP Guatemala'}
               </span>
             </div>
           </div>
@@ -480,18 +494,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                 disabled={projects.length === 0}
                 aria-expanded={isProjectDropdownOpen}
                 aria-haspopup="listbox"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-slate-200"
               >
-                <span className="w-2 h-2 rounded-full bg-sky-400"></span>
-                <span className="max-w-[110px] sm:max-w-[160px] truncate">
+                <span className="h-2 w-2 rounded-full bg-sky-400"></span>
+                <span className="max-w-[110px] truncate sm:max-w-[160px]">
                   {activeProject?.name ?? 'Sin proyecto'}
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
               </Button>
 
               {isProjectDropdownOpen && (
-                <div role="menu" aria-label="Cambiar proyecto activo" className="absolute right-0 mt-2 w-64 rounded-xl bg-slate-900/95 backdrop-blur-2xl border border-white/15 shadow-2xl p-2 z-50 space-y-1">
-                  <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
+                <div
+                  role="menu"
+                  aria-label="Cambiar proyecto activo"
+                  className="absolute right-0 z-50 mt-2 w-64 space-y-1 rounded-xl border border-white/15 bg-slate-900/95 p-2 shadow-2xl backdrop-blur-2xl"
+                >
+                  <div className="border-b border-white/10 px-3 py-1.5 font-mono text-[10px] tracking-wider text-slate-400 uppercase">
                     Cambiar Proyecto Activo
                   </div>
                   {projects.map((proj) => (
@@ -504,18 +522,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                         onSelectProject(proj.id);
                         setIsProjectDropdownOpen(false);
                       }}
-                      className={`w-full text-left justify-between ${
+                      className={`w-full justify-between text-left ${
                         proj.id === activeProjectId
                           ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]'
                           : ''
                       }`}
                     >
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex w-full items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-[10px] text-amber-400 mr-1.5">{proj.code}</span>
+                          <span className="mr-1.5 font-mono text-[10px] text-amber-400">
+                            {proj.code}
+                          </span>
                           <span className="truncate">{proj.name}</span>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-mono ml-2">{proj.progressPercent}%</span>
+                        <span className="ml-2 font-mono text-[10px] text-slate-400">
+                          {proj.progressPercent}%
+                        </span>
                       </div>
                     </Button>
                   ))}
@@ -524,9 +546,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* User Pill with Status Dot */}
-            <div className="user-pill flex items-center gap-2 px-3 py-2 rounded-full bg-white/[0.06] border border-white/15 text-xs text-slate-200">
-              <span className={`status-dot w-2 h-2 rounded-full ${currentUser ? 'bg-emerald-400 shadow-[0_0_8px_#4ade80]' : 'bg-slate-500'}`}></span>
-              <span className="font-semibold truncate max-w-[140px] sm:max-w-[180px]">
+            <div className="user-pill flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-2 text-xs text-slate-200">
+              <span
+                className={`status-dot h-2 w-2 rounded-full ${currentUser ? 'bg-emerald-400 shadow-[0_0_8px_#4ade80]' : 'bg-slate-500'}`}
+              ></span>
+              <span className="max-w-[140px] truncate font-semibold sm:max-w-[180px]">
                 {currentUser?.email ||
                   (authStatus === 'loading'
                     ? 'Verificando sesión…'
@@ -544,10 +568,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => void onSignOut()}
                 isLoading={isSigningOut}
                 aria-label="Cerrar sesión"
-                className="p-2.5 rounded-lg text-slate-400 hover:text-red-300 hover:bg-red-500/20"
+                className="rounded-lg p-2.5 text-slate-400 hover:bg-red-500/20 hover:text-red-300"
                 title="Cerrar Sesión"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="h-4 w-4" />
               </Button>
             ) : (
               <Button
@@ -558,7 +582,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="gap-2 px-3 text-slate-200"
                 title="Iniciar sesión con correo electrónico o Google"
               >
-                <LogIn className="w-4 h-4" />
+                <LogIn className="h-4 w-4" />
                 <span>{authStatus === 'loading' ? 'Verificando…' : 'Iniciar sesión'}</span>
               </Button>
             )}
@@ -567,4 +591,4 @@ export const Navbar: React.FC<NavbarProps> = ({
       </header>
     </>
   );
-};
+}

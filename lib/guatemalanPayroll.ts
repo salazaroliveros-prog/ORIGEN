@@ -164,17 +164,24 @@ export function calculateEmployeePayroll(input: EmployeePayrollInput): EmployeeP
   const igssPatronal = Math.round(salarioAfectoIGSS * STATUTORY_RATES.IGSS_PATRONAL * 100) / 100;
   const irtra = Math.round(salarioAfectoIGSS * STATUTORY_RATES.IRTRA * 100) / 100;
   const intecap = Math.round(salarioAfectoIGSS * STATUTORY_RATES.INTECAP * 100) / 100;
-  const igssPatronalTotal = Math.round(salarioAfectoIGSS * STATUTORY_RATES.IGSS_PATRONAL_TOTAL * 100) / 100;
+  const igssPatronalTotal =
+    Math.round(salarioAfectoIGSS * STATUTORY_RATES.IGSS_PATRONAL_TOTAL * 100) / 100;
 
   // Provisiones para pasivo laboral
   const multiplier = frequency === 'quincenal' ? 0.5 : 1.0;
-  const provisionBono14 = Math.round(salarioAfectoIGSS * STATUTORY_RATES.PROVISION_BONO_14 * multiplier * 100) / 100;
-  const provisionAguinaldo = Math.round(salarioAfectoIGSS * STATUTORY_RATES.PROVISION_AGUINALDO * multiplier * 100) / 100;
+  const provisionBono14 =
+    Math.round(salarioAfectoIGSS * STATUTORY_RATES.PROVISION_BONO_14 * multiplier * 100) / 100;
+  const provisionAguinaldo =
+    Math.round(salarioAfectoIGSS * STATUTORY_RATES.PROVISION_AGUINALDO * multiplier * 100) / 100;
   const provisionVacaciones = Math.round(baseSalary * (15 / 365) * (daysWorked / 30) * 100) / 100;
-  const provisionIndemnizacion = Math.round(salarioAfectoIGSS * STATUTORY_RATES.PROVISION_INDEMNIZACION * multiplier * 100) / 100;
+  const provisionIndemnizacion =
+    Math.round(salarioAfectoIGSS * STATUTORY_RATES.PROVISION_INDEMNIZACION * multiplier * 100) /
+    100;
 
   const totalProvisionesPrestaciones =
-    Math.round((provisionBono14 + provisionAguinaldo + provisionVacaciones + provisionIndemnizacion) * 100) / 100;
+    Math.round(
+      (provisionBono14 + provisionAguinaldo + provisionVacaciones + provisionIndemnizacion) * 100
+    ) / 100;
 
   const costoTotalPatrono =
     Math.round((totalDevengado + igssPatronalTotal + totalProvisionesPrestaciones) * 100) / 100;
@@ -234,7 +241,9 @@ export function calculateBono14(
   const currentCalc = new Date(calcDate);
   const effectiveEnd = currentCalc < pEnd ? currentCalc : pEnd;
 
-  const hireDate = employee.hireDate ? new Date(employee.hireDate) : new Date(`${calculationYear - 1}-01-01`);
+  const hireDate = employee.hireDate
+    ? new Date(employee.hireDate)
+    : new Date(`${calculationYear - 1}-01-01`);
 
   // Fecha de inicio computable (la posterior entre inicio de período y fecha de contratación)
   const computationStart = hireDate > pStart ? hireDate : pStart;
@@ -296,7 +305,9 @@ export function calculateAguinaldo(
   const currentCalc = new Date(calcDate);
   const effectiveEnd = currentCalc < pEnd ? currentCalc : pEnd;
 
-  const hireDate = employee.hireDate ? new Date(employee.hireDate) : new Date(`${calculationYear - 1}-01-01`);
+  const hireDate = employee.hireDate
+    ? new Date(employee.hireDate)
+    : new Date(`${calculationYear - 1}-01-01`);
 
   const computationStart = hireDate > pStart ? hireDate : pStart;
 
@@ -369,8 +380,13 @@ export function calculateLaborSettlement(
   const vacationAmount = Math.round(vacationDays * employee.dailyRateGTQ * 100) / 100;
 
   const totalFiniquito =
-    Math.round((totalIndemnizacion + bono14Result.amountToPayGTQ + aguinaldoResult.amountToPayGTQ + vacationAmount) * 100) /
-    100;
+    Math.round(
+      (totalIndemnizacion +
+        bono14Result.amountToPayGTQ +
+        aguinaldoResult.amountToPayGTQ +
+        vacationAmount) *
+        100
+    ) / 100;
 
   return {
     employeeId: employee.id,

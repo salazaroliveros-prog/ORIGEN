@@ -1,26 +1,20 @@
 'use client';
 
-import {
-Camera,
-CameraOff,
-Check,
-MapPin,
-Receipt,
-RotateCcw,
-Upload,
-X
-} from 'lucide-react';
+import { Camera, CameraOff, Check, MapPin, Receipt, RotateCcw, Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import React,{ useCallback,useEffect,useRef,useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface CameraCaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCapture: (dataUrl: string, metadata: {
-    coords?: { lat: number; lng: number };
-    timestamp: string;
-    caption?: string;
-  }) => void;
+  onCapture: (
+    dataUrl: string,
+    metadata: {
+      coords?: { lat: number; lng: number };
+      timestamp: string;
+      caption?: string;
+    }
+  ) => void;
   mode?: 'construction_site' | 'receipt';
   title?: string;
   subtitle?: string;
@@ -29,7 +23,7 @@ interface CameraCaptureModalProps {
   foremanName?: string;
 }
 
-export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
+export function CameraCaptureModal({
   isOpen,
   onClose,
   onCapture,
@@ -39,7 +33,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   defaultLocation,
   projectCode = 'OBRA-2025',
   foremanName = 'Supervisor de Obra',
-}) => {
+}: CameraCaptureModalProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -54,7 +48,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   const [addWatermark, setAddWatermark] = useState(true);
 
   // GPS state
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(defaultLocation || null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    defaultLocation || null
+  );
   const [gpsStatus, setGpsStatus] = useState<'searching' | 'ready' | 'fallback'>('searching');
 
   // Active tab: 'camera' vs 'upload'
@@ -130,50 +126,54 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     }
   }, []);
 
-  const startCameraStream = useCallback(async (targetFacing: 'environment' | 'user') => {
-    stopCameraStream();
-    const requestId = cameraRequestIdRef.current;
-    setCameraError(null);
+  const startCameraStream = useCallback(
+    async (targetFacing: 'environment' | 'user') => {
+      stopCameraStream();
+      const requestId = cameraRequestIdRef.current;
+      setCameraError(null);
 
-    try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('La API de cámara no está disponible en este navegador o contexto.');
-      }
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('La API de cámara no está disponible en este navegador o contexto.');
+        }
 
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: targetFacing,
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-        audio: false,
-      });
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: targetFacing,
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+          audio: false,
+        });
 
-      if (requestId !== cameraRequestIdRef.current) {
-        mediaStream.getTracks().forEach((track) => track.stop());
-        return;
-      }
+        if (requestId !== cameraRequestIdRef.current) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
 
-      streamRef.current = mediaStream;
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play().catch(() => {});
+        streamRef.current = mediaStream;
+        setStream(mediaStream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.play().catch(() => {});
+        }
+      } catch (err: unknown) {
+        if (requestId !== cameraRequestIdRef.current) return;
+        console.warn('getUserMedia error:', err);
+        let msg = 'No se pudo activar la cámara del dispositivo.';
+        const errorName = err instanceof Error ? err.name : '';
+        if (errorName === 'NotAllowedError' || errorName === 'PermissionDeniedError') {
+          msg =
+            'Permiso denegado para acceder a la cámara. Permita el acceso a la cámara o use la opción de subir archivo.';
+        } else if (errorName === 'NotFoundError' || errorName === 'DevicesNotFoundError') {
+          msg = 'No se encontró ninguna cámara conectada en este equipo.';
+        }
+        setCameraError(msg);
+        setInputTab('upload');
       }
-    } catch (err: unknown) {
-      if (requestId !== cameraRequestIdRef.current) return;
-      console.warn('getUserMedia error:', err);
-      let msg = 'No se pudo activar la cámara del dispositivo.';
-      const errorName = err instanceof Error ? err.name : '';
-      if (errorName === 'NotAllowedError' || errorName === 'PermissionDeniedError') {
-        msg = 'Permiso denegado para acceder a la cámara. Permita el acceso a la cámara o use la opción de subir archivo.';
-      } else if (errorName === 'NotFoundError' || errorName === 'DevicesNotFoundError') {
-        msg = 'No se encontró ninguna cámara conectada en este equipo.';
-      }
-      setCameraError(msg);
-      setInputTab('upload');
-    }
-  }, [stopCameraStream]);
+    },
+    [stopCameraStream]
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -229,8 +229,16 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     // Optional Watermark
     if (addWatermark) {
       const now = new Date();
-      const dateStr = now.toLocaleDateString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const timeStr = now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const dateStr = now.toLocaleDateString('es-GT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      const timeStr = now.toLocaleTimeString('es-GT', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
 
       ctx.save();
       const bannerHeight = Math.max(58, Math.round(height * 0.09));
@@ -244,9 +252,10 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
 
       const firstLineY = height - bannerHeight + fontSize + 6;
       const secondLineY = height - 8;
-      const primaryWatermark = mode === 'receipt'
-        ? `COMPROBANTE / FACTURA FEL • ${dateStr} ${timeStr}`
-        : `CONSTRUCTERP • ${projectCode} • ${dateStr} ${timeStr}`;
+      const primaryWatermark =
+        mode === 'receipt'
+          ? `COMPROBANTE / FACTURA FEL • ${dateStr} ${timeStr}`
+          : `CONSTRUCTERP • ${projectCode} • ${dateStr} ${timeStr}`;
       ctx.fillText(primaryWatermark, 16, firstLineY, width - 32);
 
       if (mode !== 'receipt') {
@@ -257,7 +266,12 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         ctx.textAlign = 'right';
         ctx.font = `${fontSize - 1}px monospace`;
         ctx.fillStyle = '#38bdf8';
-        ctx.fillText(`GPS: ${coords.lat.toFixed(4)}°N, ${coords.lng.toFixed(4)}°W`, width - 16, secondLineY, width / 2 - 24);
+        ctx.fillText(
+          `GPS: ${coords.lat.toFixed(4)}°N, ${coords.lng.toFixed(4)}°W`,
+          width - 16,
+          secondLineY,
+          width / 2 - 24
+        );
       }
       ctx.restore();
     }
@@ -289,7 +303,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     onCapture(previewDataUrl, {
       coords: coords || undefined,
       timestamp,
-      caption: caption.trim() || (mode === 'receipt' ? 'Comprobante / Factura FEL' : 'Fotografía de avance en obra'),
+      caption:
+        caption.trim() ||
+        (mode === 'receipt' ? 'Comprobante / Factura FEL' : 'Fotografía de avance en obra'),
     });
     handleModalClose();
   };
@@ -309,69 +325,83 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
 
   if (!isOpen) return null;
 
-  const modalTitle = title || (mode === 'receipt' ? 'Capturar Comprobante o Factura con Cámara' : 'Capturar Fotografía de Obra con Cámara');
-  const modalSubtitle = subtitle || (mode === 'receipt'
-    ? 'Tome una foto nítida de la factura física, ticket de caja o recibo de compra con la cámara del dispositivo.'
-    : 'Registre evidencia fotográfica del avance físico, fundiciones o acabados directamente desde la obra.');
+  const modalTitle =
+    title ||
+    (mode === 'receipt'
+      ? 'Capturar Comprobante o Factura con Cámara'
+      : 'Capturar Fotografía de Obra con Cámara');
+  const modalSubtitle =
+    subtitle ||
+    (mode === 'receipt'
+      ? 'Tome una foto nítida de la factura física, ticket de caja o recibo de compra con la cámara del dispositivo.'
+      : 'Registre evidencia fotográfica del avance físico, fundiciones o acabados directamente desde la obra.');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[95vh]">
+    <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-3 backdrop-blur-xs duration-150 sm:p-4">
+      <div className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         {/* Header */}
-        <div className="bg-slate-900 text-white px-4 py-3.5 flex items-center justify-between">
+        <div className="flex items-center justify-between bg-slate-900 px-4 py-3.5 text-white">
           <div className="flex items-center gap-2.5">
-            <div className={`p-2 rounded-xl ${mode === 'receipt' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}`}>
-              {mode === 'receipt' ? <Receipt className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
+            <div
+              className={`rounded-xl p-2 ${mode === 'receipt' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}`}
+            >
+              {mode === 'receipt' ? (
+                <Receipt className="h-5 w-5" />
+              ) : (
+                <Camera className="h-5 w-5" />
+              )}
             </div>
             <div>
-              <h3 className="font-bold text-sm sm:text-base leading-tight">{modalTitle}</h3>
-              <p className="text-[11px] text-slate-400 hidden sm:block">{modalSubtitle}</p>
+              <h3 className="text-sm leading-tight font-bold sm:text-base">{modalTitle}</h3>
+              <p className="hidden text-[11px] text-slate-400 sm:block">{modalSubtitle}</p>
             </div>
           </div>
           <button
             onClick={handleModalClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition hover:bg-slate-800 cursor-pointer"
+            className="cursor-pointer rounded-lg p-1 text-slate-400 transition hover:bg-slate-800 hover:text-white"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Tab Switcher: Cámara vs Archivo */}
         {!previewDataUrl && (
-          <div className="flex items-center border-b border-slate-200 bg-slate-50 px-4 pt-2 gap-2 text-xs">
+          <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 pt-2 text-xs">
             <button
               onClick={() => setInputTab('camera')}
-              className={`pb-2 px-3 font-semibold border-b-2 transition flex items-center gap-1.5 cursor-pointer ${
+              className={`flex cursor-pointer items-center gap-1.5 border-b-2 px-3 pb-2 font-semibold transition ${
                 inputTab === 'camera'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              <Camera className="w-3.5 h-3.5" />
+              <Camera className="h-3.5 w-3.5" />
               Cámara en Vivo
             </button>
             <button
               onClick={() => setInputTab('upload')}
-              className={`pb-2 px-3 font-semibold border-b-2 transition flex items-center gap-1.5 cursor-pointer ${
+              className={`flex cursor-pointer items-center gap-1.5 border-b-2 px-3 pb-2 font-semibold transition ${
                 inputTab === 'upload'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              <Upload className="w-3.5 h-3.5" />
+              <Upload className="h-3.5 w-3.5" />
               Subir Imagen / Archivo
             </button>
           </div>
         )}
 
         {/* Viewport Area */}
-        <div className="relative bg-slate-950 flex-1 min-h-[320px] max-h-[500px] flex items-center justify-center overflow-hidden">
+        <div className="relative flex max-h-[500px] min-h-[320px] flex-1 items-center justify-center overflow-hidden bg-slate-950">
           {/* Flash animation */}
-          {isFlashing && <div className="absolute inset-0 bg-white z-40 animate-out fade-out duration-200" />}
+          {isFlashing && (
+            <div className="animate-out fade-out absolute inset-0 z-40 bg-white duration-200" />
+          )}
 
           {previewDataUrl ? (
             /* Snapshot Preview */
-            <div className="relative w-full h-full flex items-center justify-center bg-black">
+            <div className="relative flex h-full w-full items-center justify-center bg-black">
               <Image
                 src={previewDataUrl}
                 alt="Vista previa capturada"
@@ -380,46 +410,46 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 unoptimized
                 className="max-h-[460px] w-auto object-contain"
               />
-              <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-xs text-white text-[11px] px-2.5 py-1 rounded-lg border border-slate-700 flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/80 px-2.5 py-1 text-[11px] text-white backdrop-blur-xs">
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
                 Fotografía capturada con éxito
               </div>
             </div>
           ) : inputTab === 'camera' ? (
             /* Live Camera Stream */
-            <div className="relative w-full h-full flex items-center justify-center bg-black">
+            <div className="relative flex h-full w-full items-center justify-center bg-black">
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 muted
-                className={`w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                className={`h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
               />
 
               {/* Viewfinder Overlay Guides */}
               {mode === 'receipt' ? (
                 /* Document Viewfinder Overlay for Invoices/Receipts */
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6 sm:p-8">
-                  <div className="relative w-full max-w-sm h-full max-h-[360px] border-2 border-dashed border-amber-400/80 rounded-xl bg-amber-400/5 shadow-2xl flex flex-col justify-between p-3">
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6 sm:p-8">
+                  <div className="relative flex h-full max-h-[360px] w-full max-w-sm flex-col justify-between rounded-xl border-2 border-dashed border-amber-400/80 bg-amber-400/5 p-3 shadow-2xl">
                     {/* Corner Reticles */}
-                    <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-amber-400" />
-                    <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-amber-400" />
-                    <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-amber-400" />
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-amber-400" />
+                    <div className="absolute -top-1 -left-1 h-6 w-6 border-t-4 border-l-4 border-amber-400" />
+                    <div className="absolute -top-1 -right-1 h-6 w-6 border-t-4 border-r-4 border-amber-400" />
+                    <div className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-amber-400" />
+                    <div className="absolute -right-1 -bottom-1 h-6 w-6 border-r-4 border-b-4 border-amber-400" />
 
-                    <div className="self-center bg-slate-950/70 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-400/40">
+                    <div className="self-center rounded border border-amber-400/40 bg-slate-950/70 px-2 py-0.5 text-[10px] font-bold text-amber-300">
                       Enfoque la Factura / Recibo dentro del marco
                     </div>
-                    <div className="self-center text-center text-[10px] text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded">
+                    <div className="self-center rounded bg-slate-950/60 px-2 py-0.5 text-center text-[10px] text-slate-300">
                       Asegure buena iluminación sobre los datos del emisor y total
                     </div>
                   </div>
                 </div>
               ) : (
                 /* Construction Site Viewfinder Guide */
-                <div className="absolute inset-0 pointer-events-none">
+                <div className="pointer-events-none absolute inset-0">
                   {/* Grid lines for rule of thirds */}
-                  <div className="w-full h-full grid grid-cols-3 grid-rows-3 opacity-25">
+                  <div className="grid h-full w-full grid-cols-3 grid-rows-3 opacity-25">
                     <div className="border-r border-b border-white" />
                     <div className="border-r border-b border-white" />
                     <div className="border-b border-white" />
@@ -432,8 +462,8 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                   </div>
                   {/* Center Level Crosshair */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 border border-white/50 rounded-full flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/50">
+                      <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />
                     </div>
                   </div>
                 </div>
@@ -441,16 +471,20 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
 
               {/* Status and Controls Over Video */}
               <div className="absolute top-3 left-3 flex items-center gap-2">
-                <div className="bg-slate-900/80 backdrop-blur-xs text-white text-[10px] px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] text-white backdrop-blur-xs">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
                   Cámara Activa ({facingMode === 'environment' ? 'Trasera' : 'Frontal'})
                 </div>
                 {coords && (
-                  <div className="bg-slate-900/80 backdrop-blur-xs text-sky-300 text-[10px] px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1 font-mono">
-                    <MapPin className="w-3 h-3 text-sky-400" />
+                  <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 font-mono text-[10px] text-sky-300 backdrop-blur-xs">
+                    <MapPin className="h-3 w-3 text-sky-400" />
                     {coords.lat.toFixed(4)}°N, {coords.lng.toFixed(4)}°W
                     <span className="font-sans">
-                      {gpsStatus === 'ready' ? 'GPS fijo' : gpsStatus === 'fallback' ? 'Referencia' : 'Buscando'}
+                      {gpsStatus === 'ready'
+                        ? 'GPS fijo'
+                        : gpsStatus === 'fallback'
+                          ? 'Referencia'
+                          : 'Buscando'}
                     </span>
                   </div>
                 )}
@@ -461,26 +495,28 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 <button
                   type="button"
                   onClick={handleToggleFacingMode}
-                  className="bg-slate-900/80 hover:bg-slate-800 backdrop-blur-xs text-white p-2 rounded-xl border border-slate-700 transition flex items-center gap-1 text-xs cursor-pointer"
+                  className="flex cursor-pointer items-center gap-1 rounded-xl border border-slate-700 bg-slate-900/80 p-2 text-xs text-white backdrop-blur-xs transition hover:bg-slate-800"
                   title="Cambiar entre cámara trasera y frontal"
                 >
-                  <RotateCcw className="w-4 h-4 text-blue-400" />
-                  <span className="text-[10px] hidden sm:inline">Girar Cámara</span>
+                  <RotateCcw className="h-4 w-4 text-blue-400" />
+                  <span className="hidden text-[10px] sm:inline">Girar Cámara</span>
                 </button>
               </div>
 
               {/* Error warning if any */}
               {cameraError && (
-                <div className="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-6 text-center text-white">
-                  <CameraOff className="w-10 h-10 text-rose-400 mb-2" />
-                  <p className="text-sm font-bold text-rose-300 mb-1">Acceso a cámara no disponible</p>
-                  <p className="text-xs text-slate-400 max-w-sm mb-4">{cameraError}</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/90 p-6 text-center text-white">
+                  <CameraOff className="mb-2 h-10 w-10 text-rose-400" />
+                  <p className="mb-1 text-sm font-bold text-rose-300">
+                    Acceso a cámara no disponible
+                  </p>
+                  <p className="mb-4 max-w-sm text-xs text-slate-400">{cameraError}</p>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                    className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-500"
                   >
-                    <Upload className="w-4 h-4" />
+                    <Upload className="h-4 w-4" />
                     Subir foto desde este dispositivo
                   </button>
                 </div>
@@ -488,20 +524,21 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
             </div>
           ) : (
             /* File Upload Tab */
-            <div className="w-full h-full p-8 flex flex-col items-center justify-center text-center text-slate-300">
-              <div className="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-3 text-blue-400">
-                <Upload className="w-8 h-8" />
+            <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center text-slate-300">
+              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-blue-400">
+                <Upload className="h-8 w-8" />
               </div>
-              <h4 className="text-sm font-bold text-white mb-1">Cargar Fotografía o Recibo</h4>
-              <p className="text-xs text-slate-400 max-w-sm mb-4">
-                Seleccione una imagen PNG, JPG o WEBP tomada previamente o use el explorador de archivos.
+              <h4 className="mb-1 text-sm font-bold text-white">Cargar Fotografía o Recibo</h4>
+              <p className="mb-4 max-w-sm text-xs text-slate-400">
+                Seleccione una imagen PNG, JPG o WEBP tomada previamente o use el explorador de
+                archivos.
               </p>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-lg"
+                className="flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg transition hover:bg-blue-500"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="h-4 w-4" />
                 Examinar Archivos
               </button>
               <input
@@ -517,13 +554,15 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         </div>
 
         {/* Bottom Control Bar */}
-        <div className="p-4 bg-white border-t border-slate-200 space-y-3">
+        <div className="space-y-3 border-t border-slate-200 bg-white p-4">
           {previewDataUrl ? (
             /* Post-capture controls */
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  {mode === 'receipt' ? 'Nota o Detalle del Comprobante' : 'Descripción / Pie de Foto de la Obra'}
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  {mode === 'receipt'
+                    ? 'Nota o Detalle del Comprobante'
+                    : 'Descripción / Pie de Foto de la Obra'}
                 </label>
                 <input
                   type="text"
@@ -534,7 +573,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                       ? 'Ej. Factura FEL de Cemento Progreso #A-49201'
                       : 'Ej. Fundición y armado de columnas eje 4-C'
                   }
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-blue-600"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs focus:bg-white focus:outline-blue-600"
                 />
               </div>
 
@@ -542,25 +581,25 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 <button
                   type="button"
                   onClick={handleRetake}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
+                  <RotateCcw className="h-3.5 w-3.5" />
                   Tomar de Nuevo
                 </button>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={handleModalClose}
-                    className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                    className="cursor-pointer rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
                   >
                     Cancelar
                   </button>
                   <button
                     type="button"
                     onClick={handleConfirm}
-                    className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md transition cursor-pointer"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md transition hover:bg-blue-700"
                   >
-                    <Check className="w-4 h-4" />
+                    <Check className="h-4 w-4" />
                     {mode === 'receipt' ? 'Adjuntar Recibo' : 'Adjuntar a Bitácora'}
                   </button>
                 </div>
@@ -568,9 +607,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
             </div>
           ) : inputTab === 'camera' ? (
             /* Live Camera Snapshot trigger */
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
               <div className="flex items-center gap-2 text-xs text-slate-600">
-                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <label className="flex cursor-pointer items-center gap-1.5 select-none">
                   <input
                     type="checkbox"
                     checked={addWatermark}
@@ -585,7 +624,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 <button
                   type="button"
                   onClick={handleModalClose}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                  className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
                 >
                   Cancelar
                 </button>
@@ -595,9 +634,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                   type="button"
                   onClick={handleCaptureSnapshot}
                   disabled={!stream}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs shadow-md transition cursor-pointer active:scale-95"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-blue-500 active:scale-95 disabled:opacity-50"
                 >
-                  <Camera className="w-4 h-4" />
+                  <Camera className="h-4 w-4" />
                   <span>Capturar Foto</span>
                 </button>
               </div>
@@ -607,7 +646,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
               <button
                 type="button"
                 onClick={handleModalClose}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
               >
                 Cerrar
               </button>
@@ -617,4 +656,4 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       </div>
     </div>
   );
-};
+}

@@ -15,9 +15,11 @@ const authErrorMessages: Record<string, string> = {
   'auth/network-request-failed': 'No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.',
   'auth/operation-not-allowed':
     'Este método de acceso no está habilitado en Firebase Authentication.',
-  'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Permite las ventanas emergentes.',
+  'auth/popup-blocked':
+    'El navegador bloqueó la ventana de Google. Permite las ventanas emergentes.',
   'auth/popup-closed-by-user': 'Se canceló el acceso con Google.',
-  'auth/provider-already-linked': 'Esta cuenta ya tiene Google vinculado. Inicia sesión con Google.',
+  'auth/provider-already-linked':
+    'Esta cuenta ya tiene Google vinculado. Inicia sesión con Google.',
   'auth/credential-already-in-use':
     'Esta cuenta de Google ya está vinculada a otro usuario de ORIGEN. Inicia sesión con la cuenta vinculada o contacta al administrador.',
   'auth/web-storage-unsupported':
@@ -26,7 +28,8 @@ const authErrorMessages: Record<string, string> = {
     'La configuración OAuth de Google no es válida para este proyecto. Revisa el proveedor Google en Firebase Authentication.',
   'auth/unauthorized-continue-uri':
     'La URL de acceso no está autorizada en Firebase Authentication. Agrega el dominio actual a los dominios permitidos.',
-  'auth/too-many-requests': 'Hubo demasiados intentos. Espera un momento antes de volver a intentarlo.',
+  'auth/too-many-requests':
+    'Hubo demasiados intentos. Espera un momento antes de volver a intentarlo.',
   'auth/unauthorized-domain':
     'Este dominio no está autorizado en Firebase Authentication. Agrégalo a los dominios permitidos.',
   'auth/user-disabled': 'Esta cuenta está deshabilitada. Contacta al administrador.',
@@ -39,13 +42,9 @@ export function getAuthErrorMessage(error: unknown): string {
   return getAuthErrorMessageForMethod(error);
 }
 
-export function getAuthErrorMessageForMethod(
-  error: unknown,
-  method?: 'email' | 'google'
-): string {
+export function getAuthErrorMessageForMethod(error: unknown, method?: 'email' | 'google'): string {
   const code =
-    typeof error === 'object' && error !== null && 'code' in error &&
-    typeof error.code === 'string'
+    typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string'
       ? error.code
       : '';
 

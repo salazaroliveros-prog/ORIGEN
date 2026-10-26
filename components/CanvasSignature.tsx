@@ -2,16 +2,16 @@
 
 import { SignatureResult } from '@/components/SignaturePad';
 import {
-AlertCircle,
-CheckCircle2,
-MapPin,
-PenTool,
-RotateCcw,
-Undo2,
-UserCheck,
-X
+  AlertCircle,
+  CheckCircle2,
+  MapPin,
+  PenTool,
+  RotateCcw,
+  Undo2,
+  UserCheck,
+  X,
 } from 'lucide-react';
-import React,{ useCallback,useEffect,useRef,useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface CanvasSignatureProps {
   isOpen?: boolean;
@@ -25,7 +25,7 @@ export interface CanvasSignatureProps {
   subtitle?: string;
 }
 
-export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
+export function CanvasSignature({
   isOpen = true,
   onClose,
   onSaveSignature,
@@ -35,7 +35,7 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
   inline = false,
   title = 'Firma Digital del Capataz en Lienzo Táctil',
   subtitle = 'Autorización legal sobre pantalla para reportes de campo y bitácoras diarias de obra.',
-}) => {
+}: CanvasSignatureProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -134,7 +134,7 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
 
   // Coordinate conversion helper
   const getCoordinates = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement> | React.PointerEvent<HTMLCanvasElement>
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
   ): { x: number; y: number } | null => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -156,7 +156,9 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
   };
 
   // Drawing handlers
-  const startDrawing = (e: any) => {
+  const startDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     if (e.cancelable && e.type.startsWith('touch')) {
       e.preventDefault();
     }
@@ -181,7 +183,7 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
     setValidationError(null);
   };
 
-  const draw = (e: any) => {
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
     if (e.cancelable && e.type.startsWith('touch')) {
       e.preventDefault();
@@ -198,7 +200,9 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
     ctx.stroke();
   };
 
-  const stopDrawing = (e: any) => {
+  const stopDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     if (!isDrawing) return;
     if (e.cancelable && e.type.startsWith('touch')) {
       e.preventDefault();
@@ -263,34 +267,34 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
   };
 
   const content = (
-    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-w-lg w-full">
+    <div className="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
       {/* Header */}
-      <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
+      <div className="flex items-center justify-between bg-slate-900 p-4 text-white sm:p-5">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-blue-600/30 text-blue-400 rounded-xl border border-blue-500/30">
-            <PenTool className="w-5 h-5" />
+          <div className="rounded-xl border border-blue-500/30 bg-blue-600/30 p-2 text-blue-400">
+            <PenTool className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-bold text-sm sm:text-base text-white">{title}</h3>
+            <h3 className="text-sm font-bold text-white sm:text-base">{title}</h3>
             <p className="text-[11px] text-slate-400">{subtitle}</p>
           </div>
         </div>
         {!inline && onClose && (
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg transition hover:bg-slate-800"
+            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
             aria-label="Cerrar"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         )}
       </div>
 
-      <div className="p-4 sm:p-5 space-y-4">
+      <div className="space-y-4 p-4 sm:p-5">
         {/* Signer Identification inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="mb-1 block text-[11px] font-bold tracking-wider text-slate-700 uppercase">
               Nombre del Capataz / Firmante
             </label>
             <div className="relative">
@@ -299,14 +303,14 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Don Mario Cifuentes"
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 font-medium"
+                className="w-full rounded-lg border border-slate-300 bg-slate-50 py-1.5 pr-3 pl-8 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500"
                 required
               />
-              <UserCheck className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+              <UserCheck className="absolute top-2.5 left-2.5 h-3.5 w-3.5 text-slate-400" />
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="mb-1 block text-[11px] font-bold tracking-wider text-slate-700 uppercase">
               DPI / Identificación (Guatemala)
             </label>
             <input
@@ -314,16 +318,18 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
               value={signerDpi}
               onChange={(e) => setSignerDpi(e.target.value)}
               placeholder="2489 10293 0101"
-              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 font-medium font-mono"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200">
+        <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs text-slate-600">
           <span className="font-semibold text-slate-700">{signerRole}</span>
-          <div className="flex items-center gap-1 text-[11px] text-sky-700 font-mono">
-            <MapPin className="w-3 h-3 text-sky-600" />
-            {gpsCoords ? `${gpsCoords.lat.toFixed(4)}°N, ${gpsCoords.lng.toFixed(4)}°W` : 'Obteniendo GPS...'}
+          <div className="flex items-center gap-1 font-mono text-[11px] text-sky-700">
+            <MapPin className="h-3 w-3 text-sky-600" />
+            {gpsCoords
+              ? `${gpsCoords.lat.toFixed(4)}°N, ${gpsCoords.lng.toFixed(4)}°W`
+              : 'Obteniendo GPS...'}
           </div>
         </div>
 
@@ -332,24 +338,24 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-slate-800">Lienzo Táctil (HTML5 Canvas)</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+              <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
                 Touch Ready
               </span>
             </div>
             {/* Color & Undo Controls */}
             <div className="flex items-center gap-1">
-              <div className="flex items-center bg-slate-100 rounded-lg p-0.5 mr-1">
+              <div className="mr-1 flex items-center rounded-lg bg-slate-100 p-0.5">
                 <button
                   type="button"
                   onClick={() => setPenColor('#0f172a')}
-                  className={`w-5 h-5 rounded-md transition ${penColor === '#0f172a' ? 'ring-2 ring-blue-500 scale-110' : ''}`}
+                  className={`h-5 w-5 rounded-md transition ${penColor === '#0f172a' ? 'scale-110 ring-2 ring-blue-500' : ''}`}
                   style={{ backgroundColor: '#0f172a' }}
                   title="Tinta Grafito Ejecutivo"
                 />
                 <button
                   type="button"
                   onClick={() => setPenColor('#1e3a8a')}
-                  className={`w-5 h-5 rounded-md transition ml-1 ${penColor === '#1e3a8a' ? 'ring-2 ring-blue-500 scale-110' : ''}`}
+                  className={`ml-1 h-5 w-5 rounded-md transition ${penColor === '#1e3a8a' ? 'scale-110 ring-2 ring-blue-500' : ''}`}
                   style={{ backgroundColor: '#1e3a8a' }}
                   title="Tinta Azul Contrato"
                 />
@@ -358,29 +364,29 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
                 type="button"
                 onClick={handleUndo}
                 disabled={strokeHistory.length === 0}
-                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition disabled:opacity-30 cursor-pointer"
+                className="cursor-pointer rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30"
                 title="Deshacer trazo"
               >
-                <Undo2 className="w-4 h-4" />
+                <Undo2 className="h-4 w-4" />
               </button>
               <button
                 type="button"
                 onClick={initCanvas}
-                className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                className="cursor-pointer rounded-lg p-1.5 text-slate-600 transition hover:bg-rose-50 hover:text-rose-600"
                 title="Limpiar lienzo completo"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="h-4 w-4" />
               </button>
             </div>
           </div>
 
           <div
             ref={containerRef}
-            className="w-full h-48 bg-white border-2 border-slate-300 rounded-xl overflow-hidden shadow-inner touch-none relative select-none cursor-crosshair"
+            className="relative h-48 w-full cursor-crosshair touch-none overflow-hidden rounded-xl border-2 border-slate-300 bg-white shadow-inner select-none"
           >
             <canvas
               ref={canvasRef}
-              className="w-full h-full block touch-none"
+              className="block h-full w-full touch-none"
               onMouseDown={startDrawing}
               onMouseMove={draw}
               onMouseUp={stopDrawing}
@@ -391,26 +397,27 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
               onTouchCancel={stopDrawing}
             />
           </div>
-          <p className="text-[10px] text-slate-400 text-center">
-            Firme con el dedo o lápiz óptico dentro del recuadro blanco. La firma se estampa con sello de tiempo y GPS.
+          <p className="text-center text-[10px] text-slate-400">
+            Firme con el dedo o lápiz óptico dentro del recuadro blanco. La firma se estampa con
+            sello de tiempo y GPS.
           </p>
         </div>
 
         {/* Validation Error */}
         {validationError && (
-          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+          <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800">
+            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
             <span>{validationError}</span>
           </div>
         )}
 
         {/* Bottom Actions */}
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-2">
           {!inline && onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition"
+              className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
             >
               Cancelar
             </button>
@@ -418,9 +425,9 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
           <button
             type="button"
             onClick={handleSave}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md transition cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-blue-700"
           >
-            <CheckCircle2 className="w-4 h-4" />
+            <CheckCircle2 className="h-4 w-4" />
             Guardar y Autorizar Firma
           </button>
         </div>
@@ -435,8 +442,8 @@ export const CanvasSignature: React.FC<CanvasSignatureProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+    <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-xs duration-150">
       {content}
     </div>
   );
-};
+}

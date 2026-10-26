@@ -18,14 +18,7 @@ export interface ExportPdfOptions {
 }
 
 export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promise<void> {
-  const {
-    projects,
-    selectedProject,
-    expenses,
-    monthlyData,
-    company,
-    currency,
-  } = options;
+  const { projects, selectedProject, expenses, monthlyData, company, currency } = options;
 
   const { jsPDF } = await import('jspdf');
   const reportLogo = await loadReportLetterheadLogo();
@@ -147,12 +140,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
       margin,
       footerY
     );
-    doc.text(
-      `Página ${pageNum} de ${totalPages}`,
-      pageWidth - margin,
-      footerY,
-      { align: 'right' }
-    );
+    doc.text(`Página ${pageNum} de ${totalPages}`, pageWidth - margin, footerY, { align: 'right' });
   };
 
   const checkPageBreak = (neededHeight: number) => {
@@ -419,7 +407,13 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   y += 4;
 
   const expColWidths = [22, 26, 52, 44, 38];
-  const expHeaders = ['Fecha', 'Factura FEL', 'Proveedor / Contratista', 'Categoría', 'Monto Total'];
+  const expHeaders = [
+    'Fecha',
+    'Factura FEL',
+    'Proveedor / Contratista',
+    'Categoría',
+    'Monto Total',
+  ];
 
   doc.setFillColor(30, 41, 59);
   doc.rect(margin, y, usableWidth, 6, 'F');
@@ -464,10 +458,12 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
       cx += expColWidths[0];
       doc.text(exp.facturaNumber || 'S/N', cx + 2, y + 4.2);
       cx += expColWidths[1];
-      const truncSup = exp.supplier.length > 28 ? exp.supplier.substring(0, 26) + '...' : exp.supplier;
+      const truncSup =
+        exp.supplier.length > 28 ? exp.supplier.substring(0, 26) + '...' : exp.supplier;
       doc.text(truncSup, cx + 2, y + 4.2);
       cx += expColWidths[2];
-      const truncCat = exp.category.length > 24 ? exp.category.substring(0, 22) + '...' : exp.category;
+      const truncCat =
+        exp.category.length > 24 ? exp.category.substring(0, 22) + '...' : exp.category;
       doc.text(truncCat, cx + 2, y + 4.2);
       cx += expColWidths[3];
       doc.text(formatMoney(exp.amount), cx + expColWidths[4] - 2, y + 4.2, { align: 'right' });

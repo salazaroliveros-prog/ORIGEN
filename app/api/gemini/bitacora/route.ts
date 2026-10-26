@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
+import { APIError } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,12 +56,21 @@ Genera el acta/bitacora estructurada diaria.`;
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            folioNumber: { type: Type.STRING, description: 'Número de Folio oficial (ej. BIT-2026-042)' },
+            folioNumber: {
+              type: Type.STRING,
+              description: 'Número de Folio oficial (ej. BIT-2026-042)',
+            },
             projectName: { type: Type.STRING },
             date: { type: Type.STRING },
             capatazName: { type: Type.STRING },
-            climaYCondiciones: { type: Type.STRING, description: 'Estado del clima y horas laborables afectadas' },
-            resumenEjecutivo: { type: Type.STRING, description: 'Resumen gerencial de 2 a 3 oraciones de la jornada' },
+            climaYCondiciones: {
+              type: Type.STRING,
+              description: 'Estado del clima y horas laborables afectadas',
+            },
+            resumenEjecutivo: {
+              type: Type.STRING,
+              description: 'Resumen gerencial de 2 a 3 oraciones de la jornada',
+            },
             personalEnCampo: {
               type: Type.OBJECT,
               properties: {
@@ -129,12 +139,12 @@ Genera el acta/bitacora estructurada diaria.`;
         createdAt: new Date().toISOString(),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating Smart Bitácora with Gemini:', error);
     return NextResponse.json(
       {
         error: 'No se pudo generar la Bitácora con Gemini IA.',
-        details: error.message || String(error),
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

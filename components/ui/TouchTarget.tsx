@@ -9,7 +9,7 @@ interface TouchTargetProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonEle
   haptic?: boolean;
 }
 
-export const TouchTarget: React.FC<TouchTargetProps> = ({
+export function TouchTarget({
   children,
   onPress,
   minSize = 44,
@@ -18,27 +18,23 @@ export const TouchTarget: React.FC<TouchTargetProps> = ({
   style,
   onPointerDown,
   ...buttonProps
-}) => {
+}: TouchTargetProps) {
   return (
     <button
       type="button"
       onClick={onPress}
       onPointerDown={(event) => {
         onPointerDown?.(event);
-        if (
-          haptic &&
-          event.pointerType === 'touch' &&
-          typeof navigator.vibrate === 'function'
-        ) {
+        if (haptic && event.pointerType === 'touch' && typeof navigator.vibrate === 'function') {
           navigator.vibrate(10);
         }
       }}
       style={{ ...style, minWidth: minSize, minHeight: minSize }}
-      className={`touch-target relative group active:scale-95 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${className}`}
+      className={`touch-target group relative focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 active:scale-95 active:opacity-80 ${className}`}
       {...buttonProps}
     >
-      <span className="absolute inset-0 bg-white/[0.05] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></span>
+      <span className="pointer-events-none absolute inset-0 rounded-full bg-white/[0.05] opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
       {children}
     </button>
   );
-};
+}

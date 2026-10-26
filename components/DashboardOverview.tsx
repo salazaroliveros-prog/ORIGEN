@@ -2,34 +2,42 @@
 
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
 import { PhysicalVsFinancialChart } from '@/components/PhysicalVsFinancialChart';
-import { formatGTQ,formatUSD } from '@/lib/data';
-import { AiRecommendation,APUItem,AttendanceRecord,CompanySettings,Employee,ExpenseRecord,Project,ScheduleTask } from '@/lib/types';
+import { formatGTQ, formatUSD } from '@/lib/data';
 import {
-ArrowUpRight,
-BarChart3,
-CloudLightning,
-Layers,
-ShieldCheck,
-TrendingUp
+  AiRecommendation,
+  APUItem,
+  AttendanceRecord,
+  CompanySettings,
+  Employee,
+  ExpenseRecord,
+  Project,
+  ScheduleTask,
+} from '@/lib/types';
+import {
+  ArrowUpRight,
+  BarChart3,
+  CloudLightning,
+  Layers,
+  ShieldCheck,
+  TrendingUp,
 } from 'lucide-react';
-import React,{ useState } from 'react';
+import React, { useState } from 'react';
 import {
-Area,
-AreaChart,
-Bar,
-BarChart,
-CartesianGrid,
-Cell,
-Legend,
-ReferenceLine,
-ResponsiveContainer,
-Tooltip,
-XAxis,
-YAxis
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  BarProps,
 } from 'recharts';
-const D3BudgetUtilizationChart = React.lazy(() =>
-  import('@/components/D3BudgetUtilizationChart').then((m) => ({ default: m.D3BudgetUtilizationChart }))
-);
+import { D3BudgetUtilizationChart } from '@/components/D3BudgetUtilizationChart';
 
 interface DashboardOverviewProps {
   projects: Project[];
@@ -48,7 +56,7 @@ interface DashboardOverviewProps {
   apuItems: APUItem[];
 }
 
-export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
+export function DashboardOverview({
   projects,
   activeProjectId,
   onSelectProject,
@@ -63,8 +71,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   attendance,
   tasks,
   apuItems,
-}) => {
-  const [expenditureViewMode, setExpenditureViewMode] = useState<'projects' | 'categories'>('projects');
+}: DashboardOverviewProps) {
+  const [expenditureViewMode, setExpenditureViewMode] = useState<'projects' | 'categories'>(
+    'projects'
+  );
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
   const formatMoney = (amount: number) => {
@@ -73,7 +83,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
   const totalBudget = projects.reduce((acc, p) => acc + p.budgetTotal, 0);
   const totalSpent = projects.reduce((acc, p) => acc + p.spentTotal, 0);
-  const totalWorkersToday = attendance.filter((a) => a.date === '2025-05-12' && a.status === 'Presente').length || 14;
+  const totalWorkersToday =
+    attendance.filter((a) => a.date === '2025-05-12' && a.status === 'Presente').length || 14;
 
   const chartData = [
     { mes: 'Ene', inversion: 1200000, presupuesto: 1500000 },
@@ -90,7 +101,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const [selectedMonthDetail, setSelectedMonthDetail] = useState<string>('Mar 25');
 
   const isConsolidated = monthlyScope === 'consolidated';
-  const scaleRatio = isConsolidated ? 1 : Math.max(0.2, activeProject.budgetTotal / (totalBudget || 1));
+  const scaleRatio = isConsolidated
+    ? 1
+    : Math.max(0.2, activeProject.budgetTotal / (totalBudget || 1));
 
   const monthlyDeviationData = [
     {
@@ -98,47 +111,58 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       mesNombre: 'Diciembre 2024',
       proyectado: Math.round(1850000 * scaleRatio),
       real: Math.round(1805000 * scaleRatio),
-      causa: 'Ahorro por compra anticipada en volumen de acero corrugado Grado 60 de Corporación Aceros de Guatemala.',
-      accion: 'Mantener consolidación de pedidos mayores a 10 toneladas para congelar precio de plaza.',
+      causa:
+        'Ahorro por compra anticipada en volumen de acero corrugado Grado 60 de Corporación Aceros de Guatemala.',
+      accion:
+        'Mantener consolidación de pedidos mayores a 10 toneladas para congelar precio de plaza.',
     },
     {
       mes: 'Ene 25',
       mesNombre: 'Enero 2025',
       proyectado: Math.round(2100000 * scaleRatio),
       real: Math.round(2158000 * scaleRatio),
-      causa: 'Ajuste anual al salario mínimo de ley en Guatemala (Dto. 37-2001) y cuotas patronales IGSS.',
-      accion: 'Actualizar factores de prestaciones FAS en las matrices APU de mano de obra en el ERP.',
+      causa:
+        'Ajuste anual al salario mínimo de ley en Guatemala (Dto. 37-2001) y cuotas patronales IGSS.',
+      accion:
+        'Actualizar factores de prestaciones FAS en las matrices APU de mano de obra en el ERP.',
     },
     {
       mes: 'Feb 25',
       mesNombre: 'Febrero 2025',
       proyectado: Math.round(2400000 * scaleRatio),
       real: Math.round(2442000 * scaleRatio),
-      causa: 'Alza temporal en fletes de agregados pétreos desde canteras locales por mantenimiento de tramo vial.',
-      accion: 'Habilitar cantera secundaria certificada a menor distancia logística para mitigar recargos.',
+      causa:
+        'Alza temporal en fletes de agregados pétreos desde canteras locales por mantenimiento de tramo vial.',
+      accion:
+        'Habilitar cantera secundaria certificada a menor distancia logística para mitigar recargos.',
     },
     {
       mes: 'Mar 25',
       mesNombre: 'Marzo 2025',
       proyectado: Math.round(2850000 * scaleRatio),
       real: Math.round(3115000 * scaleRatio),
-      causa: 'SOBRECOSTO DETECTADO (+9.3%): Horas extras en fundición masiva nocturna de losas y bombeo continuo Cemex.',
-      accion: 'ALERTA TEMPRANA: Rebalancear cuadrillas diurnas e instalar formaletas modulares para evitar recargo nocturno.',
+      causa:
+        'SOBRECOSTO DETECTADO (+9.3%): Horas extras en fundición masiva nocturna de losas y bombeo continuo Cemex.',
+      accion:
+        'ALERTA TEMPRANA: Rebalancear cuadrillas diurnas e instalar formaletas modulares para evitar recargo nocturno.',
     },
     {
       mes: 'Abr 25',
       mesNombre: 'Abril 2025',
       proyectado: Math.round(2900000 * scaleRatio),
       real: Math.round(3120000 * scaleRatio),
-      causa: 'SOBRECOSTO (+7.6%): Inicio anticipado de lluvias; alquiler imprevisto de bombas de achique y lonas de protección.',
-      accion: 'Estabilizar taludes y zanjas de desagüe perimetral de forma preventiva antes de cada colado.',
+      causa:
+        'SOBRECOSTO (+7.6%): Inicio anticipado de lluvias; alquiler imprevisto de bombas de achique y lonas de protección.',
+      accion:
+        'Estabilizar taludes y zanjas de desagüe perimetral de forma preventiva antes de cada colado.',
     },
     {
       mes: 'May 25',
       mesNombre: 'Mayo 2025 (En curso)',
       proyectado: Math.round(2750000 * scaleRatio),
       real: Math.round(2690000 * scaleRatio),
-      causa: 'AHORRO (-2.2%): Retorno a la curva planificada gracias a medidas de contención y control de requisiciones.',
+      causa:
+        'AHORRO (-2.2%): Retorno a la curva planificada gracias a medidas de contención y control de requisiciones.',
       accion: 'Mantener auditoría semanal de vales de bodega de materiales y control de mermas.',
     },
   ].map((item) => {
@@ -146,7 +170,12 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     const desviacionPct = (desviacion / item.proyectado) * 100;
     const toleranciaMax = Math.round(item.proyectado * 1.05); // +5% límite de seguridad
     const toleranciaMin = Math.round(item.proyectado * 0.95); // -5%
-    const estado = desviacionPct > 5 ? 'Sobrecosto Crítico' : desviacionPct > 0 ? 'Sobrecosto Leve' : 'En Presupuesto';
+    const estado =
+      desviacionPct > 5
+        ? 'Sobrecosto Crítico'
+        : desviacionPct > 0
+          ? 'Sobrecosto Leve'
+          : 'En Presupuesto';
     return {
       ...item,
       desviacion,
@@ -160,9 +189,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const totalProyectado6M = monthlyDeviationData.reduce((acc, m) => acc + m.proyectado, 0);
   const totalReal6M = monthlyDeviationData.reduce((acc, m) => acc + m.real, 0);
   const desviacionNeta6M = totalReal6M - totalProyectado6M;
-  const desviacionNetaPct6M = Math.round((desviacionNeta6M / (totalProyectado6M || 1)) * 100 * 10) / 10;
-  const maxDeviationMonth = monthlyDeviationData.reduce((max, curr) => (curr.desviacionPct > max.desviacionPct ? curr : max), monthlyDeviationData[0]);
-  const activeDetailData = monthlyDeviationData.find((m) => m.mes === selectedMonthDetail) || monthlyDeviationData[3];
+  const desviacionNetaPct6M =
+    Math.round((desviacionNeta6M / (totalProyectado6M || 1)) * 100 * 10) / 10;
+  const maxDeviationMonth = monthlyDeviationData.reduce(
+    (max, curr) => (curr.desviacionPct > max.desviacionPct ? curr : max),
+    monthlyDeviationData[0]
+  );
+  const activeDetailData =
+    monthlyDeviationData.find((m) => m.mes === selectedMonthDetail) || monthlyDeviationData[3];
 
   // Recharts Data: Visual Project Progress Bars
   const projectProgressChartData = projects.map((p) => ({
@@ -227,55 +261,57 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   return (
     <div className="space-y-6">
       {/* Variation 5: Top 4 Metric Stat Cards with Glassmorphism */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
         <div className="stat-card">
-          <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400 block mb-2">
+          <span className="mb-2 block font-mono text-[11px] tracking-wider text-slate-400 uppercase">
             Presupuesto Global
           </span>
-          <div className="text-2xl font-extrabold tracking-tight text-white">{formatMoney(totalBudget)}</div>
-          <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 mt-2">
-            <TrendingUp className="w-3.5 h-3.5" />
+          <div className="text-2xl font-extrabold tracking-tight text-white">
+            {formatMoney(totalBudget)}
+          </div>
+          <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+            <TrendingUp className="h-3.5 w-3.5" />
             <span>{projects.length} Obras activas</span>
           </div>
         </div>
 
         <div className="stat-card">
-          <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400 block mb-2">
+          <span className="mb-2 block font-mono text-[11px] tracking-wider text-slate-400 uppercase">
             Ejecución Total
           </span>
-          <div className="text-2xl font-extrabold tracking-tight text-white">{formatMoney(totalSpent)}</div>
-          <div className="text-xs text-sky-400 font-semibold mt-2">
+          <div className="text-2xl font-extrabold tracking-tight text-white">
+            {formatMoney(totalSpent)}
+          </div>
+          <div className="mt-2 text-xs font-semibold text-sky-400">
             {((totalSpent / totalBudget) * 100).toFixed(1)}% del global
           </div>
         </div>
 
         <div className="stat-card">
-          <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400 block mb-2">
+          <span className="mb-2 block font-mono text-[11px] tracking-wider text-slate-400 uppercase">
             Personal Campo
           </span>
-          <div className="text-2xl font-extrabold tracking-tight text-white">{totalWorkersToday} Obreros</div>
-          <div className="text-xs text-amber-400 font-semibold mt-2">
-            Asistencia al día
+          <div className="text-2xl font-extrabold tracking-tight text-white">
+            {totalWorkersToday} Obreros
           </div>
+          <div className="mt-2 text-xs font-semibold text-amber-400">Asistencia al día</div>
         </div>
 
         <div className="stat-card">
-          <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400 block mb-2">
+          <span className="mb-2 block font-mono text-[11px] tracking-wider text-slate-400 uppercase">
             Firma Digital
           </span>
           <div className="text-2xl font-extrabold tracking-tight text-white">100% OK</div>
-          <div className="text-xs text-sky-400 font-semibold mt-2">
-            Capataces activos
-          </div>
+          <div className="mt-2 text-xs font-semibold text-sky-400">Capataces activos</div>
         </div>
       </div>
 
       {/* D3.js Real-Time Project Budget Utilization & Spend Visualization */}
       <React.Suspense
         fallback={
-          <div className="h-64 bg-slate-900/60 rounded-2xl border border-slate-800 flex items-center justify-center text-slate-400">
+          <div className="flex h-64 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-400">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
               <span className="text-xs">Cargando gráfico de presupuesto D3...</span>
             </div>
           </div>
@@ -309,16 +345,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       />
 
       {/* Variation 5: Content Split (Obras list & Curva S) */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         {/* Projects List Panel (2 cols) */}
-        <div className="lg:col-span-2 glass-panel space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
-            <h2 className="font-bold text-white text-base">Obras en Guatemala</h2>
+        <div className="glass-panel space-y-4 lg:col-span-2">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+            <h2 className="text-base font-bold text-white">Obras en Guatemala</h2>
             <button
               onClick={() => onNavigateTab('proyectos')}
-              className="text-xs font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1 cursor-pointer"
+              className="flex cursor-pointer items-center gap-1 text-xs font-semibold text-sky-400 hover:text-sky-300"
             >
-              Ver todas <ArrowUpRight className="w-3.5 h-3.5" />
+              Ver todas <ArrowUpRight className="h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -329,36 +365,38 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 <div
                   key={proj.id}
                   onClick={() => onSelectProject(proj.id)}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                  className={`cursor-pointer rounded-2xl border p-4 transition-all ${
                     isSelected
-                      ? 'bg-white/[0.08] border-sky-400/50 shadow-[0_0_15px_rgba(56,189,248,0.2)]'
-                      : 'bg-white/[0.04] border-white/10 hover:border-white/20 hover:bg-white/[0.06]'
+                      ? 'border-sky-400/50 bg-white/[0.08] shadow-[0_0_15px_rgba(56,189,248,0.2)]'
+                      : 'border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.06]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <span className="font-mono text-[10px] uppercase font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                      <span className="rounded border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-400 uppercase">
                         {proj.code}
                       </span>
-                      <h4 className="font-bold text-sm text-white mt-1.5">{proj.name}</h4>
-                      <p className="text-xs text-slate-400">{proj.municipality}, {proj.department}</p>
+                      <h4 className="mt-1.5 text-sm font-bold text-white">{proj.name}</h4>
+                      <p className="text-xs text-slate-400">
+                        {proj.municipality}, {proj.department}
+                      </p>
                     </div>
-                    <span className="text-xs font-bold text-sky-300 bg-sky-400/20 px-2.5 py-1 rounded-xl border border-sky-400/30">
+                    <span className="rounded-xl border border-sky-400/30 bg-sky-400/20 px-2.5 py-1 text-xs font-bold text-sky-300">
                       {proj.progressPercent}%
                     </span>
                   </div>
 
                   {/* Progress Bar with Glowing Gradient */}
-                  <div className="w-full h-1.5 bg-white/10 rounded-full my-3 overflow-hidden">
+                  <div className="my-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                     <div
-                      className="h-full bg-gradient-to-r from-sky-400 to-indigo-500 rounded-full shadow-[0_0_12px_rgba(56,189,248,0.5)] transition-all duration-500"
+                      className="h-full rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 shadow-[0_0_12px_rgba(56,189,248,0.5)] transition-all duration-500"
                       style={{ width: `${proj.progressPercent}%` }}
                     />
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+                  <div className="flex items-center justify-between pt-1 text-xs text-slate-400">
                     <span>Avance: {proj.progressPercent}%</span>
-                    <span className="text-slate-200 font-semibold">
+                    <span className="font-semibold text-slate-200">
                       {formatMoney(proj.spentTotal)} / {formatMoney(proj.budgetTotal)}
                     </span>
                   </div>
@@ -369,21 +407,23 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
 
         {/* Financial S-Curve Chart (3 cols) */}
-        <div className="lg:col-span-3 glass-panel space-y-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
+        <div className="glass-panel flex flex-col justify-between space-y-4 lg:col-span-3">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <div>
-              <h2 className="font-bold text-white text-base">Curva S de Inversión (GTQ)</h2>
-              <p className="text-xs text-slate-400">Comparativa de Inversión Real vs. Presupuesto Programado</p>
+              <h2 className="text-base font-bold text-white">Curva S de Inversión (GTQ)</h2>
+              <p className="text-xs text-slate-400">
+                Comparativa de Inversión Real vs. Presupuesto Programado
+              </p>
             </div>
             <button
               onClick={onTriggerAiAudit}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-xs font-bold border border-sky-400/30 transition cursor-pointer"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-sky-400/30 bg-sky-500/20 px-3 py-1.5 text-xs font-bold text-sky-300 transition hover:bg-sky-500/30"
             >
-              <TrendingUp className="w-3.5 h-3.5" /> Auditoría IA Activa
+              <TrendingUp className="h-3.5 w-3.5" /> Auditoría IA Activa
             </button>
           </div>
 
-          <div className="flex-1 w-full h-72 min-h-[280px]">
+          <div className="h-72 min-h-[280px] w-full flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                 <defs>
@@ -398,23 +438,55 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
                 <XAxis dataKey="mes" stroke="#94a3b8" fontSize={12} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} tickFormatter={(val) => `Q${(val / 1000000).toFixed(1)}M`} />
+                <YAxis
+                  stroke="#94a3b8"
+                  fontSize={12}
+                  tickLine={false}
+                  tickFormatter={(val) => `Q${(val / 1000000).toFixed(1)}M`}
+                />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-slate-900/95 backdrop-blur-xl border border-white/20 text-white text-xs p-3 rounded-2xl shadow-xl space-y-1">
+                        <div className="space-y-1 rounded-2xl border border-white/20 bg-slate-900/95 p-3 text-xs text-white shadow-xl backdrop-blur-xl">
                           <p className="font-bold text-sky-400">{payload[0]?.payload?.mes}</p>
-                          <p className="text-slate-200">Inversión: <span className="text-sky-300 font-bold">{formatMoney(Number(payload[0]?.value))}</span></p>
-                          <p className="text-slate-200">Presupuesto: <span className="text-amber-300 font-bold">{formatMoney(Number(payload[1]?.value))}</span></p>
+                          <p className="text-slate-200">
+                            Inversión:{' '}
+                            <span className="font-bold text-sky-300">
+                              {formatMoney(Number(payload[0]?.value))}
+                            </span>
+                          </p>
+                          <p className="text-slate-200">
+                            Presupuesto:{' '}
+                            <span className="font-bold text-amber-300">
+                              {formatMoney(Number(payload[1]?.value))}
+                            </span>
+                          </p>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Area type="monotone" dataKey="inversion" name="Inversión Real" stroke="#38bdf8" strokeWidth={3} fillOpacity={1} fill="url(#colorInv)" />
-                <Area type="monotone" dataKey="presupuesto" name="Presupuesto Base" stroke="#fbbf24" strokeWidth={2} strokeDasharray="4 4" fillOpacity={1} fill="url(#colorPres)" />
+                <Area
+                  type="monotone"
+                  dataKey="inversion"
+                  name="Inversión Real"
+                  stroke="#38bdf8"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorInv)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="presupuesto"
+                  name="Presupuesto Base"
+                  stroke="#fbbf24"
+                  strokeWidth={2}
+                  strokeDasharray="4 4"
+                  fillOpacity={1}
+                  fill="url(#colorPres)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -425,28 +497,29 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       <div className="glass-panel space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-400/20 text-sky-400 border border-sky-400/30">
-              <ShieldCheck className="w-5 h-5" />
+            <div className="rounded-xl border border-sky-400/30 bg-sky-400/20 p-2 text-sky-400">
+              <ShieldCheck className="h-5 w-5" />
             </div>
-            <h2 className="font-bold text-white text-base">Firma Digital & Autorización Móvil</h2>
+            <h2 className="text-base font-bold text-white">Firma Digital & Autorización Móvil</h2>
           </div>
-          <span className="font-mono text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-emerald-400/10 text-emerald-400 border border-emerald-400/30 shadow-[0_0_8px_rgba(74,222,128,0.2)]">
+          <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1 font-mono text-[10px] font-bold tracking-wider text-emerald-400 uppercase shadow-[0_0_8px_rgba(74,222,128,0.2)]">
             READY
           </span>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
-          Capataces autorizados con firma táctil sobre lienzo canvas HTML5, GPS y sello de tiempo digital para reportes diarios y bitácoras de obra.
+        <p className="max-w-3xl text-xs leading-relaxed text-slate-300">
+          Capataces autorizados con firma táctil sobre lienzo canvas HTML5, GPS y sello de tiempo
+          digital para reportes diarios y bitácoras de obra.
         </p>
         <div className="flex flex-wrap gap-3 pt-1">
           <button
             onClick={() => onNavigateTab('proyectos')}
-            className="px-5 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/15 text-xs font-bold transition cursor-pointer shadow-sm"
+            className="cursor-pointer rounded-xl border border-white/15 bg-white/[0.08] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-white/[0.14]"
           >
             Bitácora de Campo
           </button>
           <button
             onClick={() => onNavigateTab('proyectos')}
-            className="px-5 py-2.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs font-extrabold tracking-wide uppercase transition cursor-pointer shadow-[0_0_16px_rgba(56,189,248,0.3)] hover:scale-[1.02]"
+            className="cursor-pointer rounded-xl bg-sky-400 px-5 py-2.5 text-xs font-extrabold tracking-wide text-slate-950 uppercase shadow-[0_0_16px_rgba(56,189,248,0.3)] transition hover:scale-[1.02] hover:bg-sky-300"
           >
             Validar Firmas Pendientes
           </button>
@@ -454,33 +527,47 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       </div>
 
       {/* RECHARTS SECTION: Visual Project Progress Bar & Planned vs Actual Expenditure Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* 1. Visual Project Progress Bar Chart (Recharts) */}
-        <div className="glass-panel space-y-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
+        <div className="glass-panel flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-sky-400/20 text-sky-400">
-                <BarChart3 className="w-5 h-5" />
+              <div className="rounded-xl bg-sky-400/20 p-2 text-sky-400">
+                <BarChart3 className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-base">Barra Visual de Avance Físico de Proyectos</h3>
-                <p className="text-xs text-slate-400">Porcentaje de ejecución física real vs. meta de entrega (100%)</p>
+                <h3 className="text-base font-bold text-white">
+                  Barra Visual de Avance Físico de Proyectos
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Porcentaje de ejecución física real vs. meta de entrega (100%)
+                </p>
               </div>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/[0.08] text-slate-300 border border-white/10 font-mono">
+            <span className="rounded-full border border-white/10 bg-white/[0.08] px-2.5 py-1 font-mono text-xs font-semibold text-slate-300">
               {projects.length} Obras
             </span>
           </div>
 
-          <div className="w-full h-72 min-h-[280px]">
+          <div className="h-72 min-h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={projectProgressChartData}
                 layout="vertical"
                 margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
               >
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255, 255, 255, 0.08)" />
-                <XAxis type="number" domain={[0, 100]} stroke="#94a3b8" fontSize={11} tickFormatter={(val) => `${val}%`} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  horizontal={false}
+                  stroke="rgba(255, 255, 255, 0.08)"
+                />
+                <XAxis
+                  type="number"
+                  domain={[0, 100]}
+                  stroke="#94a3b8"
+                  fontSize={11}
+                  tickFormatter={(val) => `${val}%`}
+                />
                 <YAxis
                   type="category"
                   dataKey="name"
@@ -495,26 +582,36 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-slate-900/95 backdrop-blur-xl border border-white/20 text-white text-xs p-3 rounded-2xl shadow-xl space-y-1">
-                          <p className="font-bold text-sm text-sky-400">{data.fullName}</p>
-                          <p className="text-slate-300">Código: <span className="font-mono text-white">{data.name}</span></p>
-                          <p className="text-slate-300">Avance Físico: <span className="font-bold text-emerald-400">{data.avance}%</span></p>
+                        <div className="space-y-1 rounded-2xl border border-white/20 bg-slate-900/95 p-3 text-xs text-white shadow-xl backdrop-blur-xl">
+                          <p className="text-sm font-bold text-sky-400">{data.fullName}</p>
+                          <p className="text-slate-300">
+                            Código: <span className="font-mono text-white">{data.name}</span>
+                          </p>
+                          <p className="text-slate-300">
+                            Avance Físico:{' '}
+                            <span className="font-bold text-emerald-400">{data.avance}%</span>
+                          </p>
                           <p className="text-slate-300">Presupuesto: {formatMoney(data.budget)}</p>
                           <p className="text-slate-300">Ejecutado: {formatMoney(data.spent)}</p>
-                          <p className="text-slate-400 text-[10px]">Estado: {data.status}</p>
+                          <p className="text-[10px] text-slate-400">Estado: {data.status}</p>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <ReferenceLine x={100} stroke="#4ade80" strokeDasharray="4 4" label={{ value: '100% Meta', position: 'top', fill: '#4ade80', fontSize: 10 }} />
+                <ReferenceLine
+                  x={100}
+                  stroke="#4ade80"
+                  strokeDasharray="4 4"
+                  label={{ value: '100% Meta', position: 'top', fill: '#4ade80', fontSize: 10 }}
+                />
                 <Bar
                   dataKey="avance"
                   name="Avance Físico (%)"
                   radius={[0, 8, 8, 0]}
                   barSize={24}
-                  onClick={(data: any) => onSelectProject(data.id)}
+                  onClick={(data) => onSelectProject((data as any).id)}
                   className="cursor-pointer"
                 >
                   {projectProgressChartData.map((entry, index) => {
@@ -522,10 +619,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     const fillColor = isSelected
                       ? '#38bdf8'
                       : entry.avance >= 70
-                      ? '#4ade80'
-                      : entry.avance >= 30
-                      ? '#60a5fa'
-                      : '#fbbf24';
+                        ? '#4ade80'
+                        : entry.avance >= 30
+                          ? '#60a5fa'
+                          : '#fbbf24';
                     return <Cell key={`cell-${index}`} fill={fillColor} />;
                   })}
                 </Bar>
@@ -533,43 +630,45 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-[11px] text-slate-300">
+          <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-2 text-[11px] text-slate-300">
             {projectProgressChartData.map((p) => (
               <div
                 key={p.id}
                 onClick={() => onSelectProject(p.id)}
-                className={`p-2.5 rounded-xl cursor-pointer transition border text-center ${
+                className={`cursor-pointer rounded-xl border p-2.5 text-center transition ${
                   p.id === activeProjectId
-                    ? 'bg-sky-500/20 border-sky-400/50 font-bold text-sky-300'
-                    : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.08]'
+                    ? 'border-sky-400/50 bg-sky-500/20 font-bold text-sky-300'
+                    : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08]'
                 }`}
               >
                 <div className="truncate font-semibold">{p.name}</div>
-                <div className="text-sky-400 font-bold mt-0.5">{p.avance}% completado</div>
+                <div className="mt-0.5 font-bold text-sky-400">{p.avance}% completado</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* 2. Planned vs Actual Expenditure Chart (Recharts) */}
-        <div className="glass-panel space-y-4 flex flex-col justify-between">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-white/10">
+        <div className="glass-panel flex flex-col justify-between space-y-4">
+          <div className="flex flex-col justify-between gap-2 border-b border-white/10 pb-2 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-emerald-400/20 text-emerald-400">
-                <Layers className="w-5 h-5" />
+              <div className="rounded-xl bg-emerald-400/20 p-2 text-emerald-400">
+                <Layers className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-base">Gasto Planificado vs. Real</h3>
-                <p className="text-xs text-slate-400">Monitoreo de desvíos presupuestarios en obras y rubros</p>
+                <h3 className="text-base font-bold text-white">Gasto Planificado vs. Real</h3>
+                <p className="text-xs text-slate-400">
+                  Monitoreo de desvíos presupuestarios en obras y rubros
+                </p>
               </div>
             </div>
 
-            <div className="bg-white/[0.06] p-0.5 rounded-xl border border-white/10 flex items-center self-start sm:self-auto text-xs">
+            <div className="flex items-center self-start rounded-xl border border-white/10 bg-white/[0.06] p-0.5 text-xs sm:self-auto">
               <button
                 onClick={() => setExpenditureViewMode('projects')}
-                className={`px-3 py-1 rounded-lg font-semibold transition cursor-pointer ${
+                className={`cursor-pointer rounded-lg px-3 py-1 font-semibold transition ${
                   expenditureViewMode === 'projects'
-                    ? 'bg-sky-400 text-slate-950 font-bold shadow-sm'
+                    ? 'bg-sky-400 font-bold text-slate-950 shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -577,9 +676,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               </button>
               <button
                 onClick={() => setExpenditureViewMode('categories')}
-                className={`px-3 py-1 rounded-lg font-semibold transition cursor-pointer ${
+                className={`cursor-pointer rounded-lg px-3 py-1 font-semibold transition ${
                   expenditureViewMode === 'categories'
-                    ? 'bg-sky-400 text-slate-950 font-bold shadow-sm'
+                    ? 'bg-sky-400 font-bold text-slate-950 shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -588,7 +687,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </div>
           </div>
 
-          <div className="w-full h-72 min-h-[280px]">
+          <div className="h-72 min-h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               {expenditureViewMode === 'projects' ? (
                 <BarChart
@@ -597,7 +696,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
                   <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickFormatter={(val) => `Q${(val / 1000000).toFixed(1)}M`} />
+                  <YAxis
+                    stroke="#94a3b8"
+                    fontSize={11}
+                    tickFormatter={(val) => `Q${(val / 1000000).toFixed(1)}M`}
+                  />
                   <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length >= 2) {
@@ -606,15 +709,17 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                         const data = payload[0].payload;
                         const diff = plan - real;
                         return (
-                          <div className="bg-slate-900/95 backdrop-blur-xl border border-white/20 text-white text-xs p-3 rounded-2xl shadow-xl space-y-1">
-                            <p className="font-bold text-sm text-slate-100">{data.fullName}</p>
+                          <div className="space-y-1 rounded-2xl border border-white/20 bg-slate-900/95 p-3 text-xs text-white shadow-xl backdrop-blur-xl">
+                            <p className="text-sm font-bold text-slate-100">{data.fullName}</p>
                             <p className="text-amber-400">Presupuesto Base: {formatMoney(plan)}</p>
                             <p className="text-sky-400">Gasto Ejecutado: {formatMoney(real)}</p>
                             <p className={diff >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
                               {diff >= 0 ? 'Saldo a Favor: ' : 'Sobrecosto: '}
                               {formatMoney(Math.abs(diff))}
                             </p>
-                            <p className="text-slate-400 text-[10px]">Ejecución: {((real / plan) * 100).toFixed(1)}%</p>
+                            <p className="text-[10px] text-slate-400">
+                              Ejecución: {((real / plan) * 100).toFixed(1)}%
+                            </p>
                           </div>
                         );
                       }
@@ -648,7 +753,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
                   <XAxis dataKey="categoria" stroke="#94a3b8" fontSize={11} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickFormatter={(val) => `Q${(val / 1000).toFixed(0)}k`} />
+                  <YAxis
+                    stroke="#94a3b8"
+                    fontSize={11}
+                    tickFormatter={(val) => `Q${(val / 1000).toFixed(0)}k`}
+                  />
                   <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length >= 2) {
@@ -656,8 +765,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                         const real = Number(payload[1].value);
                         const diff = plan - real;
                         return (
-                          <div className="bg-slate-900/95 backdrop-blur-xl border border-white/20 text-white text-xs p-3 rounded-2xl shadow-xl space-y-1">
-                            <p className="font-bold text-sm text-slate-100">{payload[0].payload.categoria}</p>
+                          <div className="space-y-1 rounded-2xl border border-white/20 bg-slate-900/95 p-3 text-xs text-white shadow-xl backdrop-blur-xl">
+                            <p className="text-sm font-bold text-slate-100">
+                              {payload[0].payload.categoria}
+                            </p>
                             <p className="text-amber-400">Planificado: {formatMoney(plan)}</p>
                             <p className="text-sky-400">Real Pagado: {formatMoney(real)}</p>
                             <p className={diff >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
@@ -694,7 +805,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </ResponsiveContainer>
           </div>
 
-          <div className="p-3 bg-white/[0.04] rounded-xl border border-white/10 flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] p-3 text-xs">
             <span className="text-slate-400">
               Total Invertido en <strong className="text-white">{activeProject.name}</strong>:
             </span>
@@ -704,44 +815,49 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       </div>
 
       {/* AI Recommendations & Quick Access */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="glass-panel space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <div className="flex items-center gap-2">
-              <CloudLightning className="w-5 h-5 text-amber-400" />
-              <h3 className="font-bold text-base text-white">Asistente Climático & Ruta Crítica (IA)</h3>
+              <CloudLightning className="h-5 w-5 text-amber-400" />
+              <h3 className="text-base font-bold text-white">
+                Asistente Climático & Ruta Crítica (IA)
+              </h3>
             </div>
-            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-amber-400/20 text-amber-400 border border-amber-400/30">
+            <span className="rounded border border-amber-400/30 bg-amber-400/20 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-400">
               Gemini 3.8
             </span>
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Monitoreo en tiempo real de condiciones meteorológicas en Guatemala y simulación de impacto en el cronograma CPM y ruta crítica de la obra.
+          <p className="text-xs leading-relaxed text-slate-300">
+            Monitoreo en tiempo real de condiciones meteorológicas en Guatemala y simulación de
+            impacto en el cronograma CPM y ruta crítica de la obra.
           </p>
           <button
             onClick={onTriggerAiWeather}
-            className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-sm cursor-pointer"
+            className="w-full cursor-pointer rounded-xl bg-amber-400 py-2.5 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-amber-300"
           >
             Simular Reprogramación por Lluvia
           </button>
         </div>
 
         <div className="glass-panel space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <div className="flex items-center gap-2 text-white">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              <h3 className="font-bold text-base">Firma Digital & Autorización de Capataces</h3>
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              <h3 className="text-base font-bold">Firma Digital & Autorización de Capataces</h3>
             </div>
-            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-400/20 text-emerald-400 border border-emerald-400/30">
+            <span className="rounded border border-emerald-400/30 bg-emerald-400/20 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-400">
               Móvil Ready
             </span>
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Los capataces pueden autorizar reportes de campo, bitácoras e ingresos de materiales directamente desde sus teléfonos móviles con firma táctil sobre lienzo, GPS y sello de tiempo.
+          <p className="text-xs leading-relaxed text-slate-300">
+            Los capataces pueden autorizar reportes de campo, bitácoras e ingresos de materiales
+            directamente desde sus teléfonos móviles con firma táctil sobre lienzo, GPS y sello de
+            tiempo.
           </p>
           <button
             onClick={() => onNavigateTab('proyectos')}
-            className="w-full py-2.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs transition shadow-sm cursor-pointer"
+            className="w-full cursor-pointer rounded-xl bg-sky-400 py-2.5 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-sky-300"
           >
             Ir a Módulo de Visitas & Firmas Digitales
           </button>
@@ -749,4 +865,4 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       </div>
     </div>
   );
-};
+}

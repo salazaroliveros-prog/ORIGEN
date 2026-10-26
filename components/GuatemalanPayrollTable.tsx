@@ -45,17 +45,19 @@ export interface GuatemalanPayrollTableProps {
   onEditEmployee?: (employee: EmployeePayrollCalculation) => void;
 }
 
-export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
+export function GuatemalanPayrollTable({
   employees,
   company = initialCompanySettings,
   attendance = [],
   initialFrequency = 'quincenal',
   onSelectEmployeeVoucher,
   onEditEmployee,
-}) => {
+}: GuatemalanPayrollTableProps) {
   // Frequency & Period state
   const [frequency, setFrequency] = useState<PayrollFrequency>(initialFrequency);
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('1ra Quincena Octubre 2026 (01 al 15 Oct)');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>(
+    '1ra Quincena Octubre 2026 (01 al 15 Oct)'
+  );
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [roleFilter, setRoleFilter] = useState<string>('todos');
   const [sortBy, setSortBy] = useState<'name' | 'liquido' | 'igss'>('name');
@@ -71,16 +73,25 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
         { label: '2da Quincena Octubre 2026 (16 al 31 Oct)', range: '16/10/2026 - 31/10/2026' },
         { label: '1ra Quincena Noviembre 2026 (01 al 15 Nov)', range: '01/11/2026 - 15/11/2026' },
         { label: '2da Quincena Noviembre 2026 (16 al 30 Nov)', range: '16/11/2026 - 30/11/2026' },
-        { label: '1ra Quincena Diciembre 2026 (01 al 15 Dic - 50% Aguinaldo)', range: '01/12/2026 - 15/12/2026' },
+        {
+          label: '1ra Quincena Diciembre 2026 (01 al 15 Dic - 50% Aguinaldo)',
+          range: '01/12/2026 - 15/12/2026',
+        },
         { label: '2da Quincena Diciembre 2026 (16 al 31 Dic)', range: '16/12/2026 - 31/12/2026' },
-        { label: '1ra Quincena Enero 2027 (01 al 15 Ene - 50% Aguinaldo Restante)', range: '01/01/2027 - 15/01/2027' },
+        {
+          label: '1ra Quincena Enero 2027 (01 al 15 Ene - 50% Aguinaldo Restante)',
+          range: '01/01/2027 - 15/01/2027',
+        },
       ];
     }
     return [
       { label: 'Mes Completo Octubre 2026 (01 al 31 Oct)', range: '01/10/2026 - 31/10/2026' },
       { label: 'Mes Completo Noviembre 2026 (01 al 30 Nov)', range: '01/11/2026 - 30/11/2026' },
       { label: 'Mes Completo Diciembre 2026 (01 al 31 Dic)', range: '01/12/2026 - 31/12/2026' },
-      { label: 'Mes Completo Julio 2026 (Pago Bono 14 Dto. 42-92)', range: '01/07/2026 - 31/07/2026' },
+      {
+        label: 'Mes Completo Julio 2026 (Pago Bono 14 Dto. 42-92)',
+        range: '01/07/2026 - 31/07/2026',
+      },
       { label: 'Mes Completo Enero 2027 (01 al 31 Ene)', range: '01/01/2027 - 31/01/2027' },
     ];
   }, [frequency]);
@@ -305,7 +316,8 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
     ]);
 
     const csvContent =
-      'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      'data:text/csv;charset=utf-8,\uFEFF' +
+      [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
@@ -321,46 +333,48 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
   return (
     <div className="space-y-4">
       {/* Control bar: Period, Frequency, Search & Filter tools */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+        <div className="flex flex-col items-stretch justify-between gap-3 lg:flex-row lg:items-center">
           {/* Frequency & Period Selectors */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center flex-wrap gap-2.5">
-            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <div className="flex flex-col flex-wrap items-start gap-2.5 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-1.5 rounded-xl bg-slate-100 p-1 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => handleFrequencyChange('quincenal')}
-                className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                   frequency === 'quincenal'
-                    ? 'bg-blue-600 text-white shadow-xs font-bold'
+                    ? 'bg-blue-600 font-bold text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Calendar className="w-3.5 h-3.5" />
+                <Calendar className="h-3.5 w-3.5" />
                 Quincenal (15 días)
               </button>
               <button
                 type="button"
                 onClick={() => handleFrequencyChange('mensual')}
-                className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                   frequency === 'mensual'
-                    ? 'bg-blue-600 text-white shadow-xs font-bold'
+                    ? 'bg-blue-600 font-bold text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Layers className="w-3.5 h-3.5" />
+                <Layers className="h-3.5 w-3.5" />
                 Mensual (30 días)
               </button>
             </div>
 
-            <div className="h-5 w-px bg-slate-200 hidden sm:block" />
+            <div className="hidden h-5 w-px bg-slate-200 sm:block" />
 
             {/* Period Selector Dropdown */}
-            <div className="flex items-center gap-1.5 w-full sm:w-auto">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">Período de Pago:</span>
+            <div className="flex w-full items-center gap-1.5 sm:w-auto">
+              <span className="text-xs font-bold whitespace-nowrap text-slate-700">
+                Período de Pago:
+              </span>
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="w-full sm:w-auto text-xs bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+                className="w-full cursor-pointer rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none sm:w-auto"
               >
                 {periodOptions.map((opt) => (
                   <option key={opt.label} value={opt.label}>
@@ -372,68 +386,68 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
           </div>
 
           {/* Export Controls for Accountant */}
-          <div className="flex items-center flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs transition shadow-xs cursor-pointer disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs transition hover:bg-rose-500 disabled:opacity-50"
               title="Descargar reporte en formato PDF listo para auditoría y firma de contador"
             >
-              <FileText className="w-3.5 h-3.5" />
+              <FileText className="h-3.5 w-3.5" />
               {isExportingPdf ? 'Generando PDF...' : 'Exportar PDF Contable'}
             </button>
 
             <button
               type="button"
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
               title="Descargar tabla y totales a Excel/CSV"
             >
-              <Download className="w-3.5 h-3.5" /> Exportar CSV
+              <Download className="h-3.5 w-3.5" /> Exportar CSV
             </button>
 
             <button
               type="button"
               onClick={() => setShowPdfPreviewModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800"
             >
-              <Printer className="w-3.5 h-3.5" /> Vista Previa
+              <Printer className="h-3.5 w-3.5" /> Vista Previa
             </button>
           </div>
         </div>
 
         {/* Search Bar & Role Filter */}
-        <div className="pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-100 pt-2.5 sm:flex-row">
           <div className="relative w-full sm:w-80">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+            <Search className="absolute top-2.5 left-3 h-3.5 w-3.5 text-slate-400" />
             <input
               type="text"
               placeholder="Buscar por nombre de empleado, DPI, puesto o IGSS..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs pl-8 pr-7 py-1.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 py-1.5 pr-7 pl-8 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="absolute top-2 right-2.5 cursor-pointer text-slate-400 hover:text-slate-600"
                 title="Limpiar búsqueda"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
-            <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
+          <div className="flex w-full items-center justify-between gap-2.5 sm:w-auto sm:justify-end">
+            <span className="text-xs font-medium whitespace-nowrap text-slate-500">
               Filtrar Puesto:
             </span>
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1 font-medium text-slate-700 cursor-pointer"
+              className="cursor-pointer rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700"
             >
               <option value="todos">Todos los puestos ({employees.length})</option>
               {uniqueRoles.map((r) => (
@@ -443,7 +457,7 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
               ))}
             </select>
 
-            <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full font-mono">
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-slate-600">
               {filteredCalculations.length} de {employees.length}
             </span>
           </div>
@@ -451,20 +465,21 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
         {/* Table Header Banner */}
-        <div className="p-4 bg-slate-50/90 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-200 bg-slate-50/90 p-4 sm:flex-row sm:items-center">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Banknote className="w-4 h-4 text-blue-600" />
+            <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
+              <Banknote className="h-4 w-4 text-blue-600" />
               Planilla de Sueldos y Retenciones Estatutarias — Guatemala
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Período Seleccionado: <strong className="text-slate-800">{selectedPeriod}</strong> (Rango: <span className="font-mono">{currentDateRange}</span>)
+            <p className="mt-0.5 text-xs text-slate-500">
+              Período Seleccionado: <strong className="text-slate-800">{selectedPeriod}</strong>{' '}
+              (Rango: <span className="font-mono">{currentDateRange}</span>)
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-200 px-3 py-1 rounded-full font-mono">
+            <span className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 font-mono text-xs font-bold text-emerald-900">
               Líquido Total: {formatGTQ(totals.salarioLiquido)}
             </span>
           </div>
@@ -472,58 +487,68 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
 
         {/* Scrollable Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200 text-[11px]">
+          <table className="w-full border-collapse text-left text-xs">
+            <thead className="border-b border-slate-200 bg-slate-100 text-[11px] font-bold text-slate-700 uppercase">
               <tr>
                 <th
                   onClick={() => handleSort('name')}
-                  className="p-3 border-r border-slate-200 cursor-pointer hover:bg-slate-200 transition select-none"
+                  className="cursor-pointer border-r border-slate-200 p-3 transition select-none hover:bg-slate-200"
                 >
                   <div className="flex items-center gap-1">
                     <span>Nombre de Empleado / Cargo</span>
-                    <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    <ArrowUpDown className="h-3 w-3 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-3 text-center border-r border-slate-200">Días</th>
-                <th className="p-3 text-right border-r border-slate-200">Salario Diario</th>
-                <th className="p-3 text-right border-r border-slate-200">Sueldo Base</th>
-                <th className="p-3 text-right border-r border-slate-200 text-sky-700">Horas Extra (1.5x)</th>
-                <th className="p-3 text-right border-r border-slate-200 text-blue-800 bg-blue-50/40 font-extrabold">
+                <th className="border-r border-slate-200 p-3 text-center">Días</th>
+                <th className="border-r border-slate-200 p-3 text-right">Salario Diario</th>
+                <th className="border-r border-slate-200 p-3 text-right">Sueldo Base</th>
+                <th className="border-r border-slate-200 p-3 text-right text-sky-700">
+                  Horas Extra (1.5x)
+                </th>
+                <th className="border-r border-slate-200 bg-blue-50/40 p-3 text-right font-extrabold text-blue-800">
                   Afecto IGSS
                 </th>
-                <th className="p-3 text-right border-r border-slate-200 text-emerald-700">
+                <th className="border-r border-slate-200 p-3 text-right text-emerald-700">
                   <div>Bono Dto. 37-2001</div>
-                  <div className="text-[9px] font-normal normal-case text-emerald-600">Q250m / Q125q</div>
+                  <div className="text-[9px] font-normal text-emerald-600 normal-case">
+                    Q250m / Q125q
+                  </div>
                 </th>
                 <th
                   onClick={() => handleSort('igss')}
-                  className="p-3 text-right border-r border-slate-200 text-rose-700 font-black bg-rose-50/50 cursor-pointer hover:bg-rose-100/50 transition select-none"
+                  className="cursor-pointer border-r border-slate-200 bg-rose-50/50 p-3 text-right font-black text-rose-700 transition select-none hover:bg-rose-100/50"
                 >
                   <div className="flex items-center justify-end gap-1">
                     <span>IGSS Lab. (4.83%)</span>
-                    <ArrowUpDown className="w-3 h-3 text-rose-400" />
+                    <ArrowUpDown className="h-3 w-3 text-rose-400" />
                   </div>
                 </th>
-                <th className="p-3 text-right border-r border-slate-200 text-amber-800">
+                <th className="border-r border-slate-200 p-3 text-right text-amber-800">
                   <div>Provisión Bono 14</div>
-                  <div className="text-[9px] font-normal normal-case text-amber-600">Dto. 42-92 (8.33%)</div>
+                  <div className="text-[9px] font-normal text-amber-600 normal-case">
+                    Dto. 42-92 (8.33%)
+                  </div>
                 </th>
-                <th className="p-3 text-right border-r border-slate-200 text-amber-800">
+                <th className="border-r border-slate-200 p-3 text-right text-amber-800">
                   <div>Provisión Aguinaldo</div>
-                  <div className="text-[9px] font-normal normal-case text-amber-600">Dto. 76-78 (8.33%)</div>
+                  <div className="text-[9px] font-normal text-amber-600 normal-case">
+                    Dto. 76-78 (8.33%)
+                  </div>
                 </th>
                 <th
                   onClick={() => handleSort('liquido')}
-                  className="p-3 text-right border-r border-slate-200 text-emerald-900 font-black bg-emerald-100/60 cursor-pointer hover:bg-emerald-200/60 transition select-none"
+                  className="cursor-pointer border-r border-slate-200 bg-emerald-100/60 p-3 text-right font-black text-emerald-900 transition select-none hover:bg-emerald-200/60"
                 >
                   <div className="flex items-center justify-end gap-1">
                     <span>Líquido a Recibir</span>
-                    <ArrowUpDown className="w-3 h-3 text-emerald-700" />
+                    <ArrowUpDown className="h-3 w-3 text-emerald-700" />
                   </div>
                 </th>
-                <th className="p-3 text-right border-r border-slate-200 text-blue-700">
+                <th className="border-r border-slate-200 p-3 text-right text-blue-700">
                   <div>IGSS Pat. (12.67%)</div>
-                  <div className="text-[9px] font-normal normal-case text-blue-500">IGSS+IRTRA+INTECAP</div>
+                  <div className="text-[9px] font-normal text-blue-500 normal-case">
+                    IGSS+IRTRA+INTECAP
+                  </div>
                 </th>
                 <th className="p-3 text-center">Acciones</th>
               </tr>
@@ -531,16 +556,16 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
 
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredCalculations.map((c) => (
-                <tr key={c.employeeId} className="hover:bg-slate-50/90 transition group">
+                <tr key={c.employeeId} className="group transition hover:bg-slate-50/90">
                   {/* Colaborador info */}
-                  <td className="p-3 border-r border-slate-200">
-                    <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <td className="border-r border-slate-200 p-3">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900">
                       <span>{c.employeeName}</span>
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-semibold">
+                      <span className="py-0.2 rounded bg-slate-100 px-1.5 text-[9px] font-semibold text-slate-600">
                         {c.role}
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
+                    <div className="mt-0.5 flex items-center gap-2 text-[10px] text-slate-400">
                       <span className="font-mono">DPI: {c.dpi}</span>
                       <span>•</span>
                       <span className="font-mono text-blue-600">IGSS: {c.igssNumber}</span>
@@ -548,26 +573,28 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
                   </td>
 
                   {/* Días */}
-                  <td className="p-3 text-center border-r border-slate-200 font-mono font-medium">
+                  <td className="border-r border-slate-200 p-3 text-center font-mono font-medium">
                     {c.daysWorked}d
                   </td>
 
                   {/* Salario Diario */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono text-slate-600">
+                  <td className="border-r border-slate-200 p-3 text-right font-mono text-slate-600">
                     {formatGTQ(c.dailyRateGTQ)}
                   </td>
 
                   {/* Sueldo Base */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-semibold text-slate-800">
+                  <td className="border-r border-slate-200 p-3 text-right font-mono font-semibold text-slate-800">
                     {formatGTQ(c.baseSalary)}
                   </td>
 
                   {/* Horas Extra */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono">
+                  <td className="border-r border-slate-200 p-3 text-right font-mono">
                     {c.overtimeHours > 0 ? (
                       <div>
                         <span className="font-bold text-sky-700">{c.overtimeHours}h</span>
-                        <div className="text-[10px] text-slate-400">{formatGTQ(c.overtimeAmount)}</div>
+                        <div className="text-[10px] text-slate-400">
+                          {formatGTQ(c.overtimeAmount)}
+                        </div>
                       </div>
                     ) : (
                       <span className="text-slate-400">0h (Q0.00)</span>
@@ -575,55 +602,57 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
                   </td>
 
                   {/* Materia imponible IGSS */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-bold text-blue-900 bg-blue-50/20">
+                  <td className="border-r border-slate-200 bg-blue-50/20 p-3 text-right font-mono font-bold text-blue-900">
                     {formatGTQ(c.salarioAfectoIGSS)}
                   </td>
 
                   {/* Bonificación Dto. 37-2001 */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-medium text-emerald-700">
+                  <td className="border-r border-slate-200 p-3 text-right font-mono font-medium text-emerald-700">
                     {formatGTQ(c.bonoIncentivo)}
                   </td>
 
                   {/* IGSS Laboral 4.83% */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-black text-rose-600 bg-rose-50/40">
+                  <td className="border-r border-slate-200 bg-rose-50/40 p-3 text-right font-mono font-black text-rose-600">
                     -{formatGTQ(c.igssLaboral)}
                   </td>
 
                   {/* Provisión Bono 14 */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono text-amber-700 bg-amber-50/20">
+                  <td className="border-r border-slate-200 bg-amber-50/20 p-3 text-right font-mono text-amber-700">
                     {formatGTQ(c.provisionBono14)}
                   </td>
 
                   {/* Provisión Aguinaldo */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono text-amber-700 bg-amber-50/20">
+                  <td className="border-r border-slate-200 bg-amber-50/20 p-3 text-right font-mono text-amber-700">
                     {formatGTQ(c.provisionAguinaldo)}
                   </td>
 
                   {/* Líquido a Pagar */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono font-black text-emerald-800 bg-emerald-100/50 text-[13px]">
+                  <td className="border-r border-slate-200 bg-emerald-100/50 p-3 text-right font-mono text-[13px] font-black text-emerald-800">
                     {formatGTQ(c.salarioLiquido)}
                   </td>
 
                   {/* Cuota Patronal IGSS */}
-                  <td className="p-3 text-right border-r border-slate-200 font-mono text-blue-700">
+                  <td className="border-r border-slate-200 p-3 text-right font-mono text-blue-700">
                     {formatGTQ(c.igssPatronalTotal)}
                   </td>
 
                   {/* Acciones */}
-                  <td className="p-3 text-center whitespace-nowrap space-x-1">
+                  <td className="space-x-1 p-3 text-center whitespace-nowrap">
                     <button
                       type="button"
-                      onClick={() => onSelectEmployeeVoucher && onSelectEmployeeVoucher(c.employeeId)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] transition cursor-pointer"
+                      onClick={() =>
+                        onSelectEmployeeVoucher && onSelectEmployeeVoucher(c.employeeId)
+                      }
+                      className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700 transition hover:bg-blue-100"
                       title="Ver boleta oficial de pago"
                     >
-                      <FileText className="w-3 h-3" /> Boleta
+                      <FileText className="h-3 w-3" /> Boleta
                     </button>
                     {onEditEmployee && (
                       <button
                         type="button"
                         onClick={() => onEditEmployee(c)}
-                        className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-[11px] transition cursor-pointer"
+                        className="cursor-pointer rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 transition hover:bg-slate-200"
                         title="Ajustar valores de la quincena"
                       >
                         Ajustar
@@ -636,7 +665,8 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
               {filteredCalculations.length === 0 && (
                 <tr>
                   <td colSpan={13} className="p-8 text-center text-slate-400">
-                    No se encontraron colaboradores que coincidan con la búsqueda &quot;{searchQuery}&quot;.
+                    No se encontraron colaboradores que coincidan con la búsqueda &quot;
+                    {searchQuery}&quot;.
                   </td>
                 </tr>
               )}
@@ -645,101 +675,104 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
             {/* ======================================================== */}
             {/* FILA DE RESUMEN TOTAL PARA LA QUINCENA O MES ACTUAL */}
             {/* ======================================================== */}
-            <tfoot className="bg-slate-100 text-slate-900 border-t-2 border-slate-300">
-              <tr className="border-b border-slate-300 bg-slate-200/90 font-black text-[12px]">
-                <td className="p-3.5 border-r border-slate-300 uppercase tracking-wider text-slate-900" colSpan={3}>
+            <tfoot className="border-t-2 border-slate-300 bg-slate-100 text-slate-900">
+              <tr className="border-b border-slate-300 bg-slate-200/90 text-[12px] font-black">
+                <td
+                  className="border-r border-slate-300 p-3.5 tracking-wider text-slate-900 uppercase"
+                  colSpan={3}
+                >
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-blue-700" />
+                    <ShieldCheck className="h-4 w-4 text-blue-700" />
                     <span>TOTAL GENERAL ({filteredCalculations.length} COLABORADORES)</span>
                   </div>
-                  <div className="text-[10px] font-normal normal-case text-slate-600 mt-0.5">
+                  <div className="mt-0.5 text-[10px] font-normal text-slate-600 normal-case">
                     Resumen acumulado para: <strong>{selectedPeriod}</strong>
                   </div>
                 </td>
 
                 {/* Total Sueldo Base */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-black text-slate-900">
+                <td className="border-r border-slate-300 p-3 text-right font-mono font-black text-slate-900">
                   {formatGTQ(totals.baseSalary)}
                 </td>
 
                 {/* Total Horas Extra */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-black text-sky-800">
+                <td className="border-r border-slate-300 p-3 text-right font-mono font-black text-sky-800">
                   {formatGTQ(totals.overtimeAmount)}
                 </td>
 
                 {/* Total Base Afecta IGSS */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-black text-blue-900 bg-blue-100/50">
+                <td className="border-r border-slate-300 bg-blue-100/50 p-3 text-right font-mono font-black text-blue-900">
                   {formatGTQ(totals.salarioAfectoIGSS)}
                 </td>
 
                 {/* Total Bonificación Incentivo */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-black text-emerald-800">
+                <td className="border-r border-slate-300 p-3 text-right font-mono font-black text-emerald-800">
                   {formatGTQ(totals.bonoIncentivo)}
                 </td>
 
                 {/* Total Retención IGSS Laboral 4.83% */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-black text-rose-700 bg-rose-100/60">
+                <td className="border-r border-slate-300 bg-rose-100/60 p-3 text-right font-mono font-black text-rose-700">
                   -{formatGTQ(totals.igssLaboral)}
                 </td>
 
                 {/* Total Provisión Bono 14 */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-bold text-amber-900 bg-amber-100/40">
+                <td className="border-r border-slate-300 bg-amber-100/40 p-3 text-right font-mono font-bold text-amber-900">
                   {formatGTQ(totals.provisionBono14)}
                 </td>
 
                 {/* Total Provisión Aguinaldo */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-bold text-amber-900 bg-amber-100/40">
+                <td className="border-r border-slate-300 bg-amber-100/40 p-3 text-right font-mono font-bold text-amber-900">
                   {formatGTQ(totals.provisionAguinaldo)}
                 </td>
 
                 {/* TOTAL LÍQUIDO A PAGAR (DESTACADO) */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-black text-emerald-950 bg-emerald-200/70 text-sm">
-                  <div className="text-[9px] uppercase tracking-wider text-emerald-800 font-sans font-bold">
+                <td className="border-r border-slate-300 bg-emerald-200/70 p-3 text-right font-mono text-sm font-black text-emerald-950">
+                  <div className="font-sans text-[9px] font-bold tracking-wider text-emerald-800 uppercase">
                     Líquido Total
                   </div>
                   {formatGTQ(totals.salarioLiquido)}
                 </td>
 
                 {/* Total Cuota Patronal IGSS 12.67% */}
-                <td className="p-3 text-right border-r border-slate-300 font-mono font-bold text-blue-900">
+                <td className="border-r border-slate-300 p-3 text-right font-mono font-bold text-blue-900">
                   {formatGTQ(totals.igssPatronalTotal)}
                 </td>
 
                 {/* Acciones spacer */}
-                <td className="p-3 text-center font-sans text-[10px] text-slate-500 font-bold">
+                <td className="p-3 text-center font-sans text-[10px] font-bold text-slate-500">
                   {frequency.toUpperCase()}
                 </td>
               </tr>
 
               {/* Sub-row with summary breakdown */}
-              <tr className="bg-slate-100 text-slate-600 text-[11px]">
+              <tr className="bg-slate-100 text-[11px] text-slate-600">
                 <td colSpan={13} className="p-3">
                   <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex flex-wrap items-center gap-4">
                       <span>
                         <strong>Deducción IGSS 4.83%:</strong>{' '}
-                        <span className="font-mono text-rose-700 font-bold">
+                        <span className="font-mono font-bold text-rose-700">
                           {formatGTQ(totals.igssLaboral)}
                         </span>
                       </span>
                       <span>•</span>
                       <span>
                         <strong>Bono Decreto 37-2001:</strong>{' '}
-                        <span className="font-mono text-emerald-700 font-bold">
+                        <span className="font-mono font-bold text-emerald-700">
                           {formatGTQ(totals.bonoIncentivo)}
                         </span>
                       </span>
                       <span>•</span>
                       <span>
                         <strong>Provisiones Mensuales (Bono 14 + Aguinaldo):</strong>{' '}
-                        <span className="font-mono text-amber-800 font-bold">
+                        <span className="font-mono font-bold text-amber-800">
                           {formatGTQ(totals.provisionBono14 + totals.provisionAguinaldo)}
                         </span>
                       </span>
                       <span>•</span>
                       <span>
                         <strong>Aporte Patronal IGSS (12.67%):</strong>{' '}
-                        <span className="font-mono text-blue-700 font-bold">
+                        <span className="font-mono font-bold text-blue-700">
                           {formatGTQ(totals.igssPatronalTotal)}
                         </span>
                       </span>
@@ -749,7 +782,7 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
                       <span className="font-bold text-slate-800">
                         Costo Total Patronal del Período:{' '}
                       </span>
-                      <strong className="text-slate-900 font-mono font-black text-xs">
+                      <strong className="font-mono text-xs font-black text-slate-900">
                         {formatGTQ(totals.costoTotalPatrono)}
                       </strong>
                     </div>
@@ -765,13 +798,13 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
       {/* MODAL: VISTA PREVIA CONTABLE PDF / IMPRESIÓN */}
       {/* ======================================================== */}
       {showPdfPreviewModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-4xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col my-8">
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4 backdrop-blur-xs">
+          <div className="my-8 flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-amber-400" />
+                <FileText className="h-5 w-5 text-amber-400" />
                 <div>
-                  <h3 className="font-bold text-sm text-white">
+                  <h3 className="text-sm font-bold text-white">
                     Vista Previa de Informe Contable PDF — Planilla & Prestaciones
                   </h3>
                   <p className="text-[11px] text-slate-300">
@@ -782,52 +815,66 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPdfPreviewModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                className="cursor-pointer rounded-lg p-1 text-slate-400 transition hover:bg-slate-800 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto font-sans">
+            <div className="max-h-[75vh] space-y-4 overflow-y-auto p-6 font-sans">
               {/* Document Printable Header */}
-              <div className="border border-slate-300 p-4 bg-slate-50 rounded-xl space-y-2">
-                <div className="flex justify-between items-start">
+              <div className="space-y-2 rounded-xl border border-slate-300 bg-slate-50 p-4">
+                <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="font-extrabold text-slate-900 text-base">{company.commercialName}</h4>
+                    <h4 className="text-base font-extrabold text-slate-900">
+                      {company.commercialName}
+                    </h4>
                     <p className="text-xs text-slate-600">
                       NIT: {company.nit} • No. Patronal IGSS: 08-94102-3 • {company.address}
                     </p>
-                    <p className="text-xs font-bold text-amber-700 mt-1">
+                    <p className="mt-1 text-xs font-bold text-amber-700">
                       INFORME OFICIAL PARA AUDITORÍA CONTABLE / SAT / IGSS
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-md inline-block">
+                    <span className="inline-block rounded-md bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
                       FRECUENCIA: {frequency.toUpperCase()}
                     </span>
-                    <p className="text-xs text-slate-600 mt-1 font-bold">{selectedPeriod}</p>
-                    <p className="text-[11px] text-slate-500 font-mono">Fechas: {currentDateRange}</p>
+                    <p className="mt-1 text-xs font-bold text-slate-600">{selectedPeriod}</p>
+                    <p className="font-mono text-[11px] text-slate-500">
+                      Fechas: {currentDateRange}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Legal Reference Table */}
-              <div className="p-3 bg-slate-100 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
-                <p className="font-bold text-slate-900 flex items-center gap-1">
-                  <ShieldCheck className="w-4 h-4 text-blue-600" /> Marco Legal y Tasas Aplicadas:
+              <div className="space-y-1 rounded-xl border border-slate-200 bg-slate-100 p-3 text-xs text-slate-700">
+                <p className="flex items-center gap-1 font-bold text-slate-900">
+                  <ShieldCheck className="h-4 w-4 text-blue-600" /> Marco Legal y Tasas Aplicadas:
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
-                  <div>• IGSS Laboral: <strong>4.83%</strong> (Acuerdo 1118 JD IGSS)</div>
-                  <div>• IGSS Patronal: <strong>12.67%</strong> (10.67% IGSS + 1% IRTRA + 1% INTECAP)</div>
-                  <div>• Bonificación Incentivo: <strong>Q250.00 mensual / Q125.00 quincenal</strong> (Dto. 37-2001)</div>
-                  <div>• Provisiones Mensuales: <strong>Bono 14 (8.33%)</strong> y <strong>Aguinaldo (8.33%)</strong></div>
+                <div className="grid grid-cols-1 gap-2 text-[11px] text-slate-600 sm:grid-cols-2">
+                  <div>
+                    • IGSS Laboral: <strong>4.83%</strong> (Acuerdo 1118 JD IGSS)
+                  </div>
+                  <div>
+                    • IGSS Patronal: <strong>12.67%</strong> (10.67% IGSS + 1% IRTRA + 1% INTECAP)
+                  </div>
+                  <div>
+                    • Bonificación Incentivo: <strong>Q250.00 mensual / Q125.00 quincenal</strong>{' '}
+                    (Dto. 37-2001)
+                  </div>
+                  <div>
+                    • Provisiones Mensuales: <strong>Bono 14 (8.33%)</strong> y{' '}
+                    <strong>Aguinaldo (8.33%)</strong>
+                  </div>
                 </div>
               </div>
 
               {/* Summary Totals Table */}
-              <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
-                <table className="w-full text-left border-collapse">
-                  <thead className="bg-slate-800 text-white font-bold uppercase text-[10px]">
+              <div className="overflow-hidden rounded-xl border border-slate-200 text-xs">
+                <table className="w-full border-collapse text-left">
+                  <thead className="bg-slate-800 text-[10px] font-bold text-white uppercase">
                     <tr>
                       <th className="p-2.5">Materia Imponible</th>
                       <th className="p-2.5 text-right">Sueldo Base Total</th>
@@ -835,22 +882,30 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
                       <th className="p-2.5 text-right text-emerald-300">Bono Dto. 37-2001</th>
                       <th className="p-2.5 text-right text-rose-300">Retención IGSS 4.83%</th>
                       <th className="p-2.5 text-right text-amber-300">Prov. Bono 14 & Aguin.</th>
-                      <th className="p-2.5 text-right font-black text-emerald-400">Total Líquido Pagar</th>
+                      <th className="p-2.5 text-right font-black text-emerald-400">
+                        Total Líquido Pagar
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200 bg-slate-50 font-mono text-slate-800 font-bold">
+                  <tbody className="divide-y divide-slate-200 bg-slate-50 font-mono font-bold text-slate-800">
                     <tr>
                       <td className="p-2.5 font-sans font-extrabold text-slate-900">
                         Sumatoria ({filteredCalculations.length} Colaboradores)
                       </td>
                       <td className="p-2.5 text-right">{formatGTQ(totals.baseSalary)}</td>
-                      <td className="p-2.5 text-right text-sky-700">{formatGTQ(totals.overtimeAmount)}</td>
-                      <td className="p-2.5 text-right text-emerald-700">{formatGTQ(totals.bonoIncentivo)}</td>
-                      <td className="p-2.5 text-right text-rose-600">-{formatGTQ(totals.igssLaboral)}</td>
+                      <td className="p-2.5 text-right text-sky-700">
+                        {formatGTQ(totals.overtimeAmount)}
+                      </td>
+                      <td className="p-2.5 text-right text-emerald-700">
+                        {formatGTQ(totals.bonoIncentivo)}
+                      </td>
+                      <td className="p-2.5 text-right text-rose-600">
+                        -{formatGTQ(totals.igssLaboral)}
+                      </td>
                       <td className="p-2.5 text-right text-amber-800">
                         {formatGTQ(totals.provisionBono14 + totals.provisionAguinaldo)}
                       </td>
-                      <td className="p-2.5 text-right text-emerald-800 font-black text-sm bg-emerald-100/80">
+                      <td className="bg-emerald-100/80 p-2.5 text-right text-sm font-black text-emerald-800">
                         {formatGTQ(totals.salarioLiquido)}
                       </td>
                     </tr>
@@ -859,7 +914,7 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
               </div>
 
               {/* Signature Blocks */}
-              <div className="pt-8 grid grid-cols-3 gap-6 text-center text-xs">
+              <div className="grid grid-cols-3 gap-6 pt-8 text-center text-xs">
                 <div className="border-t border-slate-400 pt-2">
                   <p className="font-bold text-slate-900">Contador General / Nóminas</p>
                   <p className="text-[10px] text-slate-500">Reg. SAT / Colegiado Activo</p>
@@ -875,11 +930,11 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
               </div>
             </div>
 
-            <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-end gap-2">
+            <div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-100 p-4">
               <button
                 type="button"
                 onClick={() => setShowPdfPreviewModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200 cursor-pointer"
+                className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200"
               >
                 Cerrar
               </button>
@@ -890,9 +945,9 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
                   handleExportPdf();
                 }}
                 disabled={isExportingPdf}
-                className="px-5 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-rose-700 disabled:opacity-50"
               >
-                <FileText className="w-4 h-4" />
+                <FileText className="h-4 w-4" />
                 {isExportingPdf ? 'Descargando...' : 'Descargar Archivo PDF'}
               </button>
             </div>
@@ -901,6 +956,6 @@ export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default GuatemalanPayrollTable;

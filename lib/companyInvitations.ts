@@ -71,7 +71,8 @@ export async function createCompanyInvitation(
   role: Exclude<CompanyRole, 'owner'>,
   userId: string
 ): Promise<{ id: string; url: string }> {
-  if (!INVITATION_ROLES.includes(role)) throw new Error('El rol seleccionado no se puede asignar por invitación.');
+  if (!INVITATION_ROLES.includes(role))
+    throw new Error('El rol seleccionado no se puede asignar por invitación.');
   const normalizedEmail = email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
     throw new Error('Escribe una dirección de correo válida.');
@@ -94,7 +95,11 @@ export async function createCompanyInvitation(
       expiresAt,
     });
   } catch (error) {
-    throw handleFirestoreError(error, OperationType.CREATE, `companies/${companyId}/invitations/${id}`);
+    throw handleFirestoreError(
+      error,
+      OperationType.CREATE,
+      `companies/${companyId}/invitations/${id}`
+    );
   }
 
   const inviteUrl = new URL(window.location.origin);
@@ -103,7 +108,10 @@ export async function createCompanyInvitation(
   return { id, url: inviteUrl.toString() };
 }
 
-export async function revokeCompanyInvitation(companyId: string, invitationId: string): Promise<void> {
+export async function revokeCompanyInvitation(
+  companyId: string,
+  invitationId: string
+): Promise<void> {
   try {
     await deleteDoc(doc(db, 'companies', companyId, 'invitations', invitationId));
   } catch (error) {
@@ -119,7 +127,11 @@ export async function removeCompanyMember(companyId: string, memberId: string): 
   try {
     await deleteDoc(doc(db, 'companies', companyId, 'members', memberId));
   } catch (error) {
-    throw handleFirestoreError(error, OperationType.DELETE, `companies/${companyId}/members/${memberId}`);
+    throw handleFirestoreError(
+      error,
+      OperationType.DELETE,
+      `companies/${companyId}/members/${memberId}`
+    );
   }
 }
 
@@ -144,14 +156,17 @@ export async function acceptCompanyInvitation(
       'code' in error &&
       error.code === 'permission-denied'
     ) {
-      throw new Error('No se pudo abrir la invitación. Verifica tu correo e inicia sesión con la dirección invitada.');
+      throw new Error(
+        'No se pudo abrir la invitación. Verifica tu correo e inicia sesión con la dirección invitada.'
+      );
     }
     throw error;
   }
   if (!invitationSnapshot.exists()) throw new Error('La invitación no existe o fue revocada.');
 
   const invitation = invitationSnapshot.data() as CompanyInvitation;
-  if (invitation.companyId !== companyId) throw new Error('La invitación no corresponde a esta empresa.');
+  if (invitation.companyId !== companyId)
+    throw new Error('La invitación no corresponde a esta empresa.');
   if (invitation.email !== user.email.trim().toLowerCase()) {
     throw new Error(`Inicia sesión con ${invitation.email} para aceptar esta invitación.`);
   }
@@ -159,7 +174,8 @@ export async function acceptCompanyInvitation(
   if (invitation.expiresAt.toDate().getTime() <= Date.now()) {
     throw new Error('La invitación venció. Solicita a un administrador que envíe otra.');
   }
-  if (!INVITATION_ROLES.includes(invitation.role)) throw new Error('La invitación contiene un rol no válido.');
+  if (!INVITATION_ROLES.includes(invitation.role))
+    throw new Error('La invitación contiene un rol no válido.');
 
   const batch = writeBatch(db);
   batch.set(memberRef, {
@@ -178,6 +194,10 @@ export async function acceptCompanyInvitation(
   try {
     await batch.commit();
   } catch (error) {
-    throw handleFirestoreError(error, OperationType.WRITE, `companies/${companyId}/invitations/${invitationId}`);
+    throw handleFirestoreError(
+      error,
+      OperationType.WRITE,
+      `companies/${companyId}/invitations/${invitationId}`
+    );
   }
 }

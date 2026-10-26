@@ -6,7 +6,10 @@ export async function GET() {
   if (!hasFirebaseRuntimeConfig()) {
     return new Response('throw new Error("Firebase configuration is incomplete.");', {
       status: 500,
-      headers: { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' },
+      headers: {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
     });
   }
 
@@ -22,6 +25,11 @@ export async function GET() {
   };
 
   return new Response(`firebase.initializeApp(${JSON.stringify(publicConfig)});`, {
-    headers: { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' },
+    headers: {
+      'Content-Type': 'application/javascript; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+    },
   });
 }

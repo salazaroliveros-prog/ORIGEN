@@ -81,19 +81,24 @@ export function CronogramaGantt({
   }, [milestones, currentProject]);
 
   const scheduleRange = useMemo(() => {
-    const validDates = (values: string[]) => values
-      .map((value) => new Date(value))
-      .filter((date) => Number.isFinite(date.getTime()));
+    const validDates = (values: string[]) =>
+      values.map((value) => new Date(value)).filter((date) => Number.isFinite(date.getTime()));
     const taskStarts = validDates(projectTasks.map((task) => task.startDate));
     const taskEnds = validDates(projectTasks.map((task) => task.endDate));
     const projectStart = currentProject?.startDate ? new Date(currentProject.startDate) : null;
     const projectEnd = currentProject?.endDate ? new Date(currentProject.endDate) : null;
-    const startDate = projectStart && Number.isFinite(projectStart.getTime())
-      ? projectStart
-      : taskStarts.length > 0 ? new Date(Math.min(...taskStarts.map((date) => date.getTime()))) : null;
-    const endDate = projectEnd && Number.isFinite(projectEnd.getTime())
-      ? projectEnd
-      : taskEnds.length > 0 ? new Date(Math.max(...taskEnds.map((date) => date.getTime()))) : null;
+    const startDate =
+      projectStart && Number.isFinite(projectStart.getTime())
+        ? projectStart
+        : taskStarts.length > 0
+          ? new Date(Math.min(...taskStarts.map((date) => date.getTime())))
+          : null;
+    const endDate =
+      projectEnd && Number.isFinite(projectEnd.getTime())
+        ? projectEnd
+        : taskEnds.length > 0
+          ? new Date(Math.max(...taskEnds.map((date) => date.getTime())))
+          : null;
 
     return startDate && endDate && startDate <= endDate ? { startDate, endDate } : null;
   }, [currentProject, projectTasks]);
@@ -139,7 +144,10 @@ export function CronogramaGantt({
         plannedPercent = 0;
       } else {
         const elapsedDays = Math.round((todayMs - startMs) / (1000 * 60 * 60 * 24));
-        plannedPercent = Math.min(100, Math.max(0, Math.round((elapsedDays / totalDurationDays) * 100)));
+        plannedPercent = Math.min(
+          100,
+          Math.max(0, Math.round((elapsedDays / totalDurationDays) * 100))
+        );
       }
 
       const realPercent = t.progress;
@@ -193,7 +201,9 @@ export function CronogramaGantt({
         (totalWeight || 1)
     );
 
-    const delayed = enrichedTasks.filter((t) => t.status === 'retraso_leve' || t.status === 'retraso_critico').length;
+    const delayed = enrichedTasks.filter(
+      (t) => t.status === 'retraso_leve' || t.status === 'retraso_critico'
+    ).length;
     const critical = enrichedTasks.filter((t) => t.criticalPath).length;
 
     return {
@@ -214,9 +224,15 @@ export function CronogramaGantt({
     const today = new Date();
     const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
     const totalTaskWeight = projectTasks.reduce((sum, task) => sum + (task.weightPercent || 10), 0);
-    const currentProgress = totalTaskWeight > 0
-      ? Math.round(projectTasks.reduce((sum, task) => sum + task.progress * (task.weightPercent || 10), 0) / totalTaskWeight)
-      : null;
+    const currentProgress =
+      totalTaskWeight > 0
+        ? Math.round(
+            projectTasks.reduce(
+              (sum, task) => sum + task.progress * (task.weightPercent || 10),
+              0
+            ) / totalTaskWeight
+          )
+        : null;
 
     const months: {
       monthKey: string;
@@ -229,7 +245,20 @@ export function CronogramaGantt({
     const cursor = new Date(projStart.getFullYear(), projStart.getMonth(), 1);
     const endLimit = new Date(projEnd.getFullYear(), projEnd.getMonth() + 1, 1);
 
-    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const monthNames = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
 
     while (cursor <= endLimit) {
       const year = cursor.getFullYear();
@@ -319,22 +348,23 @@ export function CronogramaGantt({
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-6">
       {/* Header and Project Switcher */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
-          <span className="p-3 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-400">
-            <CalendarDays className="w-6 h-6" />
+          <span className="rounded-2xl border border-sky-500/30 bg-sky-500/15 p-3 text-sky-400">
+            <CalendarDays className="h-6 w-6" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-white tracking-tight">
+              <h1 className="text-xl font-extrabold tracking-tight text-white">
                 Cronograma Gantt & Ruta Crítica de Obra
               </h1>
-              <span className="text-[10px] font-mono font-bold bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-md border border-sky-400/30">
+              <span className="rounded-md border border-sky-400/30 bg-sky-500/20 px-2 py-0.5 font-mono text-[10px] font-bold text-sky-300">
                 D3 + Recharts
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Control temporal de fases de construcción, hitos críticos, fechas de inicio/fin y desvío de avance real vs planificado.
+            <p className="mt-0.5 text-xs text-slate-400">
+              Control temporal de fases de construcción, hitos críticos, fechas de inicio/fin y
+              desvío de avance real vs planificado.
             </p>
           </div>
         </div>
@@ -342,12 +372,12 @@ export function CronogramaGantt({
         {/* Project Selector & View Toggles */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {/* Project Dropdown */}
-          <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 font-bold text-slate-200">
-            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 font-bold text-slate-200">
+            <Building2 className="h-3.5 w-3.5 text-slate-400" />
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer"
+              className="cursor-pointer bg-transparent font-bold text-slate-200 focus:outline-none"
             >
               {projects.map((p) => (
                 <option key={p.id} value={p.id} className="bg-slate-800 text-white">
@@ -358,27 +388,33 @@ export function CronogramaGantt({
           </div>
 
           {/* View Mode Buttons */}
-          <div className="flex items-center bg-slate-800 border border-slate-700 p-0.5 rounded-xl font-bold">
+          <div className="flex items-center rounded-xl border border-slate-700 bg-slate-800 p-0.5 font-bold">
             <button
               onClick={() => setActiveView('gantt')}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                activeView === 'gantt' ? 'bg-sky-500 text-slate-950 font-black shadow' : 'text-slate-400 hover:text-white'
+              className={`rounded-lg px-3 py-1.5 transition ${
+                activeView === 'gantt'
+                  ? 'bg-sky-500 font-black text-slate-950 shadow'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Gantt Temporal
             </button>
             <button
               onClick={() => setActiveView('curva_s')}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                activeView === 'curva_s' ? 'bg-sky-500 text-slate-950 font-black shadow' : 'text-slate-400 hover:text-white'
+              className={`rounded-lg px-3 py-1.5 transition ${
+                activeView === 'curva_s'
+                  ? 'bg-sky-500 font-black text-slate-950 shadow'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Curva S (Plan vs Real)
             </button>
             <button
               onClick={() => setActiveView('matriz')}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                activeView === 'matriz' ? 'bg-sky-500 text-slate-950 font-black shadow' : 'text-slate-400 hover:text-white'
+              className={`rounded-lg px-3 py-1.5 transition ${
+                activeView === 'matriz'
+                  ? 'bg-sky-500 font-black text-slate-950 shadow'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Matriz de Tareas
@@ -388,27 +424,31 @@ export function CronogramaGantt({
       </div>
 
       {/* KPI Cards: Schedule Performance Index */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <Card variant="elevated" padding="md" className="bg-slate-900/80 border-slate-800">
-          <div className="flex justify-between items-start">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avance Planificado</p>
-            <span className="p-1.5 rounded-lg bg-sky-500/10 text-sky-400">
-              <Clock className="w-4 h-4" />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
+          <div className="flex items-start justify-between">
+            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+              Avance Planificado
+            </p>
+            <span className="rounded-lg bg-sky-500/10 p-1.5 text-sky-400">
+              <Clock className="h-4 w-4" />
             </span>
           </div>
-          <p className="text-2xl font-black text-sky-400 mt-1 font-mono">{stats.avgPlanned}%</p>
-          <p className="text-[11px] text-slate-400 mt-0.5">Meta programada a la fecha de hoy</p>
+          <p className="mt-1 font-mono text-2xl font-black text-sky-400">{stats.avgPlanned}%</p>
+          <p className="mt-0.5 text-[11px] text-slate-400">Meta programada a la fecha de hoy</p>
         </Card>
 
-        <Card variant="elevated" padding="md" className="bg-slate-900/80 border-slate-800">
-          <div className="flex justify-between items-start">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avance Físico Real</p>
-            <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
-              <CheckCircle2 className="w-4 h-4" />
+        <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
+          <div className="flex items-start justify-between">
+            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+              Avance Físico Real
+            </p>
+            <span className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-400">
+              <CheckCircle2 className="h-4 w-4" />
             </span>
           </div>
-          <p className="text-2xl font-black text-emerald-400 mt-1 font-mono">{stats.avgReal}%</p>
-          <p className="text-[11px] text-slate-400 mt-0.5">Ejecución ponderada en obra</p>
+          <p className="mt-1 font-mono text-2xl font-black text-emerald-400">{stats.avgReal}%</p>
+          <p className="mt-0.5 text-[11px] text-slate-400">Ejecución ponderada en obra</p>
         </Card>
 
         <Card
@@ -416,55 +456,68 @@ export function CronogramaGantt({
           padding="md"
           className={`border ${
             stats.varianceGap < -5
-              ? 'bg-rose-950/20 border-rose-800/80'
+              ? 'border-rose-800/80 bg-rose-950/20'
               : stats.varianceGap >= 0
-              ? 'bg-emerald-950/20 border-emerald-800/80'
-              : 'bg-slate-900/80 border-slate-800'
+                ? 'border-emerald-800/80 bg-emerald-950/20'
+                : 'border-slate-800 bg-slate-900/80'
           }`}
         >
-          <div className="flex justify-between items-start">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Desvío de Cronograma</p>
-            <span className={`p-1.5 rounded-lg ${stats.varianceGap < 0 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-              <TrendingUp className="w-4 h-4" />
+          <div className="flex items-start justify-between">
+            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+              Desvío de Cronograma
+            </p>
+            <span
+              className={`rounded-lg p-1.5 ${stats.varianceGap < 0 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}`}
+            >
+              <TrendingUp className="h-4 w-4" />
             </span>
           </div>
-          <p className={`text-2xl font-black mt-1 font-mono ${stats.varianceGap < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-            {stats.varianceGap > 0 ? '+' : ''}{stats.varianceGap}%
+          <p
+            className={`mt-1 font-mono text-2xl font-black ${stats.varianceGap < 0 ? 'text-rose-400' : 'text-emerald-400'}`}
+          >
+            {stats.varianceGap > 0 ? '+' : ''}
+            {stats.varianceGap}%
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            {stats.varianceGap < -5 ? `${stats.delayedTasks} actividades con retraso` : 'Ritmo de obra en tolerancia'}
+          <p className="mt-0.5 text-[11px] text-slate-400">
+            {stats.varianceGap < -5
+              ? `${stats.delayedTasks} actividades con retraso`
+              : 'Ritmo de obra en tolerancia'}
           </p>
         </Card>
 
-        <Card variant="elevated" padding="md" className="bg-slate-900/80 border-slate-800">
-          <div className="flex justify-between items-start">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Hitos Críticos</p>
-            <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
-              <Award className="w-4 h-4" />
+        <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
+          <div className="flex items-start justify-between">
+            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+              Hitos Críticos
+            </p>
+            <span className="rounded-lg bg-amber-500/10 p-1.5 text-amber-400">
+              <Award className="h-4 w-4" />
             </span>
           </div>
-          <p className="text-2xl font-black text-amber-400 mt-1 font-mono">
+          <p className="mt-1 font-mono text-2xl font-black text-amber-400">
             {stats.completedMilestones} / {stats.totalMilestones}
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">{stats.criticalTasks} tareas en ruta crítica</p>
+          <p className="mt-0.5 text-[11px] text-slate-400">
+            {stats.criticalTasks} tareas en ruta crítica
+          </p>
         </Card>
       </div>
 
       {/* VIEW 1: D3 INTERACTIVE GANTT TIMELINE */}
       {activeView === 'gantt' && (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
           {/* Filter and Search Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-col items-start justify-between gap-3 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Search */}
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                <Search className="absolute top-2.5 left-3 h-3.5 w-3.5 text-slate-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar tarea o fase..."
-                  className="pl-8 pr-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="rounded-xl border border-slate-700 bg-slate-800 py-1.5 pr-3 pl-8 text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:outline-none"
                 />
               </div>
 
@@ -472,7 +525,7 @@ export function CronogramaGantt({
               <select
                 value={phaseFilter}
                 onChange={(e) => setPhaseFilter(e.target.value)}
-                className="px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-xl text-slate-200 font-bold focus:outline-none cursor-pointer"
+                className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 focus:outline-none"
               >
                 <option value="all">Todas las Fases ({uniquePhases.length})</option>
                 {uniquePhases.map((phase) => (
@@ -485,33 +538,34 @@ export function CronogramaGantt({
               {/* Critical Path Toggle */}
               <button
                 onClick={() => setOnlyCriticalPath(!onlyCriticalPath)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                className={`flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                   onlyCriticalPath
-                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                    : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
+                    ? 'border border-rose-500/40 bg-rose-500/20 text-rose-300'
+                    : 'border border-slate-700 bg-slate-800 text-slate-400 hover:text-white'
                 }`}
               >
-                <Flame className="w-3.5 h-3.5 text-rose-400" />
+                <Flame className="h-3.5 w-3.5 text-rose-400" />
                 Solo Ruta Crítica
               </button>
             </div>
 
             {/* Legend */}
-            <div className="flex items-center flex-wrap gap-3 text-[11px] font-bold text-slate-400">
+            <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-slate-400">
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-2 rounded bg-slate-700 border border-slate-500 inline-block" /> Planificado
+                <span className="inline-block h-2 w-3 rounded border border-slate-500 bg-slate-700" />{' '}
+                Planificado
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-2 rounded bg-emerald-500 inline-block" /> Real Ejecutado
+                <span className="inline-block h-2 w-3 rounded bg-emerald-500" /> Real Ejecutado
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-2 rounded bg-rose-500 inline-block" /> Retraso Crítico
+                <span className="inline-block h-2 w-3 rounded bg-rose-500" /> Retraso Crítico
               </span>
               <span className="flex items-center gap-1.5 text-amber-300">
-                <span className="w-2.5 h-2.5 rotate-45 bg-amber-400 inline-block" /> Hito Crítico
+                <span className="inline-block h-2.5 w-2.5 rotate-45 bg-amber-400" /> Hito Crítico
               </span>
               <span className="flex items-center gap-1.5 text-rose-400">
-                <span className="w-0.5 h-3 bg-rose-500 inline-block" /> Hoy (24/10/2026)
+                <span className="inline-block h-3 w-0.5 bg-rose-500" /> Hoy (24/10/2026)
               </span>
             </div>
           </div>
@@ -521,7 +575,7 @@ export function CronogramaGantt({
             <div className="min-w-[1050px]">
               {/* Header Time Axis */}
               <div className="grid grid-cols-[280px_1fr] border-b border-slate-800 pb-2">
-                <div className="text-xs font-extrabold text-slate-400 uppercase tracking-wider pl-2">
+                <div className="pl-2 text-xs font-extrabold tracking-wider text-slate-400 uppercase">
                   Fase & Actividad de Construcción
                 </div>
                 <div className="relative h-7 font-mono text-[10px] text-slate-400">
@@ -553,32 +607,34 @@ export function CronogramaGantt({
                   return (
                     <div
                       key={t.id}
-                      className="grid grid-cols-[280px_1fr] py-3 hover:bg-slate-800/40 transition items-center"
+                      className="grid grid-cols-[280px_1fr] items-center py-3 transition hover:bg-slate-800/40"
                     >
                       {/* Left Task Metadata */}
-                      <div className="pr-4 pl-2 space-y-0.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-800/60">
+                      <div className="space-y-0.5 pr-4 pl-2">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="py-0.2 rounded border border-amber-800/60 bg-amber-950/60 px-1.5 font-mono text-[10px] font-bold text-amber-400">
                             {t.phase}
                           </span>
                           {t.criticalPath && (
-                            <span className="text-[9px] font-extrabold text-rose-300 bg-rose-950/80 px-1 py-0.2 rounded border border-rose-800">
+                            <span className="py-0.2 rounded border border-rose-800 bg-rose-950/80 px-1 text-[9px] font-extrabold text-rose-300">
                               Ruta Crítica
                             </span>
                           )}
                         </div>
-                        <h4 className="text-xs font-bold text-white truncate" title={t.name}>
+                        <h4 className="truncate text-xs font-bold text-white" title={t.name}>
                           {t.name}
                         </h4>
-                        <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                          <span>{t.startDate} al {t.endDate} ({t.durationDays}d)</span>
+                        <div className="flex items-center justify-between font-mono text-[10px] text-slate-400">
+                          <span>
+                            {t.startDate} al {t.endDate} ({t.durationDays}d)
+                          </span>
                           <span
                             className={`font-bold ${
                               t.status === 'retraso_critico'
                                 ? 'text-rose-400'
                                 : t.status === 'retraso_leve'
-                                ? 'text-amber-400'
-                                : 'text-emerald-400'
+                                  ? 'text-amber-400'
+                                  : 'text-emerald-400'
                             }`}
                           >
                             Real: {t.realPercent}% | Plan: {t.plannedPercent}%
@@ -587,7 +643,7 @@ export function CronogramaGantt({
                       </div>
 
                       {/* Right Timeline Canvas */}
-                      <div className="relative h-9 bg-slate-950/40 rounded-xl overflow-hidden border border-slate-800/50 flex items-center">
+                      <div className="relative flex h-9 items-center overflow-hidden rounded-xl border border-slate-800/50 bg-slate-950/40">
                         {/* Month Grid Lines */}
                         {ganttConfig.ticks.map((tick, idx) => {
                           const x = ganttConfig.timeScale(tick);
@@ -602,14 +658,14 @@ export function CronogramaGantt({
 
                         {/* Today Marker Line */}
                         <div
-                          className="absolute top-0 bottom-0 w-[2px] bg-rose-500 z-20 shadow-[0_0_8px_rgba(244,63,94,0.8)]"
+                          className="absolute top-0 bottom-0 z-20 w-[2px] bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"
                           style={{ left: `${ganttConfig.todayX}px` }}
                           title="Fecha Actual: 24 de Octubre de 2026"
                         />
 
                         {/* Planned Baseline Bar */}
                         <div
-                          className="absolute h-5 rounded-md bg-slate-800 border border-slate-700/80 transition-all z-10 overflow-hidden"
+                          className="absolute z-10 h-5 overflow-hidden rounded-md border border-slate-700/80 bg-slate-800 transition-all"
                           style={{ left: `${xStart}px`, width: `${barWidth}px` }}
                         >
                           {/* Real Progress Fill */}
@@ -618,10 +674,10 @@ export function CronogramaGantt({
                               t.status === 'retraso_critico'
                                 ? 'bg-rose-500'
                                 : t.status === 'retraso_leve'
-                                ? 'bg-amber-500'
-                                : t.realPercent >= 100
-                                ? 'bg-emerald-500'
-                                : 'bg-sky-500'
+                                  ? 'bg-amber-500'
+                                  : t.realPercent >= 100
+                                    ? 'bg-emerald-500'
+                                    : 'bg-sky-500'
                             }`}
                             style={{ width: `${realBarWidth}px` }}
                           />
@@ -629,7 +685,7 @@ export function CronogramaGantt({
                           {/* Planned Progress Target Marker */}
                           {t.plannedPercent > 0 && t.plannedPercent < 100 && (
                             <div
-                              className="absolute top-0 bottom-0 w-[2px] bg-white z-10 shadow"
+                              className="absolute top-0 bottom-0 z-10 w-[2px] bg-white shadow"
                               style={{ left: `${plannedIndicatorX}px` }}
                               title={`Avance Planificado: ${t.plannedPercent}%`}
                             />
@@ -639,11 +695,11 @@ export function CronogramaGantt({
                         {/* Associated Milestone Diamond */}
                         {t.milestoneId && (
                           <div
-                            className="absolute -top-1 z-30 flex items-center justify-center cursor-pointer"
+                            className="absolute -top-1 z-30 flex cursor-pointer items-center justify-center"
                             style={{ left: `${xEnd - 7}px` }}
                             title={`Hito de Entrega de Fase: ${t.phase}`}
                           >
-                            <span className="w-3.5 h-3.5 rotate-45 bg-amber-400 border border-amber-200 shadow-md flex items-center justify-center" />
+                            <span className="flex h-3.5 w-3.5 rotate-45 items-center justify-center border border-amber-200 bg-amber-400 shadow-md" />
                           </div>
                         )}
                       </div>
@@ -658,24 +714,26 @@ export function CronogramaGantt({
 
       {/* VIEW 2: S-CURVE (CURVA S) PLANIFICADO VS REAL */}
       {activeView === 'curva_s' && (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
+          <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
             <div>
-              <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-sky-400" />
+              <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
+                <TrendingUp className="h-4 w-4 text-sky-400" />
                 Curva S de Avance Físico Acumulado (Planificado vs. Real)
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Proyección sigmoide de avance de obra. La brecha entre la curva azul (plan) y verde (real) muestra la variación en la entrega.
+              <p className="mt-0.5 text-xs text-slate-400">
+                Proyección sigmoide de avance de obra. La brecha entre la curva azul (plan) y verde
+                (real) muestra la variación en la entrega.
               </p>
             </div>
 
             <div className="flex items-center gap-4 text-xs font-bold">
               <span className="flex items-center gap-1.5 text-sky-400">
-                <span className="w-3 h-3 rounded bg-sky-500 inline-block" /> Avance Planificado (%)
+                <span className="inline-block h-3 w-3 rounded bg-sky-500" /> Avance Planificado (%)
               </span>
               <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-3 h-3 rounded bg-emerald-500 inline-block" /> Avance Real Ejecutado (%)
+                <span className="inline-block h-3 w-3 rounded bg-emerald-500" /> Avance Real
+                Ejecutado (%)
               </span>
             </div>
           </div>
@@ -704,7 +762,12 @@ export function CronogramaGantt({
                   x="Oct 2026"
                   stroke="#f43f5e"
                   strokeDasharray="4 4"
-                  label={{ value: 'Hoy (Oct 2026)', fill: '#f43f5e', fontSize: 10, position: 'top' }}
+                  label={{
+                    value: 'Hoy (Oct 2026)',
+                    fill: '#f43f5e',
+                    fontSize: 10,
+                    position: 'top',
+                  }}
                 />
 
                 <Area
@@ -733,18 +796,19 @@ export function CronogramaGantt({
 
       {/* VIEW 3: DETAILED TASKS & MILESTONES MATRIX */}
       {activeView === 'matriz' && (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
-              <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-amber-400" />
+              <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
+                <Sliders className="h-4 w-4 text-amber-400" />
                 Matriz de Desglose de Fases, Hitos y Ajuste de Avance
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Edición de avances porcentuales, verificación de fechas contractuales y ponderación de impacto.
+              <p className="mt-0.5 text-xs text-slate-400">
+                Edición de avances porcentuales, verificación de fechas contractuales y ponderación
+                de impacto.
               </p>
             </div>
-            <span className="text-xs font-mono font-bold text-slate-300 bg-slate-800 px-3 py-1 rounded-xl border border-slate-700">
+            <span className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1 font-mono text-xs font-bold text-slate-300">
               {enrichedTasks.length} Tareas Activas
             </span>
           </div>
@@ -765,64 +829,60 @@ export function CronogramaGantt({
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-mono">
                 {enrichedTasks.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-800/30 transition">
+                  <tr key={t.id} className="transition hover:bg-slate-800/30">
                     <td className="py-3 pl-2 font-sans">
-                      <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/60 mr-1.5">
+                      <span className="mr-1.5 rounded border border-amber-800/60 bg-amber-950/60 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-400">
                         {t.phase}
                       </span>
-                      <strong className="text-white text-xs">{t.name}</strong>
+                      <strong className="text-xs text-white">{t.name}</strong>
                       {t.assignedTo && (
-                        <span className="text-[10px] text-slate-400 block font-sans">
+                        <span className="block font-sans text-[10px] text-slate-400">
                           Responsable: {t.assignedTo}
                         </span>
                       )}
                     </td>
 
-                    <td className="py-3 font-sans text-slate-300 text-[11px]">
-                      <Clock className="w-3 h-3 text-sky-400 inline mr-1" />
+                    <td className="py-3 font-sans text-[11px] text-slate-300">
+                      <Clock className="mr-1 inline h-3 w-3 text-sky-400" />
                       {t.startDate} al {t.endDate}
                     </td>
 
                     <td className="py-3 text-center">
                       {t.criticalPath ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800">
+                        <span className="rounded border border-rose-800 bg-rose-950 px-2 py-0.5 text-[10px] font-bold text-rose-300">
                           Crítica
                         </span>
                       ) : (
-                        <span className="text-slate-500 text-[10px]">Normal</span>
+                        <span className="text-[10px] text-slate-500">Normal</span>
                       )}
                     </td>
 
-                    <td className="py-3 text-center text-slate-300">
-                      {t.weightPercent}%
-                    </td>
+                    <td className="py-3 text-center text-slate-300">{t.weightPercent}%</td>
 
-                    <td className="py-3 text-center text-sky-400 font-bold">
-                      {t.plannedPercent}%
-                    </td>
+                    <td className="py-3 text-center font-bold text-sky-400">{t.plannedPercent}%</td>
 
-                    <td className="py-3 text-center text-emerald-400 font-black">
+                    <td className="py-3 text-center font-black text-emerald-400">
                       {t.realPercent}%
                     </td>
 
                     <td className="py-3 text-center font-sans">
                       {t.status === 'adelantado' && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        <span className="rounded-full border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
                           Adelantado (+{t.variance}%)
                         </span>
                       )}
                       {t.status === 'al_dia' && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 border border-sky-800">
+                        <span className="rounded-full border border-sky-800 bg-sky-950 px-2 py-0.5 text-[10px] font-bold text-sky-300">
                           Al Día
                         </span>
                       )}
                       {t.status === 'retraso_leve' && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800">
+                        <span className="rounded-full border border-amber-800 bg-amber-950 px-2 py-0.5 text-[10px] font-bold text-amber-300">
                           Retraso Leve ({t.variance}%)
                         </span>
                       )}
                       {t.status === 'retraso_critico' && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-800">
+                        <span className="rounded-full border border-rose-800 bg-rose-950 px-2 py-0.5 text-[10px] font-bold text-rose-300">
                           Crítico ({t.variance}%)
                         </span>
                       )}
@@ -832,17 +892,19 @@ export function CronogramaGantt({
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => {
-                            if (onUpdateTaskProgress) onUpdateTaskProgress(t.id, Math.max(0, t.progress - 10));
+                            if (onUpdateTaskProgress)
+                              onUpdateTaskProgress(t.id, Math.max(0, t.progress - 10));
                           }}
-                          className="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold cursor-pointer"
+                          className="cursor-pointer rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-bold text-slate-300 hover:bg-slate-700"
                         >
                           -10%
                         </button>
                         <button
                           onClick={() => {
-                            if (onUpdateTaskProgress) onUpdateTaskProgress(t.id, Math.min(100, t.progress + 10));
+                            if (onUpdateTaskProgress)
+                              onUpdateTaskProgress(t.id, Math.min(100, t.progress + 10));
                           }}
-                          className="px-1.5 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold cursor-pointer"
+                          className="cursor-pointer rounded bg-sky-600 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-sky-500"
                         >
                           +10%
                         </button>
@@ -869,23 +931,30 @@ function CustomSCurveTooltip({ active, payload }: any) {
     const gap = hasReal ? data.avanceReal - data.avancePlanificado : null;
 
     return (
-      <div className="bg-slate-950 border border-slate-700 p-3.5 rounded-xl shadow-2xl text-xs space-y-1.5 font-sans min-w-[200px]">
-        <strong className="text-white text-sm block border-b border-slate-800 pb-1">{data.label}</strong>
-        <div className="font-mono text-[11px] space-y-1">
-          <div className="flex justify-between text-sky-400 font-bold">
+      <div className="min-w-[200px] space-y-1.5 rounded-xl border border-slate-700 bg-slate-950 p-3.5 font-sans text-xs shadow-2xl">
+        <strong className="block border-b border-slate-800 pb-1 text-sm text-white">
+          {data.label}
+        </strong>
+        <div className="space-y-1 font-mono text-[11px]">
+          <div className="flex justify-between font-bold text-sky-400">
             <span>Avance Planificado:</span>
             <span>{data.avancePlanificado}%</span>
           </div>
           {hasReal && (
-            <div className="flex justify-between text-emerald-400 font-bold">
+            <div className="flex justify-between font-bold text-emerald-400">
               <span>Avance Real Ejecutado:</span>
               <span>{data.avanceReal}%</span>
             </div>
           )}
           {gap !== null && (
-            <div className={`flex justify-between font-bold pt-1 border-t border-slate-800 ${gap >= 0 ? 'text-emerald-300' : 'text-rose-400'}`}>
+            <div
+              className={`flex justify-between border-t border-slate-800 pt-1 font-bold ${gap >= 0 ? 'text-emerald-300' : 'text-rose-400'}`}
+            >
               <span>Variación de Obra:</span>
-              <span>{gap > 0 ? '+' : ''}{gap}%</span>
+              <span>
+                {gap > 0 ? '+' : ''}
+                {gap}%
+              </span>
             </div>
           )}
         </div>

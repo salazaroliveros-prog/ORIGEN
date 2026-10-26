@@ -1,10 +1,6 @@
 // ConstructERP Guatemala - Service Worker for Offline Field Operations
 const CACHE_NAME = 'constructerp-v1';
-const STATIC_ASSETS = [
-  '/',
-  '/globals.css',
-  '/site.webmanifest'
-];
+const STATIC_ASSETS = ['/', '/globals.css', '/site.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

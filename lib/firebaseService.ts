@@ -36,7 +36,9 @@ import { notifySyncStart, notifySyncEnd } from './hooks/useFirebaseSyncStatus';
 const firebaseConfig = getFirebaseConfig();
 
 if (!hasFirebaseRuntimeConfig()) {
-  throw new Error('Firebase configuration is incomplete. Check the public Firebase environment variables.');
+  throw new Error(
+    'Firebase configuration is incomplete. Check the public Firebase environment variables.'
+  );
 }
 
 const appConfig = {
@@ -76,10 +78,13 @@ if (authEmulatorHost) {
 const firestoreEmulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.trim();
 if (firestoreEmulatorHost) {
   const separatorIndex = firestoreEmulatorHost.lastIndexOf(':');
-  const host = separatorIndex < 0 ? firestoreEmulatorHost : firestoreEmulatorHost.slice(0, separatorIndex);
+  const host =
+    separatorIndex < 0 ? firestoreEmulatorHost : firestoreEmulatorHost.slice(0, separatorIndex);
   const port = separatorIndex < 0 ? 8080 : Number(firestoreEmulatorHost.slice(separatorIndex + 1));
   if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST must be a hostname with an optional valid port.');
+    throw new Error(
+      'NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST must be a hostname with an optional valid port.'
+    );
   }
   connectFirestoreEmulator(db, host, port);
 }
@@ -131,7 +136,8 @@ export function handleFirestoreError(
 ): Error {
   const errMsg = error instanceof Error ? error.message : String(error);
   const isKnownIdleWarning =
-    errMsg.includes('Disconnecting idle stream') || errMsg.includes('Timed out waiting for new targets');
+    errMsg.includes('Disconnecting idle stream') ||
+    errMsg.includes('Timed out waiting for new targets');
 
   if (isKnownIdleWarning) {
     console.debug('Firestore idle stream disconnected:', errMsg);
@@ -212,7 +218,10 @@ export async function saveProjectScheduleToFirestore(
   }
 }
 
-export function subscribeProjects(companyId: string, callback: (projects: Project[]) => void): Unsubscribe {
+export function subscribeProjects(
+  companyId: string,
+  callback: (projects: Project[]) => void
+): Unsubscribe {
   const path = 'projects';
   try {
     const q = query(collection(db, path), where('companyId', '==', companyId));
@@ -247,7 +256,11 @@ export async function deleteAttendanceFromFirestore(attendanceId: string): Promi
   }
 }
 
-export async function saveFieldVisitToFirestore(visit: FieldVisit, companyId: string, userId: string) {
+export async function saveFieldVisitToFirestore(
+  visit: FieldVisit,
+  companyId: string,
+  userId: string
+) {
   const path = `fieldVisits/${visit.id}`;
   try {
     const docRef = doc(db, 'fieldVisits', visit.id);
@@ -267,7 +280,10 @@ export async function saveFieldVisitToFirestore(visit: FieldVisit, companyId: st
   }
 }
 
-export function subscribeFieldVisits(companyId: string, callback: (visits: FieldVisit[]) => void): Unsubscribe {
+export function subscribeFieldVisits(
+  companyId: string,
+  callback: (visits: FieldVisit[]) => void
+): Unsubscribe {
   const path = 'fieldVisits';
   try {
     const q = query(collection(db, path), where('companyId', '==', companyId));
@@ -288,7 +304,11 @@ export function subscribeFieldVisits(companyId: string, callback: (visits: Field
   }
 }
 
-export async function saveExpenseToFirestore(expense: ExpenseRecord, companyId: string, userId: string) {
+export async function saveExpenseToFirestore(
+  expense: ExpenseRecord,
+  companyId: string,
+  userId: string
+) {
   const path = `expenses/${expense.id}`;
   try {
     const docRef = doc(db, 'expenses', expense.id);
@@ -319,7 +339,10 @@ export async function deleteExpenseFromFirestore(expenseId: string): Promise<boo
   }
 }
 
-export function subscribeExpenses(companyId: string, callback: (expenses: ExpenseRecord[]) => void): Unsubscribe {
+export function subscribeExpenses(
+  companyId: string,
+  callback: (expenses: ExpenseRecord[]) => void
+): Unsubscribe {
   const path = 'expenses';
   try {
     const q = query(collection(db, path), where('companyId', '==', companyId));
@@ -340,7 +363,11 @@ export function subscribeExpenses(companyId: string, callback: (expenses: Expens
   }
 }
 
-export async function saveAttendanceToFirestore(record: AttendanceRecord, companyId: string, userId: string) {
+export async function saveAttendanceToFirestore(
+  record: AttendanceRecord,
+  companyId: string,
+  userId: string
+) {
   const path = `attendance/${record.id}`;
   try {
     const docRef = doc(db, 'attendance', record.id);
@@ -360,7 +387,10 @@ export async function saveAttendanceToFirestore(record: AttendanceRecord, compan
   }
 }
 
-export function subscribeAttendance(companyId: string, callback: (records: AttendanceRecord[]) => void): Unsubscribe {
+export function subscribeAttendance(
+  companyId: string,
+  callback: (records: AttendanceRecord[]) => void
+): Unsubscribe {
   const path = 'attendance';
   try {
     const q = query(collection(db, path), where('companyId', '==', companyId));
@@ -381,7 +411,11 @@ export function subscribeAttendance(companyId: string, callback: (records: Atten
   }
 }
 
-export async function saveEmployeeToFirestore(employee: Employee, companyId: string, userId: string): Promise<boolean> {
+export async function saveEmployeeToFirestore(
+  employee: Employee,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
   const path = `employees/${employee.id}`;
   try {
     const batch = writeBatch(db);
@@ -430,7 +464,10 @@ async function createMissingEmployeeDirectoryEntries(
   }
 }
 
-export function subscribeEmployees(companyId: string, callback: (employees: Employee[]) => void): Unsubscribe {
+export function subscribeEmployees(
+  companyId: string,
+  callback: (employees: Employee[]) => void
+): Unsubscribe {
   const path = 'employees';
   try {
     const q = query(collection(db, path), where('companyId', '==', companyId));
@@ -441,11 +478,7 @@ export function subscribeEmployees(companyId: string, callback: (employees: Empl
         snapshot.forEach((docSnap) => list.push(docSnap.data() as Employee));
         callback(list);
         void createMissingEmployeeDirectoryEntries(list, companyId).catch((error: unknown) => {
-          handleFirestoreError(
-            error,
-            OperationType.WRITE,
-            `employeeDirectory/${companyId}`
-          );
+          handleFirestoreError(error, OperationType.WRITE, `employeeDirectory/${companyId}`);
         });
       },
       (error) => {
@@ -466,8 +499,7 @@ export function subscribeEmployeeDirectory(
   try {
     return onSnapshot(
       query(collection(db, path), where('companyId', '==', companyId)),
-      (snapshot) =>
-        callback(snapshot.docs.map((item) => item.data() as EmployeeDirectoryEntry)),
+      (snapshot) => callback(snapshot.docs.map((item) => item.data() as EmployeeDirectoryEntry)),
       (error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
@@ -496,7 +528,10 @@ export async function saveCompanySettingsToFirestore(settings: CompanySettings, 
   }
 }
 
-export function subscribeCompanySettings(companyId: string, callback: (settings: CompanySettings | null) => void): Unsubscribe {
+export function subscribeCompanySettings(
+  companyId: string,
+  callback: (settings: CompanySettings | null) => void
+): Unsubscribe {
   const path = `companySettings/${companyId}`;
   try {
     const docRef = doc(db, 'companySettings', companyId);
@@ -519,7 +554,10 @@ export function subscribeCompanySettings(companyId: string, callback: (settings:
   }
 }
 
-export function subscribeQuotes(companyId: string, callback: (quotes: QuoteRecord[]) => void): Unsubscribe {
+export function subscribeQuotes(
+  companyId: string,
+  callback: (quotes: QuoteRecord[]) => void
+): Unsubscribe {
   const path = 'quotes';
   try {
     return onSnapshot(
@@ -533,7 +571,10 @@ export function subscribeQuotes(companyId: string, callback: (quotes: QuoteRecor
   }
 }
 
-export function subscribeAPUItems(companyId: string, callback: (items: APUItem[]) => void): Unsubscribe {
+export function subscribeAPUItems(
+  companyId: string,
+  callback: (items: APUItem[]) => void
+): Unsubscribe {
   const path = 'apuItems';
   try {
     return onSnapshot(
@@ -554,8 +595,17 @@ export async function saveAPUItemsToFirestore(
   userId: string
 ): Promise<boolean> {
   if (items.length > 500) {
-    console.error('No se pueden guardar más de 500 partidas APU en una operación.');
-    return false;
+    throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
+  }
+
+  // Validate structure of each item
+  for (const item of items) {
+    if (!item.id || !item.code || !item.description || !item.unit) {
+      throw new Error('Cada partida APU debe tener id, código, descripción y unidad');
+    }
+    if (item.totalUnitCostGTQ < 0 || item.totalPriceGTQ < 0) {
+      throw new Error('Los costos no pueden ser negativos');
+    }
   }
 
   const path = 'apuItems';

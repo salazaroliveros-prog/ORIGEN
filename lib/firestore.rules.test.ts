@@ -465,40 +465,55 @@ describe('Firestore APU permissions', () => {
         expiresAt: Timestamp.fromMillis(Date.now() + 3 * 24 * 60 * 60 * 1000),
       });
     });
-    const invitedDb = testEnv.authenticatedContext('invitee-user', {
-      email: 'invitee@example.com',
-      email_verified: true,
-    }).firestore();
-    const wrongEmailDb = testEnv.authenticatedContext('other-user', {
-      email: 'other@example.com',
-      email_verified: true,
-    }).firestore();
-    const unverifiedDb = testEnv.authenticatedContext('invitee-unverified', {
-      email: 'invitee@example.com',
-      email_verified: false,
-    }).firestore();
+    const invitedDb = testEnv
+      .authenticatedContext('invitee-user', {
+        email: 'invitee@example.com',
+        email_verified: true,
+      })
+      .firestore();
+    const wrongEmailDb = testEnv
+      .authenticatedContext('other-user', {
+        email: 'other@example.com',
+        email_verified: true,
+      })
+      .firestore();
+    const unverifiedDb = testEnv
+      .authenticatedContext('invitee-unverified', {
+        email: 'invitee@example.com',
+        email_verified: false,
+      })
+      .firestore();
     const invitePath = doc(invitedDb, 'companies', companyId, 'invitations', 'invite-read');
     await assertSucceeds(getDoc(invitePath));
-    await assertFails(getDoc(doc(wrongEmailDb, 'companies', companyId, 'invitations', 'invite-read')));
-    await assertFails(getDoc(doc(unverifiedDb, 'companies', companyId, 'invitations', 'invite-read')));
+    await assertFails(
+      getDoc(doc(wrongEmailDb, 'companies', companyId, 'invitations', 'invite-read'))
+    );
+    await assertFails(
+      getDoc(doc(unverifiedDb, 'companies', companyId, 'invitations', 'invite-read'))
+    );
   });
 
   it('accepts a valid invitation atomically and prevents changing its assigned role', async () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
-      await setDoc(doc(context.firestore(), 'companies', companyId, 'invitations', 'invite-accept'), {
-        id: 'invite-accept',
-        companyId,
-        email: 'invitee@example.com',
-        role: 'finance',
-        status: 'pending',
-        createdBy: 'owner-user',
-        expiresAt: Timestamp.fromMillis(Date.now() + 3 * 24 * 60 * 60 * 1000),
-      });
+      await setDoc(
+        doc(context.firestore(), 'companies', companyId, 'invitations', 'invite-accept'),
+        {
+          id: 'invite-accept',
+          companyId,
+          email: 'invitee@example.com',
+          role: 'finance',
+          status: 'pending',
+          createdBy: 'owner-user',
+          expiresAt: Timestamp.fromMillis(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        }
+      );
     });
-    const db = testEnv.authenticatedContext('invitee-user', {
-      email: 'invitee@example.com',
-      email_verified: true,
-    }).firestore();
+    const db = testEnv
+      .authenticatedContext('invitee-user', {
+        email: 'invitee@example.com',
+        email_verified: true,
+      })
+      .firestore();
     const batch = writeBatch(db);
     batch.set(doc(db, 'companies', companyId, 'members', 'invitee-user'), {
       companyId,
@@ -518,20 +533,25 @@ describe('Firestore APU permissions', () => {
 
   it('rejects invitation acceptance from another email and rejects promotion during acceptance', async () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
-      await setDoc(doc(context.firestore(), 'companies', companyId, 'invitations', 'invite-mismatch'), {
-        id: 'invite-mismatch',
-        companyId,
-        email: 'invitee@example.com',
-        role: 'viewer',
-        status: 'pending',
-        createdBy: 'owner-user',
-        expiresAt: Timestamp.fromMillis(Date.now() + 3 * 24 * 60 * 60 * 1000),
-      });
+      await setDoc(
+        doc(context.firestore(), 'companies', companyId, 'invitations', 'invite-mismatch'),
+        {
+          id: 'invite-mismatch',
+          companyId,
+          email: 'invitee@example.com',
+          role: 'viewer',
+          status: 'pending',
+          createdBy: 'owner-user',
+          expiresAt: Timestamp.fromMillis(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        }
+      );
     });
-    const db = testEnv.authenticatedContext('other-user', {
-      email: 'other@example.com',
-      email_verified: true,
-    }).firestore();
+    const db = testEnv
+      .authenticatedContext('other-user', {
+        email: 'other@example.com',
+        email_verified: true,
+      })
+      .firestore();
     const batch = writeBatch(db);
     batch.set(doc(db, 'companies', companyId, 'members', 'other-user'), {
       companyId,

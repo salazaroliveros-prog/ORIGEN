@@ -91,10 +91,12 @@ export const initialFieldVisits: FieldVisit[] = [
     projectName: 'Torre Residencial Vista Hermosa IV',
     date: '2025-05-12',
     foremanName: 'Don Mario Cifuentes',
-    notes: 'Vaciado exitoso de losa nivel 4 con concreto premezclado 4000 PSI de Cemex. Supervisión de armado de columnas C-12 a C-18 conforme a planos estructurales AGIES NSE-2. Sin incidentes laborales reportados.',
+    notes:
+      'Vaciado exitoso de losa nivel 4 con concreto premezclado 4000 PSI de Cemex. Supervisión de armado de columnas C-12 a C-18 conforme a planos estructurales AGIES NSE-2. Sin incidentes laborales reportados.',
     weather: 'Soleado',
     workersCount: 42,
-    signatureDataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    signatureDataUrl:
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
     signerDpi: '2489 10293 0101',
     signerRole: 'Capataz General de Obra',
     gpsCoords: { lat: 14.6133, lng: -90.4875 },
@@ -126,10 +128,12 @@ export const initialFieldVisits: FieldVisit[] = [
     projectName: 'Bodegas Logísticas Intercentro',
     date: '2025-05-14',
     foremanName: 'Esteban Morales',
-    notes: 'Compactación de subrasante completada con rodillo vibratorio Caterpillar CS56B. Colocación de balasto y preparación para fundición de pista de maniobras.',
+    notes:
+      'Compactación de subrasante completada con rodillo vibratorio Caterpillar CS56B. Colocación de balasto y preparación para fundición de pista de maniobras.',
     weather: 'Nublado',
     workersCount: 28,
-    signatureDataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    signatureDataUrl:
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
     signerDpi: '1920 44321 0104',
     signerRole: 'Capataz de Movimiento de Tierras',
     gpsCoords: { lat: 14.4891, lng: -90.6214 },
@@ -149,15 +153,67 @@ export const initialFieldVisits: FieldVisit[] = [
 ];
 
 export const initialMachinery: Machinery[] = [
-  { id: 'm1', name: 'Excavadora Hidráulica CAT 320D', model: '2022', plateOrCode: 'EQ-EXC-01', hourlyRateGTQ: 350, currentHorometer: 1842, status: 'En Obra' },
-  { id: 'm2', name: 'Retroexcavadora JCB 3CX', model: '2023', plateOrCode: 'EQ-RET-02', hourlyRateGTQ: 275, currentHorometer: 940, status: 'Disponible' },
-  { id: 'm3', name: 'Camión de Volteo Hino 500 (8m³)', model: '2021', plateOrCode: 'C-892BKP', hourlyRateGTQ: 220, currentHorometer: 3120, status: 'En Obra' },
-  { id: 'm4', name: 'Rodillo Vibratorio Caterpillar CS56B', model: '2022', plateOrCode: 'EQ-ROD-01', hourlyRateGTQ: 310, currentHorometer: 750, status: 'Mantenimiento' },
+  {
+    id: 'm1',
+    name: 'Excavadora Hidráulica CAT 320D',
+    model: '2022',
+    plateOrCode: 'EQ-EXC-01',
+    hourlyRateGTQ: 350,
+    currentHorometer: 1842,
+    status: 'En Obra',
+  },
+  {
+    id: 'm2',
+    name: 'Retroexcavadora JCB 3CX',
+    model: '2023',
+    plateOrCode: 'EQ-RET-02',
+    hourlyRateGTQ: 275,
+    currentHorometer: 940,
+    status: 'Disponible',
+  },
+  {
+    id: 'm3',
+    name: 'Camión de Volteo Hino 500 (8m³)',
+    model: '2021',
+    plateOrCode: 'C-892BKP',
+    hourlyRateGTQ: 220,
+    currentHorometer: 3120,
+    status: 'En Obra',
+  },
+  {
+    id: 'm4',
+    name: 'Rodillo Vibratorio Caterpillar CS56B',
+    model: '2022',
+    plateOrCode: 'EQ-ROD-01',
+    hourlyRateGTQ: 310,
+    currentHorometer: 750,
+    status: 'Mantenimiento',
+  },
 ];
 
 export const initialMachineryLogs: MachineryLog[] = [
-  { id: 'ml-1', machineryId: 'm1', machineryName: 'Excavadora Hidráulica CAT 320D', projectId: 'p1', date: '2025-05-10', hoursWorked: 8, operatorName: 'Julio Xitumul', fuelGallons: 14, costGTQ: 2800 },
-  { id: 'ml-2', machineryId: 'm3', machineryName: 'Camión de Volteo Hino 500 (8m³)', projectId: 'p1', date: '2025-05-11', hoursWorked: 7, operatorName: 'Carlos Mazariegos', fuelGallons: 18, costGTQ: 1540 },
+  {
+    id: 'ml-1',
+    machineryId: 'm1',
+    machineryName: 'Excavadora Hidráulica CAT 320D',
+    projectId: 'p1',
+    date: '2025-05-10',
+    hoursWorked: 8,
+    operatorName: 'Julio Xitumul',
+    fuelGallons: 14,
+    costGTQ: 2800,
+  },
+  {
+    id: 'ml-2',
+    machineryId: 'm3',
+    machineryName: 'Camión de Volteo Hino 500 (8m³)',
+    projectId: 'p1',
+    date: '2025-05-11',
+    hoursWorked: 7,
+    operatorName: 'Carlos Mazariegos',
+    fuelGallons: 18,
+    costGTQ: 1540,
+  },
 ];
 
 export const initialEmployees: Employee[] = [
@@ -294,7 +350,7 @@ export const initialAttendanceRecords: AttendanceRecord[] = [
     employeeName: 'Santos Tecú',
     status: 'Presente',
     overtimeHours: 0,
-    gpsCoords: { lat: 14.6148, lng: -90.4860 },
+    gpsCoords: { lat: 14.6148, lng: -90.486 },
     gpsVerified: true,
     distanceMeters: 215,
     gpsTimestamp: '2025-05-12 07:02 AM',
@@ -327,7 +383,8 @@ export const initialExpenseRecords: ExpenseRecord[] = [
     amount: 24750,
     currency: 'GTQ',
     paymentMethod: 'Transferencia BI',
-    receiptPhotoUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80',
+    receiptPhotoUrl:
+      'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80',
     receiptPhotoDate: '2025-05-02 10:15',
     receiptCoords: { lat: 14.6133, lng: -90.4875 },
   },
@@ -343,13 +400,50 @@ export const initialExpenseRecords: ExpenseRecord[] = [
     amount: 52000,
     currency: 'GTQ',
     paymentMethod: 'Transferencia BI',
-    receiptPhotoUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
+    receiptPhotoUrl:
+      'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
     receiptPhotoDate: '2025-05-05 14:30',
     receiptCoords: { lat: 14.6135, lng: -90.4872 },
   },
-  { id: 'ex-3', projectId: 'p1', date: '2025-05-08', category: 'Mano de Obra', description: 'Planilla Quincenal Personal de Obra (Zona 16)', supplier: 'Personal Interno', nitSupplier: 'CF', facturaNumber: 'PLA-2025-09', amount: 84500, currency: 'GTQ', paymentMethod: 'Cheque' },
-  { id: 'ex-4', projectId: 'p2', date: '2025-05-09', category: 'Maquinaria y Combustible', description: 'Alquiler Excavadora CAT 320D (80 hrs)', supplier: 'Maquinaria Pesada del Sur', nitSupplier: '8492012-3', facturaNumber: 'F-10293', amount: 28000, currency: 'GTQ', paymentMethod: 'Transferencia BI' },
-  { id: 'ex-5', projectId: 'p3', date: '2025-05-11', category: 'Permisos & Licencias', description: 'Licencia de Construcción Municipalidad de Antigua', supplier: 'Municipalidad de Antigua Guatemala', nitSupplier: '1000002-1', facturaNumber: 'MUNI-8812', amount: 35000, currency: 'GTQ', paymentMethod: 'Tarjeta' },
+  {
+    id: 'ex-3',
+    projectId: 'p1',
+    date: '2025-05-08',
+    category: 'Mano de Obra',
+    description: 'Planilla Quincenal Personal de Obra (Zona 16)',
+    supplier: 'Personal Interno',
+    nitSupplier: 'CF',
+    facturaNumber: 'PLA-2025-09',
+    amount: 84500,
+    currency: 'GTQ',
+    paymentMethod: 'Cheque',
+  },
+  {
+    id: 'ex-4',
+    projectId: 'p2',
+    date: '2025-05-09',
+    category: 'Maquinaria y Combustible',
+    description: 'Alquiler Excavadora CAT 320D (80 hrs)',
+    supplier: 'Maquinaria Pesada del Sur',
+    nitSupplier: '8492012-3',
+    facturaNumber: 'F-10293',
+    amount: 28000,
+    currency: 'GTQ',
+    paymentMethod: 'Transferencia BI',
+  },
+  {
+    id: 'ex-5',
+    projectId: 'p3',
+    date: '2025-05-11',
+    category: 'Permisos & Licencias',
+    description: 'Licencia de Construcción Municipalidad de Antigua',
+    supplier: 'Municipalidad de Antigua Guatemala',
+    nitSupplier: '1000002-1',
+    facturaNumber: 'MUNI-8812',
+    amount: 35000,
+    currency: 'GTQ',
+    paymentMethod: 'Tarjeta',
+  },
 ];
 
 export const initialQuoteRecords: QuoteRecord[] = [
@@ -361,8 +455,18 @@ export const initialQuoteRecords: QuoteRecord[] = [
     date: '2025-05-01',
     validUntil: '2025-06-01',
     items: [
-      { description: 'Fundición de losa de concreto premezclado 3500 PSI (m²)', qty: 450, unit: 'm²', unitPriceGTQ: 420 },
-      { description: 'Levantado de muros de mampostería confinada (m²)', qty: 820, unit: 'm²', unitPriceGTQ: 280 },
+      {
+        description: 'Fundición de losa de concreto premezclado 3500 PSI (m²)',
+        qty: 450,
+        unit: 'm²',
+        unitPriceGTQ: 420,
+      },
+      {
+        description: 'Levantado de muros de mampostería confinada (m²)',
+        qty: 820,
+        unit: 'm²',
+        unitPriceGTQ: 280,
+      },
     ],
     totalGTQ: 418600,
     status: 'Aceptada',
@@ -370,10 +474,54 @@ export const initialQuoteRecords: QuoteRecord[] = [
 ];
 
 export const initialAPUItems: APUItem[] = [
-  { id: 'apu-1', code: '01.01', description: 'Excavación de zanjas a mano en terreno semi-duro', unit: 'm³', quantity: 350, materialUnitCostGTQ: 0, laborUnitCostGTQ: 85.50, equipmentUnitCostGTQ: 15.00, totalUnitCostGTQ: 100.50, totalPriceGTQ: 35175 },
-  { id: 'apu-2', code: '02.01', description: 'Concreto ciclópeo f\'c=210 kg/cm² (30% piedra)', unit: 'm³', quantity: 180, materialUnitCostGTQ: 750.00, laborUnitCostGTQ: 210.00, equipmentUnitCostGTQ: 95.00, totalUnitCostGTQ: 1055.00, totalPriceGTQ: 189900 },
-  { id: 'apu-3', code: '03.04', description: 'Columna de concreto armado 30x30 cm', unit: 'm', quantity: 240, materialUnitCostGTQ: 320.00, laborUnitCostGTQ: 145.00, equipmentUnitCostGTQ: 40.00, totalUnitCostGTQ: 505.00, totalPriceGTQ: 121200 },
-  { id: 'apu-4', code: '04.02', description: 'Muro de block de pórfido 15x20x40 cm, visto', unit: 'm²', quantity: 950, materialUnitCostGTQ: 115.00, laborUnitCostGTQ: 68.00, equipmentUnitCostGTQ: 5.00, totalUnitCostGTQ: 188.00, totalPriceGTQ: 178600 },
+  {
+    id: 'apu-1',
+    code: '01.01',
+    description: 'Excavación de zanjas a mano en terreno semi-duro',
+    unit: 'm³',
+    quantity: 350,
+    materialUnitCostGTQ: 0,
+    laborUnitCostGTQ: 85.5,
+    equipmentUnitCostGTQ: 15.0,
+    totalUnitCostGTQ: 100.5,
+    totalPriceGTQ: 35175,
+  },
+  {
+    id: 'apu-2',
+    code: '02.01',
+    description: "Concreto ciclópeo f'c=210 kg/cm² (30% piedra)",
+    unit: 'm³',
+    quantity: 180,
+    materialUnitCostGTQ: 750.0,
+    laborUnitCostGTQ: 210.0,
+    equipmentUnitCostGTQ: 95.0,
+    totalUnitCostGTQ: 1055.0,
+    totalPriceGTQ: 189900,
+  },
+  {
+    id: 'apu-3',
+    code: '03.04',
+    description: 'Columna de concreto armado 30x30 cm',
+    unit: 'm',
+    quantity: 240,
+    materialUnitCostGTQ: 320.0,
+    laborUnitCostGTQ: 145.0,
+    equipmentUnitCostGTQ: 40.0,
+    totalUnitCostGTQ: 505.0,
+    totalPriceGTQ: 121200,
+  },
+  {
+    id: 'apu-4',
+    code: '04.02',
+    description: 'Muro de block de pórfido 15x20x40 cm, visto',
+    unit: 'm²',
+    quantity: 950,
+    materialUnitCostGTQ: 115.0,
+    laborUnitCostGTQ: 68.0,
+    equipmentUnitCostGTQ: 5.0,
+    totalUnitCostGTQ: 188.0,
+    totalPriceGTQ: 178600,
+  },
 ];
 
 export const initialScheduleTasks: ScheduleTask[] = [
@@ -675,7 +823,8 @@ export const initialMilestones: Milestone[] = [
     completedAt: '2026-03-14',
     progress: 100,
     weightPercent: 10,
-    description: 'Licencias municipales de construcción emitidas y polígono replanteado con GPS topográfico.',
+    description:
+      'Licencias municipales de construcción emitidas y polígono replanteado con GPS topográfico.',
     deliverable: 'Plano de replanteo firmado y licencia municipal exhibida en obra.',
   },
   {
@@ -688,7 +837,8 @@ export const initialMilestones: Milestone[] = [
     completedAt: '2026-06-18',
     progress: 100,
     weightPercent: 20,
-    description: 'Vaciado de concreto en zapatas y vigas de amarre con certificación de probetas a compresión.',
+    description:
+      'Vaciado de concreto en zapatas y vigas de amarre con certificación de probetas a compresión.',
     deliverable: 'Reporte de laboratorio de rotura de cilindros 28 días (> 4,000 PSI).',
   },
   {
@@ -713,7 +863,8 @@ export const initialMilestones: Milestone[] = [
     completed: false,
     progress: 75,
     weightPercent: 15,
-    description: 'Levantado de paredes de block pórfido con soleras de amarre y mochetas confinadas.',
+    description:
+      'Levantado de paredes de block pórfido con soleras de amarre y mochetas confinadas.',
     deliverable: 'Inspección de verticalidad y plomo en todos los ambientes.',
   },
   {
@@ -725,7 +876,8 @@ export const initialMilestones: Milestone[] = [
     completed: false,
     progress: 15,
     weightPercent: 15,
-    description: 'Pruebas hidrostáticas de presión en tuberías y tablero de distribución eléctrica energizado.',
+    description:
+      'Pruebas hidrostáticas de presión en tuberías y tablero de distribución eléctrica energizado.',
     deliverable: 'Certificado de prueba de estanqueidad y diagrama unifilar definitivo.',
   },
   {
@@ -737,7 +889,8 @@ export const initialMilestones: Milestone[] = [
     completed: false,
     progress: 0,
     weightPercent: 15,
-    description: 'Pisos de porcelanato, pintura lavable, ventanería termoacústica y acta de entrega formal.',
+    description:
+      'Pisos de porcelanato, pintura lavable, ventanería termoacústica y acta de entrega formal.',
     deliverable: 'Acta de recepción final de obra y póliza de fianza de conservación de obra.',
   },
 
@@ -890,7 +1043,8 @@ export const initialTaskReminders: TaskReminder[] = [
     taskName: 'Estructura Columnas y Losa Alivianada Nivel 1 a 4',
     milestoneId: 'ms-3',
     title: 'Verificación de Curado y Desencofrado Losa Nivel 3',
-    description: 'Coordinar con Don Mario el humedecimiento por aspersión 3 veces al día para evitar fisuras por retracción térmica.',
+    description:
+      'Coordinar con Don Mario el humedecimiento por aspersión 3 veces al día para evitar fisuras por retracción térmica.',
     targetDate: '2025-05-18',
     targetTime: '07:30',
     advanceOption: '1_day_before',
@@ -908,7 +1062,8 @@ export const initialTaskReminders: TaskReminder[] = [
     taskName: 'Estructura Columnas y Losa Alivianada Nivel 1 a 4',
     milestoneId: 'ms-3',
     title: 'Recepción de Camiones de Concreto Premezclado Nivel 4',
-    description: 'Prueba de revenimiento con Cono de Abrams (slump test entre 4 y 6 pulgadas) antes de dar pase a bomba pluma.',
+    description:
+      'Prueba de revenimiento con Cono de Abrams (slump test entre 4 y 6 pulgadas) antes de dar pase a bomba pluma.',
     targetDate: '2025-05-25',
     targetTime: '06:00',
     advanceOption: '2_days_before',
@@ -926,7 +1081,8 @@ export const initialTaskReminders: TaskReminder[] = [
     taskName: 'Mampostería de Block de Pórfido y Divisorios',
     milestoneId: 'ms-4',
     title: 'Aviso Previo de Suministro: 2,500 Blocks de Pórfido',
-    description: 'Confirmar con Discosa o Bloquera Central el despacho para no detener la cuadrilla al terminar la losa nivel 4.',
+    description:
+      'Confirmar con Discosa o Bloquera Central el despacho para no detener la cuadrilla al terminar la losa nivel 4.',
     targetDate: '2025-05-28',
     targetTime: '09:00',
     advanceOption: '3_days_before',
@@ -943,7 +1099,8 @@ export const initialTaskReminders: TaskReminder[] = [
     milestoneId: 'ms-3',
     taskName: 'Hito 3: Estructura Principal y Losas Niveles 1 al 4',
     title: 'Auditoría de Resistencia 28 Días Laboratorio Concreto',
-    description: 'Recibir reporte oficial de rotura de cilindros en laboratorio colegiado para archivar en bitácora oficial.',
+    description:
+      'Recibir reporte oficial de rotura de cilindros en laboratorio colegiado para archivar en bitácora oficial.',
     targetDate: '2025-06-02',
     targetTime: '15:00',
     advanceOption: '1_day_before',
@@ -961,7 +1118,8 @@ export const initialAiRecommendations: AiRecommendation[] = [
     id: 'ai-1',
     title: 'Alerta de Lluvia Estacional en Zona 16',
     category: 'Clima & Programación',
-    description: 'El pronóstico indica ingreso de época lluviosa con alta precipitación vespertina para la próxima semana. Se recomienda adelantar el vaciado de losas y asegurar lonas de protección de inventario de cemento.',
+    description:
+      'El pronóstico indica ingreso de época lluviosa con alta precipitación vespertina para la próxima semana. Se recomienda adelantar el vaciado de losas y asegurar lonas de protección de inventario de cemento.',
     impact: 'Alto',
     actionPrompt: 'Ajustar ruta crítica del cronograma para proteger fundiciones ante lluvia.',
   },
@@ -969,7 +1127,8 @@ export const initialAiRecommendations: AiRecommendation[] = [
     id: 'ai-2',
     title: 'Optimización de Cuota IGSS y Bonificación',
     category: 'Planilla & IGSS',
-    description: 'Verificación automática de planilla guatemalteca: 6 operarios superan Q4.80 de bonificación incentivo Dto. 37-2001 y cuota patronal IGSS (4.83% laboral, 12.67% patronal) calculada correctamente.',
+    description:
+      'Verificación automática de planilla guatemalteca: 6 operarios superan Q4.80 de bonificación incentivo Dto. 37-2001 y cuota patronal IGSS (4.83% laboral, 12.67% patronal) calculada correctamente.',
     impact: 'Medio',
   },
 ];

@@ -1,23 +1,23 @@
 'use client';
 
-import { FieldPhoto,FieldVisit,Project } from '@/lib/types';
+import { FieldPhoto, FieldVisit, Project } from '@/lib/types';
 import {
-AlertCircle,
-Calendar,
-Camera,
-CheckCircle2,
-Download,
-Eye,
-MapPin,
-Plus,
-RefreshCw,
-Trash2,
-Upload,
-User,
-X
+  AlertCircle,
+  Calendar,
+  Camera,
+  CheckCircle2,
+  Download,
+  Eye,
+  MapPin,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Upload,
+  User,
+  X,
 } from 'lucide-react';
 import Image from 'next/image';
-import React,{ useRef,useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface FieldPhotoGalleryProps {
   project: Project;
@@ -26,12 +26,12 @@ interface FieldPhotoGalleryProps {
   onDeletePhoto?: (visitId: string, photoId: string) => void;
 }
 
-export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
+export function FieldPhotoGallery({
   project,
   fieldVisits,
   onAddPhoto,
   onDeletePhoto,
-}) => {
+}: FieldPhotoGalleryProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<FieldPhoto | null>(null);
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [selectedVisitId, setSelectedVisitId] = useState<string>(
@@ -112,9 +112,11 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.warn('Camera stream error:', err);
-      setCameraError('No se pudo acceder a la cámara web. Puede subir una foto desde sus archivos.');
+      setCameraError(
+        'No se pudo acceder a la cámara web. Puede subir una foto desde sus archivos.'
+      );
     }
   };
 
@@ -164,7 +166,11 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
     if (coords) {
       ctx.font = '12px monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(`GPS: ${coords.lat.toFixed(4)}°N, ${coords.lng.toFixed(4)}°W`, canvas.width - 15, canvas.height - 22);
+      ctx.fillText(
+        `GPS: ${coords.lat.toFixed(4)}°N, ${coords.lng.toFixed(4)}°W`,
+        canvas.width - 15,
+        canvas.height - 22
+      );
     }
     ctx.restore();
 
@@ -208,16 +214,19 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner & Action */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-              <Camera className="w-5 h-5" />
+            <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
+              <Camera className="h-5 w-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Galería Fotográfica de Campo con GPS</h3>
+            <h3 className="text-base font-bold text-slate-900">
+              Galería Fotográfica de Campo con GPS
+            </h3>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Registro visual geolocalizado de avances, colados de losas, inspecciones y maquinaria en {project.name}.
+          <p className="mt-1 text-xs text-slate-500">
+            Registro visual geolocalizado de avances, colados de losas, inspecciones y maquinaria en{' '}
+            {project.name}.
           </p>
         </div>
 
@@ -226,7 +235,7 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
             <select
               value={selectedFilterVisit}
               onChange={(e) => setSelectedFilterVisit(e.target.value)}
-              className="text-xs px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 font-medium"
+              className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700"
             >
               <option value="all">Todas las Bitácoras ({allPhotos.length} fotos)</option>
               {projectVisits.map((v) => (
@@ -240,54 +249,58 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
           <button
             type="button"
             onClick={handleOpenModal}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700"
           >
-            <Camera className="w-4 h-4" /> Tomar / Subir Foto
+            <Camera className="h-4 w-4" /> Tomar / Subir Foto
           </button>
         </div>
       </div>
 
       {/* Photos Grid */}
       {filteredPhotos.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300 space-y-3">
-          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
-            <Camera className="w-6 h-6" />
+        <div className="space-y-3 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+            <Camera className="h-6 w-6" />
           </div>
-          <h4 className="font-bold text-slate-700 text-sm">No hay fotografías registradas aún</h4>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Utilice la cámara de su dispositivo móvil o computadora para capturar evidencias con coordenadas GPS de obra.
+          <h4 className="text-sm font-bold text-slate-700">No hay fotografías registradas aún</h4>
+          <p className="mx-auto max-w-sm text-xs text-slate-500">
+            Utilice la cámara de su dispositivo móvil o computadora para capturar evidencias con
+            coordenadas GPS de obra.
           </p>
           <button
             type="button"
             onClick={handleOpenModal}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm cursor-pointer mt-2"
+            className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700"
           >
-            <Plus className="w-4 h-4" /> Capturar Primera Fotografía
+            <Plus className="h-4 w-4" /> Capturar Primera Fotografía
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredPhotos.map(({ visit, photo }) => (
             <div
               key={photo.id}
-              className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition hover:shadow-md"
             >
               {/* Image Container with GPS Badge */}
-              <div className="relative aspect-4/3 bg-slate-900 overflow-hidden cursor-pointer" onClick={() => setSelectedPhoto(photo)}>
+              <div
+                className="relative aspect-4/3 cursor-pointer overflow-hidden bg-slate-900"
+                onClick={() => setSelectedPhoto(photo)}
+              >
                 <Image
                   src={photo.url}
                   alt={photo.caption}
                   width={1200}
                   height={900}
                   unoptimized
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-90" />
 
                 {/* Coordinate Badge */}
                 {photo.coords && (
-                  <div className="absolute top-2.5 left-2.5 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-1 rounded-md flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-rose-400" />
+                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1 rounded-md bg-slate-950/80 px-2 py-1 font-mono text-[10px] text-white backdrop-blur-xs">
+                    <MapPin className="h-3 w-3 text-rose-400" />
                     <span>
                       {photo.coords.lat.toFixed(4)}°, {photo.coords.lng.toFixed(4)}°
                     </span>
@@ -295,39 +308,41 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
                 )}
 
                 {/* Date stamp */}
-                <div className="absolute top-2.5 right-2.5 bg-slate-950/80 backdrop-blur-xs text-slate-200 text-[10px] px-2 py-1 rounded-md flex items-center gap-1">
-                  <Calendar className="w-3 h-3 text-blue-400" />
+                <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-md bg-slate-950/80 px-2 py-1 text-[10px] text-slate-200 backdrop-blur-xs">
+                  <Calendar className="h-3 w-3 text-blue-400" />
                   <span>{photo.date}</span>
                 </div>
 
                 {/* Caption overlay */}
-                <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                  <p className="text-xs font-semibold line-clamp-2">{photo.caption}</p>
+                <div className="absolute right-2.5 bottom-2.5 left-2.5 text-white">
+                  <p className="line-clamp-2 text-xs font-semibold">{photo.caption}</p>
                 </div>
               </div>
 
               {/* Card Footer */}
-              <div className="p-3.5 bg-white flex items-center justify-between text-xs text-slate-600 border-t border-slate-100">
+              <div className="flex items-center justify-between border-t border-slate-100 bg-white p-3.5 text-xs text-slate-600">
                 <div className="flex items-center gap-1.5 truncate">
-                  <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate text-slate-700 font-medium">{photo.takenBy || visit.foremanName}</span>
+                  <User className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span className="truncate font-medium text-slate-700">
+                    {photo.takenBy || visit.foremanName}
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex shrink-0 items-center gap-1">
                   <button
                     onClick={() => setSelectedPhoto(photo)}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-blue-600 transition"
+                    className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-blue-600"
                     title="Ver Fotografía Completa"
                   >
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="h-3.5 w-3.5" />
                   </button>
                   {onDeletePhoto && (
                     <button
                       onClick={() => onDeletePhoto(visit.id, photo.id)}
-                      className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition"
+                      className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
                       title="Eliminar Foto"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
@@ -339,51 +354,64 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
 
       {/* CAMERA & UPLOAD MODAL */}
       {isCameraModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden my-6">
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-xs">
+          <div className="my-6 w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <Camera className="w-5 h-5 text-amber-400" />
-                <h3 className="font-bold text-base">Cámara de Campo con Geolocalización</h3>
+                <Camera className="h-5 w-5 text-amber-400" />
+                <h3 className="text-base font-bold">Cámara de Campo con Geolocalización</h3>
               </div>
-              <button onClick={handleCloseModal} className="text-slate-400 hover:text-white p-1">
-                <X className="w-5 h-5" />
+              <button onClick={handleCloseModal} className="p-1 text-slate-400 hover:text-white">
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="space-y-4 p-5">
               {/* Video Preview or Captured Image */}
-              <div className="relative aspect-4/3 bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center border border-slate-800">
+              <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
                 {capturedDataUrl ? (
-                  <Image src={capturedDataUrl} alt="Captura" width={1200} height={900} unoptimized className="w-full h-full object-contain" />
+                  <Image
+                    src={capturedDataUrl}
+                    alt="Captura"
+                    width={1200}
+                    height={900}
+                    unoptimized
+                    className="h-full w-full object-contain"
+                  />
                 ) : cameraError ? (
-                  <div className="p-6 text-center space-y-3 text-slate-300">
-                    <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
+                  <div className="space-y-3 p-6 text-center text-slate-300">
+                    <AlertCircle className="mx-auto h-8 w-8 text-amber-400" />
                     <p className="text-xs">{cameraError}</p>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700"
                     >
-                      <Upload className="w-4 h-4" /> Seleccionar Archivo / Foto
+                      <Upload className="h-4 w-4" /> Seleccionar Archivo / Foto
                     </button>
                   </div>
                 ) : (
                   <>
-                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="h-full w-full object-cover"
+                    />
                     {/* Viewfinder crosshairs */}
-                    <div className="absolute inset-0 pointer-events-none border-2 border-white/20 m-6 rounded-lg flex items-center justify-center">
-                      <div className="w-8 h-8 border-t-2 border-l-2 border-amber-400 absolute top-0 left-0" />
-                      <div className="w-8 h-8 border-t-2 border-r-2 border-amber-400 absolute top-0 right-0" />
-                      <div className="w-8 h-8 border-b-2 border-l-2 border-amber-400 absolute bottom-0 left-0" />
-                      <div className="w-8 h-8 border-b-2 border-r-2 border-amber-400 absolute bottom-0 right-0" />
+                    <div className="pointer-events-none absolute inset-0 m-6 flex items-center justify-center rounded-lg border-2 border-white/20">
+                      <div className="absolute top-0 left-0 h-8 w-8 border-t-2 border-l-2 border-amber-400" />
+                      <div className="absolute top-0 right-0 h-8 w-8 border-t-2 border-r-2 border-amber-400" />
+                      <div className="absolute bottom-0 left-0 h-8 w-8 border-b-2 border-l-2 border-amber-400" />
+                      <div className="absolute right-0 bottom-0 h-8 w-8 border-r-2 border-b-2 border-amber-400" />
                     </div>
                   </>
                 )}
 
                 {/* GPS Stamp in preview */}
                 {coords && (
-                  <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-1 rounded">
+                  <div className="absolute bottom-2 left-2 rounded bg-slate-900/80 px-2 py-1 font-mono text-[10px] text-white backdrop-blur-xs">
                     📍 GPS: {coords.lat.toFixed(5)}°N, {coords.lng.toFixed(5)}°W
                   </div>
                 )}
@@ -405,18 +433,18 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                     >
-                      <Upload className="w-3.5 h-3.5" /> Subir desde Galería
+                      <Upload className="h-3.5 w-3.5" /> Subir desde Galería
                     </button>
 
                     <button
                       type="button"
                       onClick={handleCaptureSnapshot}
                       disabled={!!cameraError}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-md cursor-pointer disabled:opacity-40"
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-slate-950 shadow-md hover:bg-amber-400 disabled:opacity-40"
                     >
-                      <Camera className="w-4 h-4" /> Disparar Foto
+                      <Camera className="h-4 w-4" /> Disparar Foto
                     </button>
                   </>
                 ) : (
@@ -426,23 +454,23 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
                       setCapturedDataUrl(null);
                       startCamera();
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" /> Tomar Otra Foto
+                    <RefreshCw className="h-3.5 w-3.5" /> Tomar Otra Foto
                   </button>
                 )}
               </div>
 
               {/* Metadata Form Inputs */}
-              <div className="space-y-3 pt-2 border-t border-slate-100">
+              <div className="space-y-3 border-t border-slate-100 pt-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
                     Vincular a Bitácora / Reporte de Obra
                   </label>
                   <select
                     value={selectedVisitId}
                     onChange={(e) => setSelectedVisitId(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs"
                   >
                     {projectVisits.map((v) => (
                       <option key={v.id} value={v.id}>
@@ -453,33 +481,37 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Descripción / Pie de Foto</label>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    Descripción / Pie de Foto
+                  </label>
                   <input
                     type="text"
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                     placeholder="Ej. Armado de acero en columna C-14, nivel 4"
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Tomada por (Capataz / Residente)</label>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    Tomada por (Capataz / Residente)
+                  </label>
                   <input
                     type="text"
                     value={takenByName}
                     onChange={(e) => setTakenByName(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs"
                   />
                 </div>
               </div>
 
               {/* Modal Buttons */}
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   Cancelar
                 </button>
@@ -487,9 +519,9 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
                   type="button"
                   onClick={handleSavePhoto}
                   disabled={!capturedDataUrl}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm cursor-pointer disabled:opacity-50"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
                 >
-                  <CheckCircle2 className="w-4 h-4" /> Guardar en Galería
+                  <CheckCircle2 className="h-4 w-4" /> Guardar en Galería
                 </button>
               </div>
             </div>
@@ -499,33 +531,41 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
 
       {/* FULL PHOTO LIGHTBOX MODAL */}
       {selectedPhoto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
-          <div className="max-w-3xl w-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col">
-            <div className="p-4 flex items-center justify-between border-b border-slate-800 text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
+          <div className="flex w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 p-4 text-white">
               <div>
-                <h4 className="font-bold text-sm text-slate-100">{selectedPhoto.caption}</h4>
+                <h4 className="text-sm font-bold text-slate-100">{selectedPhoto.caption}</h4>
                 <p className="text-xs text-slate-400">
                   {selectedPhoto.date} • {selectedPhoto.takenBy}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedPhoto(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="rounded-lg p-1 text-slate-400 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="relative bg-black flex items-center justify-center max-h-[65vh]">
-              <Image src={selectedPhoto.url} alt={selectedPhoto.caption} width={1200} height={900} unoptimized className="max-h-[65vh] w-auto object-contain" />
+            <div className="relative flex max-h-[65vh] items-center justify-center bg-black">
+              <Image
+                src={selectedPhoto.url}
+                alt={selectedPhoto.caption}
+                width={1200}
+                height={900}
+                unoptimized
+                className="max-h-[65vh] w-auto object-contain"
+              />
             </div>
 
-            <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 bg-slate-900 p-4 text-xs">
               {selectedPhoto.coords && (
-                <div className="flex items-center gap-2 text-slate-300 font-mono">
-                  <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
+                <div className="flex items-center gap-2 font-mono text-slate-300">
+                  <MapPin className="h-4 w-4 shrink-0 text-rose-500" />
                   <span>
-                    Coordenadas: {selectedPhoto.coords.lat.toFixed(5)}°N, {selectedPhoto.coords.lng.toFixed(5)}°W
+                    Coordenadas: {selectedPhoto.coords.lat.toFixed(5)}°N,{' '}
+                    {selectedPhoto.coords.lng.toFixed(5)}°W
                   </span>
                 </div>
               )}
@@ -533,9 +573,9 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
               <a
                 href={selectedPhoto.url}
                 download={`foto_obra_${selectedPhoto.id}.jpg`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700"
               >
-                <Download className="w-3.5 h-3.5" /> Descargar Fotografía
+                <Download className="h-3.5 w-3.5" /> Descargar Fotografía
               </a>
             </div>
           </div>
@@ -543,4 +583,4 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
       )}
     </div>
   );
-};
+}

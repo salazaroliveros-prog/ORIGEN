@@ -60,7 +60,7 @@ interface GanttScheduleProps {
   onDeleteReminder?: (id: string) => void;
 }
 
-export const GanttSchedule: React.FC<GanttScheduleProps> = ({
+export function GanttSchedule({
   tasks,
   projects,
   activeProjectId,
@@ -72,14 +72,18 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
   onAddReminder,
   onToggleReminder,
   onDeleteReminder,
-}) => {
+}: GanttScheduleProps) {
   const activeProject = projects.find((p) => p.id === activeProjectId);
 
   // Local state fallbacks if parent does not pass full handlers
   const [localMilestones, setLocalMilestones] = useState<Milestone[]>(propMilestones ?? []);
   const [localReminders, setLocalReminders] = useState<TaskReminder[]>(propReminders ?? []);
-  const [viewMode, setViewMode] = useState<'tasks' | 'milestones' | 'roadmap' | 'reminders'>('tasks');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'in_progress' | 'completed' | 'critical'>('all');
+  const [viewMode, setViewMode] = useState<'tasks' | 'milestones' | 'roadmap' | 'reminders'>(
+    'tasks'
+  );
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'in_progress' | 'completed' | 'critical'
+  >('all');
   const [searchFilter, setSearchFilter] = useState('');
 
   // New task modal state
@@ -268,9 +272,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
       progress: 0,
       weightPercent: Number(newMilestoneWeight) || 10,
       description: newMilestoneDescription.trim(),
-      ...(newMilestoneDeliverable.trim()
-        ? { deliverable: newMilestoneDeliverable.trim() }
-        : {}),
+      ...(newMilestoneDeliverable.trim() ? { deliverable: newMilestoneDeliverable.trim() } : {}),
     };
     const updated = [...currentMilestones, milestone];
     if (onUpdateMilestones) onUpdateMilestones(updated);
@@ -353,11 +355,22 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
 
   // Phase breakdown for progress cards
   const phaseProgress = useMemo(() => {
-    const phases = ['Preliminares', 'Cimentación', 'Estructura', 'Mampostería', 'Instalaciones', 'Acabados & Entrega'];
+    const phases = [
+      'Preliminares',
+      'Cimentación',
+      'Estructura',
+      'Mampostería',
+      'Instalaciones',
+      'Acabados & Entrega',
+    ];
     return phases.map((phase) => {
-      const phaseTasks = projectTasks.filter((t) => t.phase.toLowerCase().includes(phase.toLowerCase().split(' ')[0]));
+      const phaseTasks = projectTasks.filter((t) =>
+        t.phase.toLowerCase().includes(phase.toLowerCase().split(' ')[0])
+      );
       if (phaseTasks.length === 0) return { phase, progress: 0, count: 0, completed: 0 };
-      const avg = Math.round(phaseTasks.reduce((acc, t) => acc + t.progress, 0) / phaseTasks.length);
+      const avg = Math.round(
+        phaseTasks.reduce((acc, t) => acc + t.progress, 0) / phaseTasks.length
+      );
       const completedCount = phaseTasks.filter((t) => t.completed || t.progress >= 100).length;
       return { phase, progress: avg, count: phaseTasks.length, completed: completedCount };
     });
@@ -375,19 +388,19 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
     <div className="space-y-6">
       {/* FLOW VIOLATION WARNING BANNER */}
       {flowWarningMessage && (
-        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-200 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300 shadow-lg">
+        <div className="animate-in fade-in slide-in-from-top-2 flex items-start justify-between gap-3 rounded-2xl border border-rose-500/30 bg-rose-500/15 p-4 text-rose-200 shadow-lg duration-300">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-rose-400" />
             <div>
-              <h4 className="text-xs font-bold text-rose-300 uppercase tracking-wider font-mono">
+              <h4 className="font-mono text-xs font-bold tracking-wider text-rose-300 uppercase">
                 Alerta de Flujo Constructivo:
               </h4>
-              <p className="text-xs mt-0.5">{flowWarningMessage}</p>
+              <p className="mt-0.5 text-xs">{flowWarningMessage}</p>
             </div>
           </div>
           <button
             onClick={() => setFlowWarningMessage(null)}
-            className="text-xs font-bold px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 cursor-pointer"
+            className="cursor-pointer rounded-lg bg-rose-500/20 px-2 py-1 text-xs font-bold text-rose-300 hover:bg-rose-500/30"
           >
             Entendido
           </button>
@@ -397,55 +410,58 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
       {/* =========================================================================
           HERO PROGRESS HUD: VISUALIZADOR DEL PROGRESO GENERAL HACIA EL OBJETIVO FINAL
           ========================================================================= */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900/90 border border-white/15 p-6 backdrop-blur-xl shadow-2xl">
-        <div className="absolute -right-16 -top-16 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-16 -bottom-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-xl">
+        <div className="pointer-events-none absolute -top-16 -right-16 h-80 w-80 rounded-full bg-sky-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-16 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col items-center justify-between gap-6 lg:flex-row">
           {/* Left Title & Status */}
           <div className="space-y-2 text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start gap-2">
-              <span className="px-3 py-1 rounded-full bg-sky-400/15 border border-sky-400/30 text-[10px] font-mono uppercase tracking-widest text-sky-300 font-bold">
+            <div className="flex items-center justify-center gap-2 lg:justify-start">
+              <span className="rounded-full border border-sky-400/30 bg-sky-400/15 px-3 py-1 font-mono text-[10px] font-bold tracking-widest text-sky-300 uppercase">
                 Seguimiento de Progreso & Control de Hitos
               </span>
-              <span className="font-mono text-xs text-amber-400 font-bold bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
+              <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
                 {activeProject.code}
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
               Progreso General hacia el Objetivo Final
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
-              Monitoreo continuo de avance físico ponderado de la obra para <strong className="text-slate-200">{activeProject.name}</strong>,
-              asegurando el cumplimiento de la ruta crítica y entrega llave en mano.
+            <p className="max-w-xl text-xs text-slate-400 sm:text-sm">
+              Monitoreo continuo de avance físico ponderado de la obra para{' '}
+              <strong className="text-slate-200">{activeProject.name}</strong>, asegurando el
+              cumplimiento de la ruta crítica y entrega llave en mano.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs">
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs lg:justify-start">
               <div className="flex items-center gap-2 text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                 <span>
-                  <strong>{progressStats.completedTasksCount}</strong> de {progressStats.totalTasksCount} tareas completadas
+                  <strong>{progressStats.completedTasksCount}</strong> de{' '}
+                  {progressStats.totalTasksCount} tareas completadas
                 </span>
               </div>
               <div className="flex items-center gap-2 text-slate-300">
-                <Target className="w-4 h-4 text-amber-400" />
+                <Target className="h-4 w-4 text-amber-400" />
                 <span>
-                  <strong>{progressStats.completedMilestonesCount}</strong> de {progressStats.totalMilestonesCount} hitos certificados
+                  <strong>{progressStats.completedMilestonesCount}</strong> de{' '}
+                  {progressStats.totalMilestonesCount} hitos certificados
                 </span>
               </div>
               <div className="flex items-center gap-2 text-rose-300">
-                <AlertTriangle className="w-4 h-4 text-rose-400" />
+                <AlertTriangle className="h-4 w-4 text-rose-400" />
                 <span>{progressStats.criticalTasksCount} en ruta crítica</span>
               </div>
             </div>
           </div>
 
           {/* Center Radial / Big Visual Progress Dial */}
-          <div className="flex flex-col items-center justify-center p-4 rounded-3xl bg-white/[0.04] border border-white/10 shadow-inner w-full sm:w-80">
-            <div className="relative w-40 h-40 flex items-center justify-center">
+          <div className="flex w-full flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.04] p-4 shadow-inner sm:w-80">
+            <div className="relative flex h-40 w-40 items-center justify-center">
               {/* SVG Circular Progress Gauge */}
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+              <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 120 120">
                 <circle
                   cx="60"
                   cy="60"
@@ -463,8 +479,8 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                     progressStats.overallGoalPercent >= 90
                       ? '#10b981'
                       : progressStats.overallGoalPercent >= 50
-                      ? '#38bdf8'
-                      : '#f59e0b'
+                        ? '#38bdf8'
+                        : '#f59e0b'
                   }
                   strokeWidth="10"
                   strokeDasharray={2 * Math.PI * 50}
@@ -476,38 +492,38 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               </svg>
 
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-3xl font-black text-white font-mono tracking-tight">
+                <span className="font-mono text-3xl font-black tracking-tight text-white">
                   {progressStats.overallGoalPercent}%
                 </span>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                <span className="font-mono text-[10px] tracking-wider text-slate-400 uppercase">
                   Avance Global
                 </span>
               </div>
             </div>
 
             <div className="mt-3 w-full text-center">
-              <span className="text-xs font-semibold text-slate-300 flex items-center justify-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-300">
+                <ShieldCheck className="h-4 w-4 text-emerald-400" />
                 Meta: Entrega Final ({activeProject.endDate || 'Sin fecha configurada'})
               </span>
             </div>
           </div>
 
           {/* Right Action Buttons */}
-          <div className="flex flex-col gap-2.5 w-full sm:w-auto shrink-0">
+          <div className="flex w-full shrink-0 flex-col gap-2.5 sm:w-auto">
             <button
               onClick={() => openReminderModal()}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 font-bold text-xs transition cursor-pointer shadow-lg shadow-amber-500/10"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-amber-400/40 bg-amber-500/20 px-5 py-3 text-xs font-bold text-amber-300 shadow-lg shadow-amber-500/10 transition hover:bg-amber-500/30"
             >
-              <Bell className="w-4 h-4" />
+              <Bell className="h-4 w-4" />
               <span>Configurar Recordatorios ({currentReminders.length})</span>
             </button>
 
             <button
               onClick={() => setIsNewTaskModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer shadow-lg shadow-sky-500/20"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-sky-500 px-5 py-3 text-xs font-bold tracking-wider text-slate-950 uppercase shadow-lg shadow-sky-500/20 transition hover:bg-sky-400"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
               <span>Nueva Actividad</span>
             </button>
 
@@ -515,35 +531,38 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               onClick={() => {
                 playNotificationChime('reminder');
               }}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold transition cursor-pointer"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:bg-white/10"
             >
-              <Volume2 className="w-3.5 h-3.5 text-sky-400" />
+              <Volume2 className="h-3.5 w-3.5 text-sky-400" />
               <span>Verificar Timbre Sonoro</span>
             </button>
           </div>
         </div>
 
         {/* Phase mini progress bars */}
-        <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/10 pt-6 sm:grid-cols-3 lg:grid-cols-6">
           {phaseProgress.map((pp) => (
-            <div key={pp.phase} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1.5">
+            <div
+              key={pp.phase}
+              className="space-y-1.5 rounded-xl border border-white/5 bg-white/[0.02] p-2.5"
+            >
               <div className="flex items-center justify-between text-[11px]">
-                <span className="font-semibold text-slate-300 truncate">{pp.phase}</span>
-                <span className="font-mono text-amber-400 font-bold">{pp.progress}%</span>
+                <span className="truncate font-semibold text-slate-300">{pp.phase}</span>
+                <span className="font-mono font-bold text-amber-400">{pp.progress}%</span>
               </div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
                     pp.progress >= 100
                       ? 'bg-emerald-500'
                       : pp.progress > 0
-                      ? 'bg-sky-400'
-                      : 'bg-slate-700'
+                        ? 'bg-sky-400'
+                        : 'bg-slate-700'
                   }`}
                   style={{ width: `${pp.progress}%` }}
                 />
               </div>
-              <div className="text-[10px] text-slate-500 font-mono">
+              <div className="font-mono text-[10px] text-slate-500">
                 {pp.completed}/{pp.count} finalizadas
               </div>
             </div>
@@ -554,62 +573,62 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
       {/* =========================================================================
           VIEW SWITCHER & FILTERS
           ========================================================================= */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/60 p-3 rounded-2xl border border-white/10 backdrop-blur-md">
-        <div className="flex items-center gap-1.5 w-full sm:w-auto">
+      <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-900/60 p-3 backdrop-blur-md sm:flex-row">
+        <div className="flex w-full items-center gap-1.5 sm:w-auto">
           <button
             onClick={() => setViewMode('tasks')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
               viewMode === 'tasks'
-                ? 'bg-sky-500/20 text-sky-300 border border-sky-400/40 shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'border border-sky-400/40 bg-sky-500/20 text-sky-300 shadow-sm'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Sliders className="w-4 h-4" />
+            <Sliders className="h-4 w-4" />
             <span>Registro de Avance & Tareas ({projectTasks.length})</span>
           </button>
 
           <button
             onClick={() => setViewMode('milestones')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
               viewMode === 'milestones'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'border border-amber-400/40 bg-amber-500/20 text-amber-300 shadow-sm'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Award className="w-4 h-4" />
+            <Award className="h-4 w-4" />
             <span>Hitos hacia el Objetivo ({projectMilestones.length})</span>
           </button>
 
           <button
             onClick={() => setViewMode('reminders')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
               viewMode === 'reminders'
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'border border-emerald-400/40 bg-emerald-500/20 text-emerald-300 shadow-sm'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="h-4 w-4" />
             <span>Recordatorios Configurados</span>
           </button>
         </div>
 
         {/* Search & Filter */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <input
             type="text"
             placeholder="Buscar por tarea, fase o responsable..."
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className="w-full sm:w-64 bg-slate-800/80 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-slate-500 outline-none focus:border-sky-400 transition"
+            className="w-full rounded-xl border border-white/10 bg-slate-800/80 px-3 py-1.5 text-xs text-white transition outline-none placeholder:text-slate-500 focus:border-sky-400 sm:w-64"
           />
 
           <div className="flex gap-1">
             <button
               onClick={() => setStatusFilter(statusFilter === 'all' ? 'in_progress' : 'all')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+              className={`cursor-pointer rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
                 statusFilter === 'in_progress'
-                  ? 'bg-sky-500/20 text-sky-300 border-sky-400/30'
-                  : 'bg-white/5 text-slate-400 border-white/5 hover:text-white'
+                  ? 'border-sky-400/30 bg-sky-500/20 text-sky-300'
+                  : 'border-white/5 bg-white/5 text-slate-400 hover:text-white'
               }`}
               title="Filtrar en ejecución"
             >
@@ -617,10 +636,10 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
             </button>
             <button
               onClick={() => setStatusFilter(statusFilter === 'completed' ? 'all' : 'completed')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+              className={`cursor-pointer rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
                 statusFilter === 'completed'
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
-                  : 'bg-white/5 text-slate-400 border-white/5 hover:text-white'
+                  ? 'border-emerald-400/30 bg-emerald-500/20 text-emerald-300'
+                  : 'border-white/5 bg-white/5 text-slate-400 hover:text-white'
               }`}
               title="Filtrar completadas"
             >
@@ -628,10 +647,10 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
             </button>
             <button
               onClick={() => setStatusFilter(statusFilter === 'critical' ? 'all' : 'critical')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+              className={`cursor-pointer rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
                 statusFilter === 'critical'
-                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
-                  : 'bg-white/5 text-slate-400 border-white/5 hover:text-white'
+                  ? 'border-rose-500/30 bg-rose-500/20 text-rose-300'
+                  : 'border-white/5 bg-white/5 text-slate-400 hover:text-white'
               }`}
               title="Filtrar ruta crítica"
             >
@@ -645,9 +664,9 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
           VIEW 1: TASK LIST & INTERACTIVE PROGRESS CONTROLS
           ========================================================================= */}
       {viewMode === 'tasks' && (
-        <div className="bg-slate-900/80 rounded-3xl border border-white/15 overflow-hidden shadow-xl backdrop-blur-xl">
-          <div className="p-4 bg-slate-950/60 border-b border-white/10 flex items-center justify-between">
-            <span className="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">
+        <div className="overflow-hidden rounded-3xl border border-white/15 bg-slate-900/80 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-white/10 bg-slate-950/60 p-4">
+            <span className="font-mono text-xs font-bold tracking-wider text-slate-400 uppercase">
               Listado de Actividades Programadas - Registra el Avance en Tiempo Real
             </span>
             <span className="text-xs text-slate-500">
@@ -668,32 +687,32 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               return (
                 <div
                   key={t.id}
-                  className={`p-5 transition-all flex flex-col xl:flex-row items-start xl:items-center justify-between gap-5 hover:bg-white/[0.02] ${
+                  className={`flex flex-col items-start justify-between gap-5 p-5 transition-all hover:bg-white/[0.02] xl:flex-row xl:items-center ${
                     isCompleted ? 'bg-emerald-950/10' : ''
                   }`}
                 >
                   {/* Left: Task Details */}
-                  <div className="space-y-2 flex-1 min-w-[280px]">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                  <div className="min-w-[280px] flex-1 space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-sky-500/30 bg-sky-500/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-sky-300 uppercase">
                         {t.phase}
                       </span>
 
                       {t.criticalPath && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                        <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-rose-300 uppercase">
                           Ruta Crítica
                         </span>
                       )}
 
                       {t.weightPercent && (
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-amber-300 border border-white/10">
+                        <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-amber-300">
                           Ponderación: {t.weightPercent}%
                         </span>
                       )}
 
                       {flowCheck.isBlocked && !isCompleted && (
-                        <span className="text-[10px] font-bold text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded border border-amber-400/30 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3 text-amber-400" />
+                        <span className="flex items-center gap-1 rounded border border-amber-400/30 bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                          <AlertTriangle className="h-3 w-3 text-amber-400" />
                           Predecesora Requerida
                         </span>
                       )}
@@ -703,30 +722,32 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                       {/* Checkbox trigger button */}
                       <button
                         onClick={() => handleToggleTaskCompleted(t.id)}
-                        className={`w-6 h-6 rounded-lg border flex items-center justify-center transition cursor-pointer shrink-0 ${
+                        className={`flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg border transition ${
                           isCompleted
-                            ? 'bg-emerald-500 border-emerald-400 text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.5)]'
-                            : 'border-white/20 bg-slate-800 hover:border-sky-400 text-transparent'
+                            ? 'border-emerald-400 bg-emerald-500 text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.5)]'
+                            : 'border-white/20 bg-slate-800 text-transparent hover:border-sky-400'
                         }`}
-                        title={isCompleted ? 'Marcar como pendiente' : 'Marcar como completada al 100%'}
+                        title={
+                          isCompleted ? 'Marcar como pendiente' : 'Marcar como completada al 100%'
+                        }
                       >
-                        <CheckCircle2 className="w-4 h-4 fill-current stroke-slate-950" />
+                        <CheckCircle2 className="h-4 w-4 fill-current stroke-slate-950" />
                       </button>
 
                       <h4
-                        className={`font-bold text-sm tracking-tight transition ${
-                          isCompleted ? 'line-through text-slate-400' : 'text-white'
+                        className={`text-sm font-bold tracking-tight transition ${
+                          isCompleted ? 'text-slate-400 line-through' : 'text-white'
                         }`}
                       >
                         {t.name}
                       </h4>
                     </div>
 
-                    {t.notes && <p className="text-xs text-slate-400 line-clamp-1">{t.notes}</p>}
+                    {t.notes && <p className="line-clamp-1 text-xs text-slate-400">{t.notes}</p>}
 
                     <div className="flex items-center gap-4 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                        <Calendar className="h-3.5 w-3.5 text-slate-500" />
                         {t.startDate} al {t.endDate}
                       </span>
                       {t.assignedTo && (
@@ -738,19 +759,19 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   </div>
 
                   {/* Right: Interactive Slider & Quick Progress Buttons */}
-                  <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto shrink-0 bg-white/[0.02] p-3 rounded-2xl border border-white/5">
+                  <div className="flex w-full shrink-0 flex-col items-center gap-4 rounded-2xl border border-white/5 bg-white/[0.02] p-3 sm:flex-row xl:w-auto">
                     {/* Slider & Numeric Percent */}
-                    <div className="w-full sm:w-56 space-y-1.5">
+                    <div className="w-full space-y-1.5 sm:w-56">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-400 font-mono">Avance:</span>
+                        <span className="font-mono text-slate-400">Avance:</span>
                         <div className="flex items-center gap-1 font-mono">
                           <span
-                            className={`font-black text-sm ${
+                            className={`text-sm font-black ${
                               isCompleted
                                 ? 'text-emerald-400'
                                 : t.progress > 0
-                                ? 'text-sky-400'
-                                : 'text-slate-400'
+                                  ? 'text-sky-400'
+                                  : 'text-slate-400'
                             }`}
                           >
                             {t.progress}%
@@ -766,33 +787,39 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                           step="5"
                           value={t.progress}
                           onChange={(e) => handleUpdateTaskProgress(t.id, Number(e.target.value))}
-                          className="w-full h-2 rounded-full bg-slate-800 accent-sky-400 cursor-pointer"
+                          className="h-2 w-full cursor-pointer rounded-full bg-slate-800 accent-sky-400"
                         />
                       </div>
 
                       {/* Micro-Adjustment Buttons */}
                       <div className="flex items-center justify-between gap-1 pt-0.5">
                         <button
-                          onClick={() => handleUpdateTaskProgress(t.id, Math.max(0, t.progress - 10))}
-                          className="px-1.5 py-0.5 rounded text-[10px] bg-white/5 hover:bg-white/10 text-slate-400 transition cursor-pointer"
+                          onClick={() =>
+                            handleUpdateTaskProgress(t.id, Math.max(0, t.progress - 10))
+                          }
+                          className="cursor-pointer rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400 transition hover:bg-white/10"
                         >
                           -10%
                         </button>
                         <button
-                          onClick={() => handleUpdateTaskProgress(t.id, Math.min(100, t.progress + 10))}
-                          className="px-1.5 py-0.5 rounded text-[10px] bg-white/5 hover:bg-white/10 text-slate-300 transition cursor-pointer font-bold"
+                          onClick={() =>
+                            handleUpdateTaskProgress(t.id, Math.min(100, t.progress + 10))
+                          }
+                          className="cursor-pointer rounded bg-white/5 px-1.5 py-0.5 text-[10px] font-bold text-slate-300 transition hover:bg-white/10"
                         >
                           +10%
                         </button>
                         <button
-                          onClick={() => handleUpdateTaskProgress(t.id, Math.min(100, t.progress + 25))}
-                          className="px-1.5 py-0.5 rounded text-[10px] bg-white/5 hover:bg-white/10 text-sky-300 transition cursor-pointer font-bold"
+                          onClick={() =>
+                            handleUpdateTaskProgress(t.id, Math.min(100, t.progress + 25))
+                          }
+                          className="cursor-pointer rounded bg-white/5 px-1.5 py-0.5 text-[10px] font-bold text-sky-300 transition hover:bg-white/10"
                         >
                           +25%
                         </button>
                         <button
                           onClick={() => handleUpdateTaskProgress(t.id, 100)}
-                          className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition cursor-pointer font-bold"
+                          className="cursor-pointer rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 transition hover:bg-emerald-500/30"
                         >
                           100%
                         </button>
@@ -800,25 +827,25 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                     </div>
 
                     {/* Action buttons: Mark completed & Add Reminder */}
-                    <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
+                    <div className="flex w-full gap-2 sm:w-auto sm:flex-col">
                       <button
                         onClick={() => handleToggleTaskCompleted(t.id)}
-                        className={`w-full px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        className={`flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
                           isCompleted
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 hover:bg-emerald-500/30'
-                            : 'bg-white/5 hover:bg-sky-500/20 text-slate-200 hover:text-sky-300 border border-white/10'
+                            ? 'border border-emerald-400/30 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30'
+                            : 'border border-white/10 bg-white/5 text-slate-200 hover:bg-sky-500/20 hover:text-sky-300'
                         }`}
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <CheckCircle2 className="h-3.5 w-3.5" />
                         <span>{isCompleted ? 'Completada' : 'Finalizar'}</span>
                       </button>
 
                       <button
                         onClick={() => openReminderModal(t.id)}
-                        className="w-full px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/20 text-amber-300 text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20"
                         title="Programar recordatorio para esta tarea"
                       >
-                        <Bell className="w-3.5 h-3.5" />
+                        <Bell className="h-3.5 w-3.5" />
                         <span>Recordatorio</span>
                       </button>
                     </div>
@@ -835,37 +862,39 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
           ========================================================================= */}
       {viewMode === 'milestones' && (
         <div className="space-y-4">
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4">
             <div className="flex items-center gap-3">
-              <Award className="w-6 h-6 text-amber-400" />
+              <Award className="h-6 w-6 text-amber-400" />
               <div>
                 <h3 className="text-sm font-bold text-white">
                   Secuencia de Hitos Críticos para Entrega de Obra
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Cada hito representa una entrega técnica auditada y aporta al porcentaje de entrega final.
+                  Cada hito representa una entrega técnica auditada y aporta al porcentaje de
+                  entrega final.
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-amber-300 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-400/30">
-                {progressStats.completedMilestonesCount} / {progressStats.totalMilestonesCount} Cumplidos
+              <span className="rounded-full border border-amber-400/30 bg-amber-500/20 px-3 py-1 font-mono text-xs font-bold text-amber-300">
+                {progressStats.completedMilestonesCount} / {progressStats.totalMilestonesCount}{' '}
+                Cumplidos
               </span>
               <button
                 type="button"
                 onClick={() => setIsMilestoneModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition cursor-pointer"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500 px-3 py-2 text-xs font-bold text-slate-950 transition hover:bg-amber-400"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="h-3.5 w-3.5" />
                 Nuevo hito
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {projectMilestones.length === 0 && (
-              <p className="md:col-span-2 rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm text-slate-400">
+              <p className="rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm text-slate-400 md:col-span-2">
                 Aún no hay hitos para este proyecto. Crea el primero para medir el avance global.
               </p>
             )}
@@ -874,42 +903,43 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               return (
                 <div
                   key={m.id}
-                  className={`p-5 rounded-3xl border transition-all flex flex-col justify-between ${
+                  className={`flex flex-col justify-between rounded-3xl border p-5 transition-all ${
                     isDone
-                      ? 'bg-emerald-950/20 border-emerald-500/30 shadow-lg shadow-emerald-950/20'
+                      ? 'border-emerald-500/30 bg-emerald-950/20 shadow-lg shadow-emerald-950/20'
                       : m.progress > 0
-                      ? 'bg-sky-950/20 border-sky-400/30 shadow-lg shadow-sky-950/20'
-                      : 'bg-slate-900/80 border-white/10'
+                        ? 'border-sky-400/30 bg-sky-950/20 shadow-lg shadow-sky-950/20'
+                        : 'border-white/10 bg-slate-900/80'
                   }`}
                 >
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-white/5 text-amber-300 border border-white/10 font-bold">
+                      <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300 uppercase">
                         Paso {index + 1} • {m.phase}
                       </span>
-                      <span className="text-xs font-mono font-bold text-slate-400">
+                      <span className="font-mono text-xs font-bold text-slate-400">
                         Aporte: {m.weightPercent}%
                       </span>
                     </div>
 
-                    <h4 className="text-base font-bold text-white tracking-tight">{m.title}</h4>
+                    <h4 className="text-base font-bold tracking-tight text-white">{m.title}</h4>
                     <p className="text-xs text-slate-300">{m.description}</p>
 
                     {m.deliverable && (
-                      <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-slate-400">
-                        <span className="font-semibold text-slate-200">Entregable Requerido:</span> {m.deliverable}
+                      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-2.5 text-xs text-slate-400">
+                        <span className="font-semibold text-slate-200">Entregable Requerido:</span>{' '}
+                        {m.deliverable}
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
+                  <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
                     <div className="space-y-1">
-                      <span className="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
-                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                      <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
+                        <Calendar className="h-3.5 w-3.5 text-slate-500" />
                         Meta: {m.targetDate}
                       </span>
                       {m.completedAt && (
-                        <span className="text-[10px] text-emerald-400 font-mono">
+                        <span className="font-mono text-[10px] text-emerald-400">
                           Certificado el {m.completedAt}
                         </span>
                       )}
@@ -918,13 +948,13 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleToggleMilestone(m.id)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                        className={`flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                           isDone
                             ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                            : 'bg-white/10 hover:bg-white/20 text-white'
+                            : 'bg-white/10 text-white hover:bg-white/20'
                         }`}
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <CheckCircle2 className="h-3.5 w-3.5" />
                         <span>{isDone ? 'Certificado' : 'Marcar Cumplido'}</span>
                       </button>
                     </div>
@@ -940,10 +970,10 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
           VIEW 3: CONFIGURED REMINDERS SUMMARY TAB
           ========================================================================= */}
       {viewMode === 'reminders' && (
-        <div className="bg-slate-900/80 rounded-3xl border border-white/15 p-6 backdrop-blur-xl space-y-4">
+        <div className="space-y-4 rounded-3xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-white tracking-tight">
+              <h3 className="text-base font-bold tracking-tight text-white">
                 Recordatorios Activos & Notificaciones Programadas
               </h3>
               <p className="text-xs text-slate-400">
@@ -953,64 +983,66 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
 
             <button
               onClick={() => openReminderModal()}
-              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition cursor-pointer flex items-center gap-2"
+              className="flex cursor-pointer items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-amber-400"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
               <span>Nuevo Recordatorio</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+          <div className="grid grid-cols-1 gap-3 pt-2 md:grid-cols-2">
             {currentReminders.length === 0 && (
-              <p className="md:col-span-2 rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm text-slate-400">
+              <p className="rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm text-slate-400 md:col-span-2">
                 No hay recordatorios configurados para este proyecto.
               </p>
             )}
             {currentReminders.map((rem) => (
               <div
                 key={rem.id}
-                className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 hover:border-white/20 transition"
+                className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-white/20"
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${
                       rem.priority === 'Alta'
-                        ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-                        : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                        ? 'border-rose-500/30 bg-rose-500/15 text-rose-300'
+                        : 'border-amber-500/30 bg-amber-500/15 text-amber-300'
                     }`}
                   >
                     {rem.priority} Prioridad
                   </span>
-                  <span className="text-xs font-mono text-slate-400">{rem.targetDate}</span>
+                  <span className="font-mono text-xs text-slate-400">{rem.targetDate}</span>
                 </div>
 
                 <h4 className="text-sm font-bold text-white">{rem.title}</h4>
                 <p className="text-xs text-slate-400">{rem.description}</p>
 
-                <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-slate-500">
+                <div className="flex items-center justify-between border-t border-white/5 pt-2 text-[11px] text-slate-500">
                   <span>{rem.taskName}</span>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => handleToggleReminder(rem.id)}
-                      className={`font-semibold cursor-pointer ${rem.enabled ? 'text-emerald-400' : 'text-slate-500'}`}
+                      className={`cursor-pointer font-semibold ${rem.enabled ? 'text-emerald-400' : 'text-slate-500'}`}
                     >
                       {rem.enabled ? 'Activado' : 'Pausado'}
                     </button>
                     <button
                       type="button"
-                      onClick={() => playNotificationChime(rem.priority === 'Alta' ? 'urgent' : 'reminder')}
-                      className="text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1 cursor-pointer"
+                      onClick={() =>
+                        playNotificationChime(rem.priority === 'Alta' ? 'urgent' : 'reminder')
+                      }
+                      className="flex cursor-pointer items-center gap-1 font-semibold text-sky-400 hover:text-sky-300"
                     >
-                      <Volume2 className="w-3.5 h-3.5" /> Probar
+                      <Volume2 className="h-3.5 w-3.5" /> Probar
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteReminder(rem.id)}
                       aria-label={`Eliminar recordatorio ${rem.title}`}
-                      className="text-rose-400 hover:text-rose-300 cursor-pointer"
+                      className="cursor-pointer text-rose-400 hover:text-rose-300"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
@@ -1021,10 +1053,10 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
       )}
 
       {isMilestoneModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
           <form
             onSubmit={handleCreateMilestone}
-            className="w-full max-w-lg bg-slate-900 border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4"
+            className="w-full max-w-lg space-y-4 rounded-3xl border border-white/15 bg-slate-900 p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-base font-bold text-white">Crear hito del proyecto</h3>
@@ -1032,9 +1064,9 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 type="button"
                 onClick={() => setIsMilestoneModalOpen(false)}
                 aria-label="Cerrar"
-                className="text-slate-400 hover:text-white cursor-pointer"
+                className="cursor-pointer text-slate-400 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
             <label className="block text-xs font-semibold text-slate-300">
@@ -1043,7 +1075,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 required
                 value={newMilestoneTitle}
                 onChange={(event) => setNewMilestoneTitle(event.target.value)}
-                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-sm text-white"
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -1052,7 +1084,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 <select
                   value={newMilestonePhase}
                   onChange={(event) => setNewMilestonePhase(event.target.value)}
-                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white"
                 >
                   <option>Preliminares</option>
                   <option>Cimentación</option>
@@ -1069,7 +1101,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   required
                   value={newMilestoneDate}
                   onChange={(event) => setNewMilestoneDate(event.target.value)}
-                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white"
                 />
               </label>
             </div>
@@ -1082,7 +1114,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 required
                 value={newMilestoneWeight}
                 onChange={(event) => setNewMilestoneWeight(Number(event.target.value))}
-                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white"
               />
             </label>
             <label className="block text-xs font-semibold text-slate-300">
@@ -1090,7 +1122,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               <textarea
                 value={newMilestoneDescription}
                 onChange={(event) => setNewMilestoneDescription(event.target.value)}
-                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-sm text-white"
                 rows={2}
               />
             </label>
@@ -1099,20 +1131,20 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               <input
                 value={newMilestoneDeliverable}
                 onChange={(event) => setNewMilestoneDeliverable(event.target.value)}
-                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-sm text-white"
               />
             </label>
             <div className="flex justify-end gap-2 border-t border-white/10 pt-3">
               <button
                 type="button"
                 onClick={() => setIsMilestoneModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 text-xs font-bold cursor-pointer"
+                className="cursor-pointer rounded-xl bg-white/5 px-4 py-2 text-xs font-bold text-slate-300"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold cursor-pointer"
+                className="cursor-pointer rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-slate-950"
               >
                 Crear hito
               </button>
@@ -1122,10 +1154,10 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
       )}
 
       {isReminderModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
           <form
             onSubmit={handleCreateReminder}
-            className="w-full max-w-lg bg-slate-900 border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4"
+            className="w-full max-w-lg space-y-4 rounded-3xl border border-white/15 bg-slate-900 p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-base font-bold text-white">Programar recordatorio</h3>
@@ -1133,9 +1165,9 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 type="button"
                 onClick={() => setIsReminderModalOpen(false)}
                 aria-label="Cerrar"
-                className="text-slate-400 hover:text-white cursor-pointer"
+                className="cursor-pointer text-slate-400 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
             <label className="block text-xs font-semibold text-slate-300">
@@ -1144,7 +1176,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 required
                 value={newReminderTitle}
                 onChange={(event) => setNewReminderTitle(event.target.value)}
-                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-sm text-white"
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -1153,11 +1185,13 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 <select
                   value={newReminderTaskId}
                   onChange={(event) => setNewReminderTaskId(event.target.value)}
-                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white"
                 >
                   <option value="">Hito general</option>
                   {projectTasks.map((task) => (
-                    <option key={task.id} value={task.id}>{task.name}</option>
+                    <option key={task.id} value={task.id}>
+                      {task.name}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -1168,7 +1202,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   required
                   value={newReminderDate}
                   onChange={(event) => setNewReminderDate(event.target.value)}
-                  className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white"
                 />
               </label>
             </div>
@@ -1176,8 +1210,10 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               Prioridad
               <select
                 value={newReminderPriority}
-                onChange={(event) => setNewReminderPriority(event.target.value as TaskReminder['priority'])}
-                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                onChange={(event) =>
+                  setNewReminderPriority(event.target.value as TaskReminder['priority'])
+                }
+                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white"
               >
                 <option value="Alta">Alta</option>
                 <option value="Media">Media</option>
@@ -1189,7 +1225,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               <textarea
                 value={newReminderDescription}
                 onChange={(event) => setNewReminderDescription(event.target.value)}
-                className="mt-1 w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
+                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-sm text-white"
                 rows={3}
               />
             </label>
@@ -1197,13 +1233,13 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
               <button
                 type="button"
                 onClick={() => setIsReminderModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 text-xs font-bold cursor-pointer"
+                className="cursor-pointer rounded-xl bg-white/5 px-4 py-2 text-xs font-bold text-slate-300"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold cursor-pointer"
+                className="cursor-pointer rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-slate-950"
               >
                 Guardar recordatorio
               </button>
@@ -1216,16 +1252,16 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
           MODAL: CREAR NUEVA ACTIVIDAD DE CRONOGRAMA
           ========================================================================= */}
       {isNewTaskModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
+          <div className="w-full max-w-lg space-y-4 rounded-3xl border border-white/15 bg-slate-900 p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Plus className="w-5 h-5 text-sky-400" />
+              <h3 className="flex items-center gap-2 text-base font-bold text-white">
+                <Plus className="h-5 w-5 text-sky-400" />
                 <span>Agregar Nueva Tarea al Cronograma</span>
               </h3>
               <button
                 onClick={() => setIsNewTaskModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                className="cursor-pointer rounded-lg p-1 text-slate-400 hover:text-white"
               >
                 ✕
               </button>
@@ -1233,7 +1269,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
 
             <form onSubmit={handleCreateTask} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
                   Nombre de la Actividad:
                 </label>
                 <input
@@ -1242,19 +1278,19 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   placeholder="Ej. Fundición de losa de entrepiso nivel 3"
                   value={newTaskName}
                   onChange={(e) => setNewTaskName(e.target.value)}
-                  className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
+                  className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     Fase Constructiva:
                   </label>
                   <select
                     value={newTaskPhase}
                     onChange={(e) => setNewTaskPhase(e.target.value)}
-                    className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
+                    className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
                   >
                     <option value="Preliminares">Preliminares</option>
                     <option value="Cimentación">Cimentación</option>
@@ -1266,7 +1302,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     Ponderación en Meta (%):
                   </label>
                   <input
@@ -1275,14 +1311,14 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                     max="50"
                     value={newTaskWeight}
                     onChange={(e) => setNewTaskWeight(Number(e.target.value))}
-                    className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400 font-mono"
+                    className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 font-mono text-xs text-white outline-none focus:border-sky-400"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     Fecha de Inicio:
                   </label>
                   <input
@@ -1290,12 +1326,12 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                     required
                     value={newTaskStart}
                     onChange={(e) => setNewTaskStart(e.target.value)}
-                    className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400 font-mono"
+                    className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 font-mono text-xs text-white outline-none focus:border-sky-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     Fecha de Finalización:
                   </label>
                   <input
@@ -1304,13 +1340,13 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                     min={newTaskStart}
                     value={newTaskEnd}
                     onChange={(e) => setNewTaskEnd(e.target.value)}
-                    className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400 font-mono"
+                    className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 font-mono text-xs text-white outline-none focus:border-sky-400"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
                   Responsable Asignado:
                 </label>
                 <input
@@ -1318,18 +1354,18 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   placeholder="Ej. Don Mario Cifuentes / Cuadrilla Armadores"
                   value={newTaskAssigned}
                   onChange={(e) => setNewTaskAssigned(e.target.value)}
-                  className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
+                  className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
                   Tarea Predecesora (Control de Flujo):
                 </label>
                 <select
                   value={newTaskPredecessor}
                   onChange={(e) => setNewTaskPredecessor(e.target.value)}
-                  className="w-full bg-slate-800 border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
+                  className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
                 >
                   <option value="">Ninguna (Fase independiente)</option>
                   {projectTasks.map((pt) => (
@@ -1346,24 +1382,24 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
                   id="critPath"
                   checked={newTaskCritical}
                   onChange={(e) => setNewTaskCritical(e.target.checked)}
-                  className="rounded border-white/20 bg-slate-800 text-rose-500 w-4 h-4 cursor-pointer"
+                  className="h-4 w-4 cursor-pointer rounded border-white/20 bg-slate-800 text-rose-500"
                 />
-                <label htmlFor="critPath" className="text-xs text-slate-200 cursor-pointer">
+                <label htmlFor="critPath" className="cursor-pointer text-xs text-slate-200">
                   Pertenece a la Ruta Crítica (Cualquier atraso impacta la entrega final)
                 </label>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+              <div className="flex justify-end gap-2 border-t border-white/10 pt-3">
                 <button
                   type="button"
                   onClick={() => setIsNewTaskModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition cursor-pointer"
+                  className="cursor-pointer rounded-xl bg-white/5 px-4 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/10"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold uppercase tracking-wider transition cursor-pointer shadow-lg"
+                  className="cursor-pointer rounded-xl bg-sky-500 px-5 py-2 text-xs font-bold tracking-wider text-slate-950 uppercase shadow-lg transition hover:bg-sky-400"
                 >
                   Crear Actividad
                 </button>
@@ -1374,4 +1410,4 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
       )}
     </div>
   );
-};
+}

@@ -9,12 +9,12 @@ interface SkeletonProps {
   radius?: 'sm' | 'md' | 'lg' | 'full';
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({
+export function Skeleton({
   className = '',
   height = '16px',
   width = '100%',
   radius = 'md',
-}) => {
+}: SkeletonProps) {
   const radiusMap = {
     sm: 'rounded-sm',
     md: 'rounded-md',
@@ -22,10 +22,5 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     full: 'rounded-full',
   };
 
-  return (
-    <div
-      className={`skeleton ${radiusMap[radius]} ${className}`}
-      style={{ height, width }}
-    />
-  );
-};
+  return <div className={`skeleton ${radiusMap[radius]} ${className}`} style={{ height, width }} />;
+}

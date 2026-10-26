@@ -22,32 +22,69 @@ const LEGACY_COLLECTIONS = [
   { name: 'companySettings', ownerField: 'ownerId' },
 ] as const;
 
-async function migrateLegacyCompanyData(ownerId: string): Promise<void> {
-  for (const legacyCollection of LEGACY_COLLECTIONS) {
-    const legacyRecords = await getDocs(
-      query(
-        collection(db, legacyCollection.name),
-        where(legacyCollection.ownerField, '==', ownerId)
-      )
-    );
+interface MigrationRecord {
+  collection: string;
+  docId: string;
+  originalData: Record<string, unknown>;
+}
 
-    let batch = writeBatch(db);
-    let batchSize = 0;
-    for (const record of legacyRecords.docs) {
-      if (record.data().companyId === ownerId) continue;
-      batch.set(record.ref, { companyId: ownerId }, { merge: true });
-      batchSize += 1;
-      if (batchSize === 450) {
-        await batch.commit();
-        batch = writeBatch(db);
-        batchSize = 0;
+async function migrateLegacyCompanyData(ownerId: string): Promise<void> {
+  const migrations: MigrationRecord[] = [];
+
+  try {
+    for (const legacyCollection of LEGACY_COLLECTIONS) {
+      const legacyRecords = await getDocs(
+        query(
+          collection(db, legacyCollection.name),
+          where(legacyCollection.ownerField, '==', ownerId)
+        )
+      );
+
+      let batch = writeBatch(db);
+      let batchSize = 0;
+
+      for (const record of legacyRecords.docs) {
+        const originalData = record.data();
+        if (originalData.companyId === ownerId) continue;
+
+        // Save original data for potential rollback
+        migrations.push({
+          collection: legacyCollection.name,
+          docId: record.id,
+          originalData,
+        });
+
+        batch.set(record.ref, { companyId: ownerId }, { merge: true });
+        batchSize += 1;
+
+        if (batchSize === 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          batchSize = 0;
+        }
+      }
+      if (batchSize > 0) await batch.commit();
+    }
+  } catch (error) {
+    // Rollback in case of failure
+    console.error('Migration failed, attempting rollback:', error);
+    for (const migration of migrations) {
+      try {
+        await setDoc(doc(db, migration.collection, migration.docId), migration.originalData, {
+          merge: true,
+        });
+      } catch (rollbackError) {
+        console.error('Rollback failed for', migration, rollbackError);
       }
     }
-    if (batchSize > 0) await batch.commit();
+    throw error;
   }
 }
 
-export async function ensureCompanyWorkspace(user: User, preferredCompanyId?: string): Promise<{
+export async function ensureCompanyWorkspace(
+  user: User,
+  preferredCompanyId?: string
+): Promise<{
   workspace: CompanyWorkspace;
   membership: CompanyMembership;
   availableWorkspaces: CompanyWorkspaceOption[];
@@ -57,9 +94,9 @@ export async function ensureCompanyWorkspace(user: User, preferredCompanyId?: st
   );
 
   if (memberships.size > 0) {
-    const membershipSnapshot = memberships.docs.find(
-      (item) => item.data().companyId === preferredCompanyId
-    ) ?? (preferredCompanyId ? undefined : memberships.docs[0]);
+    const membershipSnapshot =
+      memberships.docs.find((item) => item.data().companyId === preferredCompanyId) ??
+      (preferredCompanyId ? undefined : memberships.docs[0]);
     if (!membershipSnapshot) {
       throw new Error('Tu cuenta no tiene acceso al espacio de trabajo seleccionado.');
     }
@@ -68,7 +105,9 @@ export async function ensureCompanyWorkspace(user: User, preferredCompanyId?: st
       await Promise.all(
         memberships.docs.map(async (snapshot) => {
           const candidateMembership = snapshot.data() as CompanyMembership;
-          const candidateWorkspace = await getDoc(doc(db, 'companies', candidateMembership.companyId));
+          const candidateWorkspace = await getDoc(
+            doc(db, 'companies', candidateMembership.companyId)
+          );
           if (!candidateWorkspace.exists()) return null;
           return {
             workspace: {

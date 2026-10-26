@@ -48,7 +48,12 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
     text: string,
     x: number,
     yPos: number,
-    options?: { fontSize?: number; fontStyle?: 'normal' | 'bold' | 'italic'; color?: [number, number, number]; align?: 'left' | 'center' | 'right' }
+    options?: {
+      fontSize?: number;
+      fontStyle?: 'normal' | 'bold' | 'italic';
+      color?: [number, number, number];
+      align?: 'left' | 'center' | 'right';
+    }
   ) => {
     const fontSize = options?.fontSize || 9;
     const fontStyle = options?.fontStyle || 'normal';
@@ -71,10 +76,15 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
     color: [255, 255, 255],
   });
 
-  addText(`NIT: ${company.nit || '1049281-2'} • No. Patronal IGSS: 08-94102-3 • ${company.address || 'Guatemala, C.A.'}`, margin + 4, y + 11, {
-    fontSize: 8,
-    color: [203, 213, 225],
-  });
+  addText(
+    `NIT: ${company.nit || '1049281-2'} • No. Patronal IGSS: 08-94102-3 • ${company.address || 'Guatemala, C.A.'}`,
+    margin + 4,
+    y + 11,
+    {
+      fontSize: 8,
+      color: [203, 213, 225],
+    }
+  );
 
   addText('REPORTE OFICIAL DE PLANILLA & AUDITABLE CONTABLE', margin + 4, y + 17, {
     fontSize: 8,
@@ -108,11 +118,16 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
   doc.setDrawColor(203, 213, 225); // slate-300
   doc.roundedRect(margin, y, usableWidth, 13, 2, 2, 'FD');
 
-  addText('PARÁMETROS Y RETENCIONES LEGALES DE GUATEMALA (AUDITORÍA SAT / IGSS):', margin + 3, y + 4.5, {
-    fontSize: 7.5,
-    fontStyle: 'bold',
-    color: [30, 41, 59],
-  });
+  addText(
+    'PARÁMETROS Y RETENCIONES LEGALES DE GUATEMALA (AUDITORÍA SAT / IGSS):',
+    margin + 3,
+    y + 4.5,
+    {
+      fontSize: 7.5,
+      fontStyle: 'bold',
+      color: [30, 41, 59],
+    }
+  );
 
   const paramStr =
     '• IGSS Laboral: 4.83% (Acuerdo 1118)  • IGSS Patronal: 10.67% + IRTRA 1% + INTECAP 1% = 12.67% Total  ' +
@@ -152,7 +167,11 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
   let curX = margin;
   cols.forEach((col) => {
     const textX =
-      col.align === 'right' ? curX + col.width - 2 : col.align === 'center' ? curX + col.width / 2 : curX + 2;
+      col.align === 'right'
+        ? curX + col.width - 2
+        : col.align === 'center'
+          ? curX + col.width / 2
+          : curX + 2;
 
     addText(col.title, textX, y + 4.8, {
       fontSize: 7,
@@ -178,7 +197,11 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
       let headerX = margin;
       cols.forEach((col) => {
         const textX =
-          col.align === 'right' ? headerX + col.width - 2 : col.align === 'center' ? headerX + col.width / 2 : headerX + 2;
+          col.align === 'right'
+            ? headerX + col.width - 2
+            : col.align === 'center'
+              ? headerX + col.width / 2
+              : headerX + 2;
         addText(col.title, textX, y + 4.8, {
           fontSize: 7,
           fontStyle: 'bold',
@@ -202,7 +225,11 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
     let rowX = margin;
 
     // Colaborador / Role
-    addText(c.employeeName, rowX + 2, y + 3.5, { fontSize: 7, fontStyle: 'bold', color: [15, 23, 42] });
+    addText(c.employeeName, rowX + 2, y + 3.5, {
+      fontSize: 7,
+      fontStyle: 'bold',
+      color: [15, 23, 42],
+    });
     addText(c.role, rowX + 2, y + 6.8, { fontSize: 6, color: [100, 116, 139] });
     rowX += cols[0].width;
 
@@ -212,19 +239,32 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
     rowX += cols[1].width;
 
     // Días
-    addText(`${c.daysWorked}d`, rowX + cols[2].width / 2, y + 5, { fontSize: 7, align: 'center', color: [51, 65, 85] });
+    addText(`${c.daysWorked}d`, rowX + cols[2].width / 2, y + 5, {
+      fontSize: 7,
+      align: 'center',
+      color: [51, 65, 85],
+    });
     rowX += cols[2].width;
 
     // Sueldo Base
-    addText(formatGTQ(c.baseSalary), rowX + cols[3].width - 2, y + 5, { fontSize: 7, align: 'right', color: [15, 23, 42] });
+    addText(formatGTQ(c.baseSalary), rowX + cols[3].width - 2, y + 5, {
+      fontSize: 7,
+      align: 'right',
+      color: [15, 23, 42],
+    });
     rowX += cols[3].width;
 
     // Horas Extras
-    addText(c.overtimeAmount > 0 ? formatGTQ(c.overtimeAmount) : 'Q0.00', rowX + cols[4].width - 2, y + 5, {
-      fontSize: 7,
-      align: 'right',
-      color: c.overtimeAmount > 0 ? [3, 105, 161] : [148, 163, 184],
-    });
+    addText(
+      c.overtimeAmount > 0 ? formatGTQ(c.overtimeAmount) : 'Q0.00',
+      rowX + cols[4].width - 2,
+      y + 5,
+      {
+        fontSize: 7,
+        align: 'right',
+        color: c.overtimeAmount > 0 ? [3, 105, 161] : [148, 163, 184],
+      }
+    );
     rowX += cols[4].width;
 
     // Afecto IGSS

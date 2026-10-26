@@ -8,9 +8,11 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background push message:', payload);
 
-  const notificationTitle = payload.notification?.title || 'ConstructERP Guatemala - Alerta de Campo';
+  const notificationTitle =
+    payload.notification?.title || 'ConstructERP Guatemala - Alerta de Campo';
   const notificationOptions = {
-    body: payload.notification?.body || 'Nuevo reporte de obra asignado o firma de capataz requerida.',
+    body:
+      payload.notification?.body || 'Nuevo reporte de obra asignado o firma de capataz requerida.',
     icon: '/assets/branding/icon-192x192.png',
     badge: '/assets/branding/icon-192x192.png',
     data: payload.data || {},

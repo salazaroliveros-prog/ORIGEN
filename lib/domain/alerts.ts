@@ -13,7 +13,10 @@ export const BUDGET_WARNING_THRESHOLD = 60;
 export const BUDGET_CRITICAL_THRESHOLD = 80;
 
 export function evaluateBudgetAlert(
-  project: Pick<Project, 'id' | 'name' | 'budgetTotal' | 'spentTotal' | 'expectedProfitMarginPercent'>
+  project: Pick<
+    Project,
+    'id' | 'name' | 'budgetTotal' | 'spentTotal' | 'expectedProfitMarginPercent'
+  >
 ): BudgetAlert | null {
   const budgetTotal = project.budgetTotal || 0;
   const spentTotal = project.spentTotal || 0;
@@ -24,7 +27,9 @@ export function evaluateBudgetAlert(
   const budgetUsagePercent = (spentTotal / budgetTotal) * 100;
   const projectMarginPercent = ((budgetTotal - spentTotal) / budgetTotal) * 100;
   const marginThreshold = 100 - expectedMarginPercent;
-  const isCritical = budgetUsagePercent >= BUDGET_CRITICAL_THRESHOLD || spentTotal >= (budgetTotal * marginThreshold) / 100;
+  const isCritical =
+    budgetUsagePercent >= BUDGET_CRITICAL_THRESHOLD ||
+    spentTotal >= (budgetTotal * marginThreshold) / 100;
 
   if (!isCritical && budgetUsagePercent < BUDGET_WARNING_THRESHOLD) return null;
 
@@ -43,7 +48,12 @@ export function evaluateBudgetAlert(
   };
 }
 
-export function buildBudgetAlerts(projects: Pick<Project, 'id' | 'name' | 'budgetTotal' | 'spentTotal' | 'expectedProfitMarginPercent'>[]): BudgetAlert[] {
+export function buildBudgetAlerts(
+  projects: Pick<
+    Project,
+    'id' | 'name' | 'budgetTotal' | 'spentTotal' | 'expectedProfitMarginPercent'
+  >[]
+): BudgetAlert[] {
   return projects
     .map((project) => evaluateBudgetAlert(project))
     .filter((alert): alert is BudgetAlert => Boolean(alert));

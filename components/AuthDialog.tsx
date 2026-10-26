@@ -63,10 +63,17 @@ export function AuthDialog({
         setPassword('');
         setConfirmPassword('');
         if (result.verificationEmailSent) {
-          toast.success('Cuenta creada y sesión iniciada. Revisa tu correo para verificar la dirección.');
+          toast.success(
+            'Cuenta creada y sesión iniciada. Revisa tu correo para verificar la dirección.'
+          );
         } else {
-          const verificationError = getAuthErrorMessageForMethod(result.verificationEmailError, 'email');
-          toast.error(`Cuenta creada y sesión iniciada, pero no se envió el correo de verificación: ${verificationError}`);
+          const verificationError = getAuthErrorMessageForMethod(
+            result.verificationEmailError,
+            'email'
+          );
+          toast.error(
+            `Cuenta creada y sesión iniciada, pero no se envió el correo de verificación: ${verificationError}`
+          );
         }
         onClose();
         return;
@@ -149,7 +156,9 @@ export function AuthDialog({
                 isLoading={isSubmitting}
                 className="w-full gap-2"
               >
-                <span aria-hidden="true" className="font-bold text-lg">G</span>
+                <span aria-hidden="true" className="text-lg font-bold">
+                  G
+                </span>
                 Continuar con Google
               </Button>
 
@@ -204,12 +213,18 @@ export function AuthDialog({
             )}
 
             {errorMessage && (
-              <p role="alert" className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              <p
+                role="alert"
+                className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+              >
                 {errorMessage}
               </p>
             )}
             {notice && (
-              <p role="status" className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+              <p
+                role="status"
+                className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200"
+              >
                 {notice}
               </p>
             )}

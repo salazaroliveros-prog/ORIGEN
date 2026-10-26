@@ -1,27 +1,27 @@
 'use client';
 
 import { GUATEMALA_DEPARTMENTS_INDEX } from '@/lib/guatemalaMarketData';
-import { APUItem,FieldVisit,Project } from '@/lib/types';
+import { APUItem, FieldVisit, Project } from '@/lib/types';
 import Image from 'next/image';
 import {
-Bot,
-Calendar,
-Camera,
-Check,
-CheckCircle2,
-Copy,
-Eye,
-FileText,
-Layers,
-MapPin,
-RotateCcw,
-Send,
-Sparkles,
-Upload,
-User,
-X
+  Bot,
+  Calendar,
+  Camera,
+  Check,
+  CheckCircle2,
+  Copy,
+  Eye,
+  FileText,
+  Layers,
+  MapPin,
+  RotateCcw,
+  Send,
+  Sparkles,
+  Upload,
+  User,
+  X,
 } from 'lucide-react';
-import React,{ useRef,useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface AiAssistantModalProps {
   isOpen: boolean;
@@ -50,8 +50,10 @@ const SAMPLE_LOGBOOKS: SampleLogbookItem[] = [
     date: '2025-05-12',
     foremanName: 'Don Mario Cifuentes',
     title: 'Bitácora Nivel 4: Fundición Losa & Columnas C-14',
-    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb180c5f5?w=800&auto=format&fit=crop&q=80',
-    notes: 'Vaciado exitoso de losa nivel 4 con concreto premezclado 4000 PSI de Cemex. Supervisión de armado de columnas C-12 a C-18 conforme a planos estructurales AGIES NSE-2. Sin incidentes laborales reportados.',
+    imageUrl:
+      'https://images.unsplash.com/photo-1541888946425-d0fbb180c5f5?w=800&auto=format&fit=crop&q=80',
+    notes:
+      'Vaciado exitoso de losa nivel 4 con concreto premezclado 4000 PSI de Cemex. Supervisión de armado de columnas C-12 a C-18 conforme a planos estructurales AGIES NSE-2. Sin incidentes laborales reportados.',
     weather: 'Soleado',
     workersCount: 42,
   },
@@ -61,8 +63,10 @@ const SAMPLE_LOGBOOKS: SampleLogbookItem[] = [
     date: '2025-05-14',
     foremanName: 'Esteban Morales',
     title: 'Bitácora Pistas: Compactación Subrasante y Balasto',
-    imageUrl: 'https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=800&auto=format&fit=crop&q=80',
-    notes: 'Compactación de subrasante completada con rodillo vibratorio Caterpillar CS56B. Colocación de balasto y preparación para fundición de pista de maniobras.',
+    imageUrl:
+      'https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=800&auto=format&fit=crop&q=80',
+    notes:
+      'Compactación de subrasante completada con rodillo vibratorio Caterpillar CS56B. Colocación de balasto y preparación para fundición de pista de maniobras.',
     weather: 'Nublado',
     workersCount: 28,
   },
@@ -72,22 +76,25 @@ const SAMPLE_LOGBOOKS: SampleLogbookItem[] = [
     date: '2025-05-16',
     foremanName: 'Don Mario Cifuentes',
     title: 'Hoja de Bitácora Oficial: Armado Vigas & Desencofrado',
-    imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80',
-    notes: 'Desencofrado parcial de vigas secundarias tras alcanzar el 75% de resistencia f\'c. Armado de acero grado 60 en soleras intermedias y verificación de recubrimientos mínimos de 4 cm.',
+    imageUrl:
+      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80',
+    notes:
+      "Desencofrado parcial de vigas secundarias tras alcanzar el 75% de resistencia f'c. Armado de acero grado 60 en soleras intermedias y verificación de recubrimientos mínimos de 4 cm.",
     weather: 'Soleado',
     workersCount: 38,
   },
 ];
 
-export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
+export function AiAssistantModal({
   isOpen,
   onClose,
   activeProject,
   budgetItems = [],
   fieldVisits = [],
-}) => {
+}: AiAssistantModalProps) {
   const department = activeProject?.department || 'Guatemala';
-  const deptInfo = GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
+  const deptInfo =
+    GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
 
   const [activeTab, setActiveTab] = useState<'logbook' | 'chat'>('logbook');
 
@@ -106,7 +113,9 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Chat State
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string; source?: string }>>([
+  const [messages, setMessages] = useState<
+    Array<{ role: 'user' | 'assistant'; text: string; source?: string }>
+  >([
     {
       role: 'assistant',
       text: `¡Hola! Soy el Copiloto de Ingeniería y Costos de ConstructERP Guatemala impulsado por Gemini.
@@ -168,7 +177,8 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
     setLogbookAnalysis(null);
 
     // Find if we have context in registered visits
-    const visitRecord = fieldVisits.find((v) => v.id === selectedVisitId) ||
+    const visitRecord =
+      fieldVisits.find((v) => v.id === selectedVisitId) ||
       SAMPLE_LOGBOOKS.find((s) => s.visitId === selectedVisitId);
 
     try {
@@ -251,7 +261,10 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
 
       const data = await res.json();
       if (data.reply) {
-        setMessages((prev) => [...prev, { role: 'assistant', text: data.reply, source: data.source }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', text: data.reply, source: data.source },
+        ]);
       } else {
         throw new Error('Respuesta vacía');
       }
@@ -278,86 +291,93 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-slate-900 rounded-3xl shadow-2xl max-w-4xl w-full border border-white/15 overflow-hidden flex flex-col h-[90vh] max-h-[780px]">
+    <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-3 backdrop-blur-sm duration-200 sm:p-4">
+      <div className="flex h-[90vh] max-h-[780px] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/15 bg-slate-900 shadow-2xl">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 flex items-center justify-between border-b border-white/10 shrink-0">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 p-4 text-white sm:p-5">
           <div className="flex items-center gap-3">
-            <span className="p-2.5 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-400/30 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-              <Sparkles className="w-5 h-5 text-amber-300" />
+            <span className="rounded-2xl border border-sky-400/30 bg-sky-500/20 p-2.5 text-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+              <Sparkles className="h-5 w-5 text-amber-300" />
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-base sm:text-lg text-white">Copiloto Inteligente de Obra</h3>
-                <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-400/20 text-sky-300 border border-sky-400/30">
+                <h3 className="text-base font-extrabold text-white sm:text-lg">
+                  Copiloto Inteligente de Obra
+                </h3>
+                <span className="rounded-full border border-sky-400/30 bg-sky-400/20 px-2 py-0.5 font-mono text-[10px] font-bold text-sky-300">
                   Gemini 3.8
                 </span>
               </div>
-              <p className="text-xs text-slate-300 flex items-center gap-1.5 mt-0.5">
-                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                {activeProject?.name || 'Obra'} • {department} (Factor Regional {deptInfo.overallFactor}x)
+              <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-300">
+                <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+                {activeProject?.name || 'Obra'} • {department} (Factor Regional{' '}
+                {deptInfo.overallFactor}x)
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer"
+            className="cursor-pointer rounded-xl p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-slate-950/60 px-4 sm:px-6 py-2 border-b border-white/10 flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center gap-2 border-b border-white/10 bg-slate-950/60 px-4 py-2 sm:px-6">
           <button
             onClick={() => setActiveTab('logbook')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition sm:text-sm ${
               activeTab === 'logbook'
                 ? 'bg-sky-400 text-slate-950 shadow-[0_0_12px_rgba(56,189,248,0.3)]'
-                : 'text-slate-300 hover:text-white hover:bg-white/5'
+                : 'text-slate-300 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Camera className="w-4 h-4" />
+            <Camera className="h-4 w-4" />
             <span>Auditoría de Bitácora con Fotos (IA)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('chat')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition sm:text-sm ${
               activeTab === 'chat'
                 ? 'bg-sky-400 text-slate-950 shadow-[0_0_12px_rgba(56,189,248,0.3)]'
-                : 'text-slate-300 hover:text-white hover:bg-white/5'
+                : 'text-slate-300 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Bot className="w-4 h-4" />
+            <Bot className="h-4 w-4" />
             <span>Consultas Técnicas & APU</span>
           </button>
         </div>
 
         {/* Tab Content: 1. LOGBOOK PHOTO ANALYZER */}
         {activeTab === 'logbook' && (
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 text-slate-100">
+          <div className="flex-1 space-y-6 overflow-y-auto p-4 text-slate-100 sm:p-6">
             {/* Top Selector Grid: Visit ID, Date, Foreman */}
-            <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+            <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-sky-400" />
-                  <span className="font-bold text-xs sm:text-sm text-white">Parámetros de Auditoría de Campo</span>
+                  <FileText className="h-4 w-4 text-sky-400" />
+                  <span className="text-xs font-bold text-white sm:text-sm">
+                    Parámetros de Auditoría de Campo
+                  </span>
                 </div>
-                <span className="text-[11px] text-slate-400 font-mono">Correlación por Fecha & ID</span>
+                <span className="font-mono text-[11px] text-slate-400">
+                  Correlación por Fecha & ID
+                </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {/* Visit ID Selector / Input */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <Layers className="w-3 h-3 text-sky-400" /> ID de Visita:
+                  <label className="mb-1 block flex items-center gap-1 text-[11px] font-semibold text-slate-300">
+                    <Layers className="h-3 w-3 text-sky-400" /> ID de Visita:
                   </label>
                   <select
                     value={selectedVisitId}
                     onChange={(e) => handleSelectFieldVisit(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-white/20 text-white focus:outline-none focus:border-sky-400"
+                    className="w-full rounded-xl border border-white/20 bg-slate-900 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none"
                   >
                     <option value="fv-1">fv-1 (Torre Vista Hermosa - Nivel 4)</option>
                     <option value="fv-2">fv-2 (Bodegas Intercentro - Pistas)</option>
@@ -374,50 +394,50 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
 
                 {/* Date Input */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-amber-400" /> Fecha de Bitácora:
+                  <label className="mb-1 block flex items-center gap-1 text-[11px] font-semibold text-slate-300">
+                    <Calendar className="h-3 w-3 text-amber-400" /> Fecha de Bitácora:
                   </label>
                   <input
                     type="date"
                     value={logDate}
                     onChange={(e) => setLogDate(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-white/20 text-white focus:outline-none focus:border-sky-400"
+                    className="w-full rounded-xl border border-white/20 bg-slate-900 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none"
                   />
                 </div>
 
                 {/* Foreman Name */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <User className="w-3 h-3 text-emerald-400" /> Capataz Responsable:
+                  <label className="mb-1 block flex items-center gap-1 text-[11px] font-semibold text-slate-300">
+                    <User className="h-3 w-3 text-emerald-400" /> Capataz Responsable:
                   </label>
                   <input
                     type="text"
                     value={foremanName}
                     onChange={(e) => setForemanName(e.target.value)}
                     placeholder="Nombre del capataz..."
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-white/20 text-white focus:outline-none focus:border-sky-400"
+                    className="w-full rounded-xl border border-white/20 bg-slate-900 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none"
                   />
                 </div>
               </div>
             </div>
 
             {/* Photo Upload & Sample Gallery Split */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
               {/* Left Column: Image Preview & Upload Controls (5 cols) */}
-              <div className="lg:col-span-5 space-y-3">
+              <div className="space-y-3 lg:col-span-5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                    <Camera className="w-3.5 h-3.5 text-sky-400" /> Foto de Bitácora / Obra
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                    <Camera className="h-3.5 w-3.5 text-sky-400" /> Foto de Bitácora / Obra
                   </span>
                   {uploadedImage && (
-                    <span className="text-[10px] text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                    <span className="rounded border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[10px] text-emerald-400">
                       Imagen lista
                     </span>
                   )}
                 </div>
 
                 {/* Image Container with Preview or Placeholder */}
-                <div className="relative aspect-video sm:aspect-4/3 w-full rounded-2xl overflow-hidden border border-white/15 bg-slate-950 flex flex-col items-center justify-center group shadow-inner">
+                <div className="group relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-inner sm:aspect-4/3">
                   {uploadedImage ? (
                     <>
                       <Image
@@ -426,21 +446,21 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                         width={1200}
                         height={900}
                         unoptimized
-                        className="w-full h-full object-cover transition duration-300 group-hover:scale-102"
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-102"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent flex flex-col justify-end p-3">
-                        <div className="text-[11px] font-bold text-white flex items-center gap-1.5">
-                          <Eye className="w-3.5 h-3.5 text-sky-400" />
+                      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-slate-950/90 via-transparent to-transparent p-3">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-white">
+                          <Eye className="h-3.5 w-3.5 text-sky-400" />
                           <span className="truncate">{imageFileName}</span>
                         </div>
-                        <div className="text-[10px] text-slate-300 font-mono mt-0.5">
+                        <div className="mt-0.5 font-mono text-[10px] text-slate-300">
                           ID: {selectedVisitId} • {logDate} • {foremanName}
                         </div>
                       </div>
                     </>
                   ) : (
-                    <div className="p-6 text-center space-y-2">
-                      <Camera className="w-10 h-10 text-slate-500 mx-auto" />
+                    <div className="space-y-2 p-6 text-center">
+                      <Camera className="mx-auto h-10 w-10 text-slate-500" />
                       <p className="text-xs text-slate-400">Sin foto de bitácora seleccionada</p>
                     </div>
                   )}
@@ -458,9 +478,9 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/15 text-xs font-semibold text-slate-200 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.08] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.12] hover:text-white"
                   >
-                    <Upload className="w-3.5 h-3.5 text-sky-400" />
+                    <Upload className="h-3.5 w-3.5 text-sky-400" />
                     <span>Subir Foto Local</span>
                   </button>
                   {uploadedImage && (
@@ -470,17 +490,17 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                         setUploadedImage(null);
                         setLogbookAnalysis(null);
                       }}
-                      className="py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-rose-500/20 border border-white/10 hover:border-rose-500/30 text-xs text-slate-400 hover:text-rose-300 transition cursor-pointer"
+                      className="cursor-pointer rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-slate-400 transition hover:border-rose-500/30 hover:bg-rose-500/20 hover:text-rose-300"
                       title="Quitar foto"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
+                      <RotateCcw className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
 
                 {/* Sample Presets to test in 1 click */}
                 <div className="space-y-1.5 pt-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+                  <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                     Fotos de Bitácora de Muestra (1-Clic):
                   </span>
                   <div className="space-y-1.5">
@@ -489,10 +509,10 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                         key={sample.id}
                         type="button"
                         onClick={() => handleSelectSampleLogbook(sample)}
-                        className={`w-full p-2 rounded-xl text-left border transition flex items-center gap-2.5 cursor-pointer ${
+                        className={`flex w-full cursor-pointer items-center gap-2.5 rounded-xl border p-2 text-left transition ${
                           selectedVisitId === sample.visitId
-                            ? 'bg-sky-500/20 border-sky-400/50 text-white'
-                            : 'bg-white/[0.03] border-white/10 text-slate-300 hover:bg-white/[0.06]'
+                            ? 'border-sky-400/50 bg-sky-500/20 text-white'
+                            : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]'
                         }`}
                       >
                         <Image
@@ -501,11 +521,13 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                           width={80}
                           height={64}
                           unoptimized
-                          className="w-10 h-8 rounded-lg object-cover border border-white/10 shrink-0"
+                          className="h-8 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
                         />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-bold truncate text-slate-200">{sample.title}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[11px] font-bold text-slate-200">
+                            {sample.title}
+                          </p>
+                          <p className="font-mono text-[10px] text-slate-400">
                             {sample.visitId} • {sample.date} • {sample.foremanName}
                           </p>
                         </div>
@@ -516,12 +538,14 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
               </div>
 
               {/* Right Column: Question & Gemini Analysis Output (7 cols) */}
-              <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
+              <div className="flex flex-col justify-between space-y-4 lg:col-span-7">
                 {/* Question Input Section */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-white flex items-center justify-between">
+                  <label className="block flex items-center justify-between text-xs font-bold text-white">
                     <span>Pregunta sobre el Progreso Reportado por el Capataz:</span>
-                    <span className="text-[10px] text-sky-400 font-normal">Impulsado por Gemini Vision</span>
+                    <span className="text-[10px] font-normal text-sky-400">
+                      Impulsado por Gemini Vision
+                    </span>
                   </label>
 
                   <div className="relative">
@@ -530,7 +554,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                       value={logbookQuestion}
                       onChange={(e) => setLogbookQuestion(e.target.value)}
                       placeholder="Escriba su pregunta sobre lo reportado por el capataz, fecha, materiales, etc..."
-                      className="w-full p-3 rounded-2xl bg-slate-950 border border-white/20 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                      className="w-full rounded-2xl border border-white/20 bg-slate-950 p-3 text-xs text-white placeholder-slate-500 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 focus:outline-none sm:text-sm"
                     />
                   </div>
 
@@ -541,7 +565,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                         key={idx}
                         type="button"
                         onClick={() => setLogbookQuestion(q)}
-                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-slate-300 hover:text-white transition cursor-pointer text-left"
+                        className="cursor-pointer rounded-lg border border-white/10 bg-white/[0.05] px-2.5 py-1 text-left text-[10px] text-slate-300 transition hover:bg-white/[0.1] hover:text-white"
                       >
                         {q}
                       </button>
@@ -552,57 +576,64 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                     type="button"
                     disabled={isAnalyzingLogbook || !uploadedImage}
                     onClick={handleAnalyzeLogbook}
-                    className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-300 hover:to-blue-400 text-slate-950 font-extrabold text-xs sm:text-sm uppercase tracking-wider transition shadow-[0_0_20px_rgba(56,189,248,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+                    className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-500 px-4 py-3 text-xs font-extrabold tracking-wider text-slate-950 uppercase shadow-[0_0_20px_rgba(56,189,248,0.3)] transition hover:from-sky-300 hover:to-blue-400 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                   >
                     {isAnalyzingLogbook ? (
                       <>
-                        <Sparkles className="w-4 h-4 animate-spin" />
+                        <Sparkles className="h-4 w-4 animate-spin" />
                         <span>Analizando Foto de Bitácora con Gemini...</span>
                       </>
                     ) : (
                       <>
-                        <Bot className="w-4 h-4" />
-                        <span>Auditar Progreso de Visita {selectedVisitId} ({logDate})</span>
+                        <Bot className="h-4 w-4" />
+                        <span>
+                          Auditar Progreso de Visita {selectedVisitId} ({logDate})
+                        </span>
                       </>
                     )}
                   </button>
                 </div>
 
                 {/* Analysis Results Display */}
-                <div className="flex-1 min-h-[220px] rounded-2xl bg-slate-950/80 border border-white/15 p-4 flex flex-col justify-between overflow-hidden shadow-inner">
+                <div className="flex min-h-[220px] flex-1 flex-col justify-between overflow-hidden rounded-2xl border border-white/15 bg-slate-950/80 p-4 shadow-inner">
                   {isAnalyzingLogbook ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 p-6">
-                      <div className="p-3 rounded-2xl bg-sky-500/20 text-sky-400 animate-pulse border border-sky-400/30">
-                        <Sparkles className="w-7 h-7 animate-spin" />
+                    <div className="flex flex-1 flex-col items-center justify-center space-y-3 p-6 text-center">
+                      <div className="animate-pulse rounded-2xl border border-sky-400/30 bg-sky-500/20 p-3 text-sky-400">
+                        <Sparkles className="h-7 w-7 animate-spin" />
                       </div>
                       <div className="space-y-1">
-                        <h4 className="text-sm font-bold text-white">Inspeccionando Evidencia Fotográfica</h4>
-                        <p className="text-xs text-slate-400 max-w-sm">
-                          Correlacionando notas del capataz {foremanName}, fecha {logDate} e ID {selectedVisitId} con
-                          especificaciones de planos y normativas de Guatemala...
+                        <h4 className="text-sm font-bold text-white">
+                          Inspeccionando Evidencia Fotográfica
+                        </h4>
+                        <p className="max-w-sm text-xs text-slate-400">
+                          Correlacionando notas del capataz {foremanName}, fecha {logDate} e ID{' '}
+                          {selectedVisitId} con especificaciones de planos y normativas de
+                          Guatemala...
                         </p>
                       </div>
                     </div>
                   ) : logbookAnalysis ? (
-                    <div className="space-y-3 flex-1 flex flex-col justify-between">
-                      <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <div className="flex flex-1 flex-col justify-between space-y-3">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-2">
                         <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span className="text-xs font-bold text-white">Dictamen de Auditoría de Campo</span>
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                          <span className="text-xs font-bold text-white">
+                            Dictamen de Auditoría de Campo
+                          </span>
                         </div>
                         <button
                           type="button"
                           onClick={handleCopyAnalysis}
-                          className="text-[11px] font-semibold text-slate-400 hover:text-sky-300 flex items-center gap-1 cursor-pointer transition"
+                          className="flex cursor-pointer items-center gap-1 text-[11px] font-semibold text-slate-400 transition hover:text-sky-300"
                         >
                           {copiedResult ? (
                             <>
-                              <Check className="w-3 h-3 text-emerald-400" />
+                              <Check className="h-3 w-3 text-emerald-400" />
                               <span className="text-emerald-400">Copiado</span>
                             </>
                           ) : (
                             <>
-                              <Copy className="w-3 h-3" />
+                              <Copy className="h-3 w-3" />
                               <span>Copiar</span>
                             </>
                           )}
@@ -610,24 +641,26 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                       </div>
 
                       {/* Formatted Markdown Content */}
-                      <div className="flex-1 overflow-y-auto max-h-[260px] text-xs leading-relaxed text-slate-200 space-y-2 pr-1 whitespace-pre-wrap font-sans">
+                      <div className="max-h-[260px] flex-1 space-y-2 overflow-y-auto pr-1 font-sans text-xs leading-relaxed whitespace-pre-wrap text-slate-200">
                         {logbookAnalysis}
                       </div>
 
-                      <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
+                      <div className="flex items-center justify-between border-t border-white/10 pt-2 text-[10px] text-slate-400">
                         <span>Fuente: Auditoría Multimodal Gemini 3.8 Flash</span>
-                        <span className="text-emerald-400 font-bold">Verificado con firma digital</span>
+                        <span className="font-bold text-emerald-400">
+                          Verificado con firma digital
+                        </span>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-2 text-slate-400">
-                      <Bot className="w-8 h-8 text-slate-600" />
+                    <div className="flex flex-1 flex-col items-center justify-center space-y-2 p-6 text-center text-slate-400">
+                      <Bot className="h-8 w-8 text-slate-600" />
                       <p className="text-xs font-semibold text-slate-300">
                         Listo para responder preguntas sobre la bitácora
                       </p>
-                      <p className="text-[11px] text-slate-500 max-w-xs">
-                        Seleccione o suba una foto de la bitácora, confirme la fecha y el ID de visita, y haga clic en
-                        Auditar Progreso.
+                      <p className="max-w-xs text-[11px] text-slate-500">
+                        Seleccione o suba una foto de la bitácora, confirme la fecha y el ID de
+                        visita, y haga clic en Auditar Progreso.
                       </p>
                     </div>
                   )}
@@ -639,27 +672,31 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
 
         {/* Tab Content: 2. GENERAL CHAT & APU */}
         {activeTab === 'chat' && (
-          <div className="flex-1 flex flex-col justify-between overflow-hidden bg-slate-900/60">
+          <div className="flex flex-1 flex-col justify-between overflow-hidden bg-slate-900/60">
             {/* Messages Body */}
-            <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
               {messages.map((m, idx) => (
-                <div key={idx} className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  key={idx}
+                  className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
                   {m.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-400/30 flex items-center justify-center shrink-0 mt-0.5">
-                      <Bot className="w-4 h-4" />
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl border border-sky-400/30 bg-sky-500/20 text-sky-400">
+                      <Bot className="h-4 w-4" />
                     </div>
                   )}
                   <div
-                    className={`p-4 rounded-3xl text-xs sm:text-sm max-w-[85%] leading-relaxed ${
+                    className={`max-w-[85%] rounded-3xl p-4 text-xs leading-relaxed sm:text-sm ${
                       m.role === 'user'
-                        ? 'bg-sky-400 text-slate-950 font-semibold rounded-br-xs'
-                        : 'bg-white/[0.06] text-slate-200 border border-white/10 rounded-bl-xs shadow-lg'
+                        ? 'rounded-br-xs bg-sky-400 font-semibold text-slate-950'
+                        : 'rounded-bl-xs border border-white/10 bg-white/[0.06] text-slate-200 shadow-lg'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{m.text}</p>
                     {m.source && (
-                      <span className="block mt-1.5 text-[10px] text-slate-400 font-mono">
-                        Motor: {m.source === 'gemini-ai' ? 'Gemini 3.8 Flash' : 'Base Normativa Guatemala'}
+                      <span className="mt-1.5 block font-mono text-[10px] text-slate-400">
+                        Motor:{' '}
+                        {m.source === 'gemini-ai' ? 'Gemini 3.8 Flash' : 'Base Normativa Guatemala'}
                       </span>
                     )}
                   </div>
@@ -667,9 +704,9 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
               ))}
 
               {isChatLoading && (
-                <div className="flex gap-3 items-center text-xs text-slate-400 italic">
-                  <div className="w-8 h-8 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-4 h-4 animate-spin text-sky-400" />
+                <div className="flex items-center gap-3 text-xs text-slate-400 italic">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-sky-500/20 text-sky-400">
+                    <Sparkles className="h-4 w-4 animate-spin text-sky-400" />
                   </div>
                   <p>Gemini IA está procesando su consulta de costos e ingeniería...</p>
                 </div>
@@ -677,7 +714,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
             </div>
 
             {/* Quick Prompts */}
-            <div className="p-2 bg-slate-950/80 border-t border-white/10 flex gap-2 overflow-x-auto text-[11px] no-scrollbar">
+            <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-white/10 bg-slate-950/80 p-2 text-[11px]">
               {[
                 `¿Por qué el factor regional en ${department} es ${deptInfo.overallFactor}x?`,
                 '¿Cómo calcular el Factor de Prestaciones Sociales FAS en Guatemala?',
@@ -688,7 +725,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                   key={i}
                   type="button"
                   onClick={() => handleSendChatMessage(q)}
-                  className="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-slate-300 hover:text-white transition whitespace-nowrap shrink-0 cursor-pointer"
+                  className="shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/[0.05] px-3 py-1.5 whitespace-nowrap text-slate-300 transition hover:bg-white/[0.1] hover:text-white"
                 >
                   {q}
                 </button>
@@ -701,21 +738,21 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 e.preventDefault();
                 handleSendChatMessage(chatInput);
               }}
-              className="p-3 sm:p-4 bg-slate-950 border-t border-white/10 flex gap-2"
+              className="flex gap-2 border-t border-white/10 bg-slate-950 p-3 sm:p-4"
             >
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder={`Pregunte sobre APU en ${department}, IGSS, AGIES o rendimientos...`}
-                className="flex-1 px-4 py-3 text-xs sm:text-sm rounded-2xl border border-white/20 bg-slate-900 text-white placeholder-slate-500 focus:outline-none focus:border-sky-400"
+                className="flex-1 rounded-2xl border border-white/20 bg-slate-900 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none sm:text-sm"
               />
               <button
                 type="submit"
                 disabled={isChatLoading || !chatInput.trim()}
-                className="px-5 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-sm cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                className="flex cursor-pointer items-center gap-1.5 rounded-2xl bg-sky-400 px-5 py-3 text-xs font-bold tracking-wider text-slate-950 uppercase shadow-sm transition hover:bg-sky-300 disabled:opacity-50"
               >
-                <Send className="w-4 h-4" />
+                <Send className="h-4 w-4" />
               </button>
             </form>
           </div>
@@ -723,4 +760,4 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
       </div>
     </div>
   );
-};
+}

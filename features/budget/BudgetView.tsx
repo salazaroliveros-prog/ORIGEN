@@ -42,20 +42,22 @@ export function BudgetView({
       />
       <div className="responsive-grid">
         <Card variant="elevated" padding="lg">
-          <h3 className="text-sm font-semibold text-slate-300 mb-2">Presupuesto Total</h3>
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">Presupuesto Total</h3>
           <p className="text-3xl font-bold text-white">Q{totalBudget.toLocaleString('es-GT')}</p>
         </Card>
         <Card variant="elevated" padding="lg">
-          <h3 className="text-sm font-semibold text-slate-300 mb-2">APU estimado registrado</h3>
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">APU estimado registrado</h3>
           <p className="text-3xl font-bold text-sky-400">Q{totalAPU.toLocaleString('es-GT')}</p>
         </Card>
         <Card variant="elevated" padding="lg">
-          <h3 className="text-sm font-semibold text-slate-300 mb-2">Gastos Ejecutados</h3>
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">Gastos Ejecutados</h3>
           <p className="text-3xl font-bold text-amber-400">Q{totalSpent.toLocaleString('es-GT')}</p>
         </Card>
         <Card variant="elevated" padding="lg">
-          <h3 className="text-sm font-semibold text-slate-300 mb-2">Saldo Disponible</h3>
-          <p className="text-3xl font-bold text-emerald-400">Q{(totalBudget - totalSpent).toLocaleString('es-GT')}</p>
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">Saldo Disponible</h3>
+          <p className="text-3xl font-bold text-emerald-400">
+            Q{(totalBudget - totalSpent).toLocaleString('es-GT')}
+          </p>
         </Card>
       </div>
       {project ? (
@@ -76,7 +78,9 @@ export function BudgetView({
       ) : (
         <Card variant="elevated" padding="lg">
           <p className="font-semibold text-white">Aún no hay proyectos para presupuestar.</p>
-          <p className="mt-1 text-sm text-slate-300">Crea un proyecto y vuelve aquí para registrar sus partidas APU.</p>
+          <p className="mt-1 text-sm text-slate-300">
+            Crea un proyecto y vuelve aquí para registrar sus partidas APU.
+          </p>
         </Card>
       )}
     </div>

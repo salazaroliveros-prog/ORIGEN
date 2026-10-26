@@ -16,10 +16,12 @@ export const firebaseRuntimeConfig: FirebaseRuntimeConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? firebaseConfig.apiKey ?? '',
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? firebaseConfig.authDomain ?? '',
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? firebaseConfig.appId ?? '',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? firebaseConfig.storageBucket ?? '',
+  storageBucket:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? firebaseConfig.storageBucket ?? '',
   messagingSenderId:
     process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? firebaseConfig.messagingSenderId ?? '',
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ?? firebaseConfig.measurementId ?? '',
+  measurementId:
+    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ?? firebaseConfig.measurementId ?? '',
   firestoreDatabaseId:
     process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID ?? firebaseConfig.firestoreDatabaseId ?? '',
 };
@@ -35,9 +37,9 @@ export function getFirebaseConfig(): FirebaseRuntimeConfig {
 export function hasFirebaseRuntimeConfig(): boolean {
   return Boolean(
     firebaseRuntimeConfig.projectId &&
-      firebaseRuntimeConfig.apiKey &&
-      firebaseRuntimeConfig.appId &&
-      firebaseRuntimeConfig.authDomain
+    firebaseRuntimeConfig.apiKey &&
+    firebaseRuntimeConfig.appId &&
+    firebaseRuntimeConfig.authDomain
   );
 }
 

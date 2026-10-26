@@ -42,7 +42,11 @@ import {
   subscribeMachineryLogs,
   recordMachineryUse,
 } from '@/lib/firebaseService';
-import { validateProjectForm, getDefaultProjectValues, type ProjectFormValues } from '@/lib/validation/project.schema';
+import {
+  validateProjectForm,
+  getDefaultProjectValues,
+  type ProjectFormValues,
+} from '@/lib/validation/project.schema';
 import { toast } from 'react-hot-toast';
 import {
   canReadAttendance,
@@ -50,11 +54,7 @@ import {
   canReadFullPersonnel,
 } from '@/lib/permissions';
 
-export function useProjectData(
-  companyId?: string,
-  currentUserId?: string,
-  role?: CompanyRole
-) {
+export function useProjectData(companyId?: string, currentUserId?: string, role?: CompanyRole) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [fieldVisits, setFieldVisits] = useState<FieldVisit[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
@@ -144,7 +144,7 @@ export function useProjectData(
 
       const validation = validateProjectForm(data);
       if (!validation.success) {
-        toast.error('Datos inválidos: ' + validation.error.issues.map(i => i.message).join(', '));
+        toast.error('Datos inválidos: ' + validation.error.issues.map((i) => i.message).join(', '));
         return false;
       }
 
@@ -185,7 +185,7 @@ export function useProjectData(
 
       setLoading(true);
       try {
-        const existing = projects.find(p => p.id === projectId);
+        const existing = projects.find((p) => p.id === projectId);
         if (!existing) {
           toast.error('Proyecto no encontrado');
           return false;
@@ -232,12 +232,16 @@ export function useProjectData(
       }
       setLoading(true);
       try {
-        const archived = await saveProjectToFirestore({
-          ...project,
-          status: 'Archivado',
-          archivedAt: new Date().toISOString(),
-          archivedFromStatus: project.status,
-        }, companyId, currentUserId);
+        const archived = await saveProjectToFirestore(
+          {
+            ...project,
+            status: 'Archivado',
+            archivedAt: new Date().toISOString(),
+            archivedFromStatus: project.status,
+          },
+          companyId,
+          currentUserId
+        );
         if (!archived) {
           toast.error('No se pudo archivar el proyecto. No se eliminó ningún dato relacionado.');
           return false;
@@ -246,7 +250,9 @@ export function useProjectData(
         return true;
       } catch (err) {
         console.error('No se pudo archivar el proyecto:', err);
-        toast.error('Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.');
+        toast.error(
+          'Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.'
+        );
         return false;
       } finally {
         setLoading(false);
@@ -268,11 +274,15 @@ export function useProjectData(
       }
       setLoading(true);
       try {
-        const restored = await saveProjectToFirestore({
-          ...project,
-          status: project.archivedFromStatus ?? 'Planificación',
-          archivedAt: null,
-        }, companyId, currentUserId);
+        const restored = await saveProjectToFirestore(
+          {
+            ...project,
+            status: project.archivedFromStatus ?? 'Planificación',
+            archivedAt: null,
+          },
+          companyId,
+          currentUserId
+        );
         if (!restored) {
           toast.error('No se pudo restaurar el proyecto.');
           return false;
@@ -502,7 +512,12 @@ export function useProjectData(
         toast.error('No se encontró la maquinaria seleccionada.');
         return false;
       }
-      const saved = await updateMachineryStatusInFirestore(equipment, status, companyId, currentUserId);
+      const saved = await updateMachineryStatusInFirestore(
+        equipment,
+        status,
+        companyId,
+        currentUserId
+      );
       if (!saved) toast.error('No se pudo actualizar el estado de la maquinaria.');
       return saved;
     },
@@ -539,9 +554,7 @@ export function useProjectData(
     addMachineryLog,
     setMachineryStatus,
     saveCompanySettings: (settings: CompanySettings) =>
-      companyId
-        ? saveCompanySettingsToFirestore(settings, companyId)
-        : Promise.resolve(false),
+      companyId ? saveCompanySettingsToFirestore(settings, companyId) : Promise.resolve(false),
     getDefaultValues: () => getDefaultProjectValues(),
     validateForm: (data: unknown) => validateProjectForm(data),
   };

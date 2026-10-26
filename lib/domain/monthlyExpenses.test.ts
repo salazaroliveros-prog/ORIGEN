@@ -43,10 +43,7 @@ describe('buildMonthlyExpenseSeries', () => {
 
   it('uses the recorded month span for the all-records range', () => {
     const series = buildMonthlyExpenseSeries(
-      [
-        expense('a', 'project-a', '2025-12-15', 100),
-        expense('b', 'project-a', '2026-02-01', 300),
-      ],
+      [expense('a', 'project-a', '2025-12-15', 100), expense('b', 'project-a', '2026-02-01', 300)],
       'all',
       'all',
       new Date(2026, 9, 1)

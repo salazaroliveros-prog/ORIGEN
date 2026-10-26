@@ -1,10 +1,10 @@
 {
-  "projectId": "origen-erp-guatemala",
-  "appId": "1:893831571998:web:4e38903eeb0dff05011c0f",
-  "apiKey": "AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI",
-  "authDomain": "origen-erp-guatemala.firebaseapp.com",
-  "firestoreDatabaseId": "(default)",
-  "storageBucket": "origen-erp-guatemala.firebasestorage.app",
-  "messagingSenderId": "893831571998",
+  "projectId": "",
+  "appId": "",
+  "apiKey": "",
+  "authDomain": "",
+  "firestoreDatabaseId": "",
+  "storageBucket": "",
+  "messagingSenderId": "",
   "measurementId": ""
 }

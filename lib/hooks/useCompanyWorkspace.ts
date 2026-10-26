@@ -35,9 +35,7 @@ export function useCompanyWorkspace(user: User | null) {
       } catch (cause) {
         if (requestId !== selectionRequestId.current) return true;
         const message =
-          cause instanceof Error
-            ? cause.message
-            : 'No se pudo cambiar el espacio de trabajo.';
+          cause instanceof Error ? cause.message : 'No se pudo cambiar el espacio de trabajo.';
         setError(message);
         return false;
       } finally {
@@ -67,7 +65,9 @@ export function useCompanyWorkspace(user: User | null) {
     const prepareWorkspace = async () => {
       if (invitationId || invitationCompanyId) {
         if (!invitationId || !invitationCompanyId) {
-          throw new Error('El enlace de invitación está incompleto. Solicita uno nuevo al administrador.');
+          throw new Error(
+            'El enlace de invitación está incompleto. Solicita uno nuevo al administrador.'
+          );
         }
         await acceptCompanyInvitation(invitationCompanyId, invitationId, user);
         parameters.delete('invite');
@@ -82,7 +82,10 @@ export function useCompanyWorkspace(user: User | null) {
           preferredCompanyId =
             window.localStorage.getItem(`origen.active-workspace.v1.${user.uid}`) ?? undefined;
         } catch (storageError) {
-          console.warn('No se pudo leer la empresa activa guardada en este navegador:', storageError);
+          console.warn(
+            'No se pudo leer la empresa activa guardada en este navegador:',
+            storageError
+          );
         }
       }
       let result: Awaited<ReturnType<typeof ensureCompanyWorkspace>>;
@@ -90,7 +93,10 @@ export function useCompanyWorkspace(user: User | null) {
         result = await ensureCompanyWorkspace(user, preferredCompanyId);
       } catch (error) {
         if (!preferredCompanyId || invitationCompanyId) throw error;
-        console.warn('La empresa activa guardada ya no está disponible; se usará otra membresía válida.', error);
+        console.warn(
+          'La empresa activa guardada ya no está disponible; se usará otra membresía válida.',
+          error
+        );
         try {
           window.localStorage.removeItem(`origen.active-workspace.v1.${user.uid}`);
         } catch (storageError) {

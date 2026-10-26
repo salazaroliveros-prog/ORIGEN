@@ -1,32 +1,32 @@
 'use client';
 
-import { formatGTQ,formatUSD } from '@/lib/data';
-import { exportExpensesBudgetPdf,MonthlyHistogramItem } from '@/lib/pdfExportService';
+import { formatGTQ, formatUSD } from '@/lib/data';
+import { exportExpensesBudgetPdf, MonthlyHistogramItem } from '@/lib/pdfExportService';
 import { buildMonthlyExpenseSeries, MonthlyExpenseRange } from '@/lib/domain/monthlyExpenses';
-import { CompanySettings,ExpenseRecord,Project } from '@/lib/types';
+import { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 import {
-AlertTriangle,
-BarChart3,
-Building2,
-Calendar,
-CheckCircle2,
-DollarSign,
-Download,
-FileText,
-TrendingUp
+  AlertTriangle,
+  BarChart3,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  DollarSign,
+  Download,
+  FileText,
+  TrendingUp,
 } from 'lucide-react';
-import React,{ useMemo,useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import {
-Bar,
-BarChart,
-CartesianGrid,
-Cell,
-Legend,
-ResponsiveContainer,
-Tooltip,
-XAxis,
-YAxis,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
 interface MonthlyExpensesHistogramProps {
@@ -38,14 +38,14 @@ interface MonthlyExpensesHistogramProps {
   onSelectProject?: (projectId: string) => void;
 }
 
-export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> = ({
+export function MonthlyExpensesHistogram({
   projects,
   activeProjectId,
   expenses,
   company,
   currency,
   onSelectProject,
-}) => {
+}: MonthlyExpensesHistogramProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(activeProjectId || 'all');
   const [viewMode, setViewMode] = useState<'histogram' | 'category'>('histogram');
   const [timeRange, setTimeRange] = useState<MonthlyExpenseRange>('6m');
@@ -77,9 +77,10 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
 
   // Breakdown by Category for the selected project
   const categoryData = useMemo(() => {
-    const targetExpenses = selectedProjectId === 'all'
-      ? expenses
-      : expenses.filter((e) => e.projectId === selectedProjectId);
+    const targetExpenses =
+      selectedProjectId === 'all'
+        ? expenses
+        : expenses.filter((e) => e.projectId === selectedProjectId);
 
     const categories = [
       'Materiales (Cementos, Hierro)',
@@ -102,7 +103,9 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
     });
   }, [selectedProjectId, expenses]);
   const hasExpensesForSelectedProject = useMemo(
-    () => selectedProjectId === 'all' || expenses.some((expense) => expense.projectId === selectedProjectId),
+    () =>
+      selectedProjectId === 'all' ||
+      expenses.some((expense) => expense.projectId === selectedProjectId),
     [expenses, selectedProjectId]
   );
 
@@ -122,7 +125,8 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
   }, [projects, selectedProjectId, activeProject]);
 
   const netBalance = totalBudgetSelected - totalSpentSelected;
-  const executionPercent = totalBudgetSelected > 0 ? (totalSpentSelected / totalBudgetSelected) * 100 : 0;
+  const executionPercent =
+    totalBudgetSelected > 0 ? (totalSpentSelected / totalBudgetSelected) * 100 : 0;
 
   // Month with max spending & monthly average
   const maxMonth = useMemo(() => {
@@ -166,14 +170,14 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
     <div className="space-y-6">
       {/* Toast Alert for PDF Success */}
       {pdfSuccessMessage && (
-        <div className="p-3.5 bg-emerald-600/90 text-white rounded-2xl flex items-center justify-between shadow-lg border border-emerald-500/30 transition-all animate-in fade-in">
+        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-600/90 p-3.5 text-white shadow-lg transition-all">
           <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-5 h-5 text-emerald-200" />
+            <CheckCircle2 className="h-5 w-5 text-emerald-200" />
             <span className="text-xs font-semibold">{pdfSuccessMessage}</span>
           </div>
           <button
             onClick={() => setPdfSuccessMessage(null)}
-            className="text-xs text-emerald-200 hover:text-white px-2 py-0.5"
+            className="px-2 py-0.5 text-xs text-emerald-200 hover:text-white"
           >
             ✕
           </button>
@@ -181,24 +185,24 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
       )}
 
       {/* Top Header Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl sm:p-6">
+        <div className="pointer-events-none absolute top-0 right-0 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+        <div className="relative z-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="p-2 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30">
-                <BarChart3 className="w-5 h-5" />
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="rounded-xl border border-amber-500/30 bg-amber-500/20 p-2 text-amber-400">
+                <BarChart3 className="h-5 w-5" />
               </span>
-              <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+              <h2 className="text-lg font-extrabold tracking-tight text-white sm:text-xl">
                 Historial de Gastos Mensuales Registrados
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              <span className="rounded-full border border-blue-500/30 bg-blue-500/20 px-2.5 py-0.5 text-[10px] font-bold text-blue-300">
                 Recharts Engine
               </span>
             </div>
-            <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+            <p className="max-w-2xl text-xs leading-relaxed text-slate-400">
               Distribución por mes de los gastos guardados para{' '}
               <strong className="text-slate-200">
                 {activeProject ? activeProject.name : 'Todas las Obras de ConstructERP Guatemala'}
@@ -208,20 +212,20 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleExportPDF}
               disabled={isExportingPdf}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2.5 text-xs font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:from-amber-400 hover:to-amber-500 disabled:opacity-50"
             >
               {isExportingPdf ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
                   <span>Generando PDF Oficial...</span>
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4" />
+                  <Download className="h-4 w-4" />
                   <span>Exportar Resumen a PDF</span>
                 </>
               )}
@@ -230,11 +234,11 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="mt-5 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+        <div className="mt-5 flex flex-col items-stretch justify-between gap-3 border-t border-slate-800 pt-4 text-xs sm:flex-row sm:items-center">
           {/* Project Selector */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-slate-400 font-semibold flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="flex items-center gap-1.5 font-semibold text-slate-400">
+              <Building2 className="h-3.5 w-3.5 text-amber-400" />
               Proyecto:
             </span>
             <select
@@ -247,7 +251,7 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
                   onSelectProject(val);
                 }
               }}
-              className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:outline-none focus:border-amber-400 transition cursor-pointer"
+              className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white transition focus:border-amber-400 focus:outline-none"
             >
               <option value="all">Todas las Obras (Consolidado General)</option>
               {projects.map((p) => (
@@ -259,12 +263,12 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
           </div>
 
           {/* View Mode & Range Switchers */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2">
             {/* View Mode */}
-            <div className="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
+            <div className="flex items-center rounded-xl border border-slate-700 bg-slate-800 p-0.5">
               <button
                 onClick={() => setViewMode('histogram')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                   viewMode === 'histogram'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
@@ -274,7 +278,7 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
               </button>
               <button
                 onClick={() => setViewMode('category')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                   viewMode === 'category'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
@@ -285,27 +289,33 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
             </div>
 
             {/* Time Horizon */}
-            <div className="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
+            <div className="flex items-center rounded-xl border border-slate-700 bg-slate-800 p-0.5">
               <button
                 onClick={() => setTimeRange('6m')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
-                  timeRange === '6m' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-white'
+                className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                  timeRange === '6m'
+                    ? 'bg-slate-700 font-bold text-white'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 6 Meses
               </button>
               <button
                 onClick={() => setTimeRange('12m')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
-                  timeRange === '12m' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-white'
+                className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                  timeRange === '12m'
+                    ? 'bg-slate-700 font-bold text-white'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 12 Meses
               </button>
               <button
                 onClick={() => setTimeRange('all')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
-                  timeRange === 'all' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-white'
+                className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                  timeRange === 'all'
+                    ? 'bg-slate-700 font-bold text-white'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Ciclo Total
@@ -316,112 +326,122 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
       </div>
 
       {/* KPI Highlight Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {/* Card 1: Presupuesto Total */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Presupuesto Proyectado</span>
-            <DollarSign className="w-4 h-4 text-blue-400" />
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
+          <div className="mb-1 flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold tracking-wider uppercase">
+              Presupuesto Proyectado
+            </span>
+            <DollarSign className="h-4 w-4 text-blue-400" />
           </div>
-          <div className="text-base sm:text-lg font-extrabold text-white">
+          <div className="text-base font-extrabold text-white sm:text-lg">
             {formatMoney(totalBudgetSelected)}
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">
-            {selectedProjectId === 'all' ? `${projects.length} obras consolidadas` : activeProject?.code}
+          <p className="mt-0.5 text-[10px] text-slate-400">
+            {selectedProjectId === 'all'
+              ? `${projects.length} obras consolidadas`
+              : activeProject?.code}
           </p>
         </div>
 
         {/* Card 2: Gastos Reales */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Gastos Reales Ejecutados</span>
-            <TrendingUp className="w-4 h-4 text-amber-400" />
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
+          <div className="mb-1 flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold tracking-wider uppercase">
+              Gastos Reales Ejecutados
+            </span>
+            <TrendingUp className="h-4 w-4 text-amber-400" />
           </div>
-          <div className="text-base sm:text-lg font-extrabold text-amber-400">
+          <div className="text-base font-extrabold text-amber-400 sm:text-lg">
             {formatMoney(totalSpentSelected)}
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">
+          <p className="mt-0.5 text-[10px] text-slate-400">
             {executionPercent.toFixed(1)}% del presupuesto consumido
           </p>
         </div>
 
         {/* Card 3: Saldo o Superávit */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Saldo Presupuestario</span>
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
+          <div className="mb-1 flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold tracking-wider uppercase">
+              Saldo Presupuestario
+            </span>
             {netBalance >= 0 ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
+              <AlertTriangle className="h-4 w-4 text-rose-400" />
             )}
           </div>
-          <div className={`text-base sm:text-lg font-extrabold ${netBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div
+            className={`text-base font-extrabold sm:text-lg ${netBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}
+          >
             {formatMoney(netBalance)}
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">
+          <p className="mt-0.5 text-[10px] text-slate-400">
             {netBalance >= 0 ? 'Dentro del margen planificado' : 'Alerta de sobrecosto en obra'}
           </p>
         </div>
 
         {/* Card 4: Promedio Mensual */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Gasto Promedio Mensual</span>
-            <Calendar className="w-4 h-4 text-purple-400" />
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
+          <div className="mb-1 flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold tracking-wider uppercase">
+              Gasto Promedio Mensual
+            </span>
+            <Calendar className="h-4 w-4 text-purple-400" />
           </div>
-          <div className="text-base sm:text-lg font-extrabold text-purple-300">
+          <div className="text-base font-extrabold text-purple-300 sm:text-lg">
             {formatMoney(avgMonthlyExpense)}
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">
-            {monthlyData.length > 0
-              ? <>Mes pico: <strong className="text-white">{maxMonth.mesCompleto}</strong> ({formatMoney(maxMonth.gastos)})</>
-              : 'Sin gastos registrados en el periodo'}
+          <p className="mt-0.5 text-[10px] text-slate-400">
+            {monthlyData.length > 0 ? (
+              <>
+                Mes pico: <strong className="text-white">{maxMonth.mesCompleto}</strong> (
+                {formatMoney(maxMonth.gastos)})
+              </>
+            ) : (
+              'Sin gastos registrados en el periodo'
+            )}
           </p>
         </div>
       </div>
 
       {/* Main Histogram / Recharts Container */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl sm:p-6">
+        <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            <h3 className="flex items-center gap-2 text-sm font-bold text-white sm:text-base">
               <span>Distribución Histográfica Mensual</span>
               <span className="text-xs font-normal text-slate-400">
                 ({selectedProjectId === 'all' ? 'Consolidado General' : activeProject?.name})
               </span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Solo incluye gastos registrados; no se compara contra un presupuesto mensual que no esté guardado.
+            <p className="mt-0.5 text-xs text-slate-400">
+              Solo incluye gastos registrados; no se compara contra un presupuesto mensual que no
+              esté guardado.
             </p>
           </div>
 
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-xs bg-amber-500 inline-block" />
-              <span className="text-slate-300 font-medium">Gastos registrados</span>
+              <span className="inline-block h-3 w-3 rounded-xs bg-amber-500" />
+              <span className="font-medium text-slate-300">Gastos registrados</span>
             </div>
           </div>
         </div>
 
         {/* Recharts Render Area */}
-        <div className="h-80 sm:h-96 w-full">
+        <div className="h-80 w-full sm:h-96">
           {(viewMode === 'category' ? !hasExpensesForSelectedProject : monthlyData.length === 0) ? (
             <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-700 text-center text-sm text-slate-400">
               No hay gastos registrados para el proyecto y periodo seleccionados.
             </div>
           ) : viewMode === 'histogram' ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={monthlyData}
-                margin={{ top: 20, right: 20, left: 10, bottom: 10 }}
-              >
+              <BarChart data={monthlyData} margin={{ top: 20, right: 20, left: 10, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.6} />
-                <XAxis
-                  dataKey="mes"
-                  stroke="#94a3b8"
-                  fontSize={12}
-                  tickLine={false}
-                />
+                <XAxis dataKey="mes" stroke="#94a3b8" fontSize={12} tickLine={false} />
                 <YAxis
                   stroke="#94a3b8"
                   fontSize={11}
@@ -434,12 +454,14 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
                     if (active && payload && payload.length) {
                       const data = payload[0].payload as MonthlyHistogramItem;
                       return (
-                        <div className="bg-slate-950 border border-slate-700 p-3.5 rounded-2xl shadow-2xl text-xs space-y-2 min-w-56">
+                        <div className="min-w-56 space-y-2 rounded-2xl border border-slate-700 bg-slate-950 p-3.5 text-xs shadow-2xl">
                           <div className="space-y-1">
-                            <p className="font-bold text-white text-sm">{data.mesCompleto}</p>
+                            <p className="text-sm font-bold text-white">{data.mesCompleto}</p>
                             <div className="flex items-center justify-between">
                               <span className="text-slate-400">Gastos registrados:</span>
-                              <span className="font-bold text-amber-400">{formatMoney(data.gastos)}</span>
+                              <span className="font-bold text-amber-400">
+                                {formatMoney(data.gastos)}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -465,10 +487,7 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
             </ResponsiveContainer>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={categoryData}
-                margin={{ top: 20, right: 20, left: 10, bottom: 10 }}
-              >
+              <BarChart data={categoryData} margin={{ top: 20, right: 20, left: 10, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.6} />
                 <XAxis dataKey="categoria" stroke="#94a3b8" fontSize={12} tickLine={false} />
                 <YAxis
@@ -483,16 +502,21 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
                     if (active && payload && payload.length) {
                       const item = payload[0].payload;
                       return (
-                        <div className="bg-slate-950 border border-slate-700 p-3 rounded-xl shadow-xl text-xs space-y-1">
+                        <div className="space-y-1 rounded-xl border border-slate-700 bg-slate-950 p-3 text-xs shadow-xl">
                           <p className="font-bold text-white">{item.categoriaCompleta}</p>
-                          <p className="text-amber-400 font-bold">{formatMoney(item.monto)}</p>
+                          <p className="font-bold text-amber-400">{formatMoney(item.monto)}</p>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Bar dataKey="monto" name="Gasto por Categoría" fill="#38bdf8" radius={[4, 4, 0, 0]}>
+                <Bar
+                  dataKey="monto"
+                  name="Gasto por Categoría"
+                  fill="#38bdf8"
+                  radius={[4, 4, 0, 0]}
+                >
                   {categoryData.map((_, idx) => (
                     <Cell
                       key={`cat-cell-${idx}`}
@@ -507,10 +531,10 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
       </div>
 
       {/* Tabular Data Breakdown */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            <FileText className="w-4 h-4 text-amber-400" />
+      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h4 className="flex items-center gap-2 text-sm font-bold text-white">
+            <FileText className="h-4 w-4 text-amber-400" />
             Gastos Registrados por Mes
           </h4>
           <span className="text-xs text-slate-400">
@@ -520,29 +544,33 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
-            <thead className="text-[11px] font-bold uppercase tracking-wider text-slate-400 bg-slate-800/80 border-b border-slate-700">
+            <thead className="border-b border-slate-700 bg-slate-800/80 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               <tr>
-                <th className="py-3 px-4">Periodo</th>
-                <th className="py-3 px-4 text-right">Gastos registrados</th>
+                <th className="px-4 py-3">Periodo</th>
+                <th className="px-4 py-3 text-right">Gastos registrados</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-medium">
               {monthlyData.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="py-5 px-4 text-center text-slate-400">
+                  <td colSpan={2} className="px-4 py-5 text-center text-slate-400">
                     No hay gastos registrados para este periodo.
                   </td>
                 </tr>
-              ) : monthlyData.map((item) => (
-                  <tr key={item.mesCompleto} className="hover:bg-slate-800/40 transition">
-                    <td className="py-2.5 px-4 font-bold text-white">{item.mesCompleto}</td>
-                    <td className="py-2.5 px-4 text-right font-bold text-amber-400">{formatMoney(item.gastos)}</td>
+              ) : (
+                monthlyData.map((item) => (
+                  <tr key={item.mesCompleto} className="transition hover:bg-slate-800/40">
+                    <td className="px-4 py-2.5 font-bold text-white">{item.mesCompleto}</td>
+                    <td className="px-4 py-2.5 text-right font-bold text-amber-400">
+                      {formatMoney(item.gastos)}
+                    </td>
                   </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
     </div>
   );
-};
+}

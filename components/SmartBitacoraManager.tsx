@@ -23,7 +23,12 @@ import {
   ChevronRight,
   Info,
 } from 'lucide-react';
-import { Project, CompanySettings } from '@/lib/types';
+import {
+  Project,
+  CompanySettings,
+  SpeechRecognitionEvent,
+  SpeechRecognitionErrorEvent,
+} from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { CanvasSignature } from '@/components/CanvasSignature';
@@ -77,7 +82,8 @@ const INITIAL_BITACORAS: SmartBitacoraEntry[] = [
     projectId: 'proj-1',
     date: '2026-10-24',
     capatazName: 'José Manuel Morales (Capataz General)',
-    climaYCondiciones: 'Soleado por la mañana (24°C). Lluvia moderada de 14:15 a 15:30 (afectó 1.25 hrs de fundición).',
+    climaYCondiciones:
+      'Soleado por la mañana (24°C). Lluvia moderada de 14:15 a 15:30 (afectó 1.25 hrs de fundición).',
     resumenEjecutivo:
       'Se completó la fundición de zapatas Z-3 y Z-4 en sector Norte. Llegó el pedido de hierro estructural de 1/2 pulgada. Inspección estructural aprobó traslape de armaduría.',
     personalEnCampo: {
@@ -113,19 +119,21 @@ const INITIAL_BITACORAS: SmartBitacoraEntry[] = [
     ],
     incidentesYObservaciones:
       'Sin accidentes reportados. Se cubrieron los sacos de cemento durante el aguacero de la tarde.',
-    cumplimientoNormativoAgies: 'Conforme a norma AGIES NSE-2 (Cimentaciones) y COGUANOR NGO 41007.',
+    cumplimientoNormativoAgies:
+      'Conforme a norma AGIES NSE-2 (Cimentaciones) y COGUANOR NGO 41007.',
     planificacionManana:
       'Desencofrar zapatas Z-3 y comenzar excavación de zanja de cimentación para muro perimetral.',
     createdAt: '2026-10-24T10:30:00.000Z',
-    capatazSignatureUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD01MCI+PHBhdGggZD0iTSAxMCAyNSBRIDMwIDEwIDUwIDI1IFQgOTAgMjUiIHN0cm9rZT0iIzAzNmI5OCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+',
+    capatazSignatureUrl:
+      'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD01MCI+PHBhdGggZD0iTSAxMCAyNSBRIDMwIDEwIDUwIDI1IFQgOTAgMjUiIHN0cm9rZT0iIzAzNmI5OCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+',
   },
 ];
 
-export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
+export function SmartBitacoraManager({
   projects = [],
   activeProjectId,
   company,
-}) => {
+}: SmartBitacoraManagerProps) {
   const [bitacoras, setBitacoras] = useState<SmartBitacoraEntry[]>(INITIAL_BITACORAS);
   const [selectedProjectId, setSelectedProjectId] = useState<string>(
     activeProjectId || projects[0]?.id || ''
@@ -160,7 +168,7 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
         rec.interimResults = true;
         rec.lang = 'es-GT';
 
-        rec.onresult = (event: any) => {
+        rec.onresult = (event: SpeechRecognitionEvent) => {
           let currentTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             currentTranscript += event.results[i][0].transcript;
@@ -170,7 +178,7 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
           }
         };
 
-        rec.onerror = (e: any) => {
+        rec.onerror = (e: SpeechRecognitionErrorEvent) => {
           console.warn('Speech recognition notice:', e.error);
           setIsRecording(false);
         };
@@ -209,7 +217,9 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
 
   const handleGenerateBitacora = async () => {
     if (!voiceNotes.trim()) {
-      setErrorMessage('Por favor hable o escriba la nota de voz del capataz antes de generar la bitácora.');
+      setErrorMessage(
+        'Por favor hable o escriba la nota de voz del capataz antes de generar la bitácora.'
+      );
       return;
     }
 
@@ -244,10 +254,12 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
       setBitacoras((prev) => [newEntry, ...prev]);
       setSelectedBitacora(newEntry);
       setVoiceNotes('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error in handleGenerateBitacora:', err);
       setErrorMessage(
-        err.message || 'Ocurrió un error al generar la Bitácora Inteligente. Intente nuevamente.'
+        err instanceof Error
+          ? err.message
+          : 'Ocurrió un error al generar la Bitácora Inteligente. Intente nuevamente.'
       );
     } finally {
       setIsGenerating(false);
@@ -269,20 +281,23 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-indigo-500/20 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-indigo-500/20 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 p-6 shadow-2xl md:flex-row md:items-center">
         <div className="flex items-center gap-4">
-          <span className="p-3.5 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-            <Sparkles className="w-7 h-7" />
+          <span className="rounded-2xl border border-indigo-500/30 bg-indigo-500/20 p-3.5 text-indigo-400">
+            <Sparkles className="h-7 w-7" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white tracking-tight">Smart Bitácora de Obra (Gemini IA)</h2>
+              <h2 className="text-xl font-black tracking-tight text-white">
+                Smart Bitácora de Obra (Gemini IA)
+              </h2>
               <Badge variant="primary" size="sm">
                 Voz a Texto AGIES
               </Badge>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
-              Generación automatizada de libros de bitácora oficial basada en dictados de capataces de campo.
+            <p className="mt-1 text-xs text-slate-300">
+              Generación automatizada de libros de bitácora oficial basada en dictados de capataces
+              de campo.
             </p>
           </div>
         </div>
@@ -291,7 +306,7 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -302,51 +317,53 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left Column: Voice Note Creator */}
-        <div className="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
-          <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-            <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-              <Mic className="w-4 h-4 text-amber-400" />
+        <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl lg:col-span-5">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
+              <Mic className="h-4 w-4 text-amber-400" />
               Dictado de Capataz & Dictado por Voz
             </h3>
-            <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">
+            <span className="rounded-md bg-slate-800 px-2 py-0.5 font-mono text-[10px] text-slate-400">
               Gemini 3.8 Flash
             </span>
           </div>
 
           <div className="space-y-3 text-xs">
             <div>
-              <label className="block font-bold text-slate-300 mb-1">Nombre del Capataz / Informante</label>
+              <label className="mb-1 block font-bold text-slate-300">
+                Nombre del Capataz / Informante
+              </label>
               <input
                 type="text"
                 value={capatazName}
                 onChange={(e) => setCapatazName(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 font-medium text-white focus:ring-2 focus:ring-indigo-500"
                 placeholder="Ej. Capataz Jorge Contreras"
               />
             </div>
 
             <div>
-              <label className="block font-bold text-slate-300 mb-1">Fecha del Reporte</label>
+              <label className="mb-1 block font-bold text-slate-300">Fecha del Reporte</label>
               <input
                 type="date"
                 value={reportDate}
                 onChange={(e) => setReportDate(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 font-medium text-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             {/* Mic Dictation Trigger Card */}
-            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+            <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950 p-4">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-amber-400 text-xs flex items-center gap-1.5">
-                  <Mic className="w-4 h-4" /> Grabación de Audio
+                <span className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                  <Mic className="h-4 w-4" /> Grabación de Audio
                 </span>
                 <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                     isRecording
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                      ? 'animate-pulse border border-rose-500/40 bg-rose-500/20 text-rose-300'
                       : 'bg-slate-800 text-slate-400'
                   }`}
                 >
@@ -359,15 +376,15 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
                   variant={isRecording ? 'danger' : 'primary'}
                   size="md"
                   onClick={handleToggleRecord}
-                  className="flex-1 flex items-center justify-center gap-2"
+                  className="flex flex-1 items-center justify-center gap-2"
                 >
                   {isRecording ? (
                     <>
-                      <MicOff className="w-4 h-4 animate-bounce" /> Detener Micrófono
+                      <MicOff className="h-4 w-4 animate-bounce" /> Detener Micrófono
                     </>
                   ) : (
                     <>
-                      <Mic className="w-4 h-4 text-slate-950" /> Grabar Dictado Capataz
+                      <Mic className="h-4 w-4 text-slate-950" /> Grabar Dictado Capataz
                     </>
                   )}
                 </Button>
@@ -379,19 +396,21 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
                     className="p-2 text-slate-400 hover:text-white"
                     title="Limpiar nota"
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <RotateCcw className="h-4 w-4" />
                   </Button>
                 )}
               </div>
 
-              <p className="text-[11px] text-slate-400 italic leading-relaxed">
-                Ejemplo: &quot;Hoy vino la cuadrilla de fundición, colamos 18 metros cúbicos de concreto en zapatas Z-3 y Z-4, llovió a las 2pm por una hora, recibimos 35 quintales de hierro de 1/2 pulgada de Distribuidora El Sol, sin accidentes.&quot;
+              <p className="text-[11px] leading-relaxed text-slate-400 italic">
+                Ejemplo: &quot;Hoy vino la cuadrilla de fundición, colamos 18 metros cúbicos de
+                concreto en zapatas Z-3 y Z-4, llovió a las 2pm por una hora, recibimos 35 quintales
+                de hierro de 1/2 pulgada de Distribuidora El Sol, sin accidentes.&quot;
               </p>
             </div>
 
             {/* Textarea for transcript / manual input */}
             <div>
-              <label className="block font-bold text-slate-300 mb-1">
+              <label className="mb-1 block font-bold text-slate-300">
                 Transcripción / Nota de Voz Desestructurada
               </label>
               <textarea
@@ -399,13 +418,13 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
                 value={voiceNotes}
                 onChange={(e) => setVoiceNotes(e.target.value)}
                 placeholder="Presione el botón de micrófono para hablar o escriba directamente la nota de campo del capataz aquí..."
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-medium focus:ring-2 focus:ring-indigo-500 leading-relaxed placeholder:text-slate-500"
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 leading-relaxed font-medium text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             {errorMessage && (
-              <div className="bg-rose-950/60 border border-rose-800 text-rose-300 p-3 rounded-xl text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+              <div className="flex items-center gap-2 rounded-xl border border-rose-800 bg-rose-950/60 p-3 text-xs text-rose-300">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
                 <span>{errorMessage}</span>
               </div>
             )}
@@ -415,16 +434,16 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
               size="lg"
               disabled={isGenerating || !voiceNotes.trim()}
               onClick={handleGenerateBitacora}
-              className="w-full flex items-center justify-center gap-2 font-bold shadow-lg shadow-amber-500/10"
+              className="flex w-full items-center justify-center gap-2 font-bold shadow-lg shadow-amber-500/10"
             >
               {isGenerating ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                  <RefreshCw className="h-4 w-4 animate-spin text-slate-950" />
                   <span>Procesando con Gemini IA...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <Sparkles className="h-4 w-4 text-slate-950" />
                   <span>Generar Bitácora Inteligente Oficial</span>
                 </>
               )}
@@ -433,42 +452,45 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
         </div>
 
         {/* Right Column: Bitácora Preview & History */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className="space-y-4 lg:col-span-7">
           {/* History List Selector */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-2">
             {bitacoras.map((b) => (
               <button
                 key={b.id}
                 onClick={() => setSelectedBitacora(b)}
-                className={`px-3 py-2 rounded-2xl border text-xs font-bold shrink-0 transition flex items-center gap-2 ${
+                className={`flex shrink-0 items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-bold transition ${
                   selectedBitacora?.id === b.id
-                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 shadow-md'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    ? 'border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-md'
+                    : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
                 }`}
               >
-                <FileText className="w-3.5 h-3.5" />
+                <FileText className="h-3.5 w-3.5" />
                 <span>{b.folioNumber}</span>
-                <span className="text-[10px] text-slate-500 font-mono">({b.date})</span>
+                <span className="font-mono text-[10px] text-slate-500">({b.date})</span>
               </button>
             ))}
           </div>
 
           {selectedBitacora ? (
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
+            <div className="space-y-6 rounded-3xl border border-slate-800 bg-slate-900/90 p-6 shadow-2xl">
               {/* Bitácora Document Header */}
-              <div className="border-b border-slate-800 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div className="flex flex-col items-start justify-between gap-3 border-b border-slate-800 pb-4 sm:flex-row sm:items-center">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-amber-400 font-extrabold uppercase">
+                    <span className="font-mono text-xs font-extrabold text-amber-400 uppercase">
                       {selectedBitacora.folioNumber}
                     </span>
-                    <span className="text-xs bg-emerald-900/60 border border-emerald-700 text-emerald-300 px-2 py-0.5 rounded-md font-extrabold">
+                    <span className="rounded-md border border-emerald-700 bg-emerald-900/60 px-2 py-0.5 text-xs font-extrabold text-emerald-300">
                       IA Verificada
                     </span>
                   </div>
-                  <h3 className="text-lg font-black text-white mt-1">{selectedBitacora.projectName}</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Informante: <strong>{selectedBitacora.capatazName}</strong> • Fecha: {selectedBitacora.date}
+                  <h3 className="mt-1 text-lg font-black text-white">
+                    {selectedBitacora.projectName}
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    Informante: <strong>{selectedBitacora.capatazName}</strong> • Fecha:{' '}
+                    {selectedBitacora.date}
                   </p>
                 </div>
 
@@ -479,68 +501,69 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
                     onClick={() => setShowSignModal(true)}
                     className="flex items-center gap-1.5 text-xs font-bold text-amber-300"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />
                     <span>Firma Digital Capataz</span>
                   </Button>
                 </div>
               </div>
 
               {/* Clima & Resumen */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/60 space-y-1">
-                  <span className="text-[10px] uppercase font-mono font-bold text-amber-400 flex items-center gap-1">
-                    <CloudRain className="w-3.5 h-3.5" /> Clima y Condiciones de Obra
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-1 rounded-2xl border border-slate-700/60 bg-slate-800/50 p-4">
+                  <span className="flex items-center gap-1 font-mono text-[10px] font-bold text-amber-400 uppercase">
+                    <CloudRain className="h-3.5 w-3.5" /> Clima y Condiciones de Obra
                   </span>
-                  <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                  <p className="text-xs leading-relaxed font-medium text-slate-200">
                     {selectedBitacora.climaYCondiciones}
                   </p>
                 </div>
 
-                <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/60 space-y-1">
-                  <span className="text-[10px] uppercase font-mono font-bold text-sky-400 flex items-center gap-1">
-                    <User className="w-3.5 h-3.5" /> Personal en Campo
+                <div className="space-y-1 rounded-2xl border border-slate-700/60 bg-slate-800/50 p-4">
+                  <span className="flex items-center gap-1 font-mono text-[10px] font-bold text-sky-400 uppercase">
+                    <User className="h-3.5 w-3.5" /> Personal en Campo
                   </span>
-                  <p className="text-xs text-slate-200 leading-relaxed font-medium">
-                    {selectedBitacora.personalEnCampo.detalles} (Total: {selectedBitacora.personalEnCampo.totalOperarios} operarios)
+                  <p className="text-xs leading-relaxed font-medium text-slate-200">
+                    {selectedBitacora.personalEnCampo.detalles} (Total:{' '}
+                    {selectedBitacora.personalEnCampo.totalOperarios} operarios)
                   </p>
                 </div>
               </div>
 
               {/* Resumen Ejecutivo */}
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                <span className="text-[10px] uppercase font-mono font-bold text-emerald-400">
+              <div className="space-y-1 rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                <span className="font-mono text-[10px] font-bold text-emerald-400 uppercase">
                   Resumen Ejecutivo de la Jornada
                 </span>
-                <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                <p className="text-xs leading-relaxed font-medium text-slate-200">
                   {selectedBitacora.resumenEjecutivo}
                 </p>
               </div>
 
               {/* Trabajos Ejecutados */}
               <div className="space-y-3">
-                <h4 className="text-xs font-extrabold uppercase font-mono tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-indigo-400" /> Trabajos y Unidades Ejecutadas
+                <h4 className="flex items-center gap-1.5 font-mono text-xs font-extrabold tracking-wider text-slate-400 uppercase">
+                  <Layers className="h-4 w-4 text-indigo-400" /> Trabajos y Unidades Ejecutadas
                 </h4>
 
                 <div className="space-y-2">
                   {selectedBitacora.trabajosEjecutados.map((t, idx) => (
                     <div
                       key={idx}
-                      className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 flex items-center justify-between gap-3 text-xs"
+                      className="flex items-center justify-between gap-3 rounded-xl border border-slate-700/60 bg-slate-800/60 p-3 text-xs"
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <strong className="text-white font-bold">{t.item}</strong>
+                          <strong className="font-bold text-white">{t.item}</strong>
                           {t.renglonApu && (
-                            <span className="text-[10px] font-mono text-amber-400 bg-amber-950/60 border border-amber-800 px-2 py-0.5 rounded">
+                            <span className="rounded border border-amber-800 bg-amber-950/60 px-2 py-0.5 font-mono text-[10px] text-amber-400">
                               {t.renglonApu}
                             </span>
                           )}
                         </div>
-                        <p className="text-slate-400 text-[11px] mt-0.5">{t.descripcion}</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">{t.descripcion}</p>
                       </div>
 
-                      <span className="font-mono font-extrabold text-emerald-400 text-xs bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg shrink-0">
+                      <span className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 font-mono text-xs font-extrabold text-emerald-400">
                         {t.cantidadUnidad}
                       </span>
                     </div>
@@ -550,19 +573,19 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
 
               {/* Materiales Ingresados */}
               <div className="space-y-3">
-                <h4 className="text-xs font-extrabold uppercase font-mono tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <Building2 className="w-4 h-4 text-amber-400" /> Materiales e Insumos Ingresados
+                <h4 className="flex items-center gap-1.5 font-mono text-xs font-extrabold tracking-wider text-slate-400 uppercase">
+                  <Building2 className="h-4 w-4 text-amber-400" /> Materiales e Insumos Ingresados
                 </h4>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {selectedBitacora.materialesRecibidos.map((m, idx) => (
                     <div
                       key={idx}
-                      className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 text-xs space-y-0.5 font-mono"
+                      className="space-y-0.5 rounded-xl border border-slate-700/60 bg-slate-800/60 p-3 font-mono text-xs"
                     >
-                      <span className="text-slate-200 font-bold block">{m.material}</span>
+                      <span className="block font-bold text-slate-200">{m.material}</span>
                       <div className="flex justify-between text-[11px]">
-                        <span className="text-amber-400 font-bold">{m.cantidad}</span>
+                        <span className="font-bold text-amber-400">{m.cantidad}</span>
                         <span className="text-slate-400">{m.proveedor}</span>
                       </div>
                     </div>
@@ -571,32 +594,34 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
               </div>
 
               {/* Cumplimiento AGIES & Planificación */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-                <div className="bg-emerald-950/30 border border-emerald-800/80 p-3.5 rounded-2xl text-emerald-200 space-y-1">
-                  <span className="font-bold uppercase text-[10px] text-emerald-400 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> AGIES & Normativa Guatemala
+              <div className="grid grid-cols-1 gap-4 font-mono text-xs md:grid-cols-2">
+                <div className="space-y-1 rounded-2xl border border-emerald-800/80 bg-emerald-950/30 p-3.5 text-emerald-200">
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 uppercase">
+                    <ShieldCheck className="h-3.5 w-3.5" /> AGIES & Normativa Guatemala
                   </span>
-                  <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+                  <p className="font-sans text-[11px] leading-relaxed text-slate-300">
                     {selectedBitacora.cumplimientoNormativoAgies}
                   </p>
                 </div>
 
-                <div className="bg-sky-950/30 border border-sky-800/80 p-3.5 rounded-2xl text-sky-200 space-y-1">
-                  <span className="font-bold uppercase text-[10px] text-sky-400 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" /> Planificación de Mañana
+                <div className="space-y-1 rounded-2xl border border-sky-800/80 bg-sky-950/30 p-3.5 text-sky-200">
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-sky-400 uppercase">
+                    <Calendar className="h-3.5 w-3.5" /> Planificación de Mañana
                   </span>
-                  <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+                  <p className="font-sans text-[11px] leading-relaxed text-slate-300">
                     {selectedBitacora.planificacionManana}
                   </p>
                 </div>
               </div>
 
               {/* Signature Section */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+              <div className="flex items-center justify-between border-t border-slate-800 pt-4">
                 <div>
-                  <span className="text-[10px] uppercase font-mono text-slate-400 block">Firma Capataz Responsable</span>
+                  <span className="block font-mono text-[10px] text-slate-400 uppercase">
+                    Firma Capataz Responsable
+                  </span>
                   {selectedBitacora.capatazSignatureUrl ? (
-                    <div className="mt-1 flex items-center gap-2 bg-slate-800/80 p-2 rounded-xl border border-slate-700">
+                    <div className="mt-1 flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 p-2">
                       <Image
                         src={selectedBitacora.capatazSignatureUrl}
                         alt="Firma Capataz"
@@ -605,24 +630,31 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
                         unoptimized
                         className="h-8 max-w-[120px] object-contain invert"
                       />
-                      <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                        <Check className="w-3 h-3" /> Firmado
+                      <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400">
+                        <Check className="h-3 w-3" /> Firmado
                       </span>
                     </div>
                   ) : (
-                    <span className="text-xs text-amber-400 italic">Pendiente de firma sobre lienzo</span>
+                    <span className="text-xs text-amber-400 italic">
+                      Pendiente de firma sobre lienzo
+                    </span>
                   )}
                 </div>
 
-                <Button variant="outline" size="sm" onClick={() => window.print()} className="flex items-center gap-2">
-                  <Printer className="w-4 h-4" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="flex items-center gap-2"
+                >
+                  <Printer className="h-4 w-4" />
                   <span>Imprimir Folio</span>
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 space-y-2">
-              <FileText className="w-8 h-8 text-slate-600 mx-auto" />
+            <div className="space-y-2 rounded-3xl border border-slate-800 bg-slate-900 p-12 text-center text-slate-400">
+              <FileText className="mx-auto h-8 w-8 text-slate-600" />
               <p className="text-sm font-bold text-white">No hay bitácoras seleccionadas</p>
             </div>
           )}
@@ -631,11 +663,12 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
 
       {/* Signature Modal */}
       {showSignModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
+          <div className="w-full max-w-md space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-6">
             <h3 className="text-lg font-bold text-white">Firma Digital del Capataz en Campo</h3>
             <p className="text-xs text-slate-400">
-              Dibuje su firma digital sobre el lienzo para validar el folio {selectedBitacora?.folioNumber}.
+              Dibuje su firma digital sobre el lienzo para validar el folio{' '}
+              {selectedBitacora?.folioNumber}.
             </p>
             <CanvasSignature onSaveSignature={handleApplySignature} />
             <div className="flex justify-end">
@@ -648,4 +681,4 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
       )}
     </div>
   );
-};
+}

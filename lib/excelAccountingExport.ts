@@ -1,4 +1,11 @@
-import { AttendanceRecord,CompanySettings,Employee,ExpenseRecord,FieldVisit,Project } from './types';
+import {
+  AttendanceRecord,
+  CompanySettings,
+  Employee,
+  ExpenseRecord,
+  FieldVisit,
+  Project,
+} from './types';
 
 export interface ExportExcelOptions {
   project: Project;
@@ -323,8 +330,20 @@ export async function exportProjectAccountingWorkbook({
 
   const summaryData: (string | number)[][] = [
     ['CONSTRUCTERP GUATEMALA - REPORTE CONTABLE Y BITÁCORAS DE OBRA', '', '', '', ''],
-    [`Empresa: ${company.commercialName || company.legalName}`, '', `NIT: ${company.nit}`, '', `Fecha: ${new Date().toLocaleDateString('es-GT')}`],
-    [`Arquitecto / Colegiado: ${company.architectName} (${company.architectColNumber})`, '', `Dirección: ${company.address}`, '', ''],
+    [
+      `Empresa: ${company.commercialName || company.legalName}`,
+      '',
+      `NIT: ${company.nit}`,
+      '',
+      `Fecha: ${new Date().toLocaleDateString('es-GT')}`,
+    ],
+    [
+      `Arquitecto / Colegiado: ${company.architectName} (${company.architectColNumber})`,
+      '',
+      `Dirección: ${company.address}`,
+      '',
+      '',
+    ],
     ['', '', '', '', ''],
     ['DATOS GENERALES DEL PROYECTO', '', '', '', ''],
     ['Código de Obra:', project.code, 'Nombre:', project.name, ''],
@@ -334,10 +353,22 @@ export async function exportProjectAccountingWorkbook({
     ['', '', '', '', ''],
     ['RESUMEN FINANCIERO Y PRESUPUESTARIO (GTQ)', '', '', '', ''],
     ['Concepto', 'Presupuesto Inicial', 'Total Ejecutado', 'Saldo Disponible', '% Ejecutado'],
-    ['Presupuesto General de Obra', project.budgetTotal, totalSpent, balance, `${executionPercent.toFixed(2)}%`],
+    [
+      'Presupuesto General de Obra',
+      project.budgetTotal,
+      totalSpent,
+      balance,
+      `${executionPercent.toFixed(2)}%`,
+    ],
     ['', '', '', '', ''],
     ['DESGLOSE DE COSTOS DIRECTOS E INDIRECTOS POR CATEGORÍA', '', '', '', ''],
-    ['Categoría Contable', 'No. Registros', 'Total Subtotal (Sin IVA)', 'IVA Crédito Fiscal (12%)', 'Monto Total Facturado (GTQ)'],
+    [
+      'Categoría Contable',
+      'No. Registros',
+      'Total Subtotal (Sin IVA)',
+      'IVA Crédito Fiscal (12%)',
+      'Monto Total Facturado (GTQ)',
+    ],
   ];
 
   categories.forEach((cat) => {
@@ -350,7 +381,13 @@ export async function exportProjectAccountingWorkbook({
 
   const totalSub = Math.round((totalSpent / 1.12) * 100) / 100;
   const totalIva = Math.round((totalSpent - totalSub) * 100) / 100;
-  summaryData.push(['TOTAL GENERAL DE GASTOS', filteredExpenses.length, totalSub, totalIva, totalSpent]);
+  summaryData.push([
+    'TOTAL GENERAL DE GASTOS',
+    filteredExpenses.length,
+    totalSub,
+    totalIva,
+    totalSpent,
+  ]);
 
   addWorksheet('Resumen_Ejecutivo', summaryData, [35, 25, 25, 25, 28]);
 
@@ -384,9 +421,8 @@ export async function exportProjectAccountingWorkbook({
   filteredExpenses.forEach((exp: any, index) => {
     const subtotal = Math.round((exp.amount / 1.12) * 100) / 100;
     const iva = Math.round((exp.amount - subtotal) * 100) / 100;
-    const usd = company.exchangeRate > 0
-      ? Math.round((exp.amount / company.exchangeRate) * 100) / 100
-      : '';
+    const usd =
+      company.exchangeRate > 0 ? Math.round((exp.amount / company.exchangeRate) * 100) / 100 : '';
     const approvalStatus = exp.approvalStatus || 'Sin estado registrado';
     const approvedBy = exp.approvedBy || '';
     const approvedAt = exp.approvedAt || '';
@@ -425,18 +461,18 @@ export async function exportProjectAccountingWorkbook({
     totalSub,
     totalIva,
     totalSpent,
-    company.exchangeRate > 0
-      ? Math.round((totalSpent / company.exchangeRate) * 100) / 100
-      : '',
+    company.exchangeRate > 0 ? Math.round((totalSpent / company.exchangeRate) * 100) / 100 : '',
     '',
     '',
     '',
     '',
   ]);
 
-  addWorksheet('Registro_Gastos_Contable', expensesRows, [
-    6, 12, 30, 14, 18, 28, 40, 18, 20, 22, 18, 18, 18, 20, 16, 35,
-  ]);
+  addWorksheet(
+    'Registro_Gastos_Contable',
+    expensesRows,
+    [6, 12, 30, 14, 18, 28, 40, 18, 20, 22, 18, 18, 18, 20, 16, 35]
+  );
 
   // -------------------------------------------------------------
   // 3. SHEET: Auditoria_Asistencia_SAT_IGSS
@@ -464,8 +500,12 @@ export async function exportProjectAccountingWorkbook({
   ];
 
   const attendanceRows: (string | number)[][] = [
-    [`AUDITORÍA CONSOLIDADA DE ASISTENCIA EN OBRA Y RETENCIONES LABORALES (SAT / IGSS) - PROYECTO: ${project.code}`],
-    [`Empresa Contratista: ${company.commercialName || company.legalName} | NIT: ${company.nit} | Geocerca Máxima: 500m | Fecha Reporte: ${new Date().toLocaleDateString('es-GT')}`],
+    [
+      `AUDITORÍA CONSOLIDADA DE ASISTENCIA EN OBRA Y RETENCIONES LABORALES (SAT / IGSS) - PROYECTO: ${project.code}`,
+    ],
+    [
+      `Empresa Contratista: ${company.commercialName || company.legalName} | NIT: ${company.nit} | Geocerca Máxima: 500m | Fecha Reporte: ${new Date().toLocaleDateString('es-GT')}`,
+    ],
     attendanceHeaders,
   ];
 
@@ -485,11 +525,12 @@ export async function exportProjectAccountingWorkbook({
     };
 
     const isPresent = att.status === 'Presente';
-    const wage = isPresent ? (emp.dailyRateGTQ || 160) : 0;
+    const wage = isPresent ? emp.dailyRateGTQ || 160 : 0;
     const igssLab = isPresent ? Math.round(wage * 0.0483 * 100) / 100 : 0;
     const igssPat = isPresent ? Math.round(wage * 0.1067 * 100) / 100 : 0;
     const overtime = att.overtimeHours || 0;
-    const isWithin = att.gpsVerified ?? (att.distanceMeters !== undefined ? att.distanceMeters <= 500 : true);
+    const isWithin =
+      att.gpsVerified ?? (att.distanceMeters !== undefined ? att.distanceMeters <= 500 : true);
 
     if (isWithin && isPresent) countGpsVerified++;
     totalWages += wage;
@@ -512,7 +553,8 @@ export async function exportProjectAccountingWorkbook({
       att.distanceMeters ?? 25,
       isWithin ? 'VALIDADO EN SITIO (<500m)' : 'FUERA DE GEOCERCA',
       att.gpsTimestamp || `${att.date} 07:00 AM`,
-      att.overrideReason || (isWithin ? 'Conforme polígono de obra' : 'Excepción pendiente de firma'),
+      att.overrideReason ||
+        (isWithin ? 'Conforme polígono de obra' : 'Excepción pendiente de firma'),
       isPresent ? 'Gasto Deducible Conforme a Planilla' : 'No Aplica',
       isWithin ? 'Auditoría Conforme SAT / IGSS' : 'Revisión Requerida',
     ]);
@@ -539,9 +581,11 @@ export async function exportProjectAccountingWorkbook({
     'Conciliado',
   ]);
 
-  addWorksheet('Auditoria_Asistencia_SAT_IGSS', attendanceRows, [
-    6, 14, 28, 22, 18, 14, 22, 25, 25, 18, 18, 22, 26, 22, 35, 32, 26,
-  ]);
+  addWorksheet(
+    'Auditoria_Asistencia_SAT_IGSS',
+    attendanceRows,
+    [6, 14, 28, 22, 18, 14, 22, 25, 25, 18, 18, 22, 26, 22, 35, 32, 26]
+  );
 
   // -------------------------------------------------------------
   // 4. SHEET: Bitacoras_Campo_Diarias
@@ -585,17 +629,16 @@ export async function exportProjectAccountingWorkbook({
     ]);
   });
 
-  addWorksheet('Bitacoras_Campo_Diarias', visitsRows, [
-    14, 14, 18, 24, 25, 18, 24, 50, 14, 14, 18, 22, 28,
-  ]);
+  addWorksheet(
+    'Bitacoras_Campo_Diarias',
+    visitsRows,
+    [14, 14, 18, 24, 25, 18, 24, 50, 14, 14, 18, 22, 28]
+  );
 
   // -------------------------------------------------------------
   // 5. SHEET: Macros_Contabilidad_VBA
   // -------------------------------------------------------------
-  const projectMacroCode = GUATEMALAN_ACCOUNTING_VBA_MACROS.replace(
-    /{PROJECT_CODE}/g,
-    project.code
-  )
+  const projectMacroCode = GUATEMALAN_ACCOUNTING_VBA_MACROS.replace(/{PROJECT_CODE}/g, project.code)
     .replace(/{PROJECT_NAME}/g, project.name)
     .replace(/{DATE_GENERATED}/g, new Date().toLocaleString('es-GT'));
 
@@ -604,13 +647,23 @@ export async function exportProjectAccountingWorkbook({
     ['Instrucciones de Uso Rápido:'],
     ['1. En Microsoft Excel, presione la combinación de teclas Alt + F11 (Abre el Editor de VBA).'],
     ['2. En el menú superior de VBA, haga clic en: Insertar > Módulo.'],
-    ['3. Copie todo el código VBA que se encuentra en la columna A a partir de la fila 9 y péguelo en el módulo.'],
+    [
+      '3. Copie todo el código VBA que se encuentra en la columna A a partir de la fila 9 y péguelo en el módulo.',
+    ],
     ['4. Cierre la ventana de VBA y regrese a Excel.'],
     ['5. Presione Alt + F8 para ejecutar cualquiera de las macros contables de Guatemala:'],
-    ['   - GenerarLibroComprasSAT: Genera hoja con estructura oficial para el Libro de Compras SAT (IVA 12%).'],
-    ['   - AuditarFacturasDuplicadas: Revisa facturas y resalta en rojo registros duplicados por NIT y Serie FEL.'],
-    ['   - GenerarPolizaContable: Elabora automáticamente el asiento de partida doble para el sistema contable.'],
-    ['   - AuditarAsistenciaLaboralIGSS: Cruza los marcajes GPS con retenciones y aportes patronales del IGSS.'],
+    [
+      '   - GenerarLibroComprasSAT: Genera hoja con estructura oficial para el Libro de Compras SAT (IVA 12%).',
+    ],
+    [
+      '   - AuditarFacturasDuplicadas: Revisa facturas y resalta en rojo registros duplicados por NIT y Serie FEL.',
+    ],
+    [
+      '   - GenerarPolizaContable: Elabora automáticamente el asiento de partida doble para el sistema contable.',
+    ],
+    [
+      '   - AuditarAsistenciaLaboralIGSS: Cruza los marcajes GPS con retenciones y aportes patronales del IGSS.',
+    ],
     [''],
     ['CÓDIGO VBA COMPLETO (Copiar todo el bloque inferior):'],
   ];

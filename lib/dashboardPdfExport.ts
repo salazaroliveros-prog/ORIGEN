@@ -37,14 +37,20 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   const projectSpentMap = new Map<string, number>();
   projects.forEach((p) => {
     const projExpenses = expenses.filter((e) => e.projectId === p.id);
-    const computedSpent = projExpenses.length > 0 ? projExpenses.reduce((s, e) => s + e.amount, 0) : p.spentTotal;
+    const computedSpent =
+      projExpenses.length > 0 ? projExpenses.reduce((s, e) => s + e.amount, 0) : p.spentTotal;
     projectSpentMap.set(p.id, computedSpent);
   });
 
-  const totalSpent = projects.reduce((sum, p) => sum + (projectSpentMap.get(p.id) || p.spentTotal || 0), 0);
+  const totalSpent = projects.reduce(
+    (sum, p) => sum + (projectSpentMap.get(p.id) || p.spentTotal || 0),
+    0
+  );
   const remainingBudget = totalBudget - totalSpent;
   const spentPct = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
-  const overbudgetCount = projects.filter((p) => (projectSpentMap.get(p.id) || p.spentTotal) > p.budgetTotal).length;
+  const overbudgetCount = projects.filter(
+    (p) => (projectSpentMap.get(p.id) || p.spentTotal) > p.budgetTotal
+  ).length;
 
   // Header Banner Background
   doc.setFillColor(15, 23, 42); // slate-900
@@ -66,7 +72,11 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   doc.text('INFORME EJECUTIVO DE DESEMPEÑO Y TABLERO DE CONTROL', margin, 21);
 
   doc.setFontSize(8);
-  doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString('es-GT')} | Moneda: ${currency}`, margin, 27);
+  doc.text(
+    `Fecha de Emisión: ${new Date().toLocaleDateString('es-GT')} | Moneda: ${currency}`,
+    margin,
+    27
+  );
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(252, 211, 77); // amber-300
@@ -199,7 +209,11 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
     const isOver = spent > budget;
     const pct = budget > 0 ? Math.round((spent / budget) * 100) : 0;
 
-    doc.setFillColor(idx % 2 === 0 ? 248 : 255, idx % 2 === 0 ? 250 : 255, idx % 2 === 0 ? 252 : 255);
+    doc.setFillColor(
+      idx % 2 === 0 ? 248 : 255,
+      idx % 2 === 0 ? 250 : 255,
+      idx % 2 === 0 ? 252 : 255
+    );
     doc.rect(margin, y, usableWidth, 7, 'F');
 
     doc.setFont('helvetica', 'normal');

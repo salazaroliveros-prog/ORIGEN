@@ -65,11 +65,10 @@ describe('calculateSixMonthCashFlow', () => {
   });
 
   it('keeps costs unknown when the project has no configured margin', () => {
-    const summary = calculateSixMonthCashFlow(
-      [project('a')],
-      [milestone('a')],
-      { startDate, selectedProjectId: 'a' }
-    );
+    const summary = calculateSixMonthCashFlow([project('a')], [milestone('a')], {
+      startDate,
+      selectedProjectId: 'a',
+    });
 
     expect(summary.months[0].ingresos).toBe(50000);
     expect(summary.months[0].egresos).toBe(0);
@@ -79,7 +78,10 @@ describe('calculateSixMonthCashFlow', () => {
 
   it('does not include milestones from other projects in the selected project projection', () => {
     const summary = calculateSixMonthCashFlow(
-      [project('a', { expectedProfitMarginPercent: 20 }), project('b', { expectedProfitMarginPercent: 10 })],
+      [
+        project('a', { expectedProfitMarginPercent: 20 }),
+        project('b', { expectedProfitMarginPercent: 10 }),
+      ],
       [milestone('a'), milestone('b', { id: 'milestone-2' })],
       { startDate, selectedProjectId: 'a' }
     );

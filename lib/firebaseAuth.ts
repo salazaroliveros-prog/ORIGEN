@@ -23,7 +23,7 @@ import {
 
 export type AuthSessionStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error';
 
-const PRIMARY_ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+const PRIMARY_ADMIN_EMAIL = process.env.PRIMARY_ADMIN_EMAIL || '';
 let pendingGoogleCredential: { credential: OAuthCredential; email: string } | null = null;
 
 export type EmailAccountCreationResult =
@@ -43,14 +43,10 @@ export async function signInWithGoogle(): Promise<User | null> {
     return result.user;
   } catch (error) {
     const code =
-      typeof error === 'object' && error !== null && 'code' in error
-        ? error.code
-        : undefined;
+      typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined;
     if (code === 'auth/account-exists-with-different-credential') {
       const credential =
-        error instanceof FirebaseError
-          ? GoogleAuthProvider.credentialFromError(error)
-          : null;
+        error instanceof FirebaseError ? GoogleAuthProvider.credentialFromError(error) : null;
       const email =
         typeof error === 'object' &&
         error !== null &&
@@ -90,7 +86,9 @@ export async function authorizeGmailSend(): Promise<{ accessToken: string; expir
     : await linkWithPopup(user, provider);
   const credential = GoogleAuthProvider.credentialFromResult(result);
   if (!credential?.accessToken) {
-    throw new Error('Google no devolvió permiso de Gmail. Revisa el proveedor OAuth y vuelve a intentarlo.');
+    throw new Error(
+      'Google no devolvió permiso de Gmail. Revisa el proveedor OAuth y vuelve a intentarlo.'
+    );
   }
 
   return { accessToken: credential.accessToken, expiresAt: Date.now() + 55 * 60 * 1000 };
@@ -100,10 +98,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
   await ensurePersistentSession();
   const result = await signInWithEmailAndPassword(auth, email, password);
   const pending = pendingGoogleCredential;
-  if (
-    pending &&
-    result.user.email?.trim().toLowerCase() === pending.email
-  ) {
+  if (pending && result.user.email?.trim().toLowerCase() === pending.email) {
     try {
       await linkWithCredential(result.user, pending.credential);
       pendingGoogleCredential = null;

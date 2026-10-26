@@ -49,7 +49,10 @@ Devuelve únicamente el JSON válido sin texto extra.`;
     });
 
     const text = response.text || '';
-    const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const cleanJson = text
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
     const parsed = JSON.parse(cleanJson);
 
     return NextResponse.json({ success: true, weather: parsed });

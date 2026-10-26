@@ -33,6 +33,9 @@ yarn-error.log*
 !.env.example
 !.env.*.example
 
+# firebase config (contains sensitive data)
+firebase-applet-config.json
+
 # vercel
 .vercel
 

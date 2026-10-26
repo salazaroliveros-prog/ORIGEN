@@ -1,10 +1,14 @@
-import { Employee,ExpenseRecord,Milestone,Project,ScheduleTask,TaskReminder } from './types';
+import { Employee, ExpenseRecord, Milestone, Project, ScheduleTask, TaskReminder } from './types';
 
 // Web Audio API synthesized sound generator - no external audio files required
-export function playNotificationChime(type: 'reminder' | 'urgent' | 'success' | 'warning' = 'reminder') {
+export function playNotificationChime(
+  type: 'reminder' | 'urgent' | 'success' | 'warning' = 'reminder'
+) {
   if (typeof window === 'undefined') return;
   try {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
     const ctx = new AudioContextClass();
 
@@ -156,11 +160,10 @@ export function calculateOverallProjectProgress(
   let milestoneScore = 0;
   if (milestones.length > 0) {
     const totalMilestoneWeight = milestones.reduce((acc, m) => acc + (m.weightPercent || 1), 0);
-    milestoneScore =
-      milestones.reduce((acc, m) => {
-        const p = m.completed ? 100 : m.progress || 0;
-        return acc + (p * (m.weightPercent || 1)) / (totalMilestoneWeight || 1);
-      }, 0);
+    milestoneScore = milestones.reduce((acc, m) => {
+      const p = m.completed ? 100 : m.progress || 0;
+      return acc + (p * (m.weightPercent || 1)) / (totalMilestoneWeight || 1);
+    }, 0);
   } else {
     milestoneScore = weightedTaskProgress;
   }
@@ -344,7 +347,7 @@ export function checkProjectBudgetAndMargin(
       type: 'profit_margin_exceeded',
       severity: 'urgent',
       title: `📉 Margen de Utilidad Comprometido: ${project.code}`,
-      message: `El proyecto "${project.name}" superó el umbral del costo directo previsto (${(100 - expectedMarginPercent)}%). Margen de utilidad restante: ${currentMargin.toFixed(1)}% (inferior a la meta fijada del ${expectedMarginPercent}%).`,
+      message: `El proyecto "${project.name}" superó el umbral del costo directo previsto (${100 - expectedMarginPercent}%). Margen de utilidad restante: ${currentMargin.toFixed(1)}% (inferior a la meta fijada del ${expectedMarginPercent}%).`,
       spentTotal: spent,
       budgetTotal: budget,
       percentageSpent: pct,
@@ -416,4 +419,3 @@ export function evaluateGlobalNotifications(
     totalAlertsCount: alerts.length,
   };
 }
-

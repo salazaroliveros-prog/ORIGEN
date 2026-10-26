@@ -151,7 +151,11 @@ export async function sendCapatazProjectAlert(
   await setDoc(alertRef, fullAlert);
 
   // Trigger local push notification if granted
-  if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+  if (
+    typeof window !== 'undefined' &&
+    'Notification' in window &&
+    Notification.permission === 'granted'
+  ) {
     try {
       const notif = new Notification(`🏗️ ${fullAlert.title}`, {
         body: `${fullAlert.message} (Obra: ${fullAlert.projectName})`,

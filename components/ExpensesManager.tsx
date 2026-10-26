@@ -2,30 +2,30 @@
 
 import { CameraCaptureModal } from '@/components/CameraCaptureModal';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
-import { formatGTQ,formatUSD,initialAPUItems } from '@/lib/data';
-import { APUItem,CompanySettings,ExpenseAuditEntry,ExpenseRecord,Project } from '@/lib/types';
+import { formatGTQ, formatUSD, initialAPUItems } from '@/lib/data';
+import { APUItem, CompanySettings, ExpenseAuditEntry, ExpenseRecord, Project } from '@/lib/types';
 import {
-AlertTriangle,
-Ban,
-BarChart3,
-Camera,
-Check,
-CheckCircle2,
-Clock,
-Download,
-Eye,
-FileSearch,
-History,
-Plus,
-Receipt,
-RotateCw,
-ShieldCheck,
-Trash2,
-Upload,
-X
+  AlertTriangle,
+  Ban,
+  BarChart3,
+  Camera,
+  Check,
+  CheckCircle2,
+  Clock,
+  Download,
+  Eye,
+  FileSearch,
+  History,
+  Plus,
+  Receipt,
+  RotateCw,
+  ShieldCheck,
+  Trash2,
+  Upload,
+  X,
 } from 'lucide-react';
 import Image from 'next/image';
-import React,{ useState } from 'react';
+import React, { useState } from 'react';
 
 interface ExpensesManagerProps {
   expenses: ExpenseRecord[];
@@ -38,7 +38,7 @@ interface ExpensesManagerProps {
   budgetItems?: APUItem[];
 }
 
-export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
+export function ExpensesManager({
   expenses,
   projects,
   activeProjectId,
@@ -47,7 +47,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
   currency,
   company,
   budgetItems = initialAPUItems,
-}) => {
+}: ExpensesManagerProps) {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [category, setCategory] = useState<
     | 'Materiales (Cementos, Hierro)'
@@ -66,7 +66,9 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
   // Receipt capture states for new expense
   const [newReceiptUrl, setNewReceiptUrl] = useState<string | null>(null);
   const [newReceiptDate, setNewReceiptDate] = useState<string | null>(null);
-  const [newReceiptCoords, setNewReceiptCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [newReceiptCoords, setNewReceiptCoords] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
 
   // Camera modal state
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -82,7 +84,9 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
   const [statusFilter, setStatusFilter] = useState<'todos' | 'pendientes' | 'aprobados'>('todos');
   const [viewingAuditExpense, setViewingAuditExpense] = useState<ExpenseRecord | null>(null);
   const [approvalModalExpense, setApprovalModalExpense] = useState<ExpenseRecord | null>(null);
-  const [approvalDecision, setApprovalDecision] = useState<'Aprobado' | 'Pendiente' | 'Rechazado'>('Aprobado');
+  const [approvalDecision, setApprovalDecision] = useState<'Aprobado' | 'Pendiente' | 'Rechazado'>(
+    'Aprobado'
+  );
   const [approvalNote, setApprovalNote] = useState('');
   const [pmName, setPmName] = useState('Ing. Carlos Mendoza (PM)');
 
@@ -109,7 +113,10 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
     if (!apu) return null;
 
     const currentSpent = expenses
-      .filter((e) => e.projectId === activeProject.id && e.assignedApuId === apuId && e.id !== excludeExpenseId)
+      .filter(
+        (e) =>
+          e.projectId === activeProject.id && e.assignedApuId === apuId && e.id !== excludeExpenseId
+      )
       .reduce((sum, e) => sum + e.amount, 0);
 
     const projectedTotal = currentSpent + additionalAmount;
@@ -287,11 +294,19 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
     const newAuditEntry: ExpenseAuditEntry = {
       id: `aud-${Date.now()}`,
-      action: isApproving ? 'APROBADO' : approvalDecision === 'Rechazado' ? 'RECHAZADO' : 'REVERTIDO',
+      action: isApproving
+        ? 'APROBADO'
+        : approvalDecision === 'Rechazado'
+          ? 'RECHAZADO'
+          : 'REVERTIDO',
       user: pmName,
       role: 'Project Manager / Director de Obra',
       timestamp: nowStr,
-      note: approvalNote.trim() || (isApproving ? 'Gasto aprobado contra presupuesto y renglón APU.' : 'Estado modificado por PM.'),
+      note:
+        approvalNote.trim() ||
+        (isApproving
+          ? 'Gasto aprobado contra presupuesto y renglón APU.'
+          : 'Estado modificado por PM.'),
     };
 
     const updatedExpense: ExpenseRecord = {
@@ -320,12 +335,15 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
   const projectExpenses = expenses.filter((e) => e.projectId === activeProject.id);
 
   const filteredExpenses = projectExpenses.filter((ex) => {
-    if (statusFilter === 'pendientes') return ex.approvalStatus === 'Pendiente' || !ex.approvalStatus;
+    if (statusFilter === 'pendientes')
+      return ex.approvalStatus === 'Pendiente' || !ex.approvalStatus;
     if (statusFilter === 'aprobados') return ex.approvalStatus === 'Aprobado';
     return true;
   });
 
-  const pendingCount = projectExpenses.filter((e) => e.approvalStatus === 'Pendiente' || !e.approvalStatus).length;
+  const pendingCount = projectExpenses.filter(
+    (e) => e.approvalStatus === 'Pendiente' || !e.approvalStatus
+  ).length;
   const approvedCount = projectExpenses.filter((e) => e.approvalStatus === 'Aprobado').length;
   const approvedTotal = projectExpenses
     .filter((e) => e.approvalStatus === 'Aprobado')
@@ -335,72 +353,81 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
     <div className="space-y-6">
       {/* Warning Toast for APU Overrun */}
       {warningToast && (
-        <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 shadow-lg flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top duration-200">
+        <div className="animate-in fade-in slide-in-from-top flex items-start justify-between gap-3 rounded-2xl border-2 border-rose-300 bg-rose-50 p-4 shadow-lg duration-200">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-rose-600 text-white rounded-xl shrink-0 mt-0.5 shadow-sm">
-              <AlertTriangle className="w-5 h-5" />
+            <div className="mt-0.5 shrink-0 rounded-xl bg-rose-600 p-2 text-white shadow-sm">
+              <AlertTriangle className="h-5 w-5" />
             </div>
             <div className="space-y-1 text-xs">
-              <h4 className="font-bold text-sm text-rose-950 flex items-center gap-2">
+              <h4 className="flex items-center gap-2 text-sm font-bold text-rose-950">
                 Alerta de Sobrecosto Presupuestario en Renglón APU {warningToast.apuCode}
-                <span className="px-2 py-0.5 rounded bg-rose-200 text-rose-900 font-bold text-[10px]">
+                <span className="rounded bg-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-900">
                   Exceso: Q{warningToast.diff.toLocaleString('es-GT')}
                 </span>
               </h4>
-              <p className="text-rose-800 leading-relaxed font-medium">{warningToast.message}</p>
-              <div className="flex items-center gap-4 text-[11px] text-rose-700 pt-1">
-                <span>Presupuesto Renglón: <strong>Q{warningToast.budgetTotal.toLocaleString('es-GT')}</strong></span>
-                <span>Monto Proyectado: <strong>Q{warningToast.spentTotal.toLocaleString('es-GT')}</strong></span>
+              <p className="leading-relaxed font-medium text-rose-800">{warningToast.message}</p>
+              <div className="flex items-center gap-4 pt-1 text-[11px] text-rose-700">
+                <span>
+                  Presupuesto Renglón:{' '}
+                  <strong>Q{warningToast.budgetTotal.toLocaleString('es-GT')}</strong>
+                </span>
+                <span>
+                  Monto Proyectado:{' '}
+                  <strong>Q{warningToast.spentTotal.toLocaleString('es-GT')}</strong>
+                </span>
               </div>
             </div>
           </div>
           <button
             onClick={() => setWarningToast(null)}
-            className="p-1.5 text-rose-700 hover:text-rose-900 hover:bg-rose-100 rounded-lg transition"
+            className="rounded-lg p-1.5 text-rose-700 transition hover:bg-rose-100 hover:text-rose-900"
             title="Cerrar advertencia"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-slate-900">Gastos, Facturas & Aprobación en 2 Pasos (PM)</h2>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
-              <Camera className="w-3 h-3 text-amber-600" /> Captura Cámara & OCR
+            <h2 className="text-lg font-bold text-slate-900">
+              Gastos, Facturas & Aprobación en 2 Pasos (PM)
+            </h2>
+            <span className="flex items-center gap-1 rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+              <Camera className="h-3 w-3 text-amber-600" /> Captura Cámara & OCR
             </span>
           </div>
           <p className="text-xs text-slate-500">
-            Control de egresos para {activeProject.name} con validación presupuestaria APU y pista de auditoría inalterable.
+            Control de egresos para {activeProject.name} con validación presupuestaria APU y pista
+            de auditoría inalterable.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Sub-tab view switcher */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+          <div className="flex items-center rounded-xl bg-slate-100 p-1">
             <button
               onClick={() => setActiveExpenseTab('facturas')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'facturas'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Receipt className="w-3.5 h-3.5 text-blue-600" />
+              <Receipt className="h-3.5 w-3.5 text-blue-600" />
               Facturas & Aprobación
             </button>
             <button
               onClick={() => setActiveExpenseTab('histograma')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'histograma'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
+              <BarChart3 className="h-3.5 w-3.5" />
               Histograma Mensual & PDF
             </button>
           </div>
@@ -410,9 +437,9 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
               setNewReceiptUrl(null);
               setIsOpenModal(true);
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-sm cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500"
           >
-            <Plus className="w-4 h-4" /> Registrar Gasto / Factura
+            <Plus className="h-4 w-4" /> Registrar Gasto / Factura
           </button>
         </div>
       </div>
@@ -428,286 +455,305 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
       ) : (
         <>
           {/* Metrics & Two-Step Approval Summary Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Total Ejecutado Aprobado
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+              <div>
+                <span className="block text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                  Total Ejecutado Aprobado
+                </span>
+                <p className="mt-0.5 text-lg font-bold text-emerald-600">
+                  {formatMoney(approvedTotal)}
+                </p>
+                <span className="text-[11px] text-slate-400">
+                  {approvedCount} facturas validadas por PM
+                </span>
+              </div>
+              <div className="rounded-xl bg-emerald-50 p-3 text-emerald-600">
+                <ShieldCheck className="h-6 w-6" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+              <div>
+                <span className="block text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                  Pendientes de Revisión PM
+                </span>
+                <p className="mt-0.5 text-lg font-bold text-amber-600">{pendingCount} gastos</p>
+                <span className="text-[11px] text-slate-400">Paso 1: Registrados en campo</span>
+              </div>
+              <div className="rounded-xl bg-amber-50 p-3 text-amber-600">
+                <Clock className="h-6 w-6" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+              <div>
+                <span className="block text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                  Control Presupuestario APU
+                </span>
+                <p className="mt-0.5 text-lg font-bold text-slate-900">Visto Bueno PM</p>
+                <span className="text-[11px] font-medium text-blue-600">
+                  Auditoría con firma y fecha
+                </span>
+              </div>
+              <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+                <History className="h-6 w-6" />
+              </div>
+            </div>
+          </div>
+
+          {/* Filter Tabs for Approval Workflow */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+            <div className="flex items-center gap-1.5 rounded-xl bg-slate-100 p-1">
+              <button
+                onClick={() => setStatusFilter('todos')}
+                className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                  statusFilter === 'todos'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Todos ({projectExpenses.length})
+              </button>
+              <button
+                onClick={() => setStatusFilter('pendientes')}
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                  statusFilter === 'pendientes'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Clock className="h-3.5 w-3.5" />
+                Pendientes de Aprobación PM ({pendingCount})
+              </button>
+              <button
+                onClick={() => setStatusFilter('aprobados')}
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                  statusFilter === 'aprobados'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Aprobados ({approvedCount})
+              </button>
+            </div>
+
+            <span className="text-xs text-slate-500">
+              Mostrando {filteredExpenses.length} de {projectExpenses.length} gastos
             </span>
-            <p className="text-lg font-bold text-emerald-600 mt-0.5">{formatMoney(approvedTotal)}</p>
-            <span className="text-[11px] text-slate-400">{approvedCount} facturas validadas por PM</span>
           </div>
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-        </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Pendientes de Revisión PM
-            </span>
-            <p className="text-lg font-bold text-amber-600 mt-0.5">{pendingCount} gastos</p>
-            <span className="text-[11px] text-slate-400">Paso 1: Registrados en campo</span>
-          </div>
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-            <Clock className="w-6 h-6" />
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Control Presupuestario APU
-            </span>
-            <p className="text-lg font-bold text-slate-900 mt-0.5">Visto Bueno PM</p>
-            <span className="text-[11px] text-blue-600 font-medium">Auditoría con firma y fecha</span>
-          </div>
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-            <History className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Tabs for Approval Workflow */}
-      <div className="flex items-center justify-between gap-2 border-b border-slate-200 pb-2 flex-wrap">
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
-          <button
-            onClick={() => setStatusFilter('todos')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-              statusFilter === 'todos' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Todos ({projectExpenses.length})
-          </button>
-          <button
-            onClick={() => setStatusFilter('pendientes')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-              statusFilter === 'pendientes'
-                ? 'bg-amber-500 text-slate-950 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5" />
-            Pendientes de Aprobación PM ({pendingCount})
-          </button>
-          <button
-            onClick={() => setStatusFilter('aprobados')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-              statusFilter === 'aprobados'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Aprobados ({approvedCount})
-          </button>
-        </div>
-
-        <span className="text-xs text-slate-500">
-          Mostrando {filteredExpenses.length} de {projectExpenses.length} gastos
-        </span>
-      </div>
-
-      {/* Expenses Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
-              <tr>
-                <th className="p-3.5">Factura / Fecha</th>
-                <th className="p-3.5">Categoría / Renglón APU</th>
-                <th className="p-3.5">Proveedor & NIT</th>
-                <th className="p-3.5">Descripción</th>
-                <th className="p-3.5 text-center">Comprobante Físico</th>
-                <th className="p-3.5 text-center">Estado (Paso 2)</th>
-                <th className="p-3.5 text-right">Monto</th>
-                <th className="p-3.5 text-center">Acciones PM</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {filteredExpenses.map((ex) => {
-                const isApproved = ex.approvalStatus === 'Aprobado';
-                const isPending = ex.approvalStatus === 'Pendiente' || !ex.approvalStatus;
-                const isRejected = ex.approvalStatus === 'Rechazado';
-
-                // Check if this expense belongs to an APU item that is over budget
-                const assignedApu = budgetItems.find((b) => b.id === ex.assignedApuId);
-                let apuOverrun = false;
-                if (assignedApu) {
-                  const totalSpentOnApu = projectExpenses
-                    .filter((e) => e.assignedApuId === assignedApu.id)
-                    .reduce((sum, e) => sum + e.amount, 0);
-                  apuOverrun = totalSpentOnApu > assignedApu.totalPriceGTQ;
-                }
-
-                return (
-                  <tr key={ex.id} className="hover:bg-slate-50/80 transition">
-                    <td className="p-3.5">
-                      <span className="font-bold text-slate-900">{ex.facturaNumber}</span>
-                      <p className="text-[10px] text-slate-500">{ex.date}</p>
-                    </td>
-
-                    <td className="p-3.5 space-y-1">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 block w-fit">
-                        {ex.category}
-                      </span>
-                      {assignedApu && (
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                            apuOverrun
-                              ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                              : 'bg-slate-100 text-slate-700'
-                          }`}
-                          title={assignedApu.description}
-                        >
-                          APU {assignedApu.code}
-                          {apuOverrun && <AlertTriangle className="w-3 h-3 text-rose-600" />}
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="p-3.5">
-                      <span className="font-semibold text-slate-900">{ex.supplier}</span>
-                      <p className="text-[10px] text-slate-500">NIT: {ex.nitSupplier}</p>
-                    </td>
-
-                    <td className="p-3.5 max-w-xs">{ex.description}</td>
-
-                    {/* Receipt column */}
-                    <td className="p-3.5 text-center">
-                      {ex.receiptPhotoUrl ? (
-                        <button
-                          type="button"
-                          onClick={() => setViewingReceiptExpense(ex)}
-                          className="group relative inline-flex items-center gap-2 p-1 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition cursor-pointer"
-                          title="Ver comprobante capturado"
-                        >
-                          <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-slate-300 shrink-0 bg-slate-900">
-                            <Image
-                              src={ex.receiptPhotoUrl}
-                              alt="Recibo"
-                              width={72}
-                              height={72}
-                              unoptimized
-                              className="w-full h-full object-cover group-hover:scale-105 transition"
-                            />
-                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                              <Eye className="w-3.5 h-3.5 text-white" />
-                            </div>
-                          </div>
-                          <div className="text-left pr-1 hidden sm:block">
-                            <span className="text-[10px] font-bold text-slate-800 flex items-center gap-0.5">
-                              <Receipt className="w-3 h-3 text-emerald-600" /> Ver
-                            </span>
-                          </div>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setCameraTargetExpenseId(ex.id);
-                            setIsCameraOpen(true);
-                          }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-semibold transition cursor-pointer"
-                          title="Tomar fotografía del recibo físico con la cámara del dispositivo"
-                        >
-                          <Camera className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Foto</span>
-                        </button>
-                      )}
-                    </td>
-
-                    {/* Two-step Approval Status Column */}
-                    <td className="p-3.5 text-center">
-                      {isApproved ? (
-                        <div className="space-y-0.5">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <ShieldCheck className="w-3 h-3 text-emerald-600" /> Aprobado (Paso 2)
-                          </span>
-                          {ex.approvedBy && (
-                            <p className="text-[9px] text-slate-400 truncate max-w-[120px]">{ex.approvedBy}</p>
-                          )}
-                        </div>
-                      ) : isRejected ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                          <Ban className="w-3 h-3 text-rose-600" /> Rechazado
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                          <Clock className="w-3 h-3 text-amber-600" /> Pendiente PM
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="p-3.5 text-right font-bold text-slate-900">{formatMoney(ex.amount)}</td>
-
-                    {/* Project Manager Actions & Audit Trail */}
-                    <td className="p-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setApprovalModalExpense(ex);
-                            setApprovalDecision(isApproved ? 'Pendiente' : 'Aprobado');
-                          }}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition shadow-xs cursor-pointer ${
-                            isApproved
-                              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                              : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                          }`}
-                          title={isApproved ? 'Cambiar estado de aprobación' : 'Aprobar gasto como Project Manager'}
-                        >
-                          {isApproved ? 'Modificar' : 'Aprobar PM'}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setViewingAuditExpense(ex)}
-                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                          title="Ver Pista de Auditoría Completa"
-                        >
-                          <FileSearch className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+          {/* Expenses Table */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-500">
+                  <tr>
+                    <th className="p-3.5">Factura / Fecha</th>
+                    <th className="p-3.5">Categoría / Renglón APU</th>
+                    <th className="p-3.5">Proveedor & NIT</th>
+                    <th className="p-3.5">Descripción</th>
+                    <th className="p-3.5 text-center">Comprobante Físico</th>
+                    <th className="p-3.5 text-center">Estado (Paso 2)</th>
+                    <th className="p-3.5 text-right">Monto</th>
+                    <th className="p-3.5 text-center">Acciones PM</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      </>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {filteredExpenses.map((ex) => {
+                    const isApproved = ex.approvalStatus === 'Aprobado';
+                    const isPending = ex.approvalStatus === 'Pendiente' || !ex.approvalStatus;
+                    const isRejected = ex.approvalStatus === 'Rechazado';
+
+                    // Check if this expense belongs to an APU item that is over budget
+                    const assignedApu = budgetItems.find((b) => b.id === ex.assignedApuId);
+                    let apuOverrun = false;
+                    if (assignedApu) {
+                      const totalSpentOnApu = projectExpenses
+                        .filter((e) => e.assignedApuId === assignedApu.id)
+                        .reduce((sum, e) => sum + e.amount, 0);
+                      apuOverrun = totalSpentOnApu > assignedApu.totalPriceGTQ;
+                    }
+
+                    return (
+                      <tr key={ex.id} className="transition hover:bg-slate-50/80">
+                        <td className="p-3.5">
+                          <span className="font-bold text-slate-900">{ex.facturaNumber}</span>
+                          <p className="text-[10px] text-slate-500">{ex.date}</p>
+                        </td>
+
+                        <td className="space-y-1 p-3.5">
+                          <span className="block w-fit rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                            {ex.category}
+                          </span>
+                          {assignedApu && (
+                            <span
+                              className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-bold ${
+                                apuOverrun
+                                  ? 'border border-rose-200 bg-rose-100 text-rose-800'
+                                  : 'bg-slate-100 text-slate-700'
+                              }`}
+                              title={assignedApu.description}
+                            >
+                              APU {assignedApu.code}
+                              {apuOverrun && <AlertTriangle className="h-3 w-3 text-rose-600" />}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="p-3.5">
+                          <span className="font-semibold text-slate-900">{ex.supplier}</span>
+                          <p className="text-[10px] text-slate-500">NIT: {ex.nitSupplier}</p>
+                        </td>
+
+                        <td className="max-w-xs p-3.5">{ex.description}</td>
+
+                        {/* Receipt column */}
+                        <td className="p-3.5 text-center">
+                          {ex.receiptPhotoUrl ? (
+                            <button
+                              type="button"
+                              onClick={() => setViewingReceiptExpense(ex)}
+                              className="group relative inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-1 transition hover:bg-slate-100"
+                              title="Ver comprobante capturado"
+                            >
+                              <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-slate-300 bg-slate-900">
+                                <Image
+                                  src={ex.receiptPhotoUrl}
+                                  alt="Recibo"
+                                  width={72}
+                                  height={72}
+                                  unoptimized
+                                  className="h-full w-full object-cover transition group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
+                                  <Eye className="h-3.5 w-3.5 text-white" />
+                                </div>
+                              </div>
+                              <div className="hidden pr-1 text-left sm:block">
+                                <span className="flex items-center gap-0.5 text-[10px] font-bold text-slate-800">
+                                  <Receipt className="h-3 w-3 text-emerald-600" /> Ver
+                                </span>
+                              </div>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCameraTargetExpenseId(ex.id);
+                                setIsCameraOpen(true);
+                              }}
+                              className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] font-semibold text-amber-800 transition hover:bg-amber-100"
+                              title="Tomar fotografía del recibo físico con la cámara del dispositivo"
+                            >
+                              <Camera className="h-3.5 w-3.5 text-amber-600" />
+                              <span>Foto</span>
+                            </button>
+                          )}
+                        </td>
+
+                        {/* Two-step Approval Status Column */}
+                        <td className="p-3.5 text-center">
+                          {isApproved ? (
+                            <div className="space-y-0.5">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                                <ShieldCheck className="h-3 w-3 text-emerald-600" /> Aprobado (Paso
+                                2)
+                              </span>
+                              {ex.approvedBy && (
+                                <p className="max-w-[120px] truncate text-[9px] text-slate-400">
+                                  {ex.approvedBy}
+                                </p>
+                              )}
+                            </div>
+                          ) : isRejected ? (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                              <Ban className="h-3 w-3 text-rose-600" /> Rechazado
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                              <Clock className="h-3 w-3 text-amber-600" /> Pendiente PM
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="p-3.5 text-right font-bold text-slate-900">
+                          {formatMoney(ex.amount)}
+                        </td>
+
+                        {/* Project Manager Actions & Audit Trail */}
+                        <td className="p-3.5 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setApprovalModalExpense(ex);
+                                setApprovalDecision(isApproved ? 'Pendiente' : 'Aprobado');
+                              }}
+                              className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11px] font-bold shadow-xs transition ${
+                                isApproved
+                                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                  : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                              }`}
+                              title={
+                                isApproved
+                                  ? 'Cambiar estado de aprobación'
+                                  : 'Aprobar gasto como Project Manager'
+                              }
+                            >
+                              {isApproved ? 'Modificar' : 'Aprobar PM'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setViewingAuditExpense(ex)}
+                              className="rounded-lg p-1.5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600"
+                              title="Ver Pista de Auditoría Completa"
+                            >
+                              <FileSearch className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Modal: Two-Step Approval by Project Manager */}
       {approvalModalExpense && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs duration-150">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-bold text-base">Aprobación de Gasto por Project Manager</h3>
+                <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                <h3 className="text-base font-bold">Aprobación de Gasto por Project Manager</h3>
               </div>
               <button
                 onClick={() => setApprovalModalExpense(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                className="rounded-lg p-1 text-slate-400 transition hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+            <div className="space-y-4 p-5">
+              <div className="space-y-1 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
                 <div className="flex justify-between font-bold text-slate-900">
                   <span>Factura: {approvalModalExpense.facturaNumber}</span>
                   <span className="text-blue-600">{formatMoney(approvalModalExpense.amount)}</span>
                 </div>
                 <p className="text-slate-600">{approvalModalExpense.description}</p>
-                <p className="text-slate-400 text-[11px]">Proveedor: {approvalModalExpense.supplier}</p>
+                <p className="text-[11px] text-slate-400">
+                  Proveedor: {approvalModalExpense.supplier}
+                </p>
                 {approvalModalExpense.assignedApuId && (
-                  <p className="text-[11px] font-mono text-slate-700 pt-1 border-t border-slate-200">
+                  <p className="border-t border-slate-200 pt-1 font-mono text-[11px] text-slate-700">
                     Renglón Asignado: {approvalModalExpense.assignedApuId}
                   </p>
                 )}
@@ -715,63 +761,63 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
               {/* Approval Decision Selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="mb-1.5 block text-xs font-bold tracking-wider text-slate-700 uppercase">
                   Decisión del Project Manager (Paso 2)
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setApprovalDecision('Aprobado')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    className={`flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       approvalDecision === 'Aprobado'
                         ? 'bg-emerald-600 text-white shadow-sm'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
-                    <Check className="w-3.5 h-3.5" /> Aprobar
+                    <Check className="h-3.5 w-3.5" /> Aprobar
                   </button>
                   <button
                     type="button"
                     onClick={() => setApprovalDecision('Pendiente')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    className={`flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       approvalDecision === 'Pendiente'
                         ? 'bg-amber-500 text-slate-950 shadow-sm'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
-                    <Clock className="w-3.5 h-3.5" /> Pendiente
+                    <Clock className="h-3.5 w-3.5" /> Pendiente
                   </button>
                   <button
                     type="button"
                     onClick={() => setApprovalDecision('Rechazado')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    className={`flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       approvalDecision === 'Rechazado'
                         ? 'bg-rose-600 text-white shadow-sm'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
-                    <Ban className="w-3.5 h-3.5" /> Rechazar
+                    <Ban className="h-3.5 w-3.5" /> Rechazar
                   </button>
                 </div>
               </div>
 
               {/* PM Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="mb-1 block text-xs font-bold tracking-wider text-slate-700 uppercase">
                   Nombre del Project Manager / Auditor
                 </label>
                 <input
                   type="text"
                   value={pmName}
                   onChange={(e) => setPmName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs focus:bg-white"
                   required
                 />
               </div>
 
               {/* Note / Audit Observation */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="mb-1 block text-xs font-bold tracking-wider text-slate-700 uppercase">
                   Observación para Pista de Auditoría
                 </label>
                 <textarea
@@ -779,22 +825,22 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                   onChange={(e) => setApprovalNote(e.target.value)}
                   placeholder="Ej. Verificado físicamente contra entrega en obra y renglón APU correspondiente."
                   rows={3}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white resize-none"
+                  className="w-full resize-none rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs focus:bg-white"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
+              <div className="flex justify-end gap-2 border-t border-slate-100 pt-2">
                 <button
                   type="button"
                   onClick={() => setApprovalModalExpense(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200"
+                  className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmApproval}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm cursor-pointer"
+                  className="cursor-pointer rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700"
                 >
                   Guardar Decisión en Auditoría
                 </button>
@@ -806,67 +852,82 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
       {/* Modal: Audit Trail Inspector */}
       {viewingAuditExpense && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-xs duration-150">
+          <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <History className="w-5 h-5 text-blue-400" />
+                <History className="h-5 w-5 text-blue-400" />
                 <div>
-                  <h3 className="font-bold text-sm sm:text-base">Pista de Auditoría del Gasto</h3>
+                  <h3 className="text-sm font-bold sm:text-base">Pista de Auditoría del Gasto</h3>
                   <p className="text-[11px] text-slate-400">
-                    Factura {viewingAuditExpense.facturaNumber} • {formatMoney(viewingAuditExpense.amount)}
+                    Factura {viewingAuditExpense.facturaNumber} •{' '}
+                    {formatMoney(viewingAuditExpense.amount)}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setViewingAuditExpense(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                className="rounded-lg p-1 text-slate-400 transition hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
-                <p><strong>Descripción:</strong> {viewingAuditExpense.description}</p>
-                <p><strong>Proveedor:</strong> {viewingAuditExpense.supplier} (NIT: {viewingAuditExpense.nitSupplier})</p>
-                <p><strong>Estado Actual:</strong> <span className="font-bold text-blue-600">{viewingAuditExpense.approvalStatus || 'Pendiente'}</span></p>
+            <div className="flex-1 space-y-4 overflow-y-auto p-5">
+              <div className="space-y-1 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+                <p>
+                  <strong>Descripción:</strong> {viewingAuditExpense.description}
+                </p>
+                <p>
+                  <strong>Proveedor:</strong> {viewingAuditExpense.supplier} (NIT:{' '}
+                  {viewingAuditExpense.nitSupplier})
+                </p>
+                <p>
+                  <strong>Estado Actual:</strong>{' '}
+                  <span className="font-bold text-blue-600">
+                    {viewingAuditExpense.approvalStatus || 'Pendiente'}
+                  </span>
+                </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-blue-600" />
+                <h4 className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-slate-800 uppercase">
+                  <Clock className="h-3.5 w-3.5 text-blue-600" />
                   Línea de Tiempo Inalterable
                 </h4>
 
                 {viewingAuditExpense.auditTrail && viewingAuditExpense.auditTrail.length > 0 ? (
-                  <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+                  <div className="relative space-y-4 pl-6 before:absolute before:top-2 before:bottom-2 before:left-2 before:w-0.5 before:bg-slate-200">
                     {viewingAuditExpense.auditTrail.map((entry, idx) => (
-                      <div key={entry.id || idx} className="relative text-xs space-y-1">
+                      <div key={entry.id || idx} className="relative space-y-1 text-xs">
                         <div
-                          className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full border-2 border-white ${
+                          className={`absolute top-0.5 -left-6 h-4 w-4 rounded-full border-2 border-white ${
                             entry.action === 'APROBADO'
                               ? 'bg-emerald-500 ring-2 ring-emerald-100'
                               : entry.action === 'RECHAZADO'
-                              ? 'bg-rose-500 ring-2 ring-rose-100'
-                              : 'bg-blue-500 ring-2 ring-blue-100'
+                                ? 'bg-rose-500 ring-2 ring-rose-100'
+                                : 'bg-blue-500 ring-2 ring-blue-100'
                           }`}
                         />
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 text-xs">
+                          <span className="text-xs font-bold text-slate-900">
                             {entry.action === 'CREADO' && 'Paso 1: Registro Inicial de Gasto'}
-                            {entry.action === 'ENVIADO_A_REVISION' && 'Enviado a Revisión Presupuestaria'}
+                            {entry.action === 'ENVIADO_A_REVISION' &&
+                              'Enviado a Revisión Presupuestaria'}
                             {entry.action === 'APROBADO' && 'Paso 2: Aprobado por Project Manager'}
                             {entry.action === 'RECHAZADO' && 'Rechazado por Project Manager'}
                             {entry.action === 'REVERTIDO' && 'Revertido a Pendiente'}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono">{entry.timestamp}</span>
+                          <span className="font-mono text-[10px] text-slate-400">
+                            {entry.timestamp}
+                          </span>
                         </div>
                         <p className="text-[11px] text-slate-600">
-                          Por: <strong className="text-slate-800">{entry.user}</strong> ({entry.role})
+                          Por: <strong className="text-slate-800">{entry.user}</strong> (
+                          {entry.role})
                         </p>
                         {entry.note && (
-                          <p className="text-[11px] text-slate-500 bg-white p-2 rounded-lg border border-slate-200 italic">
+                          <p className="rounded-lg border border-slate-200 bg-white p-2 text-[11px] text-slate-500 italic">
                             &quot;{entry.note}&quot;
                           </p>
                         )}
@@ -874,15 +935,17 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 italic">No hay registros de auditoría anteriores.</p>
+                  <p className="text-xs text-slate-400 italic">
+                    No hay registros de auditoría anteriores.
+                  </p>
                 )}
               </div>
 
-              <div className="pt-2 flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="button"
                   onClick={() => setViewingAuditExpense(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200"
+                  className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200"
                 >
                   Cerrar
                 </button>
@@ -894,30 +957,36 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
       {/* Modal: Registrar Nuevo Gasto con Cámara y APU Check */}
       {isOpenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+          <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-amber-400" />
-                <h3 className="font-bold text-base">Registrar Gasto o Factura FEL</h3>
+                <Receipt className="h-5 w-5 text-amber-400" />
+                <h3 className="text-base font-bold">Registrar Gasto o Factura FEL</h3>
               </div>
               <button
                 onClick={() => setIsOpenModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                className="rounded-lg p-1 text-slate-400 transition hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleCreate} className="p-5 space-y-3 overflow-y-auto flex-1">
+            <form onSubmit={handleCreate} className="flex-1 space-y-3 overflow-y-auto p-5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Categoría de Gasto</label>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  Categoría de Gasto
+                </label>
                 <select
                   value={category}
-                  onChange={(e: any) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setCategory(e.target.value as typeof category)
+                  }
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                 >
-                  <option value="Materiales (Cementos, Hierro)">Materiales (Cementos, Hierro)</option>
+                  <option value="Materiales (Cementos, Hierro)">
+                    Materiales (Cementos, Hierro)
+                  </option>
                   <option value="Mano de Obra">Mano de Obra</option>
                   <option value="Maquinaria y Combustible">Maquinaria y Combustible</option>
                   <option value="Permisos & Licencias">Permisos & Licencias</option>
@@ -927,7 +996,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
               {/* APU Budget Item Selection */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
                   Renglón de Presupuesto APU Asignado
                 </label>
                 <select
@@ -946,7 +1015,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                       });
                     }
                   }}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50 font-medium"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium"
                 >
                   {budgetItems.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -958,24 +1027,28 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Proveedor</label>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    Proveedor
+                  </label>
                   <input
                     type="text"
                     value={supplier}
                     onChange={(e) => setSupplier(e.target.value)}
                     placeholder="Ej. Discosa S.A."
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">NIT Proveedor</label>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    NIT Proveedor
+                  </label>
                   <input
                     type="text"
                     value={nit}
                     onChange={(e) => setNit(e.target.value)}
                     placeholder="Ej. 1294821-9"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                     required
                   />
                 </div>
@@ -983,18 +1056,22 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">No. Factura FEL</label>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    No. Factura FEL
+                  </label>
                   <input
                     type="text"
                     value={factura}
                     onChange={(e) => setFactura(e.target.value)}
                     placeholder="Ej. A-49201"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Monto (GTQ)</label>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    Monto (GTQ)
+                  </label>
                   <input
                     type="number"
                     value={amount}
@@ -1012,43 +1089,49 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                         });
                       }
                     }}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50 font-bold"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-bold"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Descripción del Insumo / Gasto</label>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  Descripción del Insumo / Gasto
+                </label>
                 <input
                   type="text"
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   placeholder="Ej. Compra de 250 bolsas de Cemento Progreso"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                   required
                 />
               </div>
 
               {/* Receipt / Invoice Photo Capture Section */}
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <Camera className="w-4 h-4 text-amber-600" />
-                    <span className="text-xs font-bold text-slate-800">Comprobante Físico / Factura</span>
+                    <Camera className="h-4 w-4 text-amber-600" />
+                    <span className="text-xs font-bold text-slate-800">
+                      Comprobante Físico / Factura
+                    </span>
                   </div>
                   <span className="text-[10px] text-slate-400">Cámara del dispositivo</span>
                 </div>
 
                 {isAnalyzing && (
-                  <div className="flex items-center gap-2 p-2 bg-amber-50 text-amber-900 text-xs rounded-lg border border-amber-200 animate-pulse">
-                    <div className="w-3.5 h-3.5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="font-semibold">Analizando factura con Gemini AI (Extrayendo proveedor, NIT y monto)...</span>
+                  <div className="flex animate-pulse items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-600 border-t-transparent"></div>
+                    <span className="font-semibold">
+                      Analizando factura con Gemini AI (Extrayendo proveedor, NIT y monto)...
+                    </span>
                   </div>
                 )}
 
                 {newReceiptUrl ? (
-                  <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200">
+                  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-2">
                     <div className="flex items-center gap-2.5">
                       <Image
                         src={newReceiptUrl}
@@ -1056,11 +1139,11 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                         width={48}
                         height={48}
                         unoptimized
-                        className="w-12 h-12 object-cover rounded-md border border-slate-300"
+                        className="h-12 w-12 rounded-md border border-slate-300 object-cover"
                       />
                       <div className="text-xs">
-                        <p className="font-bold text-slate-900 flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Recibo Escaneado
+                        <p className="flex items-center gap-1 font-bold text-slate-900">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Recibo Escaneado
                         </p>
                         <p className="text-[10px] text-slate-400">{newReceiptDate}</p>
                       </div>
@@ -1073,10 +1156,10 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                           setCameraTargetExpenseId(null);
                           setIsCameraOpen(true);
                         }}
-                        className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-lg transition"
+                        className="rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
                         title="Tomar foto de nuevo"
                       >
-                        <RotateCw className="w-4 h-4" />
+                        <RotateCw className="h-4 w-4" />
                       </button>
                       <button
                         type="button"
@@ -1085,28 +1168,28 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                           setNewReceiptDate(null);
                           setNewReceiptCoords(null);
                         }}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
                         title="Quitar comprobante"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <button
                       type="button"
                       onClick={() => {
                         setCameraTargetExpenseId(null);
                         setIsCameraOpen(true);
                       }}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition cursor-pointer"
+                      className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900 transition hover:bg-amber-100"
                     >
-                      <Camera className="w-4 h-4 text-amber-600" />
+                      <Camera className="h-4 w-4 text-amber-600" />
                       Tomar Foto del Recibo con Cámara
                     </button>
-                    <label className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold transition cursor-pointer">
-                      <Upload className="w-3.5 h-3.5" />
+                    <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+                      <Upload className="h-3.5 w-3.5" />
                       Subir Archivo
                       <input
                         type="file"
@@ -1131,17 +1214,17 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                 )}
               </div>
 
-              <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
+              <div className="flex justify-end gap-2 border-t border-slate-100 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsOpenModal(false)}
-                  className="px-4 py-2 rounded-xl text-sm text-slate-700 bg-slate-100 hover:bg-slate-200"
+                  className="rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-700 hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm cursor-pointer"
+                  className="cursor-pointer rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
                 >
                   Registrar Gasto (Paso 1)
                 </button>
@@ -1168,16 +1251,19 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
       {/* Lightbox / Inspector for Physical Receipt */}
       {viewingReceiptExpense && viewingReceiptExpense.receiptPhotoUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-          <div className="max-w-2xl w-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="p-3.5 flex items-center justify-between text-white border-b border-slate-800">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm duration-150">
+          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 p-3.5 text-white">
               <div className="flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-emerald-400" />
+                <Receipt className="h-4 w-4 text-emerald-400" />
                 <div>
                   <h4 className="text-xs font-bold">
-                    Factura FEL {viewingReceiptExpense.facturaNumber} • {viewingReceiptExpense.supplier}
+                    Factura FEL {viewingReceiptExpense.facturaNumber} •{' '}
+                    {viewingReceiptExpense.supplier}
                   </h4>
-                  <p className="text-[10px] text-slate-400">NIT: {viewingReceiptExpense.nitSupplier}</p>
+                  <p className="text-[10px] text-slate-400">
+                    NIT: {viewingReceiptExpense.nitSupplier}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -1188,36 +1274,39 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                       `Recibo-${viewingReceiptExpense.facturaNumber}.jpg`
                     )
                   }
-                  className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
+                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
                   title="Descargar imagen"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setViewingReceiptExpense(null)}
-                  className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
+                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
 
-            <div className="bg-black flex items-center justify-center p-2 overflow-auto flex-1 max-h-[65vh]">
+            <div className="flex max-h-[65vh] flex-1 items-center justify-center overflow-auto bg-black p-2">
               <Image
                 src={viewingReceiptExpense.receiptPhotoUrl}
                 alt="Comprobante físico"
                 width={1200}
                 height={900}
                 unoptimized
-                className="max-h-[60vh] w-auto object-contain rounded-lg"
+                className="max-h-[60vh] w-auto rounded-lg object-contain"
               />
             </div>
 
-            <div className="p-3 bg-slate-950 text-xs text-slate-300 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div className="flex flex-col items-start justify-between gap-2 border-t border-slate-800 bg-slate-950 p-3 text-xs text-slate-300 sm:flex-row sm:items-center">
               <div>
-                <span className="font-semibold text-white">{viewingReceiptExpense.description}</span>
+                <span className="font-semibold text-white">
+                  {viewingReceiptExpense.description}
+                </span>
                 <p className="text-[11px] text-slate-400">
-                  Total: {formatMoney(viewingReceiptExpense.amount)} • {viewingReceiptExpense.category}
+                  Total: {formatMoney(viewingReceiptExpense.amount)} •{' '}
+                  {viewingReceiptExpense.category}
                 </p>
               </div>
               <div className="text-right text-[11px] text-slate-400">
@@ -1235,4 +1324,4 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
       )}
     </div>
   );
-};
+}

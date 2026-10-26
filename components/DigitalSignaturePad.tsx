@@ -43,7 +43,7 @@ export interface DigitalSignaturePadProps {
   className?: string;
 }
 
-export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
+export function DigitalSignaturePad({
   isOpen = true,
   onClose,
   onSaveSignature,
@@ -58,7 +58,7 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
   visitId,
   reportCode,
   className = '',
-}) => {
+}: DigitalSignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -172,7 +172,9 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
     setStrokeHistory((prev) => [...prev.slice(-12), imageData]);
   };
 
-  const getPointerPos = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const getPointerPos = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
@@ -192,7 +194,9 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
     return { x: 0, y: 0 };
   };
 
-  const handleStartDraw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const handleStartDraw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     // Prevent mobile page scroll while signing
     if (e.cancelable) e.preventDefault();
     setValidationError(null);
@@ -216,7 +220,9 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
     ctx.moveTo(x, y);
   };
 
-  const handleMoveDraw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const handleMoveDraw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     if (!isDrawing) return;
     if (e.cancelable) e.preventDefault();
 
@@ -258,7 +264,9 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
 
   const handleConfirm = () => {
     if (strokeCount === 0) {
-      setValidationError('Por favor estampación táctil requerida. Dibuje su firma sobre el cuadro blanco.');
+      setValidationError(
+        'Por favor estampación táctil requerida. Dibuje su firma sobre el cuadro blanco.'
+      );
       return;
     }
     if (!signerName.trim()) {
@@ -296,9 +304,9 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
   const content = (
     <div className="space-y-4">
       {/* Signer Info inputs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-bold text-slate-700">
             Nombre del Capataz / Residente <span className="text-rose-500">*</span>
           </label>
           <input
@@ -306,13 +314,13 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
             value={signerName}
             onChange={(e) => setSignerName(e.target.value)}
             placeholder="Ej. Don Mario Cifuentes"
-            className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-bold text-slate-700">
             DPI / CUI Guatemala <span className="text-rose-500">*</span>
           </label>
           <input
@@ -320,61 +328,63 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
             value={signerDpi}
             onChange={(e) => setSignerDpi(e.target.value)}
             placeholder="XXXX XXXXX XXXX"
-            className="w-full px-3 py-2 text-xs font-mono font-bold rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-800"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-700 mb-1">Cargo o Puesto en Obra</label>
+        <label className="mb-1 block text-xs font-bold text-slate-700">
+          Cargo o Puesto en Obra
+        </label>
         <input
           type="text"
           value={signerRole}
           onChange={(e) => setSignerRole(e.target.value)}
           placeholder="Ej. Capataz General de Estructura"
-          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
       </div>
 
       {/* Canvas Tool Controls */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <Smartphone className="w-3.5 h-3.5 text-blue-600" />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+            <Smartphone className="h-3.5 w-3.5 text-blue-600" />
             Recuadro de Firma Táctil (HTML5 Canvas):
           </label>
 
           <div className="flex items-center gap-2">
             {/* Pen Color Selectors */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+            <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 p-1">
               <button
                 type="button"
                 onClick={() => setPenColor('#1e3a8a')}
-                className={`w-4 h-4 rounded-full bg-blue-900 ${penColor === '#1e3a8a' ? 'ring-2 ring-blue-500 scale-110' : ''}`}
+                className={`h-4 w-4 rounded-full bg-blue-900 ${penColor === '#1e3a8a' ? 'scale-110 ring-2 ring-blue-500' : ''}`}
                 title="Tinta Azul Obra"
               />
               <button
                 type="button"
                 onClick={() => setPenColor('#0f172a')}
-                className={`w-4 h-4 rounded-full bg-slate-900 ${penColor === '#0f172a' ? 'ring-2 ring-blue-500 scale-110' : ''}`}
+                className={`h-4 w-4 rounded-full bg-slate-900 ${penColor === '#0f172a' ? 'scale-110 ring-2 ring-blue-500' : ''}`}
                 title="Tinta Negra"
               />
             </div>
 
             {/* Thickness Selectors */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-[10px] font-bold">
+            <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 p-1 text-[10px] font-bold">
               <button
                 type="button"
                 onClick={() => setStrokeWidth(2)}
-                className={`px-1.5 py-0.5 rounded ${strokeWidth === 2 ? 'bg-blue-600 text-white' : 'text-slate-600'}`}
+                className={`rounded px-1.5 py-0.5 ${strokeWidth === 2 ? 'bg-blue-600 text-white' : 'text-slate-600'}`}
               >
                 Fina
               </button>
               <button
                 type="button"
                 onClick={() => setStrokeWidth(3)}
-                className={`px-1.5 py-0.5 rounded ${strokeWidth === 3 ? 'bg-blue-600 text-white' : 'text-slate-600'}`}
+                className={`rounded px-1.5 py-0.5 ${strokeWidth === 3 ? 'bg-blue-600 text-white' : 'text-slate-600'}`}
               >
                 Normal
               </button>
@@ -385,16 +395,16 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
               type="button"
               onClick={handleUndo}
               disabled={strokeHistory.length === 0}
-              className="text-xs text-slate-600 hover:text-slate-900 disabled:opacity-30 flex items-center gap-1 cursor-pointer"
+              className="flex cursor-pointer items-center gap-1 text-xs text-slate-600 hover:text-slate-900 disabled:opacity-30"
             >
-              <Undo2 className="w-3.5 h-3.5" />
+              <Undo2 className="h-3.5 w-3.5" />
             </button>
             <button
               type="button"
               onClick={handleClear}
-              className="text-xs text-rose-600 hover:text-rose-700 font-bold flex items-center gap-1 cursor-pointer"
+              className="flex cursor-pointer items-center gap-1 text-xs font-bold text-rose-600 hover:text-rose-700"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> Limpiar
+              <RotateCcw className="h-3.5 w-3.5" /> Limpiar
             </button>
           </div>
         </div>
@@ -402,7 +412,7 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
         {/* HTML5 Canvas Container */}
         <div
           ref={containerRef}
-          className="border-2 border-slate-300 rounded-2xl bg-white overflow-hidden shadow-inner flex justify-center relative touch-none select-none"
+          className="relative flex touch-none justify-center overflow-hidden rounded-2xl border-2 border-slate-300 bg-white shadow-inner select-none"
         >
           <canvas
             ref={canvasRef}
@@ -414,11 +424,11 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
             onTouchStart={handleStartDraw}
             onTouchMove={handleMoveDraw}
             onTouchEnd={handleEndDraw}
-            className="cursor-crosshair bg-white w-full"
+            className="w-full cursor-crosshair bg-white"
           />
 
           {strokeCount === 0 && (
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-40 text-slate-400 text-xs font-semibold">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-400 opacity-40">
               Deslice su dedo o lápiz óptico aquí para firmar
             </div>
           )}
@@ -427,42 +437,43 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
 
       {/* Validation alert */}
       {validationError && (
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+        <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700">
+          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
           <span>{validationError}</span>
         </div>
       )}
 
       {/* Geolocation & Legal Timestamp Stamp */}
-      <div className="bg-slate-900 text-slate-300 p-3 rounded-xl border border-slate-800 text-xs space-y-1.5 font-mono">
+      <div className="space-y-1.5 rounded-xl border border-slate-800 bg-slate-900 p-3 font-mono text-xs text-slate-300">
         <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
           {gpsCoords && (
-            <span className="flex items-center gap-1 text-cyan-400 font-bold">
-              <MapPin className="w-3.5 h-3.5 text-rose-400" />
+            <span className="flex items-center gap-1 font-bold text-cyan-400">
+              <MapPin className="h-3.5 w-3.5 text-rose-400" />
               GPS: {gpsCoords.lat.toFixed(5)}°N, {gpsCoords.lng.toFixed(5)}°W
               {gpsStatus === 'success' && (
-                <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-700">
+                <span className="py-0.2 rounded border border-emerald-700 bg-emerald-950 px-1 text-[9px] text-emerald-400">
                   GPS En Vivo
                 </span>
               )}
             </span>
           )}
-          <span className="text-slate-400 font-sans">
+          <span className="font-sans text-slate-400">
             Fecha: {new Date().toLocaleDateString('es-GT')} {new Date().toLocaleTimeString('es-GT')}
           </span>
         </div>
-        <p className="text-[10px] text-slate-400 font-sans leading-tight">
-          Garantía de Autoría: Firma HTML5 almacenada en Firestore con georreferencia en tiempo real para bitácoras oficiales de construcción.
+        <p className="font-sans text-[10px] leading-tight text-slate-400">
+          Garantía de Autoría: Firma HTML5 almacenada en Firestore con georreferencia en tiempo real
+          para bitácoras oficiales de construcción.
         </p>
       </div>
 
       {/* Action Buttons */}
-      <div className="pt-2 flex items-center justify-end gap-2.5">
+      <div className="flex items-center justify-end gap-2.5 pt-2">
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 cursor-pointer transition"
+            className="cursor-pointer rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
           >
             Cancelar
           </button>
@@ -470,9 +481,9 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
         <button
           type="button"
           onClick={handleConfirm}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 shadow-lg cursor-pointer transition"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-lg transition hover:bg-blue-700"
         >
-          <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
           Autorizar Bitácora con Firma Digital
         </button>
       </div>
@@ -480,22 +491,26 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
   );
 
   if (inline) {
-    return <div className={`bg-white rounded-2xl p-5 border border-slate-200 shadow-md ${className}`}>{content}</div>;
+    return (
+      <div className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-md ${className}`}>
+        {content}
+      </div>
+    );
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden my-6 animate-in fade-in zoom-in-95 duration-200">
-        <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-xs">
+      <div className="animate-in fade-in zoom-in-95 my-6 w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl duration-200">
+        <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-600 text-white">
-              <PenTool className="w-4 h-4" />
+            <div className="rounded-xl bg-blue-600 p-2 text-white">
+              <PenTool className="h-4 w-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-sm sm:text-base">{title}</h3>
+                <h3 className="text-sm font-extrabold sm:text-base">{title}</h3>
                 {reportCode && (
-                  <span className="text-[10px] font-mono font-bold bg-blue-500/30 text-blue-200 px-1.5 py-0.5 rounded border border-blue-400/30">
+                  <span className="rounded border border-blue-400/30 bg-blue-500/30 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-200">
                     {reportCode}
                   </span>
                 )}
@@ -504,8 +519,11 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
             </div>
           </div>
           {onClose && (
-            <button onClick={onClose} className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition">
-              <X className="w-5 h-5" />
+            <button
+              onClick={onClose}
+              className="rounded-xl p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+            >
+              <X className="h-5 w-5" />
             </button>
           )}
         </div>
@@ -514,6 +532,6 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default DigitalSignaturePad;

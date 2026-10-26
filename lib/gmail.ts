@@ -54,10 +54,13 @@ export async function sendGmailMessage(
       throw new Error('El permiso de Google venció o fue revocado. Autoriza Gmail nuevamente.');
     }
     if (response.status === 403) {
-      throw new Error('Google no autorizó el envío. Verifica que el permiso Gmail send esté habilitado para esta aplicación.');
+      throw new Error(
+        'Google no autorizó el envío. Verifica que el permiso Gmail send esté habilitado para esta aplicación.'
+      );
     }
     const errorBody: { error?: { message?: unknown } } = await response.json().catch(() => ({}));
-    const detail = typeof errorBody.error?.message === 'string' ? `: ${errorBody.error.message}` : '';
+    const detail =
+      typeof errorBody.error?.message === 'string' ? `: ${errorBody.error.message}` : '';
     throw new Error(`Gmail rechazó el envío (HTTP ${response.status})${detail}`);
   }
 

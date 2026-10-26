@@ -41,11 +41,7 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning className="h-full touch-manipulation">
       <head>
@@ -63,17 +59,45 @@ export default function RootLayout({
         <meta name="format-detection" content="email=no" />
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="apple-touch-icon" sizes="180x180" href="/assets/branding/apple-touch-icon.png" />
-        <link rel="apple-touch-startup-image" href="/assets/branding/apple-touch-icon.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
-        <link rel="apple-touch-startup-image" href="/assets/branding/apple-touch-icon.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
-        <link rel="apple-touch-startup-image" href="/assets/branding/apple-touch-icon.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" />
-        <link rel="apple-touch-startup-image" href="/assets/branding/apple-touch-icon.png" media="(device-width: 393px) and (device-height: 851px) and (-webkit-device-pixel-ratio: 3)" />
-        <link rel="apple-touch-startup-image" href="/assets/branding/apple-touch-icon.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" />
-        <link rel="apple-touch-startup-image" href="/assets/branding/apple-touch-icon.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
-        <link rel="apple-touch-startup-image" href="/assets/branding/apple-touch-icon.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
+        <link
+          rel="apple-touch-startup-image"
+          href="/assets/branding/apple-touch-icon.png"
+          media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/assets/branding/apple-touch-icon.png"
+          media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/assets/branding/apple-touch-icon.png"
+          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/assets/branding/apple-touch-icon.png"
+          media="(device-width: 393px) and (device-height: 851px) and (-webkit-device-pixel-ratio: 3)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/assets/branding/apple-touch-icon.png"
+          media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/assets/branding/apple-touch-icon.png"
+          media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/assets/branding/apple-touch-icon.png"
+          media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)"
+        />
         <link rel="icon" sizes="any" href="/assets/branding/favicon.ico" />
         <link rel="mask-icon" href="/assets/branding/icon-192x192.png" color="#0f172a" />
       </head>
-      <body className="min-h-screen text-slate-100 antialiased selection:bg-sky-400 selection:text-slate-950 h-full overflow-x-hidden">
+      <body className="h-full min-h-screen overflow-x-hidden text-slate-100 antialiased selection:bg-sky-400 selection:text-slate-950">
         <Toaster position="bottom-right" />
         {children}
       </body>

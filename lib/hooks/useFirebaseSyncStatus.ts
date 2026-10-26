@@ -18,7 +18,11 @@ const INITIAL_SYNC_LOGS: SyncLogEntry[] = [
     id: 'log-1',
     operation: 'Escucha en Tiempo Real (Projects)',
     path: 'projects/onSnapshot',
-    timestamp: new Date().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    timestamp: new Date().toLocaleTimeString('es-GT', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }),
     status: 'completado',
     details: 'Sincronizados 3 proyectos activos desde Firestore DB.',
   },
@@ -26,7 +30,11 @@ const INITIAL_SYNC_LOGS: SyncLogEntry[] = [
     id: 'log-2',
     operation: 'Guardar Configuración de Empresa',
     path: 'companySettings/salazaroliveros',
-    timestamp: new Date(Date.now() - 120000).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    timestamp: new Date(Date.now() - 120000).toLocaleTimeString('es-GT', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }),
     status: 'completado',
     details: 'Actualizados datos de marca e IVA (SAT 12%).',
   },
@@ -34,7 +42,11 @@ const INITIAL_SYNC_LOGS: SyncLogEntry[] = [
     id: 'log-3',
     operation: 'Sincronización de Gastos & APU',
     path: 'expenses/collection',
-    timestamp: new Date(Date.now() - 300000).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    timestamp: new Date(Date.now() - 300000).toLocaleTimeString('es-GT', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }),
     status: 'completado',
     details: 'Verificados 12 registros de facturación operativa.',
   },
@@ -42,7 +54,11 @@ const INITIAL_SYNC_LOGS: SyncLogEntry[] = [
     id: 'log-4',
     operation: 'Registro de Asistencia con Geofence GPS',
     path: 'attendance/att-2026',
-    timestamp: new Date(Date.now() - 600000).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    timestamp: new Date(Date.now() - 600000).toLocaleTimeString('es-GT', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }),
     status: 'completado',
     details: 'Coordenadas satelitales validadas dentro del perímetro de obra.',
   },
@@ -65,7 +81,11 @@ export function useFirebaseSyncStatus() {
         id: `log-${Date.now()}`,
         operation: 'Conexión Restablecida',
         path: 'firebase/network',
-        timestamp: new Date().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        timestamp: new Date().toLocaleTimeString('es-GT', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }),
         status: 'sincronizando',
         details: 'Reconectando con la base de datos Firestore...',
       };
@@ -75,7 +95,11 @@ export function useFirebaseSyncStatus() {
         setStatus('online');
         setLastSyncedAt(new Date());
         setSyncLogs((prev) =>
-          prev.map((l) => (l.id === newLog.id ? { ...l, status: 'completado', details: 'Sincronización completa con Firestore.' } : l))
+          prev.map((l) =>
+            l.id === newLog.id
+              ? { ...l, status: 'completado', details: 'Sincronización completa con Firestore.' }
+              : l
+          )
         );
       }, 1000);
     };
@@ -86,7 +110,11 @@ export function useFirebaseSyncStatus() {
         id: `log-${Date.now()}`,
         operation: 'Modo Offline Activado',
         path: 'firebase/network',
-        timestamp: new Date().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        timestamp: new Date().toLocaleTimeString('es-GT', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }),
         status: 'pendiente',
         details: 'Los cambios locales se guardarán en la memoria hasta recuperar conexión.',
       };
@@ -102,7 +130,11 @@ export function useFirebaseSyncStatus() {
           id: `log-${Date.now()}`,
           operation: detail.operation || 'Escritura / Consulta Firestore',
           path: detail.path || 'firestore/db',
-          timestamp: new Date().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          timestamp: new Date().toLocaleTimeString('es-GT', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }),
           status: 'sincronizando',
           details: detail.details || 'Enviando petición a la base de datos...',
         };
@@ -143,7 +175,11 @@ export function useFirebaseSyncStatus() {
 
   const forceResync = () => {
     setStatus('syncing');
-    notifySyncStart({ operation: 'Resincronización Manual', path: 'firestore/all', details: 'Forzando actualización de la caché...' });
+    notifySyncStart({
+      operation: 'Resincronización Manual',
+      path: 'firestore/all',
+      details: 'Forzando actualización de la caché...',
+    });
     setTimeout(() => {
       setStatus('online');
       setLastSyncedAt(new Date());

@@ -9,12 +9,12 @@ interface FocusTrapProps {
   returnFocus?: boolean;
 }
 
-export const FocusTrap: React.FC<FocusTrapProps> = ({
+export function FocusTrap({
   children,
   isActive = true,
   onEscape,
   returnFocus = true,
-}) => {
+}: FocusTrapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
@@ -74,5 +74,9 @@ export const FocusTrap: React.FC<FocusTrapProps> = ({
     return () => document.removeEventListener('keydown', handleKeydown);
   }, [isActive, onEscape]);
 
-  return <div ref={containerRef} tabIndex={-1}>{children}</div>;
-};
+  return (
+    <div ref={containerRef} tabIndex={-1}>
+      {children}
+    </div>
+  );
+}

@@ -1,10 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import {
-  initializeTestEnvironment,
-  type RulesTestEnvironment,
-} from '@firebase/rules-unit-testing';
+import { initializeTestEnvironment, type RulesTestEnvironment } from '@firebase/rules-unit-testing';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import type { EmployeeDirectoryEntry } from './types';
@@ -75,7 +72,9 @@ describe('Firestore service emulator integration', () => {
 
     const workspace = await ensureCompanyWorkspace(user.user);
     expect(workspace.workspace.id).toBe(user.user.uid);
-    expect((await getDoc(doc(db, 'attendance', 'legacy-attendance'))).data()?.companyId).toBe(companyId);
+    expect((await getDoc(doc(db, 'attendance', 'legacy-attendance'))).data()?.companyId).toBe(
+      companyId
+    );
 
     const employeesLoaded = new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {

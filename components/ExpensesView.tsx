@@ -55,7 +55,7 @@ export interface ExpensesViewProps {
   onDeleteExpense?: (expenseId: string) => Promise<boolean>;
 }
 
-export const ExpensesView: React.FC<ExpensesViewProps> = ({
+export function ExpensesView({
   projects,
   expenses = [],
   company,
@@ -63,7 +63,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   onSelectProject,
   onAddExpense,
   onDeleteExpense,
-}) => {
+}: ExpensesViewProps) {
   // Navigation tabs: List vs Form vs Monthly Summary
   const [activeTab, setActiveTab] = useState<'tabla' | 'nuevo' | 'resumen'>('tabla');
 
@@ -79,14 +79,17 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
   // Form State
   const [formDate, setFormDate] = useState<string>(getGuatemalaDate);
-  const [formCategory, setFormCategory] = useState<ExpenseRecord['category']>('Materiales (Cementos, Hierro)');
+  const [formCategory, setFormCategory] = useState<ExpenseRecord['category']>(
+    'Materiales (Cementos, Hierro)'
+  );
   const [formDescription, setFormDescription] = useState<string>('');
   const [formSupplier, setFormSupplier] = useState<string>('');
   const [formNitSupplier, setFormNitSupplier] = useState<string>('');
   const [formFacturaNumber, setFormFacturaNumber] = useState<string>('');
   const [formAmount, setFormAmount] = useState<string>('');
   const [formCurrency, setFormCurrency] = useState<'GTQ' | 'USD'>('GTQ');
-  const [formPaymentMethod, setFormPaymentMethod] = useState<ExpenseRecord['paymentMethod']>('Transferencia BI');
+  const [formPaymentMethod, setFormPaymentMethod] =
+    useState<ExpenseRecord['paymentMethod']>('Transferencia BI');
   const [formReceiptPhotoUrl, setFormReceiptPhotoUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -110,13 +113,16 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   // Export PDF state
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
 
-  const categoriesList = useMemo<ExpenseRecord['category'][]>(() => [
-    'Materiales (Cementos, Hierro)',
-    'Mano de Obra',
-    'Maquinaria y Combustible',
-    'Permisos & Licencias',
-    'Imprevistos',
-  ], []);
+  const categoriesList = useMemo<ExpenseRecord['category'][]>(
+    () => [
+      'Materiales (Cementos, Hierro)',
+      'Mano de Obra',
+      'Maquinaria y Combustible',
+      'Permisos & Licencias',
+      'Imprevistos',
+    ],
+    []
+  );
 
   // Map project ID to project object
   const projectMap = useMemo(() => {
@@ -214,8 +220,13 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       setSaveError('El registro de gastos no está disponible en este momento.');
       return;
     }
-    if (formCurrency === 'USD' && (!Number.isFinite(company.exchangeRate) || company.exchangeRate <= 0)) {
-      setSaveError('Configura un tipo de cambio válido en la configuración de empresa antes de registrar gastos en USD.');
+    if (
+      formCurrency === 'USD' &&
+      (!Number.isFinite(company.exchangeRate) || company.exchangeRate <= 0)
+    ) {
+      setSaveError(
+        'Configura un tipo de cambio válido en la configuración de empresa antes de registrar gastos en USD.'
+      );
       return;
     }
 
@@ -257,7 +268,9 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       setActiveTab('tabla');
     } catch (error) {
       console.error('No se pudo registrar el gasto:', error);
-      setSaveError('Ocurrió un error al guardar. Conservamos los datos para que puedas intentarlo de nuevo.');
+      setSaveError(
+        'Ocurrió un error al guardar. Conservamos los datos para que puedas intentarlo de nuevo.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -269,7 +282,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       setIsExportingPdf(true);
       await exportExpensesBudgetPdf({
         projects,
-        selectedProject: selectedProjectId !== 'todos' ? projectMap.get(selectedProjectId) || null : null,
+        selectedProject:
+          selectedProjectId !== 'todos' ? projectMap.get(selectedProjectId) || null : null,
         expenses,
         monthlyData: [],
         company,
@@ -284,7 +298,10 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
   // Export Excel Summary Function
   const handleExportExcelSummary = () => {
-    const targetProject = selectedProjectId !== 'todos' ? projectMap.get(selectedProjectId) || projects[0] : projects[0];
+    const targetProject =
+      selectedProjectId !== 'todos'
+        ? projectMap.get(selectedProjectId) || projects[0]
+        : projects[0];
     if (targetProject) {
       exportExpensesToExcel({
         project: targetProject,
@@ -297,58 +314,61 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs md:flex-row md:items-center">
         <div className="flex items-center gap-3">
-          <span className="p-2.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
-            <Receipt className="w-6 h-6" />
+          <span className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-amber-600">
+            <Receipt className="h-6 w-6" />
           </span>
           <div>
             <h2 className="text-lg font-extrabold text-slate-900">
               Gestión de Gastos, Comprobantes & Facturas SAT
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Control financiero de egresos de obra, IVA acreditable, proveedores y liquidaciones por proyecto.
+            <p className="mt-0.5 text-xs text-slate-500">
+              Control financiero de egresos de obra, IVA acreditable, proveedores y liquidaciones
+              por proyecto.
             </p>
           </div>
         </div>
 
         {/* Primary Tab Controls */}
-        <div className="flex items-center flex-wrap gap-2">
-          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
             <button
               type="button"
               onClick={() => setActiveTab('tabla')}
-              className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                 activeTab === 'tabla'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  ? 'bg-white font-bold text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Receipt className="w-3.5 h-3.5" />
+              <Receipt className="h-3.5 w-3.5" />
               Listado de Gastos
             </button>
-            {onAddExpense && <button
-              type="button"
-              onClick={() => setActiveTab('nuevo')}
-              className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
-                activeTab === 'nuevo'
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Nuevo Gasto / Factura
-            </button>}
+            {onAddExpense && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('nuevo')}
+                className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
+                  activeTab === 'nuevo'
+                    ? 'bg-amber-500 font-bold text-slate-950 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Nuevo Gasto / Factura
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setActiveTab('resumen')}
-              className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                 activeTab === 'resumen'
-                  ? 'bg-blue-600 text-white font-bold shadow-xs'
+                  ? 'bg-blue-600 font-bold text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
+              <BarChart3 className="h-3.5 w-3.5" />
               Resumen Mensual
             </button>
           </div>
@@ -361,60 +381,60 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       {activeTab === 'tabla' && (
         <div className="space-y-4">
           {/* KPI Summary Banner */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                 Total Gastos Filtrados
               </p>
-              <p className="text-xl font-extrabold text-slate-900 mt-1">
+              <p className="mt-1 text-xl font-extrabold text-slate-900">
                 {formatGTQ(totalFilteredAmountGTQ)}
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">
+              <p className="mt-0.5 text-[10px] text-slate-400">
                 {filteredExpenses.length} registros mostrados
               </p>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[10px] font-bold tracking-wider text-blue-600 uppercase">
                 Crédito Fiscal IVA (12%)
               </p>
-              <p className="text-xl font-extrabold text-blue-700 mt-1">
+              <p className="mt-1 text-xl font-extrabold text-blue-700">
                 {formatGTQ((totalFilteredAmountGTQ / 1.12) * 0.12)}
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">IVA acreditable en la SAT</p>
+              <p className="mt-0.5 text-[10px] text-slate-400">IVA acreditable en la SAT</p>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-              <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[10px] font-bold tracking-wider text-emerald-600 uppercase">
                 Subtotal Neto de Materiales
               </p>
-              <p className="text-xl font-extrabold text-emerald-700 mt-1">
+              <p className="mt-1 text-xl font-extrabold text-emerald-700">
                 {formatGTQ(
                   filteredExpenses
                     .filter((e) => e.category === 'Materiales (Cementos, Hierro)')
                     .reduce((sum, e) => sum + e.amount, 0)
                 )}
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">Insumos de construcción</p>
+              <p className="mt-0.5 text-[10px] text-slate-400">Insumos de construcción</p>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-              <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              <p className="text-[10px] font-bold tracking-wider text-amber-600 uppercase">
                 Proyectos con Egreso
               </p>
-              <p className="text-xl font-extrabold text-amber-700 mt-1">
+              <p className="mt-1 text-xl font-extrabold text-amber-700">
                 {projectsWithExpensesCount} proyectos
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">Control presupuestario</p>
+              <p className="mt-0.5 text-[10px] text-slate-400">Control presupuestario</p>
             </div>
           </div>
 
           {/* Controls Bar: Filters & Search */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            <div className="flex items-center flex-wrap gap-2.5">
+          <div className="flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs md:flex-row md:items-center">
+            <div className="flex flex-wrap items-center gap-2.5">
               {/* Project Filter */}
               <div className="flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-slate-400" />
+                <Building className="h-3.5 w-3.5 text-slate-400" />
                 <span className="text-xs font-bold text-slate-700">Proyecto:</span>
                 <select
                   value={selectedProjectId}
@@ -423,7 +443,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                     setShowAllProjects(projectId === 'todos');
                     if (projectId !== 'todos') onSelectProject(projectId);
                   }}
-                  className="text-xs bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 cursor-pointer focus:ring-2 focus:ring-amber-500"
+                  className="cursor-pointer rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-amber-500"
                 >
                   <option value="todos">Todos los Proyectos ({activeProjects.length})</option>
                   {activeProjects.map((p) => (
@@ -434,16 +454,16 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 </select>
               </div>
 
-              <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+              <div className="hidden h-4 w-px bg-slate-200 sm:block" />
 
               {/* Category Filter */}
               <div className="flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-slate-400" />
+                <Tag className="h-3.5 w-3.5 text-slate-400" />
                 <span className="text-xs font-bold text-slate-700">Categoría:</span>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="text-xs bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-medium text-slate-800 cursor-pointer"
+                  className="cursor-pointer rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-800"
                 >
                   <option value="todas">Todas las categorías</option>
                   {categoriesList.map((cat) => (
@@ -458,21 +478,21 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             {/* Search Input & Action Buttons */}
             <div className="flex items-center gap-2">
               <div className="relative w-full sm:w-64">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                <Search className="absolute top-2.5 left-3 h-3.5 w-3.5 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Buscar por proveedor, NIT, factura..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full text-xs pl-8 pr-7 py-1.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 py-1.5 pr-7 pl-8 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    className="absolute top-2 right-2.5 cursor-pointer text-slate-400 hover:text-slate-600"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
@@ -480,28 +500,28 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               <button
                 type="button"
                 onClick={handleExportExcelSummary}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer shrink-0"
+                className="shrink-0 cursor-pointer rounded-xl bg-slate-100 p-2 text-slate-700 transition hover:bg-slate-200"
                 title="Exportar registros a Excel Contable"
               >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+                <FileSpreadsheet className="h-4 w-4 text-emerald-700" />
               </button>
             </div>
           </div>
 
           {/* Expenses Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200 text-[11px]">
+              <table className="w-full border-collapse text-left text-xs">
+                <thead className="border-b border-slate-200 bg-slate-100 text-[11px] font-bold text-slate-700 uppercase">
                   <tr>
-                    <th className="p-3 border-r border-slate-200">Fecha</th>
-                    <th className="p-3 border-r border-slate-200">Proyecto</th>
-                    <th className="p-3 border-r border-slate-200">Categoría</th>
-                    <th className="p-3 border-r border-slate-200">Descripción / Insumo</th>
-                    <th className="p-3 border-r border-slate-200">Proveedor & NIT</th>
-                    <th className="p-3 border-r border-slate-200">No. Factura</th>
-                    <th className="p-3 text-center border-r border-slate-200">Comprobante</th>
-                    <th className="p-3 text-right border-r border-slate-200 font-black text-slate-900 bg-slate-200/60">
+                    <th className="border-r border-slate-200 p-3">Fecha</th>
+                    <th className="border-r border-slate-200 p-3">Proyecto</th>
+                    <th className="border-r border-slate-200 p-3">Categoría</th>
+                    <th className="border-r border-slate-200 p-3">Descripción / Insumo</th>
+                    <th className="border-r border-slate-200 p-3">Proveedor & NIT</th>
+                    <th className="border-r border-slate-200 p-3">No. Factura</th>
+                    <th className="border-r border-slate-200 p-3 text-center">Comprobante</th>
+                    <th className="border-r border-slate-200 bg-slate-200/60 p-3 text-right font-black text-slate-900">
                       Monto (GTQ)
                     </th>
                     <th className="p-3 text-center">Acción</th>
@@ -512,42 +532,44 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   {filteredExpenses.map((ex) => {
                     const proj = projectMap.get(ex.projectId);
                     return (
-                      <tr key={ex.id} className="hover:bg-slate-50 transition">
-                        <td className="p-3 border-r border-slate-200 font-mono text-slate-600 whitespace-nowrap">
+                      <tr key={ex.id} className="transition hover:bg-slate-50">
+                        <td className="border-r border-slate-200 p-3 font-mono whitespace-nowrap text-slate-600">
                           {ex.date}
                         </td>
-                        <td className="p-3 border-r border-slate-200 font-bold text-slate-800 whitespace-nowrap">
+                        <td className="border-r border-slate-200 p-3 font-bold whitespace-nowrap text-slate-800">
                           {proj ? proj.name : ex.projectId}
                         </td>
-                        <td className="p-3 border-r border-slate-200 whitespace-nowrap">
-                          <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900">
+                        <td className="border-r border-slate-200 p-3 whitespace-nowrap">
+                          <span className="inline-block rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900">
                             {ex.category}
                           </span>
                         </td>
-                        <td className="p-3 border-r border-slate-200 max-w-xs font-medium text-slate-900">
+                        <td className="max-w-xs border-r border-slate-200 p-3 font-medium text-slate-900">
                           {ex.description}
                         </td>
-                        <td className="p-3 border-r border-slate-200 whitespace-nowrap">
+                        <td className="border-r border-slate-200 p-3 whitespace-nowrap">
                           <div className="font-bold text-slate-800">{ex.supplier}</div>
-                          <div className="text-[10px] text-slate-400 font-mono">NIT: {ex.nitSupplier}</div>
+                          <div className="font-mono text-[10px] text-slate-400">
+                            NIT: {ex.nitSupplier}
+                          </div>
                         </td>
-                        <td className="p-3 border-r border-slate-200 font-mono text-slate-700 whitespace-nowrap">
+                        <td className="border-r border-slate-200 p-3 font-mono whitespace-nowrap text-slate-700">
                           {ex.facturaNumber}
                         </td>
-                        <td className="p-3 text-center border-r border-slate-200 whitespace-nowrap">
+                        <td className="border-r border-slate-200 p-3 text-center whitespace-nowrap">
                           {ex.receiptPhotoUrl ? (
                             <button
                               type="button"
                               onClick={() => setPreviewPhotoUrl(ex.receiptPhotoUrl || null)}
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] transition cursor-pointer"
+                              className="inline-flex cursor-pointer items-center gap-1 rounded bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-700 transition hover:bg-blue-100"
                             >
-                              <Eye className="w-3 h-3" /> Ver Foto
+                              <Eye className="h-3 w-3" /> Ver Foto
                             </button>
                           ) : (
-                            <span className="text-slate-400 text-[10px]">Sin foto</span>
+                            <span className="text-[10px] text-slate-400">Sin foto</span>
                           )}
                         </td>
-                        <td className="p-3 text-right border-r border-slate-200 font-mono font-black text-slate-900 text-sm bg-slate-50">
+                        <td className="border-r border-slate-200 bg-slate-50 p-3 text-right font-mono text-sm font-black text-slate-900">
                           {formatGTQ(ex.amount)}
                         </td>
                         <td className="p-3 text-center whitespace-nowrap">
@@ -555,10 +577,10 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                             <button
                               type="button"
                               onClick={() => onDeleteExpense(ex.id)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                              className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
                               title="Eliminar registro"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           )}
                         </td>
@@ -575,12 +597,12 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   )}
                 </tbody>
 
-                <tfoot className="bg-slate-100 text-slate-900 font-bold border-t-2 border-slate-300">
+                <tfoot className="border-t-2 border-slate-300 bg-slate-100 font-bold text-slate-900">
                   <tr className="bg-slate-200/90 text-[12px]">
-                    <td className="p-3.5 border-r border-slate-300 font-black" colSpan={7}>
+                    <td className="border-r border-slate-300 p-3.5 font-black" colSpan={7}>
                       TOTAL DE GASTOS FILTRADOS ({filteredExpenses.length} FACTURAS / COMPROBANTES)
                     </td>
-                    <td className="p-3.5 text-right border-r border-slate-300 font-mono font-black text-slate-950 text-base">
+                    <td className="border-r border-slate-300 p-3.5 text-right font-mono text-base font-black text-slate-950">
                       {formatGTQ(totalFilteredAmountGTQ)}
                     </td>
                     <td></td>
@@ -596,11 +618,11 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       {/* TAB 2: FORMULARIO DE ENTRADA DE NUEVO GASTO / FACTURA */}
       {/* ======================================================== */}
       {activeTab === 'nuevo' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
+        <div className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
           <div className="flex items-center justify-between border-b border-slate-200 pb-4">
             <div className="flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-amber-500 text-slate-950 font-bold">
-                <Plus className="w-5 h-5" />
+              <span className="rounded-xl bg-amber-500 p-2 font-bold text-slate-950">
+                <Plus className="h-5 w-5" />
               </span>
               <div>
                 <h3 className="text-base font-extrabold text-slate-900">
@@ -615,18 +637,23 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
           <form onSubmit={handleSubmitExpense} className="space-y-4 text-xs">
             {activeProjects.length === 0 && (
-              <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm font-medium text-amber-950">
+              <p
+                role="status"
+                className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm font-medium text-amber-950"
+              >
                 Crea un proyecto antes de registrar gastos; cada factura debe asignarse a una obra.
               </p>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label htmlFor="expense-project" className="font-bold text-slate-700 block mb-1">Proyecto Asignado *</label>
+                <label htmlFor="expense-project" className="mb-1 block font-bold text-slate-700">
+                  Proyecto Asignado *
+                </label>
                 <select
                   id="expense-project"
                   value={activeProjectId}
                   onChange={(e) => onSelectProject(e.target.value)}
-                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-800"
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-bold text-slate-800"
                   required
                   disabled={activeProjects.length === 0}
                 >
@@ -639,26 +666,30 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </div>
 
               <div>
-                <label htmlFor="expense-date" className="font-bold text-slate-700 block mb-1">Fecha de Emisión / Factura *</label>
+                <label htmlFor="expense-date" className="mb-1 block font-bold text-slate-700">
+                  Fecha de Emisión / Factura *
+                </label>
                 <input
                   id="expense-date"
                   type="date"
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
-                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono text-slate-900"
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-slate-900"
                   required
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label htmlFor="expense-category" className="font-bold text-slate-700 block mb-1">Categoría del Gasto *</label>
+                <label htmlFor="expense-category" className="mb-1 block font-bold text-slate-700">
+                  Categoría del Gasto *
+                </label>
                 <select
                   id="expense-category"
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value as any)}
-                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-medium text-slate-900"
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-medium text-slate-900"
                   required
                 >
                   {categoriesList.map((cat) => (
@@ -670,12 +701,17 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </div>
 
               <div>
-                <label htmlFor="expense-payment-method" className="font-bold text-slate-700 block mb-1">Método de Pago *</label>
+                <label
+                  htmlFor="expense-payment-method"
+                  className="mb-1 block font-bold text-slate-700"
+                >
+                  Método de Pago *
+                </label>
                 <select
                   id="expense-payment-method"
                   value={formPaymentMethod}
                   onChange={(e) => setFormPaymentMethod(e.target.value as any)}
-                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-medium text-slate-900"
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-medium text-slate-900"
                 >
                   <option value="Pendiente">Pendiente de pago</option>
                   <option value="Transferencia BI">Transferencia Bancaria BI / G&T</option>
@@ -687,7 +723,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             </div>
 
             <div>
-              <label htmlFor="expense-description" className="font-bold text-slate-700 block mb-1">
+              <label htmlFor="expense-description" className="mb-1 block font-bold text-slate-700">
                 Descripción Detallada del Insumo o Servicio *
               </label>
               <textarea
@@ -696,58 +732,72 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder="Ej. Compra de 150 bolsas de cemento Progreso IP para fundición de losa Nivel 2..."
-                className="w-full min-h-20 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 placeholder:text-slate-600"
+                className="min-h-20 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder:text-slate-600"
                 required
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
-                <label htmlFor="expense-supplier" className="font-bold text-slate-700 block mb-1">Proveedor / Emisor SAT</label>
+                <label htmlFor="expense-supplier" className="mb-1 block font-bold text-slate-700">
+                  Proveedor / Emisor SAT
+                </label>
                 <input
                   id="expense-supplier"
                   type="text"
                   placeholder="Ej. Discosa S.A. / Cemento Progreso"
                   value={formSupplier}
                   onChange={(e) => setFormSupplier(e.target.value)}
-                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 placeholder:text-slate-600"
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <label htmlFor="expense-supplier-nit" className="font-bold text-slate-700 block mb-1">NIT del Proveedor</label>
+                <label
+                  htmlFor="expense-supplier-nit"
+                  className="mb-1 block font-bold text-slate-700"
+                >
+                  NIT del Proveedor
+                </label>
                 <input
                   id="expense-supplier-nit"
                   type="text"
                   placeholder="Ej. 1294821-9 o CF"
                   value={formNitSupplier}
                   onChange={(e) => setFormNitSupplier(e.target.value)}
-                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono text-slate-900 placeholder:text-slate-600"
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-slate-900 placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <label htmlFor="expense-invoice-number" className="font-bold text-slate-700 block mb-1">No. Factura SAT Serie/Número</label>
+                <label
+                  htmlFor="expense-invoice-number"
+                  className="mb-1 block font-bold text-slate-700"
+                >
+                  No. Factura SAT Serie/Número
+                </label>
                 <input
                   id="expense-invoice-number"
                   type="text"
                   placeholder="Ej. A-49201 / FEL-8812"
                   value={formFacturaNumber}
                   onChange={(e) => setFormFacturaNumber(e.target.value)}
-                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono text-slate-900 placeholder:text-slate-600"
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-slate-900 placeholder:text-slate-600"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="expense-amount" className="font-bold text-slate-700 block mb-1">Monto del Gasto *</label>
+                <label htmlFor="expense-amount" className="mb-1 block font-bold text-slate-700">
+                  Monto del Gasto *
+                </label>
                 <div className="flex gap-2">
                   <select
                     aria-label="Moneda del gasto"
                     value={formCurrency}
                     onChange={(e) => setFormCurrency(e.target.value as any)}
-                    className="min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-100 font-bold text-slate-900"
+                    className="min-h-11 rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 font-bold text-slate-900"
                   >
                     <option value="GTQ">GTQ (Q)</option>
                     <option value="USD">USD ($)</option>
@@ -760,40 +810,47 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                     placeholder="0.00"
                     value={formAmount}
                     onChange={(e) => setFormAmount(e.target.value)}
-                    className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono font-bold text-base text-slate-900 placeholder:text-slate-600"
+                    className="min-h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-base font-bold text-slate-900 placeholder:text-slate-600"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="expense-receipt-photo" className="font-bold text-slate-700 block mb-1">Fotografía o Foto de Factura</label>
+                <label
+                  htmlFor="expense-receipt-photo"
+                  className="mb-1 block font-bold text-slate-700"
+                >
+                  Fotografía o Foto de Factura
+                </label>
                 <input
                   id="expense-receipt-photo"
                   type="file"
                   accept="image/*"
                   onChange={handlePhotoFileChange}
-                  className="w-full min-h-11 text-xs text-slate-700 file:mr-3 file:min-h-11 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200 cursor-pointer"
+                  className="min-h-11 w-full cursor-pointer text-xs text-slate-700 file:mr-3 file:min-h-11 file:rounded-xl file:border-0 file:bg-amber-100 file:px-4 file:py-2 file:text-xs file:font-bold file:text-amber-900 hover:file:bg-amber-200"
                 />
               </div>
             </div>
 
             {formReceiptPhotoUrl && (
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3">
+              <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
                 <Image
                   src={formReceiptPhotoUrl}
                   alt="Vista previa factura"
                   width={64}
                   height={64}
                   unoptimized
-                  className="w-16 h-16 object-cover rounded-lg border border-slate-300"
+                  className="h-16 w-16 rounded-lg border border-slate-300 object-cover"
                 />
                 <div className="text-xs">
-                  <span className="font-bold text-slate-800 block">Comprobante adjunto correctamente</span>
+                  <span className="block font-bold text-slate-800">
+                    Comprobante adjunto correctamente
+                  </span>
                   <button
                     type="button"
                     onClick={() => setFormReceiptPhotoUrl('')}
-                    className="text-rose-600 hover:underline text-[11px] font-semibold mt-1 cursor-pointer"
+                    className="mt-1 cursor-pointer text-[11px] font-semibold text-rose-600 hover:underline"
                   >
                     Remover foto
                   </button>
@@ -802,23 +859,26 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             )}
 
             {saveError && (
-              <p role="alert" className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm font-medium text-rose-900">
+              <p
+                role="alert"
+                className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm font-medium text-rose-900"
+              >
                 {saveError}
               </p>
             )}
 
-            <div className="pt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 border-t border-slate-200">
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setActiveTab('tabla')}
-                className="min-h-11 px-4 py-2.5 rounded-xl font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
+                className="min-h-11 cursor-pointer rounded-xl bg-slate-100 px-4 py-2.5 font-bold text-slate-700 transition hover:bg-slate-200"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || activeProjects.length === 0}
-                className="min-h-11 px-6 py-2.5 rounded-xl font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 transition shadow-xs cursor-pointer disabled:opacity-50"
+                className="min-h-11 cursor-pointer rounded-xl bg-amber-500 px-6 py-2.5 font-extrabold text-slate-950 shadow-xs transition hover:bg-amber-600 disabled:opacity-50"
               >
                 {isSubmitting ? 'Guardando...' : 'Guardar y Registrar Gasto'}
               </button>
@@ -833,13 +893,13 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       {activeTab === 'resumen' && (
         <div className="space-y-6">
           {/* Controls Header for Monthly Summary */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs md:flex-row md:items-center">
             <div className="flex items-center gap-3">
-              <span className="p-2 rounded-xl bg-blue-50 text-blue-700 font-bold">
-                <BarChart3 className="w-5 h-5" />
+              <span className="rounded-xl bg-blue-50 p-2 font-bold text-blue-700">
+                <BarChart3 className="h-5 w-5" />
               </span>
               <div>
-                <h3 className="font-extrabold text-slate-900 text-base">
+                <h3 className="text-base font-extrabold text-slate-900">
                   Resumen Mensual de Egresos & Análisis de Desviaciones
                 </h3>
                 <p className="text-xs text-slate-500">
@@ -849,33 +909,35 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">Mes Evaluado:</span>
+              <span className="text-xs font-bold whitespace-nowrap text-slate-700">
+                Mes Evaluado:
+              </span>
               <input
                 type="month"
                 value={selectedMonthYear}
                 onChange={(e) => setSelectedMonthYear(e.target.value)}
-                className="text-xs bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 cursor-pointer"
+                className="cursor-pointer rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800"
               />
 
               <button
                 type="button"
                 onClick={handleExportPdfSummary}
                 disabled={isExportingPdf}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-extrabold text-white transition hover:bg-rose-500 disabled:opacity-50"
               >
-                <FileText className="w-3.5 h-3.5" />
+                <FileText className="h-3.5 w-3.5" />
                 {isExportingPdf ? 'Exportando...' : 'PDF Resumen'}
               </button>
             </div>
           </div>
 
           {/* Monthly KPI Summary Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 shadow-xs space-y-1">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="space-y-1 rounded-2xl border border-slate-800 bg-slate-900 p-5 text-white shadow-xs">
+              <span className="block text-xs font-bold tracking-wider text-slate-400 uppercase">
                 Total Gastado en el Mes ({selectedMonthYear})
               </span>
-              <p className="text-2xl font-black text-amber-400 font-mono">
+              <p className="font-mono text-2xl font-black text-amber-400">
                 {formatGTQ(monthlyCategoryTotals.total)}
               </p>
               <p className="text-[11px] text-slate-400">
@@ -883,21 +945,21 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </p>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
+            <div className="space-y-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+              <span className="block text-xs font-bold tracking-wider text-slate-500 uppercase">
                 Subtotal Neto (Sin IVA)
               </span>
-              <p className="text-2xl font-black text-slate-900 font-mono">
+              <p className="font-mono text-2xl font-black text-slate-900">
                 {formatGTQ(monthlyCategoryTotals.subtotalNet)}
               </p>
               <p className="text-[11px] text-slate-400">Materia imponible neta</p>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-              <span className="text-xs text-blue-600 font-bold uppercase tracking-wider block">
+            <div className="space-y-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+              <span className="block text-xs font-bold tracking-wider text-blue-600 uppercase">
                 Crédito Fiscal IVA SAT (12%)
               </span>
-              <p className="text-2xl font-black text-blue-700 font-mono">
+              <p className="font-mono text-2xl font-black text-blue-700">
                 {formatGTQ(monthlyCategoryTotals.ivaCredit)}
               </p>
               <p className="text-[11px] text-slate-400">IVA deductible por facturas FEL</p>
@@ -905,13 +967,13 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
           </div>
 
           {/* Monthly Breakdown by Category */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-            <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-              <PieChart className="w-4 h-4 text-amber-600" />
+          <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <h4 className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
+              <PieChart className="h-4 w-4 text-amber-600" />
               Desglose de Gastos Mensuales por Categoría
             </h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {categoriesList.map((cat) => {
                 const amount = monthlyCategoryTotals.map[cat] || 0;
                 const pct =
@@ -920,19 +982,22 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                     : 0;
 
                 return (
-                  <div key={cat} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <span className="font-bold text-slate-800 text-xs">{cat}</span>
-                      <span className="text-xs font-mono font-bold text-slate-600">{pct}%</span>
+                  <div
+                    key={cat}
+                    className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-bold text-slate-800">{cat}</span>
+                      <span className="font-mono text-xs font-bold text-slate-600">{pct}%</span>
                     </div>
-                    <p className="text-lg font-extrabold text-slate-900 font-mono">
+                    <p className="font-mono text-lg font-extrabold text-slate-900">
                       {formatGTQ(amount)}
                     </p>
 
                     {/* Progress Bar */}
-                    <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
                       <div
-                        className="bg-amber-500 h-2 rounded-full transition-all duration-300"
+                        className="h-2 rounded-full bg-amber-500 transition-all duration-300"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -943,7 +1008,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
           </div>
 
           {/* Monthly Histogram Component */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
             <MonthlyExpensesHistogram
               projects={projects}
               activeProjectId={selectedProjectId !== 'todos' ? selectedProjectId : undefined}
@@ -957,26 +1022,35 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
       {/* Modal for Photo Preview */}
       {previewPhotoUrl && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full border border-slate-200 shadow-2xl p-4 space-y-3">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-              <h4 className="font-bold text-slate-900 text-sm">Vista Previa de Comprobante / Factura</h4>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-xl space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <h4 className="text-sm font-bold text-slate-900">
+                Vista Previa de Comprobante / Factura
+              </h4>
               <button
                 type="button"
                 onClick={() => setPreviewPhotoUrl(null)}
-                className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="cursor-pointer p-1 text-slate-400 hover:text-slate-600"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex items-center justify-center max-h-[70vh] overflow-hidden rounded-xl bg-slate-100">
-              <Image src={previewPhotoUrl} alt="Factura SAT" width={1200} height={900} unoptimized className="max-h-[65vh] w-auto object-contain" />
+            <div className="flex max-h-[70vh] items-center justify-center overflow-hidden rounded-xl bg-slate-100">
+              <Image
+                src={previewPhotoUrl}
+                alt="Factura SAT"
+                width={1200}
+                height={900}
+                unoptimized
+                className="max-h-[65vh] w-auto object-contain"
+              />
             </div>
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => setPreviewPhotoUrl(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 cursor-pointer"
+                className="cursor-pointer rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800"
               >
                 Cerrar
               </button>
@@ -986,6 +1060,6 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default ExpensesView;

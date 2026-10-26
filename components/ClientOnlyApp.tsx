@@ -6,9 +6,9 @@ import dynamic from 'next/dynamic';
 const MainApp = dynamic(() => import('./MainApp'), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-300">
+    <div className="flex min-h-screen items-center justify-center bg-slate-900 text-slate-300">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        <div className="h-8 w-8 animate-spin rounded-full border-3 border-amber-500 border-t-transparent" />
         <p className="text-sm font-medium">Cargando ConstructERP Guatemala...</p>
       </div>
     </div>

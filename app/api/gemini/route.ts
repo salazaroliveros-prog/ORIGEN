@@ -1,14 +1,33 @@
 import {
-GUATEMALA_BASE_MARKET_CATALOGUE,
-GUATEMALA_DEPARTMENTS_INDEX
+  GUATEMALA_BASE_MARKET_CATALOGUE,
+  GUATEMALA_DEPARTMENTS_INDEX,
 } from '@/lib/guatemalaMarketData';
 import { GoogleGenAI } from '@google/genai';
-import { NextRequest,NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { APIError, BudgetItem, AuditAlert } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
   try {
+    // Validate origin for security
+    const origin = req.headers.get('origin');
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+      'http://localhost:3000',
+      'https://origen-one-kohl.vercel.app',
+    ];
+    if (origin && !allowedOrigins.includes(origin)) {
+      return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
+    }
+
     const body = await req.json();
-    const { action, description, department = 'Guatemala', unit = 'm²', quantity = 100, budgetItems = [], projectName = 'Proyecto' } = body;
+    const {
+      action,
+      description,
+      department = 'Guatemala',
+      unit = 'm²',
+      quantity = 100,
+      budgetItems = [],
+      projectName = 'Proyecto',
+    } = body;
 
     const validActions = new Set([
       'generate_apu',
@@ -23,12 +42,19 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const deptInfo = GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
+    }
+    const deptInfo =
+      GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
 
     // 1. GENERATE APU
     if (action === 'generate_apu') {
       if (!description || typeof description !== 'string') {
-        return NextResponse.json({ error: 'La descripción del renglón es requerida.' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'La descripción del renglón es requerida.' },
+          { status: 400 }
+        );
       }
 
       // If API key is present, use Gemini 3.8 Flash
@@ -89,7 +115,7 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
             const parsed = JSON.parse(response.text);
             return NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' });
           }
-        } catch (apiError: any) {
+        } catch (apiError: unknown) {
           console.warn('Gemini API call failed, falling back to algorithmic estimator:', apiError);
         }
       }
@@ -103,42 +129,66 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
       let code = '03.01';
       let norm = 'AGIES NSE 3 / COGUANOR NTG 41007';
 
-      if (descLower.includes('muro') || descLower.includes('block') || descLower.includes('pared')) {
+      if (
+        descLower.includes('muro') ||
+        descLower.includes('block') ||
+        descLower.includes('pared')
+      ) {
         code = '04.01';
         suggestedUnit = 'm²';
         baseMat = 125 * deptInfo.freightFactor;
         baseLab = 72 * deptInfo.laborFactor;
         baseEq = 8 * deptInfo.overallFactor;
         norm = 'COGUANOR NTG 41007 - Mampostería Confinada';
-      } else if (descLower.includes('columna') || descLower.includes('viga') || descLower.includes('solera')) {
+      } else if (
+        descLower.includes('columna') ||
+        descLower.includes('viga') ||
+        descLower.includes('solera')
+      ) {
         code = '03.04';
         suggestedUnit = 'm';
         baseMat = 280 * deptInfo.freightFactor;
         baseLab = 135 * deptInfo.laborFactor;
         baseEq = 35 * deptInfo.overallFactor;
         norm = 'AGIES NSE 2 - Concreto Estructural sismo-resistente';
-      } else if (descLower.includes('losa') || descLower.includes('fundición') || descLower.includes('concreto')) {
+      } else if (
+        descLower.includes('losa') ||
+        descLower.includes('fundición') ||
+        descLower.includes('concreto')
+      ) {
         code = '03.08';
         suggestedUnit = 'm²';
         baseMat = 340 * deptInfo.freightFactor;
         baseLab = 150 * deptInfo.laborFactor;
         baseEq = 45 * deptInfo.overallFactor;
         norm = 'AGIES NSE 3 / ASTM C39';
-      } else if (descLower.includes('zapata') || descLower.includes('cimiento') || descLower.includes('cimentación')) {
+      } else if (
+        descLower.includes('zapata') ||
+        descLower.includes('cimiento') ||
+        descLower.includes('cimentación')
+      ) {
         code = '02.03';
         suggestedUnit = 'm³';
         baseMat = 780 * deptInfo.freightFactor;
         baseLab = 240 * deptInfo.laborFactor;
         baseEq = 60 * deptInfo.overallFactor;
         norm = 'AGIES NSE 2 - Cimentaciones y Mecánica de Suelos';
-      } else if (descLower.includes('piso') || descLower.includes('cerámico') || descLower.includes('porcelanato')) {
+      } else if (
+        descLower.includes('piso') ||
+        descLower.includes('cerámico') ||
+        descLower.includes('porcelanato')
+      ) {
         code = '05.02';
         suggestedUnit = 'm²';
         baseMat = 160 * deptInfo.freightFactor;
         baseLab = 65 * deptInfo.laborFactor;
         baseEq = 10 * deptInfo.overallFactor;
         norm = 'ANSI A137.1 / Acabados Arquitectónicos';
-      } else if (descLower.includes('excavación') || descLower.includes('zanja') || descLower.includes('movimiento')) {
+      } else if (
+        descLower.includes('excavación') ||
+        descLower.includes('zanja') ||
+        descLower.includes('movimiento')
+      ) {
         code = '01.02';
         suggestedUnit = 'm³';
         baseMat = 0;
@@ -164,13 +214,27 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
           totalUnitCostGTQ: totalUnitCost,
           totalPriceGTQ: Math.round(totalUnitCost * q * 100) / 100,
           materialsBreakdown: [
-            { name: `Materiales principales ajustados a ${department}`, quantity: 1, unit: 'global', unitPriceGTQ: Math.round(baseMat * 100) / 100, subtotalGTQ: Math.round(baseMat * 100) / 100 },
+            {
+              name: `Materiales principales ajustados a ${department}`,
+              quantity: 1,
+              unit: 'global',
+              unitPriceGTQ: Math.round(baseMat * 100) / 100,
+              subtotalGTQ: Math.round(baseMat * 100) / 100,
+            },
           ],
           laborBreakdown: [
-            { role: `Mano de obra oficial + ayudante (${department})`, yieldHours: 8, unitPriceGTQ: Math.round(baseLab * 100) / 100, subtotalGTQ: Math.round(baseLab * 100) / 100 },
+            {
+              role: `Mano de obra oficial + ayudante (${department})`,
+              yieldHours: 8,
+              unitPriceGTQ: Math.round(baseLab * 100) / 100,
+              subtotalGTQ: Math.round(baseLab * 100) / 100,
+            },
           ],
           equipmentBreakdown: [
-            { name: 'Herramienta menor, equipo de protección y maquinaria', subtotalGTQ: Math.round(baseEq * 100) / 100 },
+            {
+              name: 'Herramienta menor, equipo de protección y maquinaria',
+              subtotalGTQ: Math.round(baseEq * 100) / 100,
+            },
           ],
           regionalAdjustmentNote: `Costos calculados para ${department} aplicando factor de flete ${deptInfo.freightFactor} y mano de obra ${deptInfo.laborFactor}. ${deptInfo.logisticsNotes}`,
           technicalNorm: norm,
@@ -183,7 +247,12 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
       if (apiKey) {
         try {
           const ai = new GoogleGenAI({ apiKey });
-          const itemsSummary = budgetItems.map((b: any) => `${b.code}: ${b.description} (${b.quantity} ${b.unit}) - Unitario: Q${b.totalUnitCostGTQ}, Total: Q${b.totalPriceGTQ}`).join('\n');
+          const itemsSummary = budgetItems
+            .map(
+              (b: BudgetItem) =>
+                `${b.code}: ${b.description} (${b.quantity} ${b.unit}) - Unitario: Q${b.totalUnitCostGTQ}, Total: Q${b.totalPriceGTQ}`
+            )
+            .join('\n');
           const prompt = `Actúa como Auditor Financiero y de Ingeniería de Obras en Guatemala.
 Analiza este presupuesto de obra:
 - Proyecto: ${projectName}
@@ -223,21 +292,33 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
             const parsed = JSON.parse(response.text);
             return NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' });
           }
-        } catch (apiError: any) {
+        } catch (apiError: unknown) {
           console.warn('Gemini Audit call failed, using fallback audit:', apiError);
         }
       }
 
       // Algorithmic fallback audit
-      const totalBudget = budgetItems.reduce((acc: number, item: any) => acc + (item.totalPriceGTQ || 0), 0);
-      const alerts: any[] = [];
+      const totalBudget = budgetItems.reduce(
+        (acc: number, item: BudgetItem) => acc + (item.totalPriceGTQ || 0),
+        0
+      );
+      const alerts: AuditAlert[] = [];
 
-      if (!budgetItems.some((b: any) => b.description.toLowerCase().includes('trazo') || b.description.toLowerCase().includes('limpieza') || b.description.toLowerCase().includes('preliminar'))) {
+      if (
+        !budgetItems.some(
+          (b: BudgetItem) =>
+            b.description.toLowerCase().includes('trazo') ||
+            b.description.toLowerCase().includes('limpieza') ||
+            b.description.toLowerCase().includes('preliminar')
+        )
+      ) {
         alerts.push({
           type: 'omision',
           itemCode: '01.00',
-          description: 'No se detecta renglón preliminar de Trazo y Replanteo Topográfico ni descapote.',
-          recommendation: 'Incluir partida preliminar para evitar costos imprevistos de nivelación.',
+          description:
+            'No se detecta renglón preliminar de Trazo y Replanteo Topográfico ni descapote.',
+          recommendation:
+            'Incluir partida preliminar para evitar costos imprevistos de nivelación.',
         });
       }
 
@@ -322,11 +403,15 @@ DATOS DE IDENTIFICACIÓN DE LA VISITA:
 - Fecha del Reporte: "${date}"
 - Capataz Responsable: "${foremanName}"
 - Obra / Proyecto: "${projectName}" en ${department}, Guatemala.
-${visitContext ? `- Contexto Registrado en Sistema:
+${
+  visitContext
+    ? `- Contexto Registrado en Sistema:
   * Notas de Bitácora: "${visitContext.notes || ''}"
   * Clima: ${visitContext.weather || 'Soleado'}
   * Personal en Sitio: ${visitContext.workersCount || 0} obreros
-  * Estado de Autorización: ${visitContext.status || 'Autorizado'}` : ''}
+  * Estado de Autorización: ${visitContext.status || 'Autorizado'}`
+    : ''
+}
 
 PREGUNTA TÉCNICA DEL USUARIO:
 "${question}"
@@ -365,14 +450,23 @@ INSTRUCCIONES DE AUDITORÍA:
             source: 'gemini-ai',
             meta: { visitId, date, foremanName },
           });
-        } catch (visionError: any) {
-          console.warn('Gemini Vision API error, falling back to contextual logbook auditor:', visionError);
+        } catch (visionError: unknown) {
+          console.warn(
+            'Gemini Vision API error, falling back to contextual logbook auditor:',
+            visionError
+          );
         }
       }
 
       // Contextual Engineering Fallback
-      const isFv1 = visitId.toLowerCase().includes('fv-1') || visitId.toLowerCase().includes('1') || date.includes('12');
-      const isFv2 = visitId.toLowerCase().includes('fv-2') || visitId.toLowerCase().includes('2') || date.includes('14');
+      const isFv1 =
+        visitId.toLowerCase().includes('fv-1') ||
+        visitId.toLowerCase().includes('1') ||
+        date.includes('12');
+      const isFv2 =
+        visitId.toLowerCase().includes('fv-2') ||
+        visitId.toLowerCase().includes('2') ||
+        date.includes('14');
 
       let fallbackReply = '';
       if (isFv1) {
@@ -472,7 +566,7 @@ Consulta del usuario: "${userMessage}"`;
             reply: response.text || 'Consulta procesada exitosamente.',
             source: 'gemini-ai',
           });
-        } catch (chatError: any) {
+        } catch (chatError: unknown) {
           console.warn('Gemini chat error:', chatError);
         }
       }
@@ -486,8 +580,9 @@ Consulta del usuario: "${userMessage}"`;
     }
 
     return NextResponse.json({ error: 'Acción no reconocida' }, { status: 400 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in /api/gemini route:', error);
-    return NextResponse.json({ error: error.message || 'Error interno del servidor' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Error interno del servidor';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

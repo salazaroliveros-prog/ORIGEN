@@ -4,34 +4,34 @@ Esta matriz refleja las reglas de Firestore y los controles de interfaz actuales
 
 ## Roles de empresa
 
-| Rol | Uso previsto |
-| --- | --- |
-| `owner` | Propietario protegido de la empresa y administrador completo. No se puede degradar ni eliminar desde invitaciones o gestión de miembros. |
-| `admin` | Administración de la empresa, usuarios, configuración y operaciones. |
-| `project_manager` | Gestión de proyectos, operaciones de campo, presupuestos y coordinación. |
-| `finance` | Presupuestos, gastos, cotizaciones y datos de personal necesarios para la gestión financiera. |
-| `field_worker` | Operación de campo, asistencia, visitas y uso de maquinaria. |
-| `viewer` | Lectura de los datos de la empresa; sin escrituras operativas. |
+| Rol               | Uso previsto                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `owner`           | Propietario protegido de la empresa y administrador completo. No se puede degradar ni eliminar desde invitaciones o gestión de miembros. |
+| `admin`           | Administración de la empresa, usuarios, configuración y operaciones.                                                                     |
+| `project_manager` | Gestión de proyectos, operaciones de campo, presupuestos y coordinación.                                                                 |
+| `finance`         | Presupuestos, gastos, cotizaciones y datos de personal necesarios para la gestión financiera.                                            |
+| `field_worker`    | Operación de campo, asistencia, visitas y uso de maquinaria.                                                                             |
+| `viewer`          | Lectura de los datos de la empresa; sin escrituras operativas.                                                                           |
 
 Los roles heredados `manager`, `supervisor` y `worker` ya no son los identificadores que esperan las reglas. No deben asignarse en nuevas membresías.
 
 ## Matriz de escritura aplicada por Firestore
 
-| Área / colección | Roles con escritura |
-| --- | --- |
-| Proyectos y cronograma | `owner`, `admin`, `project_manager` |
-| Visitas de obra | `owner`, `admin`, `project_manager`, `field_worker` |
-| Asistencia: lectura | `owner`, `admin`, `project_manager`, `finance`, `field_worker` |
-| Asistencia: escritura | `owner`, `admin`, `project_manager`, `field_worker` |
-| Gastos | `owner`, `admin`, `finance`; `project_manager` y `field_worker` pueden crear únicamente el gasto interno pendiente que se origina en uso de maquinaria |
-| Fichas completas de personal (`employees`) | `owner`, `admin`, `finance` |
-| Directorio mínimo (`employeeDirectory`) | lectura: `owner`, `admin`, `project_manager`, `finance`, `field_worker`; escritura: `owner`, `admin`, `finance` |
-| Configuración de empresa | `owner`, `admin` |
-| Cotizaciones | `owner`, `admin`, `project_manager`, `finance` |
-| APU | `owner`, `admin`, `project_manager`, `finance` |
-| Maquinaria y registro de uso | crear/editar: `owner`, `admin`, `project_manager`, `field_worker`; eliminar maquinaria y registros: `owner`, `admin`, `project_manager` |
-| Miembros e invitaciones | `owner`, `admin`; el propietario no se puede degradar ni eliminar |
-| Lectura de datos de empresa | Miembros autenticados de la empresa, sujeto a las reglas específicas de cada colección |
+| Área / colección                           | Roles con escritura                                                                                                                                    |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Proyectos y cronograma                     | `owner`, `admin`, `project_manager`                                                                                                                    |
+| Visitas de obra                            | `owner`, `admin`, `project_manager`, `field_worker`                                                                                                    |
+| Asistencia: lectura                        | `owner`, `admin`, `project_manager`, `finance`, `field_worker`                                                                                         |
+| Asistencia: escritura                      | `owner`, `admin`, `project_manager`, `field_worker`                                                                                                    |
+| Gastos                                     | `owner`, `admin`, `finance`; `project_manager` y `field_worker` pueden crear únicamente el gasto interno pendiente que se origina en uso de maquinaria |
+| Fichas completas de personal (`employees`) | `owner`, `admin`, `finance`                                                                                                                            |
+| Directorio mínimo (`employeeDirectory`)    | lectura: `owner`, `admin`, `project_manager`, `finance`, `field_worker`; escritura: `owner`, `admin`, `finance`                                        |
+| Configuración de empresa                   | `owner`, `admin`                                                                                                                                       |
+| Cotizaciones                               | `owner`, `admin`, `project_manager`, `finance`                                                                                                         |
+| APU                                        | `owner`, `admin`, `project_manager`, `finance`                                                                                                         |
+| Maquinaria y registro de uso               | crear/editar: `owner`, `admin`, `project_manager`, `field_worker`; eliminar maquinaria y registros: `owner`, `admin`, `project_manager`                |
+| Miembros e invitaciones                    | `owner`, `admin`; el propietario no se puede degradar ni eliminar                                                                                      |
+| Lectura de datos de empresa                | Miembros autenticados de la empresa, sujeto a las reglas específicas de cada colección                                                                 |
 
 La pantalla de equipo solo se muestra a `owner` y `admin`. Las invitaciones no pueden asignar el rol `owner`; para aceptarlas, la persona debe iniciar sesión con la dirección invitada y tener el correo verificado.
 

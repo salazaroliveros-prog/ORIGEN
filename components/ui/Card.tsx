@@ -8,14 +8,14 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({
+export function Card({
   variant = 'elevated',
   padding = 'md',
   hoverable = false,
   className = '',
   children,
   ...props
-}) => {
+}: CardProps) {
   const variants = {
     elevated: 'bg-white/[0.05] border border-white/10 shadow-lg',
     subtle: 'bg-white/[0.03] border border-white/10 shadow-sm',
@@ -36,4 +36,4 @@ export const Card: React.FC<CardProps> = ({
       {children}
     </div>
   );
-};
+}

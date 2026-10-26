@@ -117,7 +117,10 @@ export function subscribeToBrandingUpdates(callback: (config: BrandingConfig) =>
   };
 }
 
-export function getResponsiveLogoUrl(branding: BrandingConfig, variant: 'banner' | 'small' | 'square' = 'banner'): string {
+export function getResponsiveLogoUrl(
+  branding: BrandingConfig,
+  variant: 'banner' | 'small' | 'square' = 'banner'
+): string {
   switch (variant) {
     case 'small':
       return branding.logoSmallUrl;
