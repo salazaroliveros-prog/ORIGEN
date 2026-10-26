@@ -10,8 +10,11 @@ import {
   Download,
   Printer,
   ShieldCheck,
+  Search,
+  Calendar,
+  Filter,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { GuatemalanPayrollValidator } from './GuatemalanPayrollValidator';
 
 interface GuatemalanPayrollProps {
@@ -20,6 +23,8 @@ interface GuatemalanPayrollProps {
   attendance?: AttendanceRecord[];
   onUpdateEmployees?: (updated: Employee[]) => void;
 }
+
+type PayrollPeriod = 'mensual' | 'quincenal';
 
 export function GuatemalanPayroll({
   employees,
@@ -31,14 +36,60 @@ export function GuatemalanPayroll({
     'validador'
   );
   const [selectedMonth, setSelectedMonth] = useState<string>('Septiembre 2026');
+  const [payrollPeriod, setPayrollPeriod] = useState<PayrollPeriod>('mensual');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Statutory calculation helpers for Guatemalan Labor Code
-  const getPayrollBreakdown = (emp: Employee) => {
-    const baseMonthly = emp.dailyRateGTQ * 30;
-    const bonoIncentivo = 250.0; // Dto. 37-2001 (Q250 fijos exentos de IGSS)
-    const igssLaboral = baseMonthly * 0.0483; // 4.83% deducible del colaborador
-    const igssPatronal = baseMonthly * 0.1067; // 10.67% IGSS empleador
-    const irtraIntecap = baseMonthly * 0.02; // 1% IRTRA + 1% INTECAP
+  // Generar lista de meses disponibles (últimos 12 meses)
+  const availableMonths = useMemo(() => {
+    const months = [];
+    const monthNames = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
+    ];
+    const currentDate = new Date();
+
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthName = monthNames[date.getMonth()];
+      const year = date.getFullYear();
+      months.push(`${monthName} ${year}`);
+    }
+
+    return months;
+  }, []);
+
+  // Filtrar empleados por búsqueda
+  const filteredEmployees = useMemo(() => {
+    if (!searchQuery.trim()) return employees;
+
+    const query = searchQuery.toLowerCase();
+    return employees.filter(
+      (emp) => emp.name.toLowerCase().includes(query) || emp.role.toLowerCase().includes(query)
+    );
+  }, [employees, searchQuery]);
+
+  // Ajustar cálculos según periodo (mensual vs quincenal)
+  const getPayrollBreakdown = (emp: Employee, period: PayrollPeriod) => {
+    const baseDaily = emp.dailyRateGTQ;
+    const baseMonthly = baseDaily * 30;
+    const baseQuincenal = baseDaily * 15;
+
+    const base = period === 'mensual' ? baseMonthly : baseQuincenal;
+    const bonoIncentivo = period === 'mensual' ? 250.0 : 125.0; // Mitad para quincena
+    const igssLaboral = base * 0.0483; // 4.83% deducible del colaborador
+    const igssPatronal = base * 0.1067; // 10.67% IGSS empleador
+    const irtraIntecap = base * 0.02; // 1% IRTRA + 1% INTECAP
     const igssPatronalTotal = igssPatronal + irtraIntecap; // 12.67% cuota patronal total
 
     // Provisión mensual de prestaciones (8.33% cada una = 1 salario ordinario al año)
@@ -47,12 +98,13 @@ export function GuatemalanPayroll({
     const provisionIndemnizacion = baseMonthly * 0.08333; // Art. 82 Código de Trabajo
     const provisionVacaciones = baseMonthly * 0.04167; // 15 días hábiles
 
-    const liquidoPagar = baseMonthly + bonoIncentivo - igssLaboral;
+    const liquidoPagar = base + bonoIncentivo - igssLaboral;
     const costoTotalPatron =
-      baseMonthly + bonoIncentivo + igssPatronalTotal + provisionBono14 + provisionAguinaldo;
+      base + bonoIncentivo + igssPatronalTotal + provisionBono14 + provisionAguinaldo;
 
     return {
-      baseMonthly,
+      base,
+      baseDaily,
       bonoIncentivo,
       igssLaboral,
       igssPatronal,
@@ -70,10 +122,10 @@ export function GuatemalanPayroll({
   };
 
   // Totals calculations
-  const totals = employees.reduce(
+  const totals = filteredEmployees.reduce(
     (acc, emp) => {
-      const b = getPayrollBreakdown(emp);
-      acc.base += b.baseMonthly;
+      const b = getPayrollBreakdown(emp, payrollPeriod);
+      acc.base += b.base;
       acc.bono += b.bonoIncentivo;
       acc.igssLab += b.igssLaboral;
       acc.igssPat += b.igssPatronalTotal;
@@ -100,10 +152,11 @@ export function GuatemalanPayroll({
   };
 
   const handleExportCSV = () => {
+    const periodLabel = payrollPeriod === 'mensual' ? 'Mensual' : 'Quincenal';
     const headers = [
       'Colaborador',
       'Puesto',
-      'Salario Base Mensual (GTQ)',
+      `Salario Base ${periodLabel} (GTQ)`,
       'Bono Incentivo Dto. 37-2001 (GTQ)',
       'IGSS Laboral 4.83% (GTQ)',
       'Líquido a Recibir (GTQ)',
@@ -115,12 +168,12 @@ export function GuatemalanPayroll({
       'Costo Total Empleador (GTQ)',
     ];
 
-    const rows = employees.map((emp) => {
-      const b = getPayrollBreakdown(emp);
+    const rows = filteredEmployees.map((emp) => {
+      const b = getPayrollBreakdown(emp, payrollPeriod);
       return [
         `"${emp.name}"`,
         `"${emp.role}"`,
-        b.baseMonthly.toFixed(2),
+        b.base.toFixed(2),
         b.bonoIncentivo.toFixed(2),
         b.igssLaboral.toFixed(2),
         b.liquidoPagar.toFixed(2),
@@ -140,7 +193,7 @@ export function GuatemalanPayroll({
     link.setAttribute('href', encodedUri);
     link.setAttribute(
       'download',
-      `Planilla_IGSS_Bono14_Aguinaldo_${selectedMonth.replace(/\s+/g, '_')}.csv`
+      `Planilla_${periodLabel}_${selectedMonth.replace(/\s+/g, '_')}.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -218,6 +271,76 @@ export function GuatemalanPayroll({
           >
             <Printer className="h-3.5 w-3.5" /> Imprimir / PDF
           </button>
+        </div>
+      </div>
+
+      {/* Filters: Period, Month, Search */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Period Selector */}
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-slate-500" />
+              <label className="text-xs font-semibold text-slate-700">Periodo:</label>
+              <select
+                value={payrollPeriod}
+                onChange={(e) => setPayrollPeriod(e.target.value as PayrollPeriod)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+              >
+                <option value="mensual">Mensual (30 días)</option>
+                <option value="quincenal">Quincenal (15 días)</option>
+              </select>
+            </div>
+
+            {/* Month Selector */}
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-slate-700">Mes:</label>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+              >
+                {availableMonths.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar por nombre o puesto..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white py-1.5 pr-3 pl-9 text-xs text-slate-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none lg:w-64"
+              />
+            </div>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              >
+                Limpiar
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Filter Summary */}
+        <div className="mt-3 flex items-center gap-2 text-xs text-slate-600">
+          <Filter className="h-3.5 w-3.5" />
+          <span>
+            Mostrando <strong>{filteredEmployees.length}</strong> de{' '}
+            <strong>{employees.length}</strong> empleados
+            {searchQuery && ` • Filtrado por "${searchQuery}"`}
+            {payrollPeriod === 'quincenal' && ` • Periodo: Quincenal`}
+          </span>
         </div>
       </div>
 
@@ -356,8 +479,8 @@ export function GuatemalanPayroll({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700 print:divide-slate-300">
-                    {employees.map((emp) => {
-                      const b = getPayrollBreakdown(emp);
+                    {filteredEmployees.map((emp) => {
+                      const b = getPayrollBreakdown(emp, payrollPeriod);
                       return (
                         <tr key={emp.id} className="transition hover:bg-slate-50/80">
                           <td className="border-r border-slate-200 p-3">
@@ -372,7 +495,7 @@ export function GuatemalanPayroll({
                             </div>
                           </td>
                           <td className="border-r border-slate-200 p-3 text-right font-mono font-medium">
-                            {formatGTQ(b.baseMonthly)}
+                            {formatGTQ(b.base)}
                           </td>
                           <td className="border-r border-slate-200 p-3 text-right font-mono font-medium text-rose-600">
                             -{formatGTQ(b.igssLaboral)}
@@ -399,7 +522,7 @@ export function GuatemalanPayroll({
                   <tfoot className="border-t-2 border-slate-300 bg-slate-100 font-bold text-slate-900 print:bg-slate-200">
                     <tr>
                       <td className="border-r border-slate-200 p-3 text-xs font-extrabold uppercase">
-                        Totales Planilla ({employees.length})
+                        Totales Planilla ({filteredEmployees.length})
                       </td>
                       <td className="border-r border-slate-200 p-3 text-right font-mono font-extrabold">
                         {formatGTQ(totals.base)}
@@ -442,13 +565,13 @@ export function GuatemalanPayroll({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {employees.map((emp) => {
-                      const b = getPayrollBreakdown(emp);
+                    {filteredEmployees.map((emp) => {
+                      const b = getPayrollBreakdown(emp, payrollPeriod);
                       return (
                         <tr key={emp.id} className="transition hover:bg-slate-50/80">
                           <td className="p-3.5 font-bold text-slate-900">{emp.name}</td>
                           <td className="p-3.5">{emp.role}</td>
-                          <td className="p-3.5 text-right font-mono">{formatGTQ(b.baseMonthly)}</td>
+                          <td className="p-3.5 text-right font-mono">{formatGTQ(b.base)}</td>
                           <td className="p-3.5 text-right font-mono">
                             {formatGTQ(b.bonoIncentivo)}
                           </td>

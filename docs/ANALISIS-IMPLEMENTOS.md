@@ -189,19 +189,27 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 
 ---
 
-### 3. 🔄 Selector de periodo en Planillas Guate
+### 3. ✅ Selector de periodo en Planillas Guate
 
-**Estado**: NECESITA MEJORA  
+**Estado**: MEJORADO  
 **Archivo**: `components/GuatemalanPayroll.tsx`  
-**Estado actual**: Solo tiene selector de mes (e.g., "Septiembre 2026")
+**Funcionalidades implementadas**:
 
-**Requerimientos**:
+- ✅ Selector de periodo (mensual/quincenal)
+- ✅ Búsqueda por nombre de empleado
+- ✅ Búsqueda por puesto
+- ✅ Selector de mes (últimos 12 meses)
+- ✅ Resumen de filtro (mostrando X de Y empleados)
+- ✅ Cálculos ajustados según periodo (30 días vs 15 días)
+- ✅ Exportación CSV con nombre del periodo
+- ✅ Tablas actualizadas con empleados filtrados
 
-- Selector de periodo (mensual/quincenal)
-- Búsqueda por nombre de empleado
-- Filtros por fecha de pago específica
+**Mejoras realizadas**:
 
-**Acción pendiente**: Implementar mejoras de filtrado
+- Cálculo proporcional para quincena (50% de mensual)
+- Bono incentivo ajustado (Q250 mensual → Q125 quincenal)
+- Resumen de filtros dinámico
+- Botón para limpiar búsqueda
 
 ---
 
@@ -245,10 +253,11 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 1. `components/ProjectPhotoDropzone.tsx` - Componente Dropzone para fotos
 2. `app/api/upload-project-photo/route.ts` - API route para subir fotos
 
-### Archivos Modificados (2)
+### Archivos Modificados (3)
 
 1. `features/projects/ProjectsView.tsx` - Integración de Dropzone
 2. `lib/firebaseService.ts` - Inicialización de Storage
+3. `components/GuatemalanPayroll.tsx` - Selector de periodo y búsqueda
 
 ### Dependencias Instaladas (1)
 
@@ -262,7 +271,7 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 
 1. ✅ Subir cambios de Dropzone a GitHub
 2. ✅ Verificar despliegue en Vercel
-3. 🔄 Implementar selector de periodo en Planillas Guate
+3. ✅ Implementar selector de periodo en Planillas Guate
 4. 🔄 Implementar sistema de mantenimiento preventivo maquinaria
 
 ### Prioridad Media
@@ -280,12 +289,12 @@ Se analizaron 12 implementos solicitados para verificar si ya existen en la apli
 ## 📊 MÉTRICAS DE IMPLEMENTACIÓN
 
 **Implementos analizados**: 12  
-**Completos**: 7 (58%)  
-**En progreso**: 1 (8%)  
-**Pendientes**: 4 (34%)
+**Completos**: 8 (67%)  
+**En progreso**: 0 (0%)  
+**Pendientes**: 4 (33%)
 
-**Porcentaje de funcionalidad existente**: 58%  
-**Porcentaje de funcionalidad nueva/mejorada**: 42%
+**Porcentaje de funcionalidad existente**: 67%  
+**Porcentaje de funcionalidad nueva/mejorada**: 33%
 
 ---
 
