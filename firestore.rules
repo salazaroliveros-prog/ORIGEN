@@ -11,10 +11,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isVerified() {
-      return isSignedIn() && request.auth.token.email_verified == true;
-    }
-
     function incoming() {
       return request.resource.data;
     }
@@ -25,10 +21,6 @@ service cloud.firestore {
 
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
     }
 
     // Validation helpers
@@ -142,6 +134,53 @@ service cloud.firestore {
         incoming().ownerId == existing().ownerId &&
         isValidCompanySettings(incoming());
       allow delete: if isValidId(settingId) && isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // Employees contain personnel data and must remain scoped to their owner.
+    match /employees/{employeeId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(employeeId) && isSignedIn() && incoming().ownerId == request.auth.uid;
+      allow update: if isValidId(employeeId) && isSignedIn() &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId;
+      allow delete: if isValidId(employeeId) && isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // FCM registration tokens are private to the authenticated user.
+    match /fcm_tokens/{tokenId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if tokenId is string && tokenId.size() <= 1500 && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().token == tokenId &&
+        incoming().active is bool;
+      allow update: if tokenId is string && tokenId.size() <= 1500 && isSignedIn() &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().token == tokenId &&
+        incoming().active is bool;
+      allow delete: if tokenId is string && tokenId.size() <= 1500 &&
+        isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // Project alerts can only be read or changed by the user that created them.
+    match /project_alerts/{alertId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(alertId) && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().id == alertId &&
+        incoming().projectId is string &&
+        incoming().projectName is string &&
+        incoming().title is string &&
+        incoming().message is string &&
+        incoming().signatureRequired is bool;
+      allow update: if isValidId(alertId) && isSignedIn() &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().id == alertId;
+      allow delete: if isValidId(alertId) && isSignedIn() && existing().ownerId == request.auth.uid;
     }
   }
 }

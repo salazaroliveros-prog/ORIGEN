@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Plus,
   Edit2,
@@ -15,53 +15,39 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TouchTarget } from '@/components/ui/TouchTarget';
-import { useProjectData } from '@/lib/hooks/useProjectData';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { toast } from 'react-hot-toast';
-import type { CompanySettings } from '@/lib/types';
+import type { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
 
-export function ProjectsView({ company }: { company?: CompanySettings }) {
-  const { currentUser } = useAuthSession();
-  const {
-    projects,
-    loading,
-    createProject,
-    updateProject,
-    deleteProject,
-  } = useProjectData(currentUser?.uid);
+interface ProjectsViewProps {
+  company?: CompanySettings;
+  projects: Project[];
+  expenses: ExpenseRecord[];
+  loading: boolean;
+  onCreateProject: (values: ProjectFormValues) => Promise<boolean>;
+  onUpdateProject: (projectId: string, values: Partial<ProjectFormValues>) => Promise<boolean>;
+  onDeleteProject: (projectId: string) => Promise<boolean>;
+}
+
+export function ProjectsView({
+  company,
+  projects,
+  expenses,
+  loading,
+  onCreateProject,
+  onUpdateProject,
+  onDeleteProject,
+}: ProjectsViewProps) {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectFormProject | null>(null);
-
-  const handleCreate = useCallback(
-    async (values: ProjectFormValues) => {
-      const success = await createProject(values);
-      if (success) setFormOpen(false);
-    },
-    [createProject]
-  );
-
-  const handleEdit = useCallback(
-    async (values: ProjectFormValues) => {
-      if (!editingProject) return;
-      try {
-        const success = await updateProject(editingProject.id, values);
-        if (success) {
-          setFormOpen(false);
-        }
-      } finally {
-        setEditingProject(null);
-      }
-    },
-    [editingProject, updateProject]
-  );
-
-  const handleDelete = useCallback(
-    (id: string) => {
-      deleteProject(id);
-    },
-    [deleteProject]
+  const projectSpentById = useMemo(
+    () =>
+      expenses.reduce((totals, expense) => {
+        totals.set(expense.projectId, (totals.get(expense.projectId) ?? 0) + expense.amount);
+        return totals;
+      }, new Map<string, number>()),
+    [expenses]
   );
 
   const openEdit = (project: ProjectFormProject) => {
@@ -116,7 +102,7 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
         }
       />
 
-      <div className="responsive-grid">
+      <div className="grid grid-cols-1 gap-4">
         <Card variant="elevated" padding="md">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
@@ -170,11 +156,13 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
                     <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
                       <span>Q{p.budgetTotal?.toLocaleString('es-GT') || '0'}</span>
                       <span className="text-amber-400">·</span>
-                      <span>Q{p.spentTotal?.toLocaleString('es-GT') || '0'}</span>
+                      <span>
+                        Q{(projectSpentById.get(p.id) ?? p.spentTotal ?? 0).toLocaleString('es-GT')}
+                      </span>
                     </div>
                     <div className="flex gap-2">
                       <TouchTarget
-                        onPress={() => openEdit(p as ProjectFormProject)}
+                        onPress={() => openEdit(p)}
                         className="p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 border border-white/10 transition-all"
                         aria-label={`Editar proyecto ${p.code}`}
                         title={`Editar proyecto ${p.code}`}
@@ -182,7 +170,7 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
                         <Edit2 className="w-4 h-4" aria-hidden="true" />
                       </TouchTarget>
                       <TouchTarget
-                        onPress={() => handleDelete(p.id)}
+                        onPress={() => void onDeleteProject(p.id)}
                         className="p-2 rounded-lg bg-white/[0.05] hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-slate-300 hover:text-red-300 transition-all"
                         aria-label={`Eliminar proyecto ${p.code}`}
                         title={`Eliminar proyecto ${p.code}`}
@@ -219,7 +207,11 @@ export function ProjectsView({ company }: { company?: CompanySettings }) {
           setFormOpen(false);
           setEditingProject(null);
         }}
-        onSave={editingProject ? handleEdit : handleCreate}
+        onSave={(values) =>
+          editingProject
+            ? onUpdateProject(editingProject.id, values)
+            : onCreateProject(values)
+        }
         editingProject={editingProject}
       />
     </div>

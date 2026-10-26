@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Receipt,
   Plus,
@@ -35,6 +36,14 @@ import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram'
 import { exportExpensesBudgetPdf } from '@/lib/pdfExportService';
 import { exportExpensesToExcel } from '@/lib/excelAccountingExport';
 
+const getGuatemalaDate = () =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Guatemala',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
 export interface ExpensesViewProps {
   projects: Project[];
   expenses: ExpenseRecord[];
@@ -63,8 +72,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
 
   // Form State
-  const [formProjectId, setFormProjectId] = useState<string>(projects[0]?.id || 'p1');
-  const [formDate, setFormDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [formProjectId, setFormProjectId] = useState<string>(projects[0]?.id || '');
+  const [formDate, setFormDate] = useState<string>(getGuatemalaDate);
   const [formCategory, setFormCategory] = useState<ExpenseRecord['category']>('Materiales (Cementos, Hierro)');
   const [formDescription, setFormDescription] = useState<string>('');
   const [formSupplier, setFormSupplier] = useState<string>('');
@@ -75,18 +84,24 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const [formPaymentMethod, setFormPaymentMethod] = useState<ExpenseRecord['paymentMethod']>('Transferencia BI');
   const [formReceiptPhotoUrl, setFormReceiptPhotoUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (projects.length > 0 && !projects.some((project) => project.id === formProjectId)) {
+      setFormProjectId(projects[0].id);
+    }
+  }, [formProjectId, projects]);
 
   // Export PDF state
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
 
-  // Categories list
-  const categoriesList: ExpenseRecord['category'][] = [
+  const categoriesList = useMemo<ExpenseRecord['category'][]>(() => [
     'Materiales (Cementos, Hierro)',
     'Mano de Obra',
     'Maquinaria y Combustible',
     'Permisos & Licencias',
     'Imprevistos',
-  ];
+  ], []);
 
   // Map project ID to project object
   const projectMap = useMemo(() => {
@@ -175,8 +190,17 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       alert('Por favor complete la descripción y un monto válido mayor a Q0.00.');
       return;
     }
+    if (!projects.some((project) => project.id === formProjectId)) {
+      setSaveError('Selecciona un proyecto válido antes de registrar el gasto.');
+      return;
+    }
+    if (!onAddExpense) {
+      setSaveError('El registro de gastos no está disponible en este momento.');
+      return;
+    }
 
     setIsSubmitting(true);
+    setSaveError(null);
 
     const amountGTQ =
       formCurrency === 'GTQ' ? Number(formAmount) : Number(formAmount) * (company.exchangeRate || 7.8);
@@ -199,20 +223,26 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       approvalStatus: 'Aprobado',
     };
 
-    if (onAddExpense) {
-      await onAddExpense(newExpense);
+    try {
+      const saved = await onAddExpense(newExpense);
+      if (!saved) {
+        setSaveError('No se pudo guardar el gasto. Verifica tu sesión e inténtalo de nuevo.');
+        return;
+      }
+
+      setFormDescription('');
+      setFormSupplier('');
+      setFormNitSupplier('');
+      setFormFacturaNumber('');
+      setFormAmount('');
+      setFormReceiptPhotoUrl('');
+      setActiveTab('tabla');
+    } catch (error) {
+      console.error('No se pudo registrar el gasto:', error);
+      setSaveError('Ocurrió un error al guardar. Conservamos los datos para que puedas intentarlo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-
-    // Reset Form & Switch to Table
-    setFormDescription('');
-    setFormSupplier('');
-    setFormNitSupplier('');
-    setFormFacturaNumber('');
-    setFormAmount('');
-    setFormReceiptPhotoUrl('');
-    setActiveTab('tabla');
   };
 
   // Export PDF Summary Function
@@ -322,7 +352,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 {formatGTQ(totalFilteredAmountGTQ)}
               </p>
               <p className="text-[10px] text-slate-400 mt-0.5">
-                {filteredCalculationsCount => filteredExpenses.length} registros mostrados
+                {filteredExpenses.length} registros mostrados
               </p>
             </div>
 
@@ -544,7 +574,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       {/* TAB 2: FORMULARIO DE ENTRADA DE NUEVO GASTO / FACTURA */}
       {/* ======================================================== */}
       {activeTab === 'nuevo' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 max-w-3xl mx-auto space-y-6">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
           <div className="flex items-center justify-between border-b border-slate-200 pb-4">
             <div className="flex items-center gap-2.5">
               <span className="p-2 rounded-xl bg-amber-500 text-slate-950 font-bold">
@@ -562,14 +592,21 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
           </div>
 
           <form onSubmit={handleSubmitExpense} className="space-y-4 text-xs">
+            {projects.length === 0 && (
+              <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm font-medium text-amber-950">
+                Crea un proyecto antes de registrar gastos; cada factura debe asignarse a una obra.
+              </p>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Proyecto Asignado *</label>
+                <label htmlFor="expense-project" className="font-bold text-slate-700 block mb-1">Proyecto Asignado *</label>
                 <select
+                  id="expense-project"
                   value={formProjectId}
                   onChange={(e) => setFormProjectId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-800"
+                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-800"
                   required
+                  disabled={projects.length === 0}
                 >
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -580,12 +617,13 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Fecha de Emisión / Factura *</label>
+                <label htmlFor="expense-date" className="font-bold text-slate-700 block mb-1">Fecha de Emisión / Factura *</label>
                 <input
+                  id="expense-date"
                   type="date"
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono"
+                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono text-slate-900"
                   required
                 />
               </div>
@@ -593,11 +631,12 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Categoría del Gasto *</label>
+                <label htmlFor="expense-category" className="font-bold text-slate-700 block mb-1">Categoría del Gasto *</label>
                 <select
+                  id="expense-category"
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-medium"
+                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-medium text-slate-900"
                   required
                 >
                   {categoriesList.map((cat) => (
@@ -609,11 +648,12 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Método de Pago *</label>
+                <label htmlFor="expense-payment-method" className="font-bold text-slate-700 block mb-1">Método de Pago *</label>
                 <select
+                  id="expense-payment-method"
                   value={formPaymentMethod}
                   onChange={(e) => setFormPaymentMethod(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-medium"
+                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-medium text-slate-900"
                 >
                   <option value="Transferencia BI">Transferencia Bancaria BI / G&T</option>
                   <option value="Cheque">Cheque de Cuenta de Obra</option>
@@ -624,95 +664,105 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             </div>
 
             <div>
-              <label className="font-bold text-slate-700 block mb-1">
+              <label htmlFor="expense-description" className="font-bold text-slate-700 block mb-1">
                 Descripción Detallada del Insumo o Servicio *
               </label>
               <textarea
+                id="expense-description"
                 rows={2}
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder="Ej. Compra de 150 bolsas de cemento Progreso IP para fundición de losa Nivel 2..."
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50"
+                className="w-full min-h-20 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 placeholder:text-slate-600"
                 required
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Proveedor / Emisor SAT</label>
+                <label htmlFor="expense-supplier" className="font-bold text-slate-700 block mb-1">Proveedor / Emisor SAT</label>
                 <input
+                  id="expense-supplier"
                   type="text"
                   placeholder="Ej. Discosa S.A. / Cemento Progreso"
                   value={formSupplier}
                   onChange={(e) => setFormSupplier(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50"
+                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">NIT del Proveedor</label>
+                <label htmlFor="expense-supplier-nit" className="font-bold text-slate-700 block mb-1">NIT del Proveedor</label>
                 <input
+                  id="expense-supplier-nit"
                   type="text"
                   placeholder="Ej. 1294821-9 o CF"
                   value={formNitSupplier}
                   onChange={(e) => setFormNitSupplier(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono"
+                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono text-slate-900 placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">No. Factura SAT Serie/Número</label>
+                <label htmlFor="expense-invoice-number" className="font-bold text-slate-700 block mb-1">No. Factura SAT Serie/Número</label>
                 <input
+                  id="expense-invoice-number"
                   type="text"
                   placeholder="Ej. A-49201 / FEL-8812"
                   value={formFacturaNumber}
                   onChange={(e) => setFormFacturaNumber(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono"
+                  className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono text-slate-900 placeholder:text-slate-600"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Monto del Gasto *</label>
+                <label htmlFor="expense-amount" className="font-bold text-slate-700 block mb-1">Monto del Gasto *</label>
                 <div className="flex gap-2">
                   <select
+                    aria-label="Moneda del gasto"
                     value={formCurrency}
                     onChange={(e) => setFormCurrency(e.target.value as any)}
-                    className="px-3 py-2 rounded-xl border border-slate-300 bg-slate-100 font-bold"
+                    className="min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-100 font-bold text-slate-900"
                   >
                     <option value="GTQ">GTQ (Q)</option>
                     <option value="USD">USD ($)</option>
                   </select>
                   <input
+                    id="expense-amount"
                     type="number"
                     step="0.01"
                     min="0.01"
                     placeholder="0.00"
                     value={formAmount}
                     onChange={(e) => setFormAmount(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono font-bold text-base text-slate-900"
+                    className="w-full min-h-11 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-mono font-bold text-base text-slate-900 placeholder:text-slate-600"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Fotografía o Foto de Factura</label>
+                <label htmlFor="expense-receipt-photo" className="font-bold text-slate-700 block mb-1">Fotografía o Foto de Factura</label>
                 <input
+                  id="expense-receipt-photo"
                   type="file"
                   accept="image/*"
                   onChange={handlePhotoFileChange}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200 cursor-pointer"
+                  className="w-full min-h-11 text-xs text-slate-700 file:mr-3 file:min-h-11 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200 cursor-pointer"
                 />
               </div>
             </div>
 
             {formReceiptPhotoUrl && (
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3">
-                <img
+                <Image
                   src={formReceiptPhotoUrl}
                   alt="Vista previa factura"
+                  width={64}
+                  height={64}
+                  unoptimized
                   className="w-16 h-16 object-cover rounded-lg border border-slate-300"
                 />
                 <div className="text-xs">
@@ -728,18 +778,24 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </div>
             )}
 
-            <div className="pt-4 flex justify-end gap-3 border-t border-slate-200">
+            {saveError && (
+              <p role="alert" className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm font-medium text-rose-900">
+                {saveError}
+              </p>
+            )}
+
+            <div className="pt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 border-t border-slate-200">
               <button
                 type="button"
                 onClick={() => setActiveTab('tabla')}
-                className="px-4 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
+                className="min-h-11 px-4 py-2.5 rounded-xl font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-2.5 rounded-xl font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 transition shadow-xs cursor-pointer disabled:opacity-50"
+                disabled={isSubmitting || projects.length === 0}
+                className="min-h-11 px-6 py-2.5 rounded-xl font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 transition shadow-xs cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? 'Guardando...' : 'Guardar y Registrar Gasto'}
               </button>
@@ -891,7 +947,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               </button>
             </div>
             <div className="flex items-center justify-center max-h-[70vh] overflow-hidden rounded-xl bg-slate-100">
-              <img src={previewPhotoUrl} alt="Factura SAT" className="max-h-[65vh] w-auto object-contain" />
+              <Image src={previewPhotoUrl} alt="Factura SAT" width={1200} height={900} unoptimized className="max-h-[65vh] w-auto object-contain" />
             </div>
             <div className="flex justify-end">
               <button

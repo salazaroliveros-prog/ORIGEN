@@ -86,9 +86,9 @@ export function CashFlowProjectionChart({
               <Wallet className="w-5 h-5" />
             </span>
             <div>
-              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+              <h2 className="text-base font-extrabold text-white flex items-center gap-2">
                 Proyección de Flujo de Caja Semestral (Basado en Hitos)
-              </h3>
+              </h2>
               <p className="text-xs text-slate-400 mt-0.5">
                 Estimación de ingresos por valuaciones de hitos de obra vs. egresos operativos para los próximos 6 meses ({summary.months[0]?.monthLabel} - {summary.months[5]?.monthLabel}).
               </p>
@@ -102,6 +102,7 @@ export function CashFlowProjectionChart({
           <div className="flex items-center gap-1.5 bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-1">
             <Building2 className="w-3.5 h-3.5 text-slate-400" />
             <select
+              aria-label="Filtrar flujo de caja por proyecto"
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
               className="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer"
@@ -123,7 +124,7 @@ export function CashFlowProjectionChart({
               onClick={() => setChartMode('inflow_outflow')}
               className={`px-2.5 py-1 rounded-lg transition ${
                 chartMode === 'inflow_outflow'
-                  ? 'bg-cyan-600 text-white shadow'
+                  ? 'bg-cyan-700 text-white shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -133,7 +134,7 @@ export function CashFlowProjectionChart({
               onClick={() => setChartMode('net_cumulative')}
               className={`px-2.5 py-1 rounded-lg transition ${
                 chartMode === 'net_cumulative'
-                  ? 'bg-cyan-600 text-white shadow'
+                  ? 'bg-cyan-700 text-white shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -391,7 +392,7 @@ export function CashFlowProjectionChart({
         {showMilestonesList && (
           <div className="p-3 overflow-x-auto">
             {summary.allMilestonesInPeriod.length === 0 ? (
-              <p className="text-xs text-slate-500 py-3 text-center">
+              <p className="text-xs text-slate-400 py-3 text-center">
                 No hay hitos programados en los 6 meses seleccionados. Modifica el horizonte temporal con los controles superiores.
               </p>
             ) : (

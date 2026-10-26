@@ -70,7 +70,7 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
         return {
           name: emp.name.split(' ')[0] + (emp.name.split(' ')[1] ? ' ' + emp.name.split(' ')[1][0] + '.' : ''),
           fullName: emp.name,
-          role: emp.role,
+          jobTitle: emp.role,
           trabajadas: realHours,
           presupuestadas: baseBudgetedHours,
           diferencia: realHours - baseBudgetedHours,
@@ -166,6 +166,7 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
               <Building2 className="w-3.5 h-3.5 text-sky-400" /> Obra:
             </span>
             <select
+              aria-label="Filtrar productividad por obra"
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
               className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:outline-none focus:border-sky-400 transition cursor-pointer"
@@ -280,7 +281,7 @@ export const LaborProductivityChart: React.FC<LaborProductivityChartProps> = ({
                   return (
                     <div className="bg-slate-950 border border-slate-700 p-3.5 rounded-2xl shadow-2xl text-xs space-y-1.5 min-w-48">
                       <p className="font-bold text-white text-sm">{data.fullName}</p>
-                      {data.role && <p className="text-slate-400 font-medium">Especialidad: {data.role}</p>}
+                      {data.jobTitle && <p className="text-slate-400 font-medium">Especialidad: {data.jobTitle}</p>}
                       <div className="pt-1 border-t border-slate-800 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-slate-400">Horas Trabajadas:</span>

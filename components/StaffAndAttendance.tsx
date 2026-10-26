@@ -24,15 +24,16 @@ Smartphone,
 Trash2,
 XCircle
 } from 'lucide-react';
-import React,{ useState } from 'react';
+import React,{ useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface StaffAndAttendanceProps {
   employees: Employee[];
   attendance: AttendanceRecord[];
   projects: Project[];
   activeProjectId: string;
-  onAddEmployee: (emp: Employee) => void;
-  onAddAttendance?: (record: AttendanceRecord) => void;
+  onAddEmployee: (emp: Employee) => Promise<boolean>;
+  onAddAttendance?: (record: AttendanceRecord) => Promise<boolean>;
   onDeleteAttendance?: (id: string) => void;
 }
 
@@ -56,12 +57,18 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   >('Albañil');
   const [rate, setRate] = useState('175');
   const [phone, setPhone] = useState('+502 ');
+  const [isSavingEmployee, setIsSavingEmployee] = useState(false);
 
   // Attendance Form State
   const [selectedProjectId, setSelectedProjectId] = useState<string>(activeProjectId);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>(employees[0]?.id || '');
-  const [attendanceDate, setAttendanceDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+  const [attendanceDate, setAttendanceDate] = useState<string>(() =>
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Guatemala',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
   );
   const [status, setStatus] = useState<'Presente' | 'Ausente' | 'Permiso' | 'Incapacidad IGSS'>(
     'Presente'
@@ -84,8 +91,19 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
   const currentProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
 
+  useEffect(() => {
+    if (projects.length === 0 || projects.some((project) => project.id === selectedProjectId)) return;
+    setSelectedProjectId(
+      projects.some((project) => project.id === activeProjectId) ? activeProjectId : projects[0].id
+    );
+  }, [activeProjectId, projects, selectedProjectId]);
+
   // Recalculate distance whenever user coords or selected project changes
   const runGeofenceCheck = (coords: { lat: number; lng: number }) => {
+    if (!currentProject) {
+      setGpsError('Selecciona o crea un proyecto antes de validar la geocerca.');
+      return;
+    }
     const res = validateProjectGeofence(
       coords.lat,
       coords.lng,
@@ -105,6 +123,10 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
   // Real GPS Capture from device
   const handleGetLiveGps = async () => {
+    if (!currentProject) {
+      setGpsError('Selecciona o crea un proyecto antes de validar la geocerca.');
+      return;
+    }
     setIsLocating(true);
     setGpsError(null);
     try {
@@ -131,6 +153,10 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
   // Test / Demo: simulate employee directly on-site (within 35m)
   const handleSimulateOnSite = () => {
+    if (!currentProject) {
+      setGpsError('Selecciona o crea un proyecto antes de validar la geocerca.');
+      return;
+    }
     setGpsError(null);
     // Add micro-offset (~30m)
     const simulated = {
@@ -144,6 +170,10 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
   // Test / Demo: simulate employee outside geofence (e.g. 1.4km away)
   const handleSimulateOffSite = () => {
+    if (!currentProject) {
+      setGpsError('Selecciona o crea un proyecto antes de validar la geocerca.');
+      return;
+    }
     setGpsError(null);
     // Add ~1.4km offset
     const simulated = {
@@ -158,6 +188,10 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   // Register Attendance Form Submit with 500-meter Geolocation Validation Layer
   const handleRegisterAttendance = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentProject) {
+      setGpsError('Crea un proyecto antes de registrar asistencia.');
+      return;
+    }
 
     const emp = employees.find((x) => x.id === selectedEmployeeId) || employees[0];
     if (!emp) return;
@@ -211,6 +245,11 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
       }
     }
 
+    if (!onAddAttendance) {
+      setGpsError('El registro de asistencia no está disponible en este momento.');
+      return;
+    }
+
     const newRecord: AttendanceRecord = {
       id: `att-${Date.now()}`,
       projectId: selectedProjectId,
@@ -219,17 +258,24 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
       employeeName: emp.name,
       status,
       overtimeHours: Number(overtimeHours) || 0,
-      gpsCoords: activeCoords || undefined,
-      gpsVerified: activeWithin ?? undefined,
-      distanceMeters: activeDist ?? undefined,
-      gpsTimestamp: activeCoords
-        ? `${attendanceDate} ${new Date().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`
-        : undefined,
-      overrideReason: activeWithin === false ? overrideReason : undefined,
+      ...(activeCoords ? { gpsCoords: activeCoords } : {}),
+      ...(activeWithin !== null ? { gpsVerified: activeWithin } : {}),
+      ...(activeDist !== null ? { distanceMeters: activeDist } : {}),
+      ...(activeCoords
+        ? {
+            gpsTimestamp: `${attendanceDate} ${new Date().toLocaleTimeString('es-GT', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}`,
+          }
+        : {}),
+      ...(activeWithin === false ? { overrideReason: overrideReason.trim() } : {}),
     };
 
-    if (onAddAttendance) {
-      onAddAttendance(newRecord);
+    const saved = await onAddAttendance(newRecord);
+    if (!saved) {
+      setGpsError('No se pudo guardar el registro de asistencia. Inténtalo nuevamente.');
+      return;
     }
 
     setSaveSuccessToast(`Asistencia de ${emp.name} registrada correctamente (Validación: ${activeWithin ? 'En Obra <500m' : 'Excepción auditada'}).`);
@@ -245,22 +291,34 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
   };
 
   // Employee creation submit
-  const handleCreateEmployee = (e: React.FormEvent) => {
+  const handleCreateEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      toast.error('Ingresa el nombre del empleado.');
+      return;
+    }
 
     const emp: Employee = {
       id: `emp-${Date.now()}`,
-      name,
+      name: name.trim(),
       role,
       dailyRateGTQ: Number(rate) || 150,
       igssAffiliated: true,
       phone,
     };
 
-    onAddEmployee(emp);
-    setIsOpenModal(false);
-    setName('');
+    setIsSavingEmployee(true);
+    try {
+      if (await onAddEmployee(emp)) {
+        setIsOpenModal(false);
+        setName('');
+      }
+    } catch (error) {
+      console.error('No se pudo registrar el empleado:', error);
+      toast.error('No se pudo registrar el empleado.');
+    } finally {
+      setIsSavingEmployee(false);
+    }
   };
 
   // Attendance metrics
@@ -290,12 +348,12 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
           {/* Navigation Pill Buttons */}
-          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <div className="flex w-full min-w-0 flex-col bg-slate-100 p-1 rounded-xl border border-slate-200 sm:w-auto sm:flex-row">
             <button
               onClick={() => setActiveTab('asistencia')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              className={`min-h-11 px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer sm:min-h-9 ${
                 activeTab === 'asistencia'
                   ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -305,7 +363,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('personal')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              className={`min-h-11 px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer sm:min-h-9 ${
                 activeTab === 'personal'
                   ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -315,7 +373,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('productividad')}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              className={`inline-flex min-h-11 items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer sm:min-h-9 ${
                 activeTab === 'productividad'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -328,7 +386,7 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
           <button
             onClick={() => setIsOpenModal(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-sm cursor-pointer"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs transition shadow-sm cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Nuevo Empleado
           </button>
@@ -399,10 +457,11 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
               <form onSubmit={handleRegisterAttendance} className="space-y-4">
                 {/* Project selector */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label htmlFor="attendance-project" className="block text-xs font-semibold text-slate-700 mb-1">
                     Proyecto / Frente de Obra
                   </label>
                   <select
+                    id="attendance-project"
                     value={selectedProjectId}
                     onChange={(e) => {
                       setSelectedProjectId(e.target.value);
@@ -431,16 +490,19 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   </select>
                   <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-slate-400" />
-                    Coords Obra: {currentProject.lat.toFixed(4)}° N, {currentProject.lng.toFixed(4)}° W ({currentProject.municipality})
+                    {currentProject
+                      ? `Coords Obra: ${currentProject.lat.toFixed(4)}° N, ${currentProject.lng.toFixed(4)}° W (${currentProject.municipality})`
+                      : 'Crea un proyecto para habilitar el registro de asistencia.'}
                   </p>
                 </div>
 
                 {/* Employee selector */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label htmlFor="attendance-employee" className="block text-xs font-semibold text-slate-700 mb-1">
                     Empleado / Miembro de Cuadrilla
                   </label>
                   <select
+                    id="attendance-employee"
                     value={selectedEmployeeId}
                     onChange={(e) => setSelectedEmployeeId(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-medium"
@@ -456,8 +518,9 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                 {/* Date and Overtime */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Fecha</label>
+                    <label htmlFor="attendance-date" className="block text-xs font-semibold text-slate-700 mb-1">Fecha</label>
                     <input
+                      id="attendance-date"
                       type="date"
                       value={attendanceDate}
                       onChange={(e) => setAttendanceDate(e.target.value)}
@@ -467,8 +530,9 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Horas Extras</label>
+                    <label htmlFor="attendance-overtime" className="block text-xs font-semibold text-slate-700 mb-1">Horas Extras</label>
                     <input
+                      id="attendance-overtime"
                       type="number"
                       min="0"
                       max="12"
@@ -481,8 +545,9 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
                 {/* Status selector */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Estado de Asistencia</label>
+                  <label htmlFor="attendance-status" className="block text-xs font-semibold text-slate-700 mb-1">Estado de Asistencia</label>
                   <select
+                    id="attendance-status"
                     value={status}
                     onChange={(e: any) => setStatus(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-medium"
@@ -579,7 +644,9 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
                       <div className="text-[11px] text-slate-600 space-y-0.5 pt-1 border-t border-slate-200/60 font-mono">
                         <p>GPS Empleado: {userCoords.lat.toFixed(5)}°, {userCoords.lng.toFixed(5)}°</p>
-                        <p>Punto Proyecto: {currentProject.lat.toFixed(5)}°, {currentProject.lng.toFixed(5)}°</p>
+                        {currentProject && (
+                          <p>Punto Proyecto: {currentProject.lat.toFixed(5)}°, {currentProject.lng.toFixed(5)}°</p>
+                        )}
                         {gpsAccuracy && <p>Precisión Satelital: ±{gpsAccuracy}m</p>}
                       </div>
 
@@ -594,10 +661,11 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   {/* Override input when outside geofence */}
                   {showOverrideInput && isWithinGeofence === false && (
                     <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
-                      <label className="block text-[11px] font-bold text-amber-900">
+                      <label htmlFor="attendance-override-reason" className="block text-[11px] font-bold text-amber-900">
                         Justificación de Excepción (Obligatoria para Capataz/Supervisor)
                       </label>
                       <input
+                        id="attendance-override-reason"
                         type="text"
                         value={overrideReason}
                         onChange={(e) => setOverrideReason(e.target.value)}
@@ -804,21 +872,23 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
 
       {/* CREATE EMPLOYEE MODAL */}
       {isOpenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
+        <div role="dialog" aria-modal="true" aria-labelledby="employee-form-title" className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[calc(100dvh-2rem)] border border-slate-200 overflow-hidden flex flex-col">
             <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
-              <h3 className="font-bold text-base">Registrar Nuevo Empleado</h3>
+              <h3 id="employee-form-title" className="font-bold text-base">Registrar Nuevo Empleado</h3>
               <button
                 onClick={() => setIsOpenModal(false)}
                 className="text-slate-400 hover:text-white"
+                aria-label="Cerrar formulario de empleado"
               >
                 ✕
               </button>
             </div>
-            <form onSubmit={handleCreateEmployee} className="p-5 space-y-3">
+            <form onSubmit={handleCreateEmployee} className="min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3 text-slate-900 [&_input::placeholder]:text-slate-600">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Nombre Completo</label>
+                <label htmlFor="employee-name" className="block text-xs font-semibold text-slate-700 mb-1">Nombre Completo</label>
                 <input
+                  id="employee-name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -827,10 +897,11 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Puesto / Rol</label>
+                  <label htmlFor="employee-role" className="block text-xs font-semibold text-slate-700 mb-1">Puesto / Rol</label>
                   <select
+                    id="employee-role"
                     value={role}
                     onChange={(e: any) => setRole(e.target.value)}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
@@ -844,9 +915,12 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Jornal Diario (Q)</label>
+                  <label htmlFor="employee-daily-rate" className="block text-xs font-semibold text-slate-700 mb-1">Jornal Diario (Q)</label>
                   <input
+                    id="employee-daily-rate"
                     type="number"
+                    min="0"
+                    step="0.01"
                     value={rate}
                     onChange={(e) => setRate(e.target.value)}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
@@ -855,27 +929,29 @@ export const StaffAndAttendance: React.FC<StaffAndAttendanceProps> = ({
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
+                <label htmlFor="employee-phone" className="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
                 <input
-                  type="text"
+                  id="employee-phone"
+                  type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50"
                 />
               </div>
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsOpenModal(false)}
-                  className="px-4 py-2 rounded-xl text-sm text-slate-700 bg-slate-100 hover:bg-slate-200"
+                  className="min-h-11 px-4 py-2 rounded-xl text-sm text-slate-700 bg-slate-100 hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm"
+                  disabled={isSavingEmployee}
+                  className="min-h-11 px-4 py-2 rounded-xl text-sm font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-sm"
                 >
-                  Guardar Empleado
+                  {isSavingEmployee ? 'Guardando...' : 'Guardar Empleado'}
                 </button>
               </div>
             </form>

@@ -26,7 +26,7 @@ import {
   Info,
 } from 'lucide-react';
 import { Employee, CompanySettings, AttendanceRecord } from '@/lib/types';
-import { formatGTQ } from '@/lib/data';
+import { formatGTQ, initialCompanySettings } from '@/lib/data';
 import {
   calculateEmployeePayroll,
   EmployeePayrollCalculation,
@@ -47,14 +47,7 @@ export interface GuatemalanPayrollTableProps {
 
 export const GuatemalanPayrollTable: React.FC<GuatemalanPayrollTableProps> = ({
   employees,
-  company = {
-    id: 'c1',
-    commercialName: 'ConstructERP Guatemala, S.A.',
-    nit: '1049281-2',
-    address: 'Diagonal 6, 12-42 Zona 10, Ciudad de Guatemala',
-    phone: '+502 2300-5500',
-    exchangeRate: 7.8,
-  },
+  company = initialCompanySettings,
   attendance = [],
   initialFrequency = 'quincenal',
   onSelectEmployeeVoucher,

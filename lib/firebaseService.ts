@@ -2,51 +2,66 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import {
   getFirestore,
+  connectFirestoreEmulator,
   doc,
   setDoc,
   deleteDoc,
-  getDocFromServer,
   collection,
   query,
   where,
+  limit,
   onSnapshot,
   getDocs,
   writeBatch,
   Unsubscribe,
 } from 'firebase/firestore';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
-import { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings } from './types';
+import { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings, Employee } from './types';
 import { notifySyncStart, notifySyncEnd } from './hooks/useFirebaseSyncStatus';
 
 const firebaseConfig = getFirebaseConfig();
 
-const appConfig = {
-  apiKey: firebaseConfig.apiKey || 'demo-api-key',
-  authDomain: firebaseConfig.authDomain || 'demo-project.firebaseapp.com',
-  projectId: firebaseConfig.projectId || 'demo-project',
-  storageBucket: firebaseConfig.storageBucket || 'demo-project.firebasestorage.app',
-  messagingSenderId: firebaseConfig.messagingSenderId || '000000000000',
-  appId: firebaseConfig.appId || '1:000000000000:web:demo',
-  measurementId: firebaseConfig.measurementId || '',
-};
-
-const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
-const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
-
-export const db = getFirestore(app, firestoreDatabaseId);
-export const auth = getAuth(app);
-
 if (!hasFirebaseRuntimeConfig()) {
-  console.warn('Firebase runtime config is not fully configured. Using safe demo defaults until environment variables are injected.');
+  throw new Error('Firebase configuration is incomplete. Check the public Firebase environment variables.');
 }
 
-export async function testConnection() {
+const appConfig = {
+  apiKey: firebaseConfig.apiKey,
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  storageBucket: firebaseConfig.storageBucket,
+  messagingSenderId: firebaseConfig.messagingSenderId,
+  appId: firebaseConfig.appId,
+  measurementId: firebaseConfig.measurementId,
+};
+
+export const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
+const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
+export const db = getFirestore(app, firestoreDatabaseId || '(default)');
+export const auth = getAuth(app);
+
+const firestoreEmulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.trim();
+if (firestoreEmulatorHost) {
+  const separatorIndex = firestoreEmulatorHost.lastIndexOf(':');
+  const host = separatorIndex < 0 ? firestoreEmulatorHost : firestoreEmulatorHost.slice(0, separatorIndex);
+  const port = separatorIndex < 0 ? 8080 : Number(firestoreEmulatorHost.slice(separatorIndex + 1));
+  if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST must be a hostname with an optional valid port.');
+  }
+  connectFirestoreEmulator(db, host, port);
+}
+
+export async function testConnection(): Promise<boolean> {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('Inicia sesión para validar la conexión con Firestore.');
+  }
+
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
+    await getDocs(query(collection(db, 'projects'), where('ownerId', '==', user.uid), limit(1)));
+    return true;
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firebase client is currently offline.');
-    }
+    throw handleFirestoreError(error, OperationType.LIST, 'projects');
   }
 }
 
@@ -373,6 +388,42 @@ export function subscribeAttendance(userId: string, callback: (records: Attendan
       (snapshot) => {
         const list: AttendanceRecord[] = [];
         snapshot.forEach((docSnap) => list.push(docSnap.data() as AttendanceRecord));
+        callback(list);
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.LIST, path);
+      }
+    );
+  } catch (err) {
+    handleFirestoreError(err, OperationType.LIST, path);
+    return () => {};
+  }
+}
+
+export async function saveEmployeeToFirestore(employee: Employee, userId: string): Promise<boolean> {
+  const path = `employees/${employee.id}`;
+  try {
+    await setDoc(
+      doc(db, 'employees', employee.id),
+      { ...employee, ownerId: userId },
+      { merge: true }
+    );
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export function subscribeEmployees(userId: string, callback: (employees: Employee[]) => void): Unsubscribe {
+  const path = 'employees';
+  try {
+    const q = query(collection(db, path), where('ownerId', '==', userId));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const list: Employee[] = [];
+        snapshot.forEach((docSnap) => list.push(docSnap.data() as Employee));
         callback(list);
       },
       (error) => {

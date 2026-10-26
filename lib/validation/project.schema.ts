@@ -29,8 +29,10 @@ export const ProjectFormSchema = z.object({
     .min(0, 'El avance debe estar entre 0 y 100')
     .max(100, 'El avance debe estar entre 0 y 100'),
   startDate: z.string()
+    .date('La fecha de inicio no es válida')
     .min(1, 'La fecha de inicio es requerida'),
   endDate: z.string()
+    .date('La fecha de finalización no es válida')
     .min(1, 'La fecha de finalización es requerida'),
   status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido']),
   lat: z.number()
@@ -43,6 +45,9 @@ export const ProjectFormSchema = z.object({
     .min(0, 'El margen no puede ser negativo')
     .max(100, 'El margen no puede exceder 100')
     .optional(),
+}).refine((project) => project.endDate >= project.startDate, {
+  message: 'La fecha de finalización debe ser igual o posterior a la fecha de inicio',
+  path: ['endDate'],
 });
 
 export type ProjectFormValues = z.infer<typeof ProjectFormSchema>;

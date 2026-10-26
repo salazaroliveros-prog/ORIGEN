@@ -3,6 +3,7 @@
 import type { BrandingConfig } from '@/lib/branding';
 import { isCustomLogo,loadBranding,revokeLogoUrl,saveBranding,subscribeToBrandingUpdates } from '@/lib/branding';
 import { AlertCircle,Building2,CheckCircle2,Maximize,Minimize,RefreshCw,Upload } from 'lucide-react';
+import Image from 'next/image';
 import React,{ useCallback,useEffect,useState } from 'react';
 
 interface LogoUploadProps {
@@ -150,7 +151,7 @@ export const LogoUpload: React.FC<LogoUploadProps> = ({
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
               {previewUrl ? (
-                <img src={previewUrl} alt="Logo preview" className="w-full h-full object-cover rounded-xl" />
+                <Image src={previewUrl} alt="Logo preview" width={288} height={288} unoptimized className="w-full h-full object-cover rounded-xl" />
               ) : (
                 <div className="flex flex-col items-center gap-1.5 text-slate-400">
                   <Upload className="w-6 h-6 opacity-50" />
@@ -160,7 +161,14 @@ export const LogoUpload: React.FC<LogoUploadProps> = ({
               )}
               {isCustom && currentLogo && !previewUrl && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl">
-                  <img src={currentLogo} alt="Logo actual" className="w-full h-full object-cover opacity-40 rounded-xl" />
+                  <Image
+                    src={currentLogo}
+                    alt="Logo actual"
+                    width={288}
+                    height={288}
+                    unoptimized
+                    className="w-full h-full object-cover opacity-40 rounded-xl"
+                  />
                   <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-2 text-center">
                     <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
                     <span className="text-[10px] text-white font-medium">Logo activo</span>
@@ -310,7 +318,7 @@ export const LogoUpload: React.FC<LogoUploadProps> = ({
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
                 {previewUrl ? (
-                  <img src={previewUrl} alt="Logo preview" className="w-full h-full object-cover rounded-xl" />
+                    <Image src={previewUrl} alt="Logo preview" width={288} height={288} unoptimized className="w-full h-full object-cover rounded-xl" />
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-slate-400">
                     <Upload className="w-8 h-8 opacity-50" />
@@ -320,7 +328,14 @@ export const LogoUpload: React.FC<LogoUploadProps> = ({
                 )}
                 {isCustom && currentLogo && !previewUrl && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl">
-                    <img src={currentLogo} alt="Logo actual" className="w-full h-full object-cover opacity-40 rounded-xl" />
+                    <Image
+                      src={currentLogo}
+                      alt="Logo actual"
+                      width={288}
+                      height={288}
+                      unoptimized
+                      className="w-full h-full object-cover opacity-40 rounded-xl"
+                    />
                     <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-3 text-center">
                       <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
                       <span className="text-sm text-white font-medium">Logo personalizado activo</span>

@@ -1,3 +1,5 @@
+import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/Button';
 
@@ -18,12 +20,13 @@ export function PageHeader({
   return (
     <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center mb-6">
       <div className="flex-shrink-0">
-        <img
+        <Image
           src={resolvedLogo}
           alt={companyName || 'Empresa'}
+          width={64}
+          height={64}
+          unoptimized
           className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover shadow-lg bg-white/5 border border-white/10"
-          loading="eager"
-          decoding="async"
         />
       </div>
       <div className="flex-1 min-w-0">
@@ -69,19 +72,21 @@ export function MobileHeader({
         aria-label={menuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
         aria-expanded={menuOpen}
         aria-controls="mobile-navigation"
+        aria-haspopup="dialog"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        {menuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
       </Button>
-      <img
+      <Image
         src={resolvedLogo}
         alt={companyName || 'Empresa'}
+        width={40}
+        height={40}
+        unoptimized
         className="w-10 h-10 rounded-xl object-cover bg-white/5 border border-white/10"
-        loading="eager"
-        decoding="async"
       />
-      <h1 className="flex-1 min-w-0 font-bold text-white text-base leading-tight truncate">
+      <span className="flex-1 min-w-0 font-bold text-white text-base leading-tight truncate">
         {title}
-      </h1>
+      </span>
     </header>
   );
 }

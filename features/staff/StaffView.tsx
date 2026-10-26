@@ -11,8 +11,8 @@ interface StaffViewProps {
   employees?: Employee[];
   projects?: Project[];
   activeProjectId?: string;
-  onAddEmployee?: (emp: Employee) => void;
-  onAddAttendance?: (record: AttendanceRecord) => void;
+  onAddEmployee?: (emp: Employee) => Promise<boolean>;
+  onAddAttendance?: (record: AttendanceRecord) => Promise<boolean>;
   onDeleteAttendance?: (id: string) => void;
 }
 
@@ -22,8 +22,8 @@ export function StaffView({
   employees = initialEmployees,
   projects = [],
   activeProjectId = '',
-  onAddEmployee = () => {},
-  onAddAttendance = () => {},
+  onAddEmployee = async () => false,
+  onAddAttendance,
   onDeleteAttendance = () => {},
 }: StaffViewProps) {
   return (

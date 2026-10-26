@@ -8,6 +8,7 @@ import { SignatureResult } from '@/components/SignaturePad';
 import { formatGTQ,formatUSD } from '@/lib/data';
 import { captureExactFieldGps,ExactGpsCapture } from '@/lib/geofencing';
 import { AttendanceRecord,CompanySettings,ExpenseRecord,FieldPhoto,FieldVisit,MachineryLog,Project } from '@/lib/types';
+import Image from 'next/image';
 import {
 Camera,
 CheckCircle2,
@@ -532,9 +533,12 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
                               onClick={() => setLightboxPhoto(photo)}
                               className="relative aspect-4/3 rounded-lg overflow-hidden border border-slate-200 group cursor-pointer shadow-2xs"
                             >
-                              <img
+                              <Image
                                 src={photo.url}
                                 alt={photo.caption}
+                                width={1200}
+                                height={900}
+                                unoptimized
                                 className="w-full h-full object-cover group-hover:scale-105 transition"
                               />
                               <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
@@ -629,7 +633,7 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
                         {visit.signatureDataUrl ? (
                           <div className="flex items-center gap-2">
                             <div className="bg-white p-1 rounded-lg border border-slate-300 w-28 h-11 flex items-center justify-center shadow-2xs">
-                              <img src={visit.signatureDataUrl} alt="Firma Digital" className="max-h-full max-w-full object-contain" />
+                              <Image src={visit.signatureDataUrl} alt="Firma Digital" width={240} height={96} unoptimized className="max-h-full max-w-full object-contain" />
                             </div>
                             <button
                               type="button"
@@ -948,7 +952,7 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
                     <div className="flex items-center gap-2.5 overflow-x-auto py-1.5">
                       {visitAttachedPhotos.map((p, idx) => (
                         <div key={p.id} className="relative w-24 h-20 rounded-xl overflow-hidden border border-slate-700 shrink-0 bg-slate-950 group shadow-md">
-                          <img src={p.url} alt="Foto de obra" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <Image src={p.url} alt="Foto de obra" width={1200} height={900} unoptimized className="w-full h-full object-cover group-hover:scale-105 transition" />
                           <button
                             type="button"
                             onClick={() => setVisitAttachedPhotos((prev) => prev.filter((_, i) => i !== idx))}
@@ -1078,7 +1082,7 @@ export const ProjectsAndVisits: React.FC<ProjectsAndVisitsProps> = ({
               </button>
             </div>
             <div className="bg-black flex items-center justify-center max-h-[60vh]">
-              <img src={lightboxPhoto.url} alt={lightboxPhoto.caption} className="max-h-[60vh] object-contain" />
+              <Image src={lightboxPhoto.url} alt={lightboxPhoto.caption} width={1200} height={900} unoptimized className="max-h-[60vh] object-contain" />
             </div>
             <div className="p-3 text-xs text-slate-400 flex items-center justify-between">
               {lightboxPhoto.coords && (

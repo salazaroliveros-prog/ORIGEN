@@ -1,17 +1,21 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import type { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings } from '@/lib/types';
+import type { Project, FieldVisit, ExpenseRecord, AttendanceRecord, CompanySettings, Employee } from '@/lib/types';
+import { initialEmployees } from '@/lib/data';
 import {
   subscribeProjects,
   subscribeFieldVisits,
   subscribeExpenses,
   subscribeAttendance,
+  subscribeEmployees,
   subscribeCompanySettings,
   saveProjectToFirestore,
   deleteProjectFromFirestore,
   saveExpenseToFirestore,
   deleteExpenseFromFirestore,
+  saveAttendanceToFirestore,
+  saveEmployeeToFirestore,
   saveCompanySettingsToFirestore,
   deleteExpensesByProject,
   deleteFieldVisitsByProject,
@@ -25,16 +29,40 @@ export function useProjectData(currentUserId?: string) {
   const [fieldVisits, setFieldVisits] = useState<FieldVisit[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [company, setCompany] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      setProjects([]);
+      setFieldVisits([]);
+      setExpenses([]);
+      setAttendance([]);
+      setEmployees(initialEmployees);
+      setCompany(null);
+      setLoading(false);
+      return;
+    }
 
-    const unsubProjects = subscribeProjects(currentUserId, setProjects);
+    setProjects([]);
+    setFieldVisits([]);
+    setExpenses([]);
+    setAttendance([]);
+    setEmployees(initialEmployees);
+    setCompany(null);
+    setLoading(true);
+
+    const unsubProjects = subscribeProjects(currentUserId, (nextProjects) => {
+      setProjects(nextProjects);
+      setLoading(false);
+    });
     const unsubFieldVisits = subscribeFieldVisits(currentUserId, setFieldVisits);
     const unsubExpenses = subscribeExpenses(currentUserId, setExpenses);
     const unsubAttendance = subscribeAttendance(currentUserId, setAttendance);
+    const unsubEmployees = subscribeEmployees(currentUserId, (customEmployees) =>
+      setEmployees([...initialEmployees, ...customEmployees])
+    );
     const unsubCompany = subscribeCompanySettings(currentUserId, setCompany);
 
     return () => {
@@ -42,6 +70,7 @@ export function useProjectData(currentUserId?: string) {
       unsubFieldVisits();
       unsubExpenses();
       unsubAttendance();
+      unsubEmployees();
       unsubCompany();
     };
   }, [currentUserId]);
@@ -208,11 +237,53 @@ export function useProjectData(currentUserId?: string) {
     [currentUserId]
   );
 
+  const addAttendance = useCallback(
+    async (record: AttendanceRecord) => {
+      if (!currentUserId) {
+        toast.error('Usuario no autenticado');
+        return false;
+      }
+      try {
+        const saved = await saveAttendanceToFirestore(record, currentUserId);
+        if (saved) {
+          toast.success('Asistencia registrada correctamente');
+          return true;
+        }
+        toast.error('No se pudo guardar la asistencia');
+        return false;
+      } catch (err) {
+        toast.error('Error inesperado al guardar la asistencia');
+        return false;
+      }
+    },
+    [currentUserId]
+  );
+
+  const addEmployee = useCallback(
+    async (employee: Employee) => {
+      if (!currentUserId) {
+        toast.error('Inicia sesión para guardar empleados.');
+        return false;
+      }
+
+      const saved = await saveEmployeeToFirestore(employee, currentUserId);
+      if (!saved) {
+        toast.error('No se pudo guardar el empleado.');
+        return false;
+      }
+
+      toast.success('Empleado registrado correctamente.');
+      return true;
+    },
+    [currentUserId]
+  );
+
   return {
     projects,
     fieldVisits,
     expenses,
     attendance,
+    employees,
     company,
     loading,
     createProject,
@@ -220,6 +291,8 @@ export function useProjectData(currentUserId?: string) {
     deleteProject,
     addExpense,
     deleteExpense,
+    addAttendance,
+    addEmployee,
     saveCompanySettings: (settings: CompanySettings) =>
       saveCompanySettingsToFirestore(settings, currentUserId || ''),
     getDefaultValues: () => getDefaultProjectValues(),

@@ -10,6 +10,7 @@ import { TouchTarget } from '@/components/ui/TouchTarget';
 import { AiAssistantView } from '@/features/ai/AiAssistantView';
 import { BudgetView } from '@/features/budget/BudgetView';
 import { DashboardView } from '@/features/dashboard/DashboardView';
+import { ExpensesView } from '@/components/ExpensesView';
 import { GanttSchedule } from '@/components/GanttSchedule';
 import { ProjectsView } from '@/features/projects/ProjectsView';
 import { ReportsView } from '@/features/reports/ReportsView';
@@ -122,23 +123,30 @@ export default function MainApp() {
   }, [data.company]);
 
   useEffect(() => {
-    if (data.projects.length > 0 && !activeProjectId) {
+    if (data.projects.length === 0) {
+      if (activeProjectId) setActiveProjectId('');
+      return;
+    }
+
+    if (!data.projects.some((project) => project.id === activeProjectId)) {
       setActiveProjectId(data.projects[0].id);
     }
   }, [data.projects, activeProjectId]);
 
   const handleUpdateCompany = async (updates: Partial<CompanySettings>) => {
     if (!currentUser?.uid) {
+      toast.error('Inicia sesión para guardar la configuración de empresa.');
       return;
     }
     setCompany((prev) => ({ ...prev, ...updates }));
     try {
       await saveCompanySettingsToFirestore(
-        { ...company, ...updates } as CompanySettings,
+        { ...company, ...updates },
         currentUser.uid
       );
-    } catch {
-      console.warn('No se pudo guardar la configuración de marca en Firestore');
+    } catch (error) {
+      console.error('No se pudo guardar la configuración de marca en Firestore:', error);
+      toast.error('No se pudo guardar la configuración de marca.');
     }
   };
 
@@ -201,25 +209,53 @@ export default function MainApp() {
         onSignIn={signIn}
         onSignOut={signOut}
         isMobileSidebarOpen={isMobileSidebarOpen}
-        onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen((isOpen) => !isOpen)}
       />
 
-      <main id="main-content" className="max-w-7xl mx-auto px-4 pb-24 sm:px-6 lg:px-8">
+      <main
+        id="main-content"
+        className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:ml-[280px] lg:mr-0 lg:max-w-[calc(100%-280px)] lg:px-8"
+      >
         {/* Feature view content */}
         {activeTab === 'dashboard' && (
-          <DashboardView projects={data.projects} company={company} />
+          <DashboardView projects={data.projects} expenses={data.expenses} company={company} />
         )}
         {activeTab === 'proyectos' && (
-          <ProjectsView company={company} />
+          <ProjectsView
+            company={company}
+            projects={data.projects}
+            expenses={data.expenses}
+            loading={data.loading}
+            onCreateProject={data.createProject}
+            onUpdateProject={data.updateProject}
+            onDeleteProject={data.deleteProject}
+          />
         )}
         {activeTab === 'apu_presupuestos' && (
           <BudgetView projects={data.projects} expenses={data.expenses} company={company} />
         )}
         {activeTab === 'personal' && (
-          <StaffView attendance={data.attendance} company={company} />
+          <StaffView
+            attendance={data.attendance}
+            company={company}
+            projects={data.projects}
+            employees={data.employees}
+            activeProjectId={activeProject?.id ?? ''}
+            onAddEmployee={data.addEmployee}
+            onAddAttendance={data.addAttendance}
+          />
         )}
         {activeTab === 'reportes' && (
           <ReportsView projects={data.projects} expenses={data.expenses} company={company} />
+        )}
+        {activeTab === 'gastos' && (
+          <ExpensesView
+            projects={data.projects}
+            expenses={data.expenses}
+            company={company}
+            onAddExpense={data.addExpense}
+            onDeleteExpense={data.deleteExpense}
+          />
         )}
         {activeTab === 'ai' && (
           <AiAssistantView company={company} />
@@ -276,7 +312,7 @@ export default function MainApp() {
             )}
           </div>
         )}
-        {['cotizaciones', 'maquinaria', 'planillas', 'gastos', 'gmail'].includes(activeTab) && (
+        {['cotizaciones', 'maquinaria', 'planillas', 'gmail'].includes(activeTab) && (
           <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
             <PageHeader
               title={tabConfig.label}
@@ -343,7 +379,7 @@ export default function MainApp() {
         <TouchTarget
           onPress={() => setBrandingOpen(true)}
           style={{
-            bottom: 'max(1.5rem, env(safe-area-inset-bottom))',
+            bottom: 'calc(5rem + env(safe-area-inset-bottom))',
             right: 'max(1.5rem, env(safe-area-inset-right))',
           }}
           className="fixed z-40 lg:hidden w-12 h-12 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xl hover:bg-amber-400 transition-all"

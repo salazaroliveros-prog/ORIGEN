@@ -27,6 +27,8 @@ import { Project, CompanySettings } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { CanvasSignature } from '@/components/CanvasSignature';
+import type { SignatureResult } from '@/components/SignaturePad';
+import Image from 'next/image';
 
 export interface SmartBitacoraEntry {
   id: string;
@@ -252,11 +254,11 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
     }
   };
 
-  const handleApplySignature = (sigUrl: string) => {
+  const handleApplySignature = (result: SignatureResult) => {
     if (selectedBitacora) {
       const updated = {
         ...selectedBitacora,
-        capatazSignatureUrl: sigUrl,
+        capatazSignatureUrl: result.dataUrl,
       };
       setSelectedBitacora(updated);
       setBitacoras((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
@@ -595,9 +597,12 @@ export const SmartBitacoraManager: React.FC<SmartBitacoraManagerProps> = ({
                   <span className="text-[10px] uppercase font-mono text-slate-400 block">Firma Capataz Responsable</span>
                   {selectedBitacora.capatazSignatureUrl ? (
                     <div className="mt-1 flex items-center gap-2 bg-slate-800/80 p-2 rounded-xl border border-slate-700">
-                      <img
+                      <Image
                         src={selectedBitacora.capatazSignatureUrl}
                         alt="Firma Capataz"
+                        width={240}
+                        height={64}
+                        unoptimized
                         className="h-8 max-w-[120px] object-contain invert"
                       />
                       <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">

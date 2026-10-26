@@ -8,7 +8,6 @@ export type FirebaseRuntimeConfig = {
   storageBucket: string;
   messagingSenderId: string;
   measurementId: string;
-  oAuthClientId: string;
   firestoreDatabaseId: string;
 };
 
@@ -21,7 +20,6 @@ export const firebaseRuntimeConfig: FirebaseRuntimeConfig = {
   messagingSenderId:
     process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? firebaseConfig.messagingSenderId ?? '',
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ?? firebaseConfig.measurementId ?? '',
-  oAuthClientId: process.env.NEXT_PUBLIC_FIREBASE_OAUTH_CLIENT_ID ?? firebaseConfig.oAuthClientId ?? '',
   firestoreDatabaseId:
     process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID ?? firebaseConfig.firestoreDatabaseId ?? '',
 };

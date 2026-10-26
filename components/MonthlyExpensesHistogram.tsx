@@ -308,6 +308,7 @@ export const MonthlyExpensesHistogram: React.FC<MonthlyExpensesHistogramProps> =
               Proyecto:
             </span>
             <select
+              aria-label="Filtrar gastos por obra"
               value={selectedProjectId}
               onChange={(e) => {
                 const val = e.target.value;

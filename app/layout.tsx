@@ -1,11 +1,17 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0f172a',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://origen-one-kohl.vercel.app'),
   title: 'ConstructERP Guatemala - Control de Obras y Firma Digital',
-  description: 'ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas y firma digital de capataces.',
   alternates: {
     canonical: '/',
   },
@@ -43,9 +49,10 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning className="h-full touch-manipulation">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#0f172a" />
+        <meta
+          name="description"
+          content="ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas y firma digital de capataces."
+        />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="ConstructERP" />

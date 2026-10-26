@@ -24,6 +24,7 @@ Trash2,
 Upload,
 X
 } from 'lucide-react';
+import Image from 'next/image';
 import React,{ useState } from 'react';
 
 interface ExpensesManagerProps {
@@ -583,9 +584,12 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                           title="Ver comprobante capturado"
                         >
                           <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-slate-300 shrink-0 bg-slate-900">
-                            <img
+                            <Image
                               src={ex.receiptPhotoUrl}
                               alt="Recibo"
+                              width={72}
+                              height={72}
+                              unoptimized
                               className="w-full h-full object-cover group-hover:scale-105 transition"
                             />
                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -1046,9 +1050,12 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                 {newReceiptUrl ? (
                   <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200">
                     <div className="flex items-center gap-2.5">
-                      <img
+                      <Image
                         src={newReceiptUrl}
                         alt="Preview recibo"
+                        width={48}
+                        height={48}
+                        unoptimized
                         className="w-12 h-12 object-cover rounded-md border border-slate-300"
                       />
                       <div className="text-xs">
@@ -1196,9 +1203,12 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
             </div>
 
             <div className="bg-black flex items-center justify-center p-2 overflow-auto flex-1 max-h-[65vh]">
-              <img
+              <Image
                 src={viewingReceiptExpense.receiptPhotoUrl}
                 alt="Comprobante físico"
+                width={1200}
+                height={900}
+                unoptimized
                 className="max-h-[60vh] w-auto object-contain rounded-lg"
               />
             </div>

@@ -19,6 +19,7 @@ ShieldCheck,
 Sparkles,
 Users,
 } from 'lucide-react';
+import Image from 'next/image';
 import React,{ useState } from 'react';
 
 export interface FieldVisitProps {
@@ -257,7 +258,7 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
               {newSignatureResult ? (
                 <div className="flex items-center gap-3">
                   <div className="bg-white p-1 rounded-lg border border-slate-300 w-28 h-10 flex items-center justify-center">
-                    <img src={newSignatureResult.dataUrl} alt="Firma Capataz" className="max-h-full object-contain" />
+                    <Image src={newSignatureResult.dataUrl} alt="Firma Capataz" width={140} height={44} unoptimized className="max-h-full object-contain" />
                   </div>
                   <button
                     type="button"
@@ -404,7 +405,7 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
                               onClick={() => setSelectedPhoto(ph)}
                               className="relative aspect-4/3 rounded-lg overflow-hidden border border-slate-200 group cursor-pointer shadow-2xs"
                             >
-                              <img src={ph.url} alt={ph.caption} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                              <Image src={ph.url} alt={ph.caption} width={1200} height={900} unoptimized className="w-full h-full object-cover group-hover:scale-105 transition" />
                               <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
                                 <Eye className="w-4 h-4" />
                               </div>
@@ -434,11 +435,16 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
                         <div>
                           <p className="text-[10px] text-slate-400 font-semibold mb-1">Firma en Pantalla (Canvas):</p>
                           <div className="bg-white p-1 rounded-lg border border-slate-300 h-14 flex items-center justify-center shadow-2xs">
-                            <img
-                              src={item.signatureDataUrl}
-                              alt="Firma Digital Canvas"
-                              className="max-h-full max-w-full object-contain"
-                            />
+                            {item.signatureDataUrl && (
+                              <Image
+                                src={item.signatureDataUrl}
+                                alt="Firma Digital Canvas"
+                                width={240}
+                                height={96}
+                                unoptimized
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            )}
                           </div>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
@@ -531,7 +537,7 @@ export const FieldVisit: React.FC<FieldVisitProps> = ({
               </button>
             </div>
             <div className="rounded-xl overflow-hidden bg-slate-100 max-h-96 flex items-center justify-center">
-              <img src={selectedPhoto.url} alt={selectedPhoto.caption} className="max-h-96 object-contain" />
+              <Image src={selectedPhoto.url} alt={selectedPhoto.caption} width={1200} height={900} unoptimized className="max-h-96 object-contain" />
             </div>
             <div className="flex items-center justify-between text-[11px] text-slate-500">
               <span>{selectedPhoto.date} {selectedPhoto.timestamp}</span>

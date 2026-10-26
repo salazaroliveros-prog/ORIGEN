@@ -284,7 +284,8 @@ export function CronogramaGantt({
     const timeScale = d3.scaleTime().domain([minDate, maxDate]).range([0, 920]);
 
     // Generate monthly ticks
-    const ticks = timeScale.ticks(d3.timeMonth.every(1) || 12);
+    const monthlyInterval = d3.timeMonth.every(1);
+    const ticks = monthlyInterval ? timeScale.ticks(monthlyInterval) : timeScale.ticks(12);
 
     return {
       timeScale,

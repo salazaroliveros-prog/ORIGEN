@@ -22,7 +22,6 @@ import {
   subscribeCapatazAlerts,
   markAlertAsSigned,
   ProjectAlert,
-  INITIAL_DEMO_ALERTS,
 } from '@/lib/fcmService';
 import { DigitalSignaturePad, SignatureResult } from './DigitalSignaturePad';
 import { toast } from 'react-hot-toast';
@@ -39,7 +38,7 @@ export function FcmPushNotificationBanner({
   className = '',
 }: FcmPushNotificationBannerProps) {
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermission | 'unknown'>('unknown');
-  const [alerts, setAlerts] = useState<ProjectAlert[]>(INITIAL_DEMO_ALERTS);
+  const [alerts, setAlerts] = useState<ProjectAlert[]>([]);
   const [activeAlertForSignature, setActiveAlertForSignature] = useState<ProjectAlert | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
@@ -71,41 +70,51 @@ export function FcmPushNotificationBanner({
   };
 
   const handleSimulateAssignmentAlert = async () => {
-    const alertId = await sendCapatazProjectAlert({
-      projectId: 'p1',
-      projectName: 'Torre Residencial Vista Hermosa IV',
-      type: 'new_report_assigned',
-      title: 'Nuevo Reporte Asignado: Armado de Columnas C-18',
-      message: 'Se le ha asignado la bitácora de supervisión de armaduría grado 60 en el nivel 4.',
-      capatazName,
-      reportCode: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
-      signatureRequired: false,
-    });
-
-    toast.success('Alertas FCM Push enviadas al Capataz para nueva asignación.');
+    try {
+      await sendCapatazProjectAlert({
+        projectId: 'p1',
+        projectName: 'Torre Residencial Vista Hermosa IV',
+        type: 'new_report_assigned',
+        title: 'Nuevo Reporte Asignado: Armado de Columnas C-18',
+        message: 'Se le ha asignado la bitácora de supervisión de armaduría grado 60 en el nivel 4.',
+        capatazName,
+        reportCode: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
+        signatureRequired: false,
+      });
+      toast.success('Alerta registrada correctamente.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo registrar la alerta.');
+    }
   };
 
   const handleSimulateSignatureRequiredAlert = async () => {
-    const alertId = await sendCapatazProjectAlert({
-      projectId: 'p1',
-      projectName: 'Torre Residencial Vista Hermosa IV',
-      type: 'signature_required',
-      title: 'Firma Urgente Requerida: Bitácora de Concreto',
-      message: 'Se requiere su firma digital táctil en la bitácora de fundición antes del fraguado.',
-      capatazName,
-      capatazDpi,
-      reportCode: `BIT-${Math.floor(1000 + Math.random() * 9000)}`,
-      signatureRequired: true,
-    });
-
-    toast.success('Solicitud de Firma Urgente Push enviada al Capataz.');
+    try {
+      await sendCapatazProjectAlert({
+        projectId: 'p1',
+        projectName: 'Torre Residencial Vista Hermosa IV',
+        type: 'signature_required',
+        title: 'Firma Urgente Requerida: Bitácora de Concreto',
+        message: 'Se requiere su firma digital táctil en la bitácora de fundición antes del fraguado.',
+        capatazName,
+        capatazDpi,
+        reportCode: `BIT-${Math.floor(1000 + Math.random() * 9000)}`,
+        signatureRequired: true,
+      });
+      toast.success('Solicitud de firma registrada correctamente.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo registrar la solicitud de firma.');
+    }
   };
 
   const handleSignatureConfirmed = async (result: SignatureResult) => {
     if (activeAlertForSignature) {
-      await markAlertAsSigned(activeAlertForSignature.id, result.signerName);
-      toast.success(`Bitácora ${activeAlertForSignature.reportCode || ''} firmada exitosamente por ${result.signerName}`);
-      setActiveAlertForSignature(null);
+      try {
+        await markAlertAsSigned(activeAlertForSignature.id, result.signerName);
+        toast.success(`Bitácora ${activeAlertForSignature.reportCode || ''} firmada exitosamente por ${result.signerName}`);
+        setActiveAlertForSignature(null);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'No se pudo guardar la firma.');
+      }
     }
   };
 
@@ -169,31 +178,32 @@ export function FcmPushNotificationBanner({
         </div>
       </div>
 
-      {/* Quick Testing Bar for Field Assignment & Signature Request */}
-      <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 text-slate-300 font-semibold">
-          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-          <span>Simulador de Envío FCM en Obra:</span>
-        </div>
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-slate-300 font-semibold">
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Simulador de Envío FCM en Obra:</span>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSimulateAssignmentAlert}
-            className="px-3 py-1.5 rounded-lg bg-blue-950 text-blue-300 border border-blue-800 hover:bg-blue-900 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition"
-          >
-            <Send className="w-3 h-3" /> Notificar Nuevo Reporte
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleSimulateAssignmentAlert}
+              className="px-3 py-1.5 rounded-lg bg-blue-950 text-blue-300 border border-blue-800 hover:bg-blue-900 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition"
+            >
+              <Send className="w-3 h-3" /> Notificar Nuevo Reporte
+            </button>
 
-          <button
-            type="button"
-            onClick={handleSimulateSignatureRequiredAlert}
-            className="px-3 py-1.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-800 hover:bg-amber-900 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition"
-          >
-            <PenTool className="w-3 h-3" /> Solicitar Firma Urgente
-          </button>
+            <button
+              type="button"
+              onClick={handleSimulateSignatureRequiredAlert}
+              className="px-3 py-1.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-800 hover:bg-amber-900 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition"
+            >
+              <PenTool className="w-3 h-3" /> Solicitar Firma Urgente
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* FCM Alerts Drawer / Modal */}
       {isModalOpen && (

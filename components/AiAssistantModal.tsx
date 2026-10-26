@@ -2,6 +2,7 @@
 
 import { GUATEMALA_DEPARTMENTS_INDEX } from '@/lib/guatemalaMarketData';
 import { APUItem,FieldVisit,Project } from '@/lib/types';
+import Image from 'next/image';
 import {
 Bot,
 Calendar,
@@ -419,10 +420,12 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 <div className="relative aspect-video sm:aspect-4/3 w-full rounded-2xl overflow-hidden border border-white/15 bg-slate-950 flex flex-col items-center justify-center group shadow-inner">
                   {uploadedImage ? (
                     <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={uploadedImage}
                         alt="Foto de Bitácora"
+                        width={1200}
+                        height={900}
+                        unoptimized
                         className="w-full h-full object-cover transition duration-300 group-hover:scale-102"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent flex flex-col justify-end p-3">
@@ -492,10 +495,12 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                             : 'bg-white/[0.03] border-white/10 text-slate-300 hover:bg-white/[0.06]'
                         }`}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={sample.imageUrl}
                           alt={sample.title}
+                          width={80}
+                          height={64}
+                          unoptimized
                           className="w-10 h-8 rounded-lg object-cover border border-white/10 shrink-0"
                         />
                         <div className="flex-1 min-w-0">

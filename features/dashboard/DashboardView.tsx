@@ -159,8 +159,11 @@ export function DashboardView({
       try {
         const saved = localStorage.getItem('constructerp_dashboard_widgets');
         if (saved) {
-          const parsed = JSON.parse(saved);
-          setVisibleWidgets((prev) => ({ ...prev, ...parsed }));
+          const parsed = JSON.parse(saved) as unknown;
+          if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            const parsedWidgets = parsed as Partial<Record<WidgetId, boolean>>;
+            setVisibleWidgets((prev) => ({ ...prev, ...parsedWidgets }));
+          }
         }
       } catch (e) {
         console.warn('Could not parse saved widget settings');
@@ -331,6 +334,7 @@ export function DashboardView({
         {/* Filter & Widget Customization Controls */}
         <div className="flex items-center flex-wrap gap-2 text-xs">
           <select
+            aria-label="Filtrar proyectos por estado"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
             className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"

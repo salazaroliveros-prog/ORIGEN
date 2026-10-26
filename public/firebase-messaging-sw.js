@@ -1,16 +1,7 @@
 // Firebase Cloud Messaging Service Worker for ConstructERP Guatemala
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
-
-// Initialize Firebase App in Service Worker
-firebase.initializeApp({
-  apiKey: 'demo-api-key',
-  authDomain: 'demo-project.firebaseapp.com',
-  projectId: 'demo-project',
-  storageBucket: 'demo-project.firebasestorage.app',
-  messagingSenderId: '000000000000',
-  appId: '1:000000000000:web:demo',
-});
+importScripts('/api/firebase-config.js');
 
 const messaging = firebase.messaging();
 

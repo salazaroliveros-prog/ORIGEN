@@ -16,6 +16,7 @@ Upload,
 User,
 X
 } from 'lucide-react';
+import Image from 'next/image';
 import React,{ useRef,useState } from 'react';
 
 interface FieldPhotoGalleryProps {
@@ -273,9 +274,12 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
             >
               {/* Image Container with GPS Badge */}
               <div className="relative aspect-4/3 bg-slate-900 overflow-hidden cursor-pointer" onClick={() => setSelectedPhoto(photo)}>
-                <img
+                <Image
                   src={photo.url}
                   alt={photo.caption}
+                  width={1200}
+                  height={900}
+                  unoptimized
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-90" />
@@ -351,7 +355,7 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
               {/* Video Preview or Captured Image */}
               <div className="relative aspect-4/3 bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center border border-slate-800">
                 {capturedDataUrl ? (
-                  <img src={capturedDataUrl} alt="Captura" className="w-full h-full object-contain" />
+                  <Image src={capturedDataUrl} alt="Captura" width={1200} height={900} unoptimized className="w-full h-full object-contain" />
                 ) : cameraError ? (
                   <div className="p-6 text-center space-y-3 text-slate-300">
                     <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
@@ -513,7 +517,7 @@ export const FieldPhotoGallery: React.FC<FieldPhotoGalleryProps> = ({
             </div>
 
             <div className="relative bg-black flex items-center justify-center max-h-[65vh]">
-              <img src={selectedPhoto.url} alt={selectedPhoto.caption} className="max-h-[65vh] w-auto object-contain" />
+              <Image src={selectedPhoto.url} alt={selectedPhoto.caption} width={1200} height={900} unoptimized className="max-h-[65vh] w-auto object-contain" />
             </div>
 
             <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">

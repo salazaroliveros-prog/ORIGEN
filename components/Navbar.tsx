@@ -20,6 +20,7 @@ import {
   LogIn,
   X,
   ChevronDown,
+  MoreHorizontal,
 } from 'lucide-react';
 import { CompanySettings, Project } from '@/lib/types';
 import { User } from 'firebase/auth';
@@ -75,6 +76,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'ai', label: 'Asistente IA', icon: Sparkles },
     { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
   ];
+  const mobileQuickTabs = [
+    { id: 'dashboard', label: 'Inicio', icon: LayoutDashboard },
+    { id: 'proyectos', label: 'Obras', icon: HardHat },
+    { id: 'cronograma_gantt', label: 'Agenda', icon: CalendarDays },
+    { id: 'personal', label: 'Personal', icon: Users },
+  ] as const;
 
   const currentTabName = tabs.find((t) => t.id === activeTab)?.label || 'Tablero';
 
@@ -89,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold tracking-tight text-white">ConstructERP</h1>
+              <span className="text-xl font-extrabold tracking-tight text-white">ConstructERP</span>
               <Badge variant="primary" size="sm">
                 Guatemala
               </Badge>
@@ -155,9 +162,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 font-mono">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]"></span>
-              SAT & IGSS 2025
+              CONTROL DE OBRA • GUATEMALA
             </span>
-            <span className="text-amber-400 font-bold">Q 7.80/USD</span>
+            <span className="text-amber-400 font-bold">Q {company.exchangeRate.toFixed(2)}/USD</span>
           </div>
         </div>
       </aside>
@@ -176,7 +183,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               role="dialog"
               aria-modal="true"
               aria-labelledby="mobile-navigation-title"
-              className="relative w-72 max-w-[85vw] bg-slate-950/95 backdrop-blur-2xl border-r border-white/15 p-6 flex flex-col z-50 h-full overflow-y-auto"
+              className="relative w-72 max-w-[85vw] bg-slate-950/95 backdrop-blur-2xl border-r border-white/15 px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] flex flex-col z-50 h-full overflow-y-auto"
             >
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
                 <div className="flex items-center gap-2.5">
@@ -216,7 +223,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                       aria-current={isActive ? 'page' : undefined}
                       onClick={() => {
                         onSelectTab(tab.id);
-                        if (onToggleMobileSidebar) onToggleMobileSidebar();
                       }}
                       className={`w-full text-left justify-between ${isActive ? 'shadow-[inset_0_0_10px_rgba(56,189,248,0.3)]' : ''}`}
                     >
@@ -232,6 +238,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 })}
               </nav>
               <div className="shrink-0 space-y-3 border-t border-white/10 pt-4">
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={() => {
+                    onOpenBranding();
+                    onToggleMobileSidebar?.();
+                  }}
+                  className="w-full justify-start"
+                >
+                  <Settings className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Marca y personalización
+                </Button>
                 <div className="space-y-2">
                   <label
                     htmlFor="mobile-project-select"
@@ -295,9 +313,46 @@ export const Navbar: React.FC<NavbarProps> = ({
         </FocusTrap>
       )}
 
+      <nav
+        aria-label="Navegación rápida"
+        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-white/10 bg-slate-950/95 px-1 pt-1.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(2,6,23,0.28)] backdrop-blur-xl lg:hidden"
+      >
+        {mobileQuickTabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onSelectTab(tab.id)}
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
+                isActive ? 'text-amber-300' : 'text-slate-400 hover:text-slate-100'
+              }`}
+            >
+              <Icon className="h-5 w-5" aria-hidden="true" />
+              <span className="max-w-full truncate">{tab.label}</span>
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={onToggleMobileSidebar}
+          aria-expanded={Boolean(isMobileSidebarOpen)}
+          aria-controls="mobile-navigation"
+          className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
+            isMobileSidebarOpen ? 'text-amber-300' : 'text-slate-400 hover:text-slate-100'
+          }`}
+        >
+          <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
+          <span>Más</span>
+        </button>
+      </nav>
+
       {/* ================= GLASS TOP NAV BAR (Desktop only - MobileHeader handles mobile) ================= */}
       <header className="hidden lg:flex sticky top-0 z-40 bg-slate-950/40 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 lg:px-8 py-3 lg:ml-[280px]">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex w-full min-w-0 items-center justify-between gap-4">
           {/* Current view */}
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
@@ -318,21 +373,27 @@ export const Navbar: React.FC<NavbarProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
+                disabled={projects.length === 0}
+                aria-expanded={isProjectDropdownOpen}
+                aria-haspopup="listbox"
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200"
               >
                 <span className="w-2 h-2 rounded-full bg-sky-400"></span>
-                <span className="max-w-[110px] sm:max-w-[160px] truncate">{activeProject?.name}</span>
+                <span className="max-w-[110px] sm:max-w-[160px] truncate">
+                  {activeProject?.name ?? 'Sin proyecto'}
+                </span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </Button>
 
               {isProjectDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-slate-900/95 backdrop-blur-2xl border border-white/15 shadow-2xl p-2 z-50 space-y-1">
+                <div role="menu" aria-label="Cambiar proyecto activo" className="absolute right-0 mt-2 w-64 rounded-xl bg-slate-900/95 backdrop-blur-2xl border border-white/15 shadow-2xl p-2 z-50 space-y-1">
                   <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
                     Cambiar Proyecto Activo
                   </div>
                   {projects.map((proj) => (
                     <Button
                       key={proj.id}
+                      role="menuitem"
                       variant={proj.id === activeProjectId ? 'primary' : 'ghost'}
                       size="sm"
                       onClick={() => {
@@ -360,9 +421,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* User Pill with Status Dot */}
             <div className="user-pill flex items-center gap-2 px-3 py-2 rounded-full bg-white/[0.06] border border-white/15 text-xs text-slate-200">
-              <span className="status-dot w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]"></span>
+              <span className={`status-dot w-2 h-2 rounded-full ${currentUser ? 'bg-emerald-400 shadow-[0_0_8px_#4ade80]' : 'bg-slate-500'}`}></span>
               <span className="font-semibold truncate max-w-[140px] sm:max-w-[180px]">
-                {currentUser?.email || 'salazaroliveros@gmail.com'}
+                {currentUser?.email || 'Sesión no iniciada'}
               </span>
             </div>
 

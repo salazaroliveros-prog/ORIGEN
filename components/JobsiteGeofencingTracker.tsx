@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Employee, AttendanceRecord, Project } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import {
   validateProjectGeofence,

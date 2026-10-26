@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function NotFound() {
   return (
@@ -10,12 +11,12 @@ export default function NotFound() {
           La ruta solicitada no existe o no está disponible en ConstructERP Guatemala.
         </p>
         <div className="pt-2">
-          <a
+          <Link
             href="/"
             className="inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-sm"
           >
             Regresar al Tablero de Control
-          </a>
+          </Link>
         </div>
       </div>
     </div>

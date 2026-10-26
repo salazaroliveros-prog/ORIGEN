@@ -22,6 +22,30 @@ import {
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
+const getGuatemalaDate = (daysFromToday = 0) => {
+  const today = getGuatemalaTodayParts();
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Guatemala',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(Date.UTC(today.year, today.month - 1, today.day + daysFromToday, 12)));
+};
+
+const getGuatemalaTodayParts = () => {
+  const [year, month, day] = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Guatemala',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(new Date())
+    .split('-')
+    .map(Number);
+
+  return { year, month, day };
+};
+
 interface GanttScheduleProps {
   tasks: ScheduleTask[];
   projects: Project[];
@@ -62,12 +86,8 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskPhase, setNewTaskPhase] = useState('Estructura');
-  const [newTaskStart, setNewTaskStart] = useState(() => new Date().toISOString().slice(0, 10));
-  const [newTaskEnd, setNewTaskEnd] = useState(() => {
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 30);
-    return endDate.toISOString().slice(0, 10);
-  });
+  const [newTaskStart, setNewTaskStart] = useState(getGuatemalaDate);
+  const [newTaskEnd, setNewTaskEnd] = useState(() => getGuatemalaDate(30));
   const [newTaskCritical, setNewTaskCritical] = useState(false);
   const [newTaskAssigned, setNewTaskAssigned] = useState('');
   const [newTaskPredecessor, setNewTaskPredecessor] = useState('');
@@ -75,14 +95,14 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
   const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
   const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
   const [newMilestonePhase, setNewMilestonePhase] = useState('Estructura');
-  const [newMilestoneDate, setNewMilestoneDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newMilestoneDate, setNewMilestoneDate] = useState(getGuatemalaDate);
   const [newMilestoneWeight, setNewMilestoneWeight] = useState(10);
   const [newMilestoneDescription, setNewMilestoneDescription] = useState('');
   const [newMilestoneDeliverable, setNewMilestoneDeliverable] = useState('');
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [newReminderTitle, setNewReminderTitle] = useState('');
   const [newReminderDescription, setNewReminderDescription] = useState('');
-  const [newReminderDate, setNewReminderDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newReminderDate, setNewReminderDate] = useState(getGuatemalaDate);
   const [newReminderTaskId, setNewReminderTaskId] = useState('');
   const [newReminderPriority, setNewReminderPriority] = useState<TaskReminder['priority']>('Media');
 
@@ -125,12 +145,17 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
     const updated = tasks.map((t) => {
       if (t.id === taskId) {
         const isCompleted = newProgress >= 100;
-        return {
+        const updatedTask: ScheduleTask = {
           ...t,
           progress: newProgress,
           completed: isCompleted,
-          completedAt: isCompleted ? new Date().toISOString().split('T')[0] : undefined,
         };
+        if (isCompleted) {
+          updatedTask.completedAt = getGuatemalaDate();
+        } else {
+          delete updatedTask.completedAt;
+        }
+        return updatedTask;
       }
       return t;
     });
@@ -168,12 +193,17 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
     const updated = currentMilestones.map((m) => {
       if (m.id === milestoneId) {
         const nextCompleted = !m.completed;
-        return {
+        const updatedMilestone: Milestone = {
           ...m,
           completed: nextCompleted,
           progress: nextCompleted ? 100 : 0,
-          completedAt: nextCompleted ? new Date().toISOString().split('T')[0] : undefined,
         };
+        if (nextCompleted) {
+          updatedMilestone.completedAt = getGuatemalaDate();
+        } else {
+          delete updatedMilestone.completedAt;
+        }
+        return updatedMilestone;
       }
       return m;
     });
@@ -238,7 +268,9 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
       progress: 0,
       weightPercent: Number(newMilestoneWeight) || 10,
       description: newMilestoneDescription.trim(),
-      deliverable: newMilestoneDeliverable.trim() || undefined,
+      ...(newMilestoneDeliverable.trim()
+        ? { deliverable: newMilestoneDeliverable.trim() }
+        : {}),
     };
     const updated = [...currentMilestones, milestone];
     if (onUpdateMilestones) onUpdateMilestones(updated);
@@ -263,7 +295,7 @@ export const GanttSchedule: React.FC<GanttScheduleProps> = ({
     const reminder: TaskReminder = {
       id: `reminder-${Date.now()}`,
       projectId: activeProjectId,
-      taskId: selectedTask?.id,
+      ...(selectedTask ? { taskId: selectedTask.id } : {}),
       taskName: selectedTask?.name ?? 'Hito general',
       title: newReminderTitle.trim(),
       description: newReminderDescription.trim(),

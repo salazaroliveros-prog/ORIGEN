@@ -10,6 +10,7 @@ RotateCcw,
 Upload,
 X
 } from 'lucide-react';
+import Image from 'next/image';
 import React,{ useCallback,useEffect,useRef,useState } from 'react';
 
 interface CameraCaptureModalProps {
@@ -371,7 +372,14 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
           {previewDataUrl ? (
             /* Snapshot Preview */
             <div className="relative w-full h-full flex items-center justify-center bg-black">
-              <img src={previewDataUrl} alt="Vista previa capturada" className="max-h-[460px] w-auto object-contain" />
+              <Image
+                src={previewDataUrl}
+                alt="Vista previa capturada"
+                width={1200}
+                height={900}
+                unoptimized
+                className="max-h-[460px] w-auto object-contain"
+              />
               <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-xs text-white text-[11px] px-2.5 py-1 rounded-lg border border-slate-700 flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
                 Fotografía capturada con éxito

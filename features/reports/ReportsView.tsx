@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -27,12 +28,13 @@ export function ReportsView({ projects, expenses, company }: { projects: Project
         <Card variant="elevated" padding="lg">
           <h3 className="text-sm font-semibold text-slate-300 mb-3">Encabezado de Reporte (Letterhead)</h3>
           <div className="flex items-center justify-center p-4 bg-white/5 border border-white/10 rounded-xl">
-            <img
+            <Image
               src={letterheadLogo}
               alt="Letterhead de empresa"
+              width={800}
+              height={200}
+              unoptimized
               className="max-w-full h-auto max-h-48 object-contain"
-              loading="lazy"
-              decoding="async"
             />
           </div>
           <p className="mt-3 text-xs text-slate-400 text-center">

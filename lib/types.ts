@@ -116,9 +116,11 @@ export interface Employee {
 export interface AttendanceRecord {
   id: string;
   projectId: string;
+  projectName?: string;
   date: string;
   employeeId: string;
   employeeName: string;
+  role?: Employee['role'];
   status: 'Presente' | 'Ausente' | 'Permiso' | 'Incapacidad IGSS';
   overtimeHours: number;
   gpsCoords?: { lat: number; lng: number };
@@ -126,6 +128,13 @@ export interface AttendanceRecord {
   distanceMeters?: number;
   gpsTimestamp?: string;
   overrideReason?: string;
+  checkInTime?: string;
+  checkInLat?: number;
+  checkInLng?: number;
+  gpsAccuracy?: number;
+  isGeofenceViolation?: boolean;
+  distanceFromSiteMeters?: number;
+  geofenceOverrideReason?: string;
 }
 
 export interface ExpenseRecord {
