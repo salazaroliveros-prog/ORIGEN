@@ -2,6 +2,13 @@
 .github/
 .kilo/
 .vscode/
+node_modules
+.next
+dist
+.firebase
+playwright-report
+test-results
+coverage
 *.log
 hs_err_pid*
 replay_pid*
