@@ -24,6 +24,15 @@ describe('validateProjectForm', () => {
     expect(validateProjectForm(validProject).success).toBe(true);
   });
 
+  it('accepts archived projects that are still valid persisted records', () => {
+    expect(
+      validateProjectForm({
+        ...validProject,
+        status: 'Archivado',
+      }).success
+    ).toBe(true);
+  });
+
   it('keeps an unconfigured profit margin unset', () => {
     const { expectedProfitMarginPercent: _margin, ...projectWithoutMargin } = validProject;
     const result = validateProjectForm(projectWithoutMargin);

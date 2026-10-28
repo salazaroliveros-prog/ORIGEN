@@ -31,22 +31,25 @@ export function getFirebaseConfig(): FirebaseRuntimeConfig {
 
 export function hasFirebaseRuntimeConfig(): boolean {
   const config = firebaseRuntimeConfig;
-  const hasConfig = Boolean(
-    config.projectId &&
-    config.apiKey &&
-    config.appId &&
-    config.authDomain
-  );
-  
+  const hasConfig = Boolean(config.projectId && config.apiKey && config.appId && config.authDomain);
+
   if (!hasConfig) {
     console.error('Firebase configuration incomplete:', {
       projectId: config.projectId,
       apiKey: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'missing',
       appId: config.appId,
       authDomain: config.authDomain,
+      storageBucket: config.storageBucket,
+      messagingSenderId: config.messagingSenderId,
+    });
+  } else {
+    console.log('Firebase configuration loaded successfully:', {
+      projectId: config.projectId,
+      authDomain: config.authDomain,
+      appId: config.appId,
     });
   }
-  
+
   return hasConfig;
 }
 

@@ -1,148 +1,41 @@
-# Diagnóstico del Sistema de Autenticación
+# Diagnóstico de autenticación y Firebase
 
-**Fecha**: 26 de Octubre 2026  
-**Analista**: QA Engineer  
-**Estado**: ✅ CORREGIDO
+**Fecha:** 27 de octubre de 2026
+**Alcance:** configuración local, flujo de autenticación y pruebas aisladas.
 
----
+## Estado comprobado
 
-## 📊 CONFIGURACIÓN ACTUAL
+- Las variables públicas requeridas de Firebase están presentes en el `.env` local y tienen el formato esperado. No se reproducen sus valores en este documento.
+- La configuración local apunta al proyecto `origen-erp-guatemala` y a la base de datos `(default)`.
+- La ruta `/api/firebase-config.js` devuelve una configuración válida en el navegador.
+- La autenticación por correo y la consulta a Firestore se probaron contra los emuladores locales, no contra datos de producción.
+- Se retiró Google como método de inicio de sesión; el acceso a la aplicación continúa protegido por Firebase Authentication mediante correo y contraseña.
+- La autorización OAuth de Gmail para enviar correo es independiente del inicio de sesión y se conserva para esa función.
+- Se alinearon los esquemas de validación de empleados, asistencia, gastos, cotizaciones y maquinaria con los datos que guardan los formularios.
 
-### Firebase Configuration (.env)
-- **Project ID**: origen-erp-guatemala
-- **Auth Domain**: origen-erp-guatemala.firebaseapp.com
-- **API Key**: AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI
-- **App ID**: 1:893831571998:web:4e38903eeb0dff05011c0f
-- **Storage Bucket**: origen-erp-guatemala.firebasestorage.app
-- **Messaging Sender ID**: 893831571998
+## Hallazgos y correcciones
 
-### Dominios Autorizados
-- `http://localhost:3000` - Para desarrollo
-- `https://origen-one-kohl.vercel.app` - Dominio de producción
+1. La prueba de configuración esperaba encontrar `window.firebase`, pero la aplicación no publica ese objeto global. Ahora valida la respuesta real de `/api/firebase-config.js`.
+2. La prueba del servicio Firebase inicializaba el SDK con campos requeridos vacíos. Ahora define valores ficticios del proyecto de emulación antes de importar el servicio.
+3. Se añadió una prueba aislada que crea una cuenta de prueba en Auth Emulator y comprueba una lectura permitida de Firestore.
+4. Se retiraron registros de depuración que podían volcar instancias Firebase u objetos de error OAuth completos en la consola. Los mensajes de error de usuario siguen gestionándose por el hook de sesión.
+5. Se quitó el botón y el flujo de inicio de sesión con Google, incluido su manejo de redirect y vinculación con credenciales de correo.
 
----
+## Resultados de verificación
 
-## ❌ PROBLEMA IDENTIFICADO Y CORREGIDO
+Verificación realizada el 27 de octubre de 2026:
 
-### Error Original
-**Mensaje**: `auth/internal-error`  
-**Causa Raíz**: El archivo `firebase-applet-config.json` estaba vacío y el código de configuración (`lib/config.ts`) lo importaba, resultando en una configuración de Firebase incompleta (valores vacíos).
+- `npm test`: 41 pruebas aprobadas.
+- `npm run test:rules`: 18 pruebas de reglas Firestore aprobadas.
+- `npm run test:emulator`: 3 pruebas de integración aprobadas con Auth y Firestore Emulator, incluido el CRUD de APU a través del servicio.
+- `npm run test:e2e:emulator`: una prueba Playwright aprobada. Registra una cuenta; crea, lee, edita, archiva y restaura un proyecto; crea y elimina un APU y un gasto; registra y lee empleado y asistencia, y elimina la asistencia; crea una cotización y cambia su estado; crea maquinaria y cambia su estado. Las peticiones Firebase del navegador se verifican como locales.
+- `npm run type-check` y ESLint dirigido a los archivos modificados: aprobados.
+- `npm run build`: compilación de producción aprobada. Persiste una advertencia de optimización de imagen por `<img>` en `components/ProjectPhotoDropzone.tsx`.
 
-### Solución Aplicada
-**Archivo modificado**: `lib/config.ts`
+La cobertura comprueba operaciones representativas de esos módulos, no todas las pantallas ni todas las operaciones para cada tipo de entidad. El proyecto se archiva/restaura en vez de eliminarse; empleado y maquinaria no se borran en el recorrido E2E. No se hicieron escrituras en Firebase de producción. Para repetir el recorrido: `npm run test:e2e:emulator`.
 
-**Cambios**:
-1. Eliminado el import de `firebase-applet-config.json`
-2. Configuración ahora usa directamente las variables de entorno `NEXT_PUBLIC_FIREBASE_*`
-3. Agregado logging para diagnosticar configuración incompleta
-4. El archivo JSON ya no afecta la configuración
+## OAuth de Gmail
 
-**Código corregido**:
-```typescript
-// Usar directamente variables de entorno - ignorar archivo JSON
-export const firebaseRuntimeConfig: FirebaseRuntimeConfig = {
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
-  firestoreDatabaseId: process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID || '',
-};
-```
+Google OAuth sigue presente únicamente para la función opcional de envío de Gmail, que solicita permiso separado. No se verificó el consentimiento OAuth ni las credenciales de cliente desde Google Cloud Console; esa función podría requerir ajustes de consola antes de utilizarla.
 
----
-
-## ✅ VERIFICACIÓN DE LOGIN
-
-### Requisitos para que el login funcione
-
-#### 1. Variables de entorno configuradas
-Las variables deben estar en:
-- ✅ `.env` local (para desarrollo)
-- ✅ Vercel Environment Variables (para producción)
-- ✅ GitHub Secrets (para CI)
-
-#### 2. Dominios autorizados en Firebase Console
-Ir a Firebase Console → Authentication → Sign-in method → Google → Configuración de dominios autorizados
-
-Deben incluir:
-- `http://localhost:3000` (desarrollo)
-- `https://origen-one-kohl.vercel.app` (producción)
-
-#### 3. Provider Google habilitado
-- Firebase Console → Authentication → Sign-in method
-- Google debe estar habilitado
-- Web Client SDK debe estar activo
-
-#### 4. Bloqueador de popups deshabilitado
-- Deshabilitar bloqueador de popups en el navegador para localhost:3000
-
----
-
-## 🔍 POSIBLES PROBLEMAS RESTANTES
-
-### 1. Dominio no autorizado
-**Error**: `auth/unauthorized-domain`  
-**Solución**: Agregar dominio en Firebase Console
-
-### 2. Cliente OAuth incorrecto
-**Error**: `auth/invalid-oauth-client-id`  
-**Solución**: Verificar Client ID en Firebase Console
-
-### 3. Popup bloqueado
-**Error**: `auth/popup-blocked`  
-**Solución**: Deshabilitar bloqueador de popups
-
----
-
-## 📝 ESTADO DE IMPLEMENTACIÓN
-
-### Código de Autenticación
-- ✅ `lib/firebaseAuth.ts` - Implementado correctamente
-- ✅ `components/AuthDialog.tsx` - UI implementada
-- ✅ Soporte para Google OAuth (signInWithPopup)
-- ✅ Soporte para correo/contraseña (signInWithEmailAndPassword)
-- ✅ Manejo de errores con mensajes en español
-- ✅ `lib/config.ts` - Corregido para usar variables de entorno
-
-### Hook de Sesión
-- ✅ `lib/hooks/useAuthSession.ts` - Implementado
-- ✅ Suscripción a `onAuthStateChanged`
-- ✅ Manejo de estados (loading, authenticated, unauthenticated, error)
-
-### MainApp
-- ✅ AuthDialog se muestra cuando `authStatus === 'unauthenticated'`
-- ✅ Botón "Iniciar sesión" en banner cuando no hay sesión
-- ✅ Manejo de errores de autenticación con mensajes al usuario
-
----
-
-## 🎯 PRÓXIMOS PASOS
-
-1. ✅ **COMPLETADO**: Corregir configuración de Firebase
-2. ✅ **COMPLETADO**: Commit y push de corrección
-3. 🔄 PENDIENTE: Usuario debe probar login en http://localhost:3000
-4. 🔄 PENDIENTE: Verificar que Vercel despliegue con la corrección
-5. 🔄 PENDIENTE: Actualizar workflow de CI manualmente (ver ACTUALIZAR-WORKFLOW.md)
-
----
-
-## 📋 CHECKLIST DE VERIFICACIÓN
-
-- [x] Variables de entorno en .env local
-- [x] Variables de entorno en Vercel
-- [x] Variables de entorno en GitHub Secrets
-- [x] Configuración corregida para usar variables de entorno
-- [ ] Dominio localhost:3000 agregado en Firebase Authentication
-- [ ] Dominio vercel.app agregado en Firebase Authentication
-- [ ] Cliente OAuth Web habilitado en Firebase
-- [ ] Provider Google habilitado en Firebase
-- [ ] Login con Google probado exitosamente
-- [ ] Login con correo/contraseña probado exitosamente
-- [ ] Workflow de CI actualizado manualmente
-
----
-
-**Estado actual**: Configuración corregida. Usuario debe probar login y configurar dominios en Firebase Console.
+La prueba de emulador no sustituye esa comprobación ni valida conectividad con la base de datos de producción.

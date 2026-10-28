@@ -41,6 +41,7 @@ import {
   validateQuoteRecord,
   validateMachinery,
 } from './validation/entity.schemas';
+import { validateProjectForm } from './validation/project.schema';
 
 const firebaseConfig = getFirebaseConfig();
 
@@ -236,6 +237,14 @@ export function handleFirestoreError(
 
 export async function saveProjectToFirestore(project: Project, companyId: string, userId: string) {
   const path = `projects/${project.id}`;
+  const validation = validateProjectForm(project);
+  if (!validation.success) {
+    console.error('Project validation failed:', validation.error);
+    throw new Error(
+      `Datos de proyecto inválidos: ${validation.error.issues.map((issue) => issue.message).join(', ')}`
+    );
+  }
+
   notifySyncStart();
   try {
     const docRef = doc(db, 'projects', project.id);
@@ -827,6 +836,14 @@ export async function saveMachineryToFirestore(
   userId: string
 ): Promise<boolean> {
   const path = `machinery/${machinery.id}`;
+  const validation = validateMachinery(machinery);
+  if (!validation.success) {
+    console.error('Machinery validation failed:', validation.error);
+    throw new Error(
+      `Datos de maquinaria inválidos: ${validation.error.issues.map((issue) => issue.message).join(', ')}`
+    );
+  }
+
   try {
     await setDoc(
       doc(db, 'machinery', machinery.id),
@@ -847,6 +864,14 @@ export async function updateMachineryStatusInFirestore(
   userId: string
 ): Promise<boolean> {
   const path = `machinery/${machinery.id}`;
+  const validation = validateMachinery({ ...machinery, status });
+  if (!validation.success) {
+    console.error('Machinery status validation failed:', validation.error);
+    throw new Error(
+      `Estado de maquinaria inválido: ${validation.error.issues.map((issue) => issue.message).join(', ')}`
+    );
+  }
+
   try {
     await updateDoc(doc(db, 'machinery', machinery.id), {
       status,

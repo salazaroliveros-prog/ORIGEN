@@ -128,7 +128,6 @@ export default function MainApp() {
     status: authStatus,
     authError,
     isSigningOut,
-    signInWithGoogle,
     signInWithEmail,
     createEmailAccount,
     resetEmailPassword,
@@ -793,7 +792,6 @@ export default function MainApp() {
       {authDialogOpen && (
         <AuthDialog
           onClose={() => setAuthDialogOpen(false)}
-          onSignInWithGoogle={signInWithGoogle}
           onSignInWithEmail={signInWithEmail}
           onCreateAccount={createEmailAccount}
           onResetPassword={resetEmailPassword}

@@ -41,7 +41,7 @@ export const ProjectFormSchema = z
       .string()
       .date('La fecha de finalización no es válida')
       .min(1, 'La fecha de finalización es requerida'),
-    status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido']),
+    status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado']),
     lat: z.number().min(-90, 'Latitud inválida').max(90, 'Latitud inválida'),
     lng: z.number().min(-180, 'Longitud inválida').max(180, 'Longitud inválida'),
     expectedProfitMarginPercent: z
@@ -71,7 +71,7 @@ export interface ProjectFormProject {
   progressPercent: number;
   startDate: string;
   endDate: string;
-  status: 'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido';
+  status: 'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado';
   lat: number;
   lng: number;
   expectedProfitMarginPercent?: number | null;

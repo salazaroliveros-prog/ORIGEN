@@ -13,7 +13,6 @@ type AuthMode = 'sign-in' | 'sign-up' | 'reset-password';
 
 interface AuthDialogProps {
   onClose: () => void;
-  onSignInWithGoogle: () => Promise<unknown>;
   onSignInWithEmail: (email: string, password: string) => Promise<unknown>;
   onCreateAccount: (email: string, password: string) => Promise<EmailAccountCreationResult>;
   onResetPassword: (email: string) => Promise<void>;
@@ -21,7 +20,6 @@ interface AuthDialogProps {
 
 export function AuthDialog({
   onClose,
-  onSignInWithGoogle,
   onSignInWithEmail,
   onCreateAccount,
   onResetPassword,
@@ -89,21 +87,6 @@ export function AuthDialog({
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setErrorMessage(null);
-    setIsSubmitting(true);
-    try {
-      const user = await onSignInWithGoogle();
-      if (user === null) return;
-      toast.success('Sesión iniciada con Google.');
-      onClose();
-    } catch (error) {
-      setErrorMessage(getAuthErrorMessageForMethod(error, 'google'));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const title =
     mode === 'sign-up'
       ? 'Crear una cuenta'
@@ -145,30 +128,6 @@ export function AuthDialog({
               <X className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
-
-          {mode !== 'reset-password' && (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                onClick={() => void handleGoogleSignIn()}
-                isLoading={isSubmitting}
-                className="w-full gap-2"
-              >
-                <span aria-hidden="true" className="text-lg font-bold">
-                  G
-                </span>
-                Continuar con Google
-              </Button>
-
-              <div className="my-5 flex items-center gap-3 text-xs text-slate-500">
-                <span className="h-px flex-1 bg-white/10" />
-                o con correo electrónico
-                <span className="h-px flex-1 bg-white/10" />
-              </div>
-            </>
-          )}
 
           <form onSubmit={(event) => void handleSubmit(event)} className="space-y-4">
             <Input
