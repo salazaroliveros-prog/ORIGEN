@@ -92,9 +92,9 @@ npm run start
 
 ## Acceso a la aplicación
 
-En escritorio, usa **Iniciar sesión** en la barra superior. En móvil, abre **Más** y elige **Iniciar sesión**. La ventana permite acceder o crear una cuenta con correo y contraseña, recuperar la contraseña o continuar con Google.
+En escritorio, usa **Iniciar sesión** en la barra superior. En móvil, abre **Más** y elige **Iniciar sesión**. La ventana permite acceder o crear una cuenta con correo y contraseña y recuperar la contraseña.
 
-En Firebase Console, habilita los proveedores **Correo electrónico/contraseña** y **Google** en Authentication, agrega el dominio de la aplicación (incluido `localhost` para desarrollo) a los dominios autorizados y verifica el cliente OAuth web/secreto asociado al proveedor Google. El cliente y secreto OAuth deben configurarse en Firebase Console, nunca en variables públicas ni en el código del navegador.
+En Firebase Console, habilita el proveedor **Correo electrónico/contraseña** en Authentication, agrega el dominio de la aplicación (incluido `localhost` para desarrollo) a los dominios autorizados y confirma que la verificación de correo esté activa para el flujo de registro. La integración de Google se usa solo para funciones extra como Gmail, no como acceso principal a ORIGEN.
 
 Para conectar Gmail, el usuario debe autorizar el permiso de envío solicitado por separado. Revisa que el proyecto OAuth y la pantalla de consentimiento estén configurados para los dominios y usuarios esperados. La autorización es temporal y se solicita de nuevo cuando vence.
 

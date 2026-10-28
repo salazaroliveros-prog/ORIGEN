@@ -580,7 +580,7 @@ export function Navbar({
                 onClick={onOpenSignIn}
                 disabled={authStatus === 'loading'}
                 className="gap-2 px-3 text-slate-200"
-                title="Iniciar sesión con correo electrónico o Google"
+                title="Iniciar sesión con correo electrónico y contraseña"
               >
                 <LogIn className="h-4 w-4" />
                 <span>{authStatus === 'loading' ? 'Verificando…' : 'Iniciar sesión'}</span>

@@ -4,7 +4,7 @@ Este documento describe el flujo soportado actualmente por la aplicación. Los r
 
 ## 1. Acceso y espacio de trabajo
 
-1. La persona inicia sesión con correo y contraseña o con Google desde **Iniciar sesión**.
+1. La persona inicia sesión con correo y contraseña desde **Iniciar sesión**.
 2. La sesión autenticada consulta sus membresías en `companies/{companyId}/members`.
 3. Si todavía no tiene membresía, se crea una empresa propia y se establece el rol `owner`; los datos heredados compatibles se migran añadiendo `companyId`.
 4. Si llega con un enlace de invitación, debe autenticarse con la dirección invitada, verificarla y aceptar el enlace antes de cargar el espacio de trabajo.

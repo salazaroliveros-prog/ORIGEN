@@ -461,7 +461,7 @@ export default function MainApp() {
                     ? (authError ?? 'Revisa la configuración o intenta iniciar sesión de nuevo.')
                     : hasInviteLink
                       ? 'Inicia sesión o crea una cuenta con el correo invitado. Verifica esa dirección para aceptar el acceso compartido.'
-                      : 'Inicia sesión con correo electrónico o Google para sincronizar y guardar tus datos.')}
+                      : 'Inicia sesión con correo electrónico y contraseña para sincronizar y guardar tus datos.')}
               </p>
             </div>
             <Button
