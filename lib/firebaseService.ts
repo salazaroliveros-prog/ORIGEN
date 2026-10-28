@@ -253,7 +253,7 @@ export async function saveProjectToFirestore(project: Project, companyId: string
       {
         ...project,
         companyId,
-        ownerId: companyId,
+        ownerId: userId,
         createdBy: project.createdBy ?? userId,
       },
       { merge: true }
@@ -282,7 +282,7 @@ export async function saveProjectScheduleToFirestore(
       {
         ...schedule,
         companyId,
-        ownerId: companyId,
+        ownerId: userId,
         updatedBy: userId,
       },
       { merge: true }

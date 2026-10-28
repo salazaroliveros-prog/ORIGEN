@@ -220,7 +220,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           ...validation.data,
           id: projectId,
           companyId,
-          ownerId: companyId,
+          ownerId: currentUserId,
           createdBy: currentUserId,
         };
         const success = await saveProjectToFirestore(project, companyId, currentUserId);
@@ -261,7 +261,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           ...data,
           id: projectId,
           companyId,
-          ownerId: companyId,
+          ownerId: currentUserId,
         };
         const success = await saveProjectToFirestore(updated, companyId, currentUserId);
         if (success) {

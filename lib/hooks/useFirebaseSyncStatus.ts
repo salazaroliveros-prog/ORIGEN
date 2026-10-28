@@ -13,56 +13,7 @@ export interface SyncLogEntry {
   details?: string;
 }
 
-const INITIAL_SYNC_LOGS: SyncLogEntry[] = [
-  {
-    id: 'log-1',
-    operation: 'Escucha en Tiempo Real (Projects)',
-    path: 'projects/onSnapshot',
-    timestamp: new Date().toLocaleTimeString('es-GT', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }),
-    status: 'completado',
-    details: 'Sincronizados 3 proyectos activos desde Firestore DB.',
-  },
-  {
-    id: 'log-2',
-    operation: 'Guardar Configuración de Empresa',
-    path: 'companySettings/salazaroliveros',
-    timestamp: new Date(Date.now() - 120000).toLocaleTimeString('es-GT', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }),
-    status: 'completado',
-    details: 'Actualizados datos de marca e IVA (SAT 12%).',
-  },
-  {
-    id: 'log-3',
-    operation: 'Sincronización de Gastos & APU',
-    path: 'expenses/collection',
-    timestamp: new Date(Date.now() - 300000).toLocaleTimeString('es-GT', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }),
-    status: 'completado',
-    details: 'Verificados 12 registros de facturación operativa.',
-  },
-  {
-    id: 'log-4',
-    operation: 'Registro de Asistencia con Geofence GPS',
-    path: 'attendance/att-2026',
-    timestamp: new Date(Date.now() - 600000).toLocaleTimeString('es-GT', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }),
-    status: 'completado',
-    details: 'Coordenadas satelitales validadas dentro del perímetro de obra.',
-  },
-];
+const INITIAL_SYNC_LOGS: SyncLogEntry[] = [];
 
 export function useFirebaseSyncStatus() {
   const [status, setStatus] = useState<SyncStatus>('online');

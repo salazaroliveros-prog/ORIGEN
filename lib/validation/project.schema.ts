@@ -28,11 +28,15 @@ export const ProjectFormSchema = z
       .number()
       .min(1, 'El presupuesto debe ser mayor a 0')
       .max(999999999, 'El presupuesto excede el límite permitido'),
-    spentTotal: z.number().min(0, 'El gasto ejecutado no puede ser negativo'),
+    spentTotal: z
+      .number()
+      .min(0, 'El gasto ejecutado no puede ser negativo')
+      .default(0),
     progressPercent: z
       .number()
       .min(0, 'El avance debe estar entre 0 y 100')
-      .max(100, 'El avance debe estar entre 0 y 100'),
+      .max(100, 'El avance debe estar entre 0 y 100')
+      .default(0),
     startDate: z
       .string()
       .date('La fecha de inicio no es válida')
