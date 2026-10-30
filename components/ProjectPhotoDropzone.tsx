@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, Image as ImageIcon, Check, AlertCircle } from 'lucide-react';
@@ -154,7 +155,13 @@ export function ProjectPhotoDropzone({
             {uploadedFiles.map((file, index) => (
               <div key={index} className="group relative">
                 <div className="aspect-square overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                  <img src={file.url} alt={file.filename} className="h-full w-full object-cover" />
+                  <Image
+          src={file.url}
+          alt={file.filename}
+          className="h-full w-full object-cover"
+          width={800}
+          quality={80}
+        />
                 </div>
                 <button
                   onClick={() => removePhoto(index)}
