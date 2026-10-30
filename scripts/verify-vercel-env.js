@@ -8,8 +8,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
-  const checks: Record<string, { configured: boolean; value?: string; error?: string }> = {};
+export async function GET(req) {
+  const checks = {};
 
   const requiredVars = [
     'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
@@ -105,7 +105,7 @@ export async function GET(req: NextRequest) {
       storageBucketContainsProjectId: bucketConsistent,
     },
     summary: {
-      requiredConfigured: Object.values(checks).filter((c: any) => c.configured).length,
+      requiredConfigured: Object.values(checks).filter(c => c.configured).length,
       requiredTotal: requiredVars.length,
       allRequiredOk,
     },
