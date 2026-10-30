@@ -2,6 +2,5 @@
   "buildCommand": "npm install --legacy-peer-deps --omit=optional && next build",
   "devCommand": "npm run dev",
   "installCommand": "npm install --legacy-peer-deps --omit=optional",
-  "framework": "nextjs",
-  "cache": false
+  "framework": "nextjs"
 }
