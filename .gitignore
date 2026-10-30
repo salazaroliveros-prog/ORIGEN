@@ -36,8 +36,16 @@ yarn-error.log*
 # firebase config (contains sensitive data)
 firebase-applet-config.json
 
+# Environment files (contains sensitive data - use Vercel Dashboard instead)
+.env*
+!.env.example
+!.env.*.example
+# .env.production is for local development only - configure via Vercel Dashboard
+# .env.production
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
+.env*

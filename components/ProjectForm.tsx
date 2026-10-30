@@ -58,7 +58,7 @@ export function ProjectForm({
 
   const handleChange = useCallback(
     (field: keyof ProjectFormValues, value: string | number | null | undefined) => {
-      setFormData((prev) => ({ ...prev, [field]: value }) as ProjectFormProject);
+      setFormData((prev) => ({ ...prev, [field]: value }));
       if (errors[field]) {
         setErrors((prev) => {
           const next = { ...prev };
