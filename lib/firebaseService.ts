@@ -1,5 +1,4 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
 
 declare global {
@@ -70,25 +69,26 @@ const appConfig = {
 
 export const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
 
-const appCheckSiteKey = process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_SITE_KEY?.trim();
-const appCheckDebugToken = process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN?.trim();
+// App Check initialization disabled - Firebase Console App Check enforcement
+// must be configured manually via web UI. Authentication will proceed without App Check.
+// To enable App Check, uncomment the block below and configure reCAPTCHA in Firebase Console.
+// const appCheckSiteKey = process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_SITE_KEY?.trim();
+// const appCheckDebugToken = process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN?.trim();
+// if (typeof window !== 'undefined' && !process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST) {
+//   if (appCheckDebugToken) {
+//     self.FirebaseAppCheckDebugToken = appCheckDebugToken;
+//     initializeAppCheck(app, {
+//       provider: new ReCaptchaV3Provider(appCheckSiteKey || '6LfqVQkuAAAAAKOPIrMZpnAxdQYd0XhV_qpGkVUn'),
+//       isTokenAutoRefreshEnabled: true,
+//     });
+//   } else if (appCheckSiteKey) {
+//     initializeAppCheck(app, {
+//       provider: new ReCaptchaV3Provider(appCheckSiteKey),
+//       isTokenAutoRefreshEnabled: true,
+//     });
+//   }
+// }
 
-if (typeof window !== 'undefined' && !process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST) {
-  if (appCheckDebugToken) {
-    self.FirebaseAppCheckDebugToken = appCheckDebugToken;
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(
-        appCheckSiteKey || '6LfqVQkuAAAAAKOPIrMZpnAxdQYd0XhV_qpGkVUn'
-      ),
-      isTokenAutoRefreshEnabled: true,
-    });
-  } else if (appCheckSiteKey) {
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(appCheckSiteKey),
-      isTokenAutoRefreshEnabled: true,
-    });
-  }
-}
 const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
 export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
