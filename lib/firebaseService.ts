@@ -1,4 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import {
   getFirestore,
@@ -62,6 +63,18 @@ const appConfig = {
 };
 
 export const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
+
+const appCheckSiteKey = process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_SITE_KEY?.trim();
+if (
+  appCheckSiteKey &&
+  typeof window !== 'undefined' &&
+  !process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST
+) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(appCheckSiteKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
 const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
 export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
