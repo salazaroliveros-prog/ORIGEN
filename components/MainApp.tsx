@@ -252,12 +252,8 @@ export default function MainApp() {
     }
   }, [activeProjects, activeProjectId]);
 
-  // Mostrar AuthDialog automáticamente si no hay usuario autenticado después de cargar
-  useEffect(() => {
-    if (authStatus === 'unauthenticated' && !authDialogOpen && !hasInviteLink) {
-      setAuthDialogOpen(true);
-    }
-  }, [authStatus, authDialogOpen, hasInviteLink]);
+  // Auto-authentication handled by useAuthSession - system places primary admin by default
+  // Auth dialog is now manually triggered if needed via the branding configuration button
 
   const handleUpdateCompany = async (updates: Partial<CompanySettings>) => {
     if (!permissions.canManageCompany) {
