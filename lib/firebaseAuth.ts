@@ -73,7 +73,7 @@ async function autoAuthenticateDefaultUser(): Promise<User | null> {
             ? (error as { code: string }).code
             : '';
 
-        if (code === 'auth/user-not-found' || code === 'auth/invalid-credential') {
+        if (code === 'auth/user-not-found') {
           const created = await createUserWithEmailAndPassword(
             auth,
             DEFAULT_AUTH_EMAIL,
