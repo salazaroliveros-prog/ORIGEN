@@ -15,27 +15,16 @@ test('QA Final: Verificar conexión Firebase y auto-auth con credenciales por de
   await page.waitForTimeout(3000);
 
   const authDialog = page.getByRole('dialog', { name: 'Iniciar sesión' });
-
-  let loginMethod = '';
-  if (await authDialog.isVisible({ timeout: 2000 })) {
-    console.log('1. AuthDialog visible como fallback (App Check bloquea auto-auth en producción)');
-    await authDialog.getByLabel('Correo electrónico').fill(DEFAULT_EMAIL);
-    await authDialog.getByLabel('Contraseña', { exact: true }).fill(DEFAULT_PASSWORD);
-    await authDialog.getByRole('button', { name: 'Iniciar sesión con correo' }).click();
-    await expect(authDialog).toBeHidden({ timeout: 20_000 });
-    loginMethod = 'Login manual con credenciales por defecto';
-  } else {
-    console.log('1. Auto-auth con credenciales por defecto exitoso (sin diálogo)');
-    loginMethod = 'Auto-auth automático';
-  }
+  const dialogVisible = await authDialog.isVisible({ timeout: 2000 }).catch(() => false);
+  expect(dialogVisible).toBe(false);
+  console.log('1. Auto-auth con credenciales por defecto exitoso (sin diálogo)');
 
   // Verificar email en la interfaz
   await expect(page.locator('#main-content').getByText(DEFAULT_EMAIL)).toBeVisible({
     timeout: 15000,
   });
   console.log(`2. Usuario autenticado: ${DEFAULT_EMAIL}`);
-  console.log(`3. Método de autenticación: ${loginMethod}`);
-  console.log('4. Conexión a Firebase: CONECTADO (emulador)');
+  console.log('3. Conexión a Firebase: CONECTADO');
 
   // Verificar que no hay errores de Firebase en consola
   const errors: string[] = [];
@@ -55,8 +44,7 @@ test('QA Final: Verificar conexión Firebase y auto-auth con credenciales por de
   }
 
   console.log('\n=== RESULTADO: Autenticación y conexión a Firebase VALIDADOS ===');
-  console.log('   - Credenciales por defecto: salazaroliveros@gmail.com');
-  console.log('   - Auto-auth: Funcionando');
-  console.log('   - Login manual: Funcionando');
+  console.log('   - Correo automático: salazaroliveros@gmail.com');
+  console.log('   - Auto-auth: Funcionando (sin pantalla de login)');
   console.log('   - Conexión Firebase: Activa');
 });

@@ -3,7 +3,6 @@ import type { User } from 'firebase/auth';
 import {
   createEmailAccount,
   authorizeGmailSend,
-  ensureDefaultAuthenticatedUser,
   signInWithEmail,
   signOutUser,
   subscribeToAuthState,
@@ -22,26 +21,52 @@ export function useAuthSession() {
     null
   );
 
-  const autoAuthenticate = useCallback(async () => {
+  const signIn = useCallback(async (email: string, password: string) => {
     try {
-      const user = await ensureDefaultAuthenticatedUser();
-      if (user) {
-        setCurrentUser(user);
-        setStatus('authenticated');
-      } else {
-        setStatus('unauthenticated');
-      }
+      setStatus('loading');
+      setAuthError(null);
+      const user = await signInWithEmail(email, password);
+      setCurrentUser(user);
+      setStatus('authenticated');
+      toast.success('Sesión iniciada correctamente.');
+      return user;
     } catch (error) {
       const message = getAuthErrorMessage(error);
       setStatus('error');
       setAuthError(message);
       toast.error(message);
+      throw error;
+    }
+  }, []);
+
+  const register = useCallback(async (email: string, password: string) => {
+    try {
+      setStatus('loading');
+      setAuthError(null);
+      const result = await createEmailAccount(email, password);
+      setCurrentUser(result.user);
+      setStatus('authenticated');
+      if (result.verificationEmailSent) {
+        toast.success('Cuenta creada. Revisa tu correo para verificar la dirección.');
+      } else {
+        toast(
+          'Cuenta creada, pero no se pudo enviar el correo de verificación. Inténtalo de nuevo más tarde.',
+          {
+            icon: '⚠️',
+          }
+        );
+      }
+      return result;
+    } catch (error) {
+      const message = getAuthErrorMessage(error);
+      setStatus('error');
+      setAuthError(message);
+      toast.error(message);
+      throw error;
     }
   }, []);
 
   useEffect(() => {
-    void autoAuthenticate();
-
     const unsubscribe = subscribeToAuthState(
       (user) => {
         setCurrentUser(user);
@@ -58,7 +83,7 @@ export function useAuthSession() {
     );
 
     return () => unsubscribe();
-  }, [autoAuthenticate]);
+  }, []);
 
   const signOut = async () => {
     setIsSigningOut(true);
@@ -93,8 +118,8 @@ export function useAuthSession() {
     status,
     authError,
     isSigningOut,
-    signInWithEmail,
-    createEmailAccount,
+    signIn,
+    register,
     resetEmailPassword,
     signOut,
     gmailAccess,

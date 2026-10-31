@@ -17,7 +17,6 @@ import {
   Sparkles,
   Settings,
   LogOut,
-  LogIn,
   X,
   ChevronDown,
   MoreHorizontal,
@@ -43,7 +42,6 @@ interface NavbarProps {
   currentUser: User | null;
   authStatus: AuthSessionStatus;
   isSigningOut: boolean;
-  onOpenSignIn: () => void;
   onSignOut: () => Promise<boolean>;
   canManageCompany?: boolean;
   workspaces?: CompanyWorkspaceOption[];
@@ -110,7 +108,6 @@ export function Navbar({
   currentUser,
   authStatus,
   isSigningOut,
-  onOpenSignIn,
   onSignOut,
   canManageCompany = false,
   workspaces = [],
@@ -392,7 +389,7 @@ export function Navbar({
                           ? 'No se pudo verificar la sesión'
                           : 'Sesión no iniciada')}
                   </p>
-                  {currentUser ? (
+                  {currentUser && (
                     <Button
                       variant="danger"
                       size="md"
@@ -406,20 +403,6 @@ export function Navbar({
                     >
                       <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
                       Cerrar sesión
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="md"
-                      disabled={authStatus === 'loading'}
-                      onClick={() => {
-                        onOpenSignIn();
-                        onToggleMobileSidebar?.();
-                      }}
-                      className="w-full justify-start"
-                    >
-                      <LogIn className="mr-2 h-4 w-4" aria-hidden="true" />
-                      {authStatus === 'loading' ? 'Verificando sesión…' : 'Iniciar sesión'}
                     </Button>
                   )}
                 </div>
@@ -573,19 +556,7 @@ export function Navbar({
               >
                 <LogOut className="h-4 w-4" />
               </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenSignIn}
-                disabled={authStatus === 'loading'}
-                className="gap-2 px-3 text-slate-200"
-                title="Iniciar sesión con correo electrónico y contraseña"
-              >
-                <LogIn className="h-4 w-4" />
-                <span>{authStatus === 'loading' ? 'Verificando…' : 'Iniciar sesión'}</span>
-              </Button>
-            )}
+            ) : null}
           </div>
         </div>
       </header>

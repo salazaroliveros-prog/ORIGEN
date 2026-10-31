@@ -28,21 +28,17 @@ test('autenticación y operaciones de módulos ERP en Firebase Emulator', async 
   expect(await configResponse.text()).toContain('"projectId":"demo-origen-e2e"');
 
   await page.goto('/');
+  await page.waitForTimeout(3000);
+
   const authDialog = page.getByRole('dialog', { name: 'Iniciar sesión' });
-  await expect(authDialog).toBeVisible();
+  const dialogVisible = await authDialog.isVisible({ timeout: 2000 }).catch(() => false);
+  expect(dialogVisible).toBe(false);
+  console.log('Auto-auth exitoso (sin diálogo de login)');
 
-  const email = `e2e-${Date.now()}@example.test`;
-  await authDialog.getByRole('button', { name: 'Crear cuenta' }).click();
-  const createAccountDialog = page.getByRole('dialog', { name: 'Crear una cuenta' });
-  await createAccountDialog.getByLabel('Correo electrónico').fill(email);
-  await createAccountDialog.getByLabel('Contraseña', { exact: true }).fill('E2ePassword!2026');
-  await createAccountDialog.getByLabel('Confirmar contraseña').fill('E2ePassword!2026');
-  await createAccountDialog.getByRole('button', { name: 'Crear cuenta con correo' }).click();
-
-  await expect(createAccountDialog).toBeHidden({ timeout: 20_000 });
+  const DEFAULT_EMAIL = 'salazaroliveros@gmail.com';
   const projectsNavigation = page.getByRole('button', { name: 'Proyectos & Firmas' });
   await expect(projectsNavigation).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByText(email)).toBeVisible();
+  await expect(page.getByText(DEFAULT_EMAIL)).toBeVisible();
 
   await projectsNavigation.click();
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).click();

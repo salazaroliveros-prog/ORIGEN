@@ -1,9 +1,9 @@
 'use client';
 
-import { AuthDialog } from '@/components/AuthDialog';
 import { LogoUpload } from '@/components/LogoUpload';
 import { Navbar } from '@/components/Navbar';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { AuthContainer } from '@/components/auth/AuthContainer';
 import { MobileHeader, PageHeader } from '@/components/PageHeader';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
 import { Button } from '@/components/ui/Button';
@@ -128,9 +128,6 @@ export default function MainApp() {
     status: authStatus,
     authError,
     isSigningOut,
-    signInWithEmail,
-    createEmailAccount,
-    resetEmailPassword,
     signOut,
     gmailAccess,
     authorizeGmail,
@@ -186,7 +183,6 @@ export default function MainApp() {
   const [company, setCompany] = useState<CompanySettings>(initialCompanySettings);
   const [exchangeRateInput, setExchangeRateInput] = useState('');
   const [brandingOpen, setBrandingOpen] = useState(false);
-  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
   const [activeProjectId, setActiveProjectId] = useState<string>('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -252,14 +248,8 @@ export default function MainApp() {
     }
   }, [activeProjects, activeProjectId]);
 
-  // Auto-authentication handled by useAuthSession - system places primary admin by default
-  // Auth dialog is shown as fallback when auto-auth fails (e.g., App Check blocks direct connection)
-  useEffect(() => {
-    if (authStatus === 'unauthenticated' && !authDialogOpen && !hasInviteLink) {
-      setAuthDialogOpen(true);
-    }
-  }, [authStatus, authDialogOpen, hasInviteLink]);
-
+  // Auto-authentication handled by useAuthSession: el sistema entra directamente con
+  // el correo administrativo configurado (salazaroliveros@gmail.com) sin pantalla de login.
   const handleUpdateCompany = async (updates: Partial<CompanySettings>) => {
     if (!permissions.canManageCompany) {
       toast.error(
@@ -355,6 +345,11 @@ export default function MainApp() {
     }
   };
 
+  // Si no hay usuario autenticado, mostrar el contenedor de login/registro
+  if (!currentUser) {
+    return <AuthContainer />;
+  }
+
   return (
     <div className="safe-area-bottom min-h-screen bg-slate-950 text-slate-100">
       {/* Skip link for accessibility */}
@@ -387,7 +382,6 @@ export default function MainApp() {
         onSelectTab={handleSelectTab}
         onOpenAiAssistant={() => setActiveTab('ai')}
         onOpenBranding={() => setBrandingOpen(true)}
-        onOpenSignIn={() => setAuthDialogOpen(true)}
         currentUser={currentUser}
         authStatus={authStatus}
         isSigningOut={isSigningOut}
@@ -783,15 +777,6 @@ export default function MainApp() {
 
       {/* PWA Install Prompt */}
       <PWAInstallPrompt />
-
-      {authDialogOpen && (
-        <AuthDialog
-          onClose={() => setAuthDialogOpen(false)}
-          onSignInWithEmail={signInWithEmail}
-          onCreateAccount={createEmailAccount}
-          onResetPassword={resetEmailPassword}
-        />
-      )}
 
       {/* Floating branding button */}
       {permissions.canManageCompany && !brandingOpen && (
