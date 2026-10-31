@@ -1,6 +1,12 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
+
+declare global {
+  interface Window {
+    FirebaseAppCheckDebugToken?: string;
+  }
+}
 import {
   getFirestore,
   connectFirestoreEmulator,
