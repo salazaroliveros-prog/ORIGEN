@@ -24,7 +24,7 @@
     "pwa:generate-sw": "node scripts/generate-service-worker.js",
     "images:optimize": "node scripts/optimize-images.js",
     "deps:check": "node scripts/check-dependencies.js",
-    "prepare": "husky"
+    "prepare": "if [ -d .git ]; then husky install; fi"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -39,7 +39,8 @@
     "devin": "3000.11.234",
     "dompurify": "3.4.17",
     "exceljs": "^4.4.0",
-    "firebase": "^12.19.0",
+    "firebase": "12.19.0",
+    "firebase-admin": "14.5.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lightningcss": "1.33.0",
