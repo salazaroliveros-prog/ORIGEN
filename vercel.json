@@ -1,6 +1,83 @@
 {
-  "buildCommand": "npm install --legacy-peer-deps --include=dev --ignore-scripts && next build",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --legacy-peer-deps --include=dev --ignore-scripts",
-  "framework": "nextjs"
+  "installCommand": "npm install",
+  "startCommand": "npm start",
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/firebase-config",
+      "destination": "/api/firebase-config"
+    },
+    {
+      "source": "/api/gemini",
+      "destination": "/api/gemini"
+    },
+    {
+      "source": "/api/upload-project-photo",
+      "destination": "/api/upload-project-photo"
+    },
+    {
+      "source": "/api/gemini/bitacora",
+      "destination": "/api/gemini/bitacora"
+    },
+    {
+      "source": "/api/gemini/receipt",
+      "destination": "/api/gemini/receipt"
+    },
+    {
+      "source": "/api/weather/safety-alerts",
+      "destination": "/api/weather/safety-alerts"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
