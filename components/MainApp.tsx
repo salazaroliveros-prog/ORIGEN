@@ -253,7 +253,12 @@ export default function MainApp() {
   }, [activeProjects, activeProjectId]);
 
   // Auto-authentication handled by useAuthSession - system places primary admin by default
-  // Auth dialog is now manually triggered if needed via the branding configuration button
+  // Auth dialog is shown as fallback when auto-auth fails (e.g., App Check blocks direct connection)
+  useEffect(() => {
+    if (authStatus === 'unauthenticated' && !authDialogOpen && !hasInviteLink) {
+      setAuthDialogOpen(true);
+    }
+  }, [authStatus, authDialogOpen, hasInviteLink]);
 
   const handleUpdateCompany = async (updates: Partial<CompanySettings>) => {
     if (!permissions.canManageCompany) {
@@ -382,10 +387,10 @@ export default function MainApp() {
         onSelectTab={handleSelectTab}
         onOpenAiAssistant={() => setActiveTab('ai')}
         onOpenBranding={() => setBrandingOpen(true)}
+        onOpenSignIn={() => setAuthDialogOpen(true)}
         currentUser={currentUser}
         authStatus={authStatus}
         isSigningOut={isSigningOut}
-        onOpenSignIn={() => setAuthDialogOpen(true)}
         onSignOut={signOut}
         canManageCompany={permissions.canManageCompany}
         canViewPersonnel={permissions.canViewPersonnel}
@@ -460,15 +465,6 @@ export default function MainApp() {
                       : 'Inicia sesión con correo electrónico y contraseña para sincronizar y guardar tus datos.')}
               </p>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setAuthDialogOpen(true)}
-              className="shrink-0"
-            >
-              Iniciar sesión
-            </Button>
           </div>
         )}
 
@@ -785,6 +781,9 @@ export default function MainApp() {
         </div>
       </FocusTrap>
 
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
+
       {authDialogOpen && (
         <AuthDialog
           onClose={() => setAuthDialogOpen(false)}
@@ -821,9 +820,6 @@ export default function MainApp() {
           </svg>
         </TouchTarget>
       )}
-
-      {/* PWA Install Prompt */}
-      <PWAInstallPrompt />
     </div>
   );
 }

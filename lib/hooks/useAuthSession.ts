@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
 import {
   createEmailAccount,
   authorizeGmailSend,
+  ensureDefaultAuthenticatedUser,
   signInWithEmail,
   signOutUser,
   subscribeToAuthState,
@@ -21,7 +22,26 @@ export function useAuthSession() {
     null
   );
 
+  const autoAuthenticate = useCallback(async () => {
+    try {
+      const user = await ensureDefaultAuthenticatedUser();
+      if (user) {
+        setCurrentUser(user);
+        setStatus('authenticated');
+      } else {
+        setStatus('unauthenticated');
+      }
+    } catch (error) {
+      const message = getAuthErrorMessage(error);
+      setStatus('error');
+      setAuthError(message);
+      toast.error(message);
+    }
+  }, []);
+
   useEffect(() => {
+    void autoAuthenticate();
+
     const unsubscribe = subscribeToAuthState(
       (user) => {
         setCurrentUser(user);
@@ -38,7 +58,7 @@ export function useAuthSession() {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [autoAuthenticate]);
 
   const signOut = async () => {
     setIsSigningOut(true);
