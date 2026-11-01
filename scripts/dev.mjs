@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(__dirname, '..');
-const nextBin = path.join(appRoot, 'node_modules', '.bin', 'next');
+const nextBin = path.join(appRoot, 'node_modules', 'next', 'dist', 'bin', 'next');
 
 // Auto-heal /app symlinks so root build/lint/dev tools always resolve package.json
 try {
