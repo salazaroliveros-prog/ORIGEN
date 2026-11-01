@@ -15,6 +15,7 @@ import {
 import type { User } from 'firebase/auth';
 import { db, handleFirestoreError, OperationType } from '@/lib/firebaseService';
 import type { CompanyInvitation, CompanyMembership, CompanyRole } from '@/lib/types';
+import { notifySyncEnd } from './hooks/useFirebaseSyncStatus';
 
 const INVITATION_ROLES: Exclude<CompanyRole, 'owner'>[] = [
   'admin',
@@ -37,6 +38,7 @@ export function subscribeCompanyMembers(
       (error) => onError?.(handleFirestoreError(error, OperationType.LIST, path).message)
     );
   } catch (error) {
+    notifySyncEnd();
     const firestoreError = handleFirestoreError(error, OperationType.LIST, path);
     onError?.(firestoreError.message);
     return () => {};
@@ -59,6 +61,7 @@ export function subscribeCompanyInvitations(
       (error) => onError?.(handleFirestoreError(error, OperationType.LIST, path).message)
     );
   } catch (error) {
+    notifySyncEnd();
     const firestoreError = handleFirestoreError(error, OperationType.LIST, path);
     onError?.(firestoreError.message);
     return () => {};
@@ -95,6 +98,7 @@ export async function createCompanyInvitation(
       expiresAt,
     });
   } catch (error) {
+    notifySyncEnd();
     throw handleFirestoreError(
       error,
       OperationType.CREATE,
@@ -115,6 +119,7 @@ export async function revokeCompanyInvitation(
   try {
     await deleteDoc(doc(db, 'companies', companyId, 'invitations', invitationId));
   } catch (error) {
+    notifySyncEnd();
     throw handleFirestoreError(
       error,
       OperationType.DELETE,
@@ -127,6 +132,7 @@ export async function removeCompanyMember(companyId: string, memberId: string): 
   try {
     await deleteDoc(doc(db, 'companies', companyId, 'members', memberId));
   } catch (error) {
+    notifySyncEnd();
     throw handleFirestoreError(
       error,
       OperationType.DELETE,
@@ -150,6 +156,7 @@ export async function acceptCompanyInvitation(
   try {
     invitationSnapshot = await getDoc(invitationRef);
   } catch (error) {
+    notifySyncEnd();
     if (
       typeof error === 'object' &&
       error !== null &&
@@ -194,6 +201,7 @@ export async function acceptCompanyInvitation(
   try {
     await batch.commit();
   } catch (error) {
+    notifySyncEnd();
     throw handleFirestoreError(
       error,
       OperationType.WRITE,

@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import { toast } from 'react-hot-toast';
 
 import {
   getFirestore,
@@ -132,14 +133,16 @@ if (storageEmulatorHost) {
 export async function testConnection(): Promise<boolean> {
   const user = auth.currentUser;
   if (!user) {
-    throw new Error('Inicia sesión para validar la conexión con Firestore.');
+    return false;
   }
 
   try {
     await getDocs(query(collection(db, 'projects'), where('ownerId', '==', user.uid), limit(1)));
     return true;
   } catch (error) {
-    throw handleFirestoreError(error, OperationType.LIST, 'projects');
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.LIST, 'projects');
+    return false;
   }
 }
 
@@ -207,33 +210,25 @@ export function handleFirestoreError(
 
   // Mostrar notificación al usuario si estamos en el navegador
   if (typeof window !== 'undefined') {
-    // Import dinámico para evitar problemas en SSR
-    import('react-hot-toast')
-      .then(({ toast }) => {
-        const isPermissionError =
-          errMsg.includes('permission-denied') ||
-          errMsg.includes('Missing or insufficient permissions');
-        const isNetworkError = errMsg.includes('network') || errMsg.includes('unavailable');
-        const isAuthError = errMsg.includes('unauthenticated') || errMsg.includes('unauthorized');
+    const isPermissionError =
+      errMsg.includes('permission-denied') ||
+      errMsg.includes('Missing or insufficient permissions');
+    const isNetworkError = errMsg.includes('network') || errMsg.includes('unavailable');
+    const isAuthError = errMsg.includes('unauthenticated') || errMsg.includes('unauthorized');
 
-        let userMessage = 'Error de conexión con la base de datos';
-        if (isPermissionError) {
-          userMessage = 'No tienes permisos para realizar esta acción';
-        } else if (isNetworkError) {
-          userMessage = 'Error de red. Verifica tu conexión a internet';
-        } else if (isAuthError) {
-          userMessage = 'Sesión expirada. Inicia sesión nuevamente';
-        }
+    let userMessage = 'Error de conexión con la base de datos';
+    if (isPermissionError) {
+      userMessage = 'No tienes permisos para realizar esta acción';
+    } else if (isNetworkError) {
+      userMessage = 'Error de red. Verifica tu conexión a internet';
+    } else if (isAuthError) {
+      userMessage = 'Sesión expirada. Inicia sesión nuevamente';
+    }
 
-        toast.error(userMessage, {
-          duration: 5000,
-          position: 'top-center',
-        });
-      })
-      .catch(() => {
-        // Fallback si toast no está disponible
-        console.warn('Toast notification not available');
-      });
+    toast.error(userMessage, {
+      duration: 5000,
+      position: 'top-center',
+    });
   }
 
   return new Error(serialized);
@@ -293,6 +288,7 @@ export async function saveProjectScheduleToFirestore(
     );
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
   }
@@ -320,6 +316,7 @@ export function subscribeProjects(
       }
     );
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -331,6 +328,7 @@ export async function deleteAttendanceFromFirestore(attendanceId: string): Promi
     await deleteDoc(doc(db, 'attendance', attendanceId));
     return true;
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.DELETE, path);
     return false;
   }
@@ -355,6 +353,7 @@ export async function saveFieldVisitToFirestore(
     );
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
   }
@@ -379,6 +378,7 @@ export function subscribeFieldVisits(
       }
     );
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -413,6 +413,7 @@ export async function saveExpenseToFirestore(
     );
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
   }
@@ -424,6 +425,7 @@ export async function deleteExpenseFromFirestore(expenseId: string): Promise<boo
     await deleteDoc(doc(db, 'expenses', expenseId));
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.DELETE, path);
     return false;
   }
@@ -455,6 +457,7 @@ export async function updateExpenseToFirestore(
     });
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.UPDATE, path);
     return false;
   }
@@ -479,6 +482,7 @@ export function subscribeExpenses(
       }
     );
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -513,6 +517,7 @@ export async function saveAttendanceToFirestore(
     );
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
   }
@@ -537,6 +542,7 @@ export function subscribeAttendance(
       }
     );
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -574,6 +580,7 @@ export async function saveEmployeeToFirestore(
     await batch.commit();
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
   }
@@ -627,6 +634,7 @@ export function subscribeEmployees(
       }
     );
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -644,6 +652,7 @@ export function subscribeEmployeeDirectory(
       (error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -664,6 +673,7 @@ export async function saveCompanySettingsToFirestore(settings: CompanySettings, 
     );
     return true;
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
   }
@@ -690,6 +700,7 @@ export function subscribeCompanySettings(
       }
     );
   } catch (err) {
+    notifySyncEnd();
     handleFirestoreError(err, OperationType.GET, path);
     return () => {};
   }
@@ -707,6 +718,7 @@ export function subscribeQuotes(
       (error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -724,6 +736,7 @@ export function subscribeAPUItems(
       (error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -763,6 +776,7 @@ export async function saveAPUItemsToFirestore(
     await batch.commit();
     return true;
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.WRITE, path);
     return false;
   }
@@ -774,6 +788,7 @@ export async function deleteAPUItemFromFirestore(itemId: string): Promise<boolea
     await deleteDoc(doc(db, 'apuItems', itemId));
     return true;
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.DELETE, path);
     return false;
   }
@@ -803,6 +818,7 @@ export async function saveQuoteToFirestore(
     );
     return true;
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.WRITE, path);
     return false;
   }
@@ -829,6 +845,7 @@ export function subscribeMachinery(
       (error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -856,6 +873,7 @@ export async function saveMachineryToFirestore(
     );
     return true;
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.WRITE, path);
     return false;
   }
@@ -885,6 +903,7 @@ export async function updateMachineryStatusInFirestore(
     });
     return true;
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.UPDATE, path);
     return false;
   }
@@ -902,6 +921,7 @@ export function subscribeMachineryLogs(
       (error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -924,9 +944,9 @@ export async function recordMachineryUse(
       date: log.date,
       category: 'Maquinaria y Combustible',
       description: `${log.machineryName}: ${log.hoursWorked} horas de operación`,
-      supplier: 'Operación interna',
+      supplier: machinery.name,
       nitSupplier: 'CF',
-      facturaNumber: 'SIN-FACTURA',
+      facturaNumber: `FAC-${log.id}`,
       amount: log.costGTQ,
       currency: 'GTQ',
       paymentMethod: 'Pendiente',
@@ -958,6 +978,7 @@ export async function recordMachineryUse(
     await batch.commit();
     return true;
   } catch (error) {
+    notifySyncEnd();
     handleFirestoreError(error, OperationType.WRITE, logPath);
     return false;
   }

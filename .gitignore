@@ -49,3 +49,4 @@ firebase-applet-config.json
 # typescript
 *.tsbuildinfo
 .env*
+.firebase/logs/vsce-debug.log

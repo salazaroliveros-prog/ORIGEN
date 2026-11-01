@@ -35,7 +35,7 @@ export function useAuthSession() {
       setStatus('error');
       setAuthError(message);
       toast.error(message);
-      throw error;
+      return null;
     }
   }, []);
 
@@ -62,7 +62,7 @@ export function useAuthSession() {
       setStatus('error');
       setAuthError(message);
       toast.error(message);
-      throw error;
+      return null;
     }
   }, []);
 
@@ -109,7 +109,7 @@ export function useAuthSession() {
     } catch (error) {
       const message = getAuthErrorMessage(error);
       toast.error(message);
-      throw error;
+      return null;
     }
   };
 
