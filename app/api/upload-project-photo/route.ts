@@ -1,52 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebaseService';
+import { jsonError, extensionForMime, sanitizePathSegment } from '@/lib/api';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+]);
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const projectId = formData.get('projectId') as string;
-    const projectCode = formData.get('projectCode') as string;
+    const file = formData.get('file');
+    const projectId = formData.get('projectId');
+    const projectCode = formData.get('projectCode');
 
-    if (!file || !projectId || !projectCode) {
-      return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
+    if (!(file instanceof File) || typeof projectId !== 'string' || !projectId.trim()) {
+      return jsonError('Faltan datos requeridos para subir la foto.', 400);
     }
 
-    // Validar que sea imagen
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'El archivo debe ser una imagen' }, { status: 400 });
+    const mimeType = file.type.toLowerCase();
+    if (!ALLOWED_MIME_TYPES.has(mimeType)) {
+      return jsonError('El archivo debe ser una imagen JPG, PNG, WEBP o HEIC.', 400);
     }
 
-    // Validar tamaño (máximo 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { error: 'El archivo excede el tamaño máximo de 10MB' },
-        { status: 400 }
-      );
+    if (file.size <= 0 || file.size > MAX_FILE_SIZE) {
+      return jsonError('El archivo excede el tamaño máximo de 10MB.', 400);
     }
 
-    // Convertir archivo a ArrayBuffer
+    const safeProjectCode = sanitizePathSegment(projectCode, sanitizePathSegment(projectId));
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Generar nombre único para el archivo
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 10);
-    const extension = file.name.split('.').pop();
-    const filename = `${timestamp}-${randomString}.${extension}`;
+    const filename = `${timestamp}-${randomString}.${extensionForMime(mimeType)}`;
 
-    // Crear referencia en Firebase Storage
-    const storagePath = `projects/${projectCode}/progress/${filename}`;
+    const storagePath = `projects/${safeProjectCode}/progress/${filename}`;
     const storageRef = ref(storage, storagePath);
 
-    // Subir archivo
     await uploadBytes(storageRef, buffer, {
-      contentType: file.type,
+      contentType: mimeType,
     });
 
-    // Obtener URL de descarga
     const downloadURL = await getDownloadURL(storageRef);
 
     return NextResponse.json({
@@ -57,8 +58,8 @@ export async function POST(request: NextRequest) {
       size: file.size,
       uploadedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error uploading photo:', error);
-    return NextResponse.json({ error: 'Error al subir la foto' }, { status: 500 });
+    return jsonError('No se pudo subir la foto. Intente nuevamente.', 500);
   }
 }

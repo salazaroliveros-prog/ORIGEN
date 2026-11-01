@@ -1,40 +1,50 @@
 import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
-import { APIError } from '@/lib/types';
+import { jsonError, readJsonBody, isDataUrlImage } from '@/lib/api';
+
+const ALLOWED_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/heic',
+  'image/heif',
+]);
 
 export async function POST(req: NextRequest) {
   try {
-    const { image } = await req.json();
-    if (!image) {
-      return NextResponse.json({ error: 'No image provided' }, { status: 400 });
+    const body = await readJsonBody(req);
+    if (!body) {
+      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          supplier: 'Distribuidora de Materiales de Guatemala',
-          nitSupplier: '1049281-2',
-          facturaNumber: 'FEL-B-99214',
-          amount: 4750,
-          category: 'Materiales (Cementos, Hierro)',
-          description: 'Compra de cemento y agregados para fundición',
-        },
-      });
+    const image = body.image;
+    if (!isDataUrlImage(image)) {
+      return jsonError('Debe adjuntar una imagen de factura o recibo válida.', 400);
     }
-
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     const matches = image.match(/^data:(.+);base64,(.+)$/);
     if (!matches) {
-      return NextResponse.json({ error: 'Invalid image format' }, { status: 400 });
+      return jsonError('Formato de imagen no válido.', 400);
     }
 
-    const mimeType = matches[1];
+    const mimeType = matches[1].toLowerCase();
     const base64Data = matches[2];
 
+    if (!ALLOWED_MIME_TYPES.has(mimeType)) {
+      return jsonError('Tipo de imagen no soportado. Use JPG, PNG, WEBP, GIF o HEIC.', 400);
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return jsonError('El servicio de lectura de facturas no está configurado.', 503);
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-2.5-flash',
       contents: [
         {
           inlineData: {
@@ -48,23 +58,22 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    const text = response.text || '{}';
-    let parsed = {};
+    const text = response.text || '';
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return jsonError('No se pudo interpretar la factura. Intente con una imagen más clara.', 422);
+    }
+
+    let parsed: unknown;
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      }
-    } catch (e) {
-      parsed = { description: text };
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch {
+      return jsonError('No se pudo interpretar la factura. Intente con una imagen más clara.', 422);
     }
 
     return NextResponse.json({ success: true, data: parsed });
   } catch (error: unknown) {
     console.error('Gemini receipt analysis error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to analyze receipt' },
-      { status: 500 }
-    );
+    return jsonError('No se pudo analizar la factura en este momento.', 500);
   }
 }

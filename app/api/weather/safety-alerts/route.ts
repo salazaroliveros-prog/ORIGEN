@@ -1,35 +1,65 @@
 import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonError } from '@/lib/api';
 
-export async function POST(req: NextRequest) {
-  try {
-    const { lat, lng, projectName, municipality } = await req.json();
+interface WeatherPayload {
+  temperatureC: number;
+  condition: string;
+  humidity: number;
+  windSpeedKmH: number;
+  rainChancePercent: number;
+  safetyStatus: string;
+  alerts: string[];
+  recommendations: string[];
+}
 
-    // Default fallback weather info for Guatemala
-    const fallbackData = {
-      temperatureC: 23,
-      condition: 'Parcialmente Nublado',
-      humidity: 65,
-      windSpeedKmH: 14,
-      rainChancePercent: 20,
-      safetyStatus: 'Seguro para Trabajos',
-      alerts: [
-        'Condición climática favorable para labores de fundición y trabajo en alturas.',
-        'Monitorear vientos moderados en horas de la tarde.',
-      ],
-      recommendations: [
-        'Mantener hidratación adecuada de cuadrillas de albañilería.',
-        'Revisar anclajes de andamios y cubiertas temporales.',
-      ],
-    };
+const FALLBACK_WEATHER: WeatherPayload = {
+  temperatureC: 23,
+  condition: 'Parcialmente Nublado',
+  humidity: 65,
+  windSpeedKmH: 14,
+  rainChancePercent: 20,
+  safetyStatus: 'Seguro para Trabajos',
+  alerts: [
+    'Condición climática favorable para labores de fundición y trabajo en alturas.',
+    'Monitorear vientos moderados en horas de la tarde.',
+  ],
+  recommendations: [
+    'Mantener hidratación adecuada de cuadrillas de albañilería.',
+    'Revisar anclajes de andamios y cubiertas temporales.',
+  ],
+};
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ success: true, weather: fallbackData });
-    }
+function parseCoordinate(value: unknown, min: number, max: number): number | null {
+  const parsed = typeof value === 'string' ? Number(value) : value;
+  if (typeof parsed !== 'number' || !Number.isFinite(parsed)) return null;
+  if (parsed < min || parsed > max) return null;
+  return parsed;
+}
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const prompt = `Actúa como un experto en seguridad industrial y meteorología para la construcción en Guatemala.
-Para el proyecto "${projectName || 'Obra'}" ubicado en ${municipality || 'Guatemala'} (coordenadas: ${lat}, ${lng}):
+async function buildResponse(params: {
+  lat: number;
+  lng: number;
+  projectName: string;
+  municipality: string;
+}) {
+  const { lat, lng, projectName, municipality } = params;
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    return NextResponse.json({
+      success: true,
+      source: 'fallback',
+      degraded: true,
+      weather: FALLBACK_WEATHER,
+      alerts: FALLBACK_WEATHER.alerts,
+      recommendations: FALLBACK_WEATHER.recommendations,
+    });
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+  const prompt = `Actúa como un experto en seguridad industrial y meteorología para la construcción en Guatemala.
+Para el proyecto "${projectName}" ubicado en ${municipality} (coordenadas: ${lat}, ${lng}):
 Proporciona el estado del clima típico/actual y recomendaciones de seguridad para frentes de obra en formato JSON estricto:
 {
   "temperatureC": number,
@@ -43,33 +73,103 @@ Proporciona el estado del clima típico/actual y recomendaciones de seguridad pa
 }
 Devuelve únicamente el JSON válido sin texto extra.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+  });
 
-    const text = response.text || '';
-    const cleanJson = text
-      .replace(/```json/g, '')
-      .replace(/```/g, '')
-      .trim();
-    const parsed = JSON.parse(cleanJson);
+  const text = response.text || '';
+  const cleanJson = text
+    .replace(/```json/g, '')
+    .replace(/```/g, '')
+    .trim();
+  const parsed = JSON.parse(cleanJson) as WeatherPayload;
 
-    return NextResponse.json({ success: true, weather: parsed });
-  } catch (error) {
+  return NextResponse.json({
+    success: true,
+    source: 'gemini-ai',
+    weather: parsed,
+    alerts: Array.isArray(parsed.alerts) ? parsed.alerts : [],
+    recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+  });
+}
+
+function extractParams(input: Record<string, unknown>) {
+  const lat = parseCoordinate(input.lat, -90, 90);
+  const lng = parseCoordinate(input.lng, -180, 180);
+  if (lat === null || lng === null) {
+    return null;
+  }
+  return {
+    lat,
+    lng,
+    projectName:
+      typeof input.projectName === 'string' && input.projectName.trim()
+        ? input.projectName.slice(0, 120)
+        : 'Obra',
+    municipality:
+      typeof input.municipality === 'string' && input.municipality.trim()
+        ? input.municipality.slice(0, 120)
+        : 'Guatemala',
+  };
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
+    }
+
+    if (body === null || typeof body !== 'object' || Array.isArray(body)) {
+      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
+    }
+
+    const params = extractParams(body as Record<string, unknown>);
+    if (!params) {
+      return jsonError('Coordenadas inválidas: verifique latitud y longitud.', 400);
+    }
+
+    return await buildResponse(params);
+  } catch (error: unknown) {
     console.error('Weather safety alerts route error:', error);
     return NextResponse.json({
       success: true,
-      weather: {
-        temperatureC: 22,
-        condition: 'Nublado con Claros',
-        humidity: 68,
-        windSpeedKmH: 12,
-        rainChancePercent: 30,
-        safetyStatus: 'Seguro para Trabajos',
-        alerts: ['Sin alertas meteorológicas críticas en la zona.'],
-        recommendations: ['Continuar con el cronograma habitual asegurando EPP en todo momento.'],
-      },
+      source: 'fallback',
+      degraded: true,
+      weather: FALLBACK_WEATHER,
+      alerts: FALLBACK_WEATHER.alerts,
+      recommendations: FALLBACK_WEATHER.recommendations,
+    });
+  }
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const params = extractParams({
+    lat: searchParams.get('lat'),
+    lng: searchParams.get('lng'),
+    projectName: searchParams.get('projectName'),
+    municipality: searchParams.get('municipality'),
+  });
+
+  if (!params) {
+    return jsonError('Coordenadas inválidas: verifique latitud y longitud.', 400);
+  }
+
+  try {
+    return await buildResponse(params);
+  } catch (error: unknown) {
+    console.error('Weather safety alerts route error:', error);
+    return NextResponse.json({
+      success: true,
+      source: 'fallback',
+      degraded: true,
+      weather: FALLBACK_WEATHER,
+      alerts: FALLBACK_WEATHER.alerts,
+      recommendations: FALLBACK_WEATHER.recommendations,
     });
   }
 }

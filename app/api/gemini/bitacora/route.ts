@@ -1,24 +1,29 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
-import { APIError } from '@/lib/types';
+import { jsonError, readJsonBody, isNonEmptyString, MAX_TEXT_LENGTH } from '@/lib/api';
 
 export async function POST(req: NextRequest) {
   try {
-    const { voiceNotes, projectName, capatazName, date } = await req.json();
-
-    if (!voiceNotes || typeof voiceNotes !== 'string') {
-      return NextResponse.json(
-        { error: 'El texto de nota de voz del capataz es requerido.' },
-        { status: 400 }
-      );
+    const body = await readJsonBody(req);
+    if (!body) {
+      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
     }
+
+    const voiceNotes = body.voiceNotes;
+    if (!isNonEmptyString(voiceNotes, MAX_TEXT_LENGTH)) {
+      return jsonError('El texto de nota de voz del capataz es requerido.', 400);
+    }
+
+    const projectName = typeof body.projectName === 'string' ? body.projectName.slice(0, 120) : '';
+    const capatazName = typeof body.capatazName === 'string' ? body.capatazName.slice(0, 120) : '';
+    const date =
+      typeof body.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.date)
+        ? body.date
+        : new Date().toISOString().split('T')[0];
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: 'Clave API GEMINI_API_KEY no configurada en el servidor.' },
-        { status: 500 }
-      );
+      return jsonError('El servicio de IA no está configurado.', 503);
     }
 
     const ai = new GoogleGenAI({
@@ -30,7 +35,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const currentDate = date || new Date().toISOString().split('T')[0];
+    const currentDate = date;
     const folioRandom = Math.floor(1000 + Math.random() * 9000);
 
     const systemInstruction = `Eres el Ingeniero Director de Obra y Asistente Técnico de Construcción en Guatemala de ConstructERP.
@@ -48,7 +53,7 @@ Transcripción de Nota de Voz del Capataz:
 Genera el acta/bitacora estructurada diaria.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-2.5-flash',
       contents: userPrompt,
       config: {
         systemInstruction,
@@ -141,12 +146,6 @@ Genera el acta/bitacora estructurada diaria.`;
     });
   } catch (error: unknown) {
     console.error('Error generating Smart Bitácora with Gemini:', error);
-    return NextResponse.json(
-      {
-        error: 'No se pudo generar la Bitácora con Gemini IA.',
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return jsonError('No se pudo generar la Bitácora con Gemini IA.', 500);
   }
 }

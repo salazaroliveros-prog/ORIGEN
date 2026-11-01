@@ -4,7 +4,15 @@ import {
 } from '@/lib/guatemalaMarketData';
 import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
-import { APIError, BudgetItem, AuditAlert } from '@/lib/types';
+import { BudgetItem, AuditAlert } from '@/lib/types';
+import {
+  jsonError,
+  readJsonBody,
+  isNonEmptyString,
+  isDataUrlImage,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_TEXT_LENGTH,
+} from '@/lib/api';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,19 +23,33 @@ export async function POST(req: NextRequest) {
       'https://origen-one-kohl.vercel.app',
     ];
     if (origin && !allowedOrigins.includes(origin)) {
-      return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
+      return jsonError('Origen no autorizado.', 403);
     }
 
-    const body = await req.json();
-    const {
-      action,
-      description,
-      department = 'Guatemala',
-      unit = 'm²',
-      quantity = 100,
-      budgetItems = [],
-      projectName = 'Proyecto',
-    } = body;
+    const body = await readJsonBody(req);
+    if (!body) {
+      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
+    }
+
+    const action = body.action;
+    const departmentValue = typeof body.department === 'string' ? body.department : 'Guatemala';
+    const department = GUATEMALA_DEPARTMENTS_INDEX[departmentValue] ? departmentValue : 'Guatemala';
+    const unit = typeof body.unit === 'string' && body.unit.length <= 16 ? body.unit : 'm²';
+    const quantity =
+      typeof body.quantity === 'number' && Number.isFinite(body.quantity) && body.quantity > 0
+        ? body.quantity
+        : 100;
+    const projectName =
+      typeof body.projectName === 'string' && body.projectName.trim().length > 0
+        ? body.projectName.slice(0, 120)
+        : 'Proyecto';
+    const rawBudgetItems = Array.isArray(body.budgetItems) ? body.budgetItems : [];
+    const budgetItems = rawBudgetItems.filter(
+      (item): item is BudgetItem =>
+        Boolean(item) &&
+        typeof item === 'object' &&
+        typeof (item as { description?: unknown }).description === 'string'
+    );
 
     const validActions = new Set([
       'generate_apu',
@@ -37,24 +59,22 @@ export async function POST(req: NextRequest) {
       'chat',
     ]);
 
-    if (!validActions.has(action)) {
-      return NextResponse.json({ error: 'Acción no reconocida' }, { status: 400 });
+    if (typeof action !== 'string' || !validActions.has(action)) {
+      return jsonError('Acción no reconocida.', 400);
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
+      return jsonError('El servicio de IA no está configurado.', 503);
     }
     const deptInfo =
       GUATEMALA_DEPARTMENTS_INDEX[department] || GUATEMALA_DEPARTMENTS_INDEX['Guatemala'];
 
     // 1. GENERATE APU
     if (action === 'generate_apu') {
-      if (!description || typeof description !== 'string') {
-        return NextResponse.json(
-          { error: 'La descripción del renglón es requerida.' },
-          { status: 400 }
-        );
+      const description = body.description;
+      if (!isNonEmptyString(description, MAX_DESCRIPTION_LENGTH)) {
+        return jsonError('La descripción del renglón es requerida (máximo 500 caracteres).', 400);
       }
 
       // If API key is present, use Gemini 3.8 Flash
@@ -370,15 +390,31 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
 
     // 4. ANALYZE SITE LOGBOOK (BITÁCORA DE OBRA CON FOTOS)
     if (action === 'analyze_logbook') {
-      const {
-        image,
-        mimeType = 'image/jpeg',
-        date = '2025-05-12',
-        visitId = 'fv-1',
-        foremanName = 'Don Mario Cifuentes',
-        question = '¿Cuál es el progreso reportado por el capataz?',
-        visitContext,
-      } = body;
+      const image = isDataUrlImage(body.image) ? body.image : null;
+      const mimeType =
+        typeof body.mimeType === 'string' && body.mimeType.startsWith('image/')
+          ? body.mimeType
+          : 'image/jpeg';
+      const date =
+        typeof body.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.date)
+          ? body.date
+          : '2025-05-12';
+      const visitId =
+        typeof body.visitId === 'string' && body.visitId.trim()
+          ? body.visitId.slice(0, 64)
+          : 'fv-1';
+      const foremanName =
+        typeof body.foremanName === 'string' && body.foremanName.trim()
+          ? body.foremanName.slice(0, 120)
+          : 'Don Mario Cifuentes';
+      const question = isNonEmptyString(body.question, MAX_TEXT_LENGTH)
+        ? body.question
+        : '¿Cuál es el progreso reportado por el capataz?';
+      const rawContext = body.visitContext;
+      const visitContext =
+        rawContext && typeof rawContext === 'object' && !Array.isArray(rawContext)
+          ? (rawContext as Record<string, unknown>)
+          : null;
 
       if (apiKey && image) {
         try {
@@ -406,10 +442,10 @@ DATOS DE IDENTIFICACIÓN DE LA VISITA:
 ${
   visitContext
     ? `- Contexto Registrado en Sistema:
-  * Notas de Bitácora: "${visitContext.notes || ''}"
-  * Clima: ${visitContext.weather || 'Soleado'}
-  * Personal en Sitio: ${visitContext.workersCount || 0} obreros
-  * Estado de Autorización: ${visitContext.status || 'Autorizado'}`
+  * Notas de Bitácora: "${typeof visitContext.notes === 'string' ? visitContext.notes.slice(0, MAX_TEXT_LENGTH) : ''}"
+  * Clima: ${typeof visitContext.weather === 'string' ? visitContext.weather : 'Soleado'}
+  * Personal en Sitio: ${typeof visitContext.workersCount === 'number' ? visitContext.workersCount : 0} obreros
+  * Estado de Autorización: ${typeof visitContext.status === 'string' ? visitContext.status : 'Autorizado'}`
     : ''
 }
 
@@ -544,7 +580,9 @@ INSTRUCCIONES DE AUDITORÍA:
 
     // 5. CHAT
     if (action === 'chat') {
-      const userMessage = body.message || 'Consulta sobre presupuesto';
+      const userMessage = isNonEmptyString(body.message, MAX_TEXT_LENGTH)
+        ? body.message
+        : 'Consulta sobre presupuesto';
       if (apiKey) {
         try {
           const ai = new GoogleGenAI({ apiKey });
@@ -579,10 +617,9 @@ Consulta del usuario: "${userMessage}"`;
       });
     }
 
-    return NextResponse.json({ error: 'Acción no reconocida' }, { status: 400 });
+    return jsonError('Acción no reconocida.', 400);
   } catch (error: unknown) {
     console.error('Error in /api/gemini route:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Error interno del servidor';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return jsonError('No fue posible procesar la solicitud de IA. Intente nuevamente.', 500);
   }
 }
