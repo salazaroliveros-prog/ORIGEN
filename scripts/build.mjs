@@ -7,7 +7,7 @@ process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS || ''} --max-old-space-si
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(__dirname, '..');
-const nextBin = path.join(appRoot, 'node_modules', '.bin', 'next');
+const nextBin = path.join(appRoot, 'node_modules', 'next', 'dist', 'bin', 'next');
 
 console.log('[build.mjs] Starting production build with Next.js in:', appRoot);
 
