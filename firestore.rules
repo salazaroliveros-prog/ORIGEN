@@ -359,13 +359,12 @@ service cloud.firestore {
 
     // Attendance collection
     match /attendance/{attendanceId} {
-      allow get: if hasCompanyRole(
-        existing().companyId,
-        ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
-      );
-      allow list: if (isSignedIn() &&
-          !resource.data.keys().hasAny(['companyId']) &&
-          resource.data.authorId == request.auth.uid) ||
+      allow get: if (isSignedIn() && existing().authorId == request.auth.uid) ||
+        hasCompanyRole(
+          existing().companyId,
+          ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+        );
+      allow list: if (isSignedIn() && resource.data.authorId == request.auth.uid) ||
         hasCompanyRole(
           resource.data.companyId,
           ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
@@ -410,10 +409,9 @@ service cloud.firestore {
 
     // Full personnel records include compensation, contact, and social-security data.
     match /employees/{employeeId} {
-      allow get: if hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
-      allow list: if (isSignedIn() &&
-          !resource.data.keys().hasAny(['companyId']) &&
-          resource.data.ownerId == request.auth.uid) ||
+      allow get: if (isSignedIn() && existing().ownerId == request.auth.uid) ||
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+      allow list: if (isSignedIn() && resource.data.ownerId == request.auth.uid) ||
         hasCompanyRole(resource.data.companyId, ['owner', 'admin', 'finance']);
       allow create: if isValidId(employeeId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'finance']) &&

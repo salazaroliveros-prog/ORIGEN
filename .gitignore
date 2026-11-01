@@ -50,3 +50,4 @@ firebase-applet-config.json
 *.tsbuildinfo
 .env*
 .firebase/logs/vsce-debug.log
+firestore-debug.log

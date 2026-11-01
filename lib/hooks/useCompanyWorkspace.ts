@@ -6,6 +6,31 @@ import type { CompanyMembership, CompanyWorkspace, CompanyWorkspaceOption } from
 import { ensureCompanyWorkspace } from '@/lib/companyWorkspace';
 import { acceptCompanyInvitation } from '@/lib/companyInvitations';
 
+function describeWorkspaceError(cause: unknown): string {
+  const code = (cause as { code?: unknown } | null)?.code;
+  const message = cause instanceof Error ? cause.message : '';
+  const combined = `${typeof code === 'string' ? code : ''} ${message}`.toLowerCase();
+
+  if (
+    combined.includes('permission-denied') ||
+    combined.includes('missing or insufficient permissions')
+  ) {
+    return 'No tienes permisos para acceder a esta empresa. Verifica que tu correo esté verificado o solicita una nueva invitación.';
+  }
+  if (
+    combined.includes('unavailable') ||
+    combined.includes('network') ||
+    combined.includes('offline')
+  ) {
+    return 'No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.';
+  }
+  if (combined.includes('failed-precondition')) {
+    return 'La consulta de empresas aún no está configurada. Intenta de nuevo en unos minutos.';
+  }
+  if (message.trim()) return message;
+  return 'No se pudo cargar el espacio de trabajo de la empresa.';
+}
+
 export function useCompanyWorkspace(user: User | null) {
   const [workspace, setWorkspace] = useState<CompanyWorkspace | null>(null);
   const [membership, setMembership] = useState<CompanyMembership | null>(null);
@@ -34,9 +59,7 @@ export function useCompanyWorkspace(user: User | null) {
         return true;
       } catch (cause) {
         if (requestId !== selectionRequestId.current) return true;
-        const message =
-          cause instanceof Error ? cause.message : 'No se pudo cambiar el espacio de trabajo.';
-        setError(message);
+        setError(describeWorkspaceError(cause));
         return false;
       } finally {
         if (requestId === selectionRequestId.current) setLoading(false);
@@ -121,11 +144,7 @@ export function useCompanyWorkspace(user: User | null) {
       })
       .catch((cause: unknown) => {
         if (!isCurrent) return;
-        const message =
-          cause instanceof Error
-            ? cause.message
-            : 'No se pudo cargar el espacio de trabajo de la empresa.';
-        setError(message);
+        setError(describeWorkspaceError(cause));
       })
       .finally(() => {
         if (isCurrent) setLoading(false);
