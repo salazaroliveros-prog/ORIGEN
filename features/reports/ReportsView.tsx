@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Download, FileCheck2, Printer } from 'lucide-react';
+import { Download, FileCheck2, Loader2, Printer, ShieldCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { PageHeader } from '@/components/PageHeader';
 import { formatGTQ } from '@/lib/data';
+import { exportConstructionAuditPdf } from '@/lib/pdfExportService';
 import type { CompanySettings, ExpenseRecord, FieldVisit, Project } from '@/lib/types';
 
 interface ReportsViewProps {
@@ -58,6 +59,11 @@ export function ReportsView({
   onSelectProject,
 }: ReportsViewProps) {
   const [actaNotes, setActaNotes] = useState('');
+  const [isExportingAuditPdf, setIsExportingAuditPdf] = useState(false);
+  const [auditorName, setAuditorName] = useState('');
+  const [auditorColNumber, setAuditorColNumber] = useState('');
+  const [auditNotes, setAuditNotes] = useState('');
+  const [showAuditConfig, setShowAuditConfig] = useState(false);
   const project = projects.find((item) => item.id === activeProjectId);
   const projectExpenses = useMemo(
     () => expenses.filter((expense) => expense.projectId === activeProjectId),
@@ -299,6 +305,32 @@ export function ReportsView({
     link.download = `gastos-${project.code}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExportAuditPdf = async () => {
+    if (!project) {
+      toast.error('Selecciona un proyecto para generar el informe de auditoría.');
+      return;
+    }
+    try {
+      setIsExportingAuditPdf(true);
+      toast.loading('Generando cédula de auditoría de obra...', { id: 'audit-pdf' });
+      await exportConstructionAuditPdf({
+        project,
+        expenses: projectExpenses,
+        fieldVisits: projectVisits,
+        company,
+        auditNotes: auditNotes || actaNotes,
+        auditorName,
+        auditorColNumber,
+      });
+      toast.success('Cédula de auditoría de obra generada exitosamente en PDF.', { id: 'audit-pdf' });
+    } catch (error) {
+      console.error('Error al generar PDF de auditoría de obra:', error);
+      toast.error('No se pudo generar el PDF de auditoría de obra.', { id: 'audit-pdf' });
+    } finally {
+      setIsExportingAuditPdf(false);
+    }
   };
 
   return (
