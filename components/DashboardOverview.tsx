@@ -38,6 +38,7 @@ import {
   BarProps,
 } from 'recharts';
 import { D3BudgetUtilizationChart } from '@/components/D3BudgetUtilizationChart';
+import { ActiveProjectsProgressRingChart } from '@/components/ActiveProjectsProgressRingChart';
 
 interface DashboardOverviewProps {
   projects: Project[];
@@ -305,6 +306,15 @@ export function DashboardOverview({
           <div className="mt-2 text-xs font-semibold text-sky-400">Capataces activos</div>
         </div>
       </div>
+
+      {/* Recharts Ring Chart: Avance Porcentual Acumulado de Proyectos Activos */}
+      <ActiveProjectsProgressRingChart
+        projects={projects}
+        activeProjectId={activeProjectId}
+        onSelectProject={onSelectProject}
+        currency={currency}
+        company={company}
+      />
 
       {/* D3.js Real-Time Project Budget Utilization & Spend Visualization */}
       <React.Suspense

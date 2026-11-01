@@ -138,7 +138,7 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   const widgetLabels: Record<string, string> = {
     cashFlow: 'Proyección de Flujo de Caja Semestral',
     laborCosts: 'Costos de Mano de Obra Activa & Productividad',
-    progressComparison: 'Avance Físico vs. Ejecución Financiera (%)',
+    progressComparison: 'Avance Físico vs. Ejecución Financiera (%) [Líneas Recharts]',
     stackedBudget: 'Presupuesto Asignado vs. Gasto Real (Apilados)',
     expensesHistogram: 'Histórico de Gastos Mensuales',
     budgetUtilization: 'Utilización de Presupuesto APU (D3)',
