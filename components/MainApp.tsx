@@ -33,6 +33,7 @@ import type { CompanySettings, Employee, TaskReminder } from '@/lib/types';
 import { isPrimaryAdministrator } from '@/lib/firebaseAuth';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { Settings } from 'lucide-react';
 import {
   canManagePersonnel,
   canReadEmployeeDirectory,
@@ -572,7 +573,11 @@ export default function MainApp() {
                 userEmail={currentUser?.email}
                 accessToken={gmailAccess?.accessToken}
                 tokenExpiresAt={gmailAccess?.expiresAt}
-                onAuthorize={authorizeGmail}
+                onAuthorize={async () => {
+                  const result = await authorizeGmail();
+                  if (!result) throw new Error('No se pudo autorizar Gmail.');
+                  return result;
+                }}
               />
             )}
             {activeTab === 'equipo' && permissions.canManageCompany && workspace && currentUser && (
@@ -680,25 +685,7 @@ export default function MainApp() {
           <div className="animate-in slide-in-from-bottom w-full max-w-md rounded-t-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-md duration-300">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <svg
-                  className="h-5 w-5 text-amber-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  ></path>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                </svg>
+                <Settings className="h-5 w-5 text-amber-400" aria-hidden="true" />
                 <h3 id="branding-drawer-title" className="text-lg font-bold text-white">
                   Marca y Personalización
                 </h3>
@@ -708,8 +695,15 @@ export default function MainApp() {
                 size="sm"
                 onClick={() => setBrandingOpen(false)}
                 className="rounded-lg p-2 text-slate-300 hover:bg-white/[0.05] hover:text-white"
+                aria-label="Cerrar configuración de marca"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -789,20 +783,7 @@ export default function MainApp() {
           className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-slate-950 shadow-xl transition-all hover:bg-amber-400 lg:hidden"
           aria-label="Configuración de Marca"
         >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-            ></path>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            ></path>
-          </svg>
+          <Settings className="h-6 w-6" aria-hidden="true" />
         </TouchTarget>
       )}
     </div>

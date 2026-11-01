@@ -29,6 +29,7 @@ import {
   getCurrentGpsPosition,
   DEFAULT_GEOFENCE_RADIUS_METERS,
 } from '@/lib/geofencing';
+import { toast } from 'react-hot-toast';
 
 interface JobsiteGeofencingTrackerProps {
   employees: Employee[];
@@ -127,7 +128,7 @@ export function JobsiteGeofencingTracker({
     if (!emp || !activeProject) return;
 
     if (isWithinGeofence === false && !overrideReason.trim()) {
-      alert(
+      toast.error(
         'Debe ingresar un motivo de justificación para autorizar un marcaje fuera de la zona de obra.'
       );
       return;

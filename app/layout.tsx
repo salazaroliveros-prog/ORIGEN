@@ -12,6 +12,9 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://origen-one-kohl.vercel.app'),
   title: 'ConstructERP Guatemala - Control de Obras y Firma Digital',
+  description:
+    'ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas y firma digital de capataces.',
+  applicationName: 'ConstructERP Guatemala',
   alternates: {
     canonical: '/',
   },
@@ -39,26 +42,22 @@ export const metadata: Metadata = {
     other: [{ rel: 'mask-icon', url: '/assets/branding/icon-192x192.png', color: '#0f172a' }],
   },
   manifest: '/site.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'ConstructERP',
+  },
+  formatDetection: {
+    telephone: false,
+    address: false,
+    email: false,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning className="h-full touch-manipulation">
       <head>
-        <meta
-          name="description"
-          content="ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas y firma digital de capataces."
-        />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="ConstructERP" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="handheld-friendly" content="true" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="format-detection" content="address=no" />
-        <meta name="format-detection" content="email=no" />
-        <link rel="manifest" href="/site.webmanifest" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/assets/branding/apple-touch-icon.png" />
         <link
           rel="apple-touch-startup-image"
           href="/assets/branding/apple-touch-icon.png"
@@ -94,11 +93,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="/assets/branding/apple-touch-icon.png"
           media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)"
         />
-        <link rel="icon" sizes="any" href="/assets/branding/favicon.ico" />
-        <link rel="mask-icon" href="/assets/branding/icon-192x192.png" color="#0f172a" />
       </head>
       <body className="h-full min-h-screen overflow-x-hidden text-slate-100 antialiased selection:bg-sky-400 selection:text-slate-950">
-        <Toaster position="bottom-right" />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#0f172a',
+              color: '#f8fafc',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '12px',
+              fontSize: '14px',
+              maxWidth: '420px',
+            },
+            success: { iconTheme: { primary: '#10b981', secondary: '#0f172a' } },
+            error: { iconTheme: { primary: '#ef4444', secondary: '#0f172a' } },
+          }}
+        />
         {children}
       </body>
     </html>

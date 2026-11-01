@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useId } from 'react';
 import { X } from 'lucide-react';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
-import { designTokens } from '@/lib/design-tokens';
 
 interface ModalProps {
   isOpen: boolean;
@@ -34,6 +33,8 @@ export function Modal({
   closeOnOverlayClick = true,
   maxWidth = 'md',
 }: ModalProps) {
+  const titleId = useId();
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape' && closeOnEscape) {
@@ -58,37 +59,38 @@ export function Modal({
 
   return (
     <>
-      {/* Overlay */}
       <div
         className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${closeOnOverlayClick ? 'cursor-pointer' : ''}`}
         onClick={closeOnOverlayClick ? onClose : undefined}
         role="presentation"
       />
-      {/* Modal Container */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
         <FocusTrap isActive onEscape={onClose} returnFocus>
           <div
             className={`pointer-events-auto w-full ${maxWidthMap[maxWidth]} ${className}`}
             role="dialog"
             aria-modal="true"
-            aria-label={title ?? undefined}
+            aria-labelledby={title ? titleId : undefined}
+            aria-label={title ? undefined : 'Diálogo'}
           >
-            {/* Card */}
-            <div className={`relative rounded-xl bg-slate-900 border border-white/15 shadow-xl transition-all duration-300 ${designTokens.transitions.normal}`}>
-              {/* Header */}
-              {title && (
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                  <h2 className="text-lg font-semibold text-slate-100">{title}</h2>
-                  <button
-                    onClick={onClose}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-white/[0.05] hover:text-slate-200 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
-                    aria-label="Cerrar"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              )}
-              {/* Content */}
+            <div className="relative rounded-xl border border-white/15 bg-slate-900 shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
+                {title ? (
+                  <h2 id={titleId} className="text-lg font-semibold text-slate-100">
+                    {title}
+                  </h2>
+                ) : (
+                  <span />
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                  aria-label="Cerrar"
+                >
+                  <X className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
               <div className="px-6 py-4">{children}</div>
             </div>
           </div>

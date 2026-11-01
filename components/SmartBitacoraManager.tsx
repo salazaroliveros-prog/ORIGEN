@@ -34,6 +34,7 @@ import { Badge } from '@/components/ui/Badge';
 import { CanvasSignature } from '@/components/CanvasSignature';
 import type { SignatureResult } from '@/components/SignaturePad';
 import Image from 'next/image';
+import { toast } from 'react-hot-toast';
 
 export interface SmartBitacoraEntry {
   id: string;
@@ -194,7 +195,7 @@ export function SmartBitacoraManager({
 
   const handleToggleRecord = () => {
     if (!recognitionRef.current) {
-      alert(
+      toast.error(
         'El reconocimiento de voz por micrófono no está disponible en este navegador. Puede escribir manualmente la nota de voz en la casilla.'
       );
       return;

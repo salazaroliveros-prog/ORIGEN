@@ -35,6 +35,7 @@ import { formatGTQ, formatUSD } from '@/lib/data';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
 import { exportExpensesBudgetPdf } from '@/lib/pdfExportService';
 import { exportExpensesToExcel } from '@/lib/excelAccountingExport';
+import { toast } from 'react-hot-toast';
 
 const getGuatemalaDate = () =>
   new Intl.DateTimeFormat('en-CA', {
@@ -209,7 +210,7 @@ export function ExpensesView({
   const handleSubmitExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formDescription.trim() || !formAmount || Number(formAmount) <= 0) {
-      alert('Por favor complete la descripción y un monto válido mayor a Q0.00.');
+      toast.error('Por favor complete la descripción y un monto válido mayor a Q0.00.');
       return;
     }
     if (!activeProjects.some((project) => project.id === activeProjectId)) {

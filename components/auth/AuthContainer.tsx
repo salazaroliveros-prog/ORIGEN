@@ -7,8 +7,8 @@ import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
 import { ArrowLeft, LogIn, UserPlus } from 'lucide-react';
-import { designTokens } from '@/lib/design-tokens';
 
 type AuthMode = 'login' | 'register';
 
@@ -43,7 +43,7 @@ export function AuthContainer({ className }: AuthContainerProps) {
         className={`${className} flex min-h-[calc(100vh-4rem)] items-center justify-center bg-slate-950`}
       >
         <div className="text-center">
-          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-3 border-amber-500 border-t-transparent" />
+          <Spinner size="md" label="Cargando autenticación" className="mb-4" />
           <p className="text-sm text-slate-400">Cargando autenticación...</p>
         </div>
       </div>
