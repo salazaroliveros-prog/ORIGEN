@@ -1,82 +1,20 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
   "framework": "nextjs",
-  "buildCommand": "npm run build --loglevel=error",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install --no-audit --no-fund --loglevel=error",
-  "regions": ["iad1"],
-  "functions": {
-    "app/api/**/*.ts": {
-      "maxDuration": 30
-    }
+  "projectSettings": {
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "outputDirectory": ".next"
   },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        }
-      ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/firebase-config",
-      "destination": "/api/firebase-config"
-    },
-    {
-      "source": "/api/gemini",
-      "destination": "/api/gemini"
-    },
-    {
-      "source": "/api/upload-project-photo",
-      "destination": "/api/upload-project-photo"
-    },
-    {
-      "source": "/api/gemini/bitacora",
-      "destination": "/api/gemini/bitacora"
-    },
-    {
-      "source": "/api/gemini/receipt",
-      "destination": "/api/gemini/receipt"
-    },
-    {
-      "source": "/api/weather/safety-alerts",
-      "destination": "/api/weather/safety-alerts"
-    }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  "env": {
+    "NEXT_PUBLIC_FIREBASE_API_KEY": "@next_public_firebase_api_key",
+    "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "@next_public_firebase_auth_domain",
+    "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "@next_public_firebase_project_id",
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "@next_public_firebase_storage_bucket",
+    "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "@next_public_firebase_messaging_sender_id",
+    "NEXT_PUBLIC_FIREBASE_APP_ID": "@next_public_firebase_app_id"
+  }
 }
