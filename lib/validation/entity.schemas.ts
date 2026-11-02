@@ -7,18 +7,12 @@ import { z } from 'zod';
 
 // Expense Record Schema
 export const ExpenseRecordSchema = z.object({
-  id: z.string().min(1, 'ID requerido'),
-  projectId: z.string().min(1, 'Proyecto requerido'),
-  companyId: z.string().optional(),
-  authorId: z.string().optional(),
-  date: z.string().date('Fecha inválida'),
-  category: z.enum([
-    'Materiales (Cementos, Hierro)',
-    'Mano de Obra',
-    'Maquinaria y Combustible',
-    'Permisos & Licencias',
-    'Imprevistos',
-  ]),
+  id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
+  projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
+  companyId: z.string().min(1, 'Company ID requerido'),
+  authorId: z.string().min(1, 'Author ID requerido'),
+  date: z.string().date('Fecha inválida').max(30, 'Fecha muy larga'),
+  category: z.string().max(100, 'Categoría muy larga'),
   description: z.string().min(1, 'Descripción requerida').max(500, 'Descripción muy larga'),
   amount: z.number().min(0.01, 'El monto debe ser mayor a 0').max(999999999, 'Monto excede límite'),
   supplier: z.string().max(200, 'Nombre de proveedor muy largo'),
@@ -58,13 +52,13 @@ export type ExpenseRecordValues = z.infer<typeof ExpenseRecordSchema>;
 
 // Attendance Record Schema
 export const AttendanceRecordSchema = z.object({
-  id: z.string().min(1, 'ID requerido'),
-  projectId: z.string().min(1, 'Proyecto requerido'),
-  projectName: z.string().optional(),
-  companyId: z.string().optional(),
-  employeeId: z.string().min(1, 'Empleado requerido'),
-  employeeName: z.string().min(1, 'Nombre de empleado requerido'),
-  date: z.string().date('Fecha inválida'),
+  id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
+  projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
+  projectName: z.string().max(200, 'Nombre de proyecto muy largo').optional(),
+  companyId: z.string().min(1, 'Company ID requerido'),
+  employeeId: z.string().min(1, 'Empleado requerido').max(128, 'ID de empleado muy largo'),
+  employeeName: z.string().min(1, 'Nombre de empleado requerido').max(150, 'Nombre muy largo'),
+  date: z.string().date('Fecha inválida').max(30, 'Fecha muy larga'),
   role: z.string().optional(),
   status: z.enum(['Presente', 'Ausente', 'Permiso', 'Incapacidad IGSS']),
   overtimeHours: z
@@ -88,6 +82,7 @@ export const AttendanceRecordSchema = z.object({
   isGeofenceViolation: z.boolean().optional(),
   distanceFromSiteMeters: z.number().nonnegative().optional(),
   geofenceOverrideReason: z.string().optional(),
+  authorId: z.string().min(1, 'Author ID requerido'),
 });
 
 export type AttendanceRecordValues = z.infer<typeof AttendanceRecordSchema>;
@@ -127,13 +122,16 @@ export type EmployeeValues = z.infer<typeof EmployeeSchema>;
 // APU Item Schema
 export const APUItemSchema = z
   .object({
-    id: z.string().min(1, 'ID requerido'),
-    code: z.string().min(1, 'Código requerido').max(20, 'Código muy largo'),
+    id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
+    companyId: z.string().min(1, 'Company ID requerido'),
+    projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
+    createdBy: z.string().min(1, 'Creator ID requerido'),
+    code: z.string().min(1, 'Código requerido').max(64, 'Código muy largo'),
     description: z
       .string()
       .min(5, 'Descripción debe tener al menos 5 caracteres')
       .max(500, 'Descripción muy larga'),
-    unit: z.string().min(1, 'Unidad requerido'),
+    unit: z.string().min(1, 'Unidad requerido').max(32, 'Unidad muy larga'),
     quantity: z
       .number()
       .min(0.01, 'Cantidad debe ser mayor a 0')
@@ -177,10 +175,11 @@ export type APUItemValues = z.infer<typeof APUItemSchema>;
 
 // Quote Record Schema
 export const QuoteRecordSchema = z.object({
-  id: z.string().min(1, 'ID requerido'),
-  projectId: z.string().min(1, 'Proyecto requerido'),
-  clientName: z.string().min(3, 'Nombre de cliente requerido').max(100, 'Nombre muy largo'),
-  clientNit: z.string().max(30),
+  id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
+  companyId: z.string().min(1, 'Company ID requerido'),
+  projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
+  clientName: z.string().min(3, 'Nombre de cliente requerido').max(200, 'Nombre muy largo'),
+  clientNit: z.string().max(30, 'NIT muy largo'),
   clientPhone: z.string().optional(),
   clientEmail: z.string().optional(),
   clientAddress: z.string().optional(),
@@ -195,13 +194,12 @@ export const QuoteRecordSchema = z.object({
         unitPriceGTQ: z.number().nonnegative(),
       })
     )
-    .max(500),
-  totalGTQ: z.number().min(0, 'Monto total no puede ser negativo').max(999999999),
+    .max(500, 'Máximo 500 items por cotización'),
+  totalGTQ: z.number().min(0, 'Monto total no puede ser negativo').max(999999999, 'Monto excede límite'),
   status: z.enum(['Aceptada', 'Enviada', 'Borrador', 'Rechazada']),
   notes: z.string().max(1000, 'Notas muy largas').optional(),
   estimatedDuration: z.string().optional(),
-  companyId: z.string().optional(),
-  createdBy: z.string().optional(),
+  createdBy: z.string().min(1, 'Creator ID requerido'),
   updatedBy: z.string().optional(),
   subtotalGTQ: z.number().min(0, 'Subtotal no puede ser negativo').optional(),
   discountPercent: z
@@ -221,12 +219,12 @@ export type QuoteRecordValues = z.infer<typeof QuoteRecordSchema>;
 
 // Machinery Schema
 export const MachinerySchema = z.object({
-  id: z.string().min(1, 'ID requerido'),
-  companyId: z.string().optional(),
-  createdBy: z.string().optional(),
-  name: z.string().min(3, 'Nombre debe tener al menos 3 caracteres').max(100, 'Nombre muy largo'),
-  model: z.string().max(80),
-  plateOrCode: z.string().max(80),
+  id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
+  companyId: z.string().min(1, 'Company ID requerido'),
+  createdBy: z.string().min(1, 'Creator ID requerido'),
+  name: z.string().min(3, 'Nombre debe tener al menos 3 caracteres').max(150, 'Nombre muy largo'),
+  model: z.string().max(80, 'Modelo muy largo'),
+  plateOrCode: z.string().max(80, 'Placa o código muy largo'),
   status: z.enum(['Disponible', 'En Obra', 'Mantenimiento']),
   hourlyRateGTQ: z
     .number()

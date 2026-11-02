@@ -1,4 +1,20 @@
 import { z } from 'zod';
+import type {
+  ExpenseRecordValues,
+  AttendanceRecordValues,
+  EmployeeValues,
+  MachineryValues,
+  APUItemValues,
+  QuoteRecordValues,
+} from './entity.schemas';
+import {
+  validateExpenseRecord,
+  validateAttendanceRecord,
+  validateEmployee,
+  validateMachinery,
+  validateAPUItem,
+  validateQuoteRecord,
+} from './entity.schemas';
 
 /**
  * Esquema de validación para formularios de proyectos
@@ -184,117 +200,22 @@ export function getDefaultProjectValues(): ProjectFormProject {
 }
 
 // ============ VALIDACIONES ADICIONALES ============
+// Schemas de entidad importados desde entity.schemas.ts para evitar duplicación
+// Estos están mejor alineados con las reglas de Firestore
 
-export const ExpenseRecordSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  date: z.string(),
-  category: z.string(),
-  description: z.string(),
-  supplier: z.string().optional(),
-  nitSupplier: z.string().optional(),
-  facturaNumber: z.string().optional(),
-  amount: z.number().min(0),
-  currency: z.enum(['GTQ', 'USD']),
-  paymentMethod: z.string().optional(),
-  approvalStatus: z.string().optional(),
-});
+export type ExpenseRecord = ExpenseRecordValues;
+export type AttendanceRecord = AttendanceRecordValues;
+export type Employee = EmployeeValues;
+export type Machinery = MachineryValues;
+export type APUItem = APUItemValues;
+export type QuoteRecord = QuoteRecordValues;
 
-export type ExpenseRecord = z.infer<typeof ExpenseRecordSchema>;
-
-export function validateExpenseRecord(data: unknown) {
-  return ExpenseRecordSchema.safeParse(data);
-}
-
-export const AttendanceRecordSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  date: z.string(),
-  employeeId: z.string(),
-  employeeName: z.string(),
-  status: z.enum(['Presente', 'Ausente', 'Permiso', 'Incapacidad IGSS']),
-  overtimeHours: z.number().default(0),
-});
-
-export type AttendanceRecord = z.infer<typeof AttendanceRecordSchema>;
-
-export function validateAttendanceRecord(data: unknown) {
-  return AttendanceRecordSchema.safeParse(data);
-}
-
-export const EmployeeSchema = z.object({
-  id: z.string(),
-  name: z.string().min(3),
-  role: z.enum([
-    'Capataz',
-    'Albañil',
-    'Ayudante',
-    'Arquitecto Residente',
-    'Bodeguero',
-    'Electricista',
-  ]),
-  dailyRateGTQ: z.number().min(0),
-  igssAffiliated: z.boolean().optional(),
-});
-
-export type Employee = z.infer<typeof EmployeeSchema>;
-
-export function validateEmployee(data: unknown) {
-  return EmployeeSchema.safeParse(data);
-}
-
-export const MachinerySchema = z.object({
-  id: z.string(),
-  name: z.string().min(3),
-  model: z.string(),
-  plateOrCode: z.string(),
-  hourlyRateGTQ: z.number().min(0),
-  currentHorometer: z.number().default(0),
-  status: z.enum(['Disponible', 'En Obra', 'Mantenimiento']).default('Disponible'),
-});
-
-export type Machinery = z.infer<typeof MachinerySchema>;
-
-export function validateMachinery(data: unknown) {
-  return MachinerySchema.safeParse(data);
-}
-
-export const APUItemSchema = z.object({
-  id: z.string(),
-  code: z.string(),
-  description: z.string(),
-  unit: z.string(),
-  quantity: z.number().positive(),
-  materialUnitCostGTQ: z.number().default(0),
-  laborUnitCostGTQ: z.number().default(0),
-  equipmentUnitCostGTQ: z.number().default(0),
-  totalUnitCostGTQ: z.number().default(0),
-  totalPriceGTQ: z.number().default(0),
-});
-
-export type APUItem = z.infer<typeof APUItemSchema>;
-
-export function validateAPUItem(data: unknown) {
-  return APUItemSchema.safeParse(data);
-}
-
-export const QuoteRecordSchema = z.object({
-  id: z.string(),
-  clientName: z.string(),
-  date: z.string(),
-  items: z.array(
-    z.object({
-      description: z.string(),
-      qty: z.number(),
-      unitPriceGTQ: z.number(),
-    })
-  ),
-  totalGTQ: z.number(),
-  status: z.enum(['Aceptada', 'Enviada', 'Borrador', 'Rechazada']).default('Borrador'),
-});
-
-export type QuoteRecord = z.infer<typeof QuoteRecordSchema>;
-
-export function validateQuoteRecord(data: unknown) {
-  return QuoteRecordSchema.safeParse(data);
-}
+// Re-exportar funciones de validación para compatibilidad
+export {
+  validateExpenseRecord,
+  validateAttendanceRecord,
+  validateEmployee,
+  validateMachinery,
+  validateAPUItem,
+  validateQuoteRecord,
+} from './entity.schemas';

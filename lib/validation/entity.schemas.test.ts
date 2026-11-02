@@ -26,11 +26,13 @@ describe('entity schemas use the persisted ERP record contracts', () => {
       validateAttendanceRecord({
         id: 'attendance-e2e',
         projectId: 'project-e2e',
+        companyId: 'company-e2e',
         date: '2026-10-26',
         employeeId: 'employee-e2e',
         employeeName: 'Empleado de prueba',
         status: 'Presente',
         overtimeHours: 0,
+        authorId: 'user-e2e',
       }).success
     ).toBe(true);
   });
@@ -40,6 +42,8 @@ describe('entity schemas use the persisted ERP record contracts', () => {
       validateExpenseRecord({
         id: 'expense-e2e',
         projectId: 'project-e2e',
+        companyId: 'company-e2e',
+        authorId: 'user-e2e',
         date: '2026-10-26',
         category: 'Materiales (Cementos, Hierro)',
         description: 'Materiales para prueba',
@@ -59,6 +63,8 @@ describe('entity schemas use the persisted ERP record contracts', () => {
       validateExpenseRecord({
         id: 'expense-sin-factura',
         projectId: 'project-e2e',
+        companyId: 'company-e2e',
+        authorId: 'user-e2e',
         date: '2026-10-26',
         category: 'Imprevistos',
         description: 'Compra sin factura formal',
@@ -77,6 +83,8 @@ describe('entity schemas use the persisted ERP record contracts', () => {
       validateExpenseRecord({
         id: 'expense-invalido',
         projectId: 'project-e2e',
+        companyId: 'company-e2e',
+        authorId: 'user-e2e',
         date: '2026-10-26',
         category: 'Imprevistos',
         description: 'Monto en cero',
@@ -94,6 +102,7 @@ describe('entity schemas use the persisted ERP record contracts', () => {
     expect(
       validateQuoteRecord({
         id: 'quote-e2e',
+        companyId: 'company-e2e',
         projectId: 'project-e2e',
         clientName: 'Cliente de prueba',
         clientNit: 'CF',
@@ -102,6 +111,7 @@ describe('entity schemas use the persisted ERP record contracts', () => {
         items: [{ description: 'Trabajo de prueba', qty: 1, unit: 'Global', unitPriceGTQ: 100 }],
         totalGTQ: 112,
         status: 'Borrador',
+        createdBy: 'user-e2e',
       }).success
     ).toBe(true);
   });
@@ -110,6 +120,8 @@ describe('entity schemas use the persisted ERP record contracts', () => {
     expect(
       validateMachinery({
         id: 'machinery-e2e',
+        companyId: 'company-e2e',
+        createdBy: 'user-e2e',
         name: 'Excavadora de prueba',
         model: '2025',
         plateOrCode: 'EQ-E2E',
