@@ -13,9 +13,9 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { signInWithEmail, resetPassword } from '@/lib/firebase/auth';
+import { signInWithEmail, resetPassword } from '@/lib/firebaseAuth';
 import { Eye, EyeOff, AlertCircle, Loader } from 'lucide-react';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@/lib/components/Toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -25,7 +25,7 @@ interface AuthError {
   general?: string;
 }
 
-export function AuthContainer() {
+export function AuthContainer(): React.ReactElement {
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
