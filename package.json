@@ -2,6 +2,14 @@
   "name": "constructerp-guatemala",
   "version": "0.1.0",
   "private": true,
+  "allowScripts": {
+    "@firebase/util": true,
+    "@google/genai": true,
+    "@tailwindcss/oxide": true,
+    "core-js": true,
+    "esbuild": true,
+    "protobufjs": true
+  },
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
@@ -23,7 +31,7 @@
     "pwa:generate-sw": "node scripts/generate-service-worker.js",
     "images:optimize": "node scripts/optimize-images.js",
     "deps:check": "node scripts/check-dependencies.js",
-    "prepare": "node -e \"require('fs').existsSync('.git') && require('child_process').execSync('husky install', {stdio: 'inherit'})\""
+    "prepare": "node -e \"const fs=require('fs');if(fs.existsSync('.git')&&!process.env.VERCEL)require('child_process').execSync('husky',{stdio:'inherit'})\""
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
