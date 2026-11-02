@@ -13,7 +13,9 @@
 
 'use client';
 
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useProjectData } from '@/lib/hooks/useProjectDataEnhanced';
 import { calculateBudgetSummary } from '@/lib/utils/calculations';
 import { 
@@ -32,8 +34,7 @@ import {
   Cell
 } from 'recharts';
 import { COLORS } from '@/lib/design/constants';
-import { Building2, DollarSign, TrendingUp, Users, AlertCircle, Loader } from 'lucide-react';
-import { COLORS } from '@/lib/design/constants';
+import { Building2, DollarSign, TrendingUp, Users, AlertCircle, Loader, Plus } from 'lucide-react';
 
 interface KPICard {
   title: string;
@@ -82,7 +83,7 @@ export function DashboardOverview() {
       completionRate,
       averageUtilization,
     };
-  }, [projects]); // ← CRITICAL: projects as dependency
+  }, [projects]);
 
   // Generate chart data
   useEffect(() => {
