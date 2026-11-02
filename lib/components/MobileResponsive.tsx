@@ -387,14 +387,20 @@ export function SwipeableContainer({
   );
 }
 
-const MobileResponsiveExports = {
-  useMobileView,
-  useKeyboardAccommodation,
-  useSwipeGesture,
-  ResponsiveModal,
+const mobileResponsiveExports = {
+  useMediaQuery,
+  useViewport,
+  useTouch,
+  ResponsiveContainer,
   ResponsiveTable,
   ExpandableCard,
   TouchButton,
   ResponsiveInput,
   SwipeableContainer,
+  useMobileView,
+  useKeyboardAccommodation,
+  useSwipeGesture,
+  ResponsiveModal,
 };
+
+export default mobileResponsiveExports;

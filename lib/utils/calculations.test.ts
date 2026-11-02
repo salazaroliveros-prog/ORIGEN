@@ -109,9 +109,9 @@ describe('APU & Budget Calculations', () => {
     });
 
     it('should throw error for negative costs', () => {
-      expect(() =>
-        validateAPUItem({ ...validItem, materialUnitCostGTQ: -100 })
-      ).toThrow('validation failed');
+      expect(() => validateAPUItem({ ...validItem, materialUnitCostGTQ: -100 })).toThrow(
+        'validation failed'
+      );
     });
   });
 
@@ -182,10 +182,10 @@ describe('Currency Conversion', () => {
       expect(result).toBe(785);
     });
 
-    it('should handle reasonable exchange operations', () => {
-      // Test that conversion works with typical values
-      const result = convertUSDtoGTQ(50, 7.85);
-      expect(result).toBe(392.5);
+    it('should handle fractional amounts with rounding', () => {
+      // 100.5 * 7.85 = 788.925, rounded to 2 decimals = 788.93
+      const result = convertUSDtoGTQ(100.5, 7.85);
+      expect(result).toBeCloseTo(788.93, 2);
     });
 
     it('should handle zero amount', () => {
@@ -206,10 +206,10 @@ describe('Currency Conversion', () => {
       expect(result).toBe(100);
     });
 
-    it('should handle reasonable exchange operations', () => {
-      // Test that conversion works with typical values
-      const result = convertGTQtoUSD(392.5, 7.85);
-      expect(result).toBe(50);
+    it('should handle fractional amounts with rounding', () => {
+      // 788.93 / 7.85 = 100.498..., rounded to 2 decimals = 100.5
+      const result = convertGTQtoUSD(788.93, 7.85);
+      expect(result).toBeCloseTo(100.5, 1);
     });
 
     it('should throw error for invalid inputs', () => {

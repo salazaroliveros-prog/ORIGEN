@@ -9,8 +9,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, Loader, Eye, EyeOff, Check } from 'lucide-react';
-import { toast } from '@/lib/components/Toast';
-import { createUserWithEmail } from '@/lib/firebaseAuth';
+import { toast } from 'react-hot-toast';
+import { createEmailAccount } from '@/lib/firebaseAuth';
 
 interface SignUpFormData {
   fullName: string;
@@ -136,13 +136,14 @@ export default function SignUpPage() {
       setLoading(true);
 
       // Call Firebase signup
-      const result = await createUserWithEmail(formData.email, formData.password);
+      const result = await createEmailAccount(formData.email, formData.password);
 
-      if (!result.success) {
+      // createEmailAccount returns EmailAccountCreationResult with user and verificationEmailSent
+      if (!result.user) {
         setErrors({
-          general: result.error || 'Error al crear cuenta',
+          general: 'Error al crear cuenta',
         });
-        toast.error(result.error || 'Error al crear cuenta');
+        toast.error('Error al crear cuenta');
         return;
       }
 
@@ -209,9 +210,7 @@ export default function SignUpPage() {
                   errors.fullName ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
                 } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
               />
-              {errors.fullName && (
-                <p className="mt-1 text-xs text-red-400">{errors.fullName}</p>
-              )}
+              {errors.fullName && <p className="mt-1 text-xs text-red-400">{errors.fullName}</p>}
             </div>
 
             {/* Email */}
@@ -237,9 +236,7 @@ export default function SignUpPage() {
 
             {/* Company */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-300">
-                Empresa *
-              </label>
+              <label className="mb-1 block text-sm font-medium text-slate-300">Empresa *</label>
               <input
                 type="text"
                 value={formData.company}
@@ -258,9 +255,7 @@ export default function SignUpPage() {
 
             {/* Phone */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-300">
-                Teléfono *
-              </label>
+              <label className="mb-1 block text-sm font-medium text-slate-300">Teléfono *</label>
               <input
                 type="tel"
                 value={formData.phone}
@@ -279,9 +274,7 @@ export default function SignUpPage() {
 
             {/* Password */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-300">
-                Contraseña *
-              </label>
+              <label className="mb-1 block text-sm font-medium text-slate-300">Contraseña *</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -293,7 +286,9 @@ export default function SignUpPage() {
                   placeholder="••••••••"
                   disabled={loading}
                   className={`w-full rounded-lg border px-4 py-2 pr-12 ${
-                    errors.password ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
+                    errors.password
+                      ? 'border-red-500 bg-red-500/5'
+                      : 'border-slate-600 bg-slate-700'
                   } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
                 />
                 <button
@@ -368,11 +363,13 @@ export default function SignUpPage() {
 
               {/* Passwords match indicator */}
               {formData.password && formData.confirmPassword && (
-                <div className={`mt-2 flex items-center gap-1 text-xs font-semibold ${
-                  formData.password === formData.confirmPassword
-                    ? 'text-green-500'
-                    : 'text-red-500'
-                }`}>
+                <div
+                  className={`mt-2 flex items-center gap-1 text-xs font-semibold ${
+                    formData.password === formData.confirmPassword
+                      ? 'text-green-500'
+                      : 'text-red-500'
+                  }`}
+                >
                   {formData.password === formData.confirmPassword ? (
                     <>
                       <Check className="h-4 w-4" />

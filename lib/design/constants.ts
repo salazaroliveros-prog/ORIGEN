@@ -387,7 +387,7 @@ export const FLEX = {
   colCenter: 'flex flex-col items-center justify-center',
 };
 
-const DesignConstants = {
+const designConstants = {
   COLORS,
   SPACING,
   SHADOWS,
@@ -402,3 +402,5 @@ const DesignConstants = {
   GRID,
   FLEX,
 };
+
+export default designConstants;

@@ -13,7 +13,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { signInWithEmail, resetPassword } from '@/lib/firebaseAuth';
+import { signInWithEmail, resetEmailPassword } from '@/lib/firebaseAuth';
 import { Eye, EyeOff, AlertCircle, Loader } from 'lucide-react';
 import { toast } from '@/lib/components/Toast';
 import Link from 'next/link';
@@ -100,30 +100,30 @@ export function AuthContainer(): React.ReactElement {
     return regex.test(emailStr);
   };
 
+  // Validate form helper
+  const validateForm = useCallback((): boolean => {
+    const newErrors: AuthError = {};
+
+    if (!email.trim()) {
+      newErrors.email = 'El correo es requerido';
+    } else if (!validateEmailFormat(email)) {
+      newErrors.email = 'Ingresa un correo válido';
+    }
+
+    if (!password) {
+      newErrors.password = 'La contraseña es requerida';
+    } else if (password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [email, password]);
+
   // Handle login
   const handleLogin = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-
-      // Validate form inline to avoid dependency issues
-      const validateForm = (): boolean => {
-        const newErrors: AuthError = {};
-
-        if (!email.trim()) {
-          newErrors.email = 'El correo es requerido';
-        } else if (!validateEmailFormat(email)) {
-          newErrors.email = 'Ingresa un correo válido';
-        }
-
-        if (!password) {
-          newErrors.password = 'La contraseña es requerida';
-        } else if (password.length < 6) {
-          newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-      };
 
       // Check if locked
       if (isLocked) {
@@ -221,7 +221,7 @@ export function AuthContainer(): React.ReactElement {
         setLoading(false);
       }
     },
-    [email, password, loginAttempts, isLocked, rememberMe, router]
+    [email, password, loginAttempts, isLocked, rememberMe, router, validateForm]
   );
 
   // Handle forgot password
@@ -238,7 +238,7 @@ export function AuthContainer(): React.ReactElement {
 
     try {
       setLoading(true);
-      await resetPassword(email);
+      await resetEmailPassword(email);
       toast.success('Correo de reseteo enviado. Revisa tu bandeja de entrada.');
       setErrors({});
     } catch (error) {

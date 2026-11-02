@@ -25,7 +25,7 @@ export function useRenderTime(componentName: string): void {
         );
       };
     }
-  });
+  }, [componentName]);
 }
 
 /**

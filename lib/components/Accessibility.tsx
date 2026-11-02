@@ -386,7 +386,7 @@ export function ScreenReaderOnly({ children }: { children: React.ReactNode }) {
   return <span className="sr-only">{children}</span>;
 }
 
-const AccessibilityExports = {
+const accessibilityExports = {
   getContrastRatio,
   isWCAGAACompliant,
   AccessibleInput,
@@ -399,3 +399,5 @@ const AccessibilityExports = {
   ContrastValidator,
   ScreenReaderOnly,
 };
+
+export default accessibilityExports;
