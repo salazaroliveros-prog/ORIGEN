@@ -127,8 +127,6 @@ export const COLORS = {
   },
 };
 
-export default DesignConstants;
-
 // ============================================
 // SPACING
 // ============================================
