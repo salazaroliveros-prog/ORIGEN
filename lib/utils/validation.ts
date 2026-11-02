@@ -13,13 +13,15 @@ export const validationSchemas = {
   projectCode: z.string().min(1, 'Code required').max(64, 'Code too long'),
   projectName: z.string().min(3, 'Name too short').max(200, 'Name too long'),
   projectBudget: z.number().positive('Budget must be positive'),
-  projectDates: z.object({
-    start: z.string().datetime(),
-    end: z.string().datetime(),
-  }).refine((data) => new Date(data.start) < new Date(data.end), {
-    message: 'Start date must be before end date',
-    path: ['end'],
-  }),
+  projectDates: z
+    .object({
+      start: z.string().datetime(),
+      end: z.string().datetime(),
+    })
+    .refine((data) => new Date(data.start) < new Date(data.end), {
+      message: 'Start date must be before end date',
+      path: ['end'],
+    }),
 
   // APU validation
   apuCode: z.string().min(1).max(64),
@@ -65,8 +67,12 @@ export const validationSchemas = {
 
 /**
  * Validates data against schema and returns errors
+ * FIXED: Added null check for result.error
  */
-export function validateData<T>(schema: z.ZodSchema, data: any): { valid: boolean; errors: Record<string, string> } {
+export function validateData<T>(
+  schema: z.ZodSchema,
+  data: any
+): { valid: boolean; errors: Record<string, string> } {
   const result = schema.safeParse(data);
 
   if (result.success) {
@@ -74,10 +80,14 @@ export function validateData<T>(schema: z.ZodSchema, data: any): { valid: boolea
   }
 
   const errors: Record<string, string> = {};
-  result.error.errors.forEach((err) => {
-    const path = err.path.join('.');
-    errors[path] = err.message;
-  });
+
+  // FIX: Check if result.error exists before accessing errors
+  if (result.error && result.error.errors && Array.isArray(result.error.errors)) {
+    result.error.errors.forEach((err) => {
+      const path = err.path.join('.');
+      errors[path] = err.message;
+    });
+  }
 
   return { valid: false, errors };
 }
@@ -115,7 +125,10 @@ export function safeJSONParse<T = any>(json: string, fallback: T): T {
 /**
  * Validate and normalize currency amount
  */
-export function validateCurrencyAmount(amount: any, currency: 'GTQ' | 'USD' = 'GTQ'): {
+export function validateCurrencyAmount(
+  amount: any,
+  currency: 'GTQ' | 'USD' = 'GTQ'
+): {
   valid: boolean;
   amount?: number;
   error?: string;
@@ -139,7 +152,10 @@ export function validateCurrencyAmount(amount: any, currency: 'GTQ' | 'USD' = 'G
 /**
  * Validate date range
  */
-export function validateDateRange(startDate: string, endDate: string): {
+export function validateDateRange(
+  startDate: string,
+  endDate: string
+): {
   valid: boolean;
   error?: string;
 } {

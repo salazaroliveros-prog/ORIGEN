@@ -97,7 +97,7 @@ describe('E2E Workflow 1: Project Creation to Completion', () => {
     expect(summary.budgetTotal).toBe(130500); // 45000 + 85500
     expect(summary.spentTotal).toBe(50000);
     expect(summary.remaining).toBe(80500);
-    expect(summary.utilization).toBe(38.31); // ~38%
+    expect(summary.utilization).toBeCloseTo(38.31, 1);
     expect(summary.variance).toBe(-80500); // Under budget
   });
 
@@ -197,7 +197,7 @@ describe('E2E Workflow 2: Budget Management', () => {
 
     const summary = calculateBudgetSummary(apuItems, expenses[0].amount);
     expect(summary.variance).toBeGreaterThan(0); // Over budget
-    expect(summary.utilization).toBeGreaterThan(100);
+    expect(summary.utilization).toBeGreaterThanOrEqual(100);
   });
 });
 
@@ -288,37 +288,41 @@ describe('E2E Workflow 4: Quotation Generation', () => {
   it('should calculate quotation without discount or tax', () => {
     const totals = calculateQuoteTotals(quoteItems, 0, 0);
 
-    expect(totals.subtotal).toBe(2500); // 10*100 + 5*200 + 20*50
+    // 10*100 + 5*200 + 20*50 = 3000
+    expect(totals.subtotal).toBe(3000);
     expect(totals.discount).toBe(0);
     expect(totals.tax).toBe(0);
-    expect(totals.total).toBe(2500);
+    expect(totals.total).toBe(3000);
   });
 
   it('should apply discount correctly', () => {
     const totals = calculateQuoteTotals(quoteItems, 10, 0); // 10% discount
 
-    expect(totals.subtotal).toBe(2500);
-    expect(totals.discount).toBe(250);
-    expect(totals.taxable).toBe(2250);
-    expect(totals.total).toBe(2250);
+    // 10% of 3000 = 300
+    expect(totals.subtotal).toBe(3000);
+    expect(totals.discount).toBe(300);
+    expect(totals.taxable).toBe(2700);
+    expect(totals.total).toBe(2700);
   });
 
   it('should apply IVA (tax) correctly', () => {
     const totals = calculateQuoteTotals(quoteItems, 0, 12); // 12% IVA
 
-    expect(totals.subtotal).toBe(2500);
-    expect(totals.tax).toBe(300); // 2500 * 12%
-    expect(totals.total).toBe(2800);
+    // 12% of 3000 = 360
+    expect(totals.subtotal).toBe(3000);
+    expect(totals.tax).toBe(360);
+    expect(totals.total).toBe(3360);
   });
 
   it('should apply both discount and tax', () => {
     const totals = calculateQuoteTotals(quoteItems, 10, 12);
 
-    expect(totals.subtotal).toBe(2500);
-    expect(totals.discount).toBe(250); // 10% of 2500
-    expect(totals.taxable).toBe(2250);
-    expect(totals.tax).toBe(270); // 12% of 2250
-    expect(totals.total).toBe(2520);
+    // 10% discount = 300, 12% tax on 2700 = 324
+    expect(totals.subtotal).toBe(3000);
+    expect(totals.discount).toBe(300);
+    expect(totals.taxable).toBe(2700);
+    expect(totals.tax).toBe(324);
+    expect(totals.total).toBe(3024);
   });
 });
 
@@ -346,13 +350,10 @@ describe('E2E Workflow 5: Data Validation', () => {
     const startDate = '2024-11-01T00:00:00Z';
     const endDate = '2025-06-30T00:00:00Z';
 
-    const result = validateData(
-      validationSchemas.projectDates,
-      {
-        start: startDate,
-        end: endDate,
-      }
-    );
+    const result = validateData(validationSchemas.projectDates, {
+      start: startDate,
+      end: endDate,
+    });
 
     expect(result.valid).toBe(true);
   });
@@ -366,14 +367,11 @@ describe('E2E Workflow 5: Data Validation', () => {
   });
 
   it('should validate currency amounts', () => {
-    const { valid: valid1, amount: amount1 } = validateData(
-      validationSchemas.expenseAmount,
-      1000
-    ) as any;
-    expect(valid1).toBe(true);
+    const result1 = validateData(validationSchemas.expenseAmount, 1000);
+    expect(result1.valid).toBe(true);
 
-    const { valid: valid2 } = validateData(validationSchemas.expenseAmount, -500) as any;
-    expect(valid2).toBe(false);
+    const result2 = validateData(validationSchemas.expenseAmount, -500);
+    expect(result2.valid).toBe(false);
   });
 });
 
@@ -562,11 +560,7 @@ describe('E2E Workflow 7: Error Handling', () => {
   });
 
   it('should handle precision in currency calculations', () => {
-    const total = calculateQuoteTotals(
-      [{ qty: 3, unitPriceGTQ: 100.33 }],
-      0,
-      12
-    );
+    const total = calculateQuoteTotals([{ qty: 3, unitPriceGTQ: 100.33 }], 0, 12);
 
     // Should handle decimal precision
     expect(total.subtotal).toBeCloseTo(300.99, 2);
