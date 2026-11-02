@@ -1,124 +1,503 @@
+/**
+ * ORIGEN ERP - Authentication Container Component
+ * Implements secure login with rate limiting and enhanced UX
+ * 
+ * Features:
+ * - 5-attempt rate limiting with 15-minute lockout
+ * - Password visibility toggle with eye icon
+ * - Form validation with error messages
+ * - Loading states during authentication
+ * - Firebase Authentication integration
+ */
+
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
-import { hasRegisteredUsers } from '@/lib/firebaseAuth';
-import { LoginForm } from './LoginForm';
-import { RegisterForm } from './RegisterForm';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/Spinner';
-import { ArrowLeft, LogIn, UserPlus } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { signInWithEmail, resetPassword } from '@/lib/firebase/auth';
+import { Eye, EyeOff, AlertCircle, Loader } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-type AuthMode = 'login' | 'register';
-
-interface AuthContainerProps {
-  className?: string;
+interface AuthError {
+  email?: string;
+  password?: string;
+  general?: string;
 }
 
-export function AuthContainer({ className }: AuthContainerProps) {
-  const { currentUser, status, register, signIn } = useAuthSession();
-  const [mode, setMode] = useState<AuthMode>('login');
-  const [isSetupMode, setIsSetupMode] = useState<boolean | null>(null);
-  const [showBack, setShowBack] = useState(false);
+export function AuthContainer() {
+  // Form state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<AuthError>({});
 
+  // Rate limiting state
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockTimer, setLockTimer] = useState<NodeJS.Timeout | null>(null);
+  const lockTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Router
+  const router = useRouter();
+
+  // Load rate limiting state from localStorage on mount
   useEffect(() => {
-    const checkSetup = async () => {
-      const hasUsers = await hasRegisteredUsers();
-      setIsSetupMode(!hasUsers);
-      setShowBack(hasUsers);
+    const saved = localStorage.getItem('loginAttempts');
+    const lockTime = localStorage.getItem('loginLockTime');
+
+    if (saved) {
+      const attempts = parseInt(saved);
+      setLoginAttempts(attempts);
+
+      if (lockTime) {
+        const now = Date.now();
+        const lockExpiry = parseInt(lockTime);
+
+        if (now < lockExpiry) {
+          // Still locked
+          setIsLocked(true);
+          const timeLeft = lockExpiry - now;
+          setupLockTimer(timeLeft);
+        } else {
+          // Lock expired
+          localStorage.removeItem('loginAttempts');
+          localStorage.removeItem('loginLockTime');
+          setLoginAttempts(0);
+        }
+      }
+    }
+
+    return () => {
+      if (lockTimerRef.current) {
+        clearTimeout(lockTimerRef.current);
+      }
     };
-    void checkSetup();
   }, []);
 
-  if (currentUser && status === 'authenticated') {
-    return null;
-  }
+  // Setup lock timer
+  const setupLockTimer = (duration: number) => {
+    if (lockTimerRef.current) {
+      clearTimeout(lockTimerRef.current);
+    }
 
-  const isLoading = status === 'loading' || isSetupMode === null;
+    lockTimerRef.current = setTimeout(() => {
+      setIsLocked(false);
+      setLoginAttempts(0);
+      localStorage.removeItem('loginAttempts');
+      localStorage.removeItem('loginLockTime');
+      toast.success('Intento bloqueado expirado. Puedes intentar de nuevo.');
+    }, duration);
 
-  if (isLoading) {
-    return (
-      <div
-        className={`${className} flex min-h-[calc(100vh-4rem)] items-center justify-center bg-slate-950`}
-      >
-        <div className="text-center">
-          <Spinner size="md" label="Cargando autenticación" className="mb-4" />
-          <p className="text-sm text-slate-400">Cargando autenticación...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const handleAuthenticated = () => {
-    window.location.reload();
+    setLockTimer(lockTimerRef.current);
   };
 
-  const handleBack = () => {
-    setMode('login');
-    setShowBack(false);
+  // Validate email format
+  const validateEmail = (email: string): boolean => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
   };
+
+  // Validate form
+  const validateForm = (): boolean => {
+    const newErrors: AuthError = {};
+
+    if (!email.trim()) {
+      newErrors.email = 'El correo es requerido';
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'Ingresa un correo válido';
+    }
+
+    if (!password) {
+      newErrors.password = 'La contraseña es requerida';
+    } else if (password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle login
+  const handleLogin = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      // Check if locked
+      if (isLocked) {
+        toast.error(
+          'Cuenta temporalmente bloqueada. Intenta de nuevo en 15 minutos.'
+        );
+        return;
+      }
+
+      // Validate form
+      if (!validateForm()) {
+        return;
+      }
+
+      // Check attempts
+      if (loginAttempts >= 5) {
+        setIsLocked(true);
+        const lockDuration = 15 * 60 * 1000; // 15 minutes
+        const lockExpiry = Date.now() + lockDuration;
+
+        localStorage.setItem('loginAttempts', '5');
+        localStorage.setItem('loginLockTime', lockExpiry.toString());
+
+        setupLockTimer(lockDuration);
+
+        toast.error(
+          'Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.'
+        );
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setErrors({});
+
+        // Call Firebase authentication
+        const result = await signInWithEmail(email, password);
+
+        if (!result.success) {
+          // Failed login - increment attempts
+          const newAttempts = loginAttempts + 1;
+          setLoginAttempts(newAttempts);
+          localStorage.setItem('loginAttempts', newAttempts.toString());
+
+          const attemptsLeft = 5 - newAttempts;
+
+          if (newAttempts >= 5) {
+            // Lock on 5th failure
+            setIsLocked(true);
+            const lockDuration = 15 * 60 * 1000;
+            const lockExpiry = Date.now() + lockDuration;
+
+            localStorage.setItem('loginAttempts', '5');
+            localStorage.setItem('loginLockTime', lockExpiry.toString());
+
+            setupLockTimer(lockDuration);
+
+            setErrors({
+              general: 'Demasiados intentos fallidos. Cuenta bloqueada 15 min.',
+            });
+            toast.error('Cuenta bloqueada por demasiados intentos fallidos.');
+          } else {
+            setErrors({
+              general: `Correo o contraseña incorrectos. ${attemptsLeft} intentos restantes.`,
+            });
+            toast.error(
+              `Credenciales inválidas. ${attemptsLeft} intentos restantes.`
+            );
+          }
+          return;
+        }
+
+        // Success - clear attempts and remember me
+        localStorage.removeItem('loginAttempts');
+        localStorage.removeItem('loginLockTime');
+        setLoginAttempts(0);
+
+        if (rememberMe) {
+          localStorage.setItem('rememberEmail', email);
+        } else {
+          localStorage.removeItem('rememberEmail');
+        }
+
+        toast.success('¡Bienvenido!');
+
+        // Navigate to dashboard
+        router.push('/dashboard');
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Error de autenticación';
+
+        setErrors({
+          general: message,
+        });
+        toast.error(message);
+
+        // Increment attempts on error
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+        localStorage.setItem('loginAttempts', newAttempts.toString());
+      } finally {
+        setLoading(false);
+      }
+    },
+    [email, password, loginAttempts, isLocked, rememberMe, router]
+  );
+
+  // Handle forgot password
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setErrors({ email: 'Ingresa tu correo para resetear la contraseña' });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setErrors({ email: 'Ingresa un correo válido' });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await resetPassword(email);
+      toast.success('Correo de reseteo enviado. Revisa tu bandeja de entrada.');
+      setErrors({});
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Error al resetear contraseña';
+      setErrors({ general: message });
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load remembered email on mount
+  useEffect(() => {
+    const remembered = localStorage.getItem('rememberEmail');
+    if (remembered) {
+      setEmail(remembered);
+      setRememberMe(true);
+    }
+  }, []);
+
+  // Calculate minutes left if locked
+  const getMinutesLeft = (): number => {
+    const lockTime = localStorage.getItem('loginLockTime');
+    if (!lockTime) return 0;
+
+    const lockExpiry = parseInt(lockTime);
+    const now = Date.now();
+    const minutesLeft = Math.ceil((lockExpiry - now) / 60000);
+
+    return Math.max(0, minutesLeft);
+  };
+
+  const minutesLeft = getMinutesLeft();
 
   return (
-    <div
-      className={`${className} flex min-h-[calc(100vh-4rem)] items-center justify-center bg-slate-950 px-4`}
-    >
-      <Card variant="overlay" padding="lg" className="mx-auto w-full max-w-md">
-        {/* Header con navegación */}
-        {showBack && (
-          <div className="mb-6 flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-              className="text-slate-400 hover:text-slate-200"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Card */}
+        <div className="bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold text-white mb-2">ORIGEN ERP</h1>
+            <p className="text-slate-400">Sistema de Gestión de Proyectos</p>
           </div>
-        )}
 
-        <div className="mb-8 text-center">
-          {isSetupMode ? (
-            <>
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-                <UserPlus className="h-6 w-6" />
+          {/* Account Locked Alert */}
+          {isLocked && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex gap-3">
+              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-red-500">
+                  Cuenta Bloqueada
+                </p>
+                <p className="text-xs text-red-400 mt-1">
+                  Demasiados intentos fallidos. Intenta de nuevo en{' '}
+                  {minutesLeft} minuto{minutesLeft !== 1 ? 's' : ''}.
+                </p>
               </div>
-              <h2 className="mb-2 text-2xl font-bold text-slate-100">Primera configuración</h2>
-              <p className="text-sm text-slate-400">
-                Crea tu cuenta de administrador para comenzar
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
-                <LogIn className="h-6 w-6" />
-              </div>
-              <h2 className="mb-2 text-2xl font-bold text-slate-100">Iniciar sesión</h2>
-              <p className="text-sm text-slate-400">Accede a tu panel de control de ConstructERP</p>
-            </>
+            </div>
           )}
+
+          {/* General Error Alert */}
+          {errors.general && !isLocked && (
+            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs text-yellow-600">{errors.general}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
+            {/* Email Field */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-slate-300 mb-2"
+              >
+                Correo Electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors({ ...errors, email: '' });
+                }}
+                onBlur={() => {
+                  if (email && !validateEmail(email)) {
+                    setErrors({
+                      ...errors,
+                      email: 'Ingresa un correo válido',
+                    });
+                  }
+                }}
+                disabled={isLocked || loading}
+                placeholder="tu@correo.com"
+                className={`w-full px-4 py-2 rounded-lg border ${
+                  errors.email
+                    ? 'border-red-500 bg-red-500/5'
+                    : 'border-slate-600 bg-slate-700'
+                } text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                aria-label="Correo electrónico"
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                aria-invalid={!!errors.email}
+              />
+              {errors.email && (
+                <p
+                  id="email-error"
+                  className="text-xs text-red-400 mt-1 flex items-center gap-1"
+                >
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-slate-300 mb-2"
+              >
+                Contraseña
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) setErrors({ ...errors, password: '' });
+                  }}
+                  disabled={isLocked || loading}
+                  placeholder="••••••••"
+                  className={`w-full px-4 py-2 pr-12 rounded-lg border ${
+                    errors.password
+                      ? 'border-red-500 bg-red-500/5'
+                      : 'border-slate-600 bg-slate-700'
+                  } text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                  aria-label="Contraseña"
+                  aria-describedby={errors.password ? 'password-error' : undefined}
+                  aria-invalid={!!errors.password}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLocked || loading}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  title={showPassword ? 'Ocultar' : 'Mostrar'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p
+                  id="password-error"
+                  className="text-xs text-red-400 mt-1 flex items-center gap-1"
+                >
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {/* Remember Me */}
+            <div className="flex items-center gap-2">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={isLocked || loading}
+                className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Recuérdame"
+              />
+              <label
+                htmlFor="rememberMe"
+                className="text-sm text-slate-400 cursor-pointer hover:text-slate-300 transition-colors"
+              >
+                Recuérdame
+              </label>
+            </div>
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={isLocked || loading}
+              className="w-full mt-6 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              aria-label="Iniciar sesión"
+            >
+              {loading ? (
+                <>
+                  <Loader className="h-4 w-4 animate-spin" />
+                  Iniciando sesión...
+                </>
+              ) : (
+                'Iniciar Sesión'
+              )}
+            </button>
+          </form>
+
+          {/* Forgot Password Link */}
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={!email || isLocked || loading}
+              className="text-sm text-blue-400 hover:text-blue-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="mt-6 pt-6 border-t border-slate-700">
+            <p className="text-center text-sm text-slate-400">
+              ¿No tienes cuenta?{' '}
+              <Link
+                href="/signup"
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                Regístrate aquí
+              </Link>
+            </p>
+          </div>
+
+          {/* Security Notice */}
+          <div className="mt-4 p-3 bg-slate-700/50 rounded-lg">
+            <p className="text-xs text-slate-400 text-center">
+              🔒 Tu información está protegida. Se bloquearán intentos después
+              de 5 fallos.
+            </p>
+          </div>
         </div>
 
-        {mode === 'login' ? (
-          <LoginForm
-            onAuthenticated={handleAuthenticated}
-            onRegister={() => {
-              setMode('register');
-              setShowBack(true);
-            }}
-          />
-        ) : (
-          <RegisterForm
-            onAuthenticated={handleAuthenticated}
-            onLogin={() => {
-              setMode('login');
-              setShowBack(false);
-            }}
-          />
-        )}
-      </Card>
+        {/* Footer */}
+        <p className="text-center text-xs text-slate-500 mt-6">
+          © 2024 ORIGEN ERP. Todos los derechos reservados.
+        </p>
+      </div>
     </div>
   );
 }
+
+export default AuthContainer;
