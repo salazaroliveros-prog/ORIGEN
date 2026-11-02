@@ -477,7 +477,7 @@ export function ProjectsList() {
                   ¿Archivar proyecto?
                 </h3>
                 <p className="text-slate-600 text-sm mb-4">
-                  Vas a archivar "{deleteConfirm.projectName}". Puedes restaurarlo
+                  Vas a archivar &quot;{deleteConfirm.projectName}&quot;. Puedes restaurarlo
                   después si lo necesitas.
                 </p>
               </div>
