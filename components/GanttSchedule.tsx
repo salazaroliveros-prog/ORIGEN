@@ -1056,10 +1056,15 @@ export function GanttSchedule({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
           <form
             onSubmit={handleCreateMilestone}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="new-milestone-title"
             className="w-full max-w-lg space-y-4 rounded-3xl border border-white/15 bg-slate-900 p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-base font-bold text-white">Crear hito del proyecto</h3>
+              <h3 id="new-milestone-title" className="text-base font-bold text-white">
+                Crear hito del proyecto
+              </h3>
               <button
                 type="button"
                 onClick={() => setIsMilestoneModalOpen(false)}
@@ -1157,10 +1162,15 @@ export function GanttSchedule({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
           <form
             onSubmit={handleCreateReminder}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="new-reminder-title"
             className="w-full max-w-lg space-y-4 rounded-3xl border border-white/15 bg-slate-900 p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-base font-bold text-white">Programar recordatorio</h3>
+              <h3 id="new-reminder-title" className="text-base font-bold text-white">
+                Programar recordatorio
+              </h3>
               <button
                 type="button"
                 onClick={() => setIsReminderModalOpen(false)}
@@ -1253,14 +1263,24 @@ export function GanttSchedule({
           ========================================================================= */}
       {isNewTaskModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
-          <div className="w-full max-w-lg space-y-4 rounded-3xl border border-white/15 bg-slate-900 p-6 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="new-task-title"
+            className="w-full max-w-lg space-y-4 rounded-3xl border border-white/15 bg-slate-900 p-6 shadow-2xl"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="flex items-center gap-2 text-base font-bold text-white">
+              <h3
+                id="new-task-title"
+                className="flex items-center gap-2 text-base font-bold text-white"
+              >
                 <Plus className="h-5 w-5 text-sky-400" />
                 <span>Agregar Nueva Tarea al Cronograma</span>
               </h3>
               <button
+                type="button"
                 onClick={() => setIsNewTaskModalOpen(false)}
+                aria-label="Cerrar"
                 className="cursor-pointer rounded-lg p-1 text-slate-400 hover:text-white"
               >
                 ✕
@@ -1269,10 +1289,14 @@ export function GanttSchedule({
 
             <form onSubmit={handleCreateTask} className="space-y-3">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-300">
+                <label
+                  htmlFor="new-task-name"
+                  className="mb-1 block text-xs font-semibold text-slate-300"
+                >
                   Nombre de la Actividad:
                 </label>
                 <input
+                  id="new-task-name"
                   type="text"
                   required
                   placeholder="Ej. Fundición de losa de entrepiso nivel 3"
@@ -1284,10 +1308,14 @@ export function GanttSchedule({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
+                  <label
+                    htmlFor="new-task-phase"
+                    className="mb-1 block text-xs font-semibold text-slate-300"
+                  >
                     Fase Constructiva:
                   </label>
                   <select
+                    id="new-task-phase"
                     value={newTaskPhase}
                     onChange={(e) => setNewTaskPhase(e.target.value)}
                     className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
@@ -1302,10 +1330,14 @@ export function GanttSchedule({
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
+                  <label
+                    htmlFor="new-task-weight"
+                    className="mb-1 block text-xs font-semibold text-slate-300"
+                  >
                     Ponderación en Meta (%):
                   </label>
                   <input
+                    id="new-task-weight"
                     type="number"
                     min="1"
                     max="50"
@@ -1318,10 +1350,14 @@ export function GanttSchedule({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
+                  <label
+                    htmlFor="new-task-start"
+                    className="mb-1 block text-xs font-semibold text-slate-300"
+                  >
                     Fecha de Inicio:
                   </label>
                   <input
+                    id="new-task-start"
                     type="date"
                     required
                     value={newTaskStart}
@@ -1331,10 +1367,14 @@ export function GanttSchedule({
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
+                  <label
+                    htmlFor="new-task-end"
+                    className="mb-1 block text-xs font-semibold text-slate-300"
+                  >
                     Fecha de Finalización:
                   </label>
                   <input
+                    id="new-task-end"
                     type="date"
                     required
                     min={newTaskStart}
@@ -1346,10 +1386,14 @@ export function GanttSchedule({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-300">
+                <label
+                  htmlFor="new-task-assigned"
+                  className="mb-1 block text-xs font-semibold text-slate-300"
+                >
                   Responsable Asignado:
                 </label>
                 <input
+                  id="new-task-assigned"
                   type="text"
                   placeholder="Ej. Don Mario Cifuentes / Cuadrilla Armadores"
                   value={newTaskAssigned}
@@ -1359,10 +1403,14 @@ export function GanttSchedule({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-300">
+                <label
+                  htmlFor="new-task-predecessor"
+                  className="mb-1 block text-xs font-semibold text-slate-300"
+                >
                   Tarea Predecesora (Control de Flujo):
                 </label>
                 <select
+                  id="new-task-predecessor"
                   value={newTaskPredecessor}
                   onChange={(e) => setNewTaskPredecessor(e.target.value)}
                   className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-sky-400"
