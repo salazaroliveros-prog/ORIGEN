@@ -483,6 +483,8 @@ export default function MainApp() {
                 company={company}
                 projects={data.projects}
                 expenses={data.expenses}
+                budgetItems={data.apuItems}
+                quotes={data.quotes}
                 loading={data.loading}
                 onCreateProject={data.createProject}
                 onProjectCreated={handleProjectCreated}

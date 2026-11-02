@@ -20,13 +20,15 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { TouchTarget } from '@/components/ui/TouchTarget';
 import { ProjectPhotoDropzone } from '@/components/ProjectPhotoDropzone';
 import { toast } from 'react-hot-toast';
-import type { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
+import type { APUItem, CompanySettings, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
 
 interface ProjectsViewProps {
   company?: CompanySettings;
   projects: Project[];
   expenses: ExpenseRecord[];
+  budgetItems?: APUItem[];
+  quotes?: QuoteRecord[];
   loading: boolean;
   onCreateProject: (
     values: ProjectFormValues,
@@ -43,6 +45,8 @@ export function ProjectsView({
   company,
   projects,
   expenses,
+  budgetItems = [],
+  quotes = [],
   loading,
   onCreateProject,
   onProjectCreated,
@@ -67,6 +71,29 @@ export function ProjectsView({
         return totals;
       }, new Map<string, number>()),
     [expenses]
+  );
+  const projectApuById = useMemo(
+    () =>
+      budgetItems.reduce((totals, item) => {
+        if (item.projectId) {
+          totals.set(item.projectId, (totals.get(item.projectId) ?? 0) + item.totalPriceGTQ);
+        }
+        return totals;
+      }, new Map<string, number>()),
+    [budgetItems]
+  );
+  const projectQuoteById = useMemo(
+    () =>
+      quotes.reduce((totals, quote) => {
+        if (quote.status === 'Rechazada') return totals;
+        const current = totals.get(quote.projectId) ?? { count: 0, totalGTQ: 0 };
+        totals.set(quote.projectId, {
+          count: current.count + 1,
+          totalGTQ: current.totalGTQ + quote.totalGTQ,
+        });
+        return totals;
+      }, new Map<string, { count: number; totalGTQ: number }>()),
+    [quotes]
   );
 
   const openEdit = (project: Project) => {
@@ -94,16 +121,36 @@ export function ProjectsView({
       return `"${safeText.replace(/"/g, '""')}"`;
     };
     const rows = [
-      ['Código', 'Proyecto', 'Cliente', 'Estado', 'Presupuesto (GTQ)', 'Gasto (GTQ)', 'Avance (%)'],
-      ...visibleProjects.map((project) => [
-        project.code || project.id,
-        project.name,
-        project.client,
-        project.status,
-        project.budgetTotal,
-        projectSpentById.get(project.id) ?? project.spentTotal,
-        project.progressPercent ?? 0,
-      ]),
+      [
+        'Código',
+        'Proyecto',
+        'Cliente',
+        'Estado',
+        'Presupuesto (GTQ)',
+        'APU (GTQ)',
+        'Gasto (GTQ)',
+        'Saldo (GTQ)',
+        'Cotizaciones',
+        'Pipeline (GTQ)',
+        'Avance (%)',
+      ],
+      ...visibleProjects.map((project) => {
+        const spent = projectSpentById.get(project.id) ?? project.spentTotal;
+        const quoteSummary = projectQuoteById.get(project.id);
+        return [
+          project.code || project.id,
+          project.name,
+          project.client,
+          project.status,
+          project.budgetTotal,
+          projectApuById.get(project.id) ?? 0,
+          spent,
+          (project.budgetTotal ?? 0) - spent,
+          quoteSummary?.count ?? 0,
+          quoteSummary?.totalGTQ ?? 0,
+          project.progressPercent ?? 0,
+        ];
+      }),
     ];
     const csv = `\uFEFF${rows.map((row) => row.map(escapeCsv).join(',')).join('\r\n')}`;
     const fileUrl = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -224,12 +271,35 @@ export function ProjectsView({
                         {p.progressPercent ?? 0}%
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 font-mono text-xs text-slate-400">
-                      <span>Q{p.budgetTotal?.toLocaleString('es-GT') || '0'}</span>
-                      <span className="text-amber-400">·</span>
-                      <span>
-                        Q{(projectSpentById.get(p.id) ?? p.spentTotal ?? 0).toLocaleString('es-GT')}
-                      </span>
+                    <div className="flex flex-col items-end gap-1 font-mono text-xs text-slate-400">
+                      <div className="flex items-center gap-2">
+                        <span title="Presupuesto planificado">
+                          Ppto. Q{(p.budgetTotal ?? 0).toLocaleString('es-GT')}
+                        </span>
+                        <span className="text-amber-400">·</span>
+                        <span title="Gasto ejecutado">
+                          Gast. Q
+                          {(projectSpentById.get(p.id) ?? p.spentTotal ?? 0).toLocaleString(
+                            'es-GT'
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px]">
+                        <span
+                          title="Total de partidas APU"
+                          className={
+                            (projectApuById.get(p.id) ?? 0) > (p.budgetTotal ?? 0)
+                              ? 'text-rose-300'
+                              : 'text-sky-300'
+                          }
+                        >
+                          APU Q{(projectApuById.get(p.id) ?? 0).toLocaleString('es-GT')}
+                        </span>
+                        <span className="text-slate-600">·</span>
+                        <span title="Cotizaciones activas">
+                          Cot. {projectQuoteById.get(p.id)?.count ?? 0}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <TouchTarget

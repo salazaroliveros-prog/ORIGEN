@@ -162,6 +162,7 @@ export function BudgetAndAPU({
 
     const newItem: APUItem = {
       id: `apu-${globalThis.crypto.randomUUID()}`,
+      projectId: activeProjectId,
       code,
       description: desc,
       unit,
@@ -271,6 +272,7 @@ export function BudgetAndAPU({
 
     const newItem: APUItem = {
       id: `apu-${globalThis.crypto.randomUUID()}`,
+      projectId: activeProjectId,
       code: aiResult.code || '03.99',
       description: aiResult.title || aiPrompt,
       unit: aiResult.unit || aiUnit,
