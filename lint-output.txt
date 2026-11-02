@@ -1,0 +1,52 @@
+Debugger attached.
+
+> constructerp-guatemala@0.1.0 lint
+> eslint .
+
+Debugger attached.
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\components\ExpensesView.tsx
+  659:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\components\PersonnelView.tsx
+  299:15  error  Missing "key" prop for element in iterator  react/jsx-key
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\components\ProjectsList.tsx
+  480:34  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  480:62  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\components\QuotationsView.tsx
+  729:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\components\SettingsView.tsx
+  319:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\components\auth\AuthContainer.tsx
+  231:5  warning  React Hook useCallback has a missing dependency: 'validateForm'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\coverage\block-navigation.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\coverage\prettify.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\coverage\sorter.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\lib\components\Accessibility.tsx
+  405:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\lib\components\MobileResponsive.tsx
+  414:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\lib\design\constants.ts
+  380:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\lib\hooks\usePerformance.ts
+  23:53  warning  The ref value 'renderCount.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'renderCount.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+✖ 14 problems (3 errors, 11 warnings)
+  0 errors and 3 warnings potentially fixable with the `--fix` option.
+
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
