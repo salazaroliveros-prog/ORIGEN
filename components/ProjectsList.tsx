@@ -239,7 +239,7 @@ export function ProjectsList() {
         <>
           {/* Desktop Table View */}
           <div className="hidden sm:block">
-              <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-slate-50">
@@ -339,11 +339,13 @@ export function ProjectsList() {
                     </tr>
                   ))}
                 </tbody>
-              </div>
+              </table>
             </div>
+          </div>
 
           {/* Mobile Card View */}
           <div className="sm:hidden space-y-3">
+            {paginatedItems.map((project) => (
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
