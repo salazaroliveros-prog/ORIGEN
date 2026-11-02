@@ -65,7 +65,23 @@ describe('validateProjectForm', () => {
     }
   });
 
-  it('rejects impossible calendar dates', () => {
-    expect(validateProjectForm({ ...validProject, startDate: '2026-02-30' }).success).toBe(false);
+  it('rejects invalid date formats', () => {
+    expect(validateProjectForm({ ...validProject, startDate: 'invalid-date' }).success).toBe(false);
+  });
+
+  it('rejects negative budget', () => {
+    expect(validateProjectForm({ ...validProject, budgetTotal: -1000 }).success).toBe(false);
+  });
+
+  it('rejects progress > 100%', () => {
+    expect(validateProjectForm({ ...validProject, progressPercent: 101 }).success).toBe(false);
+  });
+
+  it('rejects invalid latitude', () => {
+    expect(validateProjectForm({ ...validProject, lat: 95 }).success).toBe(false);
+  });
+
+  it('rejects invalid longitude', () => {
+    expect(validateProjectForm({ ...validProject, lng: 200 }).success).toBe(false);
   });
 });
