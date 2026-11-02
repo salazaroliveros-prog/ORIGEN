@@ -56,7 +56,7 @@ import {
 import {
   updateProjectWithCalculatedMetrics,
   calculateProjectSpentById,
-  calculateProjectProgress,
+  resolveProjectProgress,
 } from '@/lib/projectCalculations';
 import { notifySyncEnd } from './useFirebaseSyncStatus';
 
@@ -174,9 +174,10 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     if (projects.length === 0) return;
 
     const updatedProjects = projects.map((project) => {
-      const calculatedProgress = calculateProjectProgress(
+      const calculatedProgress = resolveProjectProgress(
         project.scheduleTasks,
-        project.scheduleMilestones
+        project.scheduleMilestones,
+        project.progressPercent
       );
 
       // Solo actualizar si el progreso calculado es diferente al actual
@@ -231,7 +232,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.error('Error al crear el proyecto');
         return false;
-      } catch (err) { notifySyncEnd();
+      } catch (err) {
+        notifySyncEnd();
         toast.error('Error inesperado al crear el proyecto');
         return false;
       } finally {
@@ -270,7 +272,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.error('Error al actualizar el proyecto');
         return false;
-      } catch (err) { notifySyncEnd();
+      } catch (err) {
+        notifySyncEnd();
         toast.error('Error inesperado al actualizar el proyecto');
         return false;
       } finally {
@@ -313,7 +316,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.success('Proyecto archivado. Su historial y registros relacionados se conservaron.');
         return true;
-      } catch (err) { notifySyncEnd();
+      } catch (err) {
+        notifySyncEnd();
         console.error('No se pudo archivar el proyecto:', err);
         toast.error(
           'Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.'
@@ -354,7 +358,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.success('Proyecto restaurado.');
         return true;
-      } catch (error) { notifySyncEnd();
+      } catch (error) {
+        notifySyncEnd();
         console.error('No se pudo restaurar el proyecto:', error);
         toast.error('Error inesperado al restaurar el proyecto.');
         return false;
@@ -379,8 +384,12 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.error('Error al guardar el gasto');
         return false;
-      } catch (err) { notifySyncEnd();
-        toast.error('Error inesperado al guardar el gasto');
+      } catch (err) {
+        notifySyncEnd();
+        const detail = err instanceof Error ? err.message : '';
+        toast.error(
+          detail ? `No se pudo guardar el gasto: ${detail}` : 'Error inesperado al guardar el gasto'
+        );
         return false;
       }
     },
@@ -401,7 +410,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.error('Error al eliminar el gasto');
         return false;
-      } catch (err) { notifySyncEnd();
+      } catch (err) {
+        notifySyncEnd();
         toast.error('Error inesperado al eliminar el gasto');
         return false;
       }
@@ -423,7 +433,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.error('Error al actualizar el gasto');
         return false;
-      } catch (err) { notifySyncEnd();
+      } catch (err) {
+        notifySyncEnd();
         toast.error('Error inesperado al actualizar el gasto');
         return false;
       }
@@ -445,7 +456,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
         toast.error('No se pudo guardar la asistencia');
         return false;
-      } catch (err) { notifySyncEnd();
+      } catch (err) {
+        notifySyncEnd();
         toast.error('Error inesperado al guardar la asistencia');
         return false;
       }

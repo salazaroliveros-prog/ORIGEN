@@ -29,6 +29,21 @@ export function calculateProjectProgress(tasks?: ScheduleTask[], milestones?: Mi
 }
 
 /**
+ * Define el avance a mostrar para un proyecto.
+ * Solo se recalcula desde el cronograma cuando existen tareas o hitos;
+ * de lo contrario se conserva el avance manual capturado en el formulario.
+ */
+export function resolveProjectProgress(
+  tasks: ScheduleTask[] | undefined,
+  milestones: Milestone[] | undefined,
+  currentProgress: number | undefined
+): number {
+  const hasSchedule = (tasks?.length ?? 0) > 0 || (milestones?.length ?? 0) > 0;
+  if (!hasSchedule) return currentProgress ?? 0;
+  return calculateProjectProgress(tasks, milestones);
+}
+
+/**
  * Calcula el gasto total del proyecto sumando todos los gastos
  */
 export function calculateProjectSpentTotal(expenses: ExpenseRecord[]): number {

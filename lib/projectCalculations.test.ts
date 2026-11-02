@@ -6,6 +6,7 @@ import {
   calculateProjectSpentById,
   calculateProjectSpentTotal,
   isProjectOverBudget,
+  resolveProjectProgress,
   updateProjectWithCalculatedMetrics,
 } from './projectCalculations';
 import type { ExpenseRecord, Milestone, Project, ScheduleTask } from './types';
@@ -92,6 +93,31 @@ describe('calculateProjectProgress', () => {
   it('returns zero without tasks or milestones', () => {
     expect(calculateProjectProgress(undefined, undefined)).toBe(0);
     expect(calculateProjectProgress([], [])).toBe(0);
+  });
+});
+
+describe('resolveProjectProgress', () => {
+  it('keeps the manual progress when there are no tasks or milestones', () => {
+    expect(resolveProjectProgress(undefined, undefined, 37)).toBe(37);
+    expect(resolveProjectProgress([], [], 5)).toBe(5);
+  });
+
+  it('falls back to zero when no manual progress was captured', () => {
+    expect(resolveProjectProgress(undefined, undefined, undefined)).toBe(0);
+  });
+
+  it('recalculates from tasks when a schedule exists', () => {
+    const tasks = [task({ id: 'a', completed: true }), task({ id: 'b' })];
+    expect(resolveProjectProgress(tasks, undefined, 80)).toBe(50);
+  });
+
+  it('recalculates from milestones when only milestones exist', () => {
+    const milestones = [
+      milestone({ id: 'm1', completed: true }),
+      milestone({ id: 'm2', completed: true }),
+      milestone({ id: 'm3' }),
+    ];
+    expect(resolveProjectProgress([], milestones, 10)).toBe(67);
   });
 });
 

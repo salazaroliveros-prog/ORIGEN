@@ -54,6 +54,42 @@ describe('entity schemas use the persisted ERP record contracts', () => {
     ).toBe(true);
   });
 
+  it('accepts expense records without optional SAT supplier fields', () => {
+    expect(
+      validateExpenseRecord({
+        id: 'expense-sin-factura',
+        projectId: 'project-e2e',
+        date: '2026-10-26',
+        category: 'Imprevistos',
+        description: 'Compra sin factura formal',
+        supplier: '',
+        nitSupplier: '',
+        facturaNumber: '',
+        amount: 80,
+        currency: 'GTQ',
+        paymentMethod: 'Efectivo',
+      }).success
+    ).toBe(true);
+  });
+
+  it('rejects expense records with an invalid amount', () => {
+    expect(
+      validateExpenseRecord({
+        id: 'expense-invalido',
+        projectId: 'project-e2e',
+        date: '2026-10-26',
+        category: 'Imprevistos',
+        description: 'Monto en cero',
+        supplier: '',
+        nitSupplier: '',
+        facturaNumber: '',
+        amount: 0,
+        currency: 'GTQ',
+        paymentMethod: 'Efectivo',
+      }).success
+    ).toBe(false);
+  });
+
   it('accepts quote records created by the quote form', () => {
     expect(
       validateQuoteRecord({

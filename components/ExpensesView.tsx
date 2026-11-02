@@ -256,7 +256,7 @@ export function ExpensesView({
     try {
       const saved = await onAddExpense(newExpense);
       if (!saved) {
-        setSaveError('No se pudo guardar el gasto. Verifica tu sesión e inténtalo de nuevo.');
+        setSaveError('No se pudo guardar el gasto. Revisa los datos e inténtalo de nuevo.');
         return;
       }
 
