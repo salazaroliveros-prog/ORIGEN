@@ -27,12 +27,6 @@ const nextConfig: NextConfig = {
     ],
   },
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
 };
 
 // Bundle analyzer wrapper
