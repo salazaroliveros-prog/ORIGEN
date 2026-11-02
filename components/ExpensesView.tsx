@@ -26,7 +26,7 @@ import {
   Filter,
   X,
 } from 'lucide-react';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@/lib/components/Toast';
 import type { ExpenseRecord } from '@/lib/types';
 import { COLORS } from '@/lib/design/constants';
 
@@ -428,7 +428,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                     formErrors.category ? 'border-red-500' : 'border-slate-300'
                   }`}
                 >
-                  {Object.keys(CATEGORY_COLORS).map((cat) => (
+                  {Object.keys(COLORS.expenseCategories).map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>
@@ -587,8 +587,8 @@ export function ExpensesView({ projectId }: { projectId: string }) {
         ) : (
           filteredExpenses.map((expense) => {
             const colors =
-              CATEGORY_COLORS[expense.category as keyof typeof CATEGORY_COLORS] ||
-              CATEGORY_COLORS['Otros'];
+              COLORS.expenseCategories[expense.category as keyof typeof COLORS.expenseCategories] ||
+              COLORS.expenseCategories['other'];
 
             return (
               <div
