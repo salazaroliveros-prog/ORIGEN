@@ -14,13 +14,14 @@ export function useRenderTime(componentName: string): void {
 
   useEffect(() => {
     renderCount.current++;
+    const currentCount = renderCount.current;
 
     if (process.env.NODE_ENV === 'development') {
       const renderTime = performance.now();
       return () => {
         const endTime = performance.now();
         console.debug(
-          `[${componentName}] Render #${renderCount.current} took ${(endTime - renderTime).toFixed(2)}ms`
+          `[${componentName}] Render #${currentCount} took ${(endTime - renderTime).toFixed(2)}ms`
         );
       };
     }
@@ -59,10 +60,7 @@ export function useWhyDidYouUpdate(name: string, props: any): void {
 /**
  * Hook to measure function execution time
  */
-export function useMeasure<T extends (...args: any[]) => any>(
-  fn: T,
-  name: string
-): T {
+export function useMeasure<T extends (...args: any[]) => any>(fn: T, name: string): T {
   return useCallback(
     (...args: any[]) => {
       const start = performance.now();
@@ -92,9 +90,7 @@ export function useMemoryWarning(threshold: number = 50): void {
         const percent = Math.round((usedMB / limitMB) * 100);
 
         if (percent > threshold) {
-          console.warn(
-            `[Memory] High memory usage: ${usedMB}MB / ${limitMB}MB (${percent}%)`
-          );
+          console.warn(`[Memory] High memory usage: ${usedMB}MB / ${limitMB}MB (${percent}%)`);
         }
       };
 

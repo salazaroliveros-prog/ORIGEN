@@ -1,7 +1,7 @@
 /**
  * ORIGEN ERP - Authentication Container Component
  * Implements secure login with rate limiting and enhanced UX
- * 
+ *
  * Features:
  * - 5-attempt rate limiting with 15-minute lockout
  * - Password visibility toggle with eye icon
@@ -95,29 +95,9 @@ export function AuthContainer() {
   };
 
   // Validate email format
-  const validateEmail = (email: string): boolean => {
+  const validateEmailFormat = (emailStr: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  // Validate form
-  const validateForm = (): boolean => {
-    const newErrors: AuthError = {};
-
-    if (!email.trim()) {
-      newErrors.email = 'El correo es requerido';
-    } else if (!validateEmail(email)) {
-      newErrors.email = 'Ingresa un correo válido';
-    }
-
-    if (!password) {
-      newErrors.password = 'La contraseña es requerida';
-    } else if (password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return regex.test(emailStr);
   };
 
   // Handle login
@@ -125,11 +105,29 @@ export function AuthContainer() {
     async (e: React.FormEvent) => {
       e.preventDefault();
 
+      // Validate form inline to avoid dependency issues
+      const validateForm = (): boolean => {
+        const newErrors: AuthError = {};
+
+        if (!email.trim()) {
+          newErrors.email = 'El correo es requerido';
+        } else if (!validateEmailFormat(email)) {
+          newErrors.email = 'Ingresa un correo válido';
+        }
+
+        if (!password) {
+          newErrors.password = 'La contraseña es requerida';
+        } else if (password.length < 6) {
+          newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+      };
+
       // Check if locked
       if (isLocked) {
-        toast.error(
-          'Cuenta temporalmente bloqueada. Intenta de nuevo en 15 minutos.'
-        );
+        toast.error('Cuenta temporalmente bloqueada. Intenta de nuevo en 15 minutos.');
         return;
       }
 
@@ -149,9 +147,7 @@ export function AuthContainer() {
 
         setupLockTimer(lockDuration);
 
-        toast.error(
-          'Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.'
-        );
+        toast.error('Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.');
         return;
       }
 
@@ -189,9 +185,7 @@ export function AuthContainer() {
             setErrors({
               general: `Correo o contraseña incorrectos. ${attemptsLeft} intentos restantes.`,
             });
-            toast.error(
-              `Credenciales inválidas. ${attemptsLeft} intentos restantes.`
-            );
+            toast.error(`Credenciales inválidas. ${attemptsLeft} intentos restantes.`);
           }
           return;
         }
@@ -212,8 +206,7 @@ export function AuthContainer() {
         // Navigate to dashboard
         router.push('/dashboard');
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Error de autenticación';
+        const message = error instanceof Error ? error.message : 'Error de autenticación';
 
         setErrors({
           general: message,
@@ -238,7 +231,7 @@ export function AuthContainer() {
       return;
     }
 
-    if (!validateEmail(email)) {
+    if (!validateEmailFormat(email)) {
       setErrors({ email: 'Ingresa un correo válido' });
       return;
     }
@@ -249,8 +242,7 @@ export function AuthContainer() {
       toast.success('Correo de reseteo enviado. Revisa tu bandeja de entrada.');
       setErrors({});
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Error al resetear contraseña';
+      const message = error instanceof Error ? error.message : 'Error al resetear contraseña';
       setErrors({ general: message });
       toast.error(message);
     } finally {
@@ -282,27 +274,25 @@ export function AuthContainer() {
   const minutesLeft = getMinutesLeft();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700">
+        <div className="rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-2xl">
           {/* Header */}
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-white mb-2">ORIGEN ERP</h1>
+            <h1 className="mb-2 text-3xl font-bold text-white">ORIGEN ERP</h1>
             <p className="text-slate-400">Sistema de Gestión de Proyectos</p>
           </div>
 
           {/* Account Locked Alert */}
           {isLocked && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex gap-3">
-              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="mb-6 flex gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
               <div>
-                <p className="text-sm font-semibold text-red-500">
-                  Cuenta Bloqueada
-                </p>
-                <p className="text-xs text-red-400 mt-1">
-                  Demasiados intentos fallidos. Intenta de nuevo en{' '}
-                  {minutesLeft} minuto{minutesLeft !== 1 ? 's' : ''}.
+                <p className="text-sm font-semibold text-red-500">Cuenta Bloqueada</p>
+                <p className="mt-1 text-xs text-red-400">
+                  Demasiados intentos fallidos. Intenta de nuevo en {minutesLeft} minuto
+                  {minutesLeft !== 1 ? 's' : ''}.
                 </p>
               </div>
             </div>
@@ -310,8 +300,8 @@ export function AuthContainer() {
 
           {/* General Error Alert */}
           {errors.general && !isLocked && (
-            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <div className="mb-6 flex gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-500" />
               <div>
                 <p className="text-xs text-yellow-600">{errors.general}</p>
               </div>
@@ -322,10 +312,7 @@ export function AuthContainer() {
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Email Field */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-slate-300 mb-2"
-              >
+              <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-300">
                 Correo Electrónico
               </label>
               <input
@@ -337,7 +324,7 @@ export function AuthContainer() {
                   if (errors.email) setErrors({ ...errors, email: '' });
                 }}
                 onBlur={() => {
-                  if (email && !validateEmail(email)) {
+                  if (email && !validateEmailFormat(email)) {
                     setErrors({
                       ...errors,
                       email: 'Ingresa un correo válido',
@@ -346,20 +333,15 @@ export function AuthContainer() {
                 }}
                 disabled={isLocked || loading}
                 placeholder="tu@correo.com"
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  errors.email
-                    ? 'border-red-500 bg-red-500/5'
-                    : 'border-slate-600 bg-slate-700'
-                } text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                className={`w-full rounded-lg border px-4 py-2 ${
+                  errors.email ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
+                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
                 aria-label="Correo electrónico"
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 aria-invalid={!!errors.email}
               />
               {errors.email && (
-                <p
-                  id="email-error"
-                  className="text-xs text-red-400 mt-1 flex items-center gap-1"
-                >
+                <p id="email-error" className="mt-1 flex items-center gap-1 text-xs text-red-400">
                   <AlertCircle className="h-3 w-3" />
                   {errors.email}
                 </p>
@@ -368,10 +350,7 @@ export function AuthContainer() {
 
             {/* Password Field */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-slate-300 mb-2"
-              >
+              <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-300">
                 Contraseña
               </label>
               <div className="relative">
@@ -385,11 +364,11 @@ export function AuthContainer() {
                   }}
                   disabled={isLocked || loading}
                   placeholder="••••••••"
-                  className={`w-full px-4 py-2 pr-12 rounded-lg border ${
+                  className={`w-full rounded-lg border px-4 py-2 pr-12 ${
                     errors.password
                       ? 'border-red-500 bg-red-500/5'
                       : 'border-slate-600 bg-slate-700'
-                  } text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                  } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
                   aria-label="Contraseña"
                   aria-describedby={errors.password ? 'password-error' : undefined}
                   aria-invalid={!!errors.password}
@@ -398,21 +377,17 @@ export function AuthContainer() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLocked || loading}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   title={showPassword ? 'Ocultar' : 'Mostrar'}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {errors.password && (
                 <p
                   id="password-error"
-                  className="text-xs text-red-400 mt-1 flex items-center gap-1"
+                  className="mt-1 flex items-center gap-1 text-xs text-red-400"
                 >
                   <AlertCircle className="h-3 w-3" />
                   {errors.password}
@@ -428,12 +403,12 @@ export function AuthContainer() {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 disabled={isLocked || loading}
-                className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-4 w-4 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Recuérdame"
               />
               <label
                 htmlFor="rememberMe"
-                className="text-sm text-slate-400 cursor-pointer hover:text-slate-300 transition-colors"
+                className="cursor-pointer text-sm text-slate-400 transition-colors hover:text-slate-300"
               >
                 Recuérdame
               </label>
@@ -443,7 +418,7 @@ export function AuthContainer() {
             <button
               type="submit"
               disabled={isLocked || loading}
-              className="w-full mt-6 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:opacity-50"
               aria-label="Iniciar sesión"
             >
               {loading ? (
@@ -463,19 +438,19 @@ export function AuthContainer() {
               type="button"
               onClick={handleForgotPassword}
               disabled={!email || isLocked || loading}
-              className="text-sm text-blue-400 hover:text-blue-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-colors"
+              className="text-sm text-blue-400 transition-colors hover:text-blue-300 disabled:cursor-not-allowed disabled:text-slate-500"
             >
               ¿Olvidaste tu contraseña?
             </button>
           </div>
 
           {/* Divider */}
-          <div className="mt-6 pt-6 border-t border-slate-700">
+          <div className="mt-6 border-t border-slate-700 pt-6">
             <p className="text-center text-sm text-slate-400">
               ¿No tienes cuenta?{' '}
               <Link
                 href="/signup"
-                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                className="font-medium text-blue-400 transition-colors hover:text-blue-300"
               >
                 Regístrate aquí
               </Link>
@@ -483,16 +458,15 @@ export function AuthContainer() {
           </div>
 
           {/* Security Notice */}
-          <div className="mt-4 p-3 bg-slate-700/50 rounded-lg">
-            <p className="text-xs text-slate-400 text-center">
-              🔒 Tu información está protegida. Se bloquearán intentos después
-              de 5 fallos.
+          <div className="mt-4 rounded-lg bg-slate-700/50 p-3">
+            <p className="text-center text-xs text-slate-400">
+              🔒 Tu información está protegida. Se bloquearán intentos después de 5 fallos.
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-slate-500 mt-6">
+        <p className="mt-6 text-center text-xs text-slate-500">
           © 2024 ORIGEN ERP. Todos los derechos reservados.
         </p>
       </div>

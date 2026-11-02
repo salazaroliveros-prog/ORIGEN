@@ -21,13 +21,15 @@ export function getContrastRatio(color1: string, color2: string): number {
     const g = (rgb >> 8) & 0xff;
     const b = (rgb >> 0) & 0xff;
 
-    const [rs, gs, bs] = [r, g, b].map(x => {
+    const [rs, gs, bs] = [r, g, b].map((x) => {
       x = x / 255;
       return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
     });
 
     return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   };
+
+  export default AccessibilityExports;
 
   const lum1 = getLuminance(color1);
   const lum2 = getLuminance(color2);
@@ -42,8 +44,7 @@ export function isWCAGAACompliant(contrast: number): boolean {
 }
 
 // FEATURE 5.2: Accessible Form Input
-interface AccessibleInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface AccessibleInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   hint?: string;
@@ -65,12 +66,13 @@ export function AccessibleInput({
 
   return (
     <div>
-      <label
-        htmlFor={inputId}
-        className="block text-sm font-medium text-slate-700 mb-1"
-      >
+      <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-slate-700">
         {label}
-        {required && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+        {required && (
+          <span className="ml-1 text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
 
       <input
@@ -79,20 +81,20 @@ export function AccessibleInput({
         aria-required={required}
         aria-invalid={!!error}
         aria-describedby={`${error ? errorId : ''} ${hint ? hintId : ''}`}
-        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+        className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none ${
           error ? 'border-red-500 focus:ring-red-500' : 'border-slate-300'
         }`}
         {...props}
       />
 
       {hint && (
-        <p id={hintId} className="text-xs text-slate-600 mt-1">
+        <p id={hintId} className="mt-1 text-xs text-slate-600">
           {hint}
         </p>
       )}
 
       {error && (
-        <p id={errorId} className="text-xs text-red-600 mt-1" role="alert">
+        <p id={errorId} className="mt-1 text-xs text-red-600" role="alert">
           {error}
         </p>
       )}
@@ -101,8 +103,7 @@ export function AccessibleInput({
 }
 
 // FEATURE 5.2: Accessible Select
-interface AccessibleSelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface AccessibleSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
   options: { value: string; label: string }[];
   error?: string;
@@ -126,12 +127,13 @@ export function AccessibleSelect({
 
   return (
     <div>
-      <label
-        htmlFor={selectId}
-        className="block text-sm font-medium text-slate-700 mb-1"
-      >
+      <label htmlFor={selectId} className="mb-1 block text-sm font-medium text-slate-700">
         {label}
-        {required && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+        {required && (
+          <span className="ml-1 text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
 
       <select
@@ -140,13 +142,13 @@ export function AccessibleSelect({
         aria-required={required}
         aria-invalid={!!error}
         aria-describedby={`${error ? errorId : ''} ${hint ? hintId : ''}`}
-        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+        className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none ${
           error ? 'border-red-500 focus:ring-red-500' : 'border-slate-300'
         }`}
         {...props}
       >
         <option value="">Selecciona una opción</option>
-        {options.map(opt => (
+        {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
@@ -154,13 +156,13 @@ export function AccessibleSelect({
       </select>
 
       {hint && (
-        <p id={hintId} className="text-xs text-slate-600 mt-1">
+        <p id={hintId} className="mt-1 text-xs text-slate-600">
           {hint}
         </p>
       )}
 
       {error && (
-        <p id={errorId} className="text-xs text-red-600 mt-1" role="alert">
+        <p id={errorId} className="mt-1 text-xs text-red-600" role="alert">
           {error}
         </p>
       )}
@@ -169,8 +171,7 @@ export function AccessibleSelect({
 }
 
 // FEATURE 5.2: Accessible Button
-interface AccessibleButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface AccessibleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   ariaLabel?: string;
   ariaPressed?: boolean;
@@ -187,7 +188,7 @@ export function AccessibleButton({
     <button
       aria-label={ariaLabel}
       aria-pressed={ariaPressed}
-      className={`px-4 py-2 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-colors ${className}`}
+      className={`rounded-lg px-4 py-2 font-semibold transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none ${className}`}
       {...props}
     >
       {children}
@@ -200,7 +201,7 @@ export function SkipLink() {
   return (
     <a
       href="#main"
-      className="sr-only focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-50 focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-white"
     >
       Saltar al contenido principal
     </a>
@@ -251,12 +252,7 @@ interface AccessibleAlertProps {
   onClose?: () => void;
 }
 
-export function AccessibleAlert({
-  variant,
-  title,
-  message,
-  onClose,
-}: AccessibleAlertProps) {
+export function AccessibleAlert({ variant, title, message, onClose }: AccessibleAlertProps) {
   const variants = {
     info: { bg: 'bg-blue-50', border: 'border-blue-200', icon: '✓' },
     success: { bg: 'bg-green-50', border: 'border-green-200', icon: '✓' },
@@ -267,20 +263,17 @@ export function AccessibleAlert({
   const v = variants[variant];
 
   return (
-    <div
-      role="alert"
-      className={`${v.bg} border ${v.border} rounded-lg p-4 flex gap-3`}
-    >
+    <div role="alert" className={`${v.bg} border ${v.border} flex gap-3 rounded-lg p-4`}>
       <div className="text-lg">{v.icon}</div>
       <div className="flex-1">
         <h3 className="font-semibold text-slate-900">{title}</h3>
-        <p className="text-sm text-slate-700 mt-1">{message}</p>
+        <p className="mt-1 text-sm text-slate-700">{message}</p>
       </div>
       {onClose && (
         <button
           onClick={onClose}
           aria-label="Cerrar alerta"
-          className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-slate-400"
+          className="flex-shrink-0 focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 focus:outline-none"
         >
           ✕
         </button>
@@ -290,10 +283,7 @@ export function AccessibleAlert({
 }
 
 // FEATURE 5.2: Keyboard navigation helper
-export function useKeyboardNavigation(
-  items: string[],
-  onSelect?: (index: number) => void
-) {
+export function useKeyboardNavigation(items: string[], onSelect?: (index: number) => void) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -305,12 +295,12 @@ export function useKeyboardNavigation(
         case 'ArrowDown':
         case 'ArrowRight':
           e.preventDefault();
-          setSelectedIndex(prev => (prev + 1) % items.length);
+          setSelectedIndex((prev) => (prev + 1) % items.length);
           break;
         case 'ArrowUp':
         case 'ArrowLeft':
           e.preventDefault();
-          setSelectedIndex(prev => (prev - 1 + items.length) % items.length);
+          setSelectedIndex((prev) => (prev - 1 + items.length) % items.length);
           break;
         case 'Enter':
         case ' ':
@@ -336,10 +326,8 @@ export function ContrastValidator() {
   const isCompliant = isWCAGAACompliant(contrast);
 
   return (
-    <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-      <p className="text-sm font-semibold text-slate-900 mb-3">
-        Validador de Contraste WCAG AA
-      </p>
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <p className="mb-3 text-sm font-semibold text-slate-900">Validador de Contraste WCAG AA</p>
 
       <div className="space-y-3">
         <div>
@@ -348,7 +336,7 @@ export function ContrastValidator() {
             type="color"
             value={color1}
             onChange={(e) => setColor1(e.target.value)}
-            className="w-full h-10 rounded cursor-pointer"
+            className="h-10 w-full cursor-pointer rounded"
           />
         </div>
 
@@ -358,29 +346,29 @@ export function ContrastValidator() {
             type="color"
             value={color2}
             onChange={(e) => setColor2(e.target.value)}
-            className="w-full h-10 rounded cursor-pointer"
+            className="h-10 w-full cursor-pointer rounded"
           />
         </div>
 
         <div
-          className="p-4 rounded text-center font-bold"
+          className="rounded p-4 text-center font-bold"
           style={{ backgroundColor: color1, color: color2 }}
         >
           Vista Previa del Texto
         </div>
 
-        <div className={`p-3 rounded-lg flex gap-2 items-start ${
-          isCompliant
-            ? 'bg-green-50 border border-green-200'
-            : 'bg-red-50 border border-red-200'
-        }`}>
-          <AlertCircle className={`h-5 w-5 flex-shrink-0 mt-0.5 ${
-            isCompliant ? 'text-green-600' : 'text-red-600'
-          }`} />
+        <div
+          className={`flex items-start gap-2 rounded-lg p-3 ${
+            isCompliant ? 'border border-green-200 bg-green-50' : 'border border-red-200 bg-red-50'
+          }`}
+        >
+          <AlertCircle
+            className={`mt-0.5 h-5 w-5 flex-shrink-0 ${
+              isCompliant ? 'text-green-600' : 'text-red-600'
+            }`}
+          />
           <div className="text-sm">
-            <p className="font-semibold text-slate-900">
-              Contraste: {contrast.toFixed(2)}:1
-            </p>
+            <p className="font-semibold text-slate-900">Contraste: {contrast.toFixed(2)}:1</p>
             <p className={isCompliant ? 'text-green-700' : 'text-red-700'}>
               {isCompliant
                 ? '✓ Cumple con WCAG AA (4.5:1)'
@@ -395,14 +383,10 @@ export function ContrastValidator() {
 
 // Utility: Screen reader only text
 export function ScreenReaderOnly({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="sr-only">
-      {children}
-    </span>
-  );
+  return <span className="sr-only">{children}</span>;
 }
 
-export default {
+const AccessibilityExports = {
   getContrastRatio,
   isWCAGAACompliant,
   AccessibleInput,

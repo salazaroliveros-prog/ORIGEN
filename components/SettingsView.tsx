@@ -11,6 +11,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import {
   Settings,
   Upload,
@@ -150,9 +151,7 @@ export function SettingsView() {
           const optimizedUrl = canvas.toDataURL('image/jpeg', 0.8);
           setLogoPreview(optimizedUrl);
           setLogoFile(file);
-          toast.success(
-            `Imagen optimizada: ${Math.round((file.size / 1024) * 0.8)} KB`
-          );
+          toast.success(`Imagen optimizada: ${Math.round((file.size / 1024) * 0.8)} KB`);
         }
       };
       img.src = event.target?.result as string;
@@ -165,7 +164,7 @@ export function SettingsView() {
     setSaving(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (logoPreview) {
         setCompany({ ...company, logoUrl: logoPreview });
@@ -184,9 +183,7 @@ export function SettingsView() {
   const handleUpdateExchangeRate = async () => {
     try {
       // Simulate API call to real exchange rate service
-      const response = await fetch(
-        'https://api.exchangerate-api.com/v4/latest/GTQ'
-      );
+      const response = await fetch('https://api.exchangerate-api.com/v4/latest/GTQ');
       const data = await response.json();
       const rate = data.rates?.USD || 7.85;
 
@@ -241,7 +238,7 @@ export function SettingsView() {
   }
 
   return (
-    <div className="space-y-6 p-6 bg-slate-50">
+    <div className="space-y-6 bg-slate-50 p-6">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Settings className="h-8 w-8 text-slate-900" />
@@ -249,94 +246,86 @@ export function SettingsView() {
       </div>
 
       {/* Company Settings */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Información de la Empresa</h2>
+      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-xl font-bold text-slate-900">Información de la Empresa</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Nombre
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Nombre</label>
             <input
               type="text"
               value={company.name}
               onChange={(e) => setCompany({ ...company, name: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">NIT</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">NIT</label>
             <input
               type="text"
               value={company.nit}
               onChange={(e) => setCompany({ ...company, nit: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Teléfono
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Teléfono</label>
             <input
               type="tel"
               value={company.phone}
               onChange={(e) => setCompany({ ...company, phone: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Email
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
             <input
               type="email"
               value={company.email}
               onChange={(e) => setCompany({ ...company, email: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Dirección
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Dirección</label>
             <input
               type="text"
               value={company.address}
               onChange={(e) => setCompany({ ...company, address: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         {/* Logo Upload - FEATURE 3.1 - FIXED: Improved drop zone visibility */}
-        <div className="border-4 border-dashed border-blue-300 rounded-lg p-6 text-center mb-4 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+        <div className="mb-4 cursor-pointer rounded-lg border-4 border-dashed border-blue-300 p-6 text-center transition-all hover:border-blue-500 hover:bg-blue-50">
           {logoPreview ? (
             <div className="relative inline-block">
-              <img
+              <Image
                 src={logoPreview}
                 alt="Logo preview"
-                className="max-h-32 mx-auto"
+                width={300}
+                height={130}
+                className="mx-auto max-h-32"
               />
               <button
                 onClick={() => {
                   setLogoPreview(null);
                   setLogoFile(null);
                 }}
-                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 transition-colors"
+                className="absolute -top-2 -right-2 rounded-full bg-red-600 p-1 text-white transition-colors hover:bg-red-700"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
           ) : (
             <div>
-              <ImageIcon className="h-12 w-12 mx-auto text-slate-400 mb-2" />
-              <p className="text-sm text-slate-600 mb-2">
-                Haz clic o arrastra tu logo aquí
-              </p>
+              <ImageIcon className="mx-auto mb-2 h-12 w-12 text-slate-400" />
+              <p className="mb-2 text-sm text-slate-600">Haz clic o arrastra tu logo aquí</p>
               <input
                 type="file"
                 accept="image/*"
@@ -346,7 +335,7 @@ export function SettingsView() {
               />
               <button
                 onClick={() => document.getElementById('logo-upload')?.click()}
-                className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700"
               >
                 Seleccionar archivo
               </button>
@@ -358,7 +347,7 @@ export function SettingsView() {
         <button
           onClick={handleSaveSettings}
           disabled={saving}
-          className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 disabled:bg-slate-400"
         >
           {saving ? (
             <>
@@ -375,33 +364,33 @@ export function SettingsView() {
       </div>
 
       {/* Exchange Rates - FEATURE 3.3 */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
             <DollarSign className="h-6 w-6" />
             Tasas de Cambio
           </h2>
           <button
             onClick={handleUpdateExchangeRate}
-            className="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded text-sm font-semibold transition-colors"
+            className="rounded bg-green-100 px-3 py-1 text-sm font-semibold text-green-700 transition-colors hover:bg-green-200"
           >
             Actualizar
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm text-slate-600">GTQ a USD</p>
             <p className="text-3xl font-bold text-slate-900">
               1 GTQ = {exchangeRates.gtqToUsd} USD
             </p>
-            <p className="text-xs text-slate-500 mt-2">
+            <p className="mt-2 text-xs text-slate-500">
               Actualizado: {new Date(exchangeRates.lastUpdate).toLocaleString()}
             </p>
           </div>
 
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-700 font-medium">Manual</p>
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <p className="text-sm font-medium text-blue-700">Manual</p>
             <input
               type="number"
               value={exchangeRates.gtqToUsd}
@@ -412,36 +401,36 @@ export function SettingsView() {
                 })
               }
               step="0.01"
-              className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+              className="mt-2 w-full rounded-lg border border-blue-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
       </div>
 
       {/* User Invitations - FEATURE 3.4 */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-slate-900">
           <Users className="h-6 w-6" />
           Invitar Usuarios
         </h2>
 
         {/* Invite Form */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-4">
           <input
             type="email"
             value={newInvite.email}
             onChange={(e) => setNewInvite({ ...newInvite, email: e.target.value })}
             placeholder="email@example.com"
-            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
           />
 
           {/* FEATURE 3.5: Role Descriptions */}
           <select
             value={newInvite.role}
             onChange={(e) => setNewInvite({ ...newInvite, role: e.target.value })}
-            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
           >
-            {Object.keys(ROLE_DESCRIPTIONS).map(role => (
+            {Object.keys(ROLE_DESCRIPTIONS).map((role) => (
               <option key={role} value={role}>
                 {role.charAt(0).toUpperCase() + role.slice(1)}
               </option>
@@ -450,7 +439,7 @@ export function SettingsView() {
 
           <button
             onClick={handleGenerateInvite}
-            className="col-span-1 md:col-span-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+            className="col-span-1 flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 md:col-span-2"
           >
             <Link2 className="h-5 w-5" />
             Generar Invitación
@@ -458,8 +447,8 @@ export function SettingsView() {
         </div>
 
         {/* Role Descriptions - FEATURE 3.5 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="col-span-full text-sm font-semibold text-blue-900 mb-2">
+        <div className="mb-6 grid grid-cols-1 gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 md:grid-cols-2">
+          <p className="col-span-full mb-2 text-sm font-semibold text-blue-900">
             Descripciones de Roles:
           </p>
           {Object.entries(ROLE_DESCRIPTIONS).map(([role, desc]) => (
@@ -473,21 +462,18 @@ export function SettingsView() {
         {/* Invited Users List */}
         <div className="space-y-2">
           <h3 className="font-semibold text-slate-900">Usuarios Invitados</h3>
-          {invitedUsers.map(user => (
+          {invitedUsers.map((user) => (
             <div
               key={user.id}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200"
+              className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex-1">
                 <p className="font-medium text-slate-900">{user.email}</p>
                 <p className="text-xs text-slate-600">
-                  Rol: <span className="capitalize font-semibold">{user.role}</span> •{' '}
-                  Estado:{' '}
+                  Rol: <span className="font-semibold capitalize">{user.role}</span> • Estado:{' '}
                   <span
                     className={`font-semibold ${
-                      user.status === 'pending'
-                        ? 'text-yellow-600'
-                        : 'text-green-600'
+                      user.status === 'pending' ? 'text-yellow-600' : 'text-green-600'
                     }`}
                   >
                     {user.status === 'pending' ? 'Pendiente' : 'Aceptado'}
@@ -497,10 +483,10 @@ export function SettingsView() {
 
               <button
                 onClick={() => handleCopyLink(user.inviteLink)}
-                className={`px-3 py-1 rounded text-sm font-semibold transition-colors flex items-center gap-2 ${
+                className={`flex items-center gap-2 rounded px-3 py-1 text-sm font-semibold transition-colors ${
                   copiedLink === user.inviteLink
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 }`}
               >
                 {copiedLink === user.inviteLink ? (
@@ -521,9 +507,9 @@ export function SettingsView() {
       </div>
 
       {/* System Info */}
-      <div className="bg-slate-100 rounded-lg border border-slate-300 p-4 text-sm text-slate-600">
+      <div className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-sm text-slate-600">
         <div className="flex gap-2">
-          <AlertCircle className="h-5 w-5 flex-shrink-0 text-slate-700 mt-0.5" />
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-slate-700" />
           <div>
             <p className="font-semibold text-slate-900">Versión del Sistema</p>
             <p>ORIGEN ERP v2.0.0 • Última actualización: hoy</p>

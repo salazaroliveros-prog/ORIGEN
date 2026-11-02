@@ -11,11 +11,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  ChevronDown,
-  ChevronUp,
-  X,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 
 // FEATURE 5.1: Hook for mobile detection and safe area
 export function useMobileView() {
@@ -33,12 +29,12 @@ export function useMobileView() {
       setIsMobile(window.innerWidth < 768);
     };
 
+    export default MobileResponsiveExports;
+
     // Detect safe area (for notch/Dynamic Island)
     const updateSafeArea = () => {
       const root = document.documentElement;
-      const top = parseInt(
-        getComputedStyle(root).getPropertyValue('--safe-area-inset-top') || '0'
-      );
+      const top = parseInt(getComputedStyle(root).getPropertyValue('--safe-area-inset-top') || '0');
       const right = parseInt(
         getComputedStyle(root).getPropertyValue('--safe-area-inset-right') || '0'
       );
@@ -138,24 +134,25 @@ export function ResponsiveModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center">
       <div
-        className={`bg-white rounded-t-lg sm:rounded-lg w-full sm:max-w-2xl shadow-lg transition-all ${
+        className={`w-full rounded-t-lg bg-white shadow-lg transition-all sm:max-w-2xl sm:rounded-lg ${
           fullHeight && isMobile ? 'h-[90vh]' : 'h-auto'
         }`}
         style={{
           paddingTop: isMobile && safeAreaInsets.top ? `${safeAreaInsets.top + 16}px` : undefined,
           paddingRight: isMobile && safeAreaInsets.right ? `${safeAreaInsets.right}px` : undefined,
-          paddingBottom: isMobile && safeAreaInsets.bottom ? `${safeAreaInsets.bottom + 16}px` : undefined,
+          paddingBottom:
+            isMobile && safeAreaInsets.bottom ? `${safeAreaInsets.bottom + 16}px` : undefined,
           paddingLeft: isMobile && safeAreaInsets.left ? `${safeAreaInsets.left}px` : undefined,
         }}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-slate-200 p-4 rounded-t-lg flex items-center justify-between z-10">
+        <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-lg border-b border-slate-200 bg-white p-4">
           <h3 className="font-semibold text-slate-900">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 transition-colors hover:bg-slate-100"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5" />
@@ -163,7 +160,9 @@ export function ResponsiveModal({
         </div>
 
         {/* Content */}
-        <div className={`overflow-y-auto ${fullHeight && isMobile ? 'max-h-[calc(90vh-60px)]' : ''}`}>
+        <div
+          className={`overflow-y-auto ${fullHeight && isMobile ? 'max-h-[calc(90vh-60px)]' : ''}`}
+        >
           {children}
         </div>
       </div>
@@ -194,11 +193,7 @@ export function ResponsiveTable({
     return (
       <div className="space-y-3">
         {data.map((item, idx) => (
-          <div
-            key={item.id || idx}
-            onClick={() => onRowClick?.(item)}
-            className="cursor-pointer"
-          >
+          <div key={item.id || idx} onClick={() => onRowClick?.(item)} className="cursor-pointer">
             {renderCard(item)}
           </div>
         ))}
@@ -208,11 +203,11 @@ export function ResponsiveTable({
 
   // Desktop table view
   return (
-    <div className="hidden md:block overflow-x-auto border border-slate-200 rounded-lg">
+    <div className="hidden overflow-x-auto rounded-lg border border-slate-200 md:block">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-slate-100 border-b border-slate-200">
-            {columns.map(col => (
+          <tr className="border-b border-slate-200 bg-slate-100">
+            {columns.map((col) => (
               <th
                 key={col.key}
                 className={`px-4 py-3 font-semibold text-slate-700 text-${col.align || 'left'}`}
@@ -227,17 +222,15 @@ export function ResponsiveTable({
             <tr
               key={item.id || idx}
               onClick={() => onRowClick?.(item)}
-              className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
+              className="cursor-pointer border-b border-slate-200 hover:bg-slate-50"
             >
-              {renderRow ? (
-                renderRow(item)
-              ) : (
-                columns.map(col => (
-                  <td key={col.key} className={`px-4 py-3 text-${col.align || 'left'}`}>
-                    {item[col.key]}
-                  </td>
-                ))
-              )}
+              {renderRow
+                ? renderRow(item)
+                : columns.map((col) => (
+                    <td key={col.key} className={`px-4 py-3 text-${col.align || 'left'}`}>
+                      {item[col.key]}
+                    </td>
+                  ))}
             </tr>
           ))}
         </tbody>
@@ -280,35 +273,30 @@ export function ExpandableCard({
   };
 
   return (
-    <div className={`border rounded-lg ${variants[variant]}`}>
+    <div className={`rounded-lg border ${variants[variant]}`}>
       <button
         onClick={toggleExpand}
-        className="w-full p-4 flex items-center justify-between hover:opacity-75 transition-opacity active:scale-95 min-h-[44px]"
+        className="flex min-h-[44px] w-full items-center justify-between p-4 transition-opacity hover:opacity-75 active:scale-95"
         aria-expanded={expanded}
       >
         <div className="text-left">
           <p className="font-semibold text-slate-900">{title}</p>
-          {subtitle && <p className="text-sm text-slate-600 mt-1">{subtitle}</p>}
+          {subtitle && <p className="mt-1 text-sm text-slate-600">{subtitle}</p>}
         </div>
         {expanded ? (
-          <ChevronUp className="h-5 w-5 text-slate-600 flex-shrink-0" />
+          <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-600" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-slate-600 flex-shrink-0" />
+          <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-600" />
         )}
       </button>
 
-      {expanded && (
-        <div className="border-t border-slate-200 p-4 bg-white">
-          {children}
-        </div>
-      )}
+      {expanded && <div className="border-t border-slate-200 bg-white p-4">{children}</div>}
     </div>
   );
 }
 
 // FEATURE 5.1: Touch-friendly button
-interface TouchButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface TouchButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
@@ -335,7 +323,7 @@ export function TouchButton({
 
   return (
     <button
-      className={`font-semibold rounded-lg transition-colors active:scale-95 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`rounded-lg font-semibold transition-colors active:scale-95 ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}
@@ -344,8 +332,7 @@ export function TouchButton({
 }
 
 // FEATURE 5.2: Input with keyboard accommodation
-interface ResponsiveInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface ResponsiveInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
@@ -361,22 +348,18 @@ export function ResponsiveInput({
 
   return (
     <div style={{ marginBottom: isKeyboardOpen ? `${keyboardHeight + 20}px` : '0' }}>
-      {label && (
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          {label}
-        </label>
-      )}
+      {label && <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>}
       <input
         onFocus={(e) => {
           e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
           onFocus?.(e);
         }}
-        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px] ${
+        className={`min-h-[44px] w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
           error ? 'border-red-500' : 'border-slate-300'
         } ${className}`}
         {...props}
       />
-      {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
@@ -395,23 +378,16 @@ export function SwipeableContainer({
   onSwipeRight,
   className = '',
 }: SwipeableContainerProps) {
-  const { handleTouchStart, handleTouchEnd } = useSwipeGesture(
-    onSwipeLeft,
-    onSwipeRight
-  );
+  const { handleTouchStart, handleTouchEnd } = useSwipeGesture(onSwipeLeft, onSwipeRight);
 
   return (
-    <div
-      className={className}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className={className} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {children}
     </div>
   );
 }
 
-export default {
+const MobileResponsiveExports = {
   useMobileView,
   useKeyboardAccommodation,
   useSwipeGesture,

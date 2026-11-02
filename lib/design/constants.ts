@@ -72,8 +72,16 @@ export const COLORS = {
   expenseCategories: {
     materials: { bg: 'bg-blue-50', border: 'border-blue-200', badge: 'bg-blue-100 text-blue-800' },
     labor: { bg: 'bg-green-50', border: 'border-green-200', badge: 'bg-green-100 text-green-800' },
-    machinery: { bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-100 text-amber-800' },
-    permits: { bg: 'bg-purple-50', border: 'border-purple-200', badge: 'bg-purple-100 text-purple-800' },
+    machinery: {
+      bg: 'bg-amber-50',
+      border: 'border-amber-200',
+      badge: 'bg-amber-100 text-amber-800',
+    },
+    permits: {
+      bg: 'bg-purple-50',
+      border: 'border-purple-200',
+      badge: 'bg-purple-100 text-purple-800',
+    },
     contingency: { bg: 'bg-red-50', border: 'border-red-200', badge: 'bg-red-100 text-red-800' },
     other: { bg: 'bg-slate-50', border: 'border-slate-200', badge: 'bg-slate-100 text-slate-800' },
   },
@@ -88,9 +96,9 @@ export const COLORS = {
 
   // Budget Utilization (Performance-based colors)
   budgetUtilization: {
-    low: 'bg-green-500',      // 0-50%
-    medium: 'bg-yellow-500',  // 50-80%
-    high: 'bg-red-500',       // 80%+
+    low: 'bg-green-500', // 0-50%
+    medium: 'bg-yellow-500', // 50-80%
+    high: 'bg-red-500', // 80%+
   },
 
   // Attendance & Personnel
@@ -118,6 +126,8 @@ export const COLORS = {
     expired: 'bg-amber-100 text-amber-800',
   },
 };
+
+export default DesignConstants;
 
 // ============================================
 // SPACING
@@ -252,11 +262,11 @@ export const FORMS = {
            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
            disabled:opacity-50 disabled:cursor-not-allowed
            transition-colors`,
-  
+
   label: 'block text-sm font-medium text-slate-700 mb-1',
-  
+
   error: 'text-xs text-red-600 mt-1 flex items-center gap-1',
-  
+
   helper: 'text-xs text-slate-500 mt-1',
 
   checkbox: `w-4 h-4 rounded border-slate-300 text-blue-600 
@@ -377,7 +387,7 @@ export const FLEX = {
   colCenter: 'flex flex-col items-center justify-center',
 };
 
-export default {
+const DesignConstants = {
   COLORS,
   SPACING,
   SHADOWS,
