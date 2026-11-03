@@ -156,73 +156,46 @@ export function AuthContainer(): React.ReactElement {
         setErrors({});
 
         // Call Firebase authentication
-        const result = await signInWithEmail(email, password);
-
-        if (!result.success) {
-          // Failed login - increment attempts
-          const newAttempts = loginAttempts + 1;
-          setLoginAttempts(newAttempts);
-          localStorage.setItem('loginAttempts', newAttempts.toString());
-
-          const attemptsLeft = 5 - newAttempts;
-
-          if (newAttempts >= 5) {
-            // Lock on 5th failure
-            setIsLocked(true);
-            const lockDuration = 15 * 60 * 1000;
-            const lockExpiry = Date.now() + lockDuration;
-
-            localStorage.setItem('loginAttempts', '5');
-            localStorage.setItem('loginLockTime', lockExpiry.toString());
-
-            setupLockTimer(lockDuration);
-
-            setErrors({
-              general: 'Demasiados intentos fallidos. Cuenta bloqueada 15 min.',
-            });
-            toast.error('Cuenta bloqueada por demasiados intentos fallidos.');
-          } else {
-            setErrors({
-              general: `Correo o contraseña incorrectos. ${attemptsLeft} intentos restantes.`,
-            });
-            toast.error(`Credenciales inválidas. ${attemptsLeft} intentos restantes.`);
-          }
-          return;
-        }
-
-        // Success - clear attempts and remember me
+        await signInWithEmail(email, password);
+        // Success - reset attempts
+        setLoginAttempts(0);
         localStorage.removeItem('loginAttempts');
         localStorage.removeItem('loginLockTime');
-        setLoginAttempts(0);
-
-        if (rememberMe) {
-          localStorage.setItem('rememberEmail', email);
-        } else {
-          localStorage.removeItem('rememberEmail');
-        }
-
-        toast.success('¡Bienvenido!');
-
-        // Navigate to dashboard
-        router.push('/dashboard');
+        setIsLocked(false);
+        toast.success('Sesión iniciada correctamente.');
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Error de autenticación';
-
-        setErrors({
-          general: message,
-        });
-        toast.error(message);
-
-        // Increment attempts on error
+        // Failed login - increment attempts
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
         localStorage.setItem('loginAttempts', newAttempts.toString());
+
+        const attemptsLeft = 5 - newAttempts;
+
+        if (newAttempts >= 5) {
+          // Lock on 5th failure
+          setIsLocked(true);
+          const lockDuration = 15 * 60 * 1000;
+          const lockExpiry = Date.now() + lockDuration;
+
+          localStorage.setItem('loginAttempts', '5');
+          localStorage.setItem('loginLockTime', lockExpiry.toString());
+
+          setupLockTimer(lockDuration);
+
+          setErrors({
+            general: 'Demasiados intentos fallidos. Cuenta bloqueada 15 min.',
+          });
+          toast.error('Cuenta bloqueada por demasiados intentos fallidos.');
+        } else {
+          setErrors({
+            general: `Correo o contraseña incorrectos. ${attemptsLeft} intentos restantes.`,
+          });
+          toast.error(`Credenciales inválidas. ${attemptsLeft} intentos restantes.`);
+        }
       } finally {
         setLoading(false);
       }
-    },
-    [email, password, loginAttempts, isLocked, rememberMe, router, validateForm]
-  );
+    }, [loginAttempts, router, rememberMe]);
 
   // Handle forgot password
   const handleForgotPassword = async () => {

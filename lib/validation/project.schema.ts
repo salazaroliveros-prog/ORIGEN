@@ -66,10 +66,7 @@ export const ProjectFormSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}/, 'La fecha de finalización debe ser válida (YYYY-MM-DD)'),
     status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado'], {
-      errorMap: () => ({
-        message:
-          'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido o Archivado',
-      }),
+      message: 'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido o Archivado',
     }),
     lat: z
       .number()
@@ -122,7 +119,6 @@ export const ProjectLegacySchema = z
   .strict({ message: 'Campo no reconocido' });
 
 export interface ProjectFormProject {
-  id: string;
   code: string;
   name: string;
   client: string;
@@ -163,16 +159,13 @@ export function validateAndFixProjectData(data: unknown): ProjectFormProject {
     console.warn('⚠️ Datos de proyecto con campos faltantes, aplicando defaults');
     const fixed = ProjectLegacySchema.parse(data || {});
 
-    return {
-      id: (data as any)?.id || `proj-${Date.now()}`,
-      ...fixed,
-    };
+    return fixed;
   } catch (error) {
     console.error('❌ Error validando proyecto:', error);
     throw new Error(
       `Datos de proyecto inválidos: ${
         error instanceof z.ZodError
-          ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
+          ? error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
           : String(error)
       }`
     );

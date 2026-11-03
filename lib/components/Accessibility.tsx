@@ -29,8 +29,6 @@ export function getContrastRatio(color1: string, color2: string): number {
     return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   };
 
-  export default AccessibilityExports;
-
   const lum1 = getLuminance(color1);
   const lum2 = getLuminance(color2);
   const lighter = Math.max(lum1, lum2);

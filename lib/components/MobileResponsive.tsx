@@ -29,8 +29,6 @@ export function useMobileView() {
       setIsMobile(window.innerWidth < 768);
     };
 
-    export default MobileResponsiveExports;
-
     // Detect safe area (for notch/Dynamic Island)
     const updateSafeArea = () => {
       const root = document.documentElement;
@@ -61,6 +59,55 @@ export function useMobileView() {
   }, []);
 
   return { isMobile, safeAreaInsets };
+}
+
+// FEATURE 5.1: Media query hook
+export function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    setMatches(media.matches);
+
+    const listener = (event: MediaQueryListEvent) => {
+      setMatches(event.matches);
+    };
+
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [query]);
+
+  return matches;
+}
+
+// FEATURE 5.1: Viewport hook
+export function useViewport() {
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+      setHeight(window.innerHeight);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return { width, height };
+}
+
+// FEATURE 5.2: Touch hook
+export function useTouch() {
+  const [touchSupported, setTouchSupported] = useState(false);
+
+  useEffect(() => {
+    setTouchSupported('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  return { touchSupported };
 }
 
 // FEATURE 5.2: Keyboard accommodation hook
@@ -403,4 +450,5 @@ const mobileResponsiveExports = {
   ResponsiveModal,
 };
 
+export { mobileResponsiveExports };
 export default mobileResponsiveExports;
