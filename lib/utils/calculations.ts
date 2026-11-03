@@ -16,11 +16,7 @@ import { APUItem, QuoteRecord, AttendanceRecord, Employee } from '@/lib/types';
  * @param equipment Equipment cost per unit (GTQ)
  * @returns Total unit cost (GTQ)
  */
-export function calculateTotalUnitCost(
-  material: number,
-  labor: number,
-  equipment: number
-): number {
+export function calculateTotalUnitCost(material: number, labor: number, equipment: number): number {
   if (!Number.isFinite(material) || !Number.isFinite(labor) || !Number.isFinite(equipment)) {
     throw new Error('All unit costs must be finite numbers');
   }
@@ -42,7 +38,7 @@ export function calculateLineTotal(unitCost: number, quantity: number): number {
   }
   if (unitCost < 0) throw new Error('Unit cost cannot be negative');
   if (quantity <= 0) throw new Error('Quantity must be positive');
-  
+
   return Math.round(unitCost * quantity * 100) / 100;
 }
 
@@ -193,9 +189,9 @@ export function calculateQuoteTotals(
     return sum + item.qty * item.unitPriceGTQ;
   }, 0);
 
-  const discount = Math.round((subtotal * discountPercent) / 100 * 100) / 100;
+  const discount = Math.round(((subtotal * discountPercent) / 100) * 100) / 100;
   const taxable = subtotal - discount;
-  const tax = Math.round((taxable * taxPercent) / 100 * 100) / 100;
+  const tax = Math.round(((taxable * taxPercent) / 100) * 100) / 100;
   const total = taxable + tax;
 
   return {
@@ -255,13 +251,12 @@ export function calculatePayroll(
   }
 
   const grossSalary = Math.round(employee.dailyRateGTQ * daysWorked * 100) / 100;
-  const igssEmployeeDeduction = Math.round(
-    (grossSalary * PAYROLL_RATES.IGSS_EMPLOYEE_PERCENT) / 100 * 100
-  ) / 100;
-  const igssEmployerCost = Math.round(
-    (grossSalary * PAYROLL_RATES.IGSS_EMPLOYER_PERCENT) / 100 * 100
-  ) / 100;
-  const irtraDeduction = Math.round((grossSalary * PAYROLL_RATES.IRTRA_PERCENT) / 100 * 100) / 100;
+  const igssEmployeeDeduction =
+    Math.round(((grossSalary * PAYROLL_RATES.IGSS_EMPLOYEE_PERCENT) / 100) * 100) / 100;
+  const igssEmployerCost =
+    Math.round(((grossSalary * PAYROLL_RATES.IGSS_EMPLOYER_PERCENT) / 100) * 100) / 100;
+  const irtraDeduction =
+    Math.round(((grossSalary * PAYROLL_RATES.IRTRA_PERCENT) / 100) * 100) / 100;
 
   const taxableIncome = grossSalary - igssEmployeeDeduction - irtraDeduction;
   const incomeTax = calculateGuatemalanIncomeTax(taxableIncome);
@@ -298,9 +293,7 @@ function calculateGuatemalanIncomeTax(taxableIncome: number): number {
 
   for (const bracket of brackets) {
     if (taxableIncome >= bracket.min && taxableIncome <= bracket.max) {
-      return Math.round(
-        ((taxableIncome - bracket.min) * bracket.rate + bracket.fixed) * 100
-      ) / 100;
+      return Math.round(((taxableIncome - bracket.min) * bracket.rate + bracket.fixed) * 100) / 100;
     }
   }
 
@@ -322,7 +315,7 @@ export function calculateBono14(dailyRate: number, daysWorked: number = 365): nu
   }
 
   const annualSalary = dailyRate * daysWorked;
-  return Math.round((annualSalary * PAYROLL_RATES.BONO_14_MONTHS) * 100) / 100;
+  return Math.round(annualSalary * PAYROLL_RATES.BONO_14_MONTHS * 100) / 100;
 }
 
 /**
@@ -340,7 +333,7 @@ export function calculateAguinaldo(dailyRate: number, daysWorked: number = 365):
   }
 
   const annualSalary = dailyRate * daysWorked;
-  return Math.round((annualSalary * PAYROLL_RATES.AGUINALDO_MONTHS) * 100) / 100;
+  return Math.round(annualSalary * PAYROLL_RATES.AGUINALDO_MONTHS * 100) / 100;
 }
 
 /**
@@ -404,8 +397,12 @@ export function projectCashFlow(
 export function isValidAttendanceDate(dateString: string): boolean {
   const date = new Date(dateString);
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return date <= today && !isNaN(date.getTime());
+
+  // Normalize both dates to midnight local time to avoid timezone issues
+  const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  return normalizedDate <= normalizedToday && !isNaN(date.getTime());
 }
 
 /**
