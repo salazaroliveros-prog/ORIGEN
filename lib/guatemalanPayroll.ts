@@ -268,7 +268,7 @@ export function calculateBono14(
     dpi: employee.dpi || 'N/A',
     benefitType: 'bono_14',
     benefitName: 'Bonificación Anual para Trabajadores (Bono 14)',
-    legalDecree: 'Decreto No. 42-92 del Congreso de la República de Guatemala',
+    legalDecree: 'Decreto No. 42-92 (Dto.) del Congreso de la República de Guatemala',
     periodStart,
     periodEnd,
     calculationDate: calcDate,

@@ -30,7 +30,7 @@ class QueryCache {
     const entry = this.cache.get(key);
     if (!entry) return null;
 
-    const isExpired = Date.now() - entry.timestamp > entry.ttl;
+    const isExpired = Date.now() - entry.timestamp >= entry.ttl;
     if (isExpired) {
       this.cache.delete(key);
       return null;
@@ -90,10 +90,7 @@ class QueryDeduplicator {
    * Execute query with deduplication
    * If same query is in progress, return existing promise
    */
-  async execute<T>(
-    key: string,
-    queryFn: () => Promise<T>
-  ): Promise<T> {
+  async execute<T>(key: string, queryFn: () => Promise<T>): Promise<T> {
     // Check if query is already in progress
     if (this.pending.has(key)) {
       return this.pending.get(key)!;
