@@ -43,6 +43,7 @@ import {
   updateMachineryStatusInFirestore,
   subscribeMachineryLogs,
   recordMachineryUse,
+  updateProjectFields,
 } from '@/lib/firebaseService';
 import {
   validateProjectForm,
@@ -561,8 +562,18 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         return false;
       }
       const saved = await saveAPUItemsToFirestore(items, projectId, companyId, currentUserId);
-      if (!saved) toast.error('No se pudo guardar el presupuesto APU.');
-      return saved;
+      if (!saved) {
+        toast.error('No se pudo guardar el presupuesto APU.');
+        return false;
+      }
+      const newApuTotal = items.reduce((sum, item) => sum + (item.totalPriceGTQ ?? 0), 0);
+      const activeProject = projects.find((p) => p.id === projectId);
+      const variance = (activeProject?.budgetTotal ?? 0) - newApuTotal;
+      await updateProjectFields(projectId, {
+        apuBudgetTotal: newApuTotal,
+        apuBudgetVarianceGTQ: variance,
+      });
+      return true;
     },
     [companyId, currentUserId, projects]
   );
@@ -573,15 +584,37 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         toast.error('Inicia sesión en una empresa para eliminar partidas APU.');
         return false;
       }
-      if (!apuItems.some((item) => item.id === itemId && item.companyId === companyId)) {
+      const targetItem = apuItems.find(
+        (item) => item.id === itemId && item.companyId === companyId
+      );
+      if (!targetItem) {
         toast.error('No se encontró la partida APU en esta empresa.');
         return false;
       }
       const deleted = await deleteAPUItemFromFirestore(itemId);
-      if (!deleted) toast.error('No se pudo eliminar la partida APU.');
-      return deleted;
+      if (!deleted) {
+        toast.error('No se pudo eliminar la partida APU.');
+        return false;
+      }
+      const projectId = targetItem.projectId;
+      if (projectId) {
+        const remainingItems = apuItems.filter(
+          (item) => item.projectId === projectId && item.id !== itemId
+        );
+        const newApuTotal = remainingItems.reduce(
+          (sum, item) => sum + (item.totalPriceGTQ ?? 0),
+          0
+        );
+        const activeProject = projects.find((p) => p.id === projectId);
+        const variance = (activeProject?.budgetTotal ?? 0) - newApuTotal;
+        await updateProjectFields(projectId, {
+          apuBudgetTotal: newApuTotal,
+          apuBudgetVarianceGTQ: variance,
+        });
+      }
+      return true;
     },
-    [apuItems, companyId, currentUserId]
+    [apuItems, companyId, currentUserId, projects]
   );
 
   const addMachinery = useCallback(

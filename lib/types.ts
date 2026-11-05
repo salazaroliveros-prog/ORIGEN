@@ -86,6 +86,8 @@ export interface Project {
   ownerId?: string;
   createdBy?: string;
   expectedProfitMarginPercent?: number | null;
+  apuBudgetTotal?: number;
+  apuBudgetVarianceGTQ?: number;
   scheduleTasks?: ScheduleTask[];
   scheduleMilestones?: Milestone[];
   taskReminders?: TaskReminder[];

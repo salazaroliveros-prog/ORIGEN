@@ -827,6 +827,21 @@ export async function deleteAPUItemFromFirestore(itemId: string): Promise<boolea
   }
 }
 
+export async function updateProjectFields(
+  projectId: string,
+  fields: Partial<Pick<Project, 'apuBudgetTotal' | 'apuBudgetVarianceGTQ'>>
+): Promise<boolean> {
+  const path = `projects/${projectId}`;
+  try {
+    await updateDoc(doc(db, 'projects', projectId), fields);
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.UPDATE, path);
+    return false;
+  }
+}
+
 export async function saveQuoteToFirestore(
   quote: QuoteRecord,
   companyId: string,
