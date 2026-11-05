@@ -11,7 +11,7 @@ import { TouchTarget } from '@/components/ui/TouchTarget';
 import { AiAssistantView } from '@/features/ai/AiAssistantView';
 import { BudgetView } from '@/features/budget/BudgetView';
 import { DashboardView } from '@/features/dashboard/DashboardView';
-import { ExpensesView } from '@/components/ExpensesView';
+import { ExpensesManager } from '@/components/ExpensesManager';
 import { GanttSchedule } from '@/components/GanttSchedule';
 import { CotizacionesView } from '@/components/CotizacionesView';
 import { MachineryManager } from '@/components/MachineryManager';
@@ -537,14 +537,14 @@ export default function MainApp() {
               />
             )}
             {activeTab === 'gastos' && (
-              <ExpensesView
+              <ExpensesManager
                 projects={data.projects}
                 expenses={data.expenses}
                 company={company}
                 activeProjectId={activeProject?.id ?? ''}
-                onSelectProject={handleSelectProject}
-                onAddExpense={permissions.canManageExpenses ? data.addExpense : undefined}
-                onDeleteExpense={permissions.canManageExpenses ? data.deleteExpense : undefined}
+                onAddExpense={permissions.canManageExpenses ? data.addExpense : (_e) => {}}
+                onUpdateExpense={permissions.canManageExpenses ? data.updateExpense : undefined}
+                currency="GTQ"
               />
             )}
             {activeTab === 'cotizaciones' && (
