@@ -84,4 +84,12 @@ describe('validateProjectForm', () => {
   it('rejects invalid longitude', () => {
     expect(validateProjectForm({ ...validProject, lng: 200 }).success).toBe(false);
   });
+
+  it('rejects project with empty name', () => {
+    expect(validateProjectForm({ ...validProject, name: '' }).success).toBe(false);
+  });
+
+  it('rejects project with invalid status (Suspendida is not in the enum)', () => {
+    expect(validateProjectForm({ ...validProject, status: 'Suspendida' }).success).toBe(false);
+  });
 });
