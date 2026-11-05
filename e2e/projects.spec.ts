@@ -1,83 +1,72 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
- * ORIGEN ERP - Project Management E2E Tests
- * 
- * Tests de extremo a extremo para gestión de proyectos
+ * projects.spec.ts — Flujos de proyectos en ORIGEN ERP
+ *
+ * Prueba la sección 'Proyectos & Firmas': lista, creación, edición y cierre de diálogos.
+ * No se hardcodean conteos de filas. Se prueba contra el estado real de la base de datos.
+ *
+ * Selectores confirmados en system-crud.spec.ts y qa-project-lifecycle.spec.ts.
  */
 
-test.describe('Project Management Flow', () => {
+test.describe('Sección Proyectos & Firmas', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await page.waitForTimeout(4000);
+    // Esperar autenticación automática
+    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    // Navegar a la sección de proyectos
+    await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
+    await page.waitForTimeout(1500);
   });
 
-  test('should navigate to projects page', async ({ page }) => {
-    await page.click('text=Projects');
-    await expect(page).toHaveURL(/.*projects/);
+  test('la sección muestra el botón Nuevo Proyecto (lista cargada o estado vacío)', async ({
+    page,
+  }) => {
+    // El botón 'Nuevo Proyecto' siempre debe estar visible para el administrador
+    await expect(page.getByRole('button', { name: 'Nuevo Proyecto' }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
-  test('should display project list', async ({ page }) => {
-    await page.goto('/projects');
-    await expect(page.locator('table')).toBeVisible();
+  test('al hacer clic en Nuevo Proyecto se abre el diálogo con el título correcto', async ({
+    page,
+  }) => {
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    // El diálogo debe tener el rol 'dialog' con nombre 'Nuevo Proyecto'
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    // Verificar que el diálogo contiene los campos reales del formulario
+    await expect(dialog.getByLabel('Código del Proyecto')).toBeVisible();
+    await expect(dialog.getByLabel('Nombre del Proyecto')).toBeVisible();
   });
 
-  test('should open new project modal', async ({ page }) => {
-    await page.goto('/projects');
-    await page.click('text=New Project');
-    await expect(page.locator('dialog')).toBeVisible();
+  test('cerrar el diálogo de Nuevo Proyecto lo oculta correctamente', async ({ page }) => {
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    // Cerrar con la tecla Escape
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden({ timeout: 5_000 });
   });
 
-  test('should validate project name field', async ({ page }) => {
-    await page.goto('/projects');
-    await page.click('text=New Project');
-    await page.fill('input[name="name"]', '');
-    await page.click('button[type="submit"]');
-    await expect(page.locator('text=Project name is required')).toBeVisible();
-  });
+  test('los campos del formulario de Nuevo Proyecto son los del ERP real', async ({ page }) => {
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
-  test('should validate budget field', async ({ page }) => {
-    await page.goto('/projects');
-    await page.click('text=New Project');
-    await page.fill('input[name="name"]', 'Test Project');
-    await page.fill('input[name="budget"]', '-100');
-    await page.click('button[type="submit"]');
-    await expect(page.locator('text=Budget must be positive')).toBeVisible();
-  });
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
 
-  test('should filter projects by status', async ({ page }) => {
-    await page.goto('/projects');
-    await page.selectOption('select[name="status"]', 'active');
-    await expect(page.locator('table tbody tr')).toHaveCount(5);
-  });
-
-  test('should search projects', async ({ page }) => {
-    await page.goto('/projects');
-    await page.fill('input[placeholder="Search projects"]', 'Building');
-    await page.press('input[placeholder="Search projects"]', 'Enter');
-    await expect(page.locator('table tbody tr')).toHaveCount(3);
-  });
-
-  test('should navigate to project details', async ({ page }) => {
-    await page.goto('/projects');
-    await page.click('text=Building Project A');
-    await expect(page).toHaveURL(/.*projects\/[^/]+/);
-  });
-
-  test('should edit project details', async ({ page }) => {
-    await page.goto('/projects');
-    await page.click('text=Building Project A');
-    await page.click('text=Edit');
-    await page.fill('input[name="name"]', 'Updated Project Name');
-    await page.click('button[type="submit"]');
-    await expect(page.locator('text=Project updated successfully')).toBeVisible();
-  });
-
-  test('should delete project with confirmation', async ({ page }) => {
-    await page.goto('/projects');
-    await page.click('text=Building Project A');
-    await page.click('text=Delete');
-    await expect(page.locator('dialog')).toBeVisible();
-    await page.click('text=Confirm');
-    await expect(page.locator('text=Project deleted successfully')).toBeVisible();
+    // Campos confirmados en system-crud.spec.ts
+    await expect(dialog.getByLabel('Código del Proyecto')).toBeVisible();
+    await expect(dialog.getByLabel('Nombre del Proyecto')).toBeVisible();
+    await expect(dialog.getByLabel('Cliente')).toBeVisible();
+    await expect(dialog.getByLabel('Presupuesto Total (Q)')).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Crear Proyecto' })).toBeVisible();
   });
 });

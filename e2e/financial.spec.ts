@@ -1,80 +1,56 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
- * ORIGEN ERP - Financial Management E2E Tests
- * 
- * Tests de extremo a extremo para gestión financiera
+ * financial.spec.ts — Flujos de gastos y facturas en ORIGEN ERP
+ *
+ * Verifica la sección 'Gastos & Facturas': navegación, UI visible y apertura del
+ * formulario de registro de gasto.
+ *
+ * El app es una SPA en '/'. No existe URL '/financial'.
+ * Selectores confirmados en system-crud.spec.ts.
  */
 
-test.describe('Financial Management Flow', () => {
+test.describe('Sección Gastos & Facturas', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await page.waitForTimeout(4000);
+    // Esperar autenticación automática
+    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    // Navegar a la sección de gastos
+    await page.getByRole('button', { name: 'Gastos & Facturas' }).first().click();
+    await page.waitForTimeout(1500);
   });
 
-  test('should navigate to financial dashboard', async ({ page }) => {
-    await page.click('text=Financial');
-    await expect(page).toHaveURL(/.*financial/);
+  test('la sección Gastos & Facturas muestra el botón para registrar un gasto', async ({
+    page,
+  }) => {
+    await expect(page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
-  test('should display budget summary', async ({ page }) => {
-    await page.goto('/financial');
-    await expect(page.locator('text=Total Budget')).toBeVisible();
-    await expect(page.locator('text=Total Spent')).toBeVisible();
-    await expect(page.locator('text=Remaining')).toBeVisible();
+  test('el formulario de nuevo gasto se puede abrir y tiene los campos correctos', async ({
+    page,
+  }) => {
+    await page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first().click();
+    await page.waitForTimeout(1000);
+
+    // Campos confirmados en system-crud.spec.ts
+    await expect(page.getByLabel('Descripción Detallada del Insumo o Servicio *')).toBeVisible({
+      timeout: 10_000,
+    });
+    await expect(page.getByLabel('Monto del Gasto *')).toBeVisible();
+    await expect(page.getByLabel('Proveedor / Emisor SAT')).toBeVisible();
   });
 
-  test('should add new expense', async ({ page }) => {
-    await page.goto('/financial');
-    await page.click('text=Add Expense');
-    await page.fill('input[name="description"]', 'Material Purchase');
-    await page.fill('input[name="amount"]', '5000');
-    await page.selectOption('select[name="category"]', 'materials');
-    await page.click('button[type="submit"]');
-    await expect(page.locator('text=Expense added successfully')).toBeVisible();
-  });
+  test('el formulario de gasto tiene el botón de guardar en español', async ({ page }) => {
+    await page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first().click();
+    await page.waitForTimeout(1000);
 
-  test('should validate expense amount', async ({ page }) => {
-    await page.goto('/financial');
-    await page.click('text=Add Expense');
-    await page.fill('input[name="amount"]', '-100');
-    await page.click('button[type="submit"]');
-    await expect(page.locator('text=Amount must be positive')).toBeVisible();
-  });
-
-  test('should edit expense', async ({ page }) => {
-    await page.goto('/financial');
-    await page.click('text=Material Purchase');
-    await page.click('text=Edit');
-    await page.fill('input[name="amount"]', '6000');
-    await page.click('button[type="submit"]');
-    await expect(page.locator('text=Expense updated successfully')).toBeVisible();
-  });
-
-  test('should delete expense', async ({ page }) => {
-    await page.goto('/financial');
-    await page.click('text=Material Purchase');
-    await page.click('text=Delete');
-    await expect(page.locator('dialog')).toBeVisible();
-    await page.click('text=Confirm');
-    await expect(page.locator('text=Expense deleted successfully')).toBeVisible();
-  });
-
-  test('should filter expenses by category', async ({ page }) => {
-    await page.goto('/financial');
-    await page.selectOption('select[name="category"]', 'materials');
-    await expect(page.locator('table tbody tr')).toHaveCount(4);
-  });
-
-  test('should check budget utilization', async ({ page }) => {
-    await page.goto('/financial');
-    await expect(page.locator('text=Budget Utilization')).toBeVisible();
-    const utilization = await page.locator('text=Budget Utilization').textContent();
-    expect(utilization).toContain('%');
-  });
-
-  test('should export financial report', async ({ page }) => {
-    await page.goto('/financial');
-    await page.click('text=Export Report');
-    await expect(page.locator('text=Report exported successfully')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).first()
+    ).toBeVisible({ timeout: 10_000 });
   });
 });
