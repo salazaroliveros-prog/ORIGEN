@@ -37,7 +37,7 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import { calculateTotalUnitCost, calculateLineTotal } from '@/lib/utils/calculations';
 import { toast } from 'react-hot-toast';
 
 interface BudgetAndAPUProps {
@@ -157,7 +157,7 @@ export function BudgetAndAPU({
     const m = Number(matCost) || 0;
     const l = Number(labCost) || 0;
     const eq = Number(eqCost) || 0;
-    const totalUnit = m + l + eq;
+    const totalUnit = calculateTotalUnitCost(m, l, eq);
     const q = Number(qty) || 1;
 
     const newItem: APUItem = {
@@ -171,7 +171,7 @@ export function BudgetAndAPU({
       laborUnitCostGTQ: l,
       equipmentUnitCostGTQ: eq,
       totalUnitCostGTQ: totalUnit,
-      totalPriceGTQ: totalUnit * q,
+      totalPriceGTQ: calculateLineTotal(totalUnit, q),
       department: appliedDept,
     };
 

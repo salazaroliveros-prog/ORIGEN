@@ -362,11 +362,13 @@ export function CotizacionesView({
       toast.error('Espera a que se complete la carga del presupuesto del proyecto.');
       return;
     }
-    setClientName('');
-    setClientNit('');
-    setClientPhone('');
-    setClientEmail('');
-    setClientAddress('');
+    // P2 FIX 5: Pre-populate client contact data from project
+    const activeProject = projects.find((p) => p.id === selectedProjectId);
+    setClientName(activeProject?.client ?? '');
+    setClientNit(activeProject?.clientNit ?? '');
+    setClientPhone(activeProject?.clientPhone ?? '');
+    setClientEmail(activeProject?.clientEmail ?? '');
+    setClientAddress(activeProject?.clientAddress ?? '');
     setEstimatedDuration('');
     setDiscountPercent(0);
     setTaxPercent(12);
@@ -557,14 +559,14 @@ export function CotizacionesView({
         day: '2-digit',
       }).format(expirationDate),
       items: quoteItems,
-      totalGTQ: Math.round(computedTotal),
+      totalGTQ: Math.round(computedTotal * 100) / 100,
       status,
       notes: notes.trim(),
       estimatedDuration: estimatedDuration.trim(),
-      subtotalGTQ: Math.round(computedGross),
+      subtotalGTQ: Math.round(computedGross * 100) / 100,
       discountPercent,
       taxPercent,
-      taxGTQ: Math.round(computedTax),
+      taxGTQ: Math.round(computedTax * 100) / 100,
     };
 
     setIsSavingQuote(true);

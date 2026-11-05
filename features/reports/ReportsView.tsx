@@ -6,7 +6,15 @@ import { toast } from 'react-hot-toast';
 import { PageHeader } from '@/components/PageHeader';
 import { formatGTQ } from '@/lib/data';
 import { exportConstructionAuditPdf } from '@/lib/pdfExportService';
-import type { CompanySettings, ExpenseRecord, FieldVisit, Project } from '@/lib/types';
+import type {
+  AttendanceRecord,
+  APUItem,
+  CompanySettings,
+  ExpenseRecord,
+  FieldVisit,
+  Project,
+  QuoteRecord,
+} from '@/lib/types';
 
 interface ReportsViewProps {
   projects: Project[];
@@ -15,6 +23,9 @@ interface ReportsViewProps {
   company?: CompanySettings;
   activeProjectId: string;
   onSelectProject: (projectId: string) => void;
+  budgetItems?: APUItem[];
+  attendance?: AttendanceRecord[];
+  quotes?: QuoteRecord[];
 }
 
 function escapeHtml(value: string): string {
@@ -57,6 +68,9 @@ export function ReportsView({
   company,
   activeProjectId,
   onSelectProject,
+  budgetItems = [],
+  attendance = [],
+  quotes = [],
 }: ReportsViewProps) {
   const [actaNotes, setActaNotes] = useState('');
   const [isExportingAuditPdf, setIsExportingAuditPdf] = useState(false);
@@ -324,7 +338,9 @@ export function ReportsView({
         auditorName,
         auditorColNumber,
       });
-      toast.success('Cédula de auditoría de obra generada exitosamente en PDF.', { id: 'audit-pdf' });
+      toast.success('Cédula de auditoría de obra generada exitosamente en PDF.', {
+        id: 'audit-pdf',
+      });
     } catch (error) {
       console.error('Error al generar PDF de auditoría de obra:', error);
       toast.error('No se pudo generar el PDF de auditoría de obra.', { id: 'audit-pdf' });

@@ -246,7 +246,7 @@ export function ExpensesManager({
             : 'Registro manual de gasto en campo',
         },
         {
-          id: `aud-${Date.now()}-2`,
+          id: `aud-${Date.now() + 1}-2`,
           action: 'ENVIADO_A_REVISION',
           user: 'Residente de Obra',
           role: 'Ingeniero Residente',

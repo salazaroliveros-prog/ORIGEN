@@ -139,7 +139,7 @@ export function QuotationsView({ projectId }: { projectId: string }) {
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
     const discountAmount = (subtotal * discount) / 100;
     const taxableAmount = subtotal - discountAmount;
-    const tax = taxableAmount * 0.13; // 13% IVA Guatemala
+    const tax = taxableAmount * 0.12; // 12% IVA Guatemala (Decreto 27-92)
     const total = taxableAmount + tax;
 
     return {
@@ -728,7 +728,7 @@ Notas: ${quotation.notes}
                     </div>
                   )}
                   <div className="mb-1 flex justify-between text-xs">
-                    <span>IVA (13%):</span>
+                    <span>IVA (12%):</span>
                     <span>Q{previewQuotation.tax.toLocaleString()}</span>
                   </div>
                   <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 text-sm font-bold">

@@ -15,9 +15,12 @@ export const ExpenseRecordSchema = z.object({
   category: z.string().max(100, 'Categoría muy larga'),
   description: z.string().min(1, 'Descripción requerida').max(500, 'Descripción muy larga'),
   amount: z.number().min(0.01, 'El monto debe ser mayor a 0').max(999999999, 'Monto excede límite'),
-  supplier: z.string().max(200, 'Nombre de proveedor muy largo'),
-  nitSupplier: z.string().max(30, 'NIT muy largo'),
-  facturaNumber: z.string().max(50, 'Número de factura muy largo'),
+  supplier: z.string().min(1, 'Proveedor requerido').max(200, 'Nombre de proveedor muy largo'),
+  nitSupplier: z.string().min(1, 'NIT del proveedor requerido').max(30, 'NIT muy largo'),
+  facturaNumber: z
+    .string()
+    .min(1, 'Número de factura requerido')
+    .max(50, 'Número de factura muy largo'),
   currency: z.enum(['GTQ', 'USD']),
   paymentMethod: z.enum(['Pendiente', 'Efectivo', 'Cheque', 'Transferencia BI', 'Tarjeta']),
   receiptPhotoUrl: z.string().optional(),
@@ -64,7 +67,7 @@ export const AttendanceRecordSchema = z.object({
   overtimeHours: z
     .number()
     .min(0, 'Horas extras no pueden ser negativas')
-    .max(12, 'Máximo 12 horas extras por día'),
+    .max(4, 'Máximo 4 horas extras por día según Art. 121 Código de Trabajo Guatemala'),
   gpsCoords: z
     .object({
       lat: z.number().min(-90, 'Latitud inválida').max(90, 'Latitud inválida'),
@@ -195,7 +198,10 @@ export const QuoteRecordSchema = z.object({
       })
     )
     .max(500, 'Máximo 500 items por cotización'),
-  totalGTQ: z.number().min(0, 'Monto total no puede ser negativo').max(999999999, 'Monto excede límite'),
+  totalGTQ: z
+    .number()
+    .min(0, 'Monto total no puede ser negativo')
+    .max(999999999, 'Monto excede límite'),
   status: z.enum(['Aceptada', 'Enviada', 'Borrador', 'Rechazada']),
   notes: z.string().max(1000, 'Notas muy largas').optional(),
   estimatedDuration: z.string().optional(),

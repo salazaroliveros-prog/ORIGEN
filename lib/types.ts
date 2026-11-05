@@ -91,6 +91,10 @@ export interface Project {
   scheduleTasks?: ScheduleTask[];
   scheduleMilestones?: Milestone[];
   taskReminders?: TaskReminder[];
+  clientNit?: string;
+  clientPhone?: string;
+  clientEmail?: string;
+  clientAddress?: string;
 }
 
 export interface FieldPhoto {

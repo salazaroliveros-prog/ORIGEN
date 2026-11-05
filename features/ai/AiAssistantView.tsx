@@ -3,7 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { LoaderCircle, Send } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
-import type { CompanySettings } from '@/lib/types';
+import type { CompanySettings, Project } from '@/lib/types';
 
 interface ChatMessage {
   id: string;
@@ -12,7 +12,12 @@ interface ChatMessage {
   source?: string;
 }
 
-export function AiAssistantView({ company }: { company?: CompanySettings } = {}) {
+interface AiAssistantViewProps {
+  company?: CompanySettings;
+  activeProject?: Project | null;
+}
+
+export function AiAssistantView({ company, activeProject }: AiAssistantViewProps = {}) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -33,10 +38,27 @@ export function AiAssistantView({ company }: { company?: CompanySettings } = {})
     setError(null);
     setIsSending(true);
     try {
+      // P2 FIX 8: Pass project context to AI API call
+      const projectContext = activeProject
+        ? {
+            projectName: activeProject.name,
+            projectCode: activeProject.code,
+            budgetTotal: activeProject.budgetTotal,
+            apuBudgetTotal: activeProject.apuBudgetTotal,
+            spentTotal: activeProject.spentTotal,
+            status: activeProject.status,
+          }
+        : null;
+
       const response = await fetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'chat', message, department: 'Guatemala' }),
+        body: JSON.stringify({
+          action: 'chat',
+          message,
+          department: company?.department ?? 'Guatemala',
+          projectContext,
+        }),
       });
       const result: { reply?: unknown; error?: unknown; source?: unknown } = await response.json();
       if (!response.ok) {

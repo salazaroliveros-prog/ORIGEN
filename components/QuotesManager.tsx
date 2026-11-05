@@ -27,6 +27,9 @@ export function QuotesManager({
   const [clientName, setClientName] = useState('');
   const [clientNit, setClientNit] = useState('');
   const [total, setTotal] = useState('150000');
+  const [itemDesc, setItemDesc] = useState('');
+  const [itemQty, setItemQty] = useState('1');
+  const [linkedProjectId, setLinkedProjectId] = useState(activeProjectId);
 
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
@@ -34,21 +37,27 @@ export function QuotesManager({
     return currency === 'GTQ' ? formatGTQ(amount) : formatUSD(amount, company.exchangeRate);
   };
 
+  const validUntilDefault = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0];
+
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientName.trim()) return;
 
+    const linkedProject = projects.find((p) => p.id === linkedProjectId) || activeProject;
+
     const q: QuoteRecord = {
       id: `q-${Date.now()}`,
-      projectId: activeProject.id,
+      projectId: linkedProject.id,
       clientName,
       clientNit: clientNit || 'CF',
       date: new Date().toISOString().split('T')[0],
-      validUntil: '2025-06-30',
+      validUntil: validUntilDefault,
       items: [
         {
-          description: 'Presupuesto global de obra civil según planos',
-          qty: 1,
+          description: itemDesc || 'Presupuesto global de obra civil según planos',
+          qty: Number(itemQty) || 1,
           unit: 'Global',
           unitPriceGTQ: Number(total) || 150000,
         },
@@ -61,6 +70,8 @@ export function QuotesManager({
     setIsOpenModal(false);
     setClientName('');
     setClientNit('');
+    setItemDesc('');
+    setItemQty('1');
   };
 
   return (
@@ -78,7 +89,7 @@ export function QuotesManager({
           onClick={() => setIsOpenModal(true)}
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500"
         >
-          <Plus className="h-4 w-4" /> Nueva Cotización
+          <Plus className="h-4 w-4" /> Nueva Cotización Rápida
         </button>
       </div>
 
@@ -151,7 +162,7 @@ export function QuotesManager({
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  placeholder="Ej. Inmobiliaria El Bosque, S.A."
+                  placeholder="Ej. Ing. Guillermo Morales"
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                   required
                 />
@@ -170,15 +181,57 @@ export function QuotesManager({
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-700">
-                  Monto Total Cotización (GTQ)
+                  Proyecto Vinculado
+                </label>
+                <select
+                  value={linkedProjectId}
+                  onChange={(e) => setLinkedProjectId(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                >
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.code} — {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  Descripción técnica del trabajo...
                 </label>
                 <input
-                  type="number"
-                  value={total}
-                  onChange={(e) => setTotal(e.target.value)}
+                  type="text"
+                  value={itemDesc}
+                  onChange={(e) => setItemDesc(e.target.value)}
+                  placeholder="Descripción técnica del trabajo..."
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
-                  required
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">Cant.</label>
+                  <input
+                    type="number"
+                    value={itemQty}
+                    onChange={(e) => setItemQty(e.target.value)}
+                    placeholder="Cant."
+                    min="1"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    Precio Q
+                  </label>
+                  <input
+                    type="number"
+                    value={total}
+                    onChange={(e) => setTotal(e.target.value)}
+                    placeholder="Precio Q"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    required
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
@@ -189,10 +242,17 @@ export function QuotesManager({
                   Cancelar
                 </button>
                 <button
+                  type="button"
+                  onClick={() => {}}
+                  className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-300"
+                >
+                  Agregar a la lista
+                </button>
+                <button
                   type="submit"
                   className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
                 >
-                  Emitir Cotización
+                  Guardar como Enviada
                 </button>
               </div>
             </form>

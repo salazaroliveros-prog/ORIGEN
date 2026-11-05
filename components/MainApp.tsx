@@ -534,6 +534,9 @@ export default function MainApp() {
                 company={company}
                 activeProjectId={activeProject?.id ?? ''}
                 onSelectProject={handleSelectProject}
+                budgetItems={data.apuItems}
+                attendance={data.attendance}
+                quotes={data.quotes}
               />
             )}
             {activeTab === 'gastos' && (
@@ -618,7 +621,9 @@ export default function MainApp() {
                 />
               </div>
             )}
-            {activeTab === 'ai' && <AiAssistantView company={company} />}
+            {activeTab === 'ai' && (
+              <AiAssistantView company={company} activeProject={activeProject} />
+            )}
             {activeTab === 'cronograma_gantt' && (
               <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
                 <PageHeader

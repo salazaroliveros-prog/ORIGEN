@@ -144,65 +144,46 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     };
   }, [companyId, currentUserId, role]);
 
-  // Recalcular automáticamente métricas de proyectos cuando cambian expenses o proyectos
+  // Recalcular spentTotal cuando cambian los expenses (sin depender de projects para evitar loop)
   useEffect(() => {
-    if (projects.length === 0) return;
+    if (expenses.length === 0) return;
 
-    const updatedProjects = projects.map((project) => {
-      const calculatedSpent = calculateProjectSpentById(expenses, project.id);
-
-      // Solo actualizar si el gasto calculado es diferente al actual
-      if (calculatedSpent !== project.spentTotal) {
-        return {
-          ...project,
-          spentTotal: calculatedSpent,
-        };
-      }
-
-      return project;
+    setProjects((prev) => {
+      let changed = false;
+      const next = prev.map((project) => {
+        const calculatedSpent = calculateProjectSpentById(expenses, project.id);
+        if (calculatedSpent !== project.spentTotal) {
+          changed = true;
+          return { ...project, spentTotal: calculatedSpent };
+        }
+        return project;
+      });
+      return changed ? next : prev;
     });
+  }, [expenses]);
 
-    // Solo actualizar si hubo cambios
-    const hasChanges = updatedProjects.some(
-      (updated, index) => updated.spentTotal !== projects[index].spentTotal
-    );
-
-    if (hasChanges) {
-      setProjects(updatedProjects);
-    }
-  }, [expenses, projects]);
-
-  // Recalcular progreso automáticamente cuando cambian tareas/milestones
+  // Recalcular progressPercent solo cuando hay cronograma (tareas/hitos)
   useEffect(() => {
-    if (projects.length === 0) return;
-
-    const updatedProjects = projects.map((project) => {
-      const calculatedProgress = resolveProjectProgress(
-        project.scheduleTasks,
-        project.scheduleMilestones,
-        project.progressPercent
-      );
-
-      // Solo actualizar si el progreso calculado es diferente al actual
-      if (calculatedProgress !== project.progressPercent) {
-        return {
-          ...project,
-          progressPercent: calculatedProgress,
-        };
-      }
-
-      return project;
+    setProjects((prev) => {
+      let changed = false;
+      const next = prev.map((project) => {
+        const hasSchedule =
+          (project.scheduleTasks?.length ?? 0) > 0 || (project.scheduleMilestones?.length ?? 0) > 0;
+        if (!hasSchedule) return project; // conservar avance manual
+        const calculatedProgress = resolveProjectProgress(
+          project.scheduleTasks,
+          project.scheduleMilestones,
+          project.progressPercent
+        );
+        if (calculatedProgress !== project.progressPercent) {
+          changed = true;
+          return { ...project, progressPercent: calculatedProgress };
+        }
+        return project;
+      });
+      return changed ? next : prev;
     });
-
-    // Solo actualizar si hubo cambios
-    const hasChanges = updatedProjects.some(
-      (updated, index) => updated.progressPercent !== projects[index].progressPercent
-    );
-
-    if (hasChanges) {
-      setProjects(updatedProjects);
-    }
-  }, [projects]);
+  }, []); // solo al montar; el cronograma vive dentro del proyecto y llega via subscribeProjects
 
   const createProject = useCallback(
     async (data: ProjectFormValues, onCreated?: (projectId: string) => void) => {
@@ -226,6 +207,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           companyId,
           ownerId: currentUserId,
           createdBy: currentUserId,
+          apuBudgetTotal: 0,
+          apuBudgetVarianceGTQ: 0,
         };
         const success = await saveProjectToFirestore(project, companyId, currentUserId);
         if (success) {
@@ -566,7 +549,17 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         toast.error('No se pudo guardar el presupuesto APU.');
         return false;
       }
-      const newApuTotal = items.reduce((sum, item) => sum + (item.totalPriceGTQ ?? 0), 0);
+      // Merge batch with existing items to calculate correct total
+      const projectItemsAfterSave = [
+        ...apuItems.filter(
+          (existing) => existing.projectId === projectId && !items.find((n) => n.id === existing.id)
+        ),
+        ...items,
+      ];
+      const newApuTotal = projectItemsAfterSave.reduce(
+        (sum, item) => sum + (item.totalPriceGTQ ?? 0),
+        0
+      );
       const activeProject = projects.find((p) => p.id === projectId);
       const variance = (activeProject?.budgetTotal ?? 0) - newApuTotal;
       await updateProjectFields(projectId, {
@@ -575,7 +568,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       });
       return true;
     },
-    [companyId, currentUserId, projects]
+    [apuItems, companyId, currentUserId, projects]
   );
 
   const deleteAPUItem = useCallback(

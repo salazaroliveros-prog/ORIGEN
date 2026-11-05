@@ -35,6 +35,10 @@ export function ProjectForm({
         code: editingProject.code,
         name: editingProject.name,
         client: editingProject.client,
+        clientNit: editingProject.clientNit,
+        clientPhone: editingProject.clientPhone,
+        clientEmail: editingProject.clientEmail,
+        clientAddress: editingProject.clientAddress,
         location: editingProject.location,
         municipality: editingProject.municipality,
         department: editingProject.department,
@@ -82,6 +86,18 @@ export function ProjectForm({
       setErrors(fieldErrors);
       toast.error('Corrija los errores en el formulario');
       return;
+    }
+
+    // Gate: only block editing an existing project that has no budget at all
+    if (validation.data.status === 'En Ejecución' && editingProject) {
+      const hasBudget =
+        (editingProject.budgetTotal ?? 0) > 0 ||
+        (editingProject.apuBudgetTotal ?? 0) > 0 ||
+        validation.data.budgetTotal > 0;
+      if (!hasBudget) {
+        toast.error('El proyecto debe tener un presupuesto antes de pasar a Ejecución');
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -164,7 +180,7 @@ export function ProjectForm({
                   aria-invalid={Boolean(errors.code)}
                   aria-describedby={errors.code ? 'project-code-error' : undefined}
                   value={formData.code}
-                  onChange={(e) => handleChange('code', e.target.value)}
+                  onChange={(e) => handleChange('code', e.target.value.toUpperCase())}
                   placeholder="Ej: OBRA-2026-01"
                   className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
                     errors.code ? 'border-red-500 focus:ring-red-500/50' : ''
@@ -228,6 +244,78 @@ export function ProjectForm({
                   {errors.client}
                 </p>
               )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label
+                  htmlFor="project-client-nit"
+                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
+                >
+                  NIT del Cliente
+                </label>
+                <input
+                  id="project-client-nit"
+                  type="text"
+                  value={formData.clientNit ?? ''}
+                  onChange={(e) => handleChange('clientNit', e.target.value)}
+                  placeholder="Ej: 8492019-2 o CF"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="project-client-phone"
+                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
+                >
+                  Teléfono del Cliente
+                </label>
+                <input
+                  id="project-client-phone"
+                  type="text"
+                  value={formData.clientPhone ?? ''}
+                  onChange={(e) => handleChange('clientPhone', e.target.value)}
+                  placeholder="Ej: +502 5555-1234"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label
+                  htmlFor="project-client-email"
+                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
+                >
+                  Email del Cliente
+                </label>
+                <input
+                  id="project-client-email"
+                  type="email"
+                  value={formData.clientEmail ?? ''}
+                  onChange={(e) => handleChange('clientEmail', e.target.value)}
+                  placeholder="cliente@empresa.com"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="project-client-address"
+                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
+                >
+                  Dirección del Cliente
+                </label>
+                <input
+                  id="project-client-address"
+                  type="text"
+                  value={formData.clientAddress ?? ''}
+                  onChange={(e) => handleChange('clientAddress', e.target.value)}
+                  placeholder="Dirección fiscal o de contacto"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -347,20 +435,12 @@ export function ProjectForm({
                 <input
                   id="project-spent-total"
                   type="number"
-                  aria-invalid={Boolean(errors.spentTotal)}
-                  aria-describedby={errors.spentTotal ? 'project-spent-total-error' : undefined}
+                  readOnly
+                  aria-label="Gasto Ejecutado (Q) — calculado automáticamente desde los gastos registrados"
                   value={formData.spentTotal}
-                  onChange={(e) => handleChange('spentTotal', parseFloat(e.target.value) || 0)}
-                  placeholder="0"
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.spentTotal ? 'border-red-500 focus:ring-red-500/50' : ''
-                  }`}
+                  title="Calculado automáticamente desde los gastos registrados"
+                  className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500 transition"
                 />
-                {errors.spentTotal && (
-                  <p id="project-spent-total-error" className="text-xs text-red-700">
-                    {errors.spentTotal}
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">

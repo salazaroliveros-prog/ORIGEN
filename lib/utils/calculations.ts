@@ -211,11 +211,12 @@ export function calculateQuoteTotals(
  * Guatemalan payroll rates (configurable but using standard legal rates)
  */
 export const PAYROLL_RATES = {
-  IGSS_EMPLOYEE_PERCENT: 4.83, // Employee IGSS deduction
-  IGSS_EMPLOYER_PERCENT: 12.67, // Employer IGSS contribution
-  IRTRA_PERCENT: 0.125, // Accident insurance (0.125%)
-  BONO_14_MONTHS: 1 / 12, // Bono 14 = 1 month per 12 worked
-  AGUINALDO_MONTHS: 1 / 12, // Aguinaldo = 1 month per 12 worked (doubled Bono 14)
+  IGSS_EMPLOYEE_PERCENT: 4.83, // Employee IGSS deduction (Acuerdo 1118 IGSS)
+  IGSS_EMPLOYER_PERCENT: 12.67, // Employer IGSS contribution (10.67% IGSS + 1% IRTRA + 1% INTECAP)
+  IRTRA_PERCENT: 1.0, // IRTRA (Decreto 1528) — 1% sobre salario afecto
+  INTECAP_PERCENT: 1.0, // INTECAP — 1% sobre salario afecto
+  BONO_14_MONTHS: 1 / 12, // Bono 14 = 1 month per 12 worked (Decreto 42-92)
+  AGUINALDO_MONTHS: 1 / 12, // Aguinaldo = 1 month per 12 worked (Decreto 76-78)
 };
 
 /**
@@ -236,6 +237,7 @@ export function calculatePayroll(
   taxableIncome: number;
   incomeTax: number;
   irtraDeduction: number;
+  intecapDeduction: number;
   customDeductions: number;
   netPay: number;
   employerTotalCost: number;
@@ -243,8 +245,8 @@ export function calculatePayroll(
   if (!Number.isFinite(employee.dailyRateGTQ) || employee.dailyRateGTQ <= 0) {
     throw new Error('Daily rate must be a positive number');
   }
-  if (!Number.isFinite(daysWorked) || daysWorked < 0 || daysWorked > 30) {
-    throw new Error('Days worked must be between 0-30');
+  if (!Number.isFinite(daysWorked) || daysWorked < 0 || daysWorked > 31) {
+    throw new Error('Days worked must be between 0-31');
   }
   if (!Number.isFinite(customDeductions) || customDeductions < 0) {
     throw new Error('Custom deductions must be non-negative');
@@ -257,8 +259,10 @@ export function calculatePayroll(
     Math.round(((grossSalary * PAYROLL_RATES.IGSS_EMPLOYER_PERCENT) / 100) * 100) / 100;
   const irtraDeduction =
     Math.round(((grossSalary * PAYROLL_RATES.IRTRA_PERCENT) / 100) * 100) / 100;
+  const intecapDeduction =
+    Math.round(((grossSalary * PAYROLL_RATES.INTECAP_PERCENT) / 100) * 100) / 100;
 
-  const taxableIncome = grossSalary - igssEmployeeDeduction - irtraDeduction;
+  const taxableIncome = grossSalary - igssEmployeeDeduction - irtraDeduction - intecapDeduction;
   const incomeTax = calculateGuatemalanIncomeTax(taxableIncome);
 
   const netPay = taxableIncome - incomeTax - customDeductions;
@@ -271,6 +275,7 @@ export function calculatePayroll(
     taxableIncome,
     incomeTax,
     irtraDeduction,
+    intecapDeduction,
     customDeductions,
     netPay: Math.max(netPay, 0), // Ensure non-negative
     employerTotalCost,

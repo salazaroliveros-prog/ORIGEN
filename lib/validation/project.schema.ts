@@ -40,6 +40,14 @@ export const ProjectFormSchema = z
       .string()
       .min(3, 'El cliente es requerido')
       .max(100, 'El nombre del cliente no puede exceder 100 caracteres'),
+    clientNit: z.string().max(30, 'NIT muy largo').optional(),
+    clientPhone: z.string().max(40, 'Teléfono muy largo').optional(),
+    clientEmail: z
+      .string()
+      .max(100, 'Email muy largo')
+      .refine((v) => v === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()), 'Email inválido')
+      .optional(),
+    clientAddress: z.string().max(200, 'Dirección muy larga').optional(),
     location: z.string().min(5, 'La dirección es requerida').max(200, 'La dirección es muy larga'),
     municipality: z
       .string()
@@ -59,14 +67,11 @@ export const ProjectFormSchema = z
       .min(0, 'El avance debe estar entre 0 y 100')
       .max(100, 'El avance debe estar entre 0 y 100')
       .default(0),
-    startDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}/, 'La fecha de inicio debe ser válida (YYYY-MM-DD)'),
-    endDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}/, 'La fecha de finalización debe ser válida (YYYY-MM-DD)'),
+    startDate: z.string().date('La fecha de inicio debe ser válida (YYYY-MM-DD)'),
+    endDate: z.string().date('La fecha de finalización debe ser válida (YYYY-MM-DD)'),
     status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado'], {
-      message: 'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido o Archivado',
+      message:
+        'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido o Archivado',
     }),
     lat: z
       .number()
@@ -116,12 +121,16 @@ export const ProjectLegacySchema = z
     lng: z.number().default(-90.4875),
     expectedProfitMarginPercent: z.number().nullable().optional(),
   })
-  .strict({ message: 'Campo no reconocido' });
+  .strict();
 
 export interface ProjectFormProject {
   code: string;
   name: string;
   client: string;
+  clientNit?: string;
+  clientPhone?: string;
+  clientEmail?: string;
+  clientAddress?: string;
   location: string;
   municipality: string;
   department: string;
@@ -134,6 +143,8 @@ export interface ProjectFormProject {
   lat: number;
   lng: number;
   expectedProfitMarginPercent?: number | null;
+  apuBudgetTotal?: number;
+  apuBudgetVarianceGTQ?: number;
 }
 
 /**
@@ -172,12 +183,15 @@ export function validateAndFixProjectData(data: unknown): ProjectFormProject {
   }
 }
 
-export function getDefaultProjectValues(): ProjectFormProject {
+export function getDefaultProjectValues(): ProjectFormValues {
   return {
-    id: `proj-${Date.now()}`,
     code: '',
     name: '',
     client: '',
+    clientNit: '',
+    clientPhone: '',
+    clientEmail: '',
+    clientAddress: '',
     location: '',
     municipality: '',
     department: '',
@@ -189,6 +203,7 @@ export function getDefaultProjectValues(): ProjectFormProject {
     status: 'Planificación',
     lat: 14.6133,
     lng: -90.4875,
+    expectedProfitMarginPercent: null,
   };
 }
 

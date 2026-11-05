@@ -87,7 +87,7 @@ export function GuatemalanPayroll({
 
     const base = period === 'mensual' ? baseMonthly : baseQuincenal;
     const bonoIncentivo = period === 'mensual' ? 250.0 : 125.0; // Mitad para quincena
-    const igssLaboral = base * 0.0483; // 4.83% deducible del colaborador
+    const igssLaboral = emp.igssAffiliated ? base * 0.0483 : 0;
     const igssPatronal = base * 0.1067; // 10.67% IGSS empleador
     const irtraIntecap = base * 0.02; // 1% IRTRA + 1% INTECAP
     const igssPatronalTotal = igssPatronal + irtraIntecap; // 12.67% cuota patronal total
