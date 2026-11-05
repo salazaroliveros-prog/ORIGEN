@@ -38,7 +38,6 @@
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
-    "@next/swc-win32-x64-msvc": "16.4.4",
     "@rollup/wasm-node": "^4.66.0",
     "@tailwindcss/node": "4.1.11",
     "@tailwindcss/postcss": "4.1.11",
@@ -99,6 +98,9 @@
     "vite": "^7.3.7",
     "vitest": "^5.0.5",
     "wait-on": "9.5.1"
+  },
+  "optionalDependencies": {
+    "@next/swc-win32-x64-msvc": "16.4.4"
   },
   "overrides": {
     "@grpc/grpc-js": "^1.14.5",

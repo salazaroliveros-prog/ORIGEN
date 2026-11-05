@@ -86,9 +86,9 @@ export const GUATEMALA_DEPARTMENTS_INDEX: Record<string, GuatemalaDepartmentInde
     code: 'PROG',
     name: 'El Progreso',
     region: 'Central',
-    freightFactor: 0.96,
+    freightFactor: 1.0,
     laborFactor: 0.97,
-    overallFactor: 0.964,
+    overallFactor: 0.988,
     distanceKmFromCapital: 85,
     logisticsNotes:
       'Cercanía a la Megaplanta San Gabriel de Cementos Progreso en Sanarate. Costo de cemento más bajo del país.',

@@ -334,6 +334,39 @@ export async function deleteAttendanceFromFirestore(attendanceId: string): Promi
   }
 }
 
+export async function deleteEmployeeFromFirestore(
+  employeeId: string,
+  companyId: string
+): Promise<boolean> {
+  const path = `employees/${employeeId}`;
+  try {
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'employees', employeeId));
+    batch.delete(doc(db, 'employeeDirectory', employeeId));
+    await batch.commit();
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.DELETE, path);
+    return false;
+  }
+}
+
+export async function deleteMachineryFromFirestore(
+  machineryId: string,
+  companyId: string
+): Promise<boolean> {
+  const path = `machinery/${machineryId}`;
+  try {
+    await deleteDoc(doc(db, 'machinery', machineryId));
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.DELETE, path);
+    return false;
+  }
+}
+
 export async function saveFieldVisitToFirestore(
   visit: FieldVisit,
   companyId: string,

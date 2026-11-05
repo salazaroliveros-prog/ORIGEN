@@ -25,6 +25,8 @@ import { initialCompanySettings } from '@/lib/data';
 import {
   saveProjectScheduleToFirestore,
   saveCompanySettingsToFirestore,
+  deleteMachineryFromFirestore,
+  deleteEmployeeFromFirestore,
 } from '@/lib/firebaseService';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
@@ -32,7 +34,7 @@ import { useProjectData } from '@/lib/services/projectData';
 import type { CompanySettings, Employee, TaskReminder } from '@/lib/types';
 import { isPrimaryAdministrator } from '@/lib/firebaseAuth';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { Settings } from 'lucide-react';
 import {
   canManagePersonnel,
@@ -520,6 +522,7 @@ export default function MainApp() {
                 onDeleteAttendance={
                   permissions.canManageAttendance ? data.deleteAttendance : undefined
                 }
+                onDeleteEmployee={permissions.canManageEmployees ? data.deleteEmployee : undefined}
                 canViewEmployeeDetails={permissions.canViewFullPersonnel}
               />
             )}
@@ -605,6 +608,9 @@ export default function MainApp() {
                   activeProjectId={activeProject?.id ?? ''}
                   canWrite={permissions.canManageMachinery}
                   onAddMachinery={data.addMachinery}
+                  onDeleteMachinery={
+                    permissions.canManageMachinery ? data.deleteMachinery : undefined
+                  }
                   onRecordMachineryUse={data.addMachineryLog}
                   onSetMachineryStatus={data.setMachineryStatus}
                   currency="GTQ"

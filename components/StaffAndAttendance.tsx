@@ -15,6 +15,7 @@ import {
   EmployeeRole,
   Project,
 } from '@/lib/types';
+import { validateEmployee } from '@/lib/validation/entity.schemas';
 import {
   AlertTriangle,
   BarChart3,
@@ -32,7 +33,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 interface StaffAndAttendanceProps {
   employees: Array<Employee | EmployeeDirectoryEntry>;
@@ -44,6 +45,7 @@ interface StaffAndAttendanceProps {
   onAddEmployee?: (emp: Employee) => Promise<boolean>;
   onAddAttendance?: (record: AttendanceRecord) => Promise<boolean>;
   onDeleteAttendance?: (id: string) => Promise<boolean>;
+  onDeleteEmployee?: (id: string) => Promise<boolean>;
   canViewEmployeeDetails: boolean;
 }
 
@@ -57,6 +59,7 @@ export function StaffAndAttendance({
   onAddEmployee,
   onAddAttendance,
   onDeleteAttendance,
+  onDeleteEmployee,
   canViewEmployeeDetails,
 }: StaffAndAttendanceProps) {
   // Navigation Tabs: 'asistencia', 'personal', or 'productividad'
@@ -71,6 +74,7 @@ export function StaffAndAttendance({
   const [rate, setRate] = useState('175');
   const [phone, setPhone] = useState('+502 ');
   const [isSavingEmployee, setIsSavingEmployee] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Attendance Form State
   const selectedProjectId = activeProjectId;
@@ -324,23 +328,32 @@ export function StaffAndAttendance({
       toast.error('Tu rol no permite registrar personal.');
       return;
     }
-    if (!name.trim()) {
-      toast.error('Ingresa el nombre del empleado.');
-      return;
-    }
 
-    const emp: Employee = {
+    const candidate = {
       id: `emp-${Date.now()}`,
       name: name.trim(),
       role,
-      dailyRateGTQ: Number(rate) || 150,
+      dailyRateGTQ: Number(rate) || 0,
       igssAffiliated: true,
       phone,
     };
 
+    const validation = validateEmployee(candidate);
+    if (!validation.success) {
+      const errs: Record<string, string> = {};
+      validation.error.issues.forEach((issue) => {
+        const key = String(issue.path[0] ?? '_');
+        if (!errs[key]) errs[key] = issue.message;
+      });
+      setFormErrors(errs);
+      toast.error('Verifica los campos del formulario.');
+      return;
+    }
+    setFormErrors({});
+
     setIsSavingEmployee(true);
     try {
-      if (await onAddEmployee(emp)) {
+      if (await onAddEmployee(validation.data as Employee)) {
         setIsOpenModal(false);
         setName('');
       }
@@ -349,6 +362,17 @@ export function StaffAndAttendance({
       toast.error('No se pudo registrar el empleado.');
     } finally {
       setIsSavingEmployee(false);
+    }
+  };
+
+  const handleDeleteEmployee = async (id: string) => {
+    if (!window.confirm('¿Eliminar este empleado?')) return;
+    try {
+      const ok = await onDeleteEmployee?.(id);
+      if (ok) toast.success('Empleado eliminado.');
+      else toast.error('No se pudo eliminar el empleado.');
+    } catch {
+      toast.error('No se pudo eliminar el empleado.');
     }
   };
 
@@ -420,7 +444,10 @@ export function StaffAndAttendance({
 
           {onAddEmployee && (
             <button
-              onClick={() => setIsOpenModal(true)}
+              onClick={() => {
+                setIsOpenModal(true);
+                setFormErrors({});
+              }}
               className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-blue-700 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-800"
             >
               <Plus className="h-4 w-4" /> Nuevo Empleado
@@ -933,11 +960,23 @@ export function StaffAndAttendance({
                 <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
                   {emp.role}
                 </span>
-                {'igssAffiliated' in emp && emp.igssAffiliated && (
-                  <span className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                    IGSS Afiliado
-                  </span>
-                )}
+                <div className="flex items-center gap-1">
+                  {'igssAffiliated' in emp && emp.igssAffiliated && (
+                    <span className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                      IGSS Afiliado
+                    </span>
+                  )}
+                  {onDeleteEmployee && (
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteEmployee(emp.id)}
+                      title="Eliminar empleado"
+                      className="rounded-lg p-1 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-900">{emp.name}</h3>
@@ -984,7 +1023,10 @@ export function StaffAndAttendance({
                 Registrar Nuevo Empleado
               </h3>
               <button
-                onClick={() => setIsOpenModal(false)}
+                onClick={() => {
+                  setIsOpenModal(false);
+                  setFormErrors({});
+                }}
                 className="text-slate-400 hover:text-white"
                 aria-label="Cerrar formulario de empleado"
               >
@@ -1011,6 +1053,7 @@ export function StaffAndAttendance({
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                   required
                 />
+                {formErrors.name && <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>}
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
@@ -1035,6 +1078,9 @@ export function StaffAndAttendance({
                     <option value="Bodeguero">Bodeguero</option>
                     <option value="Electricista">Electricista</option>
                   </select>
+                  {formErrors.role && (
+                    <p className="mt-1 text-sm text-red-500">{formErrors.role}</p>
+                  )}
                 </div>
                 <div>
                   <label
@@ -1053,6 +1099,9 @@ export function StaffAndAttendance({
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                     required
                   />
+                  {formErrors.dailyRateGTQ && (
+                    <p className="mt-1 text-sm text-red-500">{formErrors.dailyRateGTQ}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -1073,7 +1122,10 @@ export function StaffAndAttendance({
               <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
                 <button
                   type="button"
-                  onClick={() => setIsOpenModal(false)}
+                  onClick={() => {
+                    setIsOpenModal(false);
+                    setFormErrors({});
+                  }}
                   className="min-h-11 rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-700 hover:bg-slate-200"
                 >
                   Cancelar

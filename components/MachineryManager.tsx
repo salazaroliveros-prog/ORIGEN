@@ -2,18 +2,20 @@
 
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { CompanySettings, Machinery, MachineryLog, Project } from '@/lib/types';
+import { validateMachinery } from '@/lib/validation/entity.schemas';
 import {
   CheckCircle2,
   ClipboardList,
   Fuel,
   Gauge,
   Plus,
+  Trash2,
   Wrench,
   AlertTriangle,
   Clock,
 } from 'lucide-react';
 import React, { useEffect, useState, useMemo } from 'react';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 interface MachineryManagerProps {
   machinery: Machinery[];
@@ -22,6 +24,7 @@ interface MachineryManagerProps {
   activeProjectId: string;
   canWrite: boolean;
   onAddMachinery: (m: Machinery) => Promise<boolean>;
+  onDeleteMachinery?: (id: string) => Promise<boolean>;
   onRecordMachineryUse: (log: MachineryLog) => Promise<boolean>;
   onSetMachineryStatus: (machineryId: string, status: Machinery['status']) => Promise<boolean>;
   currency: 'GTQ' | 'USD';
@@ -35,6 +38,7 @@ export function MachineryManager({
   activeProjectId,
   canWrite,
   onAddMachinery,
+  onDeleteMachinery,
   onRecordMachineryUse,
   onSetMachineryStatus,
   currency,
@@ -46,6 +50,7 @@ export function MachineryManager({
   const [plate, setPlate] = useState('EQ-01');
   const [rate, setRate] = useState('300');
   const [initialHorometer, setInitialHorometer] = useState('0');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [selectedMachineryId, setSelectedMachineryId] = useState('');
   const [selectedProject, setSelectedProject] = useState(activeProjectId);
   const [newHorometer, setNewHorometer] = useState('');
@@ -139,30 +144,33 @@ export function MachineryManager({
     e.preventDefault();
     const hourlyRateGTQ = Number(rate);
     const currentHorometer = Number(initialHorometer);
-    if (
-      !name.trim() ||
-      !Number.isFinite(hourlyRateGTQ) ||
-      hourlyRateGTQ < 0 ||
-      !Number.isFinite(currentHorometer) ||
-      currentHorometer < 0
-    ) {
-      toast.error('Verifica el nombre, la tarifa y el horómetro inicial.');
-      return;
-    }
 
-    const m: Machinery = {
+    const candidate = {
       id: `m-${globalThis.crypto.randomUUID()}`,
       name: name.trim(),
       model: model.trim(),
       plateOrCode: plate.trim(),
       hourlyRateGTQ,
       currentHorometer,
-      status: 'Disponible',
+      status: 'Disponible' as const,
     };
+
+    const validation = validateMachinery(candidate);
+    if (!validation.success) {
+      const errs: Record<string, string> = {};
+      validation.error.issues.forEach((issue) => {
+        const key = String(issue.path[0] ?? '_');
+        if (!errs[key]) errs[key] = issue.message;
+      });
+      setFormErrors(errs);
+      toast.error('Verifica los campos del formulario.');
+      return;
+    }
+    setFormErrors({});
 
     setIsSaving(true);
     try {
-      if (await onAddMachinery(m)) {
+      if (await onAddMachinery(validation.data as Machinery)) {
         setIsOpenModal(false);
         setName('');
         setModel('');
@@ -176,6 +184,17 @@ export function MachineryManager({
       toast.error('No se pudo registrar la maquinaria. Intenta nuevamente.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteMachinery = async (id: string) => {
+    if (!window.confirm('¿Eliminar esta maquinaria?')) return;
+    try {
+      const ok = await onDeleteMachinery?.(id);
+      if (ok) toast.success('Maquinaria eliminada.');
+      else toast.error('No se pudo eliminar la maquinaria.');
+    } catch {
+      toast.error('No se pudo eliminar la maquinaria.');
     }
   };
 
@@ -258,7 +277,10 @@ export function MachineryManager({
         </div>
         <button
           type="button"
-          onClick={() => setIsOpenModal(true)}
+          onClick={() => {
+            setIsOpenModal(true);
+            setFormErrors({});
+          }}
           disabled={!canWrite}
           title={!canWrite ? 'Inicia sesión con un rol que pueda gestionar maquinaria' : undefined}
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
@@ -385,27 +407,39 @@ export function MachineryManager({
                   )}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  void handleStatusChange(
-                    mach,
-                    mach.status === 'En Obra'
-                      ? 'Disponible'
-                      : mach.status === 'Disponible'
-                        ? 'Mantenimiento'
-                        : 'Disponible'
-                  )
-                }
-                disabled={!canWrite}
-                className="w-full rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {mach.status === 'En Obra'
-                  ? 'Finalizar uso en obra'
-                  : mach.status === 'Disponible'
-                    ? 'Enviar a mantenimiento'
-                    : 'Marcar disponible'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleStatusChange(
+                      mach,
+                      mach.status === 'En Obra'
+                        ? 'Disponible'
+                        : mach.status === 'Disponible'
+                          ? 'Mantenimiento'
+                          : 'Disponible'
+                    )
+                  }
+                  disabled={!canWrite}
+                  className="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {mach.status === 'En Obra'
+                    ? 'Finalizar uso en obra'
+                    : mach.status === 'Disponible'
+                      ? 'Enviar a mantenimiento'
+                      : 'Marcar disponible'}
+                </button>
+                {onDeleteMachinery && canWrite && (
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteMachinery(mach.id)}
+                    title="Eliminar maquinaria"
+                    className="rounded-lg bg-red-50 px-2 py-2 text-red-500 hover:bg-red-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
@@ -588,7 +622,10 @@ export function MachineryManager({
                 Registrar Nueva Maquinaria
               </h3>
               <button
-                onClick={() => setIsOpenModal(false)}
+                onClick={() => {
+                  setIsOpenModal(false);
+                  setFormErrors({});
+                }}
                 className="text-slate-400 hover:text-white"
                 aria-label="Cerrar formulario de maquinaria"
               >
@@ -615,6 +652,7 @@ export function MachineryManager({
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                   required
                 />
+                {formErrors.name && <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>}
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
@@ -631,6 +669,9 @@ export function MachineryManager({
                     onChange={(e) => setModel(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                   />
+                  {formErrors.model && (
+                    <p className="mt-1 text-sm text-red-500">{formErrors.model}</p>
+                  )}
                 </div>
                 <div>
                   <label
@@ -646,6 +687,9 @@ export function MachineryManager({
                     onChange={(e) => setPlate(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                   />
+                  {formErrors.plateOrCode && (
+                    <p className="mt-1 text-sm text-red-500">{formErrors.plateOrCode}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -665,6 +709,9 @@ export function MachineryManager({
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                   required
                 />
+                {formErrors.hourlyRateGTQ && (
+                  <p className="mt-1 text-sm text-red-500">{formErrors.hourlyRateGTQ}</p>
+                )}
               </div>
               <div>
                 <label
@@ -687,7 +734,10 @@ export function MachineryManager({
               <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
                 <button
                   type="button"
-                  onClick={() => setIsOpenModal(false)}
+                  onClick={() => {
+                    setIsOpenModal(false);
+                    setFormErrors({});
+                  }}
                   className="min-h-11 rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-700 hover:bg-slate-200"
                 >
                   Cancelar

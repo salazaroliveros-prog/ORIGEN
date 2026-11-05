@@ -20,6 +20,7 @@ interface StaffViewProps {
   onAddEmployee?: (emp: Employee) => Promise<boolean>;
   onAddAttendance?: (record: AttendanceRecord) => Promise<boolean>;
   onDeleteAttendance?: (id: string) => Promise<boolean>;
+  onDeleteEmployee?: (id: string) => Promise<boolean>;
   canViewEmployeeDetails: boolean;
 }
 
@@ -33,6 +34,7 @@ export function StaffView({
   onAddEmployee,
   onAddAttendance,
   onDeleteAttendance,
+  onDeleteEmployee,
   canViewEmployeeDetails,
 }: StaffViewProps) {
   return (
@@ -47,6 +49,7 @@ export function StaffView({
         onAddEmployee={onAddEmployee}
         onAddAttendance={onAddAttendance}
         onDeleteAttendance={onDeleteAttendance}
+        onDeleteEmployee={onDeleteEmployee}
         canViewEmployeeDetails={canViewEmployeeDetails}
       />
     </div>

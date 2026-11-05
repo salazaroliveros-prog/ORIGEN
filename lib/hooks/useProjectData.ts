@@ -29,6 +29,8 @@ import {
   saveAttendanceToFirestore,
   deleteAttendanceFromFirestore,
   saveEmployeeToFirestore,
+  deleteEmployeeFromFirestore,
+  deleteMachineryFromFirestore,
   saveCompanySettingsToFirestore,
   subscribeQuotes,
   subscribeAPUItems,
@@ -306,19 +308,19 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
             status: 'Archivado',
             archivedAt: new Date().toISOString(),
             archivedFromStatus: project.status,
-          code: project.code || "ARCH",
-          name: project.name || "Proyecto Archivado",
-          client: project.client || "Cliente Desconocido",
-          location: project.location || "Ubicación No Especificada",
-          municipality: project.municipality || "Municipio",
-          department: project.department || "Departamento",
-          budgetTotal: project.budgetTotal ?? 0,
-          spentTotal: project.spentTotal ?? 0,
-          progressPercent: project.progressPercent ?? 0,
-          startDate: project.startDate || new Date().toISOString().split("T")[0],
-          endDate: project.endDate || new Date().toISOString().split("T")[0],
-          lat: project.lat ?? 14.6133,
-          lng: project.lng ?? -90.4875,
+            code: project.code || 'ARCH',
+            name: project.name || 'Proyecto Archivado',
+            client: project.client || 'Cliente Desconocido',
+            location: project.location || 'Ubicación No Especificada',
+            municipality: project.municipality || 'Municipio',
+            department: project.department || 'Departamento',
+            budgetTotal: project.budgetTotal ?? 0,
+            spentTotal: project.spentTotal ?? 0,
+            progressPercent: project.progressPercent ?? 0,
+            startDate: project.startDate || new Date().toISOString().split('T')[0],
+            endDate: project.endDate || new Date().toISOString().split('T')[0],
+            lat: project.lat ?? 14.6133,
+            lng: project.lng ?? -90.4875,
           },
           companyId,
           currentUserId
@@ -595,6 +597,34 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     [companyId, currentUserId]
   );
 
+  const deleteEmployee = useCallback(
+    async (employeeId: string) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para eliminar empleados.');
+        return false;
+      }
+      const deleted = await deleteEmployeeFromFirestore(employeeId, companyId);
+      if (deleted) toast.success('Empleado eliminado correctamente.');
+      else toast.error('No se pudo eliminar el empleado.');
+      return deleted;
+    },
+    [companyId, currentUserId]
+  );
+
+  const deleteMachinery = useCallback(
+    async (machineryId: string) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para eliminar maquinaria.');
+        return false;
+      }
+      const deleted = await deleteMachineryFromFirestore(machineryId, companyId);
+      if (deleted) toast.success('Maquinaria eliminada correctamente.');
+      else toast.error('No se pudo eliminar la maquinaria.');
+      return deleted;
+    },
+    [companyId, currentUserId]
+  );
+
   const addMachineryLog = useCallback(
     async (log: MachineryLog) => {
       if (!companyId || !currentUserId) {
@@ -659,11 +689,13 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     addAttendance,
     deleteAttendance,
     addEmployee,
+    deleteEmployee,
     addQuote,
     updateQuoteStatus,
     saveAPUItems,
     deleteAPUItem,
     addMachinery,
+    deleteMachinery,
     addMachineryLog,
     setMachineryStatus,
     saveCompanySettings: (settings: CompanySettings) =>
