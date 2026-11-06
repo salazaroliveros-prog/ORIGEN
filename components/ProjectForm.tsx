@@ -164,449 +164,484 @@ export function ProjectForm({
 
           <form
             onSubmit={handleSubmit}
-            className="min-h-0 space-y-4 overflow-y-auto overscroll-contain p-4 text-slate-900 sm:p-6 [&_input::placeholder]:text-slate-600"
+            className="min-h-0 space-y-6 overflow-y-auto overscroll-contain p-4 text-slate-900 sm:p-6 [&_input::placeholder]:text-slate-600"
           >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
+            {/* SECCIÓN: Identificación */}
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                Identificación del Proyecto
+              </legend>
+              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-code"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Código del Proyecto
+                  </label>
+                  <input
+                    id="project-code"
+                    type="text"
+                    aria-invalid={Boolean(errors.code)}
+                    aria-describedby={errors.code ? 'project-code-error' : undefined}
+                    value={formData.code}
+                    onChange={(e) => handleChange('code', e.target.value.toUpperCase())}
+                    placeholder="Ej: OBRA-2026-01"
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.code ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.code && (
+                    <p id="project-code-error" className="text-xs text-red-700">
+                      {errors.code}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-name"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Nombre del Proyecto
+                  </label>
+                  <input
+                    id="project-name"
+                    type="text"
+                    aria-invalid={Boolean(errors.name)}
+                    aria-describedby={errors.name ? 'project-name-error' : undefined}
+                    value={formData.name}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    placeholder="Ej: Torre Residencial Vista Hermosa"
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.name ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.name && (
+                    <p id="project-name-error" className="text-xs text-red-700">
+                      {errors.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </fieldset>
+
+            {/* SECCIÓN: Cliente */}
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                Datos del Cliente
+              </legend>
+              <div className="mt-3 space-y-2">
                 <label
-                  htmlFor="project-code"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
+                  htmlFor="project-client"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
                 >
-                  Código del Proyecto
+                  Cliente
                 </label>
                 <input
-                  id="project-code"
+                  id="project-client"
                   type="text"
-                  aria-invalid={Boolean(errors.code)}
-                  aria-describedby={errors.code ? 'project-code-error' : undefined}
-                  value={formData.code}
-                  onChange={(e) => handleChange('code', e.target.value.toUpperCase())}
-                  placeholder="Ej: OBRA-2026-01"
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.code ? 'border-red-500 focus:ring-red-500/50' : ''
+                  aria-invalid={Boolean(errors.client)}
+                  aria-describedby={errors.client ? 'project-client-error' : undefined}
+                  value={formData.client}
+                  onChange={(e) => handleChange('client', e.target.value)}
+                  placeholder="Nombre del cliente o desarrollador"
+                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                    errors.client ? 'border-red-500 focus:ring-red-500/50' : ''
                   }`}
                 />
-                {errors.code && (
-                  <p id="project-code-error" className="text-xs text-red-700">
-                    {errors.code}
+                {errors.client && (
+                  <p id="project-client-error" className="text-xs text-red-700">
+                    {errors.client}
                   </p>
                 )}
               </div>
+              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-client-nit"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    NIT del Cliente
+                  </label>
+                  <input
+                    id="project-client-nit"
+                    type="text"
+                    value={formData.clientNit ?? ''}
+                    onChange={(e) => handleChange('clientNit', e.target.value)}
+                    placeholder="Ej: 8492019-2 o CF"
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-name"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Nombre del Proyecto
-                </label>
-                <input
-                  id="project-name"
-                  type="text"
-                  aria-invalid={Boolean(errors.name)}
-                  aria-describedby={errors.name ? 'project-name-error' : undefined}
-                  value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  placeholder="Ej: Torre Residencial Vista Hermosa"
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.name ? 'border-red-500 focus:ring-red-500/50' : ''
-                  }`}
-                />
-                {errors.name && (
-                  <p id="project-name-error" className="text-xs text-red-700">
-                    {errors.name}
-                  </p>
-                )}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-client-phone"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Teléfono del Cliente
+                  </label>
+                  <input
+                    id="project-client-phone"
+                    type="text"
+                    value={formData.clientPhone ?? ''}
+                    onChange={(e) => handleChange('clientPhone', e.target.value)}
+                    placeholder="Ej: +502 5555-1234"
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                </div>
               </div>
-            </div>
+              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-client-email"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Email del Cliente
+                  </label>
+                  <input
+                    id="project-client-email"
+                    type="email"
+                    value={formData.clientEmail ?? ''}
+                    onChange={(e) => handleChange('clientEmail', e.target.value)}
+                    placeholder="cliente@empresa.com"
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="project-client"
-                className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-              >
-                Cliente
-              </label>
-              <input
-                id="project-client"
-                type="text"
-                aria-invalid={Boolean(errors.client)}
-                aria-describedby={errors.client ? 'project-client-error' : undefined}
-                value={formData.client}
-                onChange={(e) => handleChange('client', e.target.value)}
-                placeholder="Nombre del cliente o desarrollador"
-                className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                  errors.client ? 'border-red-500 focus:ring-red-500/50' : ''
-                }`}
-              />
-              {errors.client && (
-                <p id="project-client-error" className="text-xs text-red-700">
-                  {errors.client}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-client-nit"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  NIT del Cliente
-                </label>
-                <input
-                  id="project-client-nit"
-                  type="text"
-                  value={formData.clientNit ?? ''}
-                  onChange={(e) => handleChange('clientNit', e.target.value)}
-                  placeholder="Ej: 8492019-2 o CF"
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
-                />
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-client-address"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Dirección del Cliente
+                  </label>
+                  <input
+                    id="project-client-address"
+                    type="text"
+                    value={formData.clientAddress ?? ''}
+                    onChange={(e) => handleChange('clientAddress', e.target.value)}
+                    placeholder="Dirección fiscal o de contacto"
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                </div>
               </div>
+            </fieldset>
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-client-phone"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Teléfono del Cliente
-                </label>
-                <input
-                  id="project-client-phone"
-                  type="text"
-                  value={formData.clientPhone ?? ''}
-                  onChange={(e) => handleChange('clientPhone', e.target.value)}
-                  placeholder="Ej: +502 5555-1234"
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
-                />
+            {/* SECCIÓN: Ubicación */}
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                Ubicación de la Obra
+              </legend>
+              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-location"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Ubicación
+                  </label>
+                  <input
+                    id="project-location"
+                    type="text"
+                    aria-invalid={Boolean(errors.location)}
+                    aria-describedby={errors.location ? 'project-location-error' : undefined}
+                    value={formData.location}
+                    onChange={(e) => handleChange('location', e.target.value)}
+                    placeholder="Dirección completa"
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.location ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.location && (
+                    <p id="project-location-error" className="text-xs text-red-700">
+                      {errors.location}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-municipality"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Municipio
+                  </label>
+                  <input
+                    id="project-municipality"
+                    type="text"
+                    aria-invalid={Boolean(errors.municipality)}
+                    aria-describedby={
+                      errors.municipality ? 'project-municipality-error' : undefined
+                    }
+                    value={formData.municipality}
+                    onChange={(e) => handleChange('municipality', e.target.value)}
+                    placeholder="Ej: Guatemala"
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.municipality ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.municipality && (
+                    <p id="project-municipality-error" className="text-xs text-red-700">
+                      {errors.municipality}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
+              <div className="mt-3 space-y-2">
                 <label
-                  htmlFor="project-client-email"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
+                  htmlFor="project-department"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
                 >
-                  Email del Cliente
+                  Departamento
                 </label>
                 <input
-                  id="project-client-email"
-                  type="email"
-                  value={formData.clientEmail ?? ''}
-                  onChange={(e) => handleChange('clientEmail', e.target.value)}
-                  placeholder="cliente@empresa.com"
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-client-address"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Dirección del Cliente
-                </label>
-                <input
-                  id="project-client-address"
+                  id="project-department"
                   type="text"
-                  value={formData.clientAddress ?? ''}
-                  onChange={(e) => handleChange('clientAddress', e.target.value)}
-                  placeholder="Dirección fiscal o de contacto"
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-location"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Ubicación
-                </label>
-                <input
-                  id="project-location"
-                  type="text"
-                  aria-invalid={Boolean(errors.location)}
-                  aria-describedby={errors.location ? 'project-location-error' : undefined}
-                  value={formData.location}
-                  onChange={(e) => handleChange('location', e.target.value)}
-                  placeholder="Dirección completa"
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.location ? 'border-red-500 focus:ring-red-500/50' : ''
-                  }`}
-                />
-                {errors.location && (
-                  <p id="project-location-error" className="text-xs text-red-700">
-                    {errors.location}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-municipality"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Municipio
-                </label>
-                <input
-                  id="project-municipality"
-                  type="text"
-                  aria-invalid={Boolean(errors.municipality)}
-                  aria-describedby={errors.municipality ? 'project-municipality-error' : undefined}
-                  value={formData.municipality}
-                  onChange={(e) => handleChange('municipality', e.target.value)}
+                  aria-invalid={Boolean(errors.department)}
+                  aria-describedby={errors.department ? 'project-department-error' : undefined}
+                  value={formData.department}
+                  onChange={(e) => handleChange('department', e.target.value)}
                   placeholder="Ej: Guatemala"
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.municipality ? 'border-red-500 focus:ring-red-500/50' : ''
+                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                    errors.department ? 'border-red-500 focus:ring-red-500/50' : ''
                   }`}
                 />
-                {errors.municipality && (
-                  <p id="project-municipality-error" className="text-xs text-red-700">
-                    {errors.municipality}
+                {errors.department && (
+                  <p id="project-department-error" className="text-xs text-red-700">
+                    {errors.department}
                   </p>
                 )}
               </div>
-            </div>
+            </fieldset>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="project-department"
-                className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-              >
-                Departamento
-              </label>
-              <input
-                id="project-department"
-                type="text"
-                aria-invalid={Boolean(errors.department)}
-                aria-describedby={errors.department ? 'project-department-error' : undefined}
-                value={formData.department}
-                onChange={(e) => handleChange('department', e.target.value)}
-                placeholder="Ej: Guatemala"
-                className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                  errors.department ? 'border-red-500 focus:ring-red-500/50' : ''
-                }`}
-              />
-              {errors.department && (
-                <p id="project-department-error" className="text-xs text-red-700">
-                  {errors.department}
+            {/* SECCIÓN: Financiero */}
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                Presupuesto y Financiero
+              </legend>
+              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-budget-total"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Presupuesto Total (Q)
+                  </label>
+                  <input
+                    id="project-budget-total"
+                    type="number"
+                    aria-invalid={Boolean(errors.budgetTotal)}
+                    aria-describedby={errors.budgetTotal ? 'project-budget-total-error' : undefined}
+                    value={formData.budgetTotal}
+                    onChange={(e) => handleChange('budgetTotal', parseFloat(e.target.value) || 0)}
+                    placeholder="0"
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.budgetTotal ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.budgetTotal && (
+                    <p id="project-budget-total-error" className="text-xs text-red-700">
+                      {errors.budgetTotal}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-spent-total"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Gasto Ejecutado (Q)
+                  </label>
+                  <input
+                    id="project-spent-total"
+                    type="number"
+                    readOnly
+                    aria-label="Gasto Ejecutado (Q) — calculado automáticamente desde los gastos registrados"
+                    value={formData.spentTotal}
+                    title="Calculado automáticamente desde los gastos registrados"
+                    className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500 transition"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-progress"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Avance (%)
+                  </label>
+                  <input
+                    id="project-progress"
+                    type="number"
+                    aria-invalid={Boolean(errors.progressPercent)}
+                    aria-describedby={errors.progressPercent ? 'project-progress-error' : undefined}
+                    value={formData.progressPercent}
+                    onChange={(e) =>
+                      handleChange('progressPercent', parseFloat(e.target.value) || 0)
+                    }
+                    min="0"
+                    max="100"
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.progressPercent ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.progressPercent && (
+                    <p id="project-progress-error" className="text-xs text-red-700">
+                      {errors.progressPercent}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </fieldset>
+
+            {/* SECCIÓN: Fechas y Estado */}
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                Fechas y Estado
+              </legend>
+              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-start-date"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Fecha de Inicio
+                  </label>
+                  <input
+                    id="project-start-date"
+                    type="date"
+                    aria-invalid={Boolean(errors.startDate)}
+                    aria-describedby={errors.startDate ? 'project-start-date-error' : undefined}
+                    value={formData.startDate}
+                    onChange={(e) => handleChange('startDate', e.target.value)}
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.startDate ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.startDate && (
+                    <p id="project-start-date-error" className="text-xs text-red-700">
+                      {errors.startDate}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-end-date"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Fecha de Finalización
+                  </label>
+                  <input
+                    id="project-end-date"
+                    type="date"
+                    aria-invalid={Boolean(errors.endDate)}
+                    aria-describedby={errors.endDate ? 'project-end-date-error' : undefined}
+                    value={formData.endDate}
+                    onChange={(e) => handleChange('endDate', e.target.value)}
+                    className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      errors.endDate ? 'border-red-500 focus:ring-red-500/50' : ''
+                    }`}
+                  />
+                  {errors.endDate && (
+                    <p id="project-end-date-error" className="text-xs text-red-700">
+                      {errors.endDate}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 space-y-2">
+                <label
+                  htmlFor="project-status"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                >
+                  Estado del Proyecto
+                </label>
+                <select
+                  id="project-status"
+                  value={formData.status}
+                  onChange={(e) =>
+                    handleChange('status', e.target.value as ProjectFormValues['status'])
+                  }
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                >
+                  <option value="Planificación">Planificación</option>
+                  <option value="En Ejecución">En Ejecución</option>
+                  <option value="Suspendido">Suspendido</option>
+                  <option value="Finalizado">Finalizado</option>
+                </select>
+                {errors.status && <p className="text-[10px] text-red-500">{errors.status}</p>}
+              </div>
+            </fieldset>
+
+            {/* SECCIÓN: Coordenadas GPS y Margen */}
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                Coordenadas y Margen
+              </legend>
+              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-latitude"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Latitud
+                  </label>
+                  <input
+                    id="project-latitude"
+                    type="number"
+                    step="any"
+                    value={formData.lat}
+                    onChange={(e) => handleChange('lat', parseFloat(e.target.value) || 0)}
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="project-longitude"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  >
+                    Longitud
+                  </label>
+                  <input
+                    id="project-longitude"
+                    type="number"
+                    step="any"
+                    value={formData.lng}
+                    onChange={(e) => handleChange('lng', parseFloat(e.target.value) || 0)}
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 space-y-2">
+                <label
+                  htmlFor="project-profit-margin"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                >
+                  Margen de Utilidad Esperado (%)
+                </label>
+                <p className="text-xs text-slate-500">
+                  Opcional. Solo se usará para estimar costos cuando se configure.
                 </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-budget-total"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Presupuesto Total (Q)
-                </label>
                 <input
-                  id="project-budget-total"
+                  id="project-profit-margin"
                   type="number"
-                  aria-invalid={Boolean(errors.budgetTotal)}
-                  aria-describedby={errors.budgetTotal ? 'project-budget-total-error' : undefined}
-                  value={formData.budgetTotal}
-                  onChange={(e) => handleChange('budgetTotal', parseFloat(e.target.value) || 0)}
-                  placeholder="0"
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.budgetTotal ? 'border-red-500 focus:ring-red-500/50' : ''
-                  }`}
-                />
-                {errors.budgetTotal && (
-                  <p id="project-budget-total-error" className="text-xs text-red-700">
-                    {errors.budgetTotal}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-spent-total"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Gasto Ejecutado (Q)
-                </label>
-                <input
-                  id="project-spent-total"
-                  type="number"
-                  readOnly
-                  aria-label="Gasto Ejecutado (Q) — calculado automáticamente desde los gastos registrados"
-                  value={formData.spentTotal}
-                  title="Calculado automáticamente desde los gastos registrados"
-                  className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500 transition"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-progress"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Avance (%)
-                </label>
-                <input
-                  id="project-progress"
-                  type="number"
-                  aria-invalid={Boolean(errors.progressPercent)}
-                  aria-describedby={errors.progressPercent ? 'project-progress-error' : undefined}
-                  value={formData.progressPercent}
-                  onChange={(e) => handleChange('progressPercent', parseFloat(e.target.value) || 0)}
+                  value={formData.expectedProfitMarginPercent ?? ''}
+                  onChange={(e) =>
+                    handleChange(
+                      'expectedProfitMarginPercent',
+                      e.target.value === '' ? null : Number(e.target.value)
+                    )
+                  }
                   min="0"
                   max="100"
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.progressPercent ? 'border-red-500 focus:ring-red-500/50' : ''
-                  }`}
-                />
-                {errors.progressPercent && (
-                  <p id="project-progress-error" className="text-xs text-red-700">
-                    {errors.progressPercent}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-start-date"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Fecha de Inicio
-                </label>
-                <input
-                  id="project-start-date"
-                  type="date"
-                  aria-invalid={Boolean(errors.startDate)}
-                  aria-describedby={errors.startDate ? 'project-start-date-error' : undefined}
-                  value={formData.startDate}
-                  onChange={(e) => handleChange('startDate', e.target.value)}
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.startDate ? 'border-red-500 focus:ring-red-500/50' : ''
-                  }`}
-                />
-                {errors.startDate && (
-                  <p id="project-start-date-error" className="text-xs text-red-700">
-                    {errors.startDate}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-end-date"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Fecha de Finalización
-                </label>
-                <input
-                  id="project-end-date"
-                  type="date"
-                  aria-invalid={Boolean(errors.endDate)}
-                  aria-describedby={errors.endDate ? 'project-end-date-error' : undefined}
-                  value={formData.endDate}
-                  onChange={(e) => handleChange('endDate', e.target.value)}
-                  className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none ${
-                    errors.endDate ? 'border-red-500 focus:ring-red-500/50' : ''
-                  }`}
-                />
-                {errors.endDate && (
-                  <p id="project-end-date-error" className="text-xs text-red-700">
-                    {errors.endDate}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="project-status"
-                className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-              >
-                Estado del Proyecto
-              </label>
-              <select
-                id="project-status"
-                value={formData.status}
-                onChange={(e) =>
-                  handleChange('status', e.target.value as ProjectFormValues['status'])
-                }
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
-              >
-                <option value="Planificación">Planificación</option>
-                <option value="En Ejecución">En Ejecución</option>
-                <option value="Suspendido">Suspendido</option>
-                <option value="Finalizado">Finalizado</option>
-              </select>
-              {errors.status && <p className="text-[10px] text-red-500">{errors.status}</p>}
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-latitude"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Latitud
-                </label>
-                <input
-                  id="project-latitude"
-                  type="number"
-                  step="any"
-                  value={formData.lat}
-                  onChange={(e) => handleChange('lat', parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 />
               </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="project-longitude"
-                  className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-                >
-                  Longitud
-                </label>
-                <input
-                  id="project-longitude"
-                  type="number"
-                  step="any"
-                  value={formData.lng}
-                  onChange={(e) => handleChange('lng', parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="project-profit-margin"
-                className="text-xs font-semibold tracking-wider text-slate-700 uppercase"
-              >
-                Margen de Utilidad Esperado (%)
-              </label>
-              <p className="text-xs text-slate-500">
-                Opcional. Solo se usará para estimar costos cuando se configure.
-              </p>
-              <input
-                id="project-profit-margin"
-                type="number"
-                value={formData.expectedProfitMarginPercent ?? ''}
-                onChange={(e) =>
-                  handleChange(
-                    'expectedProfitMarginPercent',
-                    e.target.value === '' ? null : Number(e.target.value)
-                  )
-                }
-                min="0"
-                max="100"
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
-              />
-            </div>
+            </fieldset>
 
             <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
               <button

@@ -403,11 +403,13 @@ export function isValidAttendanceDate(dateString: string): boolean {
   const date = new Date(dateString);
   const today = new Date();
 
-  // Normalize both dates to midnight local time to avoid timezone issues
-  const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (isNaN(date.getTime())) return false;
 
-  return normalizedDate <= normalizedToday && !isNaN(date.getTime());
+  // Compare dates at day precision using UTC to avoid timezone offset issues
+  const dateUtc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+
+  return dateUtc <= todayUtc;
 }
 
 /**

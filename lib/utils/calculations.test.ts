@@ -430,7 +430,9 @@ describe('Validation Helpers', () => {
     });
 
     it('should reject future dates', () => {
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      const tomorrowLocal = new Date();
+      tomorrowLocal.setDate(tomorrowLocal.getDate() + 1);
+      const tomorrow = `${tomorrowLocal.getFullYear()}-${String(tomorrowLocal.getMonth() + 1).padStart(2, '0')}-${String(tomorrowLocal.getDate()).padStart(2, '0')}`;
       expect(isValidAttendanceDate(tomorrow)).toBe(false);
     });
 

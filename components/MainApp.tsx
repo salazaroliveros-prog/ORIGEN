@@ -358,7 +358,7 @@ export default function MainApp() {
       {/* Skip link for accessibility */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-slate-950"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-slate-950"
       >
         Saltar al contenido principal
       </a>
@@ -399,7 +399,7 @@ export default function MainApp() {
       <main
         id="main-content"
         aria-busy={authStatus === 'authenticated' && workspaceLoading}
-        className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:mr-0 lg:ml-[280px] lg:max-w-[calc(100%-280px)] lg:px-8"
+        className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:ml-[280px] lg:mr-0 lg:max-w-[calc(100%-280px)] lg:px-8"
       >
         {authStatus === 'authenticated' && workspaceLoading && (
           <div
@@ -603,6 +603,11 @@ export default function MainApp() {
                   subtitle={tabConfig.subtitle}
                   logoUrl={company.logoUrl}
                   companyName={company.companyName}
+                  breadcrumbs={[
+                    { label: 'Inicio', href: '/' },
+                    { label: 'Proyectos', href: '/projects' },
+                    { label: tabConfig.label },
+                  ]}
                 />
                 <MachineryManager
                   machinery={data.machinery}
@@ -631,6 +636,11 @@ export default function MainApp() {
                   subtitle={tabConfig.subtitle}
                   logoUrl={company.logoUrl}
                   companyName={company.companyName}
+                  breadcrumbs={[
+                    { label: 'Inicio', href: '/' },
+                    { label: 'Proyectos', href: '/projects' },
+                    { label: tabConfig.label },
+                  ]}
                 />
                 {activeProject ? (
                   <GanttSchedule

@@ -19,6 +19,8 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
+import { Button } from '@/components/ui/Button';
+import { Alert } from '@/components/ui/Alert';
 import { COLORS } from '@/lib/design/constants';
 
 interface ReportData {
@@ -218,7 +220,7 @@ export function ReportsView({ projectId }: { projectId: string }) {
           <h3 className="font-semibold text-slate-900">Filtros</h3>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {/* Start Date */}
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Desde</label>
@@ -274,15 +276,35 @@ export function ReportsView({ projectId }: { projectId: string }) {
           {/* Report Type */}
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Tipo de Reporte</label>
-            <select
-              value={reportType}
-              onChange={(e) => setReportType(e.target.value as any)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="summary">Resumen</option>
-              <option value="detailed">Detallado</option>
-              <option value="comparison">Comparación</option>
-            </select>
+            <div className="flex gap-2">
+              <Button
+                key="summary"
+                variant={reportType === 'summary' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setReportType('summary')}
+                className="flex-1"
+              >
+                Resumen
+              </Button>
+              <Button
+                key="detailed"
+                variant={reportType === 'detailed' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setReportType('detailed')}
+                className="flex-1"
+              >
+                Detallado
+              </Button>
+              <Button
+                key="comparison"
+                variant={reportType === 'comparison' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setReportType('comparison')}
+                className="flex-1"
+              >
+                Comparación
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -462,10 +484,12 @@ export function ReportsView({ projectId }: { projectId: string }) {
 
       {/* Info message */}
       {filteredData.length === 0 && (
-        <div className="flex gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-          <AlertCircle className="h-5 w-5 flex-shrink-0 text-yellow-600" />
-          <p className="text-sm text-yellow-700">No hay datos para los filtros seleccionados</p>
-        </div>
+        <Alert
+          variant="warning"
+          title="Sin datos"
+          message="No hay datos para los filtros seleccionados"
+          dismissible={false}
+        />
       )}
     </div>
   );

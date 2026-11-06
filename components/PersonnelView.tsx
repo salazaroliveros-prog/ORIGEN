@@ -14,7 +14,6 @@ import {
   ChevronRight,
   Plus,
   Clock,
-  AlertCircle,
   Loader,
   Eye,
   EyeOff,
@@ -23,6 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 import { COLORS } from '@/lib/design/constants';
+import { Alert } from '@/components/ui/Alert';
 
 interface AttendanceRecord {
   id: string;
@@ -235,7 +235,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900 capitalize">{monthName}</h2>
+          <h2 className="text-lg font-semibold capitalize text-slate-900">{monthName}</h2>
           <div className="flex gap-2">
             <button
               onClick={() =>
@@ -296,7 +296,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
               >
                 {day}
                 {day && dayHasAttendance(day) && (
-                  <span className="absolute right-1 bottom-1 h-2.5 w-2.5 rounded-full bg-green-500" />
+                  <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full bg-green-500" />
                 )}
               </div>
             );
@@ -399,10 +399,13 @@ export function PersonnelView({ projectId }: { projectId: string }) {
           <h3 className="mb-4 text-lg font-semibold text-slate-900">Registrar Asistencia</h3>
 
           {overtimeWarning && (
-            <div className="mb-4 flex items-start gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
-              <p className="text-sm text-yellow-700">{overtimeWarning}</p>
-            </div>
+            <Alert
+              variant="warning"
+              title="Advertencia"
+              message={overtimeWarning}
+              dismissible={false}
+              className="mb-4"
+            />
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -414,7 +417,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                 <select
                   value={selectedEmployee}
                   onChange={(e) => setSelectedEmployee(e.target.value)}
-                  className={`w-full rounded-lg border px-3 py-2 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.employee
                       ? 'border-red-500 bg-red-50'
                       : selectedEmployee
@@ -437,7 +440,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                   type="date"
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
-                  className={`w-full rounded-lg border px-3 py-2 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.date
                       ? 'border-red-500 bg-red-50'
                       : formDate
@@ -455,7 +458,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                     value={clockInTime.hours}
                     onChange={(e) => handleTimeChange('in', 'hours', e.target.value)}
                     maxLength={2}
-                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="HH"
                   />
                   <span className="flex items-center font-semibold text-slate-600">:</span>
@@ -464,7 +467,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                     value={clockInTime.minutes}
                     onChange={(e) => handleTimeChange('in', 'minutes', e.target.value)}
                     maxLength={2}
-                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="MM"
                   />
                 </div>
@@ -478,7 +481,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                     value={clockOutTime.hours}
                     onChange={(e) => handleTimeChange('out', 'hours', e.target.value)}
                     maxLength={2}
-                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="HH"
                   />
                   <span className="flex items-center font-semibold text-slate-600">:</span>
@@ -487,7 +490,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                     value={clockOutTime.minutes}
                     onChange={(e) => handleTimeChange('out', 'minutes', e.target.value)}
                     maxLength={2}
-                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="MM"
                   />
                 </div>
@@ -506,10 +509,13 @@ export function PersonnelView({ projectId }: { projectId: string }) {
             </div>
 
             {formErrors.time && (
-              <div className="flex gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
-                <p className="text-sm text-red-700">{formErrors.time}</p>
-              </div>
+              <Alert
+                variant="error"
+                title="Error de tiempo"
+                message={formErrors.time}
+                dismissible={false}
+                className="mb-4"
+              />
             )}
 
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">

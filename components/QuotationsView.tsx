@@ -11,19 +11,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  FileText,
-  Download,
-  AlertCircle,
-  Loader,
-  X,
-  Eye,
-  Clock,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, FileText, Download, Loader, Eye, Clock } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
+import { Modal } from '@/components/ui/Modal';
+import { Alert } from '@/components/ui/Alert';
 
 interface LineItem {
   id: string;
@@ -371,7 +362,7 @@ Notas: ${quotation.notes}
                   type="text"
                   value={formData.clientName}
                   onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.clientName ? 'border-red-500' : 'border-slate-300'
                   }`}
                   placeholder="Nombre del cliente"
@@ -387,7 +378,7 @@ Notas: ${quotation.notes}
                   type="date"
                   value={formData.expiryDate}
                   onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.expiryDate ? 'border-red-500' : 'border-slate-300'
                   }`}
                 />
@@ -420,7 +411,7 @@ Notas: ${quotation.notes}
                           type="text"
                           value={item.description}
                           onChange={(e) => handleLineItemChange(idx, 'description', e.target.value)}
-                          className={`w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                          className={`w-full rounded border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                             formErrors[`item-${idx}-desc`] ? 'border-red-500' : 'border-slate-300'
                           }`}
                           placeholder="Descripción del artículo"
@@ -433,7 +424,7 @@ Notas: ${quotation.notes}
                           type="number"
                           value={item.quantity}
                           onChange={(e) => handleLineItemChange(idx, 'quantity', e.target.value)}
-                          className={`w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                          className={`w-full rounded border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                             formErrors[`item-${idx}-qty`] ? 'border-red-500' : 'border-slate-300'
                           }`}
                           min="0"
@@ -446,7 +437,7 @@ Notas: ${quotation.notes}
                           type="number"
                           value={item.unitPrice}
                           onChange={(e) => handleLineItemChange(idx, 'unitPrice', e.target.value)}
-                          className={`w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                          className={`w-full rounded border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                             formErrors[`item-${idx}-price`] ? 'border-red-500' : 'border-slate-300'
                           }`}
                           min="0"
@@ -501,7 +492,7 @@ Notas: ${quotation.notes}
                       });
                     }
                   }}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.discount ? 'border-red-500' : 'border-slate-300'
                   }`}
                   min="0"
@@ -527,10 +518,13 @@ Notas: ${quotation.notes}
 
             {/* Discount Warning */}
             {parseFloat(formData.discount) > 30 && (
-              <div className="flex gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-yellow-600" />
-                <p className="text-sm text-yellow-700">Descuento alto: {formData.discount}%</p>
-              </div>
+              <Alert
+                variant="warning"
+                title="Descuento alto"
+                message={`Descuento alto: ${formData.discount}%`}
+                dismissible={false}
+                className="mb-4"
+              />
             )}
 
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
@@ -660,93 +654,82 @@ Notas: ${quotation.notes}
 
       {/* Preview Modal */}
       {previewQuotation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-96 w-full max-w-2xl overflow-hidden overflow-y-auto rounded-lg bg-white">
-            <div className="sticky top-0 flex items-center justify-between border-b border-slate-200 bg-blue-50 p-4">
-              <h3 className="font-semibold text-slate-900">
-                Cotización - {previewQuotation.clientName}
-              </h3>
-              <button
-                onClick={() => setPreviewQuotation(null)}
-                className="text-slate-500 hover:text-slate-700"
-              >
-                ✕
-              </button>
+        <Modal
+          isOpen={Boolean(previewQuotation)}
+          onClose={() => setPreviewQuotation(null)}
+          title={`Cotización - ${previewQuotation.clientName}`}
+          maxWidth="lg"
+        >
+          <div className="p-6">
+            {/* Logo */}
+            <div className="mb-4 text-center">
+              <Image
+                src={previewQuotation.logoUrl}
+                alt="Logo"
+                width={200}
+                height={50}
+                className="inline-block h-12"
+              />
             </div>
 
-            <div className="p-6">
-              {/* Logo */}
-              <div className="mb-4 text-center">
-                <Image
-                  src={previewQuotation.logoUrl}
-                  alt="Logo"
-                  width={200}
-                  height={50}
-                  className="inline-block h-12"
-                />
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-slate-600">Cliente:</p>
+                  <p className="font-semibold">{previewQuotation.clientName}</p>
+                </div>
+                <div>
+                  <p className="text-slate-600">Fecha:</p>
+                  <p className="font-semibold">{previewQuotation.date}</p>
+                </div>
               </div>
 
-              <div className="space-y-4 text-sm">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-slate-600">Cliente:</p>
-                    <p className="font-semibold">{previewQuotation.clientName}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-600">Fecha:</p>
-                    <p className="font-semibold">{previewQuotation.date}</p>
-                  </div>
-                </div>
+              <div>
+                <p className="mb-2 font-semibold">Artículos:</p>
+                <table className="w-full text-xs">
+                  <tbody>
+                    {previewQuotation.lineItems.map((item) => (
+                      <tr key={item.id} className="border-b border-slate-200">
+                        <td className="py-1">{item.description}</td>
+                        <td className="text-right">{item.quantity}</td>
+                        <td className="text-right">Q{item.unitPrice.toLocaleString()}</td>
+                        <td className="text-right font-semibold">Q{item.total.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                <div>
-                  <p className="mb-2 font-semibold">Artículos:</p>
-                  <table className="w-full text-xs">
-                    <tbody>
-                      {previewQuotation.lineItems.map((item) => (
-                        <tr key={item.id} className="border-b border-slate-200">
-                          <td className="py-1">{item.description}</td>
-                          <td className="text-right">{item.quantity}</td>
-                          <td className="text-right">Q{item.unitPrice.toLocaleString()}</td>
-                          <td className="text-right font-semibold">
-                            Q{item.total.toLocaleString()}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div className="border-t border-slate-200 pt-2">
+                <div className="mb-1 flex justify-between text-xs">
+                  <span>Subtotal:</span>
+                  <span>Q{previewQuotation.subtotal.toLocaleString()}</span>
                 </div>
-
-                <div className="border-t border-slate-200 pt-2">
-                  <div className="mb-1 flex justify-between text-xs">
-                    <span>Subtotal:</span>
-                    <span>Q{previewQuotation.subtotal.toLocaleString()}</span>
-                  </div>
-                  {previewQuotation.discount > 0 && (
-                    <div className="mb-1 flex justify-between text-xs text-green-600">
-                      <span>Descuento ({previewQuotation.discount}%):</span>
-                      <span>-Q{previewQuotation.discountAmount.toLocaleString()}</span>
-                    </div>
-                  )}
-                  <div className="mb-1 flex justify-between text-xs">
-                    <span>IVA (12%):</span>
-                    <span>Q{previewQuotation.tax.toLocaleString()}</span>
-                  </div>
-                  <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 text-sm font-bold">
-                    <span>TOTAL:</span>
-                    <span>Q{previewQuotation.total.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                {previewQuotation.notes && (
-                  <div>
-                    <p className="font-semibold">Notas:</p>
-                    <p className="text-slate-600">{previewQuotation.notes}</p>
+                {previewQuotation.discount > 0 && (
+                  <div className="mb-1 flex justify-between text-xs text-green-600">
+                    <span>Descuento ({previewQuotation.discount}%):</span>
+                    <span>-Q{previewQuotation.discountAmount.toLocaleString()}</span>
                   </div>
                 )}
+                <div className="mb-1 flex justify-between text-xs">
+                  <span>IVA (12%):</span>
+                  <span>Q{previewQuotation.tax.toLocaleString()}</span>
+                </div>
+                <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 text-sm font-bold">
+                  <span>TOTAL:</span>
+                  <span>Q{previewQuotation.total.toLocaleString()}</span>
+                </div>
               </div>
+
+              {previewQuotation.notes && (
+                <div>
+                  <p className="font-semibold">Notas:</p>
+                  <p className="text-slate-600">{previewQuotation.notes}</p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

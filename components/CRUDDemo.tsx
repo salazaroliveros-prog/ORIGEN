@@ -57,12 +57,17 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
   >('proyectos');
   const [offlineQueue, setOfflineQueue] = useState(getOfflineQueue());
   const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [loadingCreateProject, setLoadingCreateProject] = useState(false);
+  const [loadingCreateExpense, setLoadingCreateExpense] = useState(false);
+  const [loadingCreateAttendance, setLoadingCreateAttendance] = useState(false);
+  const [loadingCreateEmployee, setLoadingCreateEmployee] = useState(false);
 
   // ============================================================================
   // 1. CRUD DE PROYECTOS
   // ============================================================================
 
   const handleCreateProject = useCallback(async () => {
+    setLoadingCreateProject(true);
     const newProject: Project = {
       id: `proj-${Date.now()}`,
       companyId,
@@ -88,6 +93,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
     if (success) {
       toast.success('✅ Proyecto creado en Firebase');
     }
+    setLoadingCreateProject(false);
   }, [createProject, companyId, userId]);
 
   const handleUpdateProject = useCallback(
@@ -117,8 +123,10 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
   // ============================================================================
 
   const handleCreateExpense = useCallback(async () => {
+    setLoadingCreateExpense(true);
     if (projects.length === 0) {
       toast.error('❌ No hay proyectos disponibles');
+      setLoadingCreateExpense(false);
       return;
     }
 
@@ -140,6 +148,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
     if (success) {
       toast.success('✅ Gasto creado en Firebase');
     }
+    setLoadingCreateExpense(false);
   }, [addExpense, companyId, projects, userId]);
 
   const handleUpdateExpense = useCallback(
@@ -175,8 +184,10 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
   // ============================================================================
 
   const handleCreateAttendance = useCallback(async () => {
+    setLoadingCreateAttendance(true);
     if (employees.length === 0) {
       toast.error('❌ No hay empleados disponibles');
+      setLoadingCreateAttendance(false);
       return;
     }
 
@@ -194,6 +205,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
     if (success) {
       toast.success('✅ Asistencia registrada en Firebase');
     }
+    setLoadingCreateAttendance(false);
   }, [addAttendance, companyId, employees, userId]);
 
   const handleDeleteAttendance = useCallback(
@@ -211,6 +223,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
   // ============================================================================
 
   const handleCreateEmployee = useCallback(async () => {
+    setLoadingCreateEmployee(true);
     const newEmployee: Employee = {
       id: `emp-${Date.now()}`,
       name: `Empleado Demo ${Math.random().toString(36).substring(7)}`,
@@ -224,6 +237,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
     if (success) {
       toast.success('✅ Empleado creado en Firebase');
     }
+    setLoadingCreateEmployee(false);
   }, [addEmployee, companyId, userId]);
 
   // ============================================================================
@@ -311,9 +325,11 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateProject}
-              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
+              className={`rounded p-3 text-white hover:bg-green-600 ${loadingCreateProject ? 'cursor-not-allowed bg-gray-400' : 'bg-green-500'}`}
+              aria-label="Crear proyecto"
+              disabled={loadingCreateProject}
             >
-              ➕ Crear Proyecto
+              {loadingCreateProject ? 'Cargando...' : '➕ Crear Proyecto'}
             </button>
           </div>
           <div className="space-y-2">
@@ -328,12 +344,14 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
                     <button
                       onClick={() => handleUpdateProject(project.id)}
                       className="rounded bg-blue-500 px-2 py-1 text-sm text-white"
+                      aria-label="Actualizar proyecto"
                     >
                       ✏️ Actualizar
                     </button>
                     <button
                       onClick={() => handleArchiveProject(project.id)}
                       className="rounded bg-yellow-500 px-2 py-1 text-sm text-white"
+                      aria-label="Archivar proyecto"
                     >
                       📦 Archivar
                     </button>
@@ -352,9 +370,11 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateExpense}
-              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
+              className={`rounded p-3 text-white hover:bg-green-600 ${loadingCreateExpense ? 'cursor-not-allowed bg-gray-400' : 'bg-green-500'}`}
+              aria-label="Crear gasto"
+              disabled={loadingCreateExpense}
             >
-              ➕ Crear Gasto
+              {loadingCreateExpense ? 'Cargando...' : '➕ Crear Gasto'}
             </button>
           </div>
           <div className="space-y-2">
@@ -369,12 +389,14 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
                     <button
                       onClick={() => handleUpdateExpense(expense.id)}
                       className="rounded bg-blue-500 px-2 py-1 text-sm text-white"
+                      aria-label="Actualizar gasto"
                     >
                       ✏️ Actualizar
                     </button>
                     <button
                       onClick={() => handleDeleteExpense(expense.id)}
                       className="rounded bg-red-500 px-2 py-1 text-sm text-white"
+                      aria-label="Eliminar gasto"
                     >
                       🗑️ Eliminar
                     </button>
@@ -393,9 +415,11 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateAttendance}
-              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
+              className={`rounded p-3 text-white hover:bg-green-600 ${loadingCreateAttendance ? 'cursor-not-allowed bg-gray-400' : 'bg-green-500'}`}
+              aria-label="Registrar asistencia"
+              disabled={loadingCreateAttendance}
             >
-              ➕ Registrar Asistencia
+              {loadingCreateAttendance ? 'Cargando...' : '➕ Registrar Asistencia'}
             </button>
           </div>
           <div className="space-y-2">
@@ -409,6 +433,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
                   <button
                     onClick={() => handleDeleteAttendance(record.id)}
                     className="rounded bg-red-500 px-2 py-1 text-sm text-white"
+                    aria-label="Eliminar asistencia"
                   >
                     🗑️ Eliminar
                   </button>
@@ -426,9 +451,11 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateEmployee}
-              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
+              className={`rounded p-3 text-white hover:bg-green-600 ${loadingCreateEmployee ? 'cursor-not-allowed bg-gray-400' : 'bg-green-500'}`}
+              aria-label="Crear empleado"
+              disabled={loadingCreateEmployee}
             >
-              ➕ Crear Empleado
+              {loadingCreateEmployee ? 'Cargando...' : '➕ Crear Empleado'}
             </button>
           </div>
           <div className="space-y-2">
@@ -452,12 +479,14 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
             <button
               onClick={handleSaveLocal}
               className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
+              aria-label="Guardar datos localmente"
             >
               💾 Guardar Localmente
             </button>
             <button
               onClick={handleLoadLocal}
               className="rounded bg-blue-500 p-3 text-white hover:bg-blue-600"
+              aria-label="Cargar datos localmente"
             >
               📂 Cargar Localmente
             </button>
@@ -479,12 +508,14 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
             <button
               onClick={handleAddOfflineAction}
               className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
+              aria-label="Agregar acción a cola offline"
             >
               ➕ Agregar a Cola
             </button>
             <button
               onClick={handleProcessQueue}
               className="rounded bg-blue-500 p-3 text-white hover:bg-blue-600"
+              aria-label="Sincronizar cola offline"
             >
               🔄 Sincronizar
             </button>

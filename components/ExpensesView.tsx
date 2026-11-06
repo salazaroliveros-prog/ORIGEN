@@ -15,20 +15,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { usePagination } from '@/lib/hooks/usePagination';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  AlertCircle,
-  Loader,
-  Camera,
-  Download,
-  Filter,
-  X,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader, Camera, Download, Filter, X } from 'lucide-react';
 import { toast } from '@/lib/components/Toast';
 import type { ExpenseRecord } from '@/lib/types';
 import { COLORS } from '@/lib/design/constants';
+import { Modal } from '@/components/ui/Modal';
+import { Alert } from '@/components/ui/Alert';
 
 interface FormData {
   projectId: string;
@@ -396,10 +388,13 @@ export function ExpensesView({ projectId }: { projectId: string }) {
 
           {/* Duplicate Warning - FEATURE 3.5 */}
           {duplicateWarning.show && (
-            <div className="mb-4 flex gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-              <AlertCircle className="h-5 w-5 flex-shrink-0 text-yellow-600" />
-              <p className="text-sm text-yellow-700">{duplicateWarning.message}</p>
-            </div>
+            <Alert
+              variant="warning"
+              title="Duplicado detectado"
+              message={duplicateWarning.message}
+              dismissible={false}
+              className="mb-4"
+            />
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -664,37 +659,23 @@ export function ExpensesView({ projectId }: { projectId: string }) {
 
       {/* Photo Preview Modal - FEATURE 3.2 - FIXED: Consistent modal backdrop */}
       {photoPreview.show && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="photo-modal-title"
+        <Modal
+          isOpen={photoPreview.show}
+          onClose={() => setPhotoPreview({ show: false, url: '', fileName: '' })}
+          title="Foto de Recibo"
+          maxWidth="lg"
         >
-          <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white">
-            <div className="flex items-center justify-between border-b border-slate-200 p-4">
-              <h3 id="photo-modal-title" className="font-semibold text-slate-900">
-                Foto de Recibo
-              </h3>
-              <button
-                onClick={() => setPhotoPreview({ show: false, url: '', fileName: '' })}
-                className="rounded-lg p-1 transition-colors hover:bg-slate-100"
-                aria-label="Cerrar"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="max-h-96 overflow-auto p-4">
-              <Image
-                src={photoPreview.url}
-                alt="Receipt"
-                width={600}
-                height={400}
-                className="mx-auto h-auto max-w-full"
-              />
-              <p className="mt-2 text-xs text-slate-600">{photoPreview.fileName}</p>
-            </div>
+          <div className="max-h-96 overflow-auto p-4">
+            <Image
+              src={photoPreview.url}
+              alt="Receipt"
+              width={600}
+              height={400}
+              className="mx-auto h-auto max-w-full"
+            />
+            <p className="mt-2 text-xs text-slate-600">{photoPreview.fileName}</p>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

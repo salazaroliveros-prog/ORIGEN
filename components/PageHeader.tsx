@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/Button';
 
@@ -9,12 +9,14 @@ export function PageHeader({
   logoUrl,
   companyName,
   actions,
+  breadcrumbs,
 }: {
   title: string;
   subtitle?: string;
   logoUrl?: string;
   companyName?: string;
   actions?: React.ReactNode;
+  breadcrumbs?: Array<{ label: string; href?: string }>;
 }) {
   const resolvedLogo = logoUrl || '/assets/branding/web-banner-logo.png';
   return (
@@ -30,7 +32,34 @@ export function PageHeader({
         />
       </div>
       <div className="min-w-0 flex-1">
-        <h1 className="text-lg leading-tight font-bold tracking-tight text-white md:text-xl">
+        {breadcrumbs && breadcrumbs.length > 0 && (
+          <nav
+            className="mb-2 flex flex-wrap items-center gap-1 text-[10px] text-slate-400 md:mb-0"
+            aria-label="Ruta de navegación"
+          >
+            <ol className="flex flex-wrap items-center gap-1">
+              {breadcrumbs.map((crumb, i) => (
+                <li key={i}>
+                  {i > 0 && <ChevronRight className="h-3 w-3" aria-hidden="true" />}
+                  {crumb.href && i < breadcrumbs.length - 1 ? (
+                    <a
+                      href={crumb.href}
+                      className="transition-colors hover:text-white"
+                      aria-current={i === breadcrumbs.length - 1 ? 'page' : undefined}
+                    >
+                      {crumb.label}
+                    </a>
+                  ) : (
+                    <span className="text-slate-200" aria-current="page">
+                      {crumb.label}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+        <h1 className="text-lg font-bold leading-tight tracking-tight text-white md:text-xl">
           {title}
         </h1>
         {subtitle && (
@@ -84,7 +113,7 @@ export function MobileHeader({
         unoptimized
         className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 object-cover"
       />
-      <span className="min-w-0 flex-1 truncate text-base leading-tight font-bold text-white">
+      <span className="min-w-0 flex-1 truncate text-base font-bold leading-tight text-white">
         {title}
       </span>
     </header>

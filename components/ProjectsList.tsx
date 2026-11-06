@@ -16,18 +16,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useProjectData } from '@/lib/hooks/useProjectDataEnhanced';
 import { usePagination } from '@/lib/hooks/usePagination';
-import {
-  Plus,
-  Trash2,
-  Pencil,
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle,
-  Loader,
-  ArrowUpDown,
-} from 'lucide-react';
+import { Plus, Trash2, Pencil, ChevronLeft, ChevronRight, Loader, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from '@/components/ui/toast';
+import { Modal } from '@/components/ui/Modal';
 
 type SortBy = 'name' | 'budget' | 'date' | 'status';
 
@@ -431,46 +423,42 @@ export function ProjectsList() {
 
       {/* FEATURE 2.2.2: Delete Confirmation Dialog */}
       {deleteConfirm.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0">
-                <AlertCircle className="h-6 w-6 text-red-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="mb-2 text-lg font-semibold text-slate-900">¿Archivar proyecto?</h3>
-                <p className="mb-4 text-sm text-slate-600">
-                  Vas a archivar &quot;{deleteConfirm.projectName}&quot;. Puedes restaurarlo después
-                  si lo necesitas.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-6">
-              <button
-                onClick={handleCancelDelete}
-                disabled={deleting !== null}
-                className="rounded-lg border border-slate-200 px-4 py-2 font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                disabled={deleting !== null}
-                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
-              >
-                {deleting ? (
-                  <>
-                    <Loader className="h-4 w-4 animate-spin" />
-                    Archivando...
-                  </>
-                ) : (
-                  'Archivar'
-                )}
-              </button>
-            </div>
+        <Modal
+          isOpen={deleteConfirm.show}
+          onClose={handleCancelDelete}
+          title="¿Archivar proyecto?"
+          maxWidth="sm"
+        >
+          <div className="flex-1">
+            <p className="mb-4 text-sm text-slate-600">
+              Vas a archivar &quot;{deleteConfirm.projectName}&quot;. Puedes restaurarlo después si
+              lo necesitas.
+            </p>
           </div>
-        </div>
+          <div className="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-6">
+            <button
+              onClick={handleCancelDelete}
+              disabled={deleting !== null}
+              className="rounded-lg border border-slate-200 px-4 py-2 font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              disabled={deleting !== null}
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+            >
+              {deleting ? (
+                <>
+                  <Loader className="h-4 w-4 animate-spin" />
+                  Archivando...
+                </>
+              ) : (
+                'Archivar'
+              )}
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

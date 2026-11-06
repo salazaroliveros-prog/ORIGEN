@@ -135,7 +135,7 @@ export function DashboardOverview() {
         value: `Q${budgetMetrics.totalBudget.toLocaleString()}`,
         change: 'Este año',
         changeType: 'neutral',
-        icon: <DollarSign className="h-6 w-6" />,
+        icon: <DollarSign className="h-6 w-6" aria-label="Icono de presupuesto" />,
         color: COLORS.kpi.budget.bg,
         textColor: COLORS.kpi.budget.text,
       },
@@ -144,7 +144,7 @@ export function DashboardOverview() {
         value: `Q${budgetMetrics.totalSpent.toLocaleString()}`,
         change: `${budgetUtilization}% utilizado`,
         changeType: budgetUtilization > 80 ? 'negative' : 'positive',
-        icon: <TrendingUp className="h-6 w-6" />,
+        icon: <TrendingUp className="h-6 w-6" aria-label="Icono de gastos" />,
         color: COLORS.kpi.expense.bg,
         textColor: COLORS.kpi.expense.text,
       },
@@ -153,7 +153,7 @@ export function DashboardOverview() {
         value: budgetMetrics.activeProjects.toString(),
         change: 'En ejecución',
         changeType: 'neutral',
-        icon: <Building2 className="h-6 w-6" />,
+        icon: <Building2 className="h-6 w-6" aria-label="Icono de proyectos activos" />,
         color: COLORS.kpi.active.bg,
         textColor: COLORS.kpi.active.text,
       },
@@ -162,7 +162,7 @@ export function DashboardOverview() {
         value: `${budgetMetrics.completionRate}%`,
         change: 'De proyectos',
         changeType: 'positive',
-        icon: <Users className="h-6 w-6" />,
+        icon: <Users className="h-6 w-6" aria-label="Icono de proyectos completados" />,
         color: COLORS.kpi.completed.bg,
         textColor: COLORS.kpi.completed.text,
       },
@@ -198,7 +198,7 @@ export function DashboardOverview() {
       <div className="flex min-h-screen items-center justify-center p-6">
         <div className="max-w-md rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-12 text-center transition-all duration-200 hover:shadow-md">
           <div className="mb-4 inline-flex rounded-full bg-blue-100 p-3">
-            <Building2 className="h-8 w-8 text-blue-600" />
+            <Building2 className="h-8 w-8 text-blue-600" aria-label="Icono de edificio" />
           </div>
           <h3 className="mb-3 text-lg font-semibold text-slate-900">No hay proyectos activos</h3>
           <p className="mb-6 text-sm text-slate-600">
@@ -209,7 +209,7 @@ export function DashboardOverview() {
             href="/projects?create=true"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:bg-blue-700 hover:shadow-lg"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-5 w-5" aria-label="Icono de agregar" />
             Crear Primer Proyecto
           </Link>
         </div>
