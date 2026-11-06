@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: process.cwd(),
+  output: 'standalone',
   devIndicators: false,
   productionBrowserSourceMaps: false,
   experimental: {
@@ -24,12 +25,6 @@ const nextConfig: NextConfig = {
     ],
   },
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
 };
 
 export default nextConfig;

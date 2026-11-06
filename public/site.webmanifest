@@ -1,7 +1,7 @@
 {
   "name": "ConstructERP Guatemala",
   "short_name": "ConstructERP",
-  "description": "ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas y firma digital de capataces.",
+  "description": "ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas IGSS, firma digital de capataces y gestión de maquinaria. Funciona sin conexión para obra de campo.",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
@@ -12,7 +12,10 @@
   "scope": "/",
   "lang": "es",
   "dir": "ltr",
-  "categories": ["productivity", "business", "finance"],
+  "categories": ["productivity", "business", "finance", "construction"],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
   "icons": [
     {
       "src": "/assets/branding/favicon-16x16.png",
@@ -45,23 +48,56 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/assets/branding/web-banner-logo.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tablero de control ConstructERP"
+    },
+    {
+      "src": "/assets/branding/web-banner-logo.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Vista de escritorio ConstructERP"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Dashboard",
       "short_name": "Tablero",
+      "description": "Resumen general de obras y estado del sistema",
       "url": "/?tab=dashboard",
       "icons": [{ "src": "/assets/branding/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Proyectos",
       "short_name": "Proyectos",
+      "description": "Gestión de obras con trazabilidad completa",
       "url": "/?tab=proyectos",
       "icons": [{ "src": "/assets/branding/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Presupuestos APU",
       "short_name": "APU",
+      "description": "Control financiero con desglose por renglón y departamento",
       "url": "/?tab=apu_presupuestos",
+      "icons": [{ "src": "/assets/branding/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Gastos & Facturas",
+      "short_name": "Gastos",
+      "description": "Registro y control de gastos operativos con lectura de facturas IA",
+      "url": "/?tab=gastos",
+      "icons": [{ "src": "/assets/branding/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Planillas IGSS",
+      "short_name": "Planillas",
+      "description": "Planillas laborales y cumplimiento IGSS",
+      "url": "/?tab=planillas",
       "icons": [{ "src": "/assets/branding/icon-192x192.png", "sizes": "192x192" }]
     }
   ],

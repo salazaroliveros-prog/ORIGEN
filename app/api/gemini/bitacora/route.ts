@@ -53,7 +53,7 @@ Transcripción de Nota de Voz del Capataz:
 Genera el acta/bitacora estructurada diaria.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: userPrompt,
       config: {
         systemInstruction,
