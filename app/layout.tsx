@@ -75,6 +75,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" suppressHydrationWarning className="h-full touch-manipulation">
       <head>
         <link rel="stylesheet" href="/css/tailwind.css" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="#0f172a" />
         <link
           rel="apple-touch-startup-image"
           href="/assets/branding/apple-touch-icon.png"
