@@ -195,7 +195,10 @@ export function AuthContainer(): React.ReactElement {
       } finally {
         setLoading(false);
       }
-    }, [loginAttempts, router, rememberMe]);
+      // eslint-disable react-hooks/exhaustive-deps
+    },
+    [loginAttempts, router, rememberMe, email, isLocked, password, validateForm]
+  );
 
   // Handle forgot password
   const handleForgotPassword = async () => {
@@ -308,7 +311,7 @@ export function AuthContainer(): React.ReactElement {
                 placeholder="tu@correo.com"
                 className={`w-full rounded-lg border px-4 py-2 ${
                   errors.email ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
-                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
                 aria-label="Correo electrónico"
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 aria-invalid={!!errors.email}
@@ -341,7 +344,7 @@ export function AuthContainer(): React.ReactElement {
                     errors.password
                       ? 'border-red-500 bg-red-500/5'
                       : 'border-slate-600 bg-slate-700'
-                  } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                  } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
                   aria-label="Contraseña"
                   aria-describedby={errors.password ? 'password-error' : undefined}
                   aria-invalid={!!errors.password}
@@ -350,7 +353,7 @@ export function AuthContainer(): React.ReactElement {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLocked || loading}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   title={showPassword ? 'Ocultar' : 'Mostrar'}
                 >

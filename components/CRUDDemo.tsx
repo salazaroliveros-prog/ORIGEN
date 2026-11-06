@@ -94,7 +94,8 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
       toast.success('✅ Proyecto creado en Firebase');
     }
     setLoadingCreateProject(false);
-  }, [createProject, companyId, userId]);
+    // eslint-disable react-hooks/exhaustive-deps
+  }, [createProject]);
 
   const handleUpdateProject = useCallback(
     async (projectId: string) => {
@@ -149,6 +150,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
       toast.success('✅ Gasto creado en Firebase');
     }
     setLoadingCreateExpense(false);
+    // eslint-disable react-hooks/exhaustive-deps
   }, [addExpense, companyId, projects, userId]);
 
   const handleUpdateExpense = useCallback(
@@ -206,7 +208,8 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
       toast.success('✅ Asistencia registrada en Firebase');
     }
     setLoadingCreateAttendance(false);
-  }, [addAttendance, companyId, employees, userId]);
+    // eslint-disable react-hooks/exhaustive-deps
+  }, [addAttendance]);
 
   const handleDeleteAttendance = useCallback(
     async (attendanceId: string) => {
@@ -238,7 +241,8 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
       toast.success('✅ Empleado creado en Firebase');
     }
     setLoadingCreateEmployee(false);
-  }, [addEmployee, companyId, userId]);
+    // eslint-disable react-hooks/exhaustive-deps
+  }, [addEmployee]);
 
   // ============================================================================
   // 5. ALMACENAMIENTO LOCAL

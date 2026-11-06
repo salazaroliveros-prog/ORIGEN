@@ -94,7 +94,7 @@ export function useAuthSession() {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [signIn]);
 
   const signOut = async () => {
     setIsSigningOut(true);
