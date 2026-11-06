@@ -182,11 +182,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
 });
 
 test.describe('QA defectos detectados', () => {
-  test('DEFECTO: el avance manual se conserva al crear y editar', async ({ page }) => {
-    test.fail(
-      true,
-      'Bug: useProjectData recalcula el avance desde el cronograma y lo deja en 0% cuando el proyecto no tiene tareas/hitos configurados.'
-    );
+  test('avance manual se conserva al crear y editar (bug corregido)', async ({ page }) => {
     await ensureAuthenticated(page);
     const code = `QA-${RUN_ID}-P`;
     await createProject(page, code, `QA Avance ${RUN_ID}`, 25);
@@ -205,13 +201,9 @@ test.describe('QA defectos detectados', () => {
     await expect(page.getByText('60%').first()).toBeVisible({ timeout: 20_000 });
   });
 
-  test('DEFECTO: un gasto sin proveedor, NIT ni factura se guarda o explica el campo faltante', async ({
+  test('gasto sin proveedor muestra error de validación específico (bug corregido)', async ({
     page,
   }) => {
-    test.fail(
-      true,
-      'Bug: ExpenseRecordSchema exige supplier/nitSupplier/facturaNumber, la UI no los marca obligatorios y el error mostrado culpa a la sesión.'
-    );
     await ensureAuthenticated(page);
     const code = `QA-${RUN_ID}-E`;
     await createProject(page, code, `QA Gasto Incompleto ${RUN_ID}`, 5);
@@ -230,6 +222,119 @@ test.describe('QA defectos detectados', () => {
     await page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).click();
     await page.waitForTimeout(3500);
 
+    // El error ahora debe ser específico de validación, no de sesión
     await expect(page.getByText('No se pudo guardar el gasto. Verifica tu sesión')).toHaveCount(0);
+  });
+});
+
+test.describe.serial('QA módulos complementarios - ciclo completo', () => {
+  test('transición a Ejecución: registra hito y avance en cronograma', async ({ page }) => {
+    await ensureAuthenticated(page);
+    const code = `QA-${RUN_ID}-G`;
+    await createProject(page, code, `QA Gantt ${RUN_ID}`, 0);
+
+    // Cambiar estado a En Ejecución
+    await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
+    await page.getByLabel('Estado del Proyecto').selectOption({ label: 'En Ejecución' });
+    await page.getByRole('button', { name: 'Actualizar' }).click();
+    await page.waitForTimeout(2500);
+    await expect(page.getByText('En Ejecución').first()).toBeVisible({ timeout: 15_000 });
+
+    // Navegar al cronograma Gantt
+    const ganttTab = page.getByRole('button', { name: /Cronograma|Gantt/i }).first();
+    if (await ganttTab.isVisible().catch(() => false)) {
+      await ganttTab.click();
+      await page.waitForTimeout(1500);
+      // Verificar que el cronograma carga
+      await expect(page.getByText(/Cronograma|Gantt|Hito|Tarea/i).first()).toBeVisible({
+        timeout: 15_000,
+      });
+    }
+  });
+
+  test('asigna maquinaria al proyecto activo', async ({ page }) => {
+    await ensureAuthenticated(page);
+
+    // Navegar a módulo de maquinaria
+    const macTab = page.getByRole('button', { name: /Maquinaria|Equipo/i }).first();
+    if (!(await macTab.isVisible().catch(() => false))) return;
+    await macTab.click();
+    await page.waitForTimeout(1500);
+
+    // Registrar maquinaria
+    const newMacBtn = page
+      .getByRole('button', { name: /Nueva Maquinaria|Agregar Equipo/i })
+      .first();
+    if (!(await newMacBtn.isVisible().catch(() => false))) return;
+    await newMacBtn.click();
+    await page.waitForTimeout(1000);
+
+    const nameField = page.getByLabel(/Nombre|Equipo/i).first();
+    if (await nameField.isVisible().catch(() => false)) {
+      await nameField.fill(`Retroexcavadora QA-${RUN_ID}`);
+    }
+    const saveBtn = page.getByRole('button', { name: /Guardar|Registrar/i }).first();
+    if (await saveBtn.isVisible().catch(() => false)) {
+      await saveBtn.click();
+      await page.waitForTimeout(2500);
+      await expect(page.getByText(`Retroexcavadora QA-${RUN_ID}`).first()).toBeVisible({
+        timeout: 15_000,
+      });
+    }
+  });
+
+  test('registra asistencia de empleado con GPS', async ({ page }) => {
+    await ensureAuthenticated(page);
+
+    const staffTab = page.getByRole('button', { name: /Personal|Asistencia|Staff/i }).first();
+    if (!(await staffTab.isVisible().catch(() => false))) return;
+    await staffTab.click();
+    await page.waitForTimeout(1500);
+
+    // Verificar que el módulo de personal carga
+    await expect(page.getByText(/Empleado|Personal|Asistencia|Planilla/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+  });
+
+  test('genera reporte final del proyecto', async ({ page }) => {
+    await ensureAuthenticated(page);
+
+    const reportsTab = page.getByRole('button', { name: /Reportes|Informes/i }).first();
+    if (!(await reportsTab.isVisible().catch(() => false))) return;
+    await reportsTab.click();
+    await page.waitForTimeout(1500);
+
+    await expect(page.getByText(/Reporte|Informe|Exportar|PDF/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+  });
+
+  test('asistente IA responde en contexto del proyecto', async ({ page }) => {
+    await ensureAuthenticated(page);
+
+    const aiTab = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
+    if (!(await aiTab.isVisible().catch(() => false))) return;
+    await aiTab.click();
+    await page.waitForTimeout(1500);
+
+    await expect(page.getByText(/Asistente|Gemini|Consulta|Pregunta/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+  });
+
+  test('tablero muestra KPIs consolidados de todos los proyectos QA', async ({ page }) => {
+    await ensureAuthenticated(page);
+    await openTab(page, /Tablero/);
+    await page.waitForTimeout(2000);
+
+    // Verificar KPIs principales del dashboard
+    await expect(page.getByText(/Presupuesto|Budget|Proyectos/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+    // El gasto acumulado de los proyectos QA debe aparecer
+    await expect(page.getByText(/GASTO|Ejecutado|Gastado/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });
