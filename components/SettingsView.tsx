@@ -121,7 +121,7 @@ export function SettingsView() {
     // FEATURE 3.2: Image optimization
     const reader = new FileReader();
     reader.onload = (event) => {
-      const img = new Image();
+      const img = document.createElement('img') as HTMLImageElement;
       img.onload = () => {
         // Create canvas for optimization
         const canvas = document.createElement('canvas');
@@ -317,7 +317,7 @@ export function SettingsView() {
                   setLogoPreview(null);
                   setLogoFile(null);
                 }}
-                className="absolute -top-2 -right-2 rounded-full bg-red-600 p-1 text-white transition-colors hover:bg-red-700"
+                className="absolute -right-2 -top-2 rounded-full bg-red-600 p-1 text-white transition-colors hover:bg-red-700"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -453,7 +453,7 @@ export function SettingsView() {
           </p>
           {Object.entries(ROLE_DESCRIPTIONS).map(([role, desc]) => (
             <div key={role} className="text-sm">
-              <p className="font-semibold text-blue-900 capitalize">{role}</p>
+              <p className="font-semibold capitalize text-blue-900">{role}</p>
               <p className="text-blue-800">{desc}</p>
             </div>
           ))}

@@ -16,7 +16,7 @@ import {
   isValidAttendanceDate,
 } from './calculations';
 import { validateData, validationSchemas } from './validation';
-import type { APUItem, ExpenseRecord, Employee, Project } from '../types';
+import type { APUItem, ExpenseRecord, Employee, EmployeeRole, Project } from '../types';
 
 /**
  * WORKFLOW 1: PROJECT CREATION TO COMPLETION
@@ -262,7 +262,7 @@ describe('E2E Workflow 3: Payroll Management', () => {
         ...mockEmployee,
         id: 'emp-002',
         name: 'María López',
-        role: 'Ayudante',
+        role: 'Ayudante' as EmployeeRole,
         dailyRateGTQ: 150,
       },
     ];

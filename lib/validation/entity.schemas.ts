@@ -15,12 +15,9 @@ export const ExpenseRecordSchema = z.object({
   category: z.string().max(100, 'Categoría muy larga'),
   description: z.string().min(1, 'Descripción requerida').max(500, 'Descripción muy larga'),
   amount: z.number().min(0.01, 'El monto debe ser mayor a 0').max(999999999, 'Monto excede límite'),
-  supplier: z.string().min(1, 'Proveedor requerido').max(200, 'Nombre de proveedor muy largo'),
-  nitSupplier: z.string().min(1, 'NIT del proveedor requerido').max(30, 'NIT muy largo'),
-  facturaNumber: z
-    .string()
-    .min(1, 'Número de factura requerido')
-    .max(50, 'Número de factura muy largo'),
+  supplier: z.string().max(200, 'Nombre de proveedor muy largo').optional(),
+  nitSupplier: z.string().max(30, 'NIT muy largo').optional(),
+  facturaNumber: z.string().max(50, 'Número de factura muy largo').optional(),
   currency: z.enum(['GTQ', 'USD']),
   paymentMethod: z.enum(['Pendiente', 'Efectivo', 'Cheque', 'Transferencia BI', 'Tarjeta']),
   receiptPhotoUrl: z.string().optional(),
@@ -127,7 +124,11 @@ export const APUItemSchema = z
   .object({
     id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
     companyId: z.string().min(1, 'Company ID requerido'),
-    projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
+    projectId: z
+      .string()
+      .min(1, 'Proyecto requerido')
+      .max(128, 'ID de proyecto muy largo')
+      .optional(),
     createdBy: z.string().min(1, 'Creator ID requerido'),
     code: z.string().min(1, 'Código requerido').max(64, 'Código muy largo'),
     description: z

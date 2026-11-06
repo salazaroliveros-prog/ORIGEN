@@ -1,13 +1,13 @@
 /**
  * 📊 CRUD Demo Component - Muestra todas las operaciones de lectura/escritura
- * 
+ *
  * Este componente demuestra TODAS las operaciones CRUD disponibles en ORIGEN:
  * - CREATE (Crear): Guardar nuevos datos
  * - READ (Leer): Obtener datos en tiempo real
  * - UPDATE (Actualizar): Modificar datos existentes
  * - DELETE (Eliminar): Borrar datos
  * - OFFLINE: Almacenamiento local y sincronización
- * 
+ *
  * Uso: Importar y usar en cualquier página
  * <CRUDDemo companyId={companyId} userId={userId} role={role} />
  */
@@ -23,13 +23,7 @@ import {
   getOfflineQueue,
   processOfflineQueue,
 } from '@/lib/offlineStorage';
-import type {
-  Project,
-  ExpenseRecord,
-  AttendanceRecord,
-  Employee,
-  QuoteRecord,
-} from '@/lib/types';
+import type { Project, ExpenseRecord, AttendanceRecord, Employee, QuoteRecord } from '@/lib/types';
 import { toast } from 'react-hot-toast';
 
 interface CRUDDemoProps {
@@ -82,9 +76,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
       spentTotal: 0,
       progressPercent: 0,
       startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split('T')[0],
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       status: 'Planificación',
       lat: 14.6133,
       lng: -90.4875,
@@ -132,14 +124,16 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
 
     const newExpense: ExpenseRecord = {
       id: `exp-${Date.now()}`,
-      companyId,
       projectId: projects[0].id,
       description: `Gasto Demo ${new Date().toLocaleTimeString()}`,
       amount: Math.floor(Math.random() * 5000),
-      category: 'Materiales',
+      category: 'Materiales (Cementos, Hierro)',
+      supplier: '',
+      nitSupplier: '',
+      facturaNumber: '',
+      currency: 'GTQ',
+      paymentMethod: 'Efectivo',
       date: new Date().toISOString().split('T')[0],
-      createdBy: userId,
-      status: 'Pendiente',
     };
 
     const success = await addExpense(newExpense);
@@ -155,7 +149,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
 
       const updated: ExpenseRecord = {
         ...expense,
-        status: expense.status === 'Pendiente' ? 'Aprobado' : 'Pendiente',
+        approvalStatus: expense.approvalStatus === 'Pendiente' ? 'Aprobado' : 'Pendiente',
       };
 
       const success = await updateExpense(updated);
@@ -188,13 +182,12 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
 
     const newAttendance: AttendanceRecord = {
       id: `att-${Date.now()}`,
-      companyId,
+      projectId: projects[0]?.id || '',
       employeeId: (employees[0] as Employee).id,
       employeeName: (employees[0] as Employee).name,
       date: new Date().toISOString().split('T')[0],
       status: 'Presente',
-      hours: 8,
-      createdBy: userId,
+      overtimeHours: 0,
     };
 
     const success = await addAttendance(newAttendance);
@@ -220,16 +213,11 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
   const handleCreateEmployee = useCallback(async () => {
     const newEmployee: Employee = {
       id: `emp-${Date.now()}`,
-      companyId,
       name: `Empleado Demo ${Math.random().toString(36).substring(7)}`,
-      email: `emp${Date.now()}@demo.com`,
-      position: 'Trabajador',
-      department: 'General',
+      role: 'Albañil',
+      dailyRateGTQ: 250,
+      igssAffiliated: true,
       phone: '555-0000',
-      address: 'Dirección Demo',
-      city: 'Guatemala',
-      state: 'Guatemala',
-      createdBy: userId,
     };
 
     const success = await addEmployee(newEmployee);
@@ -286,9 +274,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
     });
 
     setOfflineQueue(getOfflineQueue());
-    toast.success(
-      `✅ Procesados: ${result.processed}, Pendientes: ${result.remaining}`
-    );
+    toast.success(`✅ Procesados: ${result.processed}, Pendientes: ${result.remaining}`);
   }, []);
 
   // ============================================================================
@@ -296,36 +282,21 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
   // ============================================================================
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold mb-6">📊 Demo CRUD Completo - ORIGEN</h1>
+    <div className="rounded-lg bg-white p-6 shadow-lg">
+      <h1 className="mb-6 text-3xl font-bold">📊 Demo CRUD Completo - ORIGEN</h1>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {[
-          'proyectos',
-          'gastos',
-          'asistencia',
-          'empleados',
-          'local',
-          'offline',
-        ].map((tab) => (
+      <div className="mb-6 flex flex-wrap gap-2">
+        {['proyectos', 'gastos', 'asistencia', 'empleados', 'local', 'offline'].map((tab) => (
           <button
             key={tab}
             onClick={() =>
               setActiveTab(
-                tab as
-                  | 'proyectos'
-                  | 'gastos'
-                  | 'asistencia'
-                  | 'empleados'
-                  | 'local'
-                  | 'offline'
+                tab as 'proyectos' | 'gastos' | 'asistencia' | 'empleados' | 'local' | 'offline'
               )
             }
-            className={`px-4 py-2 rounded ${
-              activeTab === tab
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-black'
+            className={`rounded px-4 py-2 ${
+              activeTab === tab ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
             }`}
           >
             {tab.toUpperCase()}
@@ -340,7 +311,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateProject}
-              className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
+              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
             >
               ➕ Crear Proyecto
             </button>
@@ -348,7 +319,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="space-y-2">
             <h3 className="font-semibold">Proyectos ({projects.length})</h3>
             {projects.slice(0, 5).map((project) => (
-              <div key={project.id} className="bg-gray-100 p-3 rounded">
+              <div key={project.id} className="rounded bg-gray-100 p-3">
                 <div className="flex justify-between">
                   <span>
                     {project.name} - {project.status}
@@ -356,13 +327,13 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
                   <div className="space-x-2">
                     <button
                       onClick={() => handleUpdateProject(project.id)}
-                      className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
+                      className="rounded bg-blue-500 px-2 py-1 text-sm text-white"
                     >
                       ✏️ Actualizar
                     </button>
                     <button
                       onClick={() => handleArchiveProject(project.id)}
-                      className="bg-yellow-500 text-white px-2 py-1 rounded text-sm"
+                      className="rounded bg-yellow-500 px-2 py-1 text-sm text-white"
                     >
                       📦 Archivar
                     </button>
@@ -381,7 +352,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateExpense}
-              className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
+              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
             >
               ➕ Crear Gasto
             </button>
@@ -389,7 +360,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="space-y-2">
             <h3 className="font-semibold">Gastos ({expenses.length})</h3>
             {expenses.slice(0, 5).map((expense) => (
-              <div key={expense.id} className="bg-gray-100 p-3 rounded">
+              <div key={expense.id} className="rounded bg-gray-100 p-3">
                 <div className="flex justify-between">
                   <span>
                     {expense.description} - ${expense.amount}
@@ -397,13 +368,13 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
                   <div className="space-x-2">
                     <button
                       onClick={() => handleUpdateExpense(expense.id)}
-                      className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
+                      className="rounded bg-blue-500 px-2 py-1 text-sm text-white"
                     >
                       ✏️ Actualizar
                     </button>
                     <button
                       onClick={() => handleDeleteExpense(expense.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+                      className="rounded bg-red-500 px-2 py-1 text-sm text-white"
                     >
                       🗑️ Eliminar
                     </button>
@@ -422,7 +393,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateAttendance}
-              className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
+              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
             >
               ➕ Registrar Asistencia
             </button>
@@ -430,14 +401,14 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="space-y-2">
             <h3 className="font-semibold">Registros ({attendance.length})</h3>
             {attendance.slice(0, 5).map((record) => (
-              <div key={record.id} className="bg-gray-100 p-3 rounded">
+              <div key={record.id} className="rounded bg-gray-100 p-3">
                 <div className="flex justify-between">
                   <span>
                     {record.employeeName} - {record.status}
                   </span>
                   <button
                     onClick={() => handleDeleteAttendance(record.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+                    className="rounded bg-red-500 px-2 py-1 text-sm text-white"
                   >
                     🗑️ Eliminar
                   </button>
@@ -455,7 +426,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCreateEmployee}
-              className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
+              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
             >
               ➕ Crear Empleado
             </button>
@@ -463,9 +434,9 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="space-y-2">
             <h3 className="font-semibold">Empleados ({employees.length})</h3>
             {(employees as Employee[]).slice(0, 5).map((emp) => (
-              <div key={emp.id} className="bg-gray-100 p-3 rounded">
+              <div key={emp.id} className="rounded bg-gray-100 p-3">
                 <span>
-                  {emp.name} - {emp.position}
+                  {emp.name} - {emp.role}
                 </span>
               </div>
             ))}
@@ -480,19 +451,19 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleSaveLocal}
-              className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
+              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
             >
               💾 Guardar Localmente
             </button>
             <button
               onClick={handleLoadLocal}
-              className="bg-blue-500 text-white p-3 rounded hover:bg-blue-600"
+              className="rounded bg-blue-500 p-3 text-white hover:bg-blue-600"
             >
               📂 Cargar Localmente
             </button>
           </div>
-          <div className="bg-gray-100 p-4 rounded">
-            <h3 className="font-semibold mb-2">localStorage</h3>
+          <div className="rounded bg-gray-100 p-4">
+            <h3 className="mb-2 font-semibold">localStorage</h3>
             <p>Los datos se guardan en el navegador</p>
             <p>Persisten incluso si se cierra la app</p>
             <p>Se sincronizan cuando vuelve online</p>
@@ -507,32 +478,28 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleAddOfflineAction}
-              className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
+              className="rounded bg-green-500 p-3 text-white hover:bg-green-600"
             >
               ➕ Agregar a Cola
             </button>
             <button
               onClick={handleProcessQueue}
-              className="bg-blue-500 text-white p-3 rounded hover:bg-blue-600"
+              className="rounded bg-blue-500 p-3 text-white hover:bg-blue-600"
             >
               🔄 Sincronizar
             </button>
           </div>
           <div className="space-y-2">
-            <h3 className="font-semibold">
-              Cola Offline ({offlineQueue.length} pendientes)
-            </h3>
+            <h3 className="font-semibold">Cola Offline ({offlineQueue.length} pendientes)</h3>
             {offlineQueue.map((item) => (
-              <div key={item.id} className="bg-yellow-50 p-3 rounded border">
+              <div key={item.id} className="rounded border bg-yellow-50 p-3">
                 <div className="flex justify-between">
                   <span>
                     {item.type} - {item.description}
                   </span>
                   <span
-                    className={`text-sm px-2 py-1 rounded ${
-                      item.synced
-                        ? 'bg-green-200 text-green-800'
-                        : 'bg-yellow-200 text-yellow-800'
+                    className={`rounded px-2 py-1 text-sm ${
+                      item.synced ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'
                     }`}
                   >
                     {item.synced ? '✅ Sincronizado' : '⏳ Pendiente'}
@@ -545,8 +512,8 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
       )}
 
       {/* Estado */}
-      <div className="mt-8 p-4 bg-blue-50 rounded border border-blue-200">
-        <h3 className="font-semibold mb-2">📊 Estado Actual</h3>
+      <div className="mt-8 rounded border border-blue-200 bg-blue-50 p-4">
+        <h3 className="mb-2 font-semibold">📊 Estado Actual</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <strong>Proyectos:</strong> {projects.length}

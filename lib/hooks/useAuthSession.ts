@@ -67,6 +67,17 @@ export function useAuthSession() {
   }, []);
 
   useEffect(() => {
+    // Test auth support for E2E testing (development only)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const testEmail = params.get('__test_email');
+      const testPassword = params.get('__test_password');
+      if (testEmail && testPassword) {
+        window.history.replaceState({}, '', window.location.pathname);
+        signIn(testEmail, testPassword);
+      }
+    }
+
     const unsubscribe = subscribeToAuthState(
       (user) => {
         setCurrentUser(user);

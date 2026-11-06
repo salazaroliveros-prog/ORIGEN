@@ -1,7 +1,7 @@
 /**
  * ORIGEN ERP - Projects List Component
  * Enhanced with sticky create button, delete confirmation, and sort preferences
- * 
+ *
  * Features:
  * - Sticky create button (floating on mobile, static on desktop)
  * - Delete confirmation dialog with undo option
@@ -38,7 +38,7 @@ interface DeleteConfirmation {
 }
 
 export function ProjectsList() {
-  const { projects, loading, error, deleteProject, archiveProject } = useProjectData();
+  const { projects, loading, archiveProject } = useProjectData();
   const [sortBy, setSortBy] = useState<SortBy>('date');
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmation>({
     projectId: '',
@@ -48,8 +48,13 @@ export function ProjectsList() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   // Pagination
-  const { currentPage, pageSize, totalPages, paginatedItems, goToPage } =
-    usePagination(projects || [], 10);
+  const {
+    currentPage,
+    itemsPerPage: pageSize,
+    totalPages,
+    paginatedItems,
+    goToPage,
+  } = usePagination(projects || [], { itemsPerPage: 10 });
 
   // FEATURE 2.3.3: Load sort preference from localStorage on mount
   useEffect(() => {
@@ -77,9 +82,7 @@ export function ProjectsList() {
         break;
       case 'date':
       default:
-        sorted.sort((a, b) =>
-          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-        );
+        sorted.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
         break;
     }
 
@@ -113,8 +116,7 @@ export function ProjectsList() {
       toast.success('Proyecto archivado correctamente');
       setDeleteConfirm({ projectId: '', projectName: '', show: false });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Error al archivar proyecto';
+      const message = error instanceof Error ? error.message : 'Error al archivar proyecto';
       toast.error(message);
     } finally {
       setDeleting(null);
@@ -152,78 +154,64 @@ export function ProjectsList() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-6 flex gap-4">
-          <AlertCircle className="h-6 w-6 text-red-600 flex-shrink-0" />
-          <div>
-            <h3 className="font-semibold text-red-600">Error cargando proyectos</h3>
-            <p className="text-sm text-red-500 mt-1">{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 p-6 bg-slate-50 min-h-screen pb-24 sm:pb-6">
+    <div className="min-h-screen space-y-6 bg-slate-50 p-6 pb-24 sm:pb-6">
       {/* Header - RESPONSIVE OPTIMIZED */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Proyectos</h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Proyectos</h1>
+          <p className="mt-1 text-xs text-slate-600 sm:text-sm">
             Total: {projects?.length || 0} proyecto{projects?.length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
 
       {/* Sort Controls - RESPONSIVE OPTIMIZED */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap gap-2">
         <button
           onClick={() => handleSort('date')}
-          className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 ${
+          className={`flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold transition-all duration-200 sm:gap-2 sm:px-3 sm:text-sm ${
             sortBy === 'date'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
-              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:shadow-sm'
+              : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
           }`}
           title={`Ordenar por fecha ${sortBy === 'date' ? '(activo)' : ''}`}
         >
           <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="hidden xs:inline">Más recientes</span>
-          <span className="inline xs:hidden">Fecha</span>
+          <span className="xs:inline hidden">Más recientes</span>
+          <span className="xs:hidden inline">Fecha</span>
           {sortBy === 'date' && (
-            <span className="ml-1 sm:ml-2 inline-flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
+            <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/20 text-xs font-bold sm:ml-2 sm:h-5 sm:w-5">
               ✓
             </span>
           )}
         </button>
         <button
           onClick={() => handleSort('name')}
-          className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200 ${
             sortBy === 'name'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
-              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:shadow-sm'
+              : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
           }`}
         >
           Nombre
         </button>
         <button
           onClick={() => handleSort('budget')}
-          className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200 ${
             sortBy === 'budget'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
-              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:shadow-sm'
+              : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
           }`}
         >
           Mayor presupuesto
         </button>
         <button
           onClick={() => handleSort('status')}
-          className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200 ${
             sortBy === 'status'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
-              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:shadow-sm'
+              : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
           }`}
         >
           Estado
@@ -232,42 +220,30 @@ export function ProjectsList() {
 
       {/* Projects Grid/List */}
       {sortedProjects.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-slate-600 text-lg">No hay proyectos disponibles</p>
+        <div className="py-12 text-center">
+          <p className="text-lg text-slate-600">No hay proyectos disponibles</p>
         </div>
       ) : (
         <>
           {/* Desktop Table View */}
           <div className="hidden sm:block">
-            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md">
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-slate-50">
-                    <th className="text-left p-4 font-semibold text-slate-900">
-                      Nombre
-                    </th>
-                    <th className="text-left p-4 font-semibold text-slate-900">
-                      Cliente
-                    </th>
-                    <th className="text-right p-4 font-semibold text-slate-900">
-                      Presupuesto
-                    </th>
-                    <th className="text-center p-4 font-semibold text-slate-900">
-                      Progreso
-                    </th>
-                    <th className="text-center p-4 font-semibold text-slate-900">
-                      Estado
-                    </th>
-                    <th className="text-center p-4 font-semibold text-slate-900">
-                      Acciones
-                    </th>
+                    <th className="p-4 text-left font-semibold text-slate-900">Nombre</th>
+                    <th className="p-4 text-left font-semibold text-slate-900">Cliente</th>
+                    <th className="p-4 text-right font-semibold text-slate-900">Presupuesto</th>
+                    <th className="p-4 text-center font-semibold text-slate-900">Progreso</th>
+                    <th className="p-4 text-center font-semibold text-slate-900">Estado</th>
+                    <th className="p-4 text-center font-semibold text-slate-900">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedItems.map((project) => (
                     <tr
                       key={project.id}
-                      className="border-b hover:bg-slate-50 transition-colors last:border-b-0"
+                      className="border-b transition-colors last:border-b-0 hover:bg-slate-50"
                     >
                       <td className="p-4">
                         <Link
@@ -276,9 +252,7 @@ export function ProjectsList() {
                         >
                           {project.name}
                         </Link>
-                        <p className="text-xs text-slate-500 mt-1">
-                          {project.code}
-                        </p>
+                        <p className="mt-1 text-xs text-slate-500">{project.code}</p>
                       </td>
                       <td className="p-4 text-slate-700">{project.client}</td>
                       <td className="p-4 text-right font-semibold text-slate-900">
@@ -286,25 +260,22 @@ export function ProjectsList() {
                       </td>
                       <td className="p-4">
                         <div className="flex items-center justify-center gap-3">
-                          <div className="w-24 h-3 bg-slate-200 rounded-full overflow-hidden shadow-sm">
+                          <div className="h-3 w-24 overflow-hidden rounded-full bg-slate-200 shadow-sm">
                             <div
                               className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
                               style={{
-                                width: `${Math.min(
-                                  project.progressPercent || 0,
-                                  100
-                                )}%`,
+                                width: `${Math.min(project.progressPercent || 0, 100)}%`,
                               }}
                             />
                           </div>
-                          <span className="text-xs font-semibold text-slate-700 w-10 text-right">
+                          <span className="w-10 text-right text-xs font-semibold text-slate-700">
                             {project.progressPercent || 0}%
                           </span>
                         </div>
                       </td>
                       <td className="p-4 text-center">
                         <span
-                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(
                             project.status
                           )}`}
                         >
@@ -315,16 +286,14 @@ export function ProjectsList() {
                         <div className="flex justify-center gap-2">
                           <Link
                             href={`/projects/${project.id}/edit`}
-                            className="p-2 hover:bg-blue-100 active:scale-95 rounded-lg text-blue-600 transition-all duration-200"
+                            className="rounded-lg p-2 text-blue-600 transition-all duration-200 hover:bg-blue-100 active:scale-95"
                             title="Editar"
                           >
                             <Pencil className="h-4 w-4" />
                           </Link>
                           <button
-                            onClick={() =>
-                              handleDeleteClick(project.id, project.name)
-                            }
-                            className="p-2 hover:bg-red-100 active:scale-95 rounded-lg text-red-600 transition-all duration-200"
+                            onClick={() => handleDeleteClick(project.id, project.name)}
+                            className="rounded-lg p-2 text-red-600 transition-all duration-200 hover:bg-red-100 active:scale-95"
                             title="Archivar"
                             disabled={deleting === project.id}
                           >
@@ -344,22 +313,20 @@ export function ProjectsList() {
           </div>
 
           {/* Mobile Card View */}
-          <div className="sm:hidden space-y-3">
+          <div className="space-y-3 sm:hidden">
             {paginatedItems.map((project) => (
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className="block bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                className="block rounded-lg border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-slate-300 hover:shadow-md"
               >
-                <div className="flex justify-between items-start mb-3">
+                <div className="mb-3 flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold text-slate-900">
-                      {project.name}
-                    </h3>
+                    <h3 className="font-semibold text-slate-900">{project.name}</h3>
                     <p className="text-xs text-slate-500">{project.code}</p>
                   </div>
                   <span
-                    className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(
                       project.status
                     )}`}
                   >
@@ -373,14 +340,12 @@ export function ProjectsList() {
                   </p>
                   <p className="text-slate-600">
                     Presupuesto:{' '}
-                    <span className="font-semibold">
-                      Q{project.budgetTotal.toLocaleString()}
-                    </span>
+                    <span className="font-semibold">Q{project.budgetTotal.toLocaleString()}</span>
                   </p>
 
                   <div className="flex items-center gap-3">
                     <span className="text-slate-600">Progreso:</span>
-                    <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden shadow-sm">
+                    <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-200 shadow-sm">
                       <div
                         className="h-full bg-gradient-to-r from-blue-500 to-blue-600"
                         style={{
@@ -388,19 +353,19 @@ export function ProjectsList() {
                         }}
                       />
                     </div>
-                    <span className="text-slate-600 text-xs font-semibold w-8">
+                    <span className="w-8 text-xs font-semibold text-slate-600">
                       {project.progressPercent || 0}%
                     </span>
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-200">
+                <div className="mt-4 flex justify-end gap-2 border-t border-slate-200 pt-4">
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       handleDeleteClick(project.id, project.name);
                     }}
-                    className="p-2 hover:bg-red-100 rounded-lg text-red-600 transition-colors"
+                    className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100"
                     disabled={deleting === project.id}
                   >
                     {deleting === project.id ? (
@@ -418,11 +383,11 @@ export function ProjectsList() {
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6">
+        <div className="mt-6 flex items-center justify-center gap-2">
           <button
             onClick={() => goToPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="p-2 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -432,10 +397,10 @@ export function ProjectsList() {
               <button
                 key={i + 1}
                 onClick={() => goToPage(i + 1)}
-                className={`w-8 h-8 rounded-lg font-semibold transition-colors ${
+                className={`h-8 w-8 rounded-lg font-semibold transition-colors ${
                   currentPage === i + 1
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white border border-slate-200 hover:bg-slate-50'
+                    : 'border border-slate-200 bg-white hover:bg-slate-50'
                 }`}
               >
                 {i + 1}
@@ -446,7 +411,7 @@ export function ProjectsList() {
           <button
             onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
-            className="p-2 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -456,9 +421,9 @@ export function ProjectsList() {
       {/* FEATURE 2.2.1: Sticky Create Button (Mobile Floating) - FIXED: Added z-50, background, shadow */}
       <Link
         href="/projects?create=true"
-        className="fixed bottom-20 right-4 sm:bottom-auto sm:right-auto sm:static sm:pt-4 sm:mt-6 z-50"
+        className="fixed bottom-20 right-4 z-50 sm:static sm:bottom-auto sm:right-auto sm:mt-6 sm:pt-4"
       >
-        <button className="w-14 h-14 sm:w-auto sm:h-auto rounded-full sm:rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white shadow-lg hover:shadow-xl sm:shadow-sm sm:hover:shadow-md transition-all duration-200 flex items-center justify-center sm:px-6 sm:py-2 gap-2 font-semibold">
+        <button className="flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-blue-600 font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700 hover:shadow-xl active:scale-95 sm:h-auto sm:w-auto sm:rounded-lg sm:px-6 sm:py-2 sm:shadow-sm sm:hover:shadow-md">
           <Plus className="h-6 w-6" />
           <span className="hidden sm:inline">Crear Proyecto</span>
         </button>
@@ -466,35 +431,33 @@ export function ProjectsList() {
 
       {/* FEATURE 2.2.2: Delete Confirmation Dialog */}
       {deleteConfirm.show && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-sm p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-w-sm rounded-lg bg-white p-6 shadow-xl">
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <AlertCircle className="h-6 w-6 text-red-600" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                  ¿Archivar proyecto?
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Vas a archivar &quot;{deleteConfirm.projectName}&quot;. Puedes restaurarlo
-                  después si lo necesitas.
+                <h3 className="mb-2 text-lg font-semibold text-slate-900">¿Archivar proyecto?</h3>
+                <p className="mb-4 text-sm text-slate-600">
+                  Vas a archivar &quot;{deleteConfirm.projectName}&quot;. Puedes restaurarlo después
+                  si lo necesitas.
                 </p>
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-200">
+            <div className="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-6">
               <button
                 onClick={handleCancelDelete}
                 disabled={deleting !== null}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold transition-colors disabled:opacity-50"
+                className="rounded-lg border border-slate-200 px-4 py-2 font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmDelete}
                 disabled={deleting !== null}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
               >
                 {deleting ? (
                   <>

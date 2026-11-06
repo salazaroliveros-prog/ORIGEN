@@ -27,7 +27,7 @@ const localStorageMock = (() => {
 })();
 
 // Setup localStorage globally for all tests
-global.localStorage = localStorageMock;
+global.localStorage = localStorageMock as unknown as Storage;
 
 // E2E Test 1: Complete Project Creation Workflow
 describe('E2E: Complete Project Creation Workflow', () => {

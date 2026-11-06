@@ -84,41 +84,42 @@ export function validateData<T>(
   // Extract errors from Zod validation
   if (result.error) {
     // Handle both array and object error formats from Zod
-    const zodErrors = Array.isArray(result.error.errors)
-      ? result.error.errors
-      : Object.values(result.error.errors || {});
+    const zodErrors = Array.isArray(result.error.issues)
+      ? result.error.issues
+      : Object.values(result.error.issues || {});
 
     if (Array.isArray(zodErrors) && zodErrors.length > 0) {
       zodErrors.forEach((err) => {
+        const e = err as { path: unknown; message?: string };
         // Handle different path formats:
         // - Array like ['lat'] -> join to 'lat'
         // - String like 'lat' -> use directly
         // - undefined/null -> use 'value'
         let path;
-        if (Array.isArray(err.path)) {
-          path = err.path.join('.');
-        } else if (typeof err.path === 'string') {
-          path = err.path;
+        if (Array.isArray(e.path)) {
+          path = e.path.join('.');
+        } else if (typeof e.path === 'string') {
+          path = e.path;
         } else {
           path = 'value';
         }
 
         if (path) {
-          errors[path] = err.message || 'Validation failed';
+          errors[path] = e.message || 'Validation failed';
         }
 
         // For object schemas like gpsCoordinates, also set 'lat' and 'lng' keys
         // if the path indicates these fields, to support tests that check for them
         if (path && (path.includes('lat') || path.includes('lng'))) {
           if (!errors['lat']) {
-            errors['lat'] = err.message || 'Validation failed';
+            errors['lat'] = e.message || 'Validation failed';
           }
           if (!errors['lng']) {
-            errors['lng'] = err.message || 'Validation failed';
+            errors['lng'] = e.message || 'Validation failed';
           }
         } else if (!path) {
           // Fallback: try to use a descriptive key
-          errors['value'] = err.message || 'Validation failed';
+          errors['value'] = e.message || 'Validation failed';
         }
       });
     } else {

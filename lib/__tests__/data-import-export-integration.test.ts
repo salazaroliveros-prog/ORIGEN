@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Data Import/Export Integration Tests
- * 
+ *
  * Tests de integración para importación y exportación de datos
  */
 
@@ -98,9 +98,11 @@ describe('Data Import/Export Integration Tests', () => {
     });
 
     it('should generate CSV string', () => {
-      const csvString = mockCSVExport.headers.join(',') + '\n' + 
-                         mockCSVExport.rows.map(row => row.join(',')).join('\n');
-      
+      const csvString =
+        mockCSVExport.headers.join(',') +
+        '\n' +
+        mockCSVExport.rows.map((row) => row.join(',')).join('\n');
+
       expect(csvString).toContain('ID,Name,Status,Budget');
     });
 
@@ -161,7 +163,7 @@ describe('Data Import/Export Integration Tests', () => {
 
     it('should detect missing required columns', () => {
       const requiredColumns = ['ID', 'Name'];
-      const hasRequired = requiredColumns.every(col => mockCSVImport.headers.includes(col));
+      const hasRequired = requiredColumns.every((col) => mockCSVImport.headers.includes(col));
       expect(hasRequired).toBe(true);
     });
 
@@ -205,7 +207,7 @@ describe('Data Import/Export Integration Tests', () => {
         data: [],
         errors: [],
       };
-      
+
       expect(jsonImport.file).toBeDefined();
       expect(jsonImport.data).toBeDefined();
       expect(jsonImport.errors).toBeDefined();
@@ -231,7 +233,7 @@ describe('Data Import/Export Integration Tests', () => {
           name: { type: 'string' },
         },
       };
-      
+
       expect(schema.type).toBe('object');
       expect(schema.properties).toBeDefined();
     });
@@ -241,7 +243,9 @@ describe('Data Import/Export Integration Tests', () => {
     it('should validate required fields', () => {
       const data = { id: 1, name: 'Project A' };
       const requiredFields = ['id', 'name'];
-      const hasAll = requiredFields.every(field => data[field] !== undefined);
+      const hasAll = requiredFields.every(
+        (field) => (data as Record<string, unknown>)[field] !== undefined
+      );
       expect(hasAll).toBe(true);
     });
 
@@ -285,7 +289,8 @@ describe('Data Import/Export Integration Tests', () => {
 
     it('should detect invalid file extension', () => {
       const filename = 'projects.txt';
-      const isValid = filename.endsWith('.csv') || filename.endsWith('.xlsx') || filename.endsWith('.json');
+      const isValid =
+        filename.endsWith('.csv') || filename.endsWith('.xlsx') || filename.endsWith('.json');
       expect(isValid).toBe(false);
     });
   });
@@ -309,7 +314,7 @@ describe('Data Import/Export Integration Tests', () => {
         style: 'currency',
         currency: 'GTQ',
       }).format(currency);
-      
+
       expect(formatted).toContain('Q');
     });
   });
@@ -321,7 +326,7 @@ describe('Data Import/Export Integration Tests', () => {
         total: 100,
         percentage: 50,
       };
-      
+
       expect(progress.current).toBeGreaterThan(0);
       expect(progress.current).toBeLessThanOrEqual(progress.total);
     });
@@ -332,7 +337,7 @@ describe('Data Import/Export Integration Tests', () => {
         total: 100,
         percentage: 100,
       };
-      
+
       expect(progress.percentage).toBe(100);
     });
   });
@@ -344,7 +349,7 @@ describe('Data Import/Export Integration Tests', () => {
         total: 100,
         percentage: 50,
       };
-      
+
       expect(progress.processed).toBeGreaterThan(0);
       expect(progress.processed).toBeLessThanOrEqual(progress.total);
     });
@@ -355,7 +360,7 @@ describe('Data Import/Export Integration Tests', () => {
         errors: 5,
         warnings: 10,
       };
-      
+
       expect(importResult.processed).toBeGreaterThan(0);
       expect(importResult.errors).toBeGreaterThanOrEqual(0);
     });

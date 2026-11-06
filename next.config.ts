@@ -1,9 +1,6 @@
 import type { NextConfig } from 'next';
-import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-
   outputFileTracingRoot: process.cwd(),
   devIndicators: false,
   productionBrowserSourceMaps: false,
@@ -35,9 +32,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Bundle analyzer wrapper
-const withBundleAnalyzerConfig = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
-
-export default withBundleAnalyzerConfig(nextConfig);
+export default nextConfig;

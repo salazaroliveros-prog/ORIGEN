@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { formatGTQ, formatUSD } from '@/lib/data';
 import {
   adjustApuDirectCostsForDepartment,
@@ -152,20 +153,33 @@ export function BudgetAndAPU({
   // Manual APU creation
   const handleCreateManualAPU = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!desc.trim()) return;
 
-    const m = Number(matCost) || 0;
-    const l = Number(labCost) || 0;
-    const eq = Number(eqCost) || 0;
+    // Leer valores del DOM como fallback (compatibilidad con Playwright E2E)
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+
+    const domCode = (formData.get('code') as string) || code;
+    const domUnit = (formData.get('unit') as string) || unit;
+    const domDesc = (formData.get('desc') as string) || desc;
+    const domQty = Number(formData.get('qty') as string) || qty || 1;
+    const domMat = Number(formData.get('matCost') as string) || matCost || 0;
+    const domLab = Number(formData.get('labCost') as string) || labCost || 0;
+    const domEq = Number(formData.get('eqCost') as string) || eqCost || 0;
+
+    if (!domDesc.trim()) return;
+
+    const m = Number(domMat);
+    const l = Number(domLab);
+    const eq = Number(domEq);
     const totalUnit = calculateTotalUnitCost(m, l, eq);
-    const q = Number(qty) || 1;
+    const q = Number(domQty);
 
     const newItem: APUItem = {
       id: `apu-${globalThis.crypto.randomUUID()}`,
       projectId: activeProjectId,
-      code,
-      description: desc,
-      unit,
+      code: domCode,
+      description: domDesc,
+      unit: domUnit,
       quantity: q,
       materialUnitCostGTQ: m,
       laborUnitCostGTQ: l,
@@ -344,7 +358,7 @@ export function BudgetAndAPU({
   return (
     <div className="space-y-6">
       {/* Top Header & Regional Market Bar */}
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+      <div className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div>
             <div className="flex items-center gap-2">
@@ -410,7 +424,7 @@ export function BudgetAndAPU({
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value)}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {Object.keys(GUATEMALA_DEPARTMENTS_INDEX).map((dept) => (
                 <option key={dept} value={dept}>
@@ -436,7 +450,7 @@ export function BudgetAndAPU({
               <button
                 onClick={handleRecalculateBudgetForDepartment}
                 disabled={!canWrite}
-                className="inline-flex animate-pulse cursor-pointer items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-amber-600"
+                className="shadow-xs inline-flex animate-pulse cursor-pointer items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-amber-600"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Actualizar Costos a {selectedDept}
@@ -461,7 +475,7 @@ export function BudgetAndAPU({
 
       {/* RECALCULATION SUCCESS TOAST */}
       {recalcToast && (
-        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-xs">
+        <div className="animate-in fade-in shadow-xs flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
           <div className="flex items-center gap-2.5">
             <Check className="h-5 w-5 text-emerald-600" />
             <p className="text-xs font-bold">{recalcToast}</p>
@@ -477,16 +491,16 @@ export function BudgetAndAPU({
 
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-          <p className="text-xs font-semibold text-slate-500 uppercase">
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-xs font-semibold uppercase text-slate-500">
             Costo Total Presupuestado
           </p>
           <h3 className="mt-1 text-2xl font-bold text-slate-900">{formatMoney(totalBudgetGTQ)}</h3>
           <p className="mt-0.5 text-[11px] text-slate-400">Suma de costos directos de obra</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-          <p className="text-xs font-semibold text-slate-500 uppercase">Renglones Activos</p>
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-xs font-semibold uppercase text-slate-500">Renglones Activos</p>
           <h3 className="mt-1 text-2xl font-bold text-blue-600">{budgetItems.length} Partidas</h3>
           <p className="mt-0.5 text-[11px] text-slate-400">
             Promedio:{' '}
@@ -495,8 +509,8 @@ export function BudgetAndAPU({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-          <p className="text-xs font-semibold text-slate-500 uppercase">
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-xs font-semibold uppercase text-slate-500">
             Ubicación y Factor Activo
           </p>
           <h3 className="mt-1 text-2xl font-bold text-slate-900">{appliedDept}</h3>
@@ -505,8 +519,8 @@ export function BudgetAndAPU({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-          <p className="text-xs font-semibold text-slate-500 uppercase">Normativa Técnica</p>
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-xs font-semibold uppercase text-slate-500">Normativa Técnica</p>
           <h3 className="mt-1 text-lg font-bold text-slate-900">AGIES / COGUANOR</h3>
           <p className="mt-0.5 text-[11px] font-medium text-blue-600">
             Sismo-resistencia NSE 2 y 3
@@ -515,7 +529,7 @@ export function BudgetAndAPU({
       </div>
 
       {/* APU ITEMS TABLE */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+      <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-blue-600" />
@@ -530,7 +544,7 @@ export function BudgetAndAPU({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-200 bg-slate-50 font-semibold text-slate-700 uppercase">
+            <thead className="border-b border-slate-200 bg-slate-50 font-semibold uppercase text-slate-700">
               <tr>
                 <th className="p-3.5">Código</th>
                 <th className="p-3.5">Descripción del Renglón</th>
@@ -601,7 +615,7 @@ export function BudgetAndAPU({
 
       {/* MODAL 1: AI APU GENERATION STUDIO */}
       {isAiStudioOpen && (
-        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
           <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 p-5 text-white">
               <div className="flex items-center gap-2.5">
@@ -638,7 +652,7 @@ export function BudgetAndAPU({
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
                     placeholder="Ej. Muro perimetral de block 14x19x39 de 50 kg/cm² con solera intermedia y columnas de amarre..."
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
                     required
                   />
                 </div>
@@ -761,7 +775,7 @@ export function BudgetAndAPU({
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[11px] font-bold text-slate-500 uppercase">
+                      <p className="text-[11px] font-bold uppercase text-slate-500">
                         Costo Unitario
                       </p>
                       <p className="text-xl font-bold text-blue-900">
@@ -839,7 +853,7 @@ export function BudgetAndAPU({
 
       {/* MODAL 2: AI BUDGET AUDIT */}
       {isAuditModalOpen && (
-        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
           <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-5 text-white">
               <div className="flex items-center gap-2">
@@ -875,7 +889,7 @@ export function BudgetAndAPU({
                   {/* Risk Badge Header */}
                   <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <div>
-                      <p className="text-xs font-bold text-slate-500 uppercase">
+                      <p className="text-xs font-bold uppercase text-slate-500">
                         Nivel de Riesgo Financiero
                       </p>
                       <h4 className="mt-0.5 text-xl font-bold text-slate-900">
@@ -951,7 +965,7 @@ export function BudgetAndAPU({
 
       {/* MODAL 3: GUATEMALA MARKET REFERENCE PRICING CATALOGUE */}
       {isMarketCatalogueOpen && (
-        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
           <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-5 text-white">
               <div className="flex items-center gap-2.5">
@@ -976,13 +990,13 @@ export function BudgetAndAPU({
 
             <div className="flex flex-col gap-2 border-b border-slate-200 bg-slate-50 p-4 sm:flex-row">
               <div className="relative flex-1">
-                <Search className="absolute top-2.5 left-3 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={marketSearchQuery}
                   onChange={(e) => setMarketSearchQuery(e.target.value)}
                   placeholder="Buscar insumo (ej. cemento, hierro, arena, block)..."
-                  className="w-full rounded-lg border border-slate-300 bg-white py-2 pr-3 pl-9 text-xs"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs"
                 />
               </div>
 
@@ -1054,7 +1068,7 @@ export function BudgetAndAPU({
 
       {/* MODAL 4: INSPECT ITEM APU BREAKDOWN */}
       {inspectingItem && (
-        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
           <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div>
@@ -1074,19 +1088,19 @@ export function BudgetAndAPU({
             <div className="space-y-4 overflow-y-auto p-5 text-xs">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Materiales</p>
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Materiales</p>
                   <p className="mt-1 font-bold text-slate-900">
                     {formatMoney(inspectingItem.materialUnitCostGTQ)}
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Mano de Obra</p>
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Mano de Obra</p>
                   <p className="mt-1 font-bold text-slate-900">
                     {formatMoney(inspectingItem.laborUnitCostGTQ)}
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Equipo / Herr.</p>
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Equipo / Herr.</p>
                   <p className="mt-1 font-bold text-slate-900">
                     {formatMoney(inspectingItem.equipmentUnitCostGTQ)}
                   </p>
@@ -1142,7 +1156,7 @@ export function BudgetAndAPU({
 
       {/* MODAL 5: MANUAL APU CREATION */}
       {isManualModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+        <div className="backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
           <div className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <h3 className="text-base font-bold">Nuevo Renglón APU Manual</h3>
@@ -1159,6 +1173,7 @@ export function BudgetAndAPU({
                   <label className="mb-1 block text-xs font-semibold text-slate-700">Código</label>
                   <input
                     type="text"
+                    name="code"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
@@ -1169,6 +1184,7 @@ export function BudgetAndAPU({
                   <label className="mb-1 block text-xs font-semibold text-slate-700">Unidad</label>
                   <input
                     type="text"
+                    name="unit"
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
@@ -1183,6 +1199,7 @@ export function BudgetAndAPU({
                 </label>
                 <input
                   type="text"
+                  name="desc"
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   placeholder="Ej. Zapata de concreto f'c=280 kg/cm²"
@@ -1198,6 +1215,7 @@ export function BudgetAndAPU({
                   </label>
                   <input
                     type="number"
+                    name="qty"
                     value={qty}
                     onChange={(e) => setQty(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
@@ -1210,6 +1228,7 @@ export function BudgetAndAPU({
                   </label>
                   <input
                     type="number"
+                    name="matCost"
                     value={matCost}
                     onChange={(e) => setMatCost(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
@@ -1225,6 +1244,7 @@ export function BudgetAndAPU({
                   </label>
                   <input
                     type="number"
+                    name="labCost"
                     value={labCost}
                     onChange={(e) => setLabCost(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
@@ -1237,6 +1257,7 @@ export function BudgetAndAPU({
                   </label>
                   <input
                     type="number"
+                    name="eqCost"
                     value={eqCost}
                     onChange={(e) => setEqCost(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"

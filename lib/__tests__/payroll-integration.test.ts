@@ -34,32 +34,29 @@ const mockEmployees: Employee[] = [
   {
     id: 'emp-001',
     name: 'Juan Pérez',
-    position: 'Maestro de Obras',
-    baseSalary: 12000,
+    role: 'Albañil' as Employee['role'],
     dailyRateGTQ: 400,
+    igssAffiliated: true,
+    phone: '5555-1234',
     hireDate: '2024-01-01',
-    companyId: 'comp-001',
-    isActive: true,
   },
   {
     id: 'emp-002',
     name: 'María González',
-    position: 'Albañil',
-    baseSalary: 8500,
+    role: 'Albañil' as Employee['role'],
     dailyRateGTQ: 283,
+    igssAffiliated: true,
+    phone: '5555-1235',
     hireDate: '2024-01-15',
-    companyId: 'comp-001',
-    isActive: true,
   },
   {
     id: 'emp-003',
     name: 'Carlos López',
-    position: 'Ayudante',
-    baseSalary: 6500,
+    role: 'Ayudante' as Employee['role'],
     dailyRateGTQ: 217,
+    igssAffiliated: true,
+    phone: '5555-1236',
     hireDate: '2024-02-01',
-    companyId: 'comp-001',
-    isActive: true,
   },
 ];
 
@@ -108,12 +105,12 @@ describe('Payroll Integration Tests', () => {
       expect(mockEmployees).toHaveLength(3);
       expect(mockEmployees[0].id).toBeDefined();
       expect(mockEmployees[0].name).toBeDefined();
-      expect(mockEmployees[0].baseSalary).toBeGreaterThan(0);
+      expect(mockEmployees[0].dailyRateGTQ).toBeGreaterThan(0);
       expect(mockEmployees[0].dailyRateGTQ).toBeGreaterThan(0);
     });
 
     it('should filter active employees', () => {
-      const activeEmployees = mockEmployees.filter((emp) => emp.isActive);
+      const activeEmployees = mockEmployees.filter((emp) => emp.igssAffiliated);
       expect(activeEmployees).toHaveLength(3);
     });
 
@@ -355,12 +352,12 @@ describe('Payroll Integration Tests', () => {
     it('should generate payroll data for Excel export', () => {
       const payrollData = mockEmployees.map((emp) => ({
         employee: emp.name,
-        position: emp.position,
-        baseSalary: emp.baseSalary,
+        role: emp.role,
+        dailyRate: emp.dailyRateGTQ,
         daysWorked: 30,
-        grossSalary: emp.baseSalary,
-        igssEmployee: emp.baseSalary * 0.0483,
-        netSalary: emp.baseSalary * (1 - 0.0483 - 0.15),
+        grossSalary: emp.dailyRateGTQ * 30,
+        igssEmployee: emp.dailyRateGTQ * 30 * 0.0483,
+        netSalary: emp.dailyRateGTQ * 30 * (1 - 0.0483 - 0.15),
       }));
 
       expect(payrollData).toHaveLength(3);
@@ -371,8 +368,8 @@ describe('Payroll Integration Tests', () => {
       const igssExport = mockEmployees.map((emp) => ({
         employeeId: emp.id,
         employeeName: emp.name,
-        grossSalary: emp.baseSalary,
-        igssAmount: emp.baseSalary * 0.0483,
+        grossSalary: emp.dailyRateGTQ * 30,
+        igssAmount: emp.dailyRateGTQ * 30 * 0.0483,
         month: 10,
         year: 2024,
       }));

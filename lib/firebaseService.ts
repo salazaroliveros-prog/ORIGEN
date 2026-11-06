@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 import { toast } from 'react-hot-toast';
 
 import {
@@ -64,6 +65,14 @@ const appConfig = {
 };
 
 export const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
+
+// Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente)
+if (typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
 
 // Conexión directa a Firebase/Firestore sin capa intermedia de verificación de aplicaciones.
 
@@ -258,11 +267,26 @@ export async function saveProjectToFirestore(project: Project, companyId: string
       { merge: true }
     );
     notifySyncEnd();
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(`origen.project.${project.code}`, project.id);
+    }
     return true;
   } catch (err) {
     notifySyncEnd();
     handleFirestoreError(err, OperationType.WRITE, path);
     return false;
+  }
+}
+
+export async function getProjectByCode(code: string): Promise<Project | null> {
+  try {
+    const q = query(collection(db, 'projects'), where('code', '==', code), limit(1));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    return snap.docs[0].data() as Project;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, 'projects');
+    return null;
   }
 }
 
@@ -815,6 +839,43 @@ export async function saveAPUItemsToFirestore(
   }
 }
 
+export async function saveAPUItemsToFirestoreServer(
+  items: APUItem[],
+  projectId: string,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  if (items.length > 500) {
+    throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
+  }
+
+  for (const item of items) {
+    const validation = validateAPUItem(item);
+    if (!validation.success) {
+      throw new Error(
+        `Datos de partida APU inválidos (${item.code}): ${validation.error.issues.map((i) => i.message).join(', ')}`
+      );
+    }
+  }
+
+  const path = 'apuItems';
+  try {
+    const batch = writeBatch(db);
+    for (const item of items) {
+      batch.set(
+        doc(db, path, item.id),
+        { ...item, companyId, projectId, createdBy: item.createdBy ?? userId, updatedBy: userId },
+        { merge: true }
+      );
+    }
+    await batch.commit();
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+    return false;
+  }
+}
+
 export async function deleteAPUItemFromFirestore(itemId: string): Promise<boolean> {
   const path = `apuItems/${itemId}`;
   try {
@@ -849,8 +910,11 @@ export async function saveQuoteToFirestore(
 ): Promise<boolean> {
   const path = `quotes/${quote.id}`;
 
+  // Agregar metadatos antes de validar (los campos son requeridos por el schema)
+  const quoteWithMeta = { ...quote, companyId, createdBy: userId, updatedBy: userId };
+
   // Validar datos antes de guardar
-  const validation = validateQuoteRecord(quote);
+  const validation = validateQuoteRecord(quoteWithMeta);
   if (!validation.success) {
     console.error('Quote validation failed:', validation.error);
     throw new Error(
@@ -859,11 +923,7 @@ export async function saveQuoteToFirestore(
   }
 
   try {
-    await setDoc(
-      doc(db, 'quotes', quote.id),
-      { ...quote, companyId, createdBy: userId, updatedBy: userId },
-      { merge: true }
-    );
+    await setDoc(doc(db, 'quotes', quote.id), quoteWithMeta, { merge: true });
     return true;
   } catch (error) {
     notifySyncEnd();

@@ -56,7 +56,7 @@ export function AiAssistantView({ company, activeProject }: AiAssistantViewProps
         body: JSON.stringify({
           action: 'chat',
           message,
-          department: company?.department ?? 'Guatemala',
+          department: company?.legalName ?? 'Guatemala',
           projectContext,
         }),
       });
@@ -111,13 +111,13 @@ export function AiAssistantView({ company, activeProject }: AiAssistantViewProps
           {messages.map((message) => (
             <article
               key={message.id}
-              className={`max-w-3xl rounded-xl p-4 text-sm whitespace-pre-wrap ${
+              className={`max-w-3xl whitespace-pre-wrap rounded-xl p-4 text-sm ${
                 message.role === 'user'
                   ? 'ml-auto bg-blue-600 text-white'
                   : 'border border-slate-700 bg-slate-950 text-slate-200'
               }`}
             >
-              <p className="mb-1 text-[10px] font-bold tracking-wide uppercase opacity-70">
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-wide opacity-70">
                 {message.role === 'user'
                   ? 'Tú'
                   : `Asistente${message.source === 'gemini-ai' ? ' · Gemini' : message.source ? ' · Motor local' : ''}`}
@@ -154,7 +154,7 @@ export function AiAssistantView({ company, activeProject }: AiAssistantViewProps
               onChange={(event) => setInput(event.target.value)}
               placeholder="Escribe una consulta técnica..."
               disabled={isSending}
-              className="min-h-11 flex-1 resize-y rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-60"
+              className="min-h-11 flex-1 resize-y rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
             />
             <button
               type="submit"

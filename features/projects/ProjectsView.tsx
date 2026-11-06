@@ -213,12 +213,12 @@ export function ProjectsView({
         <Card variant="elevated" padding="md">
           <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className="text-brand-secondary h-5 w-5" />
+              <Calendar className="h-5 w-5 text-brand-secondary" />
               <h3 className="text-sm font-semibold text-slate-300">Listado de Proyectos</h3>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-                <label className="flex items-center gap-2 tracking-normal normal-case">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <label className="flex items-center gap-2 normal-case tracking-normal">
                   <span>Mostrar</span>
                   <select
                     value={showArchived ? 'archived' : 'active'}
@@ -249,7 +249,7 @@ export function ProjectsView({
                         <span className="block truncate text-sm font-semibold text-slate-200">
                           {p.code || 'PRO-001'}
                         </span>
-                        <span className="text-base leading-tight font-bold text-white">
+                        <span className="text-base font-bold leading-tight text-white">
                           {p.name || 'Proyecto sin nombre'}
                         </span>
                       </div>
@@ -264,7 +264,7 @@ export function ProjectsView({
 
                   <div className="flex w-full flex-col items-end gap-3 lg:w-auto lg:flex-row">
                     <div className="flex items-center gap-2">
-                      <span className="rounded border border-amber-400/30 bg-amber-400/20 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-300 uppercase">
+                      <span className="rounded border border-amber-400/30 bg-amber-400/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">
                         {p.status || 'Planificación'}
                       </span>
                       <span className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[10px] text-slate-300">
@@ -377,7 +377,7 @@ export function ProjectsView({
           }}
           onSave={(values) =>
             editingProject
-              ? onUpdateProject(editingProject.id, values)
+              ? onUpdateProject(editingProject.id ?? '', values)
               : onCreateProject(values, onProjectCreated)
           }
           editingProject={editingProject}
@@ -386,7 +386,7 @@ export function ProjectsView({
 
       {/* Modal para subir fotos de avance */}
       {photoModalOpen && selectedProjectForPhotos && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+        <div className="backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
           <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-200 p-5">
               <div>

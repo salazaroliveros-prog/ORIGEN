@@ -100,7 +100,9 @@ describe('APU & Budget Calculations', () => {
 
     it('should throw error for invalid code', () => {
       expect(() => validateAPUItem({ ...validItem, code: '' })).toThrow('validation failed');
-      expect(() => validateAPUItem({ ...validItem, code: null })).toThrow('validation failed');
+      expect(() => validateAPUItem({ ...validItem, code: null as unknown as string })).toThrow(
+        'validation failed'
+      );
     });
 
     it('should throw error for invalid quantity', () => {
@@ -308,8 +310,8 @@ describe('Payroll Calculations (Guatemala)', () => {
     });
 
     it('should throw error for invalid inputs', () => {
-      expect(() => calculatePayroll(mockEmployee, -5)).toThrow('between 0-30');
-      expect(() => calculatePayroll(mockEmployee, 35)).toThrow('between 0-30');
+      expect(() => calculatePayroll(mockEmployee, -5)).toThrow('between 0-31');
+      expect(() => calculatePayroll(mockEmployee, 35)).toThrow('between 0-31');
       expect(() => calculatePayroll({ ...mockEmployee, dailyRateGTQ: -100 }, 20)).toThrow(
         'positive'
       );

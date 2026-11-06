@@ -161,6 +161,7 @@ describe('Firestore service emulator integration', () => {
       hourlyRateGTQ: 300,
       currentHorometer: 0,
       status: 'Disponible' as const,
+      createdBy: user.user.uid,
     };
 
     try {

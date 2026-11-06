@@ -124,6 +124,7 @@ export const ProjectLegacySchema = z
   .strict();
 
 export interface ProjectFormProject {
+  id?: string;
   code: string;
   name: string;
   client: string;

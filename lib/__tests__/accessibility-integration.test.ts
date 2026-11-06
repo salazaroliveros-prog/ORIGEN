@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Accessibility Integration Tests
- * 
+ *
  * Tests de integración para accesibilidad (a11y)
  */
 
@@ -75,7 +75,7 @@ describe('Accessibility Integration Tests', () => {
 
     it('should validate aria-label', () => {
       expect(mockARIAAttributes['aria-label']).toBeDefined();
-      expect(mockARIAAttributes['aria-label'].length).toBeGreaterThan(0);
+      expect(String(mockARIAAttributes['aria-label']).length).toBeGreaterThan(0);
     });
 
     it('should validate aria-labelledby', () => {
@@ -118,7 +118,7 @@ describe('Accessibility Integration Tests', () => {
         tabIndex: -1,
         focusable: false,
       };
-      
+
       expect(nonFocusable.tabIndex).toBe(-1);
       expect(nonFocusable.focusable).toBe(false);
     });
@@ -129,7 +129,7 @@ describe('Accessibility Integration Tests', () => {
           console.log('Enter pressed');
         }
       };
-      
+
       expect(typeof handleEnter).toBe('function');
     });
 
@@ -139,7 +139,7 @@ describe('Accessibility Integration Tests', () => {
           console.log('Escape pressed');
         }
       };
-      
+
       expect(typeof handleEscape).toBe('function');
     });
   });
@@ -179,7 +179,7 @@ describe('Accessibility Integration Tests', () => {
         ratio: 1.2,
         passesWCAG: false,
       };
-      
+
       expect(lowContrast.passesWCAG).toBe(false);
     });
   });
@@ -209,7 +209,7 @@ describe('Accessibility Integration Tests', () => {
         trapFocus: true,
         restoreFocus: true,
       };
-      
+
       expect(modalFocus.autoFocus).toBe(true);
       expect(modalFocus.trapFocus).toBe(true);
     });
@@ -221,7 +221,7 @@ describe('Accessibility Integration Tests', () => {
         'aria-live': 'polite',
         'aria-atomic': true,
       };
-      
+
       expect(liveRegion['aria-live']).toBeDefined();
       expect(liveRegion['aria-atomic']).toBeDefined();
     });
@@ -231,7 +231,7 @@ describe('Accessibility Integration Tests', () => {
         role: 'alert',
         'aria-live': 'assertive',
       };
-      
+
       expect(alert.role).toBe('alert');
       expect(alert['aria-live']).toBe('assertive');
     });
@@ -247,7 +247,7 @@ describe('Accessibility Integration Tests', () => {
         role: 'heading',
         'aria-level': '2',
       };
-      
+
       expect(heading.level).toBe(2);
       expect(heading['aria-level']).toBe('2');
     });
@@ -260,7 +260,7 @@ describe('Accessibility Integration Tests', () => {
         label: 'Email',
         labelledBy: 'email-label',
       };
-      
+
       expect(formField.id).toBeDefined();
       expect(formField.label).toBeDefined();
     });
@@ -270,7 +270,7 @@ describe('Accessibility Integration Tests', () => {
         required: true,
         'aria-required': 'true',
       };
-      
+
       expect(requiredField.required).toBe(true);
       expect(requiredField['aria-required']).toBe('true');
     });
@@ -281,7 +281,7 @@ describe('Accessibility Integration Tests', () => {
         'aria-invalid': 'true',
         'aria-describedby': 'email-error',
       };
-      
+
       expect(fieldWithError['aria-invalid']).toBe('true');
       expect(fieldWithError['aria-describedby']).toBe('email-error');
     });
@@ -290,7 +290,7 @@ describe('Accessibility Integration Tests', () => {
       const field = {
         placeholder: 'Enter your email',
       };
-      
+
       expect(field.placeholder).toBeDefined();
     });
   });
@@ -301,7 +301,7 @@ describe('Accessibility Integration Tests', () => {
         src: '/image.jpg',
         alt: 'Description of image',
       };
-      
+
       expect(image.alt).toBeDefined();
       expect(image.alt.length).toBeGreaterThan(0);
     });
@@ -312,7 +312,7 @@ describe('Accessibility Integration Tests', () => {
         alt: '',
         role: 'presentation',
       };
-      
+
       expect(decorativeImage.alt).toBe('');
       expect(decorativeImage.role).toBe('presentation');
     });
@@ -323,7 +323,7 @@ describe('Accessibility Integration Tests', () => {
         alt: 'Sales chart showing 50 percent increase',
         longDesc: '/chart-description.html',
       };
-      
+
       expect(complexImage.alt).toBeDefined();
       expect(complexImage.longDesc).toBeDefined();
     });
@@ -335,7 +335,7 @@ describe('Accessibility Integration Tests', () => {
         href: '/about',
         text: 'About Us',
       };
-      
+
       expect(link.text).toBeDefined();
       expect(link.text.length).toBeGreaterThan(0);
     });
@@ -345,7 +345,7 @@ describe('Accessibility Integration Tests', () => {
         href: '/projects',
         text: 'View all projects',
       };
-      
+
       expect(descriptiveLink.text).toContain('projects');
     });
 
@@ -354,7 +354,7 @@ describe('Accessibility Integration Tests', () => {
         href: '/about',
         text: 'click here',
       };
-      
+
       expect(nonDescriptiveLink.text).toBe('click here');
     });
 
@@ -364,7 +364,7 @@ describe('Accessibility Integration Tests', () => {
         'aria-label': 'Opens in new tab',
         target: '_blank',
       };
-      
+
       expect(externalLink.target).toBe('_blank');
       expect(externalLink['aria-label']).toContain('new tab');
     });
@@ -375,7 +375,7 @@ describe('Accessibility Integration Tests', () => {
       const table = {
         caption: 'Project List',
       };
-      
+
       expect(table.caption).toBeDefined();
     });
 
@@ -388,7 +388,7 @@ describe('Accessibility Integration Tests', () => {
       const th = {
         scope: 'col',
       };
-      
+
       expect(th.scope).toBe('col');
     });
 
@@ -396,7 +396,7 @@ describe('Accessibility Integration Tests', () => {
       const rowHeader = {
         scope: 'row',
       };
-      
+
       expect(rowHeader.scope).toBe('row');
     });
   });
@@ -405,11 +405,9 @@ describe('Accessibility Integration Tests', () => {
     it('should validate video captions', () => {
       const video = {
         src: '/video.mp4',
-        tracks: [
-          { kind: 'captions', src: '/captions.vtt', label: 'English' },
-        ],
+        tracks: [{ kind: 'captions', src: '/captions.vtt', label: 'English' }],
       };
-      
+
       expect(video.tracks).toHaveLength(1);
       expect(video.tracks[0].kind).toBe('captions');
     });
@@ -417,11 +415,9 @@ describe('Accessibility Integration Tests', () => {
     it('should validate audio description', () => {
       const video = {
         src: '/video.mp4',
-        tracks: [
-          { kind: 'descriptions', src: '/descriptions.vtt', label: 'Audio Description' },
-        ],
+        tracks: [{ kind: 'descriptions', src: '/descriptions.vtt', label: 'Audio Description' }],
       };
-      
+
       expect(video.tracks[0].kind).toBe('descriptions');
     });
 
@@ -429,7 +425,7 @@ describe('Accessibility Integration Tests', () => {
       const video = {
         controls: true,
       };
-      
+
       expect(video.controls).toBe(true);
     });
   });
@@ -452,7 +448,7 @@ describe('Accessibility Integration Tests', () => {
         main: 'main-content',
         footer: 'site-footer',
       };
-      
+
       expect(Object.keys(landmarks)).toHaveLength(4);
     });
   });

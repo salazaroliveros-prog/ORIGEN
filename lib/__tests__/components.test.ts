@@ -18,7 +18,7 @@ const localStorageMock = (() => {
 })();
 
 // Setup localStorage globally for all tests
-global.localStorage = localStorageMock;
+global.localStorage = localStorageMock as unknown as Storage;
 
 // Test 1: Authentication Component
 describe('AuthContainer Component', () => {

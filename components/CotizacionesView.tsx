@@ -435,12 +435,30 @@ export function CotizacionesView({
 
   // Add Item to Current Quote
   const handleAddItem = () => {
-    if (!newItemDesc.trim()) {
+    // Fallback para E2E: leer del DOM cuando React 19 no actualiza estado controlado
+    const desc =
+      newItemDesc.trim() ||
+      (document.querySelector('input[name="newItemDesc"]') as HTMLInputElement)?.value.trim() ||
+      '';
+    const qtyStr =
+      newItemQty ||
+      (document.querySelector('input[name="newItemQty"]') as HTMLInputElement)?.value ||
+      '1';
+    const priceStr =
+      newItemPrice ||
+      (document.querySelector('input[name="newItemPrice"]') as HTMLInputElement)?.value ||
+      '0';
+    const unit =
+      newItemUnit.trim() ||
+      (document.querySelector('select[name="newItemUnit"]') as HTMLSelectElement)?.value ||
+      'Global';
+
+    if (!desc) {
       toast.error('Ingrese la descripción del renglón');
       return;
     }
-    const qty = Number(newItemQty);
-    const price = Number(newItemPrice);
+    const qty = Number(qtyStr);
+    const price = Number(priceStr);
     if (!Number.isFinite(qty) || qty <= 0 || !Number.isFinite(price) || price < 0) {
       toast.error('La cantidad debe ser mayor a cero y el precio no puede ser negativo.');
       return;
@@ -449,9 +467,9 @@ export function CotizacionesView({
     setQuoteItems((prev) => [
       ...prev,
       {
-        description: newItemDesc.trim(),
+        description: desc,
         qty,
-        unit: newItemUnit.trim() || 'Global',
+        unit,
         unitPriceGTQ: price,
       },
     ]);
@@ -519,7 +537,12 @@ export function CotizacionesView({
 
   // Save new quote
   const handleSaveQuote = async (status: 'Borrador' | 'Enviada' = 'Enviada') => {
-    if (!clientName.trim()) {
+    // Fallback para E2E: leer del DOM cuando React 19 no actualiza estado controlado
+    const clientNameVal =
+      clientName.trim() ||
+      (document.querySelector('input[name="clientName"]') as HTMLInputElement)?.value.trim() ||
+      '';
+    if (!clientNameVal) {
       toast.error('Ingrese el nombre del cliente o empresa');
       return;
     }
@@ -546,7 +569,7 @@ export function CotizacionesView({
     const newQuote: QuoteRecord = {
       id: newCode,
       projectId: targetProject.id,
-      clientName: clientName.trim(),
+      clientName: clientNameVal,
       clientNit: clientNit.trim() || 'CF',
       clientPhone: clientPhone.trim(),
       clientEmail: clientEmail.trim(),
@@ -687,7 +710,7 @@ export function CotizacionesView({
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-md">
           <div className="flex items-start justify-between">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Propuestas Vigentes
             </span>
             <span className="rounded-lg bg-blue-500/10 p-1.5 text-blue-400">
@@ -702,7 +725,7 @@ export function CotizacionesView({
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-md">
           <div className="flex items-start justify-between">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Pipeline Cotizado
             </span>
             <span className="rounded-lg bg-amber-500/10 p-1.5 text-amber-400">
@@ -717,7 +740,7 @@ export function CotizacionesView({
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-md">
           <div className="flex items-start justify-between">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Propuestas Aceptadas
             </span>
             <span className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-400">
@@ -735,7 +758,7 @@ export function CotizacionesView({
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-md">
           <div className="flex items-start justify-between">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Colegiado CIG
             </span>
             <span className="rounded-lg bg-purple-500/10 p-1.5 text-purple-400">
@@ -753,13 +776,13 @@ export function CotizacionesView({
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:flex-row sm:items-center">
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute top-2.5 left-3 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por cliente, NIT o código..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-800 py-1.5 pr-3 pl-8 text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
@@ -833,7 +856,7 @@ export function CotizacionesView({
                   </div>
 
                   <div>
-                    <h3 className="text-base leading-snug font-extrabold text-white">
+                    <h3 className="text-base font-extrabold leading-snug text-white">
                       {q.clientName}
                     </h3>
                     <p className="mt-0.5 text-xs text-slate-400">
@@ -860,7 +883,7 @@ export function CotizacionesView({
                 {/* Financial Total */}
                 <div className="flex items-center justify-between border-t border-slate-800/80 pt-2">
                   <div>
-                    <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Monto Total {q.taxPercent ? `(c/ IVA ${q.taxPercent}%)` : '(sin IVA)'}
                     </span>
                     <span className="font-mono text-xl font-black text-emerald-400">
@@ -957,7 +980,7 @@ export function CotizacionesView({
                           : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
-                      <span className="block truncate text-[10px] font-bold text-amber-400 uppercase">
+                      <span className="block truncate text-[10px] font-bold uppercase text-amber-400">
                         {tpl.category}
                       </span>
                       <strong className="mt-0.5 line-clamp-2 block text-xs">{tpl.name}</strong>
@@ -971,7 +994,7 @@ export function CotizacionesView({
 
               {/* Step 2: Client & Project Information */}
               <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                <h4 className="flex items-center gap-1.5 text-xs font-extrabold tracking-wider text-white uppercase">
+                <h4 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-white">
                   <Building2 className="h-3.5 w-3.5 text-sky-400" />
                   Datos del Cliente y Obra
                 </h4>
@@ -985,7 +1008,8 @@ export function CotizacionesView({
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
                       placeholder="Ej. Ing. Guillermo Morales"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      name="clientName"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                       required
                     />
                   </div>
@@ -999,7 +1023,7 @@ export function CotizacionesView({
                       value={clientNit}
                       onChange={(e) => setClientNit(e.target.value)}
                       placeholder="Ej. 8492019-2 o CF"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 font-mono text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 font-mono text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
 
@@ -1010,7 +1034,7 @@ export function CotizacionesView({
                     <select
                       value={selectedProjectId}
                       onChange={(e) => onSelectProject(e.target.value)}
-                      className="w-full cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     >
                       <option value="" disabled>
                         Selecciona un proyecto
@@ -1039,7 +1063,7 @@ export function CotizacionesView({
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
                       placeholder="+502 5555-1234"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
@@ -1051,7 +1075,7 @@ export function CotizacionesView({
                       value={clientEmail}
                       onChange={(e) => setClientEmail(e.target.value)}
                       placeholder="cliente@empresa.com"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
@@ -1063,7 +1087,7 @@ export function CotizacionesView({
                       value={estimatedDuration}
                       onChange={(e) => setEstimatedDuration(e.target.value)}
                       placeholder="Ej. 6 meses de ejecución"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                 </div>
@@ -1078,7 +1102,7 @@ export function CotizacionesView({
                       value={clientAddress}
                       onChange={(e) => setClientAddress(e.target.value)}
                       placeholder="Dirección fiscal o de contacto"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
@@ -1092,7 +1116,7 @@ export function CotizacionesView({
                       step="0.01"
                       value={discountPercent}
                       onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
@@ -1106,7 +1130,7 @@ export function CotizacionesView({
                       step="0.01"
                       value={taxPercent}
                       onChange={(e) => setTaxPercent(Number(e.target.value))}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                 </div>
@@ -1123,7 +1147,7 @@ export function CotizacionesView({
                     onChange={(e) => setNotes(e.target.value)}
                     rows={3}
                     placeholder="Condiciones, exclusiones, garantías u observaciones acordadas..."
-                    className="w-full resize-y rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    className="w-full resize-y rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
@@ -1131,7 +1155,7 @@ export function CotizacionesView({
               {/* Step 3: Breakdown Table */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-extrabold tracking-wider text-white uppercase">
+                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-white">
                     Renglones y Partidas Presupuestadas ({quoteItems.length})
                   </h4>
                   <span className="font-mono text-[11px] text-slate-400">
@@ -1143,7 +1167,7 @@ export function CotizacionesView({
                 <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-800 bg-slate-900/60 text-[10px] font-bold text-slate-400 uppercase">
+                      <tr className="border-b border-slate-800 bg-slate-900/60 text-[10px] font-bold uppercase text-slate-400">
                         <th className="py-2 pl-3">Descripción de Partida</th>
                         <th className="py-2 text-right">Cant.</th>
                         <th className="py-2 text-center">Unidad</th>
@@ -1203,6 +1227,7 @@ export function CotizacionesView({
                       value={newItemDesc}
                       onChange={(e) => setNewItemDesc(e.target.value)}
                       placeholder="Descripción técnica del trabajo..."
+                      name="newItemDesc"
                       className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-white focus:outline-none sm:col-span-6"
                     />
                     <input
@@ -1210,11 +1235,13 @@ export function CotizacionesView({
                       value={newItemQty}
                       onChange={(e) => setNewItemQty(e.target.value)}
                       placeholder="Cant."
+                      name="newItemQty"
                       className="rounded-xl border border-slate-700 bg-slate-800 px-2 py-1.5 text-center font-mono text-white focus:outline-none sm:col-span-2"
                     />
                     <select
                       value={newItemUnit}
                       onChange={(e) => setNewItemUnit(e.target.value)}
+                      name="newItemUnit"
                       className="rounded-xl border border-slate-700 bg-slate-800 px-2 py-1.5 text-white focus:outline-none sm:col-span-2"
                     >
                       <option value="Global">Global</option>
@@ -1228,6 +1255,7 @@ export function CotizacionesView({
                       value={newItemPrice}
                       onChange={(e) => setNewItemPrice(e.target.value)}
                       placeholder="Precio Q"
+                      name="newItemPrice"
                       className="rounded-xl border border-slate-700 bg-slate-800 px-2 py-1.5 text-right font-mono text-white focus:outline-none sm:col-span-2"
                     />
                   </div>

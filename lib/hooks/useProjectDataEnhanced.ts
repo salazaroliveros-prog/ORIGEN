@@ -69,11 +69,7 @@ import { notifySyncEnd } from './useFirebaseSyncStatus';
 // Import new utilities
 import { createLogger } from '@/lib/utils/logger';
 import { queryCache, createCacheKey } from '@/lib/utils/cacheManager';
-import {
-  validateAPUItem,
-  calculateBudgetSummary,
-  validateCurrencyAmount,
-} from '@/lib/utils/calculations';
+import { validateAPUItem, calculateBudgetSummary } from '@/lib/utils/calculations';
 import { validateData, validationSchemas } from '@/lib/utils/validation';
 
 // Create module logger
@@ -331,7 +327,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
 
       const validation = validateProjectForm(data);
       if (!validation.success) {
-        log.warn('Project validation failed', undefined, {
+        log.warn('Project validation failed', {
           errors: validation.error.issues.map((i) => i.message),
         });
         toast.error('Datos inválidos: ' + validation.error.issues.map((i) => i.message).join(', '));
@@ -361,7 +357,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           return true;
         }
 
-        log.error('Project creation failed in Firestore', undefined, { projectId, companyId });
+        log.error('Project creation failed in Firestore', { projectId, companyId });
         toast.error('Error al crear el proyecto');
         return false;
       } catch (err) {
@@ -389,7 +385,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       try {
         const existing = projects.find((p) => p.id === projectId);
         if (!existing) {
-          log.warn('Project not found for update', undefined, { projectId });
+          log.warn('Project not found for update', { projectId });
           toast.error('Proyecto no encontrado');
           return false;
         }
@@ -413,7 +409,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           return true;
         }
 
-        log.error('Project update failed in Firestore', undefined, { projectId });
+        log.error('Project update failed in Firestore', { projectId });
         toast.error('Error al actualizar el proyecto');
         return false;
       } catch (err) {
@@ -439,13 +435,13 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
 
       const project = projects.find((item) => item.id === projectId);
       if (!project) {
-        log.warn('Project not found for archival', undefined, { projectId });
+        log.warn('Project not found for archival', { projectId });
         toast.error('No se encontró el proyecto que quieres archivar.');
         return false;
       }
 
       if (project.status === 'Archivado') {
-        log.warn('Attempted to archive already archived project', undefined, { projectId });
+        log.warn('Attempted to archive already archived project', { projectId });
         toast.error('Este proyecto ya está archivado.');
         return false;
       }
@@ -465,7 +461,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         );
 
         if (!archived) {
-          log.error('Project archival failed', undefined, { projectId });
+          log.error('Project archival failed', { projectId });
           toast.error('No se pudo archivar el proyecto. No se eliminó ningún dato relacionado.');
           return false;
         }
@@ -501,7 +497,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
 
       const project = projects.find((item) => item.id === projectId);
       if (!project || project.status !== 'Archivado') {
-        log.warn('Archived project not found for restoration', undefined, { projectId });
+        log.warn('Archived project not found for restoration', { projectId });
         toast.error('No se encontró un proyecto archivado para restaurar.');
         return false;
       }
@@ -520,7 +516,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         );
 
         if (!restored) {
-          log.error('Project restoration failed', undefined, { projectId });
+          log.error('Project restoration failed', { projectId });
           toast.error('No se pudo restaurar el proyecto.');
           return false;
         }
@@ -553,16 +549,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       }
 
       try {
-        // Validate expense amount
-        const amountValidation = validateCurrencyAmount(expense.amount, expense.currency);
-        if (!amountValidation.valid) {
-          log.warn('Expense amount validation failed', undefined, {
-            error: amountValidation.error,
-          });
-          toast.error(amountValidation.error || 'Monto inválido');
-          return false;
-        }
-
         log.info('Creating expense', { projectId: expense.projectId, amount: expense.amount });
         const ok = await saveExpenseToFirestore(expense, companyId, currentUserId);
         if (ok) {
@@ -574,7 +560,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           return true;
         }
 
-        log.error('Expense creation failed in Firestore', undefined, {
+        log.error('Expense creation failed in Firestore', {
           expenseId: expense.id,
         });
         toast.error('Error al guardar el gasto');
@@ -612,7 +598,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           return true;
         }
 
-        log.error('Expense deletion failed', undefined, { expenseId });
+        log.error('Expense deletion failed', { expenseId });
         toast.error('Error al eliminar el gasto');
         return false;
       } catch (err) {
@@ -634,16 +620,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       }
 
       try {
-        // Validate expense amount
-        const amountValidation = validateCurrencyAmount(expense.amount, expense.currency);
-        if (!amountValidation.valid) {
-          log.warn('Expense amount validation failed on update', undefined, {
-            error: amountValidation.error,
-          });
-          toast.error(amountValidation.error || 'Monto inválido');
-          return false;
-        }
-
         log.info('Updating expense', { expenseId: expense.id });
         const ok = await updateExpenseToFirestore(expense, companyId, currentUserId);
         if (ok) {
@@ -655,7 +631,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           return true;
         }
 
-        log.error('Expense update failed in Firestore', undefined, { expenseId: expense.id });
+        log.error('Expense update failed in Firestore', { expenseId: expense.id });
         toast.error('Error al actualizar el gasto');
         return false;
       } catch (err) {
@@ -693,7 +669,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           return true;
         }
 
-        log.error('Attendance recording failed', undefined, { attendanceId: record.id });
+        log.error('Attendance recording failed', { attendanceId: record.id });
         toast.error('No se pudo guardar la asistencia');
         return false;
       } catch (err) {
@@ -715,7 +691,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       }
 
       if (!attendance.some((record) => record.id === attendanceId)) {
-        log.warn('Attendance record not found', undefined, { attendanceId });
+        log.warn('Attendance record not found', { attendanceId });
         toast.error('No se encontró el registro de asistencia.');
         return false;
       }
@@ -732,7 +708,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           const cacheKey = createCacheKey('attendance', { companyId });
           queryCache.clear(cacheKey);
         } else {
-          log.error('Attendance deletion failed', undefined, { attendanceId });
+          log.error('Attendance deletion failed', { attendanceId });
           toast.error('No se pudo eliminar el registro de asistencia.');
         }
         return deleted;
@@ -755,7 +731,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       }
 
       if (!projectId || !projects.some((project) => project.id === projectId)) {
-        log.warn('Invalid project for APU save', undefined, { projectId });
+        log.warn('Invalid project for APU save', { projectId });
         toast.error('Selecciona un proyecto válido para guardar las partidas APU.');
         return false;
       }
@@ -782,7 +758,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         );
 
         if (!saved) {
-          log.error('APU items save failed in Firestore', undefined, { projectId });
+          log.error('APU items save failed in Firestore', { projectId });
           toast.error('No se pudo guardar el presupuesto APU.');
           return false;
         }
@@ -810,7 +786,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       }
 
       if (!apuItems.some((item) => item.id === itemId && item.companyId === companyId)) {
-        log.warn('APU item not found in company', undefined, { itemId });
+        log.warn('APU item not found in company', { itemId });
         toast.error('No se encontró la partida APU en esta empresa.');
         return false;
       }
@@ -819,7 +795,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         log.info('Deleting APU item', { itemId });
         const deleted = await deleteAPUItemFromFirestore(itemId);
         if (!deleted) {
-          log.error('APU item deletion failed', undefined, { itemId });
+          log.error('APU item deletion failed', { itemId });
           toast.error('No se pudo eliminar la partida APU.');
           return false;
         }
@@ -851,7 +827,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         log.info('Creating employee', { employeeName: employee.name, role: employee.role });
         const saved = await saveEmployeeToFirestore(employee, companyId, currentUserId);
         if (!saved) {
-          log.error('Employee creation failed', undefined, {
+          log.error('Employee creation failed', {
             employeeName: employee.name,
           });
           toast.error('No se pudo guardar el empleado.');
@@ -889,7 +865,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         });
         const saved = await saveQuoteToFirestore(quote, companyId, currentUserId);
         if (!saved) {
-          log.error('Quote creation failed', undefined, { quoteId: quote.id });
+          log.error('Quote creation failed', { quoteId: quote.id });
           toast.error('No se pudo guardar la cotización.');
           return false;
         }
@@ -918,7 +894,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
 
       const quote = quotes.find((item) => item.id === quoteId);
       if (!quote) {
-        log.warn('Quote not found for status update', undefined, { quoteId });
+        log.warn('Quote not found for status update', { quoteId });
         toast.error('No se encontró la cotización.');
         return false;
       }
@@ -927,7 +903,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         log.info('Updating quote status', { quoteId, newStatus: status });
         const saved = await updateQuoteStatusInFirestore(quote, status, companyId, currentUserId);
         if (!saved) {
-          log.error('Quote status update failed', undefined, { quoteId });
+          log.error('Quote status update failed', { quoteId });
           toast.error('No se pudo actualizar el estado de la cotización.');
           return false;
         }
@@ -962,7 +938,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         });
         const saved = await saveMachineryToFirestore(item, companyId, currentUserId);
         if (!saved) {
-          log.error('Machinery creation failed', undefined, { machineryId: item.id });
+          log.error('Machinery creation failed', { machineryId: item.id });
           toast.error('No se pudo guardar la maquinaria.');
           return false;
         }
@@ -991,7 +967,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
 
       const equipment = machinery.find((item) => item.id === log_.machineryId);
       if (!equipment) {
-        log.warn('Machinery not found for log', undefined, {
+        log.warn('Machinery not found for log', {
           machineryId: log_.machineryId,
         });
         toast.error('No se encontró la maquinaria seleccionada.');
@@ -1005,7 +981,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         });
         const saved = await recordMachineryUse(log_, equipment, companyId, currentUserId);
         if (!saved) {
-          log.error('Machinery log creation failed', undefined, { logId: log_.id });
+          log.error('Machinery log creation failed', { logId: log_.id });
           toast.error('No se pudo registrar el uso y costo de maquinaria.');
           return false;
         }
@@ -1031,7 +1007,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
 
       const equipment = machinery.find((item) => item.id === machineryId);
       if (!equipment) {
-        log.warn('Machinery not found for status update', undefined, { machineryId });
+        log.warn('Machinery not found for status update', { machineryId });
         toast.error('No se encontró la maquinaria seleccionada.');
         return false;
       }
@@ -1045,7 +1021,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           currentUserId
         );
         if (!saved) {
-          log.error('Machinery status update failed', undefined, { machineryId });
+          log.error('Machinery status update failed', { machineryId });
           toast.error('No se pudo actualizar el estado de la maquinaria.');
           return false;
         }

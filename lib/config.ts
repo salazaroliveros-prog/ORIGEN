@@ -7,6 +7,7 @@ export type FirebaseRuntimeConfig = {
   messagingSenderId: string;
   measurementId: string;
   firestoreDatabaseId: string;
+  appCheckRecaptchaKey: string;
 };
 
 // Usar directamente variables de entorno - ignorar archivo JSON
@@ -19,6 +20,7 @@ export const firebaseRuntimeConfig: FirebaseRuntimeConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
   firestoreDatabaseId: process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID || '',
+  appCheckRecaptchaKey: process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_RECAPTCHA_KEY || '',
 };
 
 export function getGeminiApiKey(): string {

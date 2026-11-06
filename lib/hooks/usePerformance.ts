@@ -32,7 +32,7 @@ export function useRenderTime(componentName: string): void {
  * Hook to track when a component re-renders
  */
 export function useWhyDidYouUpdate(name: string, props: any): void {
-  const previousProps = useRef<any>();
+  const previousProps = useRef<any>(undefined);
 
   useEffect(() => {
     if (previousProps.current) {

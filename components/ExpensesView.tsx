@@ -97,10 +97,9 @@ export function ExpensesView({ projectId }: { projectId: string }) {
   });
 
   // Pagination
-  const { currentPage, pageSize, totalPages, paginatedItems, goToPage } = usePagination(
-    expenses,
-    15
-  );
+  const { currentPage, totalPages, paginatedItems, goToPage } = usePagination(expenses, {
+    itemsPerPage: 15,
+  });
 
   // Simulate data load
   useEffect(() => {
@@ -195,14 +194,14 @@ export function ExpensesView({ projectId }: { projectId: string }) {
         id: editingId || `exp-${Date.now()}`,
         projectId,
         date: formData.date,
-        category: formData.category,
+        category: formData.category as ExpenseRecord['category'],
         description: formData.description,
         supplier: formData.supplier,
         nitSupplier: formData.nitSupplier,
         facturaNumber: formData.facturaNumber,
         amount: parseFloat(formData.amount),
-        currency: formData.currency,
-        paymentMethod: formData.paymentMethod,
+        currency: formData.currency as ExpenseRecord['currency'],
+        paymentMethod: formData.paymentMethod as ExpenseRecord['paymentMethod'],
       };
 
       if (editingId) {
@@ -412,7 +411,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.date ? 'border-red-500' : 'border-slate-300'
                   }`}
                 />
@@ -424,7 +423,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.category ? 'border-red-500' : 'border-slate-300'
                   }`}
                 >
@@ -448,7 +447,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                     setFormData({ ...formData, description: e.target.value });
                     if (formErrors.description) setFormErrors({ ...formErrors, description: '' });
                   }}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.description ? 'border-red-500' : 'border-slate-300'
                   }`}
                   placeholder="Cemento y Arena"
@@ -465,7 +464,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                     setFormData({ ...formData, supplier: e.target.value });
                     if (formErrors.supplier) setFormErrors({ ...formErrors, supplier: '' });
                   }}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.supplier ? 'border-red-500' : 'border-slate-300'
                   }`}
                   placeholder="Cementos Progreso"
@@ -486,7 +485,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                       : ''
                   }
                   onChange={(e) => handleAmountChange(e.target.value)}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     formErrors.amount ? 'border-red-500' : 'border-slate-300'
                   }`}
                   placeholder="Q 0.00"
