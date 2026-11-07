@@ -13,9 +13,15 @@ import {
   MAX_DESCRIPTION_LENGTH,
   MAX_TEXT_LENGTH,
 } from '@/lib/api';
+import { rateLimitMiddleware, getClientIp } from '@/lib/security';
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting
+    const clientIp = getClientIp(req);
+    const rateLimitResponse = rateLimitMiddleware(`gemini:${clientIp}`);
+    if (rateLimitResponse) return rateLimitResponse;
+
     // Validate origin for security
     const origin = req.headers.get('origin');
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [

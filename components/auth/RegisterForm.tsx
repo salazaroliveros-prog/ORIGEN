@@ -7,6 +7,28 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { designTokens } from '@/lib/design-tokens';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { validateRegisterForm, RegisterFormValues } from '@/lib/validation/auth.schema';
+
+function UserPlusIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="8.5" cy="7" r="4" />
+      <polyline points="16 11 16 17 23 17" />
+    </svg>
+  );
+}
 
 interface RegisterFormProps {
   onAuthenticated: () => void;
@@ -19,6 +41,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof RegisterFormValues, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
   const { register, status } = useAuthSession();
 
@@ -27,19 +50,14 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
 
-    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError('Por favor completa todos los campos.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres.');
+    const validation = validateRegisterForm({ email, password, confirmPassword });
+    if (!validation.success) {
+      for (const issue of validation.error.issues) {
+        const path = issue.path[0] as keyof RegisterFormValues;
+        setFieldErrors((prev) => ({ ...prev, [path]: issue.message }));
+      }
       return;
     }
 
@@ -62,7 +80,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
     <Card variant="overlay" padding="lg" className={`${className} mx-auto w-full max-w-md`}>
       <div className="mb-8 text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-          <UserPlus className="h-6 w-6" />
+          <UserPlusIcon className="h-6 w-6" />
         </div>
         <h2 className="mb-2 text-2xl font-bold text-slate-100">Crear cuenta</h2>
         <p className="text-sm text-slate-400">Regístrate para acceder a ConstructERP Guatemala</p>
@@ -85,6 +103,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
           leftIcon={<Mail className="h-4 w-4" />}
           required
           autoComplete="email"
+          error={fieldErrors.email}
           disabled={isAuthenticating}
         />
         <Input
@@ -96,7 +115,8 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
           leftIcon={<Lock className="h-4 w-4" />}
           required
           autoComplete="new-password"
-          minLength={6}
+          minLength={8}
+          error={fieldErrors.password}
           disabled={isAuthenticating}
         />
         <Input
@@ -108,6 +128,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
           leftIcon={<Lock className="h-4 w-4" />}
           required
           autoComplete="new-password"
+          error={fieldErrors.confirmPassword}
           disabled={isAuthenticating}
         />
         <Button

@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError } from '@/lib/api';
+import { rateLimitMiddleware, getClientIp } from '@/lib/security';
 
 interface WeatherPayload {
   temperatureC: number;
@@ -147,6 +148,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  // Rate limiting
+  const clientIp = getClientIp(req);
+  const rateLimitResponse = rateLimitMiddleware(`weather:${clientIp}`);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { searchParams } = new URL(req.url);
   const params = extractParams({
     lat: searchParams.get('lat'),

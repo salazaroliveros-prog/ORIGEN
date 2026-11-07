@@ -1,10 +1,47 @@
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from '@/lib/config';
+import { rateLimitMiddleware, getClientIp } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
-  if (!hasFirebaseRuntimeConfig()) {
-    return new Response('throw new Error("Firebase configuration is incomplete.");', {
+export async function GET(req: Request) {
+  try {
+    // Rate limiting
+    const clientIp = getClientIp(req);
+    const rateLimitResponse = rateLimitMiddleware(`firebase-config:${clientIp}`);
+    if (rateLimitResponse) return rateLimitResponse;
+
+    if (!hasFirebaseRuntimeConfig()) {
+      return new Response('throw new Error("Firebase configuration is incomplete.");', {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/javascript; charset=utf-8',
+          'Cache-Control': 'no-store',
+        },
+      });
+    }
+
+    const config = getFirebaseConfig();
+    const publicConfig = {
+      apiKey: config.apiKey,
+      authDomain: config.authDomain,
+      projectId: config.projectId,
+      storageBucket: config.storageBucket,
+      messagingSenderId: config.messagingSenderId,
+      appId: config.appId,
+      measurementId: config.measurementId,
+    };
+
+    return new Response(`firebase.initializeApp(${JSON.stringify(publicConfig)});`, {
+      headers: {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+      },
+    });
+  } catch (error) {
+    console.error('Firebase config route error:', error);
+    return new Response('throw new Error("Firebase configuration error.");', {
       status: 500,
       headers: {
         'Content-Type': 'application/javascript; charset=utf-8',
@@ -12,24 +49,4 @@ export async function GET() {
       },
     });
   }
-
-  const config = getFirebaseConfig();
-  const publicConfig = {
-    apiKey: config.apiKey,
-    authDomain: config.authDomain,
-    projectId: config.projectId,
-    storageBucket: config.storageBucket,
-    messagingSenderId: config.messagingSenderId,
-    appId: config.appId,
-    measurementId: config.measurementId,
-  };
-
-  return new Response(`firebase.initializeApp(${JSON.stringify(publicConfig)});`, {
-    headers: {
-      'Content-Type': 'application/javascript; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'SAMEORIGIN',
-    },
-  });
 }

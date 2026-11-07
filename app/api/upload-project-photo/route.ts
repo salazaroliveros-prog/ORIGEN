@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebaseService';
 import { jsonError, extensionForMime, sanitizePathSegment } from '@/lib/api';
+import { rateLimitMiddleware, getClientIp } from '@/lib/security';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set([
@@ -15,6 +16,11 @@ const ALLOWED_MIME_TYPES = new Set([
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const clientIp = getClientIp(request);
+    const rateLimitResponse = rateLimitMiddleware(`upload:${clientIp}`);
+    if (rateLimitResponse) return rateLimitResponse;
+
     const formData = await request.formData();
     const file = formData.get('file');
     const projectId = formData.get('projectId');

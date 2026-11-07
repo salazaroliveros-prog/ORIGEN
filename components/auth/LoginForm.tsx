@@ -8,27 +8,51 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { designTokens } from '@/lib/design-tokens';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { validateLoginForm, LoginFormValues } from '@/lib/validation/auth.schema';
 
-interface LoginFormProps {
-  onAuthenticated: () => void;
-  onRegister: () => void;
-  className?: string;
+function Building2({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M22 12V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+      <path d="M14 12V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v8" />
+      <path d="M22 18V14a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4" />
+    </svg>
+  );
 }
 
 export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, register, status } = useAuthSession();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!email.trim() || !password.trim()) {
-      setError('Por favor completa correo electrónico y contraseña.');
+    setFieldErrors({});
+
+    const validation = validateLoginForm({ email, password });
+    if (!validation.success) {
+      for (const issue of validation.error.issues) {
+        const path = issue.path[0] as keyof LoginFormValues;
+        setFieldErrors((prev) => ({ ...prev, [path]: issue.message }));
+      }
       return;
     }
+
     try {
       setIsLoading(true);
       await signIn(email.trim(), password);
@@ -73,6 +97,7 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
           leftIcon={<Mail className="h-4 w-4" />}
           required
           autoComplete="email"
+          error={fieldErrors.email}
           disabled={isAuthenticating}
         />
         <Input
@@ -85,6 +110,7 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
           required
           autoComplete="current-password"
           minLength={6}
+          error={fieldErrors.password}
           disabled={isAuthenticating}
         />
         <Button
@@ -151,23 +177,8 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
   );
 }
 
-function Building2({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M22 12V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
-      <path d="M14 12V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v8" />
-      <path d="M22 18V14a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4" />
-    </svg>
-  );
+interface LoginFormProps {
+  onAuthenticated: () => void;
+  onRegister: () => void;
+  className?: string;
 }
