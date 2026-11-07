@@ -33,7 +33,7 @@ export function TouchTarget({
       className={`touch-target group relative focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 active:scale-95 active:opacity-80 ${className}`}
       {...buttonProps}
     >
-      <span className="pointer-events-none absolute inset-0 rounded-full bg-white/[0.05] opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
+      <span className="pointer-events-none absolute inset-0 rounded-full bg-white/[0.05] opacity-0 transition-opacity duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:opacity-100"></span>
       {children}
     </button>
   );

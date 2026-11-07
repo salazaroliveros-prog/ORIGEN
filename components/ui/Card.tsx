@@ -30,7 +30,7 @@ export function Card({
 
   return (
     <div
-      className={`rounded-xl transition-all duration-200 ${variants[variant]} ${paddings[padding]} ${hoverable ? 'hover:border-white/20 hover:shadow-xl' : ''} ${className}`}
+      className={`rounded-xl transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${variants[variant]} ${paddings[padding]} ${hoverable ? 'hover:border-white/20 hover:shadow-xl' : ''} ${className}`}
       {...props}
     >
       {children}

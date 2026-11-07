@@ -419,12 +419,8 @@ export default function MainApp() {
         )}
         {currentUser && isPrimaryAdministrator(currentUser.email) && !workspaceLoading && (
           <div
-            role={
-              currentUser.emailVerified &&
-              (membership?.role === 'owner' || membership?.role === 'admin')
-                ? 'status'
-                : 'alert'
-            }
+            role="status"
+            aria-live="polite"
             className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
               currentUser.emailVerified &&
               (membership?.role === 'owner' || membership?.role === 'admin')

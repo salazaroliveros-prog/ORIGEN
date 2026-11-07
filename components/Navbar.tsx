@@ -119,7 +119,7 @@ export function Navbar({
   onToggleMobileSidebar,
 }: NavbarProps) {
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
-  const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
+  const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0] || null;
 
   const tabs = [
     { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
@@ -152,10 +152,10 @@ export function Navbar({
   return (
     <>
       {/* ================= FIXED GLASS SIDEBAR (Desktop) ================= */}
-        <aside className="fixed top-0 bottom-0 left-0 z-50 hidden w-[280px] flex-col overflow-y-auto border-r border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl select-none md:flex">
+      <aside className="fixed bottom-0 left-0 top-0 z-50 hidden w-[280px] select-none flex-col overflow-y-auto border-r border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl md:flex">
         {/* Brand Header */}
         <div className="space-y-3 border-b border-white/10 pb-6">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 shadow-[0_8px_24px_rgba(56,189,248,0.4)]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-secondary via-brand-secondary/80 to-sky-600 shadow-[0_8px_24px_rgba(56,189,248,0.4)]">
             <Building2 className="h-6 w-6 stroke-[2.5] text-white" />
           </div>
           <div>
@@ -232,9 +232,10 @@ export function Navbar({
                 size="sm"
                 onClick={onOpenBranding}
                 className="ml-2 rounded-lg p-2.5 text-slate-300 hover:bg-white/[0.05] hover:text-white"
+                aria-label="Configuración de Empresa"
                 title="Configuración de Empresa"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 w-4" aria-hidden="true" />
               </Button>
             )}
           </div>
@@ -267,21 +268,21 @@ export function Navbar({
               role="dialog"
               aria-modal="true"
               aria-labelledby="mobile-navigation-title"
-              className="relative z-50 flex h-full w-72 max-w-[85vw] flex-col overflow-y-auto border-r border-white/15 bg-slate-950/95 px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] backdrop-blur-2xl"
+              className="relative z-50 flex h-full w-72 max-w-[85vw] flex-col overflow-y-auto border-r border-white/15 bg-slate-950/95 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] backdrop-blur-2xl"
             >
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 shadow-md">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand-secondary to-brand-secondary/80 shadow-md">
                     <Building2 className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <h2
                       id="mobile-navigation-title"
-                      className="text-base leading-tight font-bold text-white"
+                      className="text-base font-bold leading-tight text-white"
                     >
                       Menú de navegación
                     </h2>
-                    <span className="font-mono text-[9px] font-bold text-amber-400 uppercase">
+                    <span className="font-mono text-[9px] font-bold uppercase text-amber-400">
                       Guatemala
                     </span>
                   </div>
@@ -412,10 +413,10 @@ export function Navbar({
         </FocusTrap>
       )}
 
-        <nav
-          aria-label="Navegación rápida"
-          className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-white/10 bg-slate-950/95 px-1 pt-1.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(2,6,23,0.28)] backdrop-blur-xl md:hidden"
-        >
+      <nav
+        aria-label="Navegación rápida"
+        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-white/10 bg-slate-950/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_24px_rgba(2,6,23,0.28)] backdrop-blur-xl md:hidden"
+      >
         {mobileQuickTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -426,6 +427,7 @@ export function Navbar({
               type="button"
               onClick={() => onSelectTab(tab.id)}
               aria-current={isActive ? 'page' : undefined}
+              aria-label={tab.label}
               className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
                 isActive ? 'text-amber-300' : 'text-slate-400 hover:text-slate-100'
               }`}
@@ -440,6 +442,9 @@ export function Navbar({
           onClick={onToggleMobileSidebar}
           aria-expanded={Boolean(isMobileSidebarOpen)}
           aria-controls="mobile-navigation"
+          aria-label={
+            isMobileSidebarOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
+          }
           className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
             isMobileSidebarOpen ? 'text-amber-300' : 'text-slate-400 hover:text-slate-100'
           }`}
@@ -455,7 +460,7 @@ export function Navbar({
           {/* Current view */}
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
-              <span className="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
                 VISTA DE {currentTabName.toUpperCase()} / Q (Quetzales)
               </span>
               <span className="hidden text-xs font-bold text-white sm:block">
@@ -492,7 +497,7 @@ export function Navbar({
                   aria-label="Cambiar proyecto activo"
                   className="absolute right-0 z-50 mt-2 w-64 space-y-1 rounded-xl border border-white/15 bg-slate-900/95 p-2 shadow-2xl backdrop-blur-2xl"
                 >
-                  <div className="border-b border-white/10 px-3 py-1.5 font-mono text-[10px] tracking-wider text-slate-400 uppercase">
+                  <div className="border-b border-white/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-slate-400">
                     Cambiar Proyecto Activo
                   </div>
                   {projects.map((proj) => (
