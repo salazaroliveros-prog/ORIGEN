@@ -409,6 +409,14 @@ export default function MainApp() {
             Preparando el espacio de trabajo y sincronizando los datos de la empresa...
           </div>
         )}
+        {authStatus === 'authenticated' && !workspaceLoading && data.loading && (
+          <div
+            role="status"
+            className="mt-4 rounded-xl border border-amber-400/30 bg-slate-900/80 px-4 py-3 text-sm text-amber-100 backdrop-blur-md"
+          >
+            Cargando proyectos, presupuestos y gastos…
+          </div>
+        )}
         {currentUser && isPrimaryAdministrator(currentUser.email) && !workspaceLoading && (
           <div
             role={

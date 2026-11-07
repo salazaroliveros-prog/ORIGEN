@@ -241,6 +241,7 @@ export function ProjectForm({
                 <input
                   id="project-client"
                   type="text"
+                  aria-label="Nombre del cliente"
                   aria-invalid={Boolean(errors.client)}
                   aria-describedby={errors.client ? 'project-client-error' : undefined}
                   value={formData.client}
@@ -267,6 +268,7 @@ export function ProjectForm({
                   <input
                     id="project-client-nit"
                     type="text"
+                    aria-label="NIT del cliente"
                     value={formData.clientNit ?? ''}
                     onChange={(e) => handleChange('clientNit', e.target.value)}
                     placeholder="Ej: 8492019-2 o CF"
@@ -284,6 +286,7 @@ export function ProjectForm({
                   <input
                     id="project-client-phone"
                     type="text"
+                    aria-label="Teléfono del cliente"
                     value={formData.clientPhone ?? ''}
                     onChange={(e) => handleChange('clientPhone', e.target.value)}
                     placeholder="Ej: +502 5555-1234"
@@ -302,6 +305,7 @@ export function ProjectForm({
                   <input
                     id="project-client-email"
                     type="email"
+                    aria-label="Email del cliente"
                     value={formData.clientEmail ?? ''}
                     onChange={(e) => handleChange('clientEmail', e.target.value)}
                     placeholder="cliente@empresa.com"
@@ -319,6 +323,7 @@ export function ProjectForm({
                   <input
                     id="project-client-address"
                     type="text"
+                    aria-label="Dirección del cliente"
                     value={formData.clientAddress ?? ''}
                     onChange={(e) => handleChange('clientAddress', e.target.value)}
                     placeholder="Dirección fiscal o de contacto"

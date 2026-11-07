@@ -279,14 +279,10 @@ export function D3BudgetUtilizationChart({
           .append('rect')
           .attr('x', 0)
           .attr('y', y + rowHeight * 0.15)
-          .attr('width', 0) // Start at 0 for transition
+          .attr('width', spentWidth)
           .attr('height', rowHeight * 0.7)
           .attr('rx', 4)
-          .attr('fill', fillGrad)
-          .transition()
-          .duration(700)
-          .ease(d3.easeCubicOut)
-          .attr('width', spentWidth);
+          .attr('fill', fillGrad);
 
         // 3. 100% Target Tick Marker
         rowG
@@ -368,16 +364,7 @@ export function D3BudgetUtilizationChart({
       g.append('path')
         .datum({ endAngle: startAngle })
         .attr('fill', 'url(#d3-gauge-grad)')
-        .transition()
-        .duration(900)
-        .ease(d3.easeCubicOut)
-        .attrTween('d', (d) => {
-          const interpolate = d3.interpolate(d.endAngle, activeAngle);
-          return (t) => {
-            d.endAngle = interpolate(t);
-            return progressArc(d) || '';
-          };
-        });
+        .attr('d', progressArc({ endAngle: activeAngle }));
 
       // Threshold ticks on gauge
       [0.25, 0.5, 0.75, 1.0].forEach((fraction) => {

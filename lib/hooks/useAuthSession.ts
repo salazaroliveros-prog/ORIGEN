@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import {
   createEmailAccount,
@@ -66,8 +66,10 @@ export function useAuthSession() {
     }
   }, []);
 
+  const autoLoginAttempted = useRef(false);
+
   useEffect(() => {
-    // Test auth support for E2E testing (development only)
+    // Test auth support for E2E testing via URL query params (development only)
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const testEmail = params.get('__test_email');
@@ -75,6 +77,7 @@ export function useAuthSession() {
       if (testEmail && testPassword) {
         window.history.replaceState({}, '', window.location.pathname);
         signIn(testEmail, testPassword);
+        return;
       }
     }
 
@@ -93,8 +96,28 @@ export function useAuthSession() {
       }
     );
 
+    // Auto-login con el correo administrativo configurado cuando no hay sesión activa
+    // (útil para entorno de desarrollo / emulador Firebase).
+    if (
+      typeof window !== 'undefined' &&
+      !autoLoginAttempted.current &&
+      !currentUser &&
+      status === 'loading' &&
+      !authError
+    ) {
+      const adminEmail = process.env.NEXT_PUBLIC_PRIMARY_ADMIN_EMAIL;
+      const adminPassword = process.env.NEXT_PUBLIC_PRIMARY_ADMIN_PASSWORD;
+      if (adminEmail && adminPassword) {
+        autoLoginAttempted.current = true;
+        signIn(adminEmail, adminPassword).then(() => {
+          // Marcar como completado después de que signIn resuelva (éxito o fallo)
+          autoLoginAttempted.current = false;
+        });
+      }
+    }
+
     return () => unsubscribe();
-  }, [signIn]);
+  }, [signIn, currentUser, status, authError]);
 
   const signOut = async () => {
     setIsSigningOut(true);

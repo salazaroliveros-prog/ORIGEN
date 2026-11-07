@@ -44,12 +44,11 @@ async function createProject(page: Page, code: string, name: string, progress: n
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
   await page.getByLabel('Código del Proyecto').fill(code);
   await page.getByLabel('Nombre del Proyecto').fill(name);
-  await page.getByLabel('Cliente').fill('Cliente QA Automatizado');
+  await page.getByLabel('Nombre del cliente').fill('Cliente QA Automatizado');
   await page.getByLabel('Ubicación').fill('Zona 10, Ciudad de Guatemala');
   await page.getByLabel('Municipio').fill('Guatemala');
   await page.getByLabel('Departamento').fill('Guatemala');
   await page.getByLabel('Presupuesto Total (Q)').fill('100000');
-  await page.getByLabel('Gasto Ejecutado (Q)').fill('0');
   await page.getByLabel('Avance (%)').fill(String(progress));
   await page.getByLabel('Fecha de Inicio').fill('2026-11-01');
   await page.getByLabel('Fecha de Finalización').fill('2027-05-01');
@@ -113,7 +112,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await createProject(page, code, `QA Gastos ${RUN_ID}`, 5);
 
     await openTab(page, /Gastos & Facturas/);
-    await page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first().click();
+    await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     const projectSelect = page.getByLabel('Proyecto Asignado *');
     const options = await projectSelect.locator('option').allTextContents();
     const match = options.find((option) => option.includes(code));
@@ -126,7 +125,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await page.getByLabel('NIT del Proveedor').fill('CF');
     await page.getByLabel('No. Factura SAT Serie/Número').fill('FEL-QA-001');
     await page.getByLabel('Monto del Gasto *').fill('12000');
-    await page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).click();
+    await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
     await expect(page.getByText('Compra de cemento QA').first()).toBeVisible({ timeout: 20_000 });
@@ -209,7 +208,7 @@ test.describe('QA defectos detectados', () => {
     await createProject(page, code, `QA Gasto Incompleto ${RUN_ID}`, 5);
 
     await openTab(page, /Gastos & Facturas/);
-    await page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first().click();
+    await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     const projectSelect = page.getByLabel('Proyecto Asignado *');
     const options = await projectSelect.locator('option').allTextContents();
     const match = options.find((option) => option.includes(code));
@@ -219,7 +218,7 @@ test.describe('QA defectos detectados', () => {
       .getByLabel('Descripción Detallada del Insumo o Servicio *')
       .fill('Gasto QA sin factura');
     await page.getByLabel('Monto del Gasto *').fill('500');
-    await page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).click();
+    await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
     // El error ahora debe ser específico de validación, no de sesión

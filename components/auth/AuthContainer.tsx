@@ -250,10 +250,10 @@ export function AuthContainer(): React.ReactElement {
   const minutesLeft = getMinutesLeft();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-2xl">
+        <div className="rounded-2xl border border-white/10 bg-slate-900/90 backdrop-blur-md p-8 shadow-2xl">
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="mb-2 text-3xl font-bold text-white">ORIGEN ERP</h1>
@@ -276,10 +276,10 @@ export function AuthContainer(): React.ReactElement {
 
           {/* General Error Alert */}
           {errors.general && !isLocked && (
-            <div className="mb-6 flex gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-500" />
+            <div className="mb-6 flex gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
               <div>
-                <p className="text-xs text-yellow-600">{errors.general}</p>
+                <p className="text-xs text-amber-600">{errors.general}</p>
               </div>
             </div>
           )}
@@ -310,8 +310,8 @@ export function AuthContainer(): React.ReactElement {
                 disabled={isLocked || loading}
                 placeholder="tu@correo.com"
                 className={`w-full rounded-lg border px-4 py-2 ${
-                  errors.email ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
-                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
+                  errors.email ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/[0.03]'
+                } text-white placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:outline-none focus:ring-brand-secondary/50 disabled:cursor-not-allowed disabled:opacity-50`}
                 aria-label="Correo electrónico"
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 aria-invalid={!!errors.email}
@@ -343,8 +343,8 @@ export function AuthContainer(): React.ReactElement {
                   className={`w-full rounded-lg border px-4 py-2 pr-12 ${
                     errors.password
                       ? 'border-red-500 bg-red-500/5'
-                      : 'border-slate-600 bg-slate-700'
-                  } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
+                      : 'border-white/10 bg-white/[0.03]'
+                  } text-white placeholder-slate-500 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary/50 disabled:cursor-not-allowed disabled:opacity-50`}
                   aria-label="Contraseña"
                   aria-describedby={errors.password ? 'password-error' : undefined}
                   aria-invalid={!!errors.password}
@@ -379,7 +379,7 @@ export function AuthContainer(): React.ReactElement {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 disabled={isLocked || loading}
-                className="h-4 w-4 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-4 w-4 rounded border-white/10 bg-white/[0.03] text-amber-500 focus:ring-2 focus:ring-brand-secondary/50 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Recuérdame"
               />
               <label
@@ -394,7 +394,7 @@ export function AuthContainer(): React.ReactElement {
             <button
               type="submit"
               disabled={isLocked || loading}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:opacity-50"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2 font-semibold text-slate-950 transition-all hover:bg-amber-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:opacity-50"
               aria-label="Iniciar sesión"
             >
               {loading ? (
@@ -414,7 +414,7 @@ export function AuthContainer(): React.ReactElement {
               type="button"
               onClick={handleForgotPassword}
               disabled={!email || isLocked || loading}
-              className="text-sm text-blue-400 transition-colors hover:text-blue-300 disabled:cursor-not-allowed disabled:text-slate-500"
+              className="text-sm text-amber-400 transition-colors hover:text-amber-300 disabled:cursor-not-allowed disabled:text-slate-500"
             >
               ¿Olvidaste tu contraseña?
             </button>
@@ -426,7 +426,7 @@ export function AuthContainer(): React.ReactElement {
               ¿No tienes cuenta?{' '}
               <Link
                 href="/signup"
-                className="font-medium text-blue-400 transition-colors hover:text-blue-300"
+                className="font-medium text-amber-400 transition-colors hover:text-amber-300"
               >
                 Regístrate aquí
               </Link>
@@ -434,7 +434,7 @@ export function AuthContainer(): React.ReactElement {
           </div>
 
           {/* Security Notice */}
-          <div className="mt-4 rounded-lg bg-slate-700/50 p-3">
+          <div className="mt-4 rounded-lg bg-white/[0.05] p-3">
             <p className="text-center text-xs text-slate-400">
               🔒 Tu información está protegida. Se bloquearán intentos después de 5 fallos.
             </p>

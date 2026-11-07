@@ -65,7 +65,7 @@ test.describe('Sección Proyectos & Firmas', () => {
     // Campos confirmados en system-crud.spec.ts
     await expect(dialog.getByLabel('Código del Proyecto')).toBeVisible();
     await expect(dialog.getByLabel('Nombre del Proyecto')).toBeVisible();
-    await expect(dialog.getByLabel('Cliente')).toBeVisible();
+    await expect(dialog.getByLabel('Nombre del cliente')).toBeVisible();
     await expect(dialog.getByLabel('Presupuesto Total (Q)')).toBeVisible();
     await expect(dialog.getByRole('button', { name: 'Crear Proyecto' })).toBeVisible();
   });

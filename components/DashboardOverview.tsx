@@ -16,7 +16,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { useProjectData } from '@/lib/hooks/useProjectDataEnhanced';
+import { useProjectData } from '@/lib/hooks/useProjectData';
 import { calculateBudgetSummary } from '@/lib/utils/calculations';
 import {
   LineChart,

@@ -29,7 +29,7 @@ export function Skeleton({
   width,
   height = '24px',
 }: SkeletonProps) {
-  const baseClass = 'bg-slate-200';
+  const baseClass = 'bg-white/[0.05] border border-white/10';
   const animationClass = animated ? 'animate-pulse' : '';
 
   const variantClass = {
@@ -58,7 +58,7 @@ export function Skeleton({
  */
 export function SkeletonCard({ className = '' }: { className?: string }) {
   return (
-    <div className={`bg-white border border-slate-200 rounded-lg p-6 space-y-4 ${className}`}>
+    <div className={`bg-white/[0.05] border border-white/10 rounded-lg p-6 space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <Skeleton width="60%" height={24} />
@@ -86,7 +86,7 @@ export function SkeletonCard({ className = '' }: { className?: string }) {
  */
 export function SkeletonTableRow({ columns = 5 }: { columns?: number }) {
   return (
-    <div className="flex gap-4 p-4 bg-slate-50 rounded-lg">
+    <div className={`flex gap-4 p-4 bg-white/[0.05] border border-white/10 rounded-lg`}>
       {Array.from({ length: columns }).map((_, i) => (
         <Skeleton key={i} className="flex-1" height={20} />
       ))}
@@ -99,7 +99,7 @@ export function SkeletonTableRow({ columns = 5 }: { columns?: number }) {
  */
 export function SkeletonListItem() {
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+    <div className="bg-white/[0.05] border border-white/10 rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
         <Skeleton width="40%" height={20} />
         <Skeleton width={60} height={20} variant="circle" />
@@ -117,7 +117,7 @@ export function SkeletonListItem() {
  */
 export function SkeletonChart({ height = 300 }: { height?: number }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6 space-y-4">
+    <div className="bg-white/[0.05] border border-white/10 rounded-lg p-6 space-y-4">
       <Skeleton width="30%" height={24} />
       <Skeleton width="100%" height={height} className="rounded-lg" />
     </div>

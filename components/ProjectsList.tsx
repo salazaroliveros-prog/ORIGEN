@@ -14,7 +14,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useProjectData } from '@/lib/hooks/useProjectDataEnhanced';
+import { useProjectData } from '@/lib/hooks/useProjectData';
 import { usePagination } from '@/lib/hooks/usePagination';
 import { Plus, Trash2, Pencil, ChevronLeft, ChevronRight, Loader, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';

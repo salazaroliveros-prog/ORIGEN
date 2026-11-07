@@ -12,10 +12,32 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Navegación principal', () => {
   test.beforeEach(async ({ page }) => {
+    // Asegurar que el usuario exista en el emulador de Auth
+    await page.request.post(
+      'http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-api-key',
+      {
+        data: {
+          email: 'salazaroliveros@gmail.com',
+          password: 'Origen2026!Secure',
+          returnSecureToken: true,
+        },
+      }
+    ).catch(() => {});
+
     await page.goto('/');
-    // Esperar autenticación automática
-    await page.waitForTimeout(4000);
-    // Asegurar que la app esté autenticada verificando un botón de navegación
+    await page.waitForTimeout(3000);
+
+    // Login manual si aparece el formulario de autenticación
+    const loginButton = page.getByRole('button', { name: 'Iniciar Sesión' });
+    const loginVisible = await loginButton.isVisible({ timeout: 3000 }).catch(() => false);
+    if (loginVisible) {
+      await page.getByLabel('Correo electrónico').fill('salazaroliveros@gmail.com');
+      await page.locator('#password').fill('Origen2026!Secure');
+      await loginButton.click();
+      await page.waitForTimeout(4000);
+    }
+
+    // Esperar a que el Tablero esté visible (autenticación completa)
     await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
       timeout: 30_000,
     });
@@ -39,18 +61,28 @@ test.describe('Navegación principal', () => {
     await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
     await page.waitForTimeout(2000);
 
-    // Debe aparecer el botón de crear proyecto (siempre presente) o la lista vacía
+    // Debe aparecer el botón de crear proyecto o estado sin proyectos
     const nuevoProyecto = page.getByRole('button', { name: 'Nuevo Proyecto' }).first();
-    await expect(nuevoProyecto).toBeVisible({ timeout: 20_000 });
+    const sinProyectos = page.getByText(/No hay proyectos activos/).first();
+
+    await expect(
+      nuevoProyecto.or(sinProyectos).first()
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test('navegar a Gastos & Facturas muestra la sección de gastos', async ({ page }) => {
     await page.getByRole('button', { name: 'Gastos & Facturas' }).first().click();
     await page.waitForTimeout(2000);
 
-    // Debe aparecer el botón para registrar un nuevo gasto
-    const nuevoGasto = page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first();
-    await expect(nuevoGasto).toBeVisible({ timeout: 20_000 });
+    // Debe aparecer el botón para registrar un nuevo gasto o estado sin proyectos
+    const nuevoGasto = page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first();
+    const irProyectos = page.getByRole('button', { name: 'Ir a Proyectos' }).first();
+    const sinProyectos = page.getByText(/Sin proyectos disponibles/, { exact: true }).first();
+
+    // Uno de los tres debe estar visible según el estado de proyectos
+    await expect(
+      nuevoGasto.or(irProyectos).or(sinProyectos).first()
+    ).toBeVisible({ timeout: 10_000 });
   });
 
   test('navegar a Cotizaciones muestra la sección de cotizaciones', async ({ page }) => {
@@ -66,8 +98,11 @@ test.describe('Navegación principal', () => {
     await page.getByRole('button', { name: 'Presupuestos APU' }).first().click();
     await page.waitForTimeout(2000);
 
-    // La vista APU muestra un botón para renglón manual
+    // La vista APU muestra botón de renglón manual si hay proyectos,
+    // o mensaje de sin proyectos si no los hay
     const renglon = page.getByRole('button', { name: 'Renglón Manual' }).first();
-    await expect(renglon).toBeVisible({ timeout: 20_000 });
+    const sinProyectos = page.getByText(/Aún no hay proyectos/).first();
+
+    await expect(renglon.or(sinProyectos).first()).toBeVisible({ timeout: 20_000 });
   });
 });

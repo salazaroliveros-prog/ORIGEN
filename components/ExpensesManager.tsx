@@ -15,6 +15,7 @@ import {
   Download,
   Eye,
   FileSearch,
+  FolderOpen,
   History,
   Plus,
   Receipt,
@@ -99,13 +100,41 @@ export function ExpensesManager({
     spentTotal: number;
   } | null>(null);
 
-  const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0] || null;
+
+  // Si no hay proyecto activo, mostrar estado vacío en lugar de fallar
+  if (!activeProject) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
+        <div className="text-center">
+          <div className="mx-auto flex h-12 w-12 rounded-full rounded-full bg-slate-800 flex items-center justify-center mb-4">
+            <FolderOpen className="h-6 w-6 text-slate-400" />
+          </div>
+          <h2 className="text-lg font-medium text-slate-100">Sin proyectos disponibles</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            Crea un proyecto primero para registrar gastos y facturas.
+          </p>
+          <div className="mt-6">
+            <button
+              onClick={() => {
+                // Navigate to projects tab via parent
+              }}
+              className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 font-medium text-slate-100 hover:bg-slate-700"
+            >
+              Ir a Proyectos
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const formatMoney = (val: number) => {
+    if (!company) return formatGTQ(val);
     return currency === 'GTQ' ? formatGTQ(val) : formatUSD(val, company.exchangeRate);
-  };
-
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+};
 
   // Helper to check APU budget overrun
   const checkApuOverrun = (apuId: string, additionalAmount: number, excludeExpenseId?: string) => {
@@ -1035,6 +1064,7 @@ export function ExpensesManager({
                     value={supplier}
                     onChange={(e) => setSupplier(e.target.value)}
                     placeholder="Ej. Discosa S.A."
+                    aria-label="Proveedor"
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                     required
                   />
@@ -1048,6 +1078,7 @@ export function ExpensesManager({
                     value={nit}
                     onChange={(e) => setNit(e.target.value)}
                     placeholder="Ej. 1294821-9"
+                    aria-label="NIT Proveedor"
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                     required
                   />
@@ -1089,25 +1120,27 @@ export function ExpensesManager({
                         });
                       }
                     }}
+                    aria-label="Monto (GTQ)"
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-bold"
                     required
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-700">
-                  Descripción del Insumo / Gasto
-                </label>
-                <input
-                  type="text"
-                  value={desc}
-                  onChange={(e) => setDesc(e.target.value)}
-                  placeholder="Ej. Compra de 250 bolsas de Cemento Progreso"
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
-                  required
-                />
-              </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    Descripción del Insumo / Gasto
+                  </label>
+                  <input
+                    type="text"
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                    placeholder="Ej. Compra de 250 bolsas de Cemento Progreso"
+                    aria-label="Descripción del Insumo / Gasto"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    required
+                  />
+                </div>
 
               {/* Receipt / Invoice Photo Capture Section */}
               <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3.5">

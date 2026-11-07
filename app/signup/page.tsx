@@ -59,11 +59,11 @@ export default function SignUpPage() {
 
     const labels = ['Muy débil', 'Débil', 'Aceptable', 'Fuerte', 'Muy fuerte'];
     const colors = [
-      'text-red-500',
+      'text-rose-500',
       'text-orange-500',
-      'text-yellow-500',
-      'text-green-500',
-      'text-blue-500',
+      'text-amber-500',
+      'text-emerald-500',
+      'text-sky-500',
     ];
 
     return {
@@ -172,10 +172,10 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-2xl">
+        <div className="rounded-2xl border border-white/10 bg-slate-900/90 backdrop-blur-md p-8 shadow-2xl">
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="mb-2 text-3xl font-bold text-white">ORIGEN ERP</h1>
@@ -184,9 +184,9 @@ export default function SignUpPage() {
 
           {/* General Error Alert */}
           {errors.general && (
-            <div className="mb-6 flex gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
-              <p className="text-xs text-red-600">{errors.general}</p>
+            <div className="mb-6 flex gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
+              <p className="text-xs text-amber-600">{errors.general}</p>
             </div>
           )}
 
@@ -207,8 +207,8 @@ export default function SignUpPage() {
                 placeholder="Tu nombre completo"
                 disabled={loading}
                 className={`w-full rounded-lg border px-4 py-2 ${
-                  errors.fullName ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
-                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                  errors.fullName ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/[0.03]'
+                } text-white placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:ring-brand-secondary/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
               />
               {errors.fullName && <p className="mt-1 text-xs text-red-400">{errors.fullName}</p>}
             </div>
@@ -228,8 +228,8 @@ export default function SignUpPage() {
                 placeholder="tu@correo.com"
                 disabled={loading}
                 className={`w-full rounded-lg border px-4 py-2 ${
-                  errors.email ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
-                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                  errors.email ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/[0.03]'
+                } text-white placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:ring-brand-secondary/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
               />
               {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
             </div>
@@ -247,8 +247,8 @@ export default function SignUpPage() {
                 placeholder="Nombre de tu empresa"
                 disabled={loading}
                 className={`w-full rounded-lg border px-4 py-2 ${
-                  errors.company ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
-                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                  errors.company ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/[0.03]'
+                } text-white placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:ring-brand-secondary/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
               />
               {errors.company && <p className="mt-1 text-xs text-red-400">{errors.company}</p>}
             </div>
@@ -266,8 +266,8 @@ export default function SignUpPage() {
                 placeholder="+502 1234-5678"
                 disabled={loading}
                 className={`w-full rounded-lg border px-4 py-2 ${
-                  errors.phone ? 'border-red-500 bg-red-500/5' : 'border-slate-600 bg-slate-700'
-                } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                  errors.phone ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/[0.03]'
+                } text-white placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:ring-brand-secondary/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
               />
               {errors.phone && <p className="mt-1 text-xs text-red-400">{errors.phone}</p>}
             </div>
@@ -288,8 +288,8 @@ export default function SignUpPage() {
                   className={`w-full rounded-lg border px-4 py-2 pr-12 ${
                     errors.password
                       ? 'border-red-500 bg-red-500/5'
-                      : 'border-slate-600 bg-slate-700'
-                  } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                      : 'border-white/10 bg-white/[0.03]'
+                  } text-white placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:ring-brand-secondary/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
                 />
                 <button
                   type="button"
@@ -309,7 +309,7 @@ export default function SignUpPage() {
                       <div
                         key={i}
                         className={`h-1 flex-1 rounded-full transition-colors ${
-                          i < passwordStrength.score ? 'bg-blue-500' : 'bg-slate-600'
+                          i < passwordStrength.score ? 'bg-amber-500' : 'bg-white/[0.1]'
                         }`}
                       />
                     ))}
@@ -341,8 +341,8 @@ export default function SignUpPage() {
                   className={`w-full rounded-lg border px-4 py-2 pr-12 ${
                     errors.confirmPassword
                       ? 'border-red-500 bg-red-500/5'
-                      : 'border-slate-600 bg-slate-700'
-                  } text-white placeholder-slate-500 transition-colors focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
+                      : 'border-white/10 bg-white/[0.03]'
+                  } text-white placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:ring-brand-secondary/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
                 />
                 <button
                   type="button"
@@ -396,15 +396,15 @@ export default function SignUpPage() {
                   if (errors.terms) setErrors({ ...errors, terms: '' });
                 }}
                 disabled={loading}
-                className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-2 focus:ring-blue-500"
+                className="mt-1 h-4 w-4 rounded border-white/10 bg-white/[0.03] text-amber-500 focus:ring-2 focus:ring-brand-secondary/50"
               />
               <label htmlFor="terms" className="text-xs text-slate-400">
                 Acepto los{' '}
-                <Link href="/terms" className="text-blue-400 hover:text-blue-300">
+                <Link href="/terms" className="text-amber-400 hover:text-amber-300">
                   términos y condiciones
                 </Link>{' '}
                 y la{' '}
-                <Link href="/privacy" className="text-blue-400 hover:text-blue-300">
+                <Link href="/privacy" className="text-amber-400 hover:text-amber-300">
                   política de privacidad
                 </Link>
                 *
@@ -416,7 +416,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:opacity-50"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2 font-semibold text-slate-950 transition-all hover:bg-amber-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -430,10 +430,10 @@ export default function SignUpPage() {
           </form>
 
           {/* Login Link */}
-          <div className="mt-6 border-t border-slate-700 pt-6 text-center">
+          <div                 className="mt-6 border-t border-white/10 pt-6 text-center">
             <p className="text-sm text-slate-400">
               ¿Ya tienes cuenta?{' '}
-              <Link href="/" className="font-medium text-blue-400 hover:text-blue-300">
+              <Link href="/" className="font-medium text-amber-400 hover:text-amber-300">
                 Inicia sesión aquí
               </Link>
             </p>

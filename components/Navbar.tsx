@@ -152,7 +152,7 @@ export function Navbar({
   return (
     <>
       {/* ================= FIXED GLASS SIDEBAR (Desktop) ================= */}
-      <aside className="fixed top-0 bottom-0 left-0 z-50 hidden w-[280px] flex-col overflow-y-auto border-r border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl select-none lg:flex">
+        <aside className="fixed top-0 bottom-0 left-0 z-50 hidden w-[280px] flex-col overflow-y-auto border-r border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl select-none md:flex">
         {/* Brand Header */}
         <div className="space-y-3 border-b border-white/10 pb-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 shadow-[0_8px_24px_rgba(56,189,248,0.4)]">
@@ -367,7 +367,7 @@ export function Navbar({
                     value={activeProjectId}
                     onChange={(event) => onSelectProject(event.target.value)}
                     disabled={projects.length === 0}
-                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:opacity-60"
+                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-white/[0.03] px-3 text-sm text-slate-100 focus-visible:ring-2 focus-visible:ring-brand-secondary/50 focus-visible:ring-offset-2 disabled:opacity-60"
                   >
                     {projects.length === 0 ? (
                       <option value="">Sin proyectos disponibles</option>
@@ -412,10 +412,10 @@ export function Navbar({
         </FocusTrap>
       )}
 
-      <nav
-        aria-label="Navegación rápida"
-        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-white/10 bg-slate-950/95 px-1 pt-1.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(2,6,23,0.28)] backdrop-blur-xl lg:hidden"
-      >
+        <nav
+          aria-label="Navegación rápida"
+          className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-white/10 bg-slate-950/95 px-1 pt-1.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(2,6,23,0.28)] backdrop-blur-xl md:hidden"
+        >
         {mobileQuickTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -450,7 +450,7 @@ export function Navbar({
       </nav>
 
       {/* ================= GLASS TOP NAV BAR (Desktop only - MobileHeader handles mobile) ================= */}
-      <header className="sticky top-0 z-40 hidden border-b border-white/10 bg-slate-950/40 px-4 py-3 backdrop-blur-xl sm:px-6 lg:ml-[280px] lg:flex lg:px-8">
+      <header className="sticky top-0 z-40 hidden border-b border-white/10 bg-slate-950/40 px-4 py-3 backdrop-blur-xl sm:px-6 md:ml-[280px] md:flex md:px-8">
         <div className="flex w-full min-w-0 items-center justify-between gap-4">
           {/* Current view */}
           <div className="flex items-center gap-3">
