@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'glass';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -26,13 +26,16 @@ export function Button({
 
   const variants = {
     primary:
-      'bg-amber-500 text-slate-950 hover:bg-amber-400 active:bg-amber-600 shadow-[0_0_20px_rgba(245,158,11,0.4)]',
+      'bg-brand-primary text-slate-950 hover:bg-brand-primary-hover active:bg-brand-primary shadow-glow-brand',
     secondary:
-      'bg-white/[0.05] border border-white/10 text-slate-300 hover:bg-white/[0.1] active:bg-white/[0.15]',
+      'bg-white/[0.08] border border-white/12 text-slate-100 hover:bg-white/[0.12] active:bg-white/[0.15] shadow-glass-sm',
     ghost: 'text-slate-400 hover:bg-white/[0.05] hover:text-slate-200 active:bg-white/[0.1]',
     danger:
-      'bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20 hover:text-red-200 active:bg-red-500/30',
-    outline: 'border border-white/20 text-slate-300 hover:border-white/40 hover:bg-white/[0.05]',
+      'bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20 hover:text-red-200 active:bg-red-500/30 shadow-glass-sm',
+    outline:
+      'border border-white/20 text-slate-300 hover:border-brand-secondary/60 hover:bg-white/[0.04] shadow-glass-sm',
+    glass:
+      'bg-white/[0.06] border border-white/12 backdrop-blur-md text-slate-100 hover:bg-white/[0.1] hover:border-brand-secondary/50 shadow-glass-md',
   };
 
   const sizes = {

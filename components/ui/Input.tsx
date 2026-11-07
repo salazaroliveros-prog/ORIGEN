@@ -29,19 +29,19 @@ export function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-xs font-semibold tracking-wider text-slate-400 uppercase"
+          className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400"
         >
           {label}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500">
+          <div className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500">
             {leftIcon}
           </div>
         )}
         {rightIcon && (
-          <div className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-500">
+          <div className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500">
             {rightIcon}
           </div>
         )}
@@ -49,7 +49,7 @@ export function Input({
           id={inputId}
           aria-invalid={error ? true : undefined}
           aria-describedby={error || helperText ? messageId : undefined}
-          className={`focus:ring-brand-secondary/50 w-full rounded-lg border bg-white/[0.03] px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 transition-all focus:border-transparent focus:ring-2 focus:outline-none ${leftIcon ? 'pl-9' : ''} ${rightIcon ? 'pr-9' : ''} ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className}`}
+          className={`w-full rounded-lg border bg-white/[0.03] px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 transition-all duration-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary/50 ${leftIcon ? 'pl-9' : ''} ${rightIcon ? 'pr-9' : ''} ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className}`}
           {...props}
         />
       </div>

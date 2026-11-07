@@ -9,14 +9,14 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: 'cover',
   themeColor: '#0f172a',
-  colorScheme: 'light',
+  colorScheme: 'dark',
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://origen-one-kohl.vercel.app'),
   title: 'ConstructERP Guatemala - Control de Obras y Firma Digital',
   description:
-    'ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas y firma digital de capataces.',
+    'ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas IGSS, firma digital de capataces y gestión de maquinaria.',
   applicationName: 'ConstructERP Guatemala',
   alternates: {
     canonical: '/',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'ConstructERP',
   },
   formatDetection: {
@@ -75,7 +75,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" suppressHydrationWarning className="h-full touch-manipulation">
       <head>
-        
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="#0f172a" />
@@ -115,7 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)"
         />
       </head>
-      <body className="h-full min-h-screen overflow-x-hidden text-slate-100 antialiased selection:bg-sky-400 selection:text-slate-950">
+      <body className="h-full min-h-screen overflow-x-hidden bg-bg-ambient text-slate-100 antialiased selection:bg-brand-primary selection:text-slate-950">
         <Toaster
           position="bottom-right"
           toastOptions={{
@@ -127,6 +126,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               borderRadius: '12px',
               fontSize: '14px',
               maxWidth: '420px',
+              backdropFilter: 'blur(12px)',
             },
             success: { iconTheme: { primary: '#10b981', secondary: '#0f172a' } },
             error: { iconTheme: { primary: '#ef4444', secondary: '#0f172a' } },

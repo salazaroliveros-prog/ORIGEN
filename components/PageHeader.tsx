@@ -28,7 +28,7 @@ export function PageHeader({
           width={64}
           height={64}
           unoptimized
-          className="h-14 w-14 rounded-xl border border-white/10 bg-white/5 object-cover shadow-lg md:h-16 md:w-16"
+          className="h-14 w-14 rounded-xl border border-white/10 bg-white/5 object-cover shadow-glass-lg md:h-16 md:w-16"
         />
       </div>
       <div className="min-w-0 flex-1">
@@ -44,7 +44,7 @@ export function PageHeader({
                   {crumb.href && i < breadcrumbs.length - 1 ? (
                     <a
                       href={crumb.href}
-                      className="transition-colors hover:text-white"
+                      className="transition-colors duration-300 hover:text-white"
                       aria-current={i === breadcrumbs.length - 1 ? 'page' : undefined}
                     >
                       {crumb.label}
@@ -88,12 +88,12 @@ export function MobileHeader({
 }) {
   const resolvedLogo = logoUrl || '/assets/branding/web-banner-logo.png';
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-white/10 bg-slate-950/80 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md lg:hidden">
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-white/10 bg-slate-950/80 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden">
       <Button
         variant="ghost"
         size="md"
         onClick={onMenu}
-        className="rounded-lg p-2 text-slate-300 hover:bg-white/[0.1]"
+        className="rounded-xl p-2 text-slate-300 backdrop-blur-sm hover:bg-white/[0.1]"
         aria-label={menuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
         aria-expanded={menuOpen}
         aria-controls="mobile-navigation"

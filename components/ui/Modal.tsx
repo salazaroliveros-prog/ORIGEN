@@ -60,7 +60,7 @@ export function Modal({
   return (
     <>
       <div
-        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${closeOnOverlayClick ? 'cursor-pointer' : ''}`}
+        className={`fixed inset-0 z-50 bg-black/70 backdrop-blur-xl transition-opacity duration-300 ${closeOnOverlayClick ? 'cursor-pointer' : ''}`}
         onClick={closeOnOverlayClick ? onClose : undefined}
         role="presentation"
       />
@@ -73,7 +73,7 @@ export function Modal({
             aria-labelledby={title ? titleId : undefined}
             aria-label={title ? undefined : 'Diálogo'}
           >
-            <div className="relative rounded-xl border border-white/15 bg-slate-900 shadow-xl transition-all duration-300">
+            <div className="relative rounded-3xl border border-white/15 bg-glass-l2-bg shadow-glass-xl backdrop-blur-xl">
               <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
                 {title ? (
                   <h2 id={titleId} className="text-lg font-semibold text-slate-100">
@@ -85,7 +85,7 @@ export function Modal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                  className="rounded-lg p-1.5 text-slate-400 transition-colors duration-200 hover:bg-white/[0.08] hover:text-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                   aria-label="Cerrar"
                 >
                   <X className="h-5 w-5" aria-hidden="true" />

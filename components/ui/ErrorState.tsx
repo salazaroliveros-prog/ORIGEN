@@ -22,7 +22,7 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div role="alert" className={`glass-panel mx-auto w-full max-w-md text-center ${className}`}>
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/20 text-amber-300">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/20 text-amber-300 backdrop-blur-sm">
         <AlertTriangle className="h-6 w-6" aria-hidden="true" />
       </div>
       <h1 className="text-xl font-bold text-white">{title}</h1>
@@ -38,7 +38,7 @@ export function ErrorState({
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-bold text-slate-950 transition-all duration-300 hover:bg-brand-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
             >
               {retryLabel}
             </button>

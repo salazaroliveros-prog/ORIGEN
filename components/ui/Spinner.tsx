@@ -19,7 +19,7 @@ export function Spinner({ size = 'md', label = 'Cargando', className = '' }: Spi
     <span role="status" className={`inline-flex items-center justify-center ${className}`}>
       <span
         aria-hidden="true"
-        className={`animate-spin rounded-full border-amber-500 border-t-transparent ${sizeStyles[size]}`}
+        className={`animate-spin rounded-full border-brand-secondary border-t-transparent ${sizeStyles[size]}`}
       />
       <span className="sr-only">{label}</span>
     </span>
