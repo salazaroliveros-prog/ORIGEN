@@ -51,6 +51,123 @@ interface TimeInput {
   minutes: string;
 }
 
+interface CalendarViewProps {
+  currentDate: Date;
+  setCurrentDate: (date: Date) => void;
+  attendance: AttendanceRecord[];
+  setSelectedDate: (date: string | null) => void;
+  selectedDate: string | null;
+}
+
+function CalendarView({
+  currentDate,
+  setCurrentDate,
+  attendance,
+  setSelectedDate,
+  selectedDate,
+}: CalendarViewProps) {
+  const getDaysInMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const daysInMonth = getDaysInMonth(currentDate);
+  const firstDay = getFirstDayOfMonth(currentDate);
+  const days: (number | null)[] = [];
+  const monthName = currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+  for (let i = 0; i < firstDay; i++) {
+    days.push(null);
+  }
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(i);
+  }
+
+  const dayHasAttendance = (day: number) => {
+    const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+      .toISOString()
+      .split('T')[0];
+    return attendance.some((att) => att.date === dateStr);
+  };
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-semibold capitalize text-slate-900">{monthName}</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() =>
+              setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+            }
+            className="rounded-lg p-2 transition-colors hover:bg-slate-100"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setCurrentDate(new Date())}
+            className="rounded-lg px-3 py-2 text-sm font-semibold transition-colors hover:bg-slate-100"
+          >
+            Hoy
+          </button>
+          <button
+            onClick={() =>
+              setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+            }
+            className="rounded-lg p-2 transition-colors hover:bg-slate-100"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-4 grid grid-cols-7 gap-1">
+        {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'].map((day) => (
+          <div key={day} className="py-2 text-center text-xs font-semibold text-slate-600">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day, idx) => {
+          const dateStr = day
+            ? new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+                .toISOString()
+                .split('T')[0]
+            : null;
+
+          return (
+            <div
+              key={`cal-${currentDate.getFullYear()}-${currentDate.getMonth()}-${idx}`}
+              onClick={() => day && dateStr && setSelectedDate(dateStr)}
+              className={`relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
+                day && dayHasAttendance(day)
+                  ? COLORS.attendance.present
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              } ${dateStr === selectedDate ? 'ring-4 ring-blue-500' : ''}`}
+              role="button"
+              aria-label={
+                day
+                  ? `${day} de ${currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })}`
+                  : undefined
+              }
+            >
+              {day}
+              {day && dayHasAttendance(day) && (
+                <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full bg-green-500" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function PersonnelView({ projectId }: { projectId: string }) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
@@ -211,101 +328,6 @@ export function PersonnelView({ projectId }: { projectId: string }) {
     ? attendance.filter((att) => att.date === selectedDate)
     : [];
 
-  const CalendarView = () => {
-    const daysInMonth = getDaysInMonth(currentDate);
-    const firstDay = getFirstDayOfMonth(currentDate);
-    const days: (number | null)[] = [];
-    const monthName = currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-
-    for (let i = 0; i < firstDay; i++) {
-      days.push(null);
-    }
-
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(i);
-    }
-
-    const dayHasAttendance = (day: number) => {
-      const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-        .toISOString()
-        .split('T')[0];
-      return attendance.some((att) => att.date === dateStr);
-    };
-
-    return (
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold capitalize text-slate-900">{monthName}</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() =>
-                setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
-              }
-              className="rounded-lg p-2 transition-colors hover:bg-slate-100"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setCurrentDate(new Date())}
-              className="rounded-lg px-3 py-2 text-sm font-semibold transition-colors hover:bg-slate-100"
-            >
-              Hoy
-            </button>
-            <button
-              onClick={() =>
-                setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
-              }
-              className="rounded-lg p-2 transition-colors hover:bg-slate-100"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="mb-4 grid grid-cols-7 gap-1">
-          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'].map((day) => (
-            <div key={day} className="py-2 text-center text-xs font-semibold text-slate-600">
-              {day}
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-1">
-          {days.map((day, idx) => {
-            const dateStr = day
-              ? new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-                  .toISOString()
-                  .split('T')[0]
-              : null;
-
-            return (
-              <div
-                key={`cal-${currentDate.getFullYear()}-${currentDate.getMonth()}-${idx}`}
-                onClick={() => day && dateStr && setSelectedDate(dateStr)}
-                className={`relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
-                  day && dayHasAttendance(day)
-                    ? COLORS.attendance.present
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                } ${dateStr === selectedDate ? 'ring-4 ring-blue-500' : ''}`}
-                role="button"
-                aria-label={
-                  day
-                    ? `${day} de ${currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })}`
-                    : undefined
-                }
-              >
-                {day}
-                {day && dayHasAttendance(day) && (
-                  <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full bg-green-500" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
   if (loading) {
     return (
       <div className="p-6">
@@ -351,7 +373,15 @@ export function PersonnelView({ projectId }: { projectId: string }) {
         </div>
       </div>
 
-      {viewMode === 'calendar' && <CalendarView />}
+      {viewMode === 'calendar' && (
+        <CalendarView
+          currentDate={currentDate}
+          setCurrentDate={setCurrentDate}
+          attendance={attendance}
+          setSelectedDate={setSelectedDate}
+          selectedDate={selectedDate}
+        />
+      )}
 
       {selectedDate && (
         <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
