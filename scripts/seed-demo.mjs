@@ -8,7 +8,7 @@
  *   node scripts/seed-demo.mjs
  *
  * Prerequisites:
- *   - Firebase Emulator running at 127.0.0.1:8080 (Firestore)
+ *   - Firebase Emulator running at 127.0.0.1:8081 (Firestore)
  *   - Run from the project root
  */
 

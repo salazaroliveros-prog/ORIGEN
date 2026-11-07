@@ -19,7 +19,7 @@ const DYNAMIC_CACHE = 'dynamic-v1';
 // URLs para cachear al instalar
 const STATIC_ASSETS = [
   '/',
-  '/manifest.json',
+  '/site.webmanifest',
   '/assets/branding/favicon-16x16.png',
   '/assets/branding/favicon-32x32.png',
   '/assets/branding/icon-192x192.png',

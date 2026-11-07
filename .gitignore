@@ -57,6 +57,10 @@ test-results/
 playwright-report/
 playwright/.cache/
 
+# Generated assets
+public/assets/branding/optimized/
+public/assets/branding/generated/
+
 # Debug scripts and temporary files
 app/api/e2e-apu/
 app/api/e2e-project-id/
@@ -64,10 +68,6 @@ e2e/apu-debug.spec.ts
 e2e/diagnostic.spec.ts
 e2e/form-fill-test.spec.ts
 e2e/login-debug.spec.ts
-e2e/qa-complete-platform.spec.ts
-postcss.config.cjs
-postcss.config.js
 scripts/create-e2e-company.mjs
 scripts/create-e2e-user.mjs
 scripts/validate-all.ps1
-tailwind.config.js

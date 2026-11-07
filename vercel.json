@@ -86,12 +86,7 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/api/firebase-config.js",
-      "destination": "/api/firebase-config.js"
-    }
-  ],
+  "rewrites": [],
   "redirects": [],
   "cleanUrls": true,
   "trailingSlash": false
