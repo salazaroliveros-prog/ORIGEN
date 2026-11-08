@@ -1,111 +1,48 @@
 /**
  * ORIGEN ERP - Authentication Container Component
- * Implements secure login with rate limiting and enhanced UX
+ * Implementa el inicio de sesión seguro usando el hook useAuthSession
  *
- * Features:
- * - 5-attempt rate limiting with 15-minute lockout
- * - Password visibility toggle with eye icon
- * - Form validation with zod schemas
- * - Loading states during authentication
- * - Firebase Authentication integration
- * - Shared UI components (Input, Button) for design system consistency
+ * Características:
+ * - Integración con Firebase Authentication
+ * - Validación de credenciales con Zod schemas
+ * - Estados de carga y error
+ * - Compartidos componentes UI (Input, Button, Card)
+ * - Toast notifications para feedback al usuario
  */
 
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { signInWithEmail, resetEmailPassword } from '@/lib/firebaseAuth';
-import { Eye, EyeOff, AlertCircle, Loader } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertCircle, Loader, Eye, EyeOff } from 'lucide-react';
 import { toast } from '@/lib/components/Toast';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { validateLoginForm, LoginFormValues } from '@/lib/validation/auth.schema';
+import { Link } from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-
-interface AuthError {
-  email?: string;
-  password?: string;
-  general?: string;
-}
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { validateLoginForm, LoginFormValues } from '@/lib/validation/auth.schema';
 
 export function AuthContainer(): React.ReactElement {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<AuthError>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Rate limiting state
-  const [loginAttempts, setLoginAttempts] = useState(0);
-  const [isLocked, setIsLocked] = useState(false);
-  const [lockTimer, setLockTimer] = useState<NodeJS.Timeout | null>(null);
-  const lockTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Router
-  const router = useRouter();
-
-  // Load rate limiting state from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('loginAttempts');
-    const lockTime = localStorage.getItem('loginLockTime');
-
-    if (saved) {
-      const attempts = parseInt(saved);
-      setLoginAttempts(attempts);
-
-      if (lockTime) {
-        const now = Date.now();
-        const lockExpiry = parseInt(lockTime);
-
-        if (now < lockExpiry) {
-          setIsLocked(true);
-          const timeLeft = lockExpiry - now;
-          setupLockTimer(timeLeft);
-        } else {
-          localStorage.removeItem('loginAttempts');
-          localStorage.removeItem('loginLockTime');
-          setLoginAttempts(0);
-        }
-      }
-    }
-
-    return () => {
-      if (lockTimerRef.current) {
-        clearTimeout(lockTimerRef.current);
-      }
-    };
-  }, []);
-
-  const setupLockTimer = (duration: number) => {
-    if (lockTimerRef.current) {
-      clearTimeout(lockTimerRef.current);
-    }
-
-    lockTimerRef.current = setTimeout(() => {
-      setIsLocked(false);
-      setLoginAttempts(0);
-      localStorage.removeItem('loginAttempts');
-      localStorage.removeItem('loginLockTime');
-      toast.success('Intento bloqueado expirado. Puedes intentar de nuevo.');
-    }, duration);
-
-    setLockTimer(lockTimerRef.current);
-  };
+  const { signIn, status } = useAuthSession();
+  const isAuthenticating = status === 'loading' || isLoading;
 
   const validateEmailFormat = (emailStr: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(emailStr);
   };
 
-  const validateForm = useCallback((): boolean => {
+  const validateForm = (): boolean => {
     const validation = validateLoginForm({ email, password });
     if (!validation.success) {
-      const newErrors: AuthError = {};
+      const newErrors: Record<string, string> = {};
       for (const issue of validation.error.issues) {
-        const path = issue.path[0] as keyof LoginFormValues;
+        const path = issue.path[0] as string;
         newErrors[path] = issue.message;
       }
       setErrors(newErrors);
@@ -113,74 +50,26 @@ export function AuthContainer(): React.ReactElement {
     }
     setErrors({});
     return true;
-  }, [email, password]);
+  };
 
-  const handleLogin = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
 
-      if (isLocked) {
-        toast.error('Cuenta temporalmente bloqueada. Intenta de nuevo en 15 minutos.');
-        return;
-      }
+    if (!validateForm()) {
+      return;
+    }
 
-      if (!validateForm()) {
-        return;
-      }
-
-      if (loginAttempts >= 5) {
-        setIsLocked(true);
-        const lockDuration = 15 * 60 * 1000;
-        const lockExpiry = Date.now() + lockDuration;
-
-        localStorage.setItem('loginAttempts', '5');
-        localStorage.setItem('loginLockTime', lockExpiry.toString());
-
-        setupLockTimer(lockDuration);
-
-        toast.error('Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.');
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setErrors({});
-
-        await signInWithEmail(email, password);
-        setLoginAttempts(0);
-        localStorage.removeItem('loginAttempts');
-        localStorage.removeItem('loginLockTime');
-        setIsLocked(false);
-        toast.success('Sesión iniciada correctamente.');
-      } catch (error) {
-        const newAttempts = loginAttempts + 1;
-        setLoginAttempts(newAttempts);
-        localStorage.setItem('loginAttempts', newAttempts.toString());
-
-        const attemptsLeft = 5 - newAttempts;
-
-        if (newAttempts >= 5) {
-          setIsLocked(true);
-          const lockDuration = 15 * 60 * 1000;
-          const lockExpiry = Date.now() + lockDuration;
-
-          localStorage.setItem('loginAttempts', '5');
-          localStorage.setItem('loginLockTime', lockExpiry.toString());
-
-          setupLockTimer(lockDuration);
-
-          setErrors({ general: 'Demasiados intentos fallidos. Cuenta bloqueada 15 min.' });
-          toast.error('Cuenta bloqueada por demasiados intentos fallidos.');
-        } else {
-          setErrors({ general: `Correo o contraseña incorrectos. ${attemptsLeft} intentos restantes.` });
-          toast.error(`Credenciales inválidas. ${attemptsLeft} intentos restantes.`);
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [loginAttempts, router, rememberMe, email, isLocked, password, validateForm]
-  );
+    try {
+      setIsLoading(true);
+      await signIn(email.trim(), password);
+      // El hook useAuthSession manejará el redireccionamiento vía auth state change
+    } catch {
+      // El error ya se muestra vía toast en el hook
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleForgotPassword = async () => {
     if (!email.trim()) {
@@ -194,7 +83,8 @@ export function AuthContainer(): React.ReactElement {
     }
 
     try {
-      setLoading(true);
+      setIsLoading(true);
+      const { resetEmailPassword } = await import('@/lib/firebaseAuth');
       await resetEmailPassword(email);
       toast.success('Correo de reseteo enviado. Revisa tu bandeja de entrada.');
       setErrors({});
@@ -203,17 +93,9 @@ export function AuthContainer(): React.ReactElement {
       setErrors({ general: message });
       toast.error(message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    const remembered = localStorage.getItem('rememberEmail');
-    if (remembered) {
-      setEmail(remembered);
-      setRememberMe(true);
-    }
-  }, []);
 
   const getMinutesLeft = (): number => {
     const lockTime = localStorage.getItem('loginLockTime');
@@ -227,12 +109,31 @@ export function AuthContainer(): React.ReactElement {
   };
 
   const minutesLeft = getMinutesLeft();
+  const isLocked = minutesLeft > 0;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
       <div className="w-full max-w-md">
         <Card variant="glass-l2" padding="lg" className="mx-auto w-full max-w-md shadow-glass-xl">
           <div className="mb-8 text-center">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <path d="M22 12V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+                <path d="M14 12V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v8" />
+                <path d="M22 18V14a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4" />
+              </svg>
+            </div>
             <h1 className="mb-2 text-3xl font-bold text-white">ORIGEN ERP</h1>
             <p className="text-slate-400">Sistema de Gestión de Proyectos</p>
           </div>
@@ -250,15 +151,6 @@ export function AuthContainer(): React.ReactElement {
             </div>
           )}
 
-          {errors.general && !isLocked && (
-            <div className="mb-6 flex gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
-              <div>
-                <p className="text-xs text-amber-600">{errors.general}</p>
-              </div>
-            </div>
-          )}
-
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
               id="email"
@@ -270,12 +162,7 @@ export function AuthContainer(): React.ReactElement {
                 setEmail(e.target.value);
                 if (errors.email) setErrors({ ...errors, email: '' });
               }}
-              onBlur={() => {
-                if (email && !validateEmailFormat(email)) {
-                  setErrors({ ...errors, email: 'Ingresa un correo válido' });
-                }
-              }}
-              disabled={isLocked || loading}
+              disabled={isLocked || isAuthenticating}
               required
               autoComplete="email"
               error={errors.email}
@@ -300,7 +187,7 @@ export function AuthContainer(): React.ReactElement {
                 setPassword(e.target.value);
                 if (errors.password) setErrors({ ...errors, password: '' });
               }}
-              disabled={isLocked || loading}
+              disabled={isLocked || isAuthenticating}
               required
               autoComplete="current-password"
               minLength={6}
@@ -309,7 +196,7 @@ export function AuthContainer(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLocked || loading}
+                  disabled={isLocked || isAuthenticating}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
@@ -327,34 +214,45 @@ export function AuthContainer(): React.ReactElement {
               </p>
             )}
 
-            <div className="flex items-center gap-2">
-              <input
-                id="rememberMe"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                disabled={isLocked || loading}
-                className="h-4 w-4 rounded border-white/10 bg-white/[0.03] text-amber-500 focus:ring-2 focus:ring-brand-secondary/50 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Recuérdame"
-              />
-              <label
-                htmlFor="rememberMe"
-                className="cursor-pointer text-sm text-slate-400 transition-colors hover:text-slate-300"
-              >
-                Recuérdame
-              </label>
-            </div>
-
             <Button
               type="submit"
               variant="primary"
               size="lg"
-              isLoading={loading}
-              disabled={isLocked || loading}
-              className="w-full mt-2"
+              isLoading={isAuthenticating}
+              disabled={isLocked || isAuthenticating}
+              className="mt-2 w-full"
               aria-label="Iniciar sesión"
             >
-              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {isAuthenticating ? (
+                <>
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Iniciando sesión...
+                </>
+              ) : (
+                <>
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  Iniciar Sesión
+                </>
+              )}
             </Button>
           </form>
 
@@ -362,7 +260,7 @@ export function AuthContainer(): React.ReactElement {
             <button
               type="button"
               onClick={handleForgotPassword}
-              disabled={!email || isLocked || loading}
+              disabled={!email || isLocked || isAuthenticating}
               className="text-sm text-amber-400 transition-colors hover:text-amber-300 disabled:cursor-not-allowed disabled:text-slate-500"
             >
               ¿Olvidaste tu contraseña?

@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import {
@@ -108,9 +110,14 @@ export function useAuthSession() {
       return access;
     } catch (error) {
       const message = getAuthErrorMessage(error);
-      toast.error(message);
+      setToastError(message);
       return null;
     }
+  };
+
+  const setToastError = (message: string) => {
+    setAuthError(message);
+    toast.error(message);
   };
 
   return {
@@ -124,5 +131,6 @@ export function useAuthSession() {
     signOut,
     gmailAccess,
     authorizeGmail,
+    setAuthError,
   };
 }

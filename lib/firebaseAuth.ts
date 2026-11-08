@@ -23,33 +23,106 @@ export type EmailAccountCreationResult =
   | { user: User; verificationEmailSent: true }
   | { user: User; verificationEmailSent: false; verificationEmailError: unknown };
 
+export interface AuthErrorInfo {
+  code: string;
+  message: string;
+  userFriendlyMessage: string;
+}
+
 async function ensurePersistentSession(): Promise<void> {
   await setPersistence(auth, browserLocalPersistence);
 }
 
 /**
- * Verifica si existe al menos un usuario registrado en el sistema.
- * Se usa para determinar si mostrar el asistente de configuración inicial.
+ * Valida que el correo electrónico tenga un formato válido.
  */
-export async function hasRegisteredUsers(): Promise<boolean> {
-  try {
-    const current = auth.currentUser;
-    if (current) return true;
-    // Intenta obtener el estado de autenticación sincrónicamente
-    return Boolean(current);
-  } catch {
-    return false;
-  }
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
 }
 
 /**
- * Inicia sesión con correo y contraseña proporcionados por el usuario.
+ * Convierte un error de Firebase en un mensaje amigable para el usuario.
+ */
+export function getAuthErrorMessage(error: unknown): string {
+  const code =
+    typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : '';
+
+  const errorMessages: Record<string, string> = {
+    'auth/account-exists-with-different-credential':
+      'Este correo ya tiene una cuenta con otro método. Inicia sesión con ese método primero.',
+    'auth/api-key-not-valid':
+      'La configuración de Firebase no es válida. Contacta al administrador.',
+    'auth/cancelled-popup-request': 'Ya hay otra ventana de acceso abierta.',
+    'auth/email-already-in-use': 'Ya existe una cuenta con este correo. Inicia sesión.',
+    'auth/missing-email': 'Escribe tu correo electrónico.',
+    'auth/missing-password': 'Escribe tu contraseña.',
+    'auth/invalid-credential': 'El correo o la contraseña no son correctos.',
+    'auth/invalid-api-key': 'La configuración de Firebase no es válida.',
+    'auth/invalid-email': 'Escribe un correo electrónico válido.',
+    'auth/network-request-failed':
+      'No se pudo conectar con el servidor. Revisa tu conexión a internet.',
+    'auth/operation-not-allowed': 'Este método de acceso no está habilitado.',
+    'auth/popup-blocked': 'El navegador bloqueó la ventana emergente. Permite ventanas emergentes.',
+    'auth/popup-closed-by-user': 'Se canceló el acceso.',
+    'auth/provider-already-linked': 'Esta cuenta ya tiene este proveedor vinculado.',
+    'auth/credential-already-in-use': 'Esta cuenta ya está vinculada a otro usuario.',
+    'auth/web-storage-unsupported': 'El navegador no permite guardar la sesión. Habilita cookies.',
+    'auth/invalid-oauth-client-id': 'La configuración OAuth no es válida.',
+    'auth/unauthorized-continue-uri': 'La URL de acceso no está autorizada.',
+    'auth/too-many-requests': 'Demasiados intentos fallidos. Espera un momento.',
+    'auth/unauthorized-domain': 'Este dominio no está autorizado. Contacta al administrador.',
+    'auth/user-disabled': 'Esta cuenta está deshabilitada.',
+    'auth/user-not-found': 'No existe una cuenta con este correo.',
+    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+    'auth/wrong-password': 'El correo o la contraseña no son correctos.',
+  };
+
+  return errorMessages[code] || 'No se pudo completar la autenticación. Inténtalo de nuevo.';
+}
+
+/**
+ * Valida credenciales antes de enviarlas a Firebase.
+ * Retorna un objeto con isValid y un mensaje de error si no es válido.
+ */
+function validateCredentials(
+  email: string,
+  password: string
+): { isValid: boolean; error?: string } {
+  if (!email || !email.trim()) {
+    return { isValid: false, error: 'El correo electrónico es requerido.' };
+  }
+  if (!isValidEmail(email.trim())) {
+    return { isValid: false, error: 'Escribe un correo electrónico válido.' };
+  }
+  if (!password || password.length < 1) {
+    return { isValid: false, error: 'La contraseña es requerida.' };
+  }
+  return { isValid: true };
+}
+
+/**
+ * Inicia sesión con correo y contraseña.
+ * Valida credenciales localmente antes de llamar a Firebase.
  * No hay credenciales por defecto ni auto-login.
  */
 export async function signInWithEmail(email: string, password: string): Promise<User> {
+  // Validación local primero
+  const validation = validateCredentials(email, password);
+  if (!validation.isValid) {
+    throw new Error(validation.error);
+  }
+
+  // Asegurar persistencia de sesión
   await ensurePersistentSession();
-  const result = await signInWithEmailAndPassword(auth, email, password);
-  return result.user;
+
+  try {
+    const result = await signInWithEmailAndPassword(auth, email.trim(), password);
+    return result.user;
+  } catch (error) {
+    const message = getAuthErrorMessage(error);
+    throw new Error(message);
+  }
 }
 
 /**
@@ -60,22 +133,44 @@ export async function createEmailAccount(
   email: string,
   password: string
 ): Promise<EmailAccountCreationResult> {
+  // Validación local
+  const validation = validateCredentials(email, password);
+  if (!validation.isValid) {
+    throw new Error(validation.error);
+  }
+
+  if (password.length < 6) {
+    throw new Error('La contraseña debe tener al menos 6 caracteres.');
+  }
+
   await ensurePersistentSession();
-  const result = await createUserWithEmailAndPassword(auth, email, password);
+
   try {
-    const redirectUrl = `${window.location.origin}/?verified=true`;
-    await sendEmailVerification(result.user, {
-      url: redirectUrl,
-      handleCodeInApp: false,
-    });
-    return { user: result.user, verificationEmailSent: true };
-  } catch (verificationEmailError) {
-    return { user: result.user, verificationEmailSent: false, verificationEmailError };
+    const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+    try {
+      const redirectUrl = `${window.location.origin}/?verified=true`;
+      await sendEmailVerification(result.user, {
+        url: redirectUrl,
+        handleCodeInApp: false,
+      });
+      return { user: result.user, verificationEmailSent: true };
+    } catch (verificationEmailError) {
+      return { user: result.user, verificationEmailSent: false, verificationEmailError };
+    }
+  } catch (error) {
+    const message = getAuthErrorMessage(error);
+    throw new Error(message);
   }
 }
 
-export function resetEmailPassword(email: string): Promise<void> {
-  return sendPasswordResetEmail(auth, email);
+export async function resetEmailPassword(email: string): Promise<void> {
+  if (!email || !email.trim()) {
+    throw new Error('El correo electrónico es requerido.');
+  }
+  if (!isValidEmail(email.trim())) {
+    throw new Error('Escribe un correo electrónico válido.');
+  }
+  await sendPasswordResetEmail(auth, email.trim());
 }
 
 export function signOutUser(): Promise<void> {
