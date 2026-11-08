@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, ViewTransition, startTransition } from 'react';
 import {
   ProjectFormValues,
   ProjectFormProject,
@@ -125,16 +125,22 @@ export function ProjectForm({
         <div className="flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/10 bg-white shadow-2xl">
           <div className="flex items-center justify-between bg-slate-900 p-5 text-white">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                  ></path>
-                </svg>
-              </div>
+              <ViewTransition
+                name={`project-avatar-${editingProject?.id || 'new'}`}
+                share="morph"
+                default="none"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400">
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                    ></path>
+                  </svg>
+                </div>
+              </ViewTransition>
               <div>
                 <h3 id="project-form-title" className="text-lg font-bold text-white">
                   {editingProject ? 'Editar Proyecto' : 'Nuevo Proyecto'}
@@ -147,7 +153,11 @@ export function ProjectForm({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={() => {
+                startTransition(() => {
+                  onClose();
+                });
+              }}
               className="text-slate-400 transition hover:text-white"
               aria-label="Cerrar formulario"
             >

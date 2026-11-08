@@ -142,7 +142,9 @@
   backdrop-filter: blur(24px) saturate(190%);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 12px 40px 0 rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
 }
 
 .glass-l3,
@@ -151,7 +153,10 @@
   backdrop-filter: blur(28px) saturate(200%);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
   border: 1px solid rgba(245, 158, 11, 0.35);
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.15), 0 16px 48px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 0 25px rgba(245, 158, 11, 0.15),
+    0 16px 48px 0 rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
 }
 
 .glass-panel,
@@ -162,14 +167,22 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .glass-panel:hover,
 .prismal-panel:hover {
   border-color: rgba(245, 158, 11, 0.4);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(245, 158, 11, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .prismal-card {
@@ -187,7 +200,9 @@
 .prismal-card:hover {
   transform: translateY(-3px);
   border-color: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.15);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(56, 189, 248, 0.15);
 }
 
 .prismal-card::before {
@@ -579,4 +594,137 @@ html.theme-light .bg-slate-950 {
 html.theme-light .bg-slate-800 {
   background-color: #f8fafc !important;
   border-color: #e2e8f0 !important;
+}
+
+/* ============================================================
+   VIEW TRANSITIONS - Animaciones nativas del navegador
+   ============================================================ */
+
+/* View Transition pseudo-elementos para navegación de ruta (lateral/tab-to-tab) */
+::view-transition-group(route-fade) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(route-fade) {
+  animation: none;
+  mix-blend-mode: normal;
+  opacity: 1;
+  animation: route-fade-out 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+::view-transition-new(route-fade) {
+  animation: route-fade-in 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes route-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes route-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* View Transitions para shared element (morph de avatar de proyecto) */
+::view-transition-group(project-morph) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(project-morph),
+::view-transition-new(project-morph) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* View Transitions para Suspense reveal (datos cargando) */
+::view-transition-group(suspense-fade) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(suspense-fade) {
+  animation: suspense-fade-out 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+::view-transition-new(suspense-fade) {
+  animation: suspense-fade-in 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes suspense-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes suspense-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* View Transitions para cambio de estado (modales, paneles) */
+::view-transition-group(state-slide) {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(state-slide) {
+  animation: state-slide-out 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+::view-transition-new(state-slide) {
+  animation: state-slide-in 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes state-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes state-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* Reducido de movimiento para View Transitions */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

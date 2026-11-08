@@ -11,6 +11,7 @@ import { TouchTarget } from '@/components/ui/TouchTarget';
 import { AiAssistantView } from '@/features/ai/AiAssistantView';
 import { BudgetView } from '@/features/budget/BudgetView';
 import { DashboardView } from '@/features/dashboard/DashboardView';
+import { RouteTransition } from '@/components/ui/RouteTransition';
 import { ExpensesManager } from '@/components/ExpensesManager';
 import { GanttSchedule } from '@/components/GanttSchedule';
 import { CotizacionesView } from '@/components/CotizacionesView';
@@ -33,6 +34,7 @@ import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
 import { useProjectData } from '@/lib/services/projectData';
 import type { CompanySettings, Employee, TaskReminder } from '@/lib/types';
 import { isPrimaryAdministrator } from '@/lib/firebaseAuth';
+import { ViewTransition, addTransitionType, startTransition } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Settings } from 'lucide-react';
@@ -190,6 +192,12 @@ export default function MainApp() {
   const [activeProjectId, setActiveProjectId] = useState<string>('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const pendingProjectIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    startTransition(() => {
+      addTransitionType('tab-change');
+    });
+  }, [activeTab]);
 
   const tabConfig = TAB_CONFIG[activeTab];
   const hasInviteLink =
@@ -471,231 +479,242 @@ export default function MainApp() {
 
         {/* Feature view content */}
         {!(authStatus === 'authenticated' && workspaceLoading) && (
-          <>
-            {activeTab === 'dashboard' && (
-              <DashboardView
-                projects={activeProjects}
-                expenses={activeExpenses}
-                company={company}
-                activeProjectId={activeProject?.id ?? ''}
-                onSelectProject={handleSelectProject}
-                milestones={activeProjects.flatMap((project) => project.scheduleMilestones ?? [])}
-                employees={fullEmployees}
-                attendance={activeAttendance}
-              />
-            )}
-            {activeTab === 'proyectos' && (
-              <ProjectsView
-                company={company}
-                projects={data.projects}
-                expenses={data.expenses}
-                budgetItems={data.apuItems}
-                quotes={data.quotes}
-                loading={data.loading}
-                onCreateProject={data.createProject}
-                onProjectCreated={handleProjectCreated}
-                onUpdateProject={data.updateProject}
-                onArchiveProject={data.archiveProject}
-                onRestoreProject={data.restoreProject}
-                canManageProjects={permissions.canManageProjects}
-              />
-            )}
-            {activeTab === 'apu_presupuestos' && (
-              <BudgetView
-                projects={activeProjects}
-                expenses={data.expenses}
-                budgetItems={data.apuItems}
-                quotes={data.quotes}
-                activeProjectId={activeProject?.id ?? ''}
-                canWrite={permissions.canManageBudget}
-                company={company}
-                onSaveItems={data.saveAPUItems}
-                onDeleteItem={data.deleteAPUItem}
-              />
-            )}
-            {activeTab === 'personal' && permissions.canViewPersonnel && (
-              <StaffView
-                attendance={data.attendance}
-                company={company}
-                projects={activeProjects}
-                employees={data.employees}
-                activeProjectId={activeProject?.id ?? ''}
-                onSelectProject={handleSelectProject}
-                onAddEmployee={permissions.canManageEmployees ? data.addEmployee : undefined}
-                onAddAttendance={permissions.canManageAttendance ? data.addAttendance : undefined}
-                onDeleteAttendance={
-                  permissions.canManageAttendance ? data.deleteAttendance : undefined
-                }
-                onDeleteEmployee={permissions.canManageEmployees ? data.deleteEmployee : undefined}
-                canViewEmployeeDetails={permissions.canViewFullPersonnel}
-              />
-            )}
-            {activeTab === 'reportes' && (
-              <ReportsView
-                projects={activeProjects}
-                expenses={data.expenses}
-                fieldVisits={data.fieldVisits}
-                company={company}
-                activeProjectId={activeProject?.id ?? ''}
-                onSelectProject={handleSelectProject}
-                budgetItems={data.apuItems}
-                attendance={data.attendance}
-                quotes={data.quotes}
-              />
-            )}
-            {activeTab === 'gastos' && (
-              <ExpensesManager
-                projects={data.projects}
-                expenses={data.expenses}
-                company={company}
-                activeProjectId={activeProject?.id ?? ''}
-                onAddExpense={permissions.canManageExpenses ? data.addExpense : (_e) => {}}
-                onUpdateExpense={permissions.canManageExpenses ? data.updateExpense : undefined}
-                currency="GTQ"
-              />
-            )}
-            {activeTab === 'cotizaciones' && (
-              <CotizacionesView
-                projects={activeProjects}
-                budgetItems={data.apuItems}
-                budgetItemsLoading={data.apuItemsLoading}
-                company={company}
-                quotes={data.quotes}
-                canWrite={permissions.canManageQuotes}
-                activeProjectId={activeProject?.id ?? ''}
-                onSelectProject={handleSelectProject}
-                onSaveQuote={data.addQuote}
-                onUpdateQuoteStatus={data.updateQuoteStatus}
-              />
-            )}
-            {activeTab === 'planillas' && permissions.canViewFullPersonnel && (
-              <PayrollEstimateView
-                employees={fullEmployees}
-                attendance={data.attendance}
-                company={company}
-                onSaveRates={permissions.canManageCompany ? handleUpdateCompany : undefined}
-              />
-            )}
-            {activeTab === 'gmail' && (
-              <GmailManager
-                company={company}
-                projects={activeProjects}
-                activeProjectId={activeProject?.id ?? ''}
-                onSelectProject={handleSelectProject}
-                userEmail={currentUser?.email}
-                accessToken={gmailAccess?.accessToken}
-                tokenExpiresAt={gmailAccess?.expiresAt}
-                onAuthorize={async () => {
-                  const result = await authorizeGmail();
-                  if (!result) throw new Error('No se pudo autorizar Gmail.');
-                  return result;
-                }}
-              />
-            )}
-            {activeTab === 'equipo' && permissions.canManageCompany && workspace && currentUser && (
-              <CompanyTeamManager
-                companyId={workspace.id}
-                company={company}
-                currentUserId={currentUser.uid}
-                currentUserEmail={currentUser.email}
-              />
-            )}
-            {activeTab === 'maquinaria' && (
-              <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-5">
-                <PageHeader
-                  title={tabConfig.label}
-                  subtitle={tabConfig.subtitle}
-                  logoUrl={company.logoUrl}
-                  companyName={company.companyName}
-                  breadcrumbs={[
-                    { label: 'Inicio', href: '/' },
-                    { label: 'Proyectos', href: '/projects' },
-                    { label: tabConfig.label },
-                  ]}
+          <ViewTransition
+            enter={{ 'tab-change': 'route-fade', default: 'none' }}
+            exit={{ 'tab-change': 'route-fade', default: 'none' }}
+            default="none"
+          >
+            <>
+              {activeTab === 'dashboard' && (
+                <DashboardView
+                  projects={activeProjects}
+                  expenses={activeExpenses}
+                  company={company}
+                  activeProjectId={activeProject?.id ?? ''}
+                  onSelectProject={handleSelectProject}
+                  milestones={activeProjects.flatMap((project) => project.scheduleMilestones ?? [])}
+                  employees={fullEmployees}
+                  attendance={activeAttendance}
                 />
-                <MachineryManager
-                  machinery={data.machinery}
-                  machineryLogs={data.machineryLogs}
+              )}
+              {activeTab === 'proyectos' && (
+                <ProjectsView
+                  company={company}
+                  projects={data.projects}
+                  expenses={data.expenses}
+                  budgetItems={data.apuItems}
+                  quotes={data.quotes}
+                  loading={data.loading}
+                  onCreateProject={data.createProject}
+                  onProjectCreated={handleProjectCreated}
+                  onUpdateProject={data.updateProject}
+                  onArchiveProject={data.archiveProject}
+                  onRestoreProject={data.restoreProject}
+                  canManageProjects={permissions.canManageProjects}
+                />
+              )}
+              {activeTab === 'apu_presupuestos' && (
+                <BudgetView
+                  projects={activeProjects}
+                  expenses={data.expenses}
+                  budgetItems={data.apuItems}
+                  quotes={data.quotes}
+                  activeProjectId={activeProject?.id ?? ''}
+                  canWrite={permissions.canManageBudget}
+                  company={company}
+                  onSaveItems={data.saveAPUItems}
+                  onDeleteItem={data.deleteAPUItem}
+                />
+              )}
+              {activeTab === 'personal' && permissions.canViewPersonnel && (
+                <StaffView
+                  attendance={data.attendance}
+                  company={company}
+                  projects={activeProjects}
+                  employees={data.employees}
+                  activeProjectId={activeProject?.id ?? ''}
+                  onSelectProject={handleSelectProject}
+                  onAddEmployee={permissions.canManageEmployees ? data.addEmployee : undefined}
+                  onAddAttendance={permissions.canManageAttendance ? data.addAttendance : undefined}
+                  onDeleteAttendance={
+                    permissions.canManageAttendance ? data.deleteAttendance : undefined
+                  }
+                  onDeleteEmployee={
+                    permissions.canManageEmployees ? data.deleteEmployee : undefined
+                  }
+                  canViewEmployeeDetails={permissions.canViewFullPersonnel}
+                />
+              )}
+              {activeTab === 'reportes' && (
+                <ReportsView
+                  projects={activeProjects}
+                  expenses={data.expenses}
+                  fieldVisits={data.fieldVisits}
+                  company={company}
+                  activeProjectId={activeProject?.id ?? ''}
+                  onSelectProject={handleSelectProject}
+                  budgetItems={data.apuItems}
+                  attendance={data.attendance}
+                  quotes={data.quotes}
+                />
+              )}
+              {activeTab === 'gastos' && (
+                <ExpensesManager
+                  projects={data.projects}
+                  expenses={data.expenses}
+                  company={company}
+                  activeProjectId={activeProject?.id ?? ''}
+                  onAddExpense={permissions.canManageExpenses ? data.addExpense : (_e) => {}}
+                  onUpdateExpense={permissions.canManageExpenses ? data.updateExpense : undefined}
+                  currency="GTQ"
+                />
+              )}
+              {activeTab === 'cotizaciones' && (
+                <CotizacionesView
+                  projects={activeProjects}
+                  budgetItems={data.apuItems}
+                  budgetItemsLoading={data.apuItemsLoading}
+                  company={company}
+                  quotes={data.quotes}
+                  canWrite={permissions.canManageQuotes}
+                  activeProjectId={activeProject?.id ?? ''}
+                  onSelectProject={handleSelectProject}
+                  onSaveQuote={data.addQuote}
+                  onUpdateQuoteStatus={data.updateQuoteStatus}
+                />
+              )}
+              {activeTab === 'planillas' && permissions.canViewFullPersonnel && (
+                <PayrollEstimateView
+                  employees={fullEmployees}
+                  attendance={data.attendance}
+                  company={company}
+                  onSaveRates={permissions.canManageCompany ? handleUpdateCompany : undefined}
+                />
+              )}
+              {activeTab === 'gmail' && (
+                <GmailManager
+                  company={company}
                   projects={activeProjects}
                   activeProjectId={activeProject?.id ?? ''}
-                  canWrite={permissions.canManageMachinery}
-                  onAddMachinery={data.addMachinery}
-                  onDeleteMachinery={
-                    permissions.canManageMachinery ? data.deleteMachinery : undefined
-                  }
-                  onRecordMachineryUse={data.addMachineryLog}
-                  onSetMachineryStatus={data.setMachineryStatus}
-                  currency="GTQ"
-                  company={company}
+                  onSelectProject={handleSelectProject}
+                  userEmail={currentUser?.email}
+                  accessToken={gmailAccess?.accessToken}
+                  tokenExpiresAt={gmailAccess?.expiresAt}
+                  onAuthorize={async () => {
+                    const result = await authorizeGmail();
+                    if (!result) throw new Error('No se pudo autorizar Gmail.');
+                    return result;
+                  }}
                 />
-              </div>
-            )}
-            {activeTab === 'ai' && (
-              <AiAssistantView company={company} activeProject={activeProject} />
-            )}
-            {activeTab === 'cronograma_gantt' && (
-              <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
-                <PageHeader
-                  title={tabConfig.label}
-                  subtitle={tabConfig.subtitle}
-                  logoUrl={company.logoUrl}
-                  companyName={company.companyName}
-                  breadcrumbs={[
-                    { label: 'Inicio', href: '/' },
-                    { label: 'Proyectos', href: '/projects' },
-                    { label: tabConfig.label },
-                  ]}
-                />
-                {activeProject ? (
-                  <GanttSchedule
-                    tasks={activeProject.scheduleTasks ?? []}
-                    milestones={activeProject.scheduleMilestones ?? []}
-                    reminders={activeProject.taskReminders ?? []}
-                    projects={activeProjects}
-                    activeProjectId={activeProject.id}
-                    onUpdateTasks={(scheduleTasks) =>
-                      void persistScheduleChanges(activeProject.id, { scheduleTasks })
-                    }
-                    onUpdateMilestones={(scheduleMilestones) =>
-                      void persistScheduleChanges(activeProject.id, { scheduleMilestones })
-                    }
-                    onAddReminder={(reminder) =>
-                      void persistScheduleChanges(activeProject.id, {
-                        taskReminders: [...(activeProject.taskReminders ?? []), reminder],
-                      })
-                    }
-                    onToggleReminder={(reminderId) => {
-                      const taskReminders = (activeProject.taskReminders ?? []).map((reminder) =>
-                        reminder.id === reminderId
-                          ? { ...reminder, enabled: !reminder.enabled }
-                          : reminder
-                      );
-                      void persistScheduleChanges(activeProject.id, { taskReminders });
-                    }}
-                    onDeleteReminder={(reminderId) => {
-                      const taskReminders = (activeProject.taskReminders ?? []).filter(
-                        (reminder: TaskReminder) => reminder.id !== reminderId
-                      );
-                      void persistScheduleChanges(activeProject.id, { taskReminders });
-                    }}
-                    onUpdateProjectProgress={(projectId, progressPercent) =>
-                      void persistScheduleChanges(projectId, { progressPercent })
-                    }
+              )}
+              {activeTab === 'equipo' &&
+                permissions.canManageCompany &&
+                workspace &&
+                currentUser && (
+                  <CompanyTeamManager
+                    companyId={workspace.id}
+                    company={company}
+                    currentUserId={currentUser.uid}
+                    currentUserEmail={currentUser.email}
                   />
-                ) : (
-                  <div className="glass-panel p-8 text-center">
-                    <h3 className="mb-2 text-lg font-semibold text-white">
-                      Crea o selecciona un proyecto
-                    </h3>
-                    <p className="text-sm text-slate-400">
-                      El cronograma se guarda junto al proyecto activo. Primero agrega un proyecto
-                      para gestionar tareas e hitos.
-                    </p>
-                  </div>
                 )}
-              </div>
-            )}
-          </>
+              {activeTab === 'maquinaria' && (
+                <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-5">
+                  <PageHeader
+                    title={tabConfig.label}
+                    subtitle={tabConfig.subtitle}
+                    logoUrl={company.logoUrl}
+                    companyName={company.companyName}
+                    breadcrumbs={[
+                      { label: 'Inicio', href: '/' },
+                      { label: 'Proyectos', href: '/projects' },
+                      { label: tabConfig.label },
+                    ]}
+                  />
+                  <MachineryManager
+                    machinery={data.machinery}
+                    machineryLogs={data.machineryLogs}
+                    projects={activeProjects}
+                    activeProjectId={activeProject?.id ?? ''}
+                    canWrite={permissions.canManageMachinery}
+                    onAddMachinery={data.addMachinery}
+                    onDeleteMachinery={
+                      permissions.canManageMachinery ? data.deleteMachinery : undefined
+                    }
+                    onRecordMachineryUse={data.addMachineryLog}
+                    onSetMachineryStatus={data.setMachineryStatus}
+                    currency="GTQ"
+                    company={company}
+                  />
+                </div>
+              )}
+              {activeTab === 'ai' && (
+                <AiAssistantView company={company} activeProject={activeProject} />
+              )}
+              {activeTab === 'cronograma_gantt' && (
+                <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
+                  <PageHeader
+                    title={tabConfig.label}
+                    subtitle={tabConfig.subtitle}
+                    logoUrl={company.logoUrl}
+                    companyName={company.companyName}
+                    breadcrumbs={[
+                      { label: 'Inicio', href: '/' },
+                      { label: 'Proyectos', href: '/projects' },
+                      { label: tabConfig.label },
+                    ]}
+                  />
+                  {activeProject ? (
+                    <GanttSchedule
+                      tasks={activeProject.scheduleTasks ?? []}
+                      milestones={activeProject.scheduleMilestones ?? []}
+                      reminders={activeProject.taskReminders ?? []}
+                      projects={activeProjects}
+                      activeProjectId={activeProject.id}
+                      onUpdateTasks={(scheduleTasks) =>
+                        void persistScheduleChanges(activeProject.id, { scheduleTasks })
+                      }
+                      onUpdateMilestones={(scheduleMilestones) =>
+                        void persistScheduleChanges(activeProject.id, { scheduleMilestones })
+                      }
+                      onAddReminder={(reminder) =>
+                        void persistScheduleChanges(activeProject.id, {
+                          taskReminders: [...(activeProject.taskReminders ?? []), reminder],
+                        })
+                      }
+                      onToggleReminder={(reminderId) => {
+                        const taskReminders = (activeProject.taskReminders ?? []).map((reminder) =>
+                          reminder.id === reminderId
+                            ? { ...reminder, enabled: !reminder.enabled }
+                            : reminder
+                        );
+                        void persistScheduleChanges(activeProject.id, { taskReminders });
+                      }}
+                      onDeleteReminder={(reminderId) => {
+                        const taskReminders = (activeProject.taskReminders ?? []).filter(
+                          (reminder: TaskReminder) => reminder.id !== reminderId
+                        );
+                        void persistScheduleChanges(activeProject.id, { taskReminders });
+                      }}
+                      onUpdateProjectProgress={(projectId, progressPercent) =>
+                        void persistScheduleChanges(projectId, { progressPercent })
+                      }
+                    />
+                  ) : (
+                    <div className="glass-panel p-8 text-center">
+                      <h3 className="mb-2 text-lg font-semibold text-white">
+                        Crea o selecciona un proyecto
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        El cronograma se guarda junto al proyecto activo. Primero agrega un proyecto
+                        para gestionar tareas e hitos.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          </ViewTransition>
         )}
       </main>
 
