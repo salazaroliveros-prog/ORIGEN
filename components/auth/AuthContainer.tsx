@@ -13,9 +13,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AlertCircle, Loader, Eye, EyeOff } from 'lucide-react';
+import { AlertCircle, ArrowRight, Loader, Eye, EyeOff } from 'lucide-react';
 import { toast } from '@/lib/components/Toast';
-import { Link } from 'next/link';
+import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
