@@ -127,7 +127,8 @@ export function AiAssistantView({ company, activeProject }: AiAssistantViewProps
           ))}
           {isSending && (
             <p role="status" className="flex items-center gap-2 text-sm text-slate-400">
-              <LoaderCircle className="h-4 w-4 animate-spin" /> Generando respuesta...
+              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> Generando
+              respuesta…
             </p>
           )}
           {error && (
@@ -162,7 +163,7 @@ export function AiAssistantView({ company, activeProject }: AiAssistantViewProps
               className="self-end rounded-xl bg-blue-600 px-4 py-3 text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Enviar consulta"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           <p className="mt-2 text-[10px] text-slate-500">

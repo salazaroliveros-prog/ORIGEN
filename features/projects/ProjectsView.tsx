@@ -199,7 +199,7 @@ export function ProjectsView({
                   setFormOpen(true);
                 }}
               >
-                <Plus className="h-4 w-4" /> Nuevo Proyecto
+                <Plus className="h-4 w-4" aria-hidden="true" /> Nuevo Proyecto
               </Button>
             )}
             <Button
@@ -209,7 +209,7 @@ export function ProjectsView({
               aria-label="Exportar proyectos a CSV"
               title="Exportar proyectos a CSV"
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         }
@@ -219,7 +219,7 @@ export function ProjectsView({
         <Card variant="elevated" padding="md">
           <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-brand-secondary" />
+              <Calendar className="h-5 w-5 text-brand-secondary" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-slate-300">Listado de Proyectos</h3>
             </div>
             <div className="flex items-center gap-2">
@@ -243,7 +243,7 @@ export function ProjectsView({
             {visibleProjects.map((p) => {
               return (
                 <ViewTransition key={p.id} default="none">
-                  <li className="glass-l1 flex flex-col justify-between gap-3 rounded-xl border border-white/10 p-4 transition-all duration-200 hover:bg-white/[0.05] lg:flex-row lg:items-center">
+                  <li className="glass-l1 flex flex-col justify-between gap-3 rounded-xl border border-white/10 p-4 duration-200 hover:bg-white/[0.05] lg:flex-row lg:items-center">
                     <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
                       <div className="flex items-center gap-3">
                         <ViewTransition
@@ -314,7 +314,7 @@ export function ProjectsView({
                       <div className="flex gap-2">
                         <TouchTarget
                           onPress={() => openPhotoModal(p)}
-                          className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 transition-all hover:bg-blue-500/20 hover:text-blue-300"
+                          className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-blue-500/20 hover:text-blue-300"
                           aria-label={`Subir fotos de avance ${p.code}`}
                           title={`Subir fotos de avance`}
                         >
@@ -323,7 +323,7 @@ export function ProjectsView({
                         {canManageProjects && p.status !== 'Archivado' && (
                           <TouchTarget
                             onPress={() => openEdit(p)}
-                            className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 transition-all hover:bg-white/[0.1]"
+                            className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-white/[0.1]"
                             aria-label={`Editar proyecto ${p.code}`}
                             title={`Editar proyecto ${p.code}`}
                           >
@@ -334,7 +334,7 @@ export function ProjectsView({
                           (p.status === 'Archivado' ? (
                             <TouchTarget
                               onPress={() => void onRestoreProject(p.id)}
-                              className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 transition-all hover:bg-emerald-500/20 hover:text-emerald-300"
+                              className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-emerald-500/20 hover:text-emerald-300"
                               aria-label={`Restaurar proyecto ${p.code}`}
                               title={`Restaurar proyecto ${p.code}`}
                             >
@@ -343,7 +343,7 @@ export function ProjectsView({
                           ) : (
                             <TouchTarget
                               onPress={() => void onArchiveProject(p.id)}
-                              className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 transition-all hover:bg-amber-500/20 hover:text-amber-300"
+                              className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-amber-500/20 hover:text-amber-300"
                               aria-label={`Archivar proyecto ${p.code}`}
                               title={`Archivar proyecto ${p.code}; conserva sus datos`}
                             >
@@ -358,7 +358,7 @@ export function ProjectsView({
             })}
             {visibleProjects.length === 0 && (
               <li className="glass-l1 flex flex-col items-center gap-3 rounded-xl p-8 text-center text-sm text-slate-400">
-                <Building className="h-10 w-10 text-slate-500 opacity-30" />
+                <Building className="h-10 w-10 text-slate-500 opacity-30" aria-hidden="true" />
                 <span>
                   {showArchived ? 'No hay proyectos archivados' : 'No hay proyectos activos'}
                 </span>
@@ -369,7 +369,7 @@ export function ProjectsView({
                     onClick={() => setFormOpen(true)}
                     className="mt-3"
                   >
-                    <Plus className="mr-2 h-3 w-3" />
+                    <Plus className="mr-2 h-3 w-3" aria-hidden="true" />
                     Crear su primer proyecto
                   </Button>
                 )}
@@ -417,7 +417,7 @@ export function ProjectsView({
                 }}
                 className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
             <div className="p-5">

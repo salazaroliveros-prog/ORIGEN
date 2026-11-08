@@ -36,12 +36,18 @@ export function Input({
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500">
+          <div
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+            aria-hidden="true"
+          >
             {leftIcon}
           </div>
         )}
         {rightIcon && (
-          <div className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500">
+          <div
+            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+            aria-hidden="true"
+          >
             {rightIcon}
           </div>
         )}

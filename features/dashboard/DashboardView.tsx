@@ -339,7 +339,7 @@ export function DashboardView({
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-6">
       {/* Header Bar */}
-      <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/15 bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-slate-950/90 p-6 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.45)] md:flex-row md:items-center ring-1 ring-white/10">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/15 bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-slate-950/90 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.45)] ring-1 ring-white/10 backdrop-blur-2xl md:flex-row md:items-center">
         <div className="flex items-center gap-3.5">
           <span className="rounded-2xl border border-amber-500/40 bg-amber-500/20 p-3.5 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.25)]">
             <Activity className="h-6 w-6 stroke-[2.5]" />
@@ -378,7 +378,7 @@ export function DashboardView({
                 if (firstMatchingProject) onSelectProject(firstMatchingProject.id);
               }
             }}
-            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 font-bold text-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
             <option value="todos">Todos los proyectos ({projects.length})</option>
             <option value="En Ejecución">En Ejecución</option>
@@ -413,7 +413,7 @@ export function DashboardView({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Proyectos Activos
             </p>
             <span className="rounded-lg bg-blue-500/10 p-1.5 text-blue-400">
@@ -428,7 +428,7 @@ export function DashboardView({
 
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Presupuesto Proyectado
             </p>
             <span className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-400">
@@ -443,7 +443,7 @@ export function DashboardView({
 
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Gasto Real Acumulado
             </p>
             <span className="rounded-lg bg-sky-500/10 p-1.5 text-sky-400">
@@ -468,7 +468,7 @@ export function DashboardView({
           }`}
         >
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-rose-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-rose-400">
               Alertas de Sobrecosto
             </p>
             <span className="rounded-lg bg-rose-500/20 p-1.5 text-rose-400">
@@ -492,7 +492,7 @@ export function DashboardView({
               <AlertTriangle className="h-5 w-5" />
             </span>
             <div>
-              <h4 className="text-xs font-extrabold tracking-wider text-white uppercase">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-white">
                 Atención Contable: {totals.overbudgetCount} proyecto(s) han excedido su límite
                 financiero
               </h4>
@@ -513,9 +513,10 @@ export function DashboardView({
       {/* ================= UPCOMING MILESTONES / ALERTAS PRÓXIMAS SECTION ================= */}
       {(() => {
         // Calculate upcoming milestones due within the next 7 days
-        const allMilestones = milestones.length > 0
-          ? milestones
-          : filteredProjects.flatMap((p) => p.scheduleMilestones ?? []);
+        const allMilestones =
+          milestones.length > 0
+            ? milestones
+            : filteredProjects.flatMap((p) => p.scheduleMilestones ?? []);
 
         // Use reference date matching mock data or current system date
         const today = new Date('2026-11-01T00:00:00'); // Consistent reference for sample data window
@@ -527,13 +528,17 @@ export function DashboardView({
             if (m.completed) return false;
             if (!m.targetDate) return false;
             const target = new Date(m.targetDate + 'T00:00:00');
-            const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(
+              (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+            );
             return diffDays >= -5 && diffDays <= 30;
           })
           .map((m) => {
             const project = projects.find((p) => p.id === m.projectId);
             const target = new Date(m.targetDate + 'T00:00:00');
-            const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(
+              (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+            );
             return {
               ...m,
               projectName: project?.name ?? 'Proyecto de Obra',
@@ -544,7 +549,7 @@ export function DashboardView({
           .sort((a, b) => a.targetDate.localeCompare(b.targetDate));
 
         return (
-          <div className="rounded-2xl border border-amber-500/30 bg-slate-900/90 p-5 shadow-xl space-y-4">
+          <div className="space-y-4 rounded-2xl border border-amber-500/30 bg-slate-900/90 p-5 shadow-xl">
             <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
               <div className="flex items-center gap-3">
                 <span className="rounded-xl border border-amber-500/40 bg-amber-500/20 p-2.5 text-amber-400">
@@ -555,7 +560,8 @@ export function DashboardView({
                     Alertas Próximas & Hitos del Cronograma (Próximos Vencimientos)
                   </h3>
                   <p className="mt-0.5 text-xs text-slate-400">
-                    Hitos críticos de obra pendientes con fecha de vencimiento próxima en el cronograma de ejecución.
+                    Hitos críticos de obra pendientes con fecha de vencimiento próxima en el
+                    cronograma de ejecución.
                   </p>
                 </div>
               </div>
@@ -566,7 +572,8 @@ export function DashboardView({
 
             {upcoming.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-400">
-                No hay hitos programados con vencimiento inminente en los próximos días. Todo el cronograma se encuentra al día.
+                No hay hitos programados con vencimiento inminente en los próximos días. Todo el
+                cronograma se encuentra al día.
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -580,13 +587,13 @@ export function DashboardView({
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <span className="font-mono text-[10px] font-bold text-amber-400 uppercase">
+                          <span className="font-mono text-[10px] font-bold uppercase text-amber-400">
                             {m.projectCode} • {m.phase}
                           </span>
-                          <h4 className="mt-0.5 text-xs font-extrabold text-white group-hover:text-amber-300 transition">
+                          <h4 className="mt-0.5 text-xs font-extrabold text-white transition group-hover:text-amber-300">
                             {m.title}
                           </h4>
-                          <p className="mt-1 text-[11px] text-slate-400 line-clamp-1">
+                          <p className="mt-1 line-clamp-1 text-[11px] text-slate-400">
                             {m.projectName}
                           </p>
                         </div>
@@ -597,11 +604,15 @@ export function DashboardView({
                               : 'border border-amber-700/60 bg-amber-950/60 text-amber-300'
                           }`}
                         >
-                          {m.diffDays === 0 ? 'Vence hoy' : m.diffDays > 0 ? `Vence en ${m.diffDays}d` : `Vencido (${Math.abs(m.diffDays)}d)`}
+                          {m.diffDays === 0
+                            ? 'Vence hoy'
+                            : m.diffDays > 0
+                              ? `Vence en ${m.diffDays}d`
+                              : `Vencido (${Math.abs(m.diffDays)}d)`}
                         </span>
                       </div>
 
-                      <div className="mt-3 flex items-center justify-between font-mono text-[11px] text-slate-300 border-t border-slate-700/50 pt-2">
+                      <div className="mt-3 flex items-center justify-between border-t border-slate-700/50 pt-2 font-mono text-[11px] text-slate-300">
                         <span>Fecha límite: {m.targetDate}</span>
                         <span className="font-bold text-emerald-400">{m.progress}% avance</span>
                       </div>
@@ -619,7 +630,7 @@ export function DashboardView({
         {/* WIDGET 1: CASH FLOW PROJECTION CHART (High Priority) */}
         {visibleWidgets.cashFlow && (
           <div className="group relative">
-            <div className="absolute top-3 right-3 z-10 opacity-0 transition group-hover:opacity-100">
+            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
               <button
                 onClick={() => handleToggleWidget('cashFlow')}
                 title="Ocultar Widget"
@@ -640,7 +651,7 @@ export function DashboardView({
         {/* WIDGET 2: ACTIVE LABOR COSTS & PRODUCTIVITY (High Priority) */}
         {visibleWidgets.laborCosts && (
           <div className="group relative">
-            <div className="absolute top-3 right-3 z-10 opacity-0 transition group-hover:opacity-100">
+            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
               <button
                 onClick={() => handleToggleWidget('laborCosts')}
                 title="Ocultar Widget"
@@ -843,7 +854,7 @@ export function DashboardView({
         {/* WIDGET 5: MONTHLY EXPENSES HISTOGRAM */}
         {visibleWidgets.expensesHistogram && (
           <div className="group relative">
-            <div className="absolute top-3 right-3 z-10 opacity-0 transition group-hover:opacity-100">
+            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
               <button
                 onClick={() => handleToggleWidget('expensesHistogram')}
                 title="Ocultar Widget"
@@ -866,7 +877,7 @@ export function DashboardView({
         {/* WIDGET 6: D3 BUDGET UTILIZATION */}
         {visibleWidgets.budgetUtilization && (
           <div className="group relative">
-            <div className="absolute top-3 right-3 z-10 opacity-0 transition group-hover:opacity-100">
+            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
               <button
                 onClick={() => handleToggleWidget('budgetUtilization')}
                 title="Ocultar Widget"
@@ -920,7 +931,7 @@ export function DashboardView({
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="font-mono text-[10px] font-bold text-amber-400 uppercase">
+                        <span className="font-mono text-[10px] font-bold uppercase text-amber-400">
                           {p.code || p.id}
                         </span>
                         <h4 className="mt-0.5 text-sm font-extrabold text-white">{p.name}</h4>
@@ -1046,7 +1057,7 @@ export function DashboardView({
                   <div
                     key={widget.id}
                     onClick={() => handleToggleWidget(widget.id)}
-                    className={`flex cursor-pointer items-center justify-between gap-4 rounded-2xl border p-4 transition ${
+                    className={`flex cursor-pointer items-center justify-between gap-4 rounded-2xl border p-4 duration-200 ${
                       isVisible
                         ? 'border-amber-500/50 bg-slate-800/80 shadow-md'
                         : 'border-slate-800/60 bg-slate-900/40 opacity-60 hover:opacity-100'
@@ -1060,13 +1071,13 @@ export function DashboardView({
                             : 'border-slate-700 bg-slate-800 text-slate-500'
                         }`}
                       >
-                        <IconComponent className="h-5 w-5" />
+                        <IconComponent className="h-5 w-5" aria-hidden="true" />
                       </span>
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-sm font-bold text-white">{widget.title}</h4>
                           {widget.priority === 'alta' && (
-                            <span className="rounded-full border border-amber-500/40 bg-amber-500/20 px-2 py-0.5 text-[9px] font-extrabold text-amber-300 uppercase">
+                            <span className="rounded-full border border-amber-500/40 bg-amber-500/20 px-2 py-0.5 text-[9px] font-extrabold uppercase text-amber-300">
                               Alta Prioridad
                             </span>
                           )}

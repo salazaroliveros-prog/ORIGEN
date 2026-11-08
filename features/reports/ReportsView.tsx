@@ -393,7 +393,7 @@ export function ReportsView({
               onClick={() => renderReport(false)}
               className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
             >
-              <Printer className="h-4 w-4" />
+              <Printer className="h-4 w-4" aria-hidden="true" />
               Imprimir / Guardar PDF
             </button>
             <button
@@ -402,14 +402,14 @@ export function ReportsView({
               onClick={exportExpensesCsv}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4" aria-hidden="true" />
               Exportar gastos CSV
             </button>
           </div>
         </article>
         <article className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
           <h2 className="flex items-center gap-2 font-bold text-white">
-            <FileCheck2 className="h-4 w-4" />
+            <FileCheck2 className="h-4 w-4" aria-hidden="true" />
             Borrador de acta
           </h2>
           <label htmlFor="acta-notes" className="mt-3 block text-xs font-semibold text-slate-300">
@@ -432,7 +432,7 @@ export function ReportsView({
             onClick={() => renderReport(true)}
             className="mt-3 inline-flex items-center gap-2 rounded-xl border border-amber-500/50 px-4 py-2 text-sm font-bold text-amber-200 disabled:opacity-50"
           >
-            <Printer className="h-4 w-4" />
+            <Printer className="h-4 w-4" aria-hidden="true" />
             Preparar acta para imprimir
           </button>
         </article>
@@ -444,7 +444,7 @@ export function ReportsView({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-slate-950 p-3">
-      <p className="text-[10px] text-slate-500 uppercase">{label}</p>
+      <p className="text-[10px] uppercase text-slate-500">{label}</p>
       <p className="mt-1 truncate text-sm font-bold text-white">{value}</p>
     </div>
   );

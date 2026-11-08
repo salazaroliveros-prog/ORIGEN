@@ -38,7 +38,7 @@ export function ErrorState({
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-bold text-slate-950 transition-all duration-300 hover:bg-brand-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-bold text-slate-950 duration-300 hover:bg-brand-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
             >
               {retryLabel}
             </button>

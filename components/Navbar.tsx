@@ -152,16 +152,22 @@ export function Navbar({
   return (
     <>
       {/* ================= FIXED GLASS SIDEBAR (Desktop) ================= */}
-      <aside className="fixed bottom-0 left-0 top-0 z-50 hidden w-[280px] select-none flex-col overflow-y-auto border-r border-white/15 bg-slate-950/75 p-6 backdrop-blur-2xl shadow-[8px_0_32px_rgba(0,0,0,0.5)] md:flex">
+      <aside className="fixed bottom-0 left-0 top-0 z-50 hidden w-[280px] select-none flex-col overflow-y-auto border-r border-white/15 bg-slate-950/75 p-6 shadow-[8px_0_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:flex">
         {/* Brand Header */}
         <div className="space-y-3 border-b border-white/15 pb-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-[0_0_25px_rgba(245,158,11,0.4)] ring-1 ring-white/30">
-            <Building2 className="h-6 w-6 stroke-[2.5] text-slate-950" />
+            <Building2 className="h-6 w-6 stroke-[2.5] text-slate-950" aria-hidden="true" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-tight text-white drop-shadow-md">ConstructERP</span>
-              <Badge variant="primary" size="sm" className="bg-amber-500/20 text-amber-300 border-amber-500/40 font-mono font-bold">
+              <span className="text-xl font-black tracking-tight text-white drop-shadow-md">
+                ConstructERP
+              </span>
+              <Badge
+                variant="primary"
+                size="sm"
+                className="border-amber-500/40 bg-amber-500/20 font-mono font-bold text-amber-300"
+              >
                 Guate
               </Badge>
             </div>
@@ -196,20 +202,27 @@ export function Navbar({
                 size="sm"
                 onClick={() => onSelectTab(tab.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`w-full justify-between text-left transition-all duration-200 ${
+                className={`w-full justify-between text-left duration-200 ${
                   isActive
-                    ? 'bg-amber-500 text-slate-950 font-extrabold shadow-[0_0_20px_rgba(245,158,11,0.5)] scale-[1.02]'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white hover:border-white/10'
+                    ? 'scale-[1.02] bg-amber-500 font-extrabold text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.5)]'
+                    : 'text-slate-300 hover:border-white/10 hover:bg-slate-800/80 hover:text-white'
                 }`}
               >
                 <div className="flex w-full items-center gap-3">
                   <Icon
-                    className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950 stroke-[2.5]' : 'text-slate-400'}`}
+                    className={`h-4 w-4 shrink-0 ${isActive ? 'stroke-[2.5] text-slate-950' : 'text-slate-400'}`}
+                    aria-hidden="true"
                   />
                   <span className="truncate">{tab.label}</span>
                 </div>
                 {tab.badge && (
-                  <Badge variant="primary" size="sm" className={isActive ? 'bg-slate-950/20 text-slate-950 border-slate-950/30 font-bold' : ''}>
+                  <Badge
+                    variant="primary"
+                    size="sm"
+                    className={
+                      isActive ? 'border-slate-950/30 bg-slate-950/20 font-bold text-slate-950' : ''
+                    }
+                  >
                     {tab.badge}
                   </Badge>
                 )}
@@ -227,7 +240,7 @@ export function Navbar({
               onClick={onOpenAiAssistant}
               className="flex flex-1 items-center justify-center gap-2"
             >
-              <Sparkles className="h-4 w-4 text-amber-300" />
+              <Sparkles className="h-4 w-4 text-amber-300" aria-hidden="true" />
               <span>Gemini IA Asistente</span>
             </Button>
             {canManageCompany && (
@@ -277,7 +290,7 @@ export function Navbar({
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand-secondary to-brand-secondary/80 shadow-md">
-                    <Building2 className="h-5 w-5 text-white" />
+                    <Building2 className="h-5 w-5 text-white" aria-hidden="true" />
                   </div>
                   <div>
                     <h2
@@ -333,6 +346,7 @@ export function Navbar({
                       <div className="flex w-full items-center gap-3">
                         <Icon
                           className={`h-4 w-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`}
+                          aria-hidden="true"
                         />
                         <span>{tab.label}</span>
                       </div>

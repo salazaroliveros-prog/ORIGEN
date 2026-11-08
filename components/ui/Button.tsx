@@ -22,7 +22,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-50 disabled:pointer-events-none touch-manipulation select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400';
+    'inline-flex items-center justify-center rounded-xl font-medium transition-transform transition-opacity duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-50 disabled:pointer-events-none touch-manipulation select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400';
 
   const variants = {
     primary:

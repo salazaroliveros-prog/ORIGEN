@@ -101,7 +101,7 @@ export function BudgetView({
       {portfolio.alerts.length > 0 ? (
         <Card variant="elevated" padding="md" className="mt-4">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" aria-hidden="true" />
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-white">Alertas del portafolio</h3>
               <ul className="list-inside list-disc text-xs text-slate-300">
@@ -153,13 +153,13 @@ export function BudgetView({
       {portfolio.projects.length > 0 ? (
         <Card variant="elevated" padding="md" className="mt-4">
           <div className="mb-3 flex items-center gap-2">
-            <Building2 className="text-brand-secondary h-4 w-4" />
+            <Building2 className="h-4 w-4 text-brand-secondary" aria-hidden="true" />
             <h3 className="text-sm font-semibold text-white">Consolidado por proyecto</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-xs">
               <thead>
-                <tr className="border-b border-white/10 text-[10px] tracking-wider text-slate-400 uppercase">
+                <tr className="border-b border-white/10 text-[10px] uppercase tracking-wider text-slate-400">
                   <th className="py-2 pr-3 font-bold">Proyecto</th>
                   <th className="py-2 pr-3 font-bold">Presupuesto</th>
                   <th className="py-2 pr-3 font-bold">APU</th>
@@ -195,7 +195,7 @@ export function BudgetView({
                     <td className="py-2 pr-3 font-mono text-slate-200">{row.progressPercent}%</td>
                     <td className="py-2 font-mono text-slate-200">
                       <span className="inline-flex items-center gap-1">
-                        <FileText className="h-3 w-3 text-slate-400" />
+                        <FileText className="h-3 w-3 text-slate-400" aria-hidden="true" />
                         {row.quoteCount} · {formatGTQ(row.quotePipelineGTQ)}
                       </span>
                     </td>

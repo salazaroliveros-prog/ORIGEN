@@ -35,7 +35,9 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>(
+    {}
+  );
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, register, status } = useAuthSession();
 
@@ -74,7 +76,7 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
     <Card variant="overlay" padding="lg" className={`${className} mx-auto w-full max-w-md`}>
       <div className="mb-8 text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
-          <Building2 className="h-6 w-6" />
+          <Building2 className="h-6 w-6" aria-hidden="true" />
         </div>
         <h2 className="mb-2 text-2xl font-bold text-slate-100">Iniciar sesión</h2>
         <p className="text-sm text-slate-400">Accede a tu panel de control de ConstructERP</p>
@@ -82,7 +84,7 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
 
       {error && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+          <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
@@ -147,7 +149,7 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
             </>
           ) : (
             <>
-              <ArrowRight className="mr-2 h-4 w-4" />
+              <ArrowRight className="mr-2 h-4 w-4" aria-hidden="true" />
               Iniciar sesión
             </>
           )}

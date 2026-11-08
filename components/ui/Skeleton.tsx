@@ -47,7 +47,7 @@ export function Skeleton({
     <div
       className={`${baseClass} ${animationClass} ${variantClass} ${className}`}
       style={style}
-      aria-label="Cargando..."
+      aria-label="Cargando…"
       role="status"
     />
   );

@@ -41,7 +41,9 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof RegisterFormValues, string>>>({});
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof RegisterFormValues, string>>>(
+    {}
+  );
   const [isLoading, setIsLoading] = useState(false);
   const { register, status } = useAuthSession();
 
@@ -80,7 +82,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
     <Card variant="overlay" padding="lg" className={`${className} mx-auto w-full max-w-md`}>
       <div className="mb-8 text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-          <UserPlusIcon className="h-6 w-6" />
+          <UserPlusIcon className="h-6 w-6" aria-hidden="true" />
         </div>
         <h2 className="mb-2 text-2xl font-bold text-slate-100">Crear cuenta</h2>
         <p className="text-sm text-slate-400">Regístrate para acceder a ConstructERP Guatemala</p>
@@ -88,7 +90,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
 
       {error && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+          <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
@@ -165,7 +167,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
             </>
           ) : (
             <>
-              <ArrowRight className="mr-2 h-4 w-4" />
+              <ArrowRight className="mr-2 h-4 w-4" aria-hidden="true" />
               Crear cuenta
             </>
           )}

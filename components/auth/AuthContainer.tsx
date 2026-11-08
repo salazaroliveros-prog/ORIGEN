@@ -128,6 +128,7 @@ export function AuthContainer(): React.ReactElement {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="h-6 w-6"
+                aria-hidden="true"
               >
                 <path d="M22 12V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
                 <path d="M14 12V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v8" />
@@ -172,7 +173,7 @@ export function AuthContainer(): React.ReactElement {
             />
             {errors.email && (
               <p id="email-error" className="mt-1 flex items-center gap-1 text-xs text-red-400">
-                <AlertCircle className="h-3 w-3" />
+                <AlertCircle className="h-3 w-3" aria-hidden="true" />
                 {errors.email}
               </p>
             )}
