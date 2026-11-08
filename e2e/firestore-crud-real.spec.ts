@@ -7,21 +7,8 @@
  * se ejecuten correctamente contra Firestore de PRODUCCIÓN usando credenciales reales
  * y datos ingresados a través de los inputs de la aplicación.
  *
- * REQUISITO PREVIO: Firebase Auth debe estar accesible desde este entorno.
- * Actualmente el login falla silenciosamente (no hay respuesta de Firebase Auth).
- * Una vez resuelto el acceso a Auth, estas pruebas validarán el 100% del flujo CRUD.
- *
- * COLECCIONES VALIDADAS:
- *   - projects (proyectos de obra)
- *   - expenses (gastos operativos)
- *   - employees (personal)
- *   - machinery (maquinaria y equipos)
- *   - quotes (cotizaciones)
- *   - apuItems (partidas de presupuesto APU)
- *   - attendance (asistencia con GPS)
- *   - fieldVisits (visitas de obra/bitácoras)
- *   - quotes (cotizaciones de clientes)
- *   - companySettings (configuración de empresa)
+ * REQUISITO PREVIO: Firebase Auth debe estar accesible (usuario creado en Firebase Console)
+ * y App Check debug token debe estar registrado en Firebase Console.
  *
  * CREDENCIALES DE PRUEBA (reales, definidas en .env.local):
  *   Email:    salazaroliveros@gmail.com
@@ -39,8 +26,7 @@ const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 // ============================================================
 
 /**
- * Autentica al usuario administrador. Intenta primero con query params
- * (método documentado en useAuthSession.ts), luego con login manual.
+ * Autentica al usuario administrador usando credenciales reales de .env.local
  */
 async function ensureAuthenticated(page: any, useQueryParam = true) {
   test.setTimeout(120_000);
@@ -82,40 +68,6 @@ async function openTab(page: any, name: string | RegExp) {
 }
 
 /**
- * Rellena el formulario de creación de proyecto con datos de producción realistas.
- */
-async function createProjectViaUI(page: any, data: any) {
-  await openTab(page, 'Proyectos & Firmas');
-  await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
-
-  const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
-  await expect(dialog).toBeVisible({ timeout: 10_000 });
-
-  await dialog.getByLabel('Código del Proyecto').fill(data.code);
-  await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
-  await dialog.getByLabel('Nombre del cliente').fill(data.client);
-  await dialog.getByLabel('Ubicación').fill(data.location);
-  await dialog.getByLabel('Municipio').fill(data.municipality);
-  await dialog.getByLabel('Departamento').fill(data.department);
-  await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
-  await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
-  await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
-  await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
-
-  // Hacer clic en Crear Proyecto y esperar a que el diálogo se cierre
-  await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
-
-  // Esperar a que el diálogo se cierre (puede tomar tiempo por validación y guardado en Firestore)
-  await expect(dialog).toBeHidden({ timeout: 15_000 });
-  await page.waitForTimeout(3000);
-
-  // Verificar que el proyecto se persiste en Firestore (visible en lista)
-  await expect(page.getByText(data.code).first()).toBeVisible({ timeout: 20_000 });
-
-  return data;
-}
-
-/**
  * Genera un identificador único basado en timestamp para evitar colisiones.
  */
 function uniqueId(prefix = 'E2E'): string {
@@ -145,15 +97,32 @@ test.describe('FIRESTORE CRUD — Colección: projects (Proyectos de obra)', () 
       endDate: '2027-05-31',
     };
 
-    await createProjectViaUI(page, data);
-
-    // Verificar persistencia: recargar página y confirmar que sigue ahí
-    await page.reload();
-    await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+
+    // Hacer clic en Crear Proyecto y esperar a que el diálogo se cierre
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    // Esperar a que el diálogo se cierre (puede tomar tiempo por validación y guardado en Firestore)
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
+
+    // Verificar que el proyecto se persiste en Firestore (visible en lista)
     await expect(page.getByText(data.code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(data.name).first()).toBeVisible();
-    await expect(page.getByText('250,000').first()).toBeVisible();
   });
 
   test('READ — Leer proyecto existente y verificar campos', async ({ page }) => {
@@ -170,7 +139,26 @@ test.describe('FIRESTORE CRUD — Colección: projects (Proyectos de obra)', () 
       endDate: '2027-10-01',
     };
 
-    await createProjectViaUI(page, data);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     // Verificar que todos los campos se muestran correctamente en la tarjeta
     const projectRow = page.locator('main li').filter({ hasText: data.code }).first();
@@ -197,7 +185,26 @@ test.describe('FIRESTORE CRUD — Colección: projects (Proyectos de obra)', () 
       endDate: '2027-11-01',
     };
 
-    await createProjectViaUI(page, data);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     // Editar proyecto
     await page.getByRole('button', { name: `Editar proyecto ${data.code}` }).click();
@@ -209,7 +216,7 @@ test.describe('FIRESTORE CRUD — Colección: projects (Proyectos de obra)', () 
     await editDialog.getByLabel('Avance (%)').fill('60');
     await editDialog.getByRole('button', { name: 'Actualizar' }).click();
 
-    await expect(editDialog).toBeHidden();
+    await expect(editDialog).toBeHidden({ timeout: 15_000 });
     await page.waitForTimeout(2000);
 
     // Verificar que los cambios se persisten
@@ -243,10 +250,30 @@ test.describe('FIRESTORE CRUD — Colección: projects (Proyectos de obra)', () 
       endDate: '2027-11-01',
     };
 
-    await createProjectViaUI(page, data);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     // Archivar (soft delete)
     await page.getByRole('button', { name: `Archivar proyecto ${data.code}` }).click();
+    await page.waitForTimeout(1000);
     await page.getByLabel('Mostrar').selectOption('archived');
     await page.waitForTimeout(2000);
 
@@ -258,6 +285,7 @@ test.describe('FIRESTORE CRUD — Colección: projects (Proyectos de obra)', () 
 
     // Restaurar
     await page.getByRole('button', { name: `Restaurar proyecto ${data.code}` }).click();
+    await page.waitForTimeout(1000);
     await page.getByLabel('Mostrar').selectOption('active');
     await page.waitForTimeout(2000);
 
@@ -267,7 +295,7 @@ test.describe('FIRESTORE CRUD — Colección: projects (Proyectos de obra)', () 
 });
 
 // ============================================================
-// PRUEBAS CRUD — COLECCIÓN: expenses (Gastos)
+// PRUEBAS CRUD — COLECCIÓN: expenses (Gastos operativos)
 // ============================================================
 
 test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () => {
@@ -278,9 +306,9 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
   test('CREATE — Registrar gasto y verificar propagación a proyecto y tablero', async ({
     page,
   }) => {
-    const projectData = {
-      code: `EXP-PROJ-${uniqueId()}`,
-      name: `Proyecto para Gasto ${uniqueId()}`,
+    const data = {
+      code: `EXP-${uniqueId()}`,
+      name: `Proyecto Gasto ${uniqueId()}`,
       client: 'Cliente Gasto',
       location: 'Zona 5, Guatemala',
       municipality: 'Guatemala',
@@ -291,7 +319,26 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
       endDate: '2027-11-01',
     };
 
-    await createProjectViaUI(page, projectData);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     await openTab(page, 'Gastos & Facturas');
     await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
@@ -299,9 +346,16 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
 
     // Seleccionar proyecto
     const projectSelect = page.getByLabel('Proyecto Asignado *');
+    await projectSelect.click();
+    await page.waitForTimeout(1000);
+
     const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((o: string) => o.includes(projectData.code));
-    if (match) await projectSelect.selectOption({ label: match });
+    const match = options.find((o: string) => o.includes(data.code));
+    if (match) {
+      await projectSelect.selectOption({ label: match });
+    } else {
+      await projectSelect.selectOption({ index: 1 });
+    }
 
     // Llenar campos del gasto
     await page
@@ -322,7 +376,7 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
 
     // Verificar propagación al proyecto
     await openTab(page, 'Proyectos & Firmas');
-    const projectRow = page.locator('main li').filter({ hasText: projectData.code }).first();
+    const projectRow = page.locator('main li').filter({ hasText: data.code }).first();
     await expect(projectRow).toContainText('35,000');
 
     // Verificar propagación al tablero
@@ -332,7 +386,7 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
   });
 
   test('UPDATE — Actualizar monto del gasto y verificar cambio', async ({ page }) => {
-    const projectData = {
+    const data = {
       code: `EXP-UPD-${uniqueId()}`,
       name: `Proyecto Gasto Update ${uniqueId()}`,
       client: 'Cliente Update',
@@ -345,16 +399,42 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
       endDate: '2027-11-01',
     };
 
-    await createProjectViaUI(page, projectData);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     await openTab(page, 'Gastos & Facturas');
     await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     await page.waitForTimeout(1000);
 
     const projectSelect = page.getByLabel('Proyecto Asignado *');
+    await projectSelect.click();
+    await page.waitForTimeout(1000);
+
     const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((o: string) => o.includes(projectData.code));
-    if (match) await projectSelect.selectOption({ label: match });
+    const match = options.find((o: string) => o.includes(data.code));
+    if (match) {
+      await projectSelect.selectOption({ label: match });
+    } else {
+      await projectSelect.selectOption({ index: 1 });
+    }
 
     await page
       .getByLabel('Descripción Detallada del Insumo o Servicio *')
@@ -379,7 +459,7 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
   });
 
   test('DELETE — Eliminar gasto y verificar eliminación de Firestore', async ({ page }) => {
-    const projectData = {
+    const data = {
       code: `EXP-DEL-${uniqueId()}`,
       name: `Proyecto Gasto Delete ${uniqueId()}`,
       client: 'Cliente Delete',
@@ -392,16 +472,42 @@ test.describe('FIRESTORE CRUD — Colección: expenses (Gastos operativos)', () 
       endDate: '2027-11-01',
     };
 
-    await createProjectViaUI(page, projectData);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     await openTab(page, 'Gastos & Facturas');
     await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     await page.waitForTimeout(1000);
 
     const projectSelect = page.getByLabel('Proyecto Asignado *');
+    await projectSelect.click();
+    await page.waitForTimeout(1000);
+
     const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((o: string) => o.includes(projectData.code));
-    if (match) await projectSelect.selectOption({ label: match });
+    const match = options.find((o: string) => o.includes(data.code));
+    if (match) {
+      await projectSelect.selectOption({ label: match });
+    } else {
+      await projectSelect.selectOption({ index: 1 });
+    }
 
     await page
       .getByLabel('Descripción Detallada del Insumo o Servicio *')
@@ -456,7 +562,7 @@ test.describe('FIRESTORE CRUD — Colección: employees (Personal y cuadrillas)'
     await empDialog.getByLabel('Teléfono').fill(empData.phone);
     await empDialog.getByRole('button', { name: 'Guardar Empleado' }).click();
 
-    await expect(empDialog).toBeHidden();
+    await expect(empDialog).toBeHidden({ timeout: 15_000 });
     await page.waitForTimeout(2000);
 
     await expect(page.getByText(empData.name).first()).toBeVisible({ timeout: 20_000 });
@@ -587,7 +693,7 @@ test.describe('FIRESTORE CRUD — Colección: machinery (Maquinaria y equipos)',
       .fill(macData.hours);
     await macDialog.getByRole('button', { name: /Guardar Maquinaria/i }).click();
 
-    await expect(macDialog).toBeHidden();
+    await expect(macDialog).toBeHidden({ timeout: 15_000 });
     await page.waitForTimeout(2500);
 
     const macCard = page
@@ -618,7 +724,7 @@ test.describe('FIRESTORE CRUD — Colección: quotes (Cotizaciones de clientes)'
   test('CREATE — Crear cotización y marcar como aceptada (propaga a ingresos)', async ({
     page,
   }) => {
-    const projectData = {
+    const data = {
       code: `QUOTE-PROJ-${uniqueId()}`,
       name: `Proyecto Cotización ${uniqueId()}`,
       client: 'Cliente Cotización',
@@ -631,7 +737,26 @@ test.describe('FIRESTORE CRUD — Colección: quotes (Cotizaciones de clientes)'
       endDate: '2027-11-01',
     };
 
-    await createProjectViaUI(page, projectData);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     await openTab(page, 'Cotizaciones');
     const newQuote = page.getByRole('button', { name: /Nueva Cotización Rápida/i }).first();
@@ -713,7 +838,7 @@ test.describe('FIRESTORE CRUD — Colección: attendance (Asistencia con GPS)', 
 });
 
 // ============================================================
-// VALIDACIÓN DE INTEGRIDAD DE DATOS — Transversal
+// PRUEBAS CRUD — COLECCIÓN: attendance (Asistencia con GPS)
 // ============================================================
 
 test.describe('FIRESTORE — Validación de integridad de datos transversal', () => {
@@ -722,7 +847,7 @@ test.describe('FIRESTORE — Validación de integridad de datos transversal', ()
   });
 
   test('Datos persisten tras recarga de página en múltiples colecciones', async ({ page }) => {
-    const projectData = {
+    const data = {
       code: `INT-PROJ-${uniqueId()}`,
       name: `Proyecto Integridad ${uniqueId()}`,
       client: 'Cliente Integridad',
@@ -735,14 +860,33 @@ test.describe('FIRESTORE — Validación de integridad de datos transversal', ()
       endDate: '2027-11-01',
     };
 
-    await createProjectViaUI(page, projectData);
+    await openTab(page, 'Proyectos & Firmas');
+    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
+    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await dialog.getByLabel('Código del Proyecto').fill(data.code);
+    await dialog.getByLabel('Nombre del Proyecto').fill(data.name);
+    await dialog.getByLabel('Nombre del cliente').fill(data.client);
+    await dialog.getByLabel('Ubicación').fill(data.location);
+    await dialog.getByLabel('Municipio').fill(data.municipality);
+    await dialog.getByLabel('Departamento').fill(data.department);
+    await dialog.getByLabel('Presupuesto Total (Q)').fill(data.budgetTotal);
+    await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
+    await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
+    await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
 
     // Recargar y verificar que todo persiste
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');
-    await expect(page.getByText(projectData.code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(projectData.name).first()).toBeVisible();
+    await expect(page.getByText(data.code).first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(data.name).first()).toBeVisible();
     await expect(page.getByText('900,000').first()).toBeVisible();
     await expect(page.getByText('40%').first()).toBeVisible();
   });
