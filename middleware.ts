@@ -29,12 +29,12 @@ export function middleware(request: NextRequest) {
   // Content Security Policy
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://www.googletagmanager.com",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://www.googletagmanager.com https://www.recaptcha.com https://recaptcha.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://*.googleapis.com https://*.google.com https://www.gstatic.com https://origen-one-kohl.vercel.app wss:",
-    "frame-src 'self' https://www.google.com https://accounts.google.com",
+    "connect-src 'self' https://*.googleapis.com https://*.google.com https://www.gstatic.com https://www.recaptcha.com https://recaptcha.net https://origen-4335pzppz-proyectoswm.vercel.app wss:",
+    "frame-src 'self' https://www.google.com https://accounts.google.com https://www.recaptcha.com https://recaptcha.net",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
