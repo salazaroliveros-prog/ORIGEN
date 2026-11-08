@@ -124,42 +124,87 @@
 /* ============================================================
    COMPONENTES BASE - Glassmorphism
    ============================================================ */
-.glass-l1 {
-  background: var(--glass-l1-bg);
-  backdrop-filter: blur(var(--blur-standard));
-  -webkit-backdrop-filter: blur(var(--blur-standard));
-  border: 1px solid var(--glass-l1-border);
+/* ============================================================
+   PRISMAL GLASSMORPHISM FRAMEWORK & DESIGN TOKENS
+   ============================================================ */
+.glass-l1,
+.prismal-glass-sm {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-.glass-l2 {
-  background: var(--glass-l2-bg);
-  backdrop-filter: blur(var(--blur-standard));
-  -webkit-backdrop-filter: blur(var(--blur-standard));
-  border: 1px solid var(--glass-l2-border);
+.glass-l2,
+.prismal-glass {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
 }
 
-.glass-l3 {
-  background: var(--glass-l3-bg);
-  backdrop-filter: blur(var(--blur-standard));
-  -webkit-backdrop-filter: blur(var(--blur-standard));
-  border: 1px solid var(--glass-l3-border);
+.glass-l3,
+.prismal-glass-glow {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.15), 0 16px 48px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
 }
 
-.glass-panel {
-  background: var(--glass-l1-bg);
-  backdrop-filter: blur(var(--blur-standard));
-  -webkit-backdrop-filter: blur(var(--blur-standard));
-  border: 1px solid var(--glass-l1-border);
-  border-radius: var(--radius-lg);
+.glass-panel,
+.prismal-panel {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-xl);
   padding: var(--space-6);
-  box-shadow: var(--shadow-lg);
-  transition:
-    transform var(--transition-fast),
-    border-color var(--transition-fast);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.glass-panel:hover {
-  border-color: var(--border-strong);
+.glass-panel:hover,
+.prismal-panel:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.prismal-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prismal-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.prismal-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.prismal-card:hover::before {
+  opacity: 1;
 }
 
 .stat-card {

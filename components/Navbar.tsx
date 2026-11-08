@@ -72,14 +72,14 @@ function WorkspaceSelector({
 
   return (
     <div className={`space-y-1.5 ${className ?? ''}`}>
-      <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+      <label htmlFor={id} className="text-xs font-semibold text-slate-300">
         Empresa activa
       </label>
       <select
         id={id}
         value={activeWorkspaceId}
         onChange={(event) => onSelectWorkspace?.(event.target.value)}
-        className="min-h-[44px] w-full rounded-xl border border-white/15 bg-white/[0.05] px-3 text-sm text-slate-100 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-brand-secondary/50 focus-visible:ring-offset-2"
+        className="min-h-[44px] w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
       >
         {workspaces.map(({ workspace: item, membership }) => (
           <option key={item.id} value={item.id}>
@@ -152,20 +152,20 @@ export function Navbar({
   return (
     <>
       {/* ================= FIXED GLASS SIDEBAR (Desktop) ================= */}
-      <aside className="fixed bottom-0 left-0 top-0 z-50 hidden w-[280px] select-none flex-col overflow-y-auto border-r border-white/10 bg-slate-950/70 p-6 backdrop-blur-2xl md:flex">
+      <aside className="fixed bottom-0 left-0 top-0 z-50 hidden w-[280px] select-none flex-col overflow-y-auto border-r border-white/15 bg-slate-950/75 p-6 backdrop-blur-2xl shadow-[8px_0_32px_rgba(0,0,0,0.5)] md:flex">
         {/* Brand Header */}
-        <div className="space-y-3 border-b border-white/10 pb-6">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-secondary via-brand-secondary/80 to-sky-600 shadow-glow-brand">
-            <Building2 className="h-6 w-6 stroke-[2.5] text-white" />
+        <div className="space-y-3 border-b border-white/15 pb-6">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-[0_0_25px_rgba(245,158,11,0.4)] ring-1 ring-white/30">
+            <Building2 className="h-6 w-6 stroke-[2.5] text-slate-950" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold tracking-tight text-white">ConstructERP</span>
-              <Badge variant="primary" size="sm">
-                Guatemala
+              <span className="text-xl font-black tracking-tight text-white drop-shadow-md">ConstructERP</span>
+              <Badge variant="primary" size="sm" className="bg-amber-500/20 text-amber-300 border-amber-500/40 font-mono font-bold">
+                Guate
               </Badge>
             </div>
-            <p className="mt-1 truncate text-xs font-medium text-slate-400">
+            <p className="mt-1 truncate text-xs font-semibold text-slate-300/80">
               {company.commercialName || 'Volcanes Proyectos & Ingeniería'}
             </p>
           </div>
@@ -196,16 +196,20 @@ export function Navbar({
                 size="sm"
                 onClick={() => onSelectTab(tab.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`w-full justify-between text-left ${isActive ? 'shadow-[inset_0_0_12px_rgba(56,189,248,0.3)]' : ''}`}
+                className={`w-full justify-between text-left transition-all duration-200 ${
+                  isActive
+                    ? 'bg-amber-500 text-slate-950 font-extrabold shadow-[0_0_20px_rgba(245,158,11,0.5)] scale-[1.02]'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white hover:border-white/10'
+                }`}
               >
                 <div className="flex w-full items-center gap-3">
                   <Icon
-                    className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`}
+                    className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950 stroke-[2.5]' : 'text-slate-400'}`}
                   />
                   <span className="truncate">{tab.label}</span>
                 </div>
                 {tab.badge && (
-                  <Badge variant="primary" size="sm">
+                  <Badge variant="primary" size="sm" className={isActive ? 'bg-slate-950/20 text-slate-950 border-slate-950/30 font-bold' : ''}>
                     {tab.badge}
                   </Badge>
                 )}
@@ -359,7 +363,7 @@ export function Navbar({
                 <div className="space-y-2">
                   <label
                     htmlFor="mobile-project-select"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-300"
+                    className="text-xs font-semibold text-slate-300"
                   >
                     Proyecto activo
                   </label>
@@ -368,7 +372,7 @@ export function Navbar({
                     value={activeProjectId}
                     onChange={(event) => onSelectProject(event.target.value)}
                     disabled={projects.length === 0}
-                    className="min-h-[44px] w-full rounded-xl border border-white/15 bg-white/[0.03] px-3 text-sm text-slate-100 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-brand-secondary/50 focus-visible:ring-offset-2 disabled:opacity-60"
+                    className="min-h-[44px] w-full rounded-lg border border-white/15 bg-white/[0.03] px-3 text-sm text-slate-100 focus-visible:ring-2 focus-visible:ring-brand-secondary/50 focus-visible:ring-offset-2 disabled:opacity-60"
                   >
                     {projects.length === 0 ? (
                       <option value="">Sin proyectos disponibles</option>
@@ -415,7 +419,7 @@ export function Navbar({
 
       <nav
         aria-label="Navegación rápida"
-        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-white/10 bg-slate-950/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_24px_rgba(2,6,23,0.28)] backdrop-blur-2xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-white/10 bg-slate-950/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_24px_rgba(2,6,23,0.28)] backdrop-blur-xl md:hidden"
       >
         {mobileQuickTabs.map((tab) => {
           const Icon = tab.icon;
@@ -428,7 +432,7 @@ export function Navbar({
               onClick={() => onSelectTab(tab.id)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={tab.label}
-              className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
+              className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
                 isActive ? 'text-amber-300' : 'text-slate-400 hover:text-slate-100'
               }`}
             >
@@ -445,7 +449,7 @@ export function Navbar({
           aria-label={
             isMobileSidebarOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
           }
-          className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
+          className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${
             isMobileSidebarOpen ? 'text-amber-300' : 'text-slate-400 hover:text-slate-100'
           }`}
         >
@@ -482,7 +486,7 @@ export function Navbar({
                 disabled={projects.length === 0}
                 aria-expanded={isProjectDropdownOpen}
                 aria-haspopup="listbox"
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 backdrop-blur-sm"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-slate-200"
               >
                 <span className="h-2 w-2 rounded-full bg-sky-400"></span>
                 <span className="max-w-[110px] truncate sm:max-w-[160px]">
@@ -495,7 +499,7 @@ export function Navbar({
                 <div
                   role="menu"
                   aria-label="Cambiar proyecto activo"
-                  className="absolute right-0 z-50 mt-2 w-64 space-y-1 rounded-2xl border border-white/15 bg-glass-l3-bg p-2 shadow-glass-lg backdrop-blur-2xl"
+                  className="absolute right-0 z-50 mt-2 w-64 space-y-1 rounded-xl border border-white/15 bg-slate-900/95 p-2 shadow-2xl backdrop-blur-2xl"
                 >
                   <div className="border-b border-white/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-slate-400">
                     Cambiar Proyecto Activo
@@ -534,7 +538,7 @@ export function Navbar({
             </div>
 
             {/* User Pill with Status Dot */}
-            <div className="user-pill flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-2 text-xs text-slate-200 backdrop-blur-sm">
+            <div className="user-pill flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-2 text-xs text-slate-200">
               <span
                 className={`status-dot h-2 w-2 rounded-full ${currentUser ? 'bg-emerald-400 shadow-[0_0_8px_#4ade80]' : 'bg-slate-500'}`}
               ></span>
@@ -556,7 +560,7 @@ export function Navbar({
                 onClick={() => void onSignOut()}
                 isLoading={isSigningOut}
                 aria-label="Cerrar sesión"
-                className="rounded-xl p-2.5 text-slate-400 backdrop-blur-sm hover:bg-red-500/20 hover:text-red-300"
+                className="rounded-lg p-2.5 text-slate-400 hover:bg-red-500/20 hover:text-red-300"
                 title="Cerrar Sesión"
               >
                 <LogOut className="h-4 w-4" />

@@ -15,7 +15,15 @@ try {
     const source = path.join(appRoot, item);
     if (!fs.existsSync(target) && target !== '/app/applet') {
       try {
-        fs.symlinkSync(source, target);
+        if (item === 'package.json') {
+          fs.copyFileSync(source, target);
+        } else {
+          fs.symlinkSync(source, target);
+        }
+      } catch {}
+    } else if (item === 'package.json') {
+      try {
+        fs.copyFileSync(source, target);
       } catch {}
     }
   }
