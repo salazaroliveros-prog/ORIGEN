@@ -73,22 +73,27 @@ export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
 
 // Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente)
-// Nota: En desarrollo (localhost) se omite porque reCAPTCHA Enterprise requiere
-// el dominio registrado en Google Cloud Console. En producción (Vercel) se activa
-// con la variable NEXT_PUBLIC_FIREBASE_APP_CHECK_RECAPTCHA_KEY.
-if (
-  typeof window !== 'undefined' &&
-  firebaseConfig.appCheckRecaptchaKey &&
-  process.env.NODE_ENV !== 'development'
-) {
+// En desarrollo (localhost) usa el debug token de Firebase Console para evitar
+// bloqueos de App Check enforcement en el plan Spark.
+// En producción (Vercel) usa la clave de reCAPTCHA Enterprise configurada.
+if (typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
   try {
+    // Configurar debug token para desarrollo local si está disponible en .env.local
+    if (
+      process.env.NODE_ENV === 'development' &&
+      process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN
+    ) {
+      (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN =
+        process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN;
+    }
+
     initializeAppCheck(app, {
       provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
       isTokenAutoRefreshEnabled: true,
     });
   } catch (error) {
     console.warn('Firebase App Check initialization failed:', error);
-    // No bloquear el login si App Check falla en desarrollo
+    // No bloquear el login si App Check falla
   }
 }
 
