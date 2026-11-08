@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Custom Hooks Integration Tests
- * 
+ *
  * Tests de integración para hooks personalizados
  */
 
@@ -153,7 +153,7 @@ describe('Custom Hooks Integration Tests', () => {
         mobileMenuOpen: false,
         setMobileMenuOpen: (open: boolean) => console.log(open),
       };
-      
+
       expect(appShell.sidebarOpen).toBeDefined();
       expect(appShell.setSidebarOpen).toBeDefined();
       expect(appShell.mobileMenuOpen).toBeDefined();
@@ -165,7 +165,7 @@ describe('Custom Hooks Integration Tests', () => {
         sidebarOpen: true,
         setSidebarOpen: (open: boolean) => console.log(open),
       };
-      
+
       expect(typeof appShell.sidebarOpen).toBe('boolean');
       expect(typeof appShell.setSidebarOpen).toBe('function');
     });
@@ -178,7 +178,7 @@ describe('Custom Hooks Integration Tests', () => {
         loading: false,
         error: null,
       };
-      
+
       expect(workspace.company).toBeDefined();
       expect(workspace.loading).toBeDefined();
       expect(workspace.error).toBeDefined();
@@ -188,7 +188,7 @@ describe('Custom Hooks Integration Tests', () => {
       const workspace = {
         company: { id: 'comp-001', name: 'ORIGEN Constructora' },
       };
-      
+
       expect(workspace.company.id).toBeDefined();
       expect(workspace.company.name).toBeDefined();
     });
@@ -202,7 +202,7 @@ describe('Custom Hooks Integration Tests', () => {
         pendingChanges: 0,
         error: null,
       };
-      
+
       expect(syncStatus.isSyncing).toBeDefined();
       expect(syncStatus.lastSync).toBeDefined();
       expect(syncStatus.pendingChanges).toBeDefined();
@@ -215,7 +215,7 @@ describe('Custom Hooks Integration Tests', () => {
         lastSync: '2024-10-27T10:00:00',
         pendingChanges: 0,
       };
-      
+
       expect(typeof syncStatus.isSyncing).toBe('boolean');
       expect(typeof syncStatus.pendingChanges).toBe('number');
     });
@@ -224,7 +224,7 @@ describe('Custom Hooks Integration Tests', () => {
       const syncStatus = {
         lastSync: '2024-10-27T10:00:00',
       };
-      
+
       const timestamp = new Date(syncStatus.lastSync);
       expect(timestamp).toBeInstanceOf(Date);
     });
@@ -238,7 +238,7 @@ describe('Custom Hooks Integration Tests', () => {
         dateRange: { start: '', end: '' },
         setFilters: (filters: any) => console.log(filters),
       };
-      
+
       expect(filters.status).toBeDefined();
       expect(filters.client).toBeDefined();
       expect(filters.dateRange).toBeDefined();
@@ -250,7 +250,7 @@ describe('Custom Hooks Integration Tests', () => {
         status: 'in-progress',
         client: 'client-001',
       };
-      
+
       expect(filters.status).toBeDefined();
       expect(filters.client).toBeDefined();
     });
@@ -263,7 +263,7 @@ describe('Custom Hooks Integration Tests', () => {
         memory: 1024,
         renderTime: 16,
       };
-      
+
       expect(metrics.fps).toBeGreaterThan(0);
       expect(metrics.memory).toBeGreaterThan(0);
       expect(metrics.renderTime).toBeGreaterThan(0);

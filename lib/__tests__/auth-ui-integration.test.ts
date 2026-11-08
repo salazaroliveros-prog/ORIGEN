@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Auth UI Integration Tests
- * 
+ *
  * Tests de integración para componentes de autenticación UI
  */
 
@@ -168,7 +168,8 @@ describe('Auth UI Integration Tests', () => {
     });
 
     it('should validate password match', () => {
-      const passwordsMatch = mockResetPasswordForm.password === mockResetPasswordForm.confirmPassword;
+      const passwordsMatch =
+        mockResetPasswordForm.password === mockResetPasswordForm.confirmPassword;
       expect(passwordsMatch).toBe(true);
     });
 
@@ -176,7 +177,7 @@ describe('Auth UI Integration Tests', () => {
       const hasUpperCase = /[A-Z]/.test(mockResetPasswordForm.password);
       const hasLowerCase = /[a-z]/.test(mockResetPasswordForm.password);
       const hasNumber = /\d/.test(mockResetPasswordForm.password);
-      
+
       expect(hasUpperCase).toBe(true);
       expect(hasLowerCase).toBe(true);
       expect(hasNumber).toBe(true);
@@ -197,7 +198,7 @@ describe('Auth UI Integration Tests', () => {
         loading: false,
         error: null,
       };
-      
+
       expect(authState.isAuthenticated).toBeDefined();
       expect(authState.user).toBeDefined();
       expect(authState.loading).toBeDefined();
@@ -211,7 +212,7 @@ describe('Auth UI Integration Tests', () => {
         loading: false,
         error: null,
       };
-      
+
       expect(authState.isAuthenticated).toBe(true);
       expect(authState.user).toBeDefined();
     });
@@ -223,7 +224,7 @@ describe('Auth UI Integration Tests', () => {
         loading: true,
         error: null,
       };
-      
+
       expect(authState.loading).toBe(true);
     });
 
@@ -234,7 +235,7 @@ describe('Auth UI Integration Tests', () => {
         loading: false,
         error: 'Invalid credentials',
       };
-      
+
       expect(authState.error).toBeDefined();
     });
   });
@@ -246,7 +247,7 @@ describe('Auth UI Integration Tests', () => {
         enabled: true,
         icon: 'google',
       };
-      
+
       expect(googleLogin.provider).toBe('google');
       expect(googleLogin.enabled).toBe(true);
     });
@@ -257,7 +258,7 @@ describe('Auth UI Integration Tests', () => {
         enabled: true,
         icon: 'github',
       };
-      
+
       expect(githubLogin.provider).toBe('github');
       expect(githubLogin.enabled).toBe(true);
     });
@@ -267,7 +268,7 @@ describe('Auth UI Integration Tests', () => {
         provider: 'facebook',
         enabled: false,
       };
-      
+
       expect(socialLogin.enabled).toBe(false);
     });
   });
@@ -279,7 +280,7 @@ describe('Auth UI Integration Tests', () => {
         email: 'user@origen.com',
         verificationToken: 'token-123',
       };
-      
+
       expect(verification.isVerified).toBeDefined();
       expect(verification.email).toBeDefined();
     });
@@ -289,7 +290,7 @@ describe('Auth UI Integration Tests', () => {
         isVerified: true,
         email: 'user@origen.com',
       };
-      
+
       expect(verification.isVerified).toBe(true);
     });
 
@@ -298,7 +299,7 @@ describe('Auth UI Integration Tests', () => {
         isVerified: false,
         email: 'user@origen.com',
       };
-      
+
       expect(verification.isVerified).toBe(false);
     });
   });
@@ -340,7 +341,7 @@ describe('Auth UI Integration Tests', () => {
       const errors = {
         email: 'Invalid email format',
       };
-      
+
       expect(errors.email).toBeDefined();
     });
 
@@ -348,7 +349,7 @@ describe('Auth UI Integration Tests', () => {
       const errors = {
         password: 'Password must be at least 8 characters',
       };
-      
+
       expect(errors.password).toBeDefined();
     });
 
@@ -356,7 +357,7 @@ describe('Auth UI Integration Tests', () => {
       const errors = {
         name: 'Name is required',
       };
-      
+
       expect(errors.name).toBeDefined();
     });
 
@@ -364,7 +365,7 @@ describe('Auth UI Integration Tests', () => {
       const errors = {
         confirmPassword: 'Passwords do not match',
       };
-      
+
       expect(errors.confirmPassword).toBeDefined();
     });
   });
@@ -375,7 +376,7 @@ describe('Auth UI Integration Tests', () => {
         token: 'session-token-123',
         expiresAt: '2024-10-27T12:00:00',
       };
-      
+
       expect(session.token).toBeDefined();
       expect(session.expiresAt).toBeDefined();
     });
@@ -385,7 +386,7 @@ describe('Auth UI Integration Tests', () => {
         email: 'user@origen.com',
         rememberMe: true,
       };
-      
+
       expect(rememberedUser.rememberMe).toBe(true);
     });
 
@@ -393,11 +394,11 @@ describe('Auth UI Integration Tests', () => {
       const session = {
         expiresAt: '2024-10-26T10:00:00',
       };
-      
+
       const expiresAt = new Date(session.expiresAt);
       const now = new Date();
       const isExpired = expiresAt < now;
-      
+
       expect(typeof isExpired).toBe('boolean');
     });
   });

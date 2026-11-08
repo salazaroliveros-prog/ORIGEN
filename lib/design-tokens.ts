@@ -6,32 +6,32 @@ export const designTokens = {
   colors: {
     // Brand colors
     brand: {
-      primary: '#f59e0b',      // amber-500
+      primary: '#f59e0b', // amber-500
       primaryHover: '#d97706', // amber-600
       primaryActive: '#b45309', // amber-700
       primaryGlow: 'rgba(245, 158, 11, 0.4)',
     },
     secondary: {
-      base: '#06b6d4',         // sky-500
-      hover: '#0891b2',        // sky-600
+      base: '#06b6d4', // sky-500
+      hover: '#0891b2', // sky-600
       glow: 'rgba(6, 182, 212, 0.3)',
     },
     // Semantic colors
     success: {
-      base: '#10b981',         // emerald-500
+      base: '#10b981', // emerald-500
       bg: 'rgba(16, 185, 129, 0.2)',
       border: 'rgba(16, 185, 129, 0.3)',
     },
     warning: {
-      base: '#f59e0b',         // amber-500
+      base: '#f59e0b', // amber-500
       bg: 'rgba(245, 158, 11, 0.2)',
       border: 'rgba(245, 158, 11, 0.3)',
     },
     danger: {
-      base: '#ef4444',         // red-500
+      base: '#ef4444', // red-500
       bg: 'rgba(239, 68, 68, 0.1)',
       border: 'rgba(239, 68, 68, 0.3)',
-      text: '#fca5a5',         // red-300
+      text: '#fca5a5', // red-300
     },
     // Neutral colors (dark theme)
     neutral: {
@@ -51,12 +51,12 @@ export const designTokens = {
 
   // Espaciado
   spacing: {
-    xs: '0.5rem',    // 8px
-    sm: '0.75rem',   // 12px
-    md: '1rem',      // 16px
-    lg: '1.5rem',    // 24px
-    xl: '2rem',      // 32px
-    '2xl': '3rem',   // 48px
+    xs: '0.5rem', // 8px
+    sm: '0.75rem', // 12px
+    md: '1rem', // 16px
+    lg: '1.5rem', // 24px
+    xl: '2rem', // 32px
+    '2xl': '3rem', // 48px
   },
 
   // Tipografía
@@ -84,10 +84,10 @@ export const designTokens = {
 
   // Border radius
   radius: {
-    sm: '0.375rem',  // 6px
-    md: '0.625rem',  // 10px
-    lg: '0.875rem',  // 14px
-    xl: '1rem',      // 16px
+    sm: '0.375rem', // 6px
+    md: '0.625rem', // 10px
+    lg: '0.875rem', // 14px
+    xl: '1rem', // 16px
     full: '9999px',
   },
 
@@ -109,7 +109,7 @@ export const designTokens = {
 
   // Touch targets (accesibilidad móvil)
   touch: {
-    minSize: '44px',  // Mínimo 44px para accesibilidad táctil
+    minSize: '44px', // Mínimo 44px para accesibilidad táctil
   },
 } as const;
 

@@ -53,9 +53,7 @@ test.describe('Navegación principal', () => {
     const nuevoProyecto = page.getByRole('button', { name: 'Nuevo Proyecto' }).first();
     const sinProyectos = page.getByText(/No hay proyectos activos/).first();
 
-    await expect(
-      nuevoProyecto.or(sinProyectos).first()
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(nuevoProyecto.or(sinProyectos).first()).toBeVisible({ timeout: 20_000 });
   });
 
   test('navegar a Gastos & Facturas muestra la sección de gastos', async ({ page }) => {
@@ -68,9 +66,9 @@ test.describe('Navegación principal', () => {
     const sinProyectos = page.getByText(/Sin proyectos disponibles/, { exact: true }).first();
 
     // Uno de los tres debe estar visible según el estado de proyectos
-    await expect(
-      nuevoGasto.or(irProyectos).or(sinProyectos).first()
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(nuevoGasto.or(irProyectos).or(sinProyectos).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('navegar a Cotizaciones muestra la sección de cotizaciones', async ({ page }) => {

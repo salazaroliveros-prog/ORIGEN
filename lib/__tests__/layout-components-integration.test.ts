@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Layout Components Integration Tests
- * 
+ *
  * Tests de integración para componentes de layout
  */
 
@@ -111,7 +111,7 @@ describe('Layout Components Integration Tests', () => {
       const toggleSidebar = () => {
         mockSidebar.isOpen = !mockSidebar.isOpen;
       };
-      
+
       expect(typeof toggleSidebar).toBe('function');
     });
 
@@ -119,12 +119,12 @@ describe('Layout Components Integration Tests', () => {
       const collapseSidebar = () => {
         mockSidebar.isCollapsed = !mockSidebar.isCollapsed;
       };
-      
+
       expect(typeof collapseSidebar).toBe('function');
     });
 
     it('should validate badge count', () => {
-      const itemWithBadge = mockSidebar.items.find(item => item.badge);
+      const itemWithBadge = mockSidebar.items.find((item) => item.badge);
       expect(itemWithBadge?.badge).toBeGreaterThan(0);
     });
   });
@@ -163,7 +163,7 @@ describe('Layout Components Integration Tests', () => {
       const toggleUserMenu = () => {
         mockNavbar.userMenu.isOpen = !mockNavbar.userMenu.isOpen;
       };
-      
+
       expect(typeof toggleUserMenu).toBe('function');
     });
   });
@@ -200,7 +200,7 @@ describe('Layout Components Integration Tests', () => {
         isDesktop: false,
         breakpoint: 'sm',
       };
-      
+
       expect(mobileLayout.isMobile).toBe(true);
     });
 
@@ -211,7 +211,7 @@ describe('Layout Components Integration Tests', () => {
         isDesktop: true,
         breakpoint: 'lg',
       };
-      
+
       expect(desktopLayout.isDesktop).toBe(true);
     });
   });
@@ -222,7 +222,7 @@ describe('Layout Components Integration Tests', () => {
         isOpen: false,
         items: mockSidebar.items,
       };
-      
+
       expect(mobileMenu.isOpen).toBeDefined();
       expect(mobileMenu.items).toBeDefined();
     });
@@ -230,9 +230,11 @@ describe('Layout Components Integration Tests', () => {
     it('should validate mobile menu toggle', () => {
       const mobileMenu = {
         isOpen: false,
-        toggle: () => { mobileMenu.isOpen = !mobileMenu.isOpen; },
+        toggle: () => {
+          mobileMenu.isOpen = !mobileMenu.isOpen;
+        },
       };
-      
+
       expect(typeof mobileMenu.toggle).toBe('function');
     });
 
@@ -240,7 +242,7 @@ describe('Layout Components Integration Tests', () => {
       const mobileMenu = {
         items: mockSidebar.items,
       };
-      
+
       expect(mobileMenu.items).toHaveLength(2);
     });
   });
@@ -255,7 +257,7 @@ describe('Layout Components Integration Tests', () => {
           { label: 'Terms', path: '/terms' },
         ],
       };
-      
+
       expect(footer.year).toBeDefined();
       expect(footer.companyName).toBeDefined();
       expect(footer.links).toBeDefined();
@@ -268,7 +270,7 @@ describe('Layout Components Integration Tests', () => {
           { label: 'Terms', path: '/terms' },
         ],
       };
-      
+
       expect(footer.links).toHaveLength(2);
     });
 
@@ -276,7 +278,7 @@ describe('Layout Components Integration Tests', () => {
       const footer = {
         year: 2024,
       };
-      
+
       expect(footer.year).toBeGreaterThan(2000);
     });
   });
@@ -288,7 +290,7 @@ describe('Layout Components Integration Tests', () => {
         subtitle: 'Sistema de Gestión',
         showBreadcrumbs: true,
       };
-      
+
       expect(header.title).toBeDefined();
       expect(header.subtitle).toBeDefined();
       expect(header.showBreadcrumbs).toBeDefined();
@@ -300,7 +302,7 @@ describe('Layout Components Integration Tests', () => {
         { label: 'Projects', path: '/projects' },
         { label: 'Project 1', path: '/projects/1' },
       ];
-      
+
       expect(breadcrumbs).toHaveLength(3);
     });
 
@@ -309,7 +311,7 @@ describe('Layout Components Integration Tests', () => {
         { label: 'Home', path: '/' },
         { label: 'Projects', path: '/projects' },
       ];
-      
+
       expect(breadcrumbs[0].path).toBe('/');
     });
   });
@@ -319,7 +321,7 @@ describe('Layout Components Integration Tests', () => {
       const spacing = {
         padding: '1rem',
       };
-      
+
       expect(spacing.padding).toBeDefined();
     });
 
@@ -327,7 +329,7 @@ describe('Layout Components Integration Tests', () => {
       const spacing = {
         margin: '2rem',
       };
-      
+
       expect(spacing.margin).toBeDefined();
     });
 
@@ -335,7 +337,7 @@ describe('Layout Components Integration Tests', () => {
       const spacing = {
         gap: '1rem',
       };
-      
+
       expect(spacing.gap).toBeDefined();
     });
   });
@@ -347,7 +349,7 @@ describe('Layout Components Integration Tests', () => {
         rows: 6,
         gap: '1rem',
       };
-      
+
       expect(grid.columns).toBeGreaterThan(0);
       expect(grid.rows).toBeGreaterThan(0);
     });
@@ -357,7 +359,7 @@ describe('Layout Components Integration Tests', () => {
         colSpan: 6,
         rowSpan: 2,
       };
-      
+
       expect(gridItem.colSpan).toBeGreaterThan(0);
       expect(gridItem.colSpan).toBeLessThanOrEqual(12);
     });
@@ -370,7 +372,7 @@ describe('Layout Components Integration Tests', () => {
         lg: 3,
         xl: 2,
       };
-      
+
       expect(responsiveGrid.xs).toBe(12);
       expect(responsiveGrid.xl).toBe(2);
     });
@@ -384,7 +386,7 @@ describe('Layout Components Integration Tests', () => {
         justifyContent: 'space-between',
         alignItems: 'center',
       };
-      
+
       expect(flex.display).toBe('flex');
       expect(flex.flexDirection).toBeDefined();
     });
@@ -395,7 +397,7 @@ describe('Layout Components Integration Tests', () => {
         flexGrow: 1,
         flexShrink: 0,
       };
-      
+
       expect(flexItem.flex).toBeGreaterThan(0);
     });
 
@@ -403,7 +405,7 @@ describe('Layout Components Integration Tests', () => {
       const flex = {
         flexWrap: 'wrap',
       };
-      
+
       expect(flex.flexWrap).toBe('wrap');
     });
   });
@@ -415,7 +417,7 @@ describe('Layout Components Integration Tests', () => {
         top: 0,
         left: 0,
       };
-      
+
       expect(position.position).toBe('absolute');
     });
 
@@ -425,7 +427,7 @@ describe('Layout Components Integration Tests', () => {
         top: 0,
         right: 0,
       };
-      
+
       expect(position.position).toBe('fixed');
     });
 
@@ -434,7 +436,7 @@ describe('Layout Components Integration Tests', () => {
         position: 'sticky',
         top: 0,
       };
-      
+
       expect(position.position).toBe('sticky');
     });
   });
@@ -447,7 +449,7 @@ describe('Layout Components Integration Tests', () => {
         modal: 1050,
         dropdown: 1001,
       };
-      
+
       expect(zIndex.modal).toBeGreaterThan(zIndex.navbar);
       expect(zIndex.navbar).toBeGreaterThan(zIndex.sidebar);
     });
@@ -458,7 +460,7 @@ describe('Layout Components Integration Tests', () => {
         child: 2,
         grandchild: 3,
       };
-      
+
       expect(stackingContext.grandchild).toBeGreaterThan(stackingContext.parent);
     });
   });

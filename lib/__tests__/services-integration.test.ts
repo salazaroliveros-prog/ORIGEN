@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Services Integration Tests
- * 
+ *
  * Tests de integración para servicios
  */
 
@@ -59,17 +59,17 @@ describe('Services Integration Tests', () => {
     });
 
     it('should filter alerts by project', () => {
-      const projectAlerts = mockProjectAlerts.filter(a => a.projectId === 'proj-001');
+      const projectAlerts = mockProjectAlerts.filter((a) => a.projectId === 'proj-001');
       expect(projectAlerts).toHaveLength(2);
     });
 
     it('should filter alerts by type', () => {
-      const budgetAlerts = mockProjectAlerts.filter(a => a.type === 'budget');
+      const budgetAlerts = mockProjectAlerts.filter((a) => a.type === 'budget');
       expect(budgetAlerts).toHaveLength(1);
     });
 
     it('should filter alerts by severity', () => {
-      const highSeverityAlerts = mockProjectAlerts.filter(a => a.severity === 'high');
+      const highSeverityAlerts = mockProjectAlerts.filter((a) => a.severity === 'high');
       expect(highSeverityAlerts).toHaveLength(1);
     });
 
@@ -126,27 +126,33 @@ describe('Services Integration Tests', () => {
 
   describe('Alert Aggregation', () => {
     it('should calculate alerts by severity', () => {
-      const bySeverity = mockProjectAlerts.reduce((acc, alert) => {
-        acc[alert.severity] = (acc[alert.severity] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      
+      const bySeverity = mockProjectAlerts.reduce(
+        (acc, alert) => {
+          acc[alert.severity] = (acc[alert.severity] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
       expect(bySeverity['high']).toBe(1);
       expect(bySeverity['medium']).toBe(1);
     });
 
     it('should calculate alerts by type', () => {
-      const byType = mockProjectAlerts.reduce((acc, alert) => {
-        acc[alert.type] = (acc[alert.type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      
+      const byType = mockProjectAlerts.reduce(
+        (acc, alert) => {
+          acc[alert.type] = (acc[alert.type] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
       expect(byType['budget']).toBe(1);
       expect(byType['deadline']).toBe(1);
     });
 
     it('should identify critical alerts', () => {
-      const criticalAlerts = mockProjectAlerts.filter(a => a.severity === 'high');
+      const criticalAlerts = mockProjectAlerts.filter((a) => a.severity === 'high');
       expect(criticalAlerts).toHaveLength(1);
     });
   });
@@ -159,7 +165,7 @@ describe('Services Integration Tests', () => {
         timestamp: '2024-10-27T10:00:00',
         ttl: 3600,
       };
-      
+
       expect(cache.key).toBeDefined();
       expect(cache.data).toBeDefined();
       expect(cache.timestamp).toBeDefined();
@@ -171,12 +177,12 @@ describe('Services Integration Tests', () => {
         timestamp: '2024-10-27T10:00:00',
         ttl: 3600,
       };
-      
+
       const cachedTime = new Date(cache.timestamp).getTime();
       const now = Date.now();
       const elapsed = (now - cachedTime) / 1000;
       const isExpired = elapsed > cache.ttl;
-      
+
       expect(typeof isExpired).toBe('boolean');
     });
   });
@@ -188,7 +194,7 @@ describe('Services Integration Tests', () => {
         isSyncing: false,
         pendingOperations: 0,
       };
-      
+
       expect(syncStatus.lastSync).toBeDefined();
       expect(syncStatus.isSyncing).toBeDefined();
       expect(syncStatus.pendingOperations).toBeDefined();
@@ -199,7 +205,7 @@ describe('Services Integration Tests', () => {
         { operation: 'create', data: { id: 'proj-001' } },
         { operation: 'update', data: { id: 'proj-002' } },
       ];
-      
+
       expect(syncQueue).toHaveLength(2);
     });
   });

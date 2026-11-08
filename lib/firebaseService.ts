@@ -73,10 +73,7 @@ export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
 
 // Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente)
-if (
-  typeof window !== 'undefined' &&
-  firebaseConfig.appCheckRecaptchaKey
-) {
+if (typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
   initializeAppCheck(app, {
     provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
     isTokenAutoRefreshEnabled: true,

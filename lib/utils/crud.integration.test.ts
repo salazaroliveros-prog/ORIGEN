@@ -197,9 +197,7 @@ describe('ORIGEN ERP - CRUD System Integration Tests', () => {
         clientName: 'Cliente Nuevo',
         clientNit: '[REDACTED]',
         date: new Date().toISOString().split('T')[0],
-        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split('T')[0],
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         items: [
           { qty: 10, unitPriceGTQ: 100, unit: 'gbl', description: 'Item 1' },
           { qty: 5, unitPriceGTQ: 200, unit: 'gbl', description: 'Item 2' },

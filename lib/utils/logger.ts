@@ -114,9 +114,7 @@ class Logger {
    */
   getLogs(level?: LogLevel, module?: string): LogEntry[] {
     return this.logs.filter(
-      (log) =>
-        (!level || log.level === level) &&
-        (!module || log.module === module)
+      (log) => (!level || log.level === level) && (!module || log.module === module)
     );
   }
 
@@ -143,9 +141,7 @@ class Logger {
 }
 
 // Singleton instance
-export const logger = new Logger(
-  (process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel) || 'info'
-);
+export const logger = new Logger((process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel) || 'info');
 
 /**
  * Create scoped logger for a specific module

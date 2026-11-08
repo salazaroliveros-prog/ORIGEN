@@ -10,7 +10,11 @@ const rateLimitStore = new Map<string, RateLimiterEntry>();
 const WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 30; // 30 requests per minute per IP
 
-export function rateLimit(identifier: string): { allowed: boolean; remaining: number; resetTime: number } {
+export function rateLimit(identifier: string): {
+  allowed: boolean;
+  remaining: number;
+  resetTime: number;
+} {
   const now = Date.now();
   const entry = rateLimitStore.get(identifier);
 
@@ -32,7 +36,10 @@ export function rateLimitMiddleware(identifier: string) {
   if (!result.allowed) {
     return NextResponse.json(
       { success: false, error: 'Demasiadas solicitudes. Inténtalo de nuevo más tarde.' },
-      { status: 429, headers: { 'Retry-After': String(Math.ceil((result.resetTime - Date.now()) / 1000)) } }
+      {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((result.resetTime - Date.now()) / 1000)) },
+      }
     );
   }
   return null;

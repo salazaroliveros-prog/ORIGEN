@@ -1,7 +1,7 @@
 /**
  * ORIGEN ERP - UI/UX Component Testing (E2E - Playwright)
  * Cubre los gaps de UI-001 a UI-025 no cubiertos por los spec existentes.
- * 
+ *
  * Selectores basados en los componentes reales: Navbar.tsx, PageHeader.tsx,
  * components/auth/AuthContainer.tsx, components/auth/RegisterForm.tsx,
  * components/ui/Button.tsx, components/ui/Input.tsx, components/ui/Card.tsx,
@@ -63,9 +63,9 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   test('UI-002: Botón Proyectos y Firmas abre sección', async ({ page }) => {
     await openTab(page, /Proyectos y Firmas/);
     await expect(
-      page.getByRole('button', { name: 'Nuevo Proyecto' }).or(
-        page.getByText(/No hay proyectos activos/i)
-      )
+      page
+        .getByRole('button', { name: 'Nuevo Proyecto' })
+        .or(page.getByText(/No hay proyectos activos/i))
     ).toBeVisible({ timeout: 20_000 });
   });
 
@@ -112,9 +112,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await expect(page.getByText('UI-CANCEL')).toHaveCount(0);
   });
 
-  test('UI-006: Botón Editar proyecto abre modal con datos precargados', async ({
-    page,
-  }) => {
+  test('UI-006: Botón Editar proyecto abre modal con datos precargados', async ({ page }) => {
     await openTab(page, /Proyectos y Firmas/);
     await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
@@ -127,9 +125,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await page.getByRole('button', { name: 'Editar proyecto UI-EDIT-001' }).click();
     const editDialog = page.getByRole('dialog', { name: 'Editar Proyecto' });
     await expect(editDialog).toBeVisible({ timeout: 10_000 });
-    await expect(editDialog.getByLabel('Nombre del Proyecto')).toHaveValue(
-      'Proyecto para Editar'
-    );
+    await expect(editDialog.getByLabel('Nombre del Proyecto')).toHaveValue('Proyecto para Editar');
   });
 
   test('UI-007: Botón Actualizar guarda cambios de edición', async ({ page }) => {
@@ -150,9 +146,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await expect(page.getByText('Actualizado')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('UI-008: Botón Archivar proyecto cambia estado a archivado', async ({
-    page,
-  }) => {
+  test('UI-008: Botón Archivar proyecto cambia estado a archivado', async ({ page }) => {
     await openTab(page, /Proyectos y Firmas/);
     await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
@@ -168,9 +162,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await expect(page.getByText('UI-ARCH-001')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('UI-009: Botón Restaurar proyecto reactiva proyecto archivado', async ({
-    page,
-  }) => {
+  test('UI-009: Botón Restaurar proyecto reactiva proyecto archivado', async ({ page }) => {
     await openTab(page, /Proyectos y Firmas/);
     await page.getByLabel('Mostrar').selectOption('archived');
     await page.waitForTimeout(2000);
@@ -184,9 +176,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   // ============================================================
   // UI-010 a UI-016: Gastos, Cotizaciones, Maquinaria, Asistencia
   // ============================================================
-  test('UI-010: Botón Registrar Gasto / Factura abre formulario', async ({
-    page,
-  }) => {
+  test('UI-010: Botón Registrar Gasto / Factura abre formulario', async ({ page }) => {
     await openTab(page, /Gastos y Facturas/);
     await expect(
       page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first()
@@ -202,11 +192,14 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
 
   test('UI-012: Botón Nuevo Empleado abre formulario', async ({ page }) => {
     await openTab(page, /Personal y IGSS/);
-    await page.getByRole('button', { name: /Cuadrillas/ }).first().click();
+    await page
+      .getByRole('button', { name: /Cuadrillas/ })
+      .first()
+      .click();
     await page.waitForTimeout(1000);
-    await expect(
-      page.getByRole('button', { name: 'Nuevo Empleado' }).first()
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('button', { name: 'Nuevo Empleado' }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('UI-013: Botón Nueva Maquinaria abre formulario', async ({ page }) => {
@@ -218,7 +211,10 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
 
   test('UI-014: Botón En Obra registra asistencia', async ({ page }) => {
     await openTab(page, /Personal y IGSS/);
-    await page.getByRole('button', { name: /Cuadrillas/ }).first().click();
+    await page
+      .getByRole('button', { name: /Cuadrillas/ })
+      .first()
+      .click();
     await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Nuevo Empleado' }).first().click();
 
@@ -246,14 +242,32 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
 
   test('UI-015: Botón Enviar a mantenimiento cambia estado', async ({ page }) => {
     await openTab(page, /Maquinaria/);
-    await page.getByRole('button', { name: /Registrar Maquinaria/i }).first().click();
+    await page
+      .getByRole('button', { name: /Registrar Maquinaria/i })
+      .first()
+      .click();
 
     const macDialog = page.getByRole('dialog', { name: /Registrar Nueva Maquinaria/ });
-    await macDialog.getByLabel(/Nombre|Equipo/i).first().fill('Maquinaria UI E2E');
-    await macDialog.getByLabel(/Modelo|Año/i).first().fill('2026');
-    await macDialog.getByLabel(/Código|Placa/i).first().fill('UI-MAC-001');
-    await macDialog.getByLabel(/Tarifa|Hora/i).first().fill('300');
-    await macDialog.getByLabel(/Horómetro/i).first().fill('0');
+    await macDialog
+      .getByLabel(/Nombre|Equipo/i)
+      .first()
+      .fill('Maquinaria UI E2E');
+    await macDialog
+      .getByLabel(/Modelo|Año/i)
+      .first()
+      .fill('2026');
+    await macDialog
+      .getByLabel(/Código|Placa/i)
+      .first()
+      .fill('UI-MAC-001');
+    await macDialog
+      .getByLabel(/Tarifa|Hora/i)
+      .first()
+      .fill('300');
+    await macDialog
+      .getByLabel(/Horómetro/i)
+      .first()
+      .fill('0');
     await macDialog.getByRole('button', { name: /Guardar Maquinaria/i }).click();
     await page.waitForTimeout(2000);
 
@@ -279,9 +293,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   // ============================================================
   // UI-017 a UI-020: Autenticación UI
   // ============================================================
-  test('UI-017: Botón Iniciar Sesión autentica con credenciales válidas', async ({
-    page,
-  }) => {
+  test('UI-017: Botón Iniciar Sesión autentica con credenciales válidas', async ({ page }) => {
     await page.goto('/');
     await page.waitForTimeout(3000);
 
@@ -292,9 +304,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
       await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
       await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
       await page.waitForTimeout(4000);
-      await expect(
-        page.getByRole('button', { name: 'Tablero' })
-      ).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
     }
   });
 
@@ -316,9 +326,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     }
   });
 
-  test('UI-019: Botón Regístrate ahora navega a página de registro', async ({
-    page,
-  }) => {
+  test('UI-019: Botón Regístrate ahora navega a página de registro', async ({ page }) => {
     await page.goto('/');
     await page.waitForTimeout(3000);
 
@@ -393,7 +401,10 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     if (isVisible) {
       await emailField.fill(ADMIN_EMAIL);
       // Buscar el botón de ojo para toggle de contraseña
-      const eyeButton = page.locator('button').filter({ has: page.locator('svg') }).first();
+      const eyeButton = page
+        .locator('button')
+        .filter({ has: page.locator('svg') })
+        .first();
       if ((await eyeButton.count()) > 0) {
         await eyeButton.click();
         await page.waitForTimeout(500);

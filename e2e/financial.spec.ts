@@ -33,7 +33,9 @@ test.describe('Sección Gastos & Facturas', () => {
   test('la sección Gastos & Facturas muestra el botón para registrar un gasto', async ({
     page,
   }) => {
-    await expect(page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first()).toBeVisible({
+    await expect(
+      page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first()
+    ).toBeVisible({
       timeout: 20_000,
     });
   });

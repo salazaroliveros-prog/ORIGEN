@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Security Integration Tests
- * 
+ *
  * Tests de integración para seguridad del sistema
  */
 
@@ -125,7 +125,7 @@ describe('Security Integration Tests', () => {
 
     it('should detect SQL injection patterns', () => {
       const sqlPatterns = ["' OR '1'='1", '"; DROP TABLE users; --'];
-      const hasInjection = sqlPatterns.some(pattern => pattern.includes("' OR '"));
+      const hasInjection = sqlPatterns.some((pattern) => pattern.includes("' OR '"));
       expect(hasInjection).toBe(true);
     });
   });
@@ -236,7 +236,7 @@ describe('Security Integration Tests', () => {
       const hasLowerCase = /[a-z]/.test(password);
       const hasNumber = /\d/.test(password);
       const hasSpecial = /[!@#$%^&*]/.test(password);
-      
+
       expect(hasUpperCase).toBe(true);
       expect(hasLowerCase).toBe(true);
       expect(hasNumber).toBe(true);
@@ -247,7 +247,7 @@ describe('Security Integration Tests', () => {
       const password = '12345678';
       const hasUpperCase = /[A-Z]/.test(password);
       const hasSpecial = /[!@#$%^&*]/.test(password);
-      
+
       expect(hasUpperCase).toBe(false);
       expect(hasSpecial).toBe(false);
     });
@@ -260,7 +260,7 @@ describe('Security Integration Tests', () => {
         roles: ['admin', 'editor'],
         permissions: ['read', 'write', 'delete'],
       };
-      
+
       expect(permissions.roles).toContain('admin');
       expect(permissions.permissions).toContain('delete');
     });
@@ -269,7 +269,7 @@ describe('Security Integration Tests', () => {
       const userPermissions = ['read', 'write'];
       const requiredPermission = 'write';
       const hasAccess = userPermissions.includes(requiredPermission);
-      
+
       expect(hasAccess).toBe(true);
     });
 
@@ -277,7 +277,7 @@ describe('Security Integration Tests', () => {
       const userPermissions = ['read'];
       const requiredPermission = 'delete';
       const hasAccess = userPermissions.includes(requiredPermission);
-      
+
       expect(hasAccess).toBe(false);
     });
   });
@@ -303,7 +303,7 @@ describe('Security Integration Tests', () => {
         expiresAt: '2024-10-27T12:00:00',
         maxAge: 7200, // 2 hours in seconds
       };
-      
+
       expect(session.maxAge).toBe(7200);
     });
 
@@ -311,11 +311,11 @@ describe('Security Integration Tests', () => {
       const session = {
         expiresAt: '2024-10-26T10:00:00',
       };
-      
+
       const expiresAt = new Date(session.expiresAt);
       const now = new Date();
       const isExpired = expiresAt < now;
-      
+
       expect(typeof isExpired).toBe('boolean');
     });
   });

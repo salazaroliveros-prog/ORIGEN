@@ -29,14 +29,7 @@ interface APUItemsListProps {
  * - Responsive table design
  */
 export const APUItemsList = React.memo<APUItemsListProps>(
-  ({
-    items,
-    onEdit,
-    onDelete,
-    onSelect,
-    readonly = false,
-    itemsPerPage = 25,
-  }) => {
+  ({ items, onEdit, onDelete, onSelect, readonly = false, itemsPerPage = 25 }) => {
     const [sortBy, setSortBy] = useState<'code' | 'description' | 'total'>('code');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -44,8 +37,14 @@ export const APUItemsList = React.memo<APUItemsListProps>(
     const sortedItems = React.useMemo(() => {
       const sorted = [...items];
       sorted.sort((a, b) => {
-        let aVal: any = a[sortBy === 'code' ? 'code' : sortBy === 'description' ? 'description' : 'totalPriceGTQ'];
-        let bVal: any = b[sortBy === 'code' ? 'code' : sortBy === 'description' ? 'description' : 'totalPriceGTQ'];
+        let aVal: any =
+          a[
+            sortBy === 'code' ? 'code' : sortBy === 'description' ? 'description' : 'totalPriceGTQ'
+          ];
+        let bVal: any =
+          b[
+            sortBy === 'code' ? 'code' : sortBy === 'description' ? 'description' : 'totalPriceGTQ'
+          ];
 
         if (typeof aVal === 'string') {
           aVal = aVal.toLowerCase();

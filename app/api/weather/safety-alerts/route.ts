@@ -75,7 +75,7 @@ Proporciona el estado del clima típico/actual y recomendaciones de seguridad pa
 Devuelve únicamente el JSON válido sin texto extra.`;
 
   const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+    model: 'gemini-2.0-flash',
     contents: prompt,
   });
 

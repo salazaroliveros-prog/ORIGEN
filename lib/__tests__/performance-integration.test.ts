@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Performance Integration Tests
- * 
+ *
  * Tests de integración para rendimiento
  */
 
@@ -190,7 +190,7 @@ describe('Performance Integration Tests', () => {
         srcSet: '/image-400w.jpg 400w, /image-800w.jpg 800w',
         sizes: '(max-width: 400px) 400px, 800px',
       };
-      
+
       expect(responsiveImage.srcSet).toBeDefined();
       expect(responsiveImage.sizes).toBeDefined();
     });
@@ -200,9 +200,9 @@ describe('Performance Integration Tests', () => {
     it('should validate cache headers', () => {
       const cacheHeaders = {
         'Cache-Control': 'public, max-age=3600',
-        'ETag': 'abc123',
+        ETag: 'abc123',
       };
-      
+
       expect(cacheHeaders['Cache-Control']).toBeDefined();
       expect(cacheHeaders['ETag']).toBeDefined();
     });
@@ -211,7 +211,7 @@ describe('Performance Integration Tests', () => {
       const cacheHeaders = {
         'Cache-Control': 'public, max-age=3600',
       };
-      
+
       expect(cacheHeaders['Cache-Control']).toContain('max-age');
     });
 
@@ -220,7 +220,7 @@ describe('Performance Integration Tests', () => {
         strategy: 'CacheFirst',
         cacheName: 'static-assets',
       };
-      
+
       expect(swCache.strategy).toBeDefined();
       expect(swCache.cacheName).toBeDefined();
     });
@@ -233,7 +233,7 @@ describe('Performance Integration Tests', () => {
         async: false,
         preload: false,
       };
-      
+
       expect(scriptLoading.defer).toBe(true);
     });
 
@@ -242,7 +242,7 @@ describe('Performance Integration Tests', () => {
         preload: true,
         inline: false,
       };
-      
+
       expect(cssLoading.preload).toBe(true);
     });
 
@@ -251,7 +251,7 @@ describe('Performance Integration Tests', () => {
         preload: true,
         display: 'swap',
       };
-      
+
       expect(fontLoading.preload).toBe(true);
       expect(fontLoading.display).toBe('swap');
     });
@@ -264,7 +264,7 @@ describe('Performance Integration Tests', () => {
         totalJSHeapSize: 100000000,
         jsHeapSizeLimit: 2000000000,
       };
-      
+
       expect(memoryMetrics.usedJSHeapSize).toBeGreaterThan(0);
       expect(memoryMetrics.usedJSHeapSize).toBeLessThan(memoryMetrics.jsHeapSizeLimit);
     });
@@ -274,7 +274,7 @@ describe('Performance Integration Tests', () => {
         usedJSHeapSize: 50000000,
         totalJSHeapSize: 100000000,
       };
-      
+
       const usagePercent = (memoryMetrics.usedJSHeapSize / memoryMetrics.totalJSHeapSize) * 100;
       expect(usagePercent).toBeLessThan(100);
     });
@@ -290,7 +290,7 @@ describe('Performance Integration Tests', () => {
         download: 200,
         total: 420,
       };
-      
+
       expect(requestTiming.total).toBeGreaterThan(0);
     });
 
@@ -302,7 +302,7 @@ describe('Performance Integration Tests', () => {
         images: 20,
         fonts: 3,
       };
-      
+
       expect(requestCount.total).toBeGreaterThan(0);
     });
 
@@ -314,7 +314,7 @@ describe('Performance Integration Tests', () => {
         images: 1000000,
         fonts: 150000,
       };
-      
+
       expect(responseSizes.total).toBeGreaterThan(0);
     });
   });
@@ -326,7 +326,7 @@ describe('Performance Integration Tests', () => {
         chunkName: 'dashboard',
         loading: 'skeleton',
       };
-      
+
       expect(dynamicImport.chunkName).toBeDefined();
     });
 
@@ -335,7 +335,7 @@ describe('Performance Integration Tests', () => {
         routes: ['/', '/projects', '/reports'],
         chunks: ['home', 'projects', 'reports'],
       };
-      
+
       expect(routeSplitting.routes.length).toBe(routeSplitting.chunks.length);
     });
   });
@@ -347,7 +347,7 @@ describe('Performance Integration Tests', () => {
         fallback: 'LoadingChart',
         threshold: 0.1,
       };
-      
+
       expect(lazyComponent.fallback).toBeDefined();
       expect(lazyComponent.threshold).toBeGreaterThan(0);
     });
@@ -358,7 +358,7 @@ describe('Performance Integration Tests', () => {
         loading: 'lazy',
         threshold: '200px',
       };
-      
+
       expect(lazyImage.loading).toBe('lazy');
     });
   });

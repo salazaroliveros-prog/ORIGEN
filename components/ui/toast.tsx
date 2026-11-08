@@ -15,13 +15,12 @@ export const Toast: React.FC<ToastProps> = ({ message, type = 'info', onClose })
   }[type];
 
   return (
-    <div className={`${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between`}>
+    <div
+      className={`${bgColor} flex items-center justify-between rounded-lg px-4 py-3 text-white shadow-lg`}
+    >
       <span>{message}</span>
       {onClose && (
-        <button
-          onClick={onClose}
-          className="ml-4 text-white hover:text-gray-200"
-        >
+        <button onClick={onClose} className="ml-4 text-white hover:text-gray-200">
           ×
         </button>
       )}

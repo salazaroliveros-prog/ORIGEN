@@ -140,10 +140,7 @@ export const APUItemSchema = z
   .object({
     id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
     companyId: z.string().min(1, 'Company ID requerido'),
-    projectId: z
-      .string()
-      .min(1, 'Proyecto requerido')
-      .max(128, 'ID de proyecto muy largo'),
+    projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
     createdBy: z.string().min(1, 'Creator ID requerido'),
     code: z.string().min(1, 'Código requerido').max(64, 'Código muy largo'),
     description: z

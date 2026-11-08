@@ -27,7 +27,7 @@ export function FocusVisible({ children, className = '' }: FocusVisibleProps) {
   return (
     <div className={className}>
       {isFocusVisible && (
-        <span className="focus-visible:ring-brand-secondary focus-visible:ring-offset-bg-deep sr-only rounded-md focus-visible:not-sr-only focus-visible:absolute focus-visible:-inset-1 focus-visible:ring-2 focus-visible:ring-offset-2">
+        <span className="sr-only rounded-md focus-visible:not-sr-only focus-visible:absolute focus-visible:-inset-1 focus-visible:ring-2 focus-visible:ring-brand-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-bg-deep">
           Indicador de foco
         </span>
       )}

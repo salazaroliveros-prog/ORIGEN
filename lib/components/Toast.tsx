@@ -20,7 +20,7 @@ let toastQueue: ToastMessage[] = [];
 let toastSubscribers: ((messages: ToastMessage[]) => void)[] = [];
 
 const notifySubscribers = () => {
-  toastSubscribers.forEach(subscriber => subscriber(toastQueue));
+  toastSubscribers.forEach((subscriber) => subscriber(toastQueue));
 };
 
 const addToast = (type: ToastMessage['type'], message: string, duration = 3000) => {
@@ -37,7 +37,7 @@ const addToast = (type: ToastMessage['type'], message: string, duration = 3000) 
 
   if (duration > 0) {
     setTimeout(() => {
-      toastQueue = toastQueue.filter(t => t.id !== id);
+      toastQueue = toastQueue.filter((t) => t.id !== id);
       notifySubscribers();
     }, duration);
   }
@@ -52,7 +52,7 @@ export const toast = {
   warning: (message: string, duration?: number) => addToast('warning', message, duration),
   info: (message: string, duration?: number) => addToast('info', message, duration),
   remove: (id: string) => {
-    toastQueue = toastQueue.filter(t => t.id !== id);
+    toastQueue = toastQueue.filter((t) => t.id !== id);
     notifySubscribers();
   },
 };
@@ -69,7 +69,7 @@ export function ToastContainer() {
     toastSubscribers.push(handleToastUpdate);
 
     return () => {
-      toastSubscribers = toastSubscribers.filter(sub => sub !== handleToastUpdate);
+      toastSubscribers = toastSubscribers.filter((sub) => sub !== handleToastUpdate);
     };
   }, []);
 
@@ -123,19 +123,19 @@ export function ToastContainer() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm pointer-events-none">
-      {messages.map(msg => {
+    <div className="pointer-events-none fixed bottom-4 right-4 z-50 max-w-sm space-y-2">
+      {messages.map((msg) => {
         const styles = getStyles(msg.type);
         return (
           <div
             key={msg.id}
-            className={`${styles.bg} border ${styles.border} rounded-lg p-4 shadow-lg flex gap-3 items-start pointer-events-auto animate-slide-up`}
+            className={`${styles.bg} border ${styles.border} pointer-events-auto flex animate-slide-up items-start gap-3 rounded-lg p-4 shadow-lg`}
           >
-            <div className="flex-shrink-0 mt-0.5">{styles.icon}</div>
+            <div className="mt-0.5 flex-shrink-0">{styles.icon}</div>
             <p className={`text-sm font-medium ${styles.text} flex-1`}>{msg.message}</p>
             <button
               onClick={() => removeToast(msg.id)}
-              className={`flex-shrink-0 ${styles.close} transition-colors hover:bg-white/20 p-1 rounded`}
+              className={`flex-shrink-0 ${styles.close} rounded p-1 transition-colors hover:bg-white/20`}
               aria-label="Cerrar"
             >
               <X className="h-4 w-4" />

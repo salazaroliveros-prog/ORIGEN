@@ -65,11 +65,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 <Button variant="secondary" size="sm" onClick={this.resetError}>
                   Intentar de nuevo
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => window.location.href = '/'}
-                >
+                <Button variant="ghost" size="sm" onClick={() => (window.location.href = '/')}>
                   Ir al inicio
                 </Button>
               </div>

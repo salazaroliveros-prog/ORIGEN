@@ -79,7 +79,7 @@ export function AccessibleInput({
         aria-required={required}
         aria-invalid={!!error}
         aria-describedby={`${error ? errorId : ''} ${hint ? hintId : ''}`}
-        className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none ${
+        className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
           error ? 'border-red-500 focus:ring-red-500' : 'border-slate-300'
         }`}
         {...props}
@@ -140,7 +140,7 @@ export function AccessibleSelect({
         aria-required={required}
         aria-invalid={!!error}
         aria-describedby={`${error ? errorId : ''} ${hint ? hintId : ''}`}
-        className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none ${
+        className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
           error ? 'border-red-500 focus:ring-red-500' : 'border-slate-300'
         }`}
         {...props}
@@ -186,7 +186,7 @@ export function AccessibleButton({
     <button
       aria-label={ariaLabel}
       aria-pressed={ariaPressed}
-      className={`rounded-lg px-4 py-2 font-semibold transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none ${className}`}
+      className={`rounded-lg px-4 py-2 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${className}`}
       {...props}
     >
       {children}
@@ -199,7 +199,7 @@ export function SkipLink() {
   return (
     <a
       href="#main"
-      className="sr-only focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-50 focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-white"
+      className="sr-only focus:not-sr-only focus:fixed focus:left-0 focus:top-0 focus:z-50 focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-white"
     >
       Saltar al contenido principal
     </a>
@@ -271,7 +271,7 @@ export function AccessibleAlert({ variant, title, message, onClose }: Accessible
         <button
           onClick={onClose}
           aria-label="Cerrar alerta"
-          className="flex-shrink-0 focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 focus:outline-none"
+          className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
         >
           ✕
         </button>
