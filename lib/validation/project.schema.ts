@@ -1,30 +1,14 @@
-import { z } from 'zod';
-import type {
-  ExpenseRecordValues,
-  AttendanceRecordValues,
-  EmployeeValues,
-  MachineryValues,
-  APUItemValues,
-  QuoteRecordValues,
-} from './entity.schemas';
-import {
-  validateExpenseRecord,
-  validateAttendanceRecord,
-  validateEmployee,
-  validateMachinery,
-  validateAPUItem,
-  validateQuoteRecord,
-} from './entity.schemas';
-
 /**
  * Esquema de validación para formularios de proyectos
- *
- * Requiere TODOS los campos para datos nuevos
- * Pero tolera parciales para datos legacyexistentes
+ * Alineado con lib/types.ts Project interface
  */
 
-// ============ ESQUEMAS NUEVOS (Strict) ============
+import { z } from 'zod';
+import type { Project } from '@/lib/types';
 
+/**
+ * Esquema estricto para datos nuevos de proyectos
+ */
 export const ProjectFormSchema = z
   .object({
     code: z
@@ -95,12 +79,9 @@ export const ProjectFormSchema = z
 
 export type ProjectFormValues = z.infer<typeof ProjectFormSchema>;
 
-// ============ ESQUEMA TOLERANTE (Legacy) ============
-
-/**
- * Esquema tolerante para validar datos existentes
- * Permite campos undefined y aplica defaults
- */
+// ============================================================================
+// Esquema tolerante para datos existentes (legacy)
+// ============================================================================
 export const ProjectLegacySchema = z
   .object({
     code: z.string().default('LEGACY'),
@@ -161,16 +142,13 @@ export function validateProjectForm(data: unknown) {
  */
 export function validateAndFixProjectData(data: unknown): ProjectFormProject {
   try {
-    // Intentar primero con esquema estricto
     const result = ProjectFormSchema.safeParse(data);
     if (result.success) {
       return result.data;
     }
 
-    // Si falla, aplicar esquema tolerante con defaults
     console.warn('⚠️ Datos de proyecto con campos faltantes, aplicando defaults');
     const fixed = ProjectLegacySchema.parse(data || {});
-
     return fixed;
   } catch (error) {
     console.error('❌ Error validando proyecto:', error);
@@ -207,24 +185,3 @@ export function getDefaultProjectValues(): ProjectFormValues {
     expectedProfitMarginPercent: null,
   };
 }
-
-// ============ VALIDACIONES ADICIONALES ============
-// Schemas de entidad importados desde entity.schemas.ts para evitar duplicación
-// Estos están mejor alineados con las reglas de Firestore
-
-export type ExpenseRecord = ExpenseRecordValues;
-export type AttendanceRecord = AttendanceRecordValues;
-export type Employee = EmployeeValues;
-export type Machinery = MachineryValues;
-export type APUItem = APUItemValues;
-export type QuoteRecord = QuoteRecordValues;
-
-// Re-exportar funciones de validación para compatibilidad
-export {
-  validateExpenseRecord,
-  validateAttendanceRecord,
-  validateEmployee,
-  validateMachinery,
-  validateAPUItem,
-  validateQuoteRecord,
-} from './entity.schemas';

@@ -1,11 +1,1 @@
-export default [
-  {
-    ignores: [
-      '.next/**',
-      'dist/**',
-      'node_modules/**',
-      'public/**',
-      'next-env.d.ts',
-    ],
-  },
-];
+export default [{}];

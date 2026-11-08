@@ -174,6 +174,7 @@ export interface EmployeeDirectoryEntry {
 export interface Employee {
   id: string;
   name: string;
+  companyId?: string;
   role: EmployeeRole;
   dailyRateGTQ: number;
   igssAffiliated: boolean;
@@ -190,6 +191,8 @@ export interface Employee {
 export interface AttendanceRecord {
   id: string;
   projectId: string;
+  companyId?: string;
+  authorId?: string;
   projectName?: string;
   date: string;
   employeeId: string;
@@ -214,6 +217,8 @@ export interface AttendanceRecord {
 export interface ExpenseRecord {
   id: string;
   projectId: string;
+  companyId?: string;
+  authorId?: string;
   date: string;
   category:
     | 'Materiales (Cementos, Hierro)'

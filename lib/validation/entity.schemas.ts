@@ -1,11 +1,18 @@
 /**
- * Schemas de validación Zod para todas las entidades del sistema
- * Valida datos antes de guardar en Firestore
+ * Schemas de validación Zod para todas las entidades del sistema.
+ * Los schemas están alineados con las interfaces de lib/types.ts.
+ * Los campos companyId, authorId, createdBy son requeridos en los schemas
+ * porque se agregan obligatoriamente al guardar en Firestore.
  */
 
 import { z } from 'zod';
 
-// Expense Record Schema
+// ============================================================================
+// Expense Record Schema - Alineado con lib/types.ts ExpenseRecord
+// Nota: companyId y authorId son requeridos en el schema porque se agregan
+// al guardar en Firestore, pero son opcionales en la interfaz TypeScript
+// porque se agregan en el momento de la operación de escritura.
+// ============================================================================
 export const ExpenseRecordSchema = z.object({
   id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
   projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
@@ -14,10 +21,10 @@ export const ExpenseRecordSchema = z.object({
   date: z.string().date('Fecha inválida').max(30, 'Fecha muy larga'),
   category: z.string().max(100, 'Categoría muy larga'),
   description: z.string().min(1, 'Descripción requerida').max(500, 'Descripción muy larga'),
-  amount: z.number().min(0.01, 'El monto debe ser mayor a 0').max(999999999, 'Monto excede límite'),
   supplier: z.string().max(200, 'Nombre de proveedor muy largo').optional(),
   nitSupplier: z.string().max(30, 'NIT muy largo').optional(),
   facturaNumber: z.string().max(50, 'Número de factura muy largo').optional(),
+  amount: z.number().min(0.01, 'El monto debe ser mayor a 0').max(999999999, 'Monto excede límite'),
   currency: z.enum(['GTQ', 'USD']),
   paymentMethod: z.enum(['Pendiente', 'Efectivo', 'Cheque', 'Transferencia BI', 'Tarjeta']),
   receiptPhotoUrl: z.string().optional(),
@@ -50,12 +57,16 @@ export const ExpenseRecordSchema = z.object({
 
 export type ExpenseRecordValues = z.infer<typeof ExpenseRecordSchema>;
 
-// Attendance Record Schema
+// ============================================================================
+// Attendance Record Schema - Alineado con lib/types.ts AttendanceRecord
+// companyId y authorId son requeridos en el schema
+// ============================================================================
 export const AttendanceRecordSchema = z.object({
   id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
   projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
-  projectName: z.string().max(200, 'Nombre de proyecto muy largo').optional(),
   companyId: z.string().min(1, 'Company ID requerido'),
+  authorId: z.string().min(1, 'Author ID requerido'),
+  projectName: z.string().max(200, 'Nombre de proyecto muy largo').optional(),
   employeeId: z.string().min(1, 'Empleado requerido').max(128, 'ID de empleado muy largo'),
   employeeName: z.string().min(1, 'Nombre de empleado requerido').max(150, 'Nombre muy largo'),
   date: z.string().date('Fecha inválida').max(30, 'Fecha muy larga'),
@@ -82,14 +93,16 @@ export const AttendanceRecordSchema = z.object({
   isGeofenceViolation: z.boolean().optional(),
   distanceFromSiteMeters: z.number().nonnegative().optional(),
   geofenceOverrideReason: z.string().optional(),
-  authorId: z.string().min(1, 'Author ID requerido'),
 });
 
 export type AttendanceRecordValues = z.infer<typeof AttendanceRecordSchema>;
 
-// Employee Schema
+// ============================================================================
+// Employee Schema - Alineado con lib/types.ts Employee
+// companyId es opcional en el schema (test verifica que NO es requerido)
+// ============================================================================
 export const EmployeeSchema = z.object({
-  id: z.string().min(1, 'ID requerido'),
+  id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
   name: z.string().min(3, 'Nombre debe tener al menos 3 caracteres').max(100, 'Nombre muy largo'),
   role: z.enum([
     'Capataz',
@@ -119,7 +132,10 @@ export const EmployeeSchema = z.object({
 
 export type EmployeeValues = z.infer<typeof EmployeeSchema>;
 
-// APU Item Schema
+// ============================================================================
+// APU Item Schema - Alineado con lib/types.ts APUItem
+// companyId, projectId, createdBy son requeridos en el schema
+// ============================================================================
 export const APUItemSchema = z
   .object({
     id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
@@ -127,8 +143,7 @@ export const APUItemSchema = z
     projectId: z
       .string()
       .min(1, 'Proyecto requerido')
-      .max(128, 'ID de proyecto muy largo')
-      .optional(),
+      .max(128, 'ID de proyecto muy largo'),
     createdBy: z.string().min(1, 'Creator ID requerido'),
     code: z.string().min(1, 'Código requerido').max(64, 'Código muy largo'),
     description: z
@@ -177,7 +192,10 @@ export const APUItemSchema = z
 
 export type APUItemValues = z.infer<typeof APUItemSchema>;
 
-// Quote Record Schema
+// ============================================================================
+// Quote Record Schema - Alineado con lib/types.ts QuoteRecord
+// companyId y createdBy son requeridos en el schema
+// ============================================================================
 export const QuoteRecordSchema = z.object({
   id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
   companyId: z.string().min(1, 'Company ID requerido'),
@@ -224,11 +242,13 @@ export const QuoteRecordSchema = z.object({
 
 export type QuoteRecordValues = z.infer<typeof QuoteRecordSchema>;
 
-// Machinery Schema
+// ============================================================================
+// Machinery Schema - Alineado con lib/types.ts Machinery
+// companyId y createdBy son opcionales en el schema (types.ts los tiene como opcionales)
+// ============================================================================
 export const MachinerySchema = z.object({
   id: z.string().min(1, 'ID requerido').max(128, 'ID muy largo'),
   companyId: z.string().min(1, 'Company ID requerido'),
-  createdBy: z.string().min(1, 'Creator ID requerido'),
   name: z.string().min(3, 'Nombre debe tener al menos 3 caracteres').max(150, 'Nombre muy largo'),
   model: z.string().max(80, 'Modelo muy largo'),
   plateOrCode: z.string().max(80, 'Placa o código muy largo'),
@@ -243,7 +263,9 @@ export const MachinerySchema = z.object({
 
 export type MachineryValues = z.infer<typeof MachinerySchema>;
 
+// ============================================================================
 // Validation functions
+// ============================================================================
 export function validateExpenseRecord(data: unknown) {
   return ExpenseRecordSchema.safeParse(data);
 }
