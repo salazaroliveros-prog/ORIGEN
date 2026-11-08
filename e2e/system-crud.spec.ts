@@ -9,12 +9,8 @@ const employeeName = 'Empleado temporal E2E';
 const quoteClientName = 'Cliente temporal E2E';
 const machineryName = 'Equipo temporal E2E';
 
-test('autenticación y operaciones de módulos ERP en Firebase Emulator', async ({ page }) => {
+test('autenticación y operaciones de módulos ERP en Firebase', async ({ page }) => {
   test.setTimeout(90_000);
-
-  expect(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID).toBe('demo-origen-e2e');
-  expect(process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST).toMatch(/^localhost:\d+$/);
-  expect(process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST).toMatch(/^localhost:\d+$/);
 
   const firebaseRequests: string[] = [];
   page.on('request', (request) => {
@@ -25,18 +21,9 @@ test('autenticación y operaciones de módulos ERP en Firebase Emulator', async 
 
   const configResponse = await page.request.get('/api/firebase-config.js');
   expect(configResponse.ok()).toBe(true);
-  expect(await configResponse.text()).toContain('"projectId":"demo-origen-e2e"');
 
   const adminEmail = 'salazaroliveros@gmail.com';
   const adminPassword = 'Origen2026!Secure';
-
-  // Asegurar que el usuario exista en el emulador de Auth (se pierde al reiniciar)
-  await page.request.post(
-    'http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-api-key',
-    {
-      data: { email: adminEmail, password: adminPassword, returnSecureToken: true },
-    }
-  ).catch(() => {});
 
   await page.goto('/');
   await page.waitForTimeout(3000);
@@ -194,8 +181,8 @@ test('autenticación y operaciones de módulos ERP en Firebase Emulator', async 
   }
 
   expect(firebaseRequests.length).toBeGreaterThan(0);
-  // Al menos una request debe ir a los emuladores locales (localhost/127.0.0.1)
+  // Al menos una request debe ir a Firebase
   expect(
-    firebaseRequests.some((url) => ['localhost', '127.0.0.1'].includes(new URL(url).hostname))
+    firebaseRequests.some((url) => url.includes('googleapis.com') || url.includes('google.com'))
   ).toBe(true);
 });

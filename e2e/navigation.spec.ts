@@ -12,18 +12,6 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Navegación principal', () => {
   test.beforeEach(async ({ page }) => {
-    // Asegurar que el usuario exista en el emulador de Auth
-    await page.request.post(
-      'http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-api-key',
-      {
-        data: {
-          email: 'salazaroliveros@gmail.com',
-          password: 'Origen2026!Secure',
-          returnSecureToken: true,
-        },
-      }
-    ).catch(() => {});
-
     await page.goto('/');
     await page.waitForTimeout(3000);
 

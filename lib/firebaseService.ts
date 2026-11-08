@@ -72,16 +72,10 @@ const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
 export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
 
-// Detectar si se están usando emuladores para deshabilitar App Check
-const isUsingEmulator =
-  typeof process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST === 'string' &&
-  process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST.trim().length > 0;
-
-// Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente y sin emulador)
+// Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente)
 if (
   typeof window !== 'undefined' &&
-  firebaseConfig.appCheckRecaptchaKey &&
-  !isUsingEmulator
+  firebaseConfig.appCheckRecaptchaKey
 ) {
   initializeAppCheck(app, {
     provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
@@ -89,68 +83,8 @@ if (
   });
 }
 
-const authEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST?.trim();
-if (authEmulatorHost) {
-  const emulatorUrl = authEmulatorHost.includes('://')
-    ? authEmulatorHost
-    : `http://${authEmulatorHost}`;
-  const parsedEmulatorUrl = new URL(emulatorUrl);
-  if (
-    parsedEmulatorUrl.protocol !== 'http:' ||
-    !parsedEmulatorUrl.hostname ||
-    (parsedEmulatorUrl.port &&
-      (!Number.isInteger(Number(parsedEmulatorUrl.port)) ||
-        Number(parsedEmulatorUrl.port) < 1 ||
-        Number(parsedEmulatorUrl.port) > 65535))
-  ) {
-    throw new Error('NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST must be an HTTP emulator URL.');
-  }
-  connectAuthEmulator(auth, parsedEmulatorUrl.origin, { disableWarnings: true });
-  
-  console.log(
-    `[Firebase] Auth emulator conectado: ${parsedEmulatorUrl.origin}`,
-  );
-}
-
-const firestoreEmulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.trim();
-if (firestoreEmulatorHost) {
-  const separatorIndex = firestoreEmulatorHost.lastIndexOf(':');
-  const host =
-    separatorIndex < 0 ? firestoreEmulatorHost : firestoreEmulatorHost.slice(0, separatorIndex);
-  const port = separatorIndex < 0 ? 8080 : Number(firestoreEmulatorHost.slice(separatorIndex + 1));
-  if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error(
-      'NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST must be a hostname with an optional valid port.'
-    );
-  }
-  connectFirestoreEmulator(db, host, port);
-}
-
 // Initialize Firebase Storage
 export const storage = getStorage(app);
-
-const storageEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_EMULATOR_HOST?.trim();
-if (storageEmulatorHost) {
-  const emulatorUrl = storageEmulatorHost.includes('://')
-    ? storageEmulatorHost
-    : `http://${storageEmulatorHost}`;
-  const parsedEmulatorUrl = new URL(emulatorUrl);
-  if (
-    parsedEmulatorUrl.protocol !== 'http:' ||
-    !parsedEmulatorUrl.hostname ||
-    (parsedEmulatorUrl.port &&
-      (!Number.isInteger(Number(parsedEmulatorUrl.port)) ||
-        Number(parsedEmulatorUrl.port) < 1 ||
-        Number(parsedEmulatorUrl.port) > 65535))
-  ) {
-    throw new Error('NEXT_PUBLIC_FIREBASE_STORAGE_EMULATOR_HOST must be an HTTP emulator URL.');
-  }
-  connectStorageEmulator(
-    storage,
-    parsedEmulatorUrl.hostname,
-    Number(parsedEmulatorUrl.port || 9199)
-  );
-}
 
 export async function testConnection(): Promise<boolean> {
   const user = auth.currentUser;
