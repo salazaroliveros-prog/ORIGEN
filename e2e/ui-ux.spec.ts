@@ -15,17 +15,24 @@ const ADMIN_PASSWORD = 'Origen2026!Secure';
 
 async function ensureAuthenticated(page: any) {
   test.setTimeout(120_000);
-  await page.goto('/');
-  await page.waitForTimeout(3000);
+  // Use URL query params for E2E auth (documented in useAuthSession.ts)
+  await page.goto(`/?__test_email=${ADMIN_EMAIL}&__test_password=${ADMIN_PASSWORD}`);
+  await page.waitForTimeout(5000);
 
-  const emailField = page.getByLabel('Correo electrónico');
-  const loginVisible = await emailField.isVisible().catch(() => false);
+  // Verify we're authenticated by checking for the dashboard navigation
+  const tableroButton = page.getByRole('button', { name: 'Tablero' });
+  const isAuthenticated = await tableroButton.isVisible().catch(() => false);
 
-  if (loginVisible) {
-    await emailField.fill(ADMIN_EMAIL);
-    await page.getByLabel('Contraseña').fill(ADMIN_PASSWORD);
-    await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
-    await page.waitForTimeout(4000);
+  if (!isAuthenticated) {
+    // Fallback: try manual login
+    const emailField = page.getByLabel('Correo electrónico');
+    const loginVisible = await emailField.isVisible().catch(() => false);
+    if (loginVisible) {
+      await emailField.fill(ADMIN_EMAIL);
+      await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
+      await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
+      await page.waitForTimeout(4000);
+    }
   }
 
   await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({
@@ -282,7 +289,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     const isVisible = await emailField.isVisible().catch(() => false);
     if (isVisible) {
       await emailField.fill(ADMIN_EMAIL);
-      await page.getByLabel('Contraseña').fill(ADMIN_PASSWORD);
+      await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
       await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
       await page.waitForTimeout(4000);
       await expect(
@@ -302,7 +309,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
       await page.waitForTimeout(2000);
 
       await page.getByLabel('Correo electrónico').fill('ui-e2e@test.com');
-      await page.getByLabel('Contraseña').fill('SecurePass123!');
+      await page.getByRole('textbox', { name: 'Contraseña' }).fill('SecurePass123!');
       await page.getByLabel('Confirmar contraseña').fill('SecurePass123!');
       await page.getByRole('button', { name: 'Crear cuenta' }).click();
       await page.waitForTimeout(4000);
@@ -370,7 +377,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     const isVisible = await emailField.isVisible().catch(() => false);
     if (isVisible) {
       await emailField.fill('email-invalido');
-      await page.getByLabel('Contraseña').fill('Password123!');
+      await page.getByRole('textbox', { name: 'Contraseña' }).fill('Password123!');
       await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
       await page.waitForTimeout(2000);
       // El formulario no debe enviarse, debe mostrar error de validación

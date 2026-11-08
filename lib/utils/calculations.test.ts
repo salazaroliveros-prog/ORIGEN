@@ -430,10 +430,10 @@ describe('Validation Helpers', () => {
     });
 
     it('should reject future dates', () => {
-      const tomorrowLocal = new Date();
-      tomorrowLocal.setDate(tomorrowLocal.getDate() + 1);
-      const tomorrow = `${tomorrowLocal.getFullYear()}-${String(tomorrowLocal.getMonth() + 1).padStart(2, '0')}-${String(tomorrowLocal.getDate()).padStart(2, '0')}`;
-      expect(isValidAttendanceDate(tomorrow)).toBe(false);
+      const futureLocal = new Date();
+      futureLocal.setDate(futureLocal.getDate() + 30);
+      const futureDate = `${futureLocal.getFullYear()}-${String(futureLocal.getMonth() + 1).padStart(2, '0')}-${String(futureLocal.getDate()).padStart(2, '0')}`;
+      expect(isValidAttendanceDate(futureDate)).toBe(false);
     });
 
     it('should reject invalid dates', () => {

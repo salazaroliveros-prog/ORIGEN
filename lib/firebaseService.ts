@@ -66,19 +66,28 @@ const appConfig = {
 
 export const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
 
-// Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente)
-if (typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
-  initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
-    isTokenAutoRefreshEnabled: true,
-  });
-}
-
 // Conexión directa a Firebase/Firestore sin capa intermedia de verificación de aplicaciones.
 
 const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
 export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
+
+// Detectar si se están usando emuladores para deshabilitar App Check
+const isUsingEmulator =
+  typeof process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST === 'string' &&
+  process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST.trim().length > 0;
+
+// Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente y sin emulador)
+if (
+  typeof window !== 'undefined' &&
+  firebaseConfig.appCheckRecaptchaKey &&
+  !isUsingEmulator
+) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
 
 const authEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST?.trim();
 if (authEmulatorHost) {
@@ -97,6 +106,10 @@ if (authEmulatorHost) {
     throw new Error('NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST must be an HTTP emulator URL.');
   }
   connectAuthEmulator(auth, parsedEmulatorUrl.origin, { disableWarnings: true });
+  
+  console.log(
+    `[Firebase] Auth emulator conectado: ${parsedEmulatorUrl.origin}`,
+  );
 }
 
 const firestoreEmulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.trim();
