@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'https://origen-one-kohl.vercel.app',
+  'https://origen-duw1ejjo3-proyectoswm.vercel.app',
 ];
 
 const SENSITIVE_PATHS = ['/api/'];
@@ -29,11 +30,12 @@ export function middleware(request: NextRequest) {
   // Content Security Policy
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://www.googletagmanager.com https://www.recaptcha.com https://recaptcha.net",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://www.googletagmanager.com https://www.recaptcha.com https://recaptcha.net https://www.google.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://*.googleapis.com https://*.google.com https://www.gstatic.com https://www.recaptcha.com https://recaptcha.net https://origen-4335pzppz-proyectoswm.vercel.app wss:",
+    "manifest-src 'self' https://vercel.com",
+    "connect-src 'self' https://*.googleapis.com https://*.google.com https://www.gstatic.com https://www.recaptcha.com https://recaptcha.net https://vercel.com https://origen-duw1ejjo3-proyectoswm.vercel.app wss:",
     "frame-src 'self' https://www.google.com https://accounts.google.com https://www.recaptcha.com https://recaptcha.net",
     "object-src 'none'",
     "base-uri 'self'",
