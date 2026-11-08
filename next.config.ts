@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Mejorar compatibilidad cross-browser
   transpilePackages: [],
+  // Configuración vacía de Turbopack para Next.js 16
+  turbopack: {},
   // Configuración de webpack para mejor compatibilidad
   webpack: (config, { isServer }) => {
     // Optimizar para navegadores más antiguos
