@@ -92,7 +92,7 @@ export function SkeletonTableRow({ columns = 5 }: { columns?: number }) {
       className={`flex gap-4 rounded-lg border border-white/10 bg-white/[0.05] p-4 shadow-glass-sm`}
     >
       {Array.from({ length: columns }).map((_, i) => (
-        <Skeleton key={i} className="flex-1" height={20} />
+        <Skeleton key={i} className="flex-1" height={20} aria-hidden="true" />
       ))}
     </div>
   );
@@ -123,7 +123,7 @@ export function SkeletonChart({ height = 300 }: { height?: number }) {
   return (
     <div className="space-y-4 rounded-xl border border-white/10 bg-white/[0.05] p-6 shadow-glass-md">
       <Skeleton width="30%" height={24} />
-      <Skeleton width="100%" height={height} className="rounded-lg" />
+      <Skeleton width="100%" height={height} className="rounded-lg" aria-hidden="true" />
     </div>
   );
 }

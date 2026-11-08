@@ -105,7 +105,7 @@ export function CashFlowProjectionChart({
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-2 text-cyan-400">
-              <Wallet className="h-5 w-5" />
+              <Wallet className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
               <h2 className="flex items-center gap-2 text-base font-extrabold text-white">
@@ -171,7 +171,7 @@ export function CashFlowProjectionChart({
 
           {/* Timeline Offset Navigator */}
           <div className="flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-1">
-            <Calendar className="h-3.5 w-3.5 text-amber-400" />
+            <Calendar className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
             <button
               onClick={() => setStartOffsetMonths((prev) => Math.max(-3, prev - 1))}
               disabled={startOffsetMonths <= -3}
@@ -199,11 +199,11 @@ export function CashFlowProjectionChart({
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-3.5">
           <div className="flex items-start justify-between">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Ingresos Proyectados (6M)
             </span>
             <span className="rounded-lg bg-emerald-500/10 p-1 text-emerald-400">
-              <ArrowUpRight className="h-3.5 w-3.5" />
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 font-mono text-lg font-black text-emerald-400 sm:text-xl">
@@ -214,11 +214,11 @@ export function CashFlowProjectionChart({
 
         <div className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-3.5">
           <div className="flex items-start justify-between">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Egresos Proyectados (6M)
             </span>
             <span className="rounded-lg bg-amber-500/10 p-1 text-amber-400">
-              <ArrowDownRight className="h-3.5 w-3.5" />
+              <ArrowDownRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 font-mono text-lg font-black text-amber-400 sm:text-xl">
@@ -239,7 +239,7 @@ export function CashFlowProjectionChart({
           }`}
         >
           <div className="flex items-start justify-between">
-            <span className={`text-[11px] font-bold tracking-wider uppercase ${netColor}`}>
+            <span className={`text-[11px] font-bold uppercase tracking-wider ${netColor}`}>
               {summary.costEstimatesComplete ? 'Flujo Neto del Semestre' : 'Flujo Neto Parcial'}
             </span>
             <span
@@ -251,7 +251,7 @@ export function CashFlowProjectionChart({
                   : 'bg-slate-700 text-slate-300'
               }`}
             >
-              <DollarSign className="h-3.5 w-3.5" />
+              <DollarSign className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </div>
           <p className={`mt-1 font-mono text-lg font-black sm:text-xl ${netColor}`}>
@@ -269,11 +269,11 @@ export function CashFlowProjectionChart({
 
         <div className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-3.5">
           <div className="flex items-start justify-between">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Hitos en el Semestre
             </span>
             <span className="rounded-lg bg-cyan-500/10 p-1 text-cyan-400">
-              <Target className="h-3.5 w-3.5" />
+              <Target className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 text-lg font-black text-cyan-400 sm:text-xl">
@@ -393,7 +393,7 @@ export function CashFlowProjectionChart({
 
       {/* Strategic Insight Alert */}
       <div className="flex items-start gap-3 rounded-xl border border-slate-700/80 bg-slate-800/40 p-3.5 text-xs">
-        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" aria-hidden="true" />
         <div className="space-y-0.5">
           <p className="font-bold text-slate-200">Análisis de Tesorería por Calendario de Hitos:</p>
           <p className="text-slate-400">
@@ -425,17 +425,17 @@ export function CashFlowProjectionChart({
           className="flex w-full items-center justify-between bg-slate-800/50 p-3.5 text-left transition hover:bg-slate-800"
         >
           <div className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 text-cyan-400" />
-            <span className="text-xs font-bold tracking-wider text-white uppercase">
+            <CalendarDays className="h-4 w-4 text-cyan-400" aria-hidden="true" />
+            <span className="text-xs font-bold uppercase tracking-wider text-white">
               Detalle de Hitos del Cronograma en el Periodo ({summary.allMilestonesInPeriod.length})
             </span>
           </div>
           <span className="flex items-center gap-1 text-xs font-semibold text-slate-400">
             {showMilestonesList ? 'Ocultar' : 'Ver detalle'}
             {showMilestonesList ? (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
             )}
           </span>
         </button>
@@ -450,7 +450,7 @@ export function CashFlowProjectionChart({
             ) : (
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase">
+                  <tr className="border-b border-slate-800 text-[11px] font-bold uppercase text-slate-400">
                     <th className="pb-2">Fecha Objetivo</th>
                     <th className="pb-2">Proyecto</th>
                     <th className="pb-2">Hito / Fase</th>
@@ -464,7 +464,7 @@ export function CashFlowProjectionChart({
                   {summary.allMilestonesInPeriod.map((m) => (
                     <tr key={`${m.projectId}:${m.id}`} className="transition hover:bg-slate-800/30">
                       <td className="flex items-center gap-1.5 py-2.5 font-sans text-slate-300">
-                        <Clock className="h-3 w-3 shrink-0 text-cyan-400" />
+                        <Clock className="h-3 w-3 shrink-0 text-cyan-400" aria-hidden="true" />
                         {m.targetDate}
                       </td>
                       <td className="py-2.5 font-sans text-slate-200">
@@ -565,7 +565,7 @@ function CustomCashFlowTooltip({ active, payload, label }: any) {
 
         {data.hitos && data.hitos.length > 0 && (
           <div className="space-y-1 border-t border-slate-800/80 pt-1.5 text-[10px]">
-            <p className="font-sans font-bold text-slate-400 uppercase">Hitos a entregar:</p>
+            <p className="font-sans font-bold uppercase text-slate-400">Hitos a entregar:</p>
             {data.hitos.map((h, i) => (
               <div key={i} className="truncate text-slate-300">
                 • <strong className="text-white">{h.projectCode}:</strong> {h.title} (

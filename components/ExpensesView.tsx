@@ -299,7 +299,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center gap-2 text-slate-600">
-          <Loader className="h-5 w-5 animate-spin" />
+          <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando gastos...</span>
         </div>
       </div>
@@ -320,7 +320,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
           onClick={handleExportCSV}
           className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-700"
         >
-          <Download className="h-5 w-5" />
+          <Download className="h-5 w-5" aria-hidden="true" />
           Exportar CSV
         </button>
       </div>
@@ -520,7 +520,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
 
             {/* Photo Upload - FEATURE 3.2 */}
             <div className="rounded-lg border-2 border-dashed border-slate-300 p-4 text-center transition-colors hover:border-slate-400">
-              <Camera className="mx-auto mb-2 h-8 w-8 text-slate-400" />
+              <Camera className="mx-auto mb-2 h-8 w-8 text-slate-400" aria-hidden="true" />
               <p className="text-sm text-slate-600">Haz clic o arrastra una foto de recibo</p>
               <input
                 type="file"
@@ -625,19 +625,19 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                     className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-100"
                     title="Ver foto"
                   >
-                    <Camera className="h-4 w-4" />
+                    <Camera className="h-4 w-4" aria-hidden="true" />
                   </button>
                   <button
                     className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100"
                     title="Editar"
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-4 w-4" aria-hidden="true" />
                   </button>
                   <button
                     className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100"
                     title="Eliminar"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -652,7 +652,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
           onClick={() => setShowForm(true)}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5" aria-hidden="true" />
           Nuevo Gasto
         </button>
       )}

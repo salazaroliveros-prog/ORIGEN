@@ -297,7 +297,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 p-4 text-white sm:p-5">
           <div className="flex items-center gap-3">
             <span className="rounded-2xl border border-sky-400/30 bg-sky-500/20 p-2.5 text-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-              <Sparkles className="h-5 w-5 text-amber-300" />
+              <Sparkles className="h-5 w-5 text-amber-300" aria-hidden="true" />
             </span>
             <div>
               <div className="flex items-center gap-2">
@@ -309,7 +309,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 </span>
               </div>
               <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-300">
-                <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+                <MapPin className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
                 {activeProject?.name || 'Obra'} • {department} (Factor Regional{' '}
                 {deptInfo.overallFactor}x)
               </p>
@@ -334,7 +334,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 : 'text-slate-300 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Camera className="h-4 w-4" />
+            <Camera className="h-4 w-4" aria-hidden="true" />
             <span>Auditoría de Bitácora con Fotos (IA)</span>
           </button>
 
@@ -346,7 +346,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 : 'text-slate-300 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Bot className="h-4 w-4" />
+            <Bot className="h-4 w-4" aria-hidden="true" />
             <span>Consultas Técnicas & APU</span>
           </button>
         </div>
@@ -358,7 +358,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
             <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-sky-400" />
+                  <FileText className="h-4 w-4 text-sky-400" aria-hidden="true" />
                   <span className="text-xs font-bold text-white sm:text-sm">
                     Parámetros de Auditoría de Campo
                   </span>
@@ -437,7 +437,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 </div>
 
                 {/* Image Container with Preview or Placeholder */}
-                <div className="group relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-inner sm:aspect-4/3">
+                <div className="sm:aspect-4/3 group relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-inner">
                   {uploadedImage ? (
                     <>
                       <Image
@@ -446,11 +446,11 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                         width={1200}
                         height={900}
                         unoptimized
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-102"
+                        className="group-hover:scale-102 h-full w-full object-cover transition duration-300"
                       />
                       <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-slate-950/90 via-transparent to-transparent p-3">
                         <div className="flex items-center gap-1.5 text-[11px] font-bold text-white">
-                          <Eye className="h-3.5 w-3.5 text-sky-400" />
+                          <Eye className="h-3.5 w-3.5 text-sky-400" aria-hidden="true" />
                           <span className="truncate">{imageFileName}</span>
                         </div>
                         <div className="mt-0.5 font-mono text-[10px] text-slate-300">
@@ -460,7 +460,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                     </>
                   ) : (
                     <div className="space-y-2 p-6 text-center">
-                      <Camera className="mx-auto h-10 w-10 text-slate-500" />
+                      <Camera className="mx-auto h-10 w-10 text-slate-500" aria-hidden="true" />
                       <p className="text-xs text-slate-400">Sin foto de bitácora seleccionada</p>
                     </div>
                   )}
@@ -480,7 +480,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                     onClick={() => fileInputRef.current?.click()}
                     className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.08] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.12] hover:text-white"
                   >
-                    <Upload className="h-3.5 w-3.5 text-sky-400" />
+                    <Upload className="h-3.5 w-3.5 text-sky-400" aria-hidden="true" />
                     <span>Subir Foto Local</span>
                   </button>
                   {uploadedImage && (
@@ -493,14 +493,14 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                       className="cursor-pointer rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-slate-400 transition hover:border-rose-500/30 hover:bg-rose-500/20 hover:text-rose-300"
                       title="Quitar foto"
                     >
-                      <RotateCcw className="h-3.5 w-3.5" />
+                      <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                   )}
                 </div>
 
                 {/* Sample Presets to test in 1 click */}
                 <div className="space-y-1.5 pt-1">
-                  <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Fotos de Bitácora de Muestra (1-Clic):
                   </span>
                   <div className="space-y-1.5">
@@ -554,7 +554,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                       value={logbookQuestion}
                       onChange={(e) => setLogbookQuestion(e.target.value)}
                       placeholder="Escriba su pregunta sobre lo reportado por el capataz, fecha, materiales, etc..."
-                      className="w-full rounded-2xl border border-white/20 bg-slate-950 p-3 text-xs text-white placeholder-slate-500 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 focus:outline-none sm:text-sm"
+                      className="w-full rounded-2xl border border-white/20 bg-slate-950 p-3 text-xs text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400 sm:text-sm"
                     />
                   </div>
 
@@ -576,16 +576,16 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                     type="button"
                     disabled={isAnalyzingLogbook || !uploadedImage}
                     onClick={handleAnalyzeLogbook}
-                    className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-500 px-4 py-3 text-xs font-extrabold tracking-wider text-slate-950 uppercase shadow-[0_0_20px_rgba(56,189,248,0.3)] transition hover:from-sky-300 hover:to-blue-400 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                    className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-500 px-4 py-3 text-xs font-extrabold uppercase tracking-wider text-slate-950 shadow-[0_0_20px_rgba(56,189,248,0.3)] transition hover:from-sky-300 hover:to-blue-400 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                   >
                     {isAnalyzingLogbook ? (
                       <>
-                        <Sparkles className="h-4 w-4 animate-spin" />
+                        <Sparkles className="h-4 w-4 animate-spin" aria-hidden="true" />
                         <span>Analizando Foto de Bitácora con Gemini...</span>
                       </>
                     ) : (
                       <>
-                        <Bot className="h-4 w-4" />
+                        <Bot className="h-4 w-4" aria-hidden="true" />
                         <span>
                           Auditar Progreso de Visita {selectedVisitId} ({logDate})
                         </span>
@@ -599,7 +599,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                   {isAnalyzingLogbook ? (
                     <div className="flex flex-1 flex-col items-center justify-center space-y-3 p-6 text-center">
                       <div className="animate-pulse rounded-2xl border border-sky-400/30 bg-sky-500/20 p-3 text-sky-400">
-                        <Sparkles className="h-7 w-7 animate-spin" />
+                        <Sparkles className="h-7 w-7 animate-spin" aria-hidden="true" />
                       </div>
                       <div className="space-y-1">
                         <h4 className="text-sm font-bold text-white">
@@ -628,12 +628,12 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                         >
                           {copiedResult ? (
                             <>
-                              <Check className="h-3 w-3 text-emerald-400" />
+                              <Check className="h-3 w-3 text-emerald-400" aria-hidden="true" />
                               <span className="text-emerald-400">Copiado</span>
                             </>
                           ) : (
                             <>
-                              <Copy className="h-3 w-3" />
+                              <Copy className="h-3 w-3" aria-hidden="true" />
                               <span>Copiar</span>
                             </>
                           )}
@@ -641,7 +641,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                       </div>
 
                       {/* Formatted Markdown Content */}
-                      <div className="max-h-[260px] flex-1 space-y-2 overflow-y-auto pr-1 font-sans text-xs leading-relaxed whitespace-pre-wrap text-slate-200">
+                      <div className="max-h-[260px] flex-1 space-y-2 overflow-y-auto whitespace-pre-wrap pr-1 font-sans text-xs leading-relaxed text-slate-200">
                         {logbookAnalysis}
                       </div>
 
@@ -654,7 +654,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                     </div>
                   ) : (
                     <div className="flex flex-1 flex-col items-center justify-center space-y-2 p-6 text-center text-slate-400">
-                      <Bot className="h-8 w-8 text-slate-600" />
+                      <Bot className="h-8 w-8 text-slate-600" aria-hidden="true" />
                       <p className="text-xs font-semibold text-slate-300">
                         Listo para responder preguntas sobre la bitácora
                       </p>
@@ -682,7 +682,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 >
                   {m.role === 'assistant' && (
                     <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl border border-sky-400/30 bg-sky-500/20 text-sky-400">
-                      <Bot className="h-4 w-4" />
+                      <Bot className="h-4 w-4" aria-hidden="true" />
                     </div>
                   )}
                   <div
@@ -704,9 +704,9 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
               ))}
 
               {isChatLoading && (
-                <div className="flex items-center gap-3 text-xs text-slate-400 italic">
+                <div className="flex items-center gap-3 text-xs italic text-slate-400">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-sky-500/20 text-sky-400">
-                    <Sparkles className="h-4 w-4 animate-spin text-sky-400" />
+                    <Sparkles className="h-4 w-4 animate-spin text-sky-400" aria-hidden="true" />
                   </div>
                   <p>Gemini IA está procesando su consulta de costos e ingeniería...</p>
                 </div>
@@ -725,7 +725,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                   key={i}
                   type="button"
                   onClick={() => handleSendChatMessage(q)}
-                  className="shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/[0.05] px-3 py-1.5 whitespace-nowrap text-slate-300 transition hover:bg-white/[0.1] hover:text-white"
+                  className="shrink-0 cursor-pointer whitespace-nowrap rounded-xl border border-white/10 bg-white/[0.05] px-3 py-1.5 text-slate-300 transition hover:bg-white/[0.1] hover:text-white"
                 >
                   {q}
                 </button>
@@ -750,9 +750,9 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
               <button
                 type="submit"
                 disabled={isChatLoading || !chatInput.trim()}
-                className="flex cursor-pointer items-center gap-1.5 rounded-2xl bg-sky-400 px-5 py-3 text-xs font-bold tracking-wider text-slate-950 uppercase shadow-sm transition hover:bg-sky-300 disabled:opacity-50"
+                className="flex cursor-pointer items-center gap-1.5 rounded-2xl bg-sky-400 px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-950 shadow-sm transition hover:bg-sky-300 disabled:opacity-50"
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-4 w-4" aria-hidden="true" />
               </button>
             </form>
           </div>

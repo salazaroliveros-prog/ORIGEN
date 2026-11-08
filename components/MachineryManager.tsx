@@ -266,7 +266,7 @@ export function MachineryManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
+      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-bold text-slate-900">
             Control de Maquinaria & Equipo Pesado
@@ -285,7 +285,7 @@ export function MachineryManager({
           title={!canWrite ? 'Inicia sesión con un rol que pueda gestionar maquinaria' : undefined}
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Plus className="h-4 w-4" /> Registrar Maquinaria
+          <Plus className="h-4 w-4" aria-hidden="true" /> Registrar Maquinaria
         </button>
       </div>
 
@@ -293,7 +293,7 @@ export function MachineryManager({
       {maintenanceAlerts.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Wrench className="h-5 w-5 text-amber-600" />
+            <Wrench className="h-5 w-5 text-amber-600" aria-hidden="true" />
             <h3 className="text-sm font-bold text-slate-900">
               Alertas de Mantenimiento Preventivo
             </h3>
@@ -318,7 +318,7 @@ export function MachineryManager({
                       : 'bg-amber-100 text-amber-600'
                   }`}
                 >
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
@@ -355,7 +355,7 @@ export function MachineryManager({
           return (
             <div
               key={mach.id}
-              className={`space-y-3 rounded-2xl border p-5 shadow-xs ${
+              className={`shadow-xs space-y-3 rounded-2xl border p-5 ${
                 needsMaintenance
                   ? 'border-red-300 bg-red-50/50'
                   : maintenanceWarning
@@ -364,7 +364,7 @@ export function MachineryManager({
               }`}
             >
               <div className="flex items-start justify-between">
-                <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
+                <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700">
                   {mach.plateOrCode}
                 </span>
                 <span
@@ -386,7 +386,7 @@ export function MachineryManager({
               <div className="space-y-2">
                 <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
                   <span className="text-slate-500">
-                    <Gauge className="mr-1 inline h-3.5 w-3.5" />
+                    <Gauge className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                     Horómetro: {mach.currentHorometer}
                   </span>
                   <span className="font-bold text-slate-900">
@@ -395,7 +395,7 @@ export function MachineryManager({
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500">
-                    <Clock className="mr-1 inline h-3.5 w-3.5" />
+                    <Clock className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                     Uso total: {totalUsageHours}h
                   </span>
                   {needsMaintenance ? (
@@ -436,7 +436,7 @@ export function MachineryManager({
                     title="Eliminar maquinaria"
                     className="rounded-lg bg-red-50 px-2 py-2 text-red-500 hover:bg-red-100"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 )}
               </div>
@@ -450,9 +450,9 @@ export function MachineryManager({
         )}
       </div>
 
-      <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5">
+      <section className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
         <div className="flex items-center gap-2">
-          <ClipboardList className="h-5 w-5 text-blue-700" />
+          <ClipboardList className="h-5 w-5 text-blue-700" aria-hidden="true" />
           <div>
             <h3 className="font-bold text-slate-900">Registrar uso de maquinaria</h3>
             <p className="text-xs text-slate-500">
@@ -534,20 +534,20 @@ export function MachineryManager({
           <label className="text-xs font-semibold text-slate-700">
             Combustible (galones)
             <span className="relative mt-1 block">
-              <Fuel className="absolute top-2.5 left-3 h-4 w-4 text-slate-400" />
+              <Fuel className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" aria-hidden="true" />
               <input
                 type="number"
                 min="0"
                 step="0.1"
                 value={fuelGallons}
                 onChange={(event) => setFuelGallons(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pr-3 pl-9 text-sm"
+                className="w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pl-9 pr-3 text-sm"
                 required
               />
             </span>
           </label>
           <div className="flex items-center text-sm text-slate-600">
-            <Wrench className="mr-2 h-4 w-4 text-amber-600" />
+            <Wrench className="mr-2 h-4 w-4 text-amber-600" aria-hidden="true" />
             {hoursWorked > 0
               ? `${hoursWorked.toFixed(1)} h · ${formatMoney(operationCost)}`
               : 'Ingresa el horómetro final'}
@@ -572,9 +572,10 @@ export function MachineryManager({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5">
+      <section className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
         <h3 className="mb-3 flex items-center gap-2 font-bold text-slate-900">
-          <CheckCircle2 className="h-5 w-5 text-emerald-700" /> Operaciones recientes
+          <CheckCircle2 className="h-5 w-5 text-emerald-700" aria-hidden="true" /> Operaciones
+          recientes
         </h3>
         {machineryLogs.length === 0 ? (
           <p className="text-sm text-slate-500">Las operaciones registradas aparecerán aquí.</p>

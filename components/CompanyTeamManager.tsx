@@ -139,7 +139,7 @@ export function CompanyTeamManager({
       <Card variant="elevated" padding="lg">
         <div className="mb-4 flex items-start gap-3">
           <span className="rounded-xl bg-sky-500/10 p-2 text-sky-300">
-            <UserPlus className="h-5 w-5" />
+            <UserPlus className="h-5 w-5" aria-hidden="true" />
           </span>
           <div>
             <h2 className="font-semibold text-white">Invitar por correo</h2>
@@ -189,9 +189,9 @@ export function CompanyTeamManager({
             className="self-end"
           >
             {isLoading ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
+              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
-              <UserPlus className="h-4 w-4" />
+              <UserPlus className="h-4 w-4" aria-hidden="true" />
             )}
             Crear invitación
           </Button>
@@ -267,7 +267,7 @@ export function CompanyTeamManager({
                     aria-label={`Quitar a ${member.email || member.uid}`}
                   >
                     {pendingAction === member.uid ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                      <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
                     ) : (
                       <Trash2 className="h-4 w-4 text-rose-300" />
                     )}
@@ -305,7 +305,7 @@ export function CompanyTeamManager({
                   aria-label={`Revocar invitación para ${invitation.email}`}
                 >
                   {pendingAction === invitation.id ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                    <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
                   ) : (
                     <Trash2 className="h-4 w-4 text-rose-300" />
                   )}

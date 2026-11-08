@@ -667,7 +667,7 @@ export function CotizacionesView({
       <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
           <span className="rounded-2xl border border-amber-500/30 bg-amber-500/15 p-3 text-amber-400">
-            <Briefcase className="h-6 w-6" />
+            <Briefcase className="h-6 w-6" aria-hidden="true" />
           </span>
           <div>
             <div className="flex items-center gap-2">
@@ -701,7 +701,7 @@ export function CotizacionesView({
           }
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4" aria-hidden="true" />
           Nueva Cotización Rápida
         </button>
       </div>
@@ -714,7 +714,7 @@ export function CotizacionesView({
               Propuestas Vigentes
             </span>
             <span className="rounded-lg bg-blue-500/10 p-1.5 text-blue-400">
-              <FileText className="h-4 w-4" />
+              <FileText className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 text-2xl font-black text-white">{stats.activeCount}</p>
@@ -729,7 +729,7 @@ export function CotizacionesView({
               Pipeline Cotizado
             </span>
             <span className="rounded-lg bg-amber-500/10 p-1.5 text-amber-400">
-              <DollarSign className="h-4 w-4" />
+              <DollarSign className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 font-mono text-2xl font-black text-amber-400">
@@ -762,7 +762,7 @@ export function CotizacionesView({
               Colegiado CIG
             </span>
             <span className="rounded-lg bg-purple-500/10 p-1.5 text-purple-400">
-              <ShieldCheck className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 truncate text-lg font-black text-purple-300">
@@ -776,7 +776,10 @@ export function CotizacionesView({
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:flex-row sm:items-center">
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+            <Search
+              className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400"
+              aria-hidden="true"
+            />
             <input
               type="text"
               value={searchQuery}
@@ -808,7 +811,7 @@ export function CotizacionesView({
       {/* Quotes Cards Grid */}
       {filteredQuotes.length === 0 ? (
         <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-8 text-center">
-          <FileText className="mx-auto mb-3 h-8 w-8 text-slate-500" />
+          <FileText className="mx-auto mb-3 h-8 w-8 text-slate-500" aria-hidden="true" />
           <h2 className="font-bold text-white">
             {projectQuotes.length === 0
               ? 'Aún no hay cotizaciones para este proyecto'
@@ -902,7 +905,7 @@ export function CotizacionesView({
                     onClick={() => handleDownloadPdf(q)}
                     className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-extrabold text-white shadow-md transition hover:bg-blue-500"
                   >
-                    <Download className="h-3.5 w-3.5" />
+                    <Download className="h-3.5 w-3.5" aria-hidden="true" />
                     Descargar PDF
                   </button>
 
@@ -922,7 +925,7 @@ export function CotizacionesView({
                       className="cursor-pointer rounded-xl bg-emerald-600 p-2 text-white transition hover:bg-emerald-500"
                       title="Marcar como Aceptada / Ganada"
                     >
-                      <Check className="h-4 w-4" />
+                      <Check className="h-4 w-4" aria-hidden="true" />
                     </button>
                   )}
                 </div>
@@ -940,7 +943,7 @@ export function CotizacionesView({
             <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-4 sm:p-5">
               <div className="flex items-center gap-3">
                 <div className="rounded-xl border border-amber-500/30 bg-amber-500/20 p-2.5 text-amber-400">
-                  <Briefcase className="h-5 w-5" />
+                  <Briefcase className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="text-base font-extrabold sm:text-lg">
@@ -965,7 +968,7 @@ export function CotizacionesView({
               {/* Step 1: Select Budget Template */}
               <div className="space-y-2">
                 <label className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
                   Seleccionar Plantilla de Presupuesto Rápido:
                 </label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
@@ -1328,7 +1331,7 @@ export function CotizacionesView({
                 disabled={!canWrite || isSavingQuote || projects.length === 0}
                 className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500 px-5 py-2 text-xs font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Send className="h-3.5 w-3.5" />
+                <Send className="h-3.5 w-3.5" aria-hidden="true" />
                 {isSavingQuote ? 'Guardando...' : '                Guardar como Enviada'}
               </button>
             </div>

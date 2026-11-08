@@ -528,11 +528,11 @@ export function AdvancedReportsManager({
   return (
     <div className="space-y-6">
       {/* Top Header & Export Controls */}
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
+      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
-              <FileText className="h-5 w-5" />
+              <FileText className="h-5 w-5" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-bold text-slate-900">
               Centro de Reportes Ejecutivos & Exportación PDF
@@ -552,7 +552,7 @@ export function AdvancedReportsManager({
             className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
             title="Exportar todas las bitácoras y registros de gastos a formato .xlsx profesional con macros preconfiguradas"
           >
-            <FileSpreadsheet className="h-4 w-4" />
+            <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
             {isExportingExcel ? 'Generando .xlsx...' : 'Exportar .xlsx Contable'}
           </button>
 
@@ -570,7 +570,7 @@ export function AdvancedReportsManager({
             onClick={() => window.print()}
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
           >
-            <Printer className="h-4 w-4 text-slate-500" />
+            <Printer className="h-4 w-4 text-slate-500" aria-hidden="true" />
             Imprimir
           </button>
 
@@ -579,7 +579,7 @@ export function AdvancedReportsManager({
             disabled={isGenerating}
             className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4" aria-hidden="true" />
             {isGenerating ? 'Generando PDF...' : 'Descargar PDF'}
           </button>
         </div>
@@ -587,10 +587,10 @@ export function AdvancedReportsManager({
 
       {/* Excel Success Notification Banner */}
       {excelSuccessToast && (
-        <div className="animate-in fade-in flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-xs">
+        <div className="animate-in fade-in shadow-xs flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
           <div className="flex items-center gap-3">
             <span className="rounded-xl bg-emerald-100 p-2 text-emerald-800">
-              <FileSpreadsheet className="h-5 w-5" />
+              <FileSpreadsheet className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
               <p className="text-xs font-bold">
@@ -616,7 +616,7 @@ export function AdvancedReportsManager({
       )}
 
       {/* Filter & Configuration Bar */}
-      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:grid-cols-3">
+      <div className="shadow-xs grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
         <div>
           <label className="mb-1 block text-xs font-semibold text-slate-700">
             Proyecto Seleccionado
@@ -676,7 +676,7 @@ export function AdvancedReportsManager({
         <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold text-blue-700 uppercase">
+              <span className="rounded bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-blue-700">
                 {activeProject.code}
               </span>
               <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
@@ -702,13 +702,13 @@ export function AdvancedReportsManager({
         {/* Financial KPI Summary Cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-            <p className="text-[11px] font-bold text-blue-900 uppercase">Presupuesto Autorizado</p>
+            <p className="text-[11px] font-bold uppercase text-blue-900">Presupuesto Autorizado</p>
             <p className="mt-1 text-xl font-bold text-blue-950">{formatMoney(totalBudget)}</p>
             <p className="mt-0.5 text-[10px] text-blue-700">Monto contractual de obra</p>
           </div>
 
           <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
-            <p className="text-[11px] font-bold text-rose-900 uppercase">Inversión Ejecutada</p>
+            <p className="text-[11px] font-bold uppercase text-rose-900">Inversión Ejecutada</p>
             <p className="mt-1 text-xl font-bold text-rose-950">{formatMoney(totalSpent)}</p>
             <p className="mt-0.5 text-[10px] text-rose-700">
               {((totalSpent / totalBudget) * 100).toFixed(1)}% del presupuesto
@@ -716,7 +716,7 @@ export function AdvancedReportsManager({
           </div>
 
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-            <p className="text-[11px] font-bold text-emerald-900 uppercase">Saldo Disponible</p>
+            <p className="text-[11px] font-bold uppercase text-emerald-900">Saldo Disponible</p>
             <p className="mt-1 text-xl font-bold text-emerald-950">{formatMoney(balance)}</p>
             <p className="mt-0.5 text-[10px] text-emerald-700">
               Avance Físico: {activeProject.progressPercent}%
@@ -728,7 +728,7 @@ export function AdvancedReportsManager({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
-              <Receipt className="h-4 w-4 text-slate-500" />
+              <Receipt className="h-4 w-4 text-slate-500" aria-hidden="true" />
               Detalle de Gastos y Facturas para Auditoría
             </h4>
             <span className="text-xs text-slate-500">{projectExpenses.length} registros</span>
@@ -781,7 +781,7 @@ export function AdvancedReportsManager({
         {/* Bitácoras & Signatures Preview */}
         <div className="space-y-3 pt-2">
           <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
             Certificación de Bitácoras de Campo Firmadas ({projectVisits.length})
           </h4>
 
@@ -797,7 +797,7 @@ export function AdvancedReportsManager({
                     {visit.status}
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 italic">&quot;{visit.notes}&quot;</p>
+                <p className="text-xs italic text-slate-600">&quot;{visit.notes}&quot;</p>
                 <div className="flex items-center justify-between border-t border-slate-200 pt-1 text-[11px] text-slate-500">
                   <span>
                     Capataz: <strong>{visit.foremanName}</strong>
@@ -903,7 +903,7 @@ export function AdvancedReportsManager({
                   </li>
                   <li>
                     Presione{' '}
-                    <kbd className="rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono shadow-2xs">
+                    <kbd className="shadow-2xs rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono">
                       Alt + F11
                     </kbd>{' '}
                     para abrir el editor de Visual Basic.
@@ -914,7 +914,7 @@ export function AdvancedReportsManager({
                   </li>
                   <li>
                     Presione{' '}
-                    <kbd className="rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono shadow-2xs">
+                    <kbd className="shadow-2xs rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono">
                       Alt + F8
                     </kbd>{' '}
                     en Excel para ejecutar cualquier macro con 1 clic.
@@ -943,7 +943,7 @@ export function AdvancedReportsManager({
                     )}
                   </button>
                 </div>
-                <pre className="max-h-60 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-4 font-mono text-[11px] leading-relaxed text-emerald-400 select-all">
+                <pre className="max-h-60 select-all overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-4 font-mono text-[11px] leading-relaxed text-emerald-400">
                   {GUATEMALAN_ACCOUNTING_VBA_MACROS.replace(/{PROJECT_CODE}/g, activeProject.code)
                     .replace(/{PROJECT_NAME}/g, activeProject.name)
                     .replace(/{DATE_GENERATED}/g, new Date().toLocaleString('es-GT'))}

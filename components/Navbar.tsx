@@ -506,7 +506,7 @@ export function Navbar({
                 <span className="max-w-[110px] truncate sm:max-w-[160px]">
                   {activeProject?.name ?? 'Sin proyecto'}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
               </Button>
 
               {isProjectDropdownOpen && (
@@ -577,7 +577,7 @@ export function Navbar({
                 className="rounded-lg p-2.5 text-slate-400 hover:bg-red-500/20 hover:text-red-300"
                 title="Cerrar Sesión"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4" aria-hidden="true" />
               </Button>
             ) : null}
           </div>

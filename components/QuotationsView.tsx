@@ -329,7 +329,7 @@ Notas: ${quotation.notes}
     return (
       <div className="p-6">
         <div className="flex items-center justify-center gap-2 text-slate-600">
-          <Loader className="h-5 w-5 animate-spin" />
+          <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando cotizaciones...</span>
         </div>
       </div>
@@ -458,7 +458,7 @@ Notas: ${quotation.notes}
                           title="Remover item"
                           aria-label="Remover item"
                         >
-                          <Trash2 className="h-5 w-5" />
+                          <Trash2 className="h-5 w-5" aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -553,7 +553,7 @@ Notas: ${quotation.notes}
       <div className="space-y-3">
         {quotations.length === 0 ? (
           <div className="rounded-lg border border-slate-200 bg-white py-12 text-center">
-            <FileText className="mx-auto mb-3 h-12 w-12 text-slate-300" />
+            <FileText className="mx-auto mb-3 h-12 w-12 text-slate-300" aria-hidden="true" />
             <p className="text-slate-600">No hay cotizaciones registradas</p>
           </div>
         ) : (
@@ -599,7 +599,7 @@ Notas: ${quotation.notes}
                 {/* FEATURE 3.1: Expiry warning */}
                 {daysLeft <= 3 && daysLeft >= 0 && (
                   <div className="mb-3 flex items-center gap-2 rounded border border-orange-200 bg-orange-50 p-2 text-sm">
-                    <Clock className="h-4 w-4 text-orange-600" />
+                    <Clock className="h-4 w-4 text-orange-600" aria-hidden="true" />
                     <p className="text-orange-700">
                       Cotización vence en {daysLeft} día(s). Confirma con el cliente.
                     </p>
@@ -612,7 +612,7 @@ Notas: ${quotation.notes}
                     className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100"
                     title="Ver detalles"
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-4 w-4" aria-hidden="true" />
                   </button>
                   {/* FEATURE 3.2: PDF Export with Logo */}
                   <button
@@ -620,19 +620,19 @@ Notas: ${quotation.notes}
                     className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-100"
                     title="Descargar PDF"
                   >
-                    <Download className="h-4 w-4" />
+                    <Download className="h-4 w-4" aria-hidden="true" />
                   </button>
                   <button
                     className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100"
                     title="Editar"
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-4 w-4" aria-hidden="true" />
                   </button>
                   <button
                     className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100"
                     title="Eliminar"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -647,7 +647,7 @@ Notas: ${quotation.notes}
           onClick={() => setShowForm(true)}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5" aria-hidden="true" />
           Nueva Cotización
         </button>
       )}

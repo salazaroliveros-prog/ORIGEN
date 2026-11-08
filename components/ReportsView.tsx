@@ -187,7 +187,7 @@ export function ReportsView({ projectId }: { projectId: string }) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center gap-2 text-slate-600">
-          <Loader className="h-5 w-5 animate-spin" />
+          <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando reportes...</span>
         </div>
       </div>
@@ -208,7 +208,7 @@ export function ReportsView({ projectId }: { projectId: string }) {
           onClick={handleExportExcel}
           className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-700"
         >
-          <Download className="h-5 w-5" />
+          <Download className="h-5 w-5" aria-hidden="true" />
           Exportar
         </button>
       </div>
@@ -216,7 +216,7 @@ export function ReportsView({ projectId }: { projectId: string }) {
       {/* FEATURE 3.1: Simplified Date Picker UI - FIXED: Improved spacing p-6 */}
       <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-slate-600" />
+          <Calendar className="h-5 w-5 text-slate-600" aria-hidden="true" />
           <h3 className="font-semibold text-slate-900">Filtros</h3>
         </div>
 
@@ -319,7 +319,7 @@ export function ReportsView({ projectId }: { projectId: string }) {
                 Q{summary.income.toLocaleString()}
               </p>
             </div>
-            <TrendingUp className="h-8 w-8 text-green-600" />
+            <TrendingUp className="h-8 w-8 text-green-600" aria-hidden="true" />
           </div>
         </div>
 

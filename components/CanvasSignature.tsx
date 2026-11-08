@@ -272,7 +272,7 @@ export function CanvasSignature({
       <div className="flex items-center justify-between bg-slate-900 p-4 text-white sm:p-5">
         <div className="flex items-center gap-2.5">
           <div className="rounded-xl border border-blue-500/30 bg-blue-600/30 p-2 text-blue-400">
-            <PenTool className="h-5 w-5" />
+            <PenTool className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white sm:text-base">{title}</h3>
@@ -294,7 +294,7 @@ export function CanvasSignature({
         {/* Signer Identification inputs */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-[11px] font-bold tracking-wider text-slate-700 uppercase">
+            <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-700">
               Nombre del Capataz / Firmante
             </label>
             <div className="relative">
@@ -303,14 +303,17 @@ export function CanvasSignature({
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Don Mario Cifuentes"
-                className="w-full rounded-lg border border-slate-300 bg-slate-50 py-1.5 pr-3 pl-8 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-slate-300 bg-slate-50 py-1.5 pl-8 pr-3 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500"
                 required
               />
-              <UserCheck className="absolute top-2.5 left-2.5 h-3.5 w-3.5 text-slate-400" />
+              <UserCheck
+                className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400"
+                aria-hidden="true"
+              />
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-[11px] font-bold tracking-wider text-slate-700 uppercase">
+            <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-700">
               DPI / Identificación (Guatemala)
             </label>
             <input
@@ -326,7 +329,7 @@ export function CanvasSignature({
         <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs text-slate-600">
           <span className="font-semibold text-slate-700">{signerRole}</span>
           <div className="flex items-center gap-1 font-mono text-[11px] text-sky-700">
-            <MapPin className="h-3 w-3 text-sky-600" />
+            <MapPin className="h-3 w-3 text-sky-600" aria-hidden="true" />
             {gpsCoords
               ? `${gpsCoords.lat.toFixed(4)}°N, ${gpsCoords.lng.toFixed(4)}°W`
               : 'Obteniendo GPS...'}
@@ -375,14 +378,14 @@ export function CanvasSignature({
                 className="cursor-pointer rounded-lg p-1.5 text-slate-600 transition hover:bg-rose-50 hover:text-rose-600"
                 title="Limpiar lienzo completo"
               >
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           </div>
 
           <div
             ref={containerRef}
-            className="relative h-48 w-full cursor-crosshair touch-none overflow-hidden rounded-xl border-2 border-slate-300 bg-white shadow-inner select-none"
+            className="relative h-48 w-full cursor-crosshair touch-none select-none overflow-hidden rounded-xl border-2 border-slate-300 bg-white shadow-inner"
           >
             <canvas
               ref={canvasRef}
@@ -406,7 +409,7 @@ export function CanvasSignature({
         {/* Validation Error */}
         {validationError && (
           <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
             <span>{validationError}</span>
           </div>
         )}

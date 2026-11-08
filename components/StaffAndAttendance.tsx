@@ -388,11 +388,11 @@ export function StaffAndAttendance({
   return (
     <div className="space-y-6">
       {/* Top Header & Mode Toggle */}
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
+      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-xl bg-blue-50 p-2 text-blue-600">
-              <Navigation className="h-5 w-5" />
+              <Navigation className="h-5 w-5" aria-hidden="true" />
             </span>
             <h2 className="text-lg font-bold text-slate-900">
               Control de Personal, Cuadrillas & Asistencia con Geocerca GPS
@@ -411,7 +411,7 @@ export function StaffAndAttendance({
               onClick={() => setActiveTab('asistencia')}
               className={`min-h-11 cursor-pointer rounded-lg px-3.5 py-1.5 text-xs font-bold transition sm:min-h-9 ${
                 activeTab === 'asistencia'
-                  ? 'bg-white text-blue-700 shadow-xs'
+                  ? 'shadow-xs bg-white text-blue-700'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -421,7 +421,7 @@ export function StaffAndAttendance({
               onClick={() => setActiveTab('personal')}
               className={`min-h-11 cursor-pointer rounded-lg px-3.5 py-1.5 text-xs font-bold transition sm:min-h-9 ${
                 activeTab === 'personal'
-                  ? 'bg-white text-blue-700 shadow-xs'
+                  ? 'shadow-xs bg-white text-blue-700'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -432,11 +432,11 @@ export function StaffAndAttendance({
                 onClick={() => setActiveTab('productividad')}
                 className={`inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition sm:min-h-9 ${
                   activeTab === 'productividad'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    ? 'shadow-xs bg-amber-500 text-slate-950'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <BarChart3 className="h-3.5 w-3.5" />
+                <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
                 Productividad Recharts
               </button>
             )}
@@ -450,7 +450,7 @@ export function StaffAndAttendance({
               }}
               className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-blue-700 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-800"
             >
-              <Plus className="h-4 w-4" /> Nuevo Empleado
+              <Plus className="h-4 w-4" aria-hidden="true" /> Nuevo Empleado
             </button>
           )}
         </div>
@@ -458,20 +458,20 @@ export function StaffAndAttendance({
 
       {/* KPI Stats Bar */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-          <p className="text-[11px] font-bold text-slate-500 uppercase">Nómina Total</p>
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+          <p className="text-[11px] font-bold uppercase text-slate-500">Nómina Total</p>
           <p className="mt-1 text-xl font-bold text-slate-900">{employees.length} trabajadores</p>
           <p className="mt-0.5 text-[10px] text-slate-400">Albañiles, ayudantes y capataces</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-          <p className="text-[11px] font-bold text-blue-600 uppercase">Marcajes Registrados</p>
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+          <p className="text-[11px] font-bold uppercase text-blue-600">Marcajes Registrados</p>
           <p className="mt-1 text-xl font-bold text-blue-950">{totalRegistered} asistencias</p>
           <p className="mt-0.5 text-[10px] text-blue-600">En historial del proyecto</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-          <p className="text-[11px] font-bold text-emerald-600 uppercase">
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+          <p className="text-[11px] font-bold uppercase text-emerald-600">
             Verificados en Obra (GPS)
           </p>
           <p className="mt-1 text-xl font-bold text-emerald-950">{verifiedGpsCount} en sitio</p>
@@ -480,8 +480,8 @@ export function StaffAndAttendance({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-          <p className="text-[11px] font-bold text-amber-600 uppercase">Excepciones / Fuera Obra</p>
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+          <p className="text-[11px] font-bold uppercase text-amber-600">Excepciones / Fuera Obra</p>
           <p className="mt-1 text-xl font-bold text-amber-950">{outsideCount} advertencias</p>
           <p className="mt-0.5 text-[10px] text-amber-700">Con justificación autorizada</p>
         </div>
@@ -489,9 +489,9 @@ export function StaffAndAttendance({
 
       {/* SUCCESS TOAST */}
       {saveSuccessToast && (
-        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-xs">
+        <div className="animate-in fade-in shadow-xs flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
           <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+            <CheckCircle2 className="h-5 w-5 text-emerald-600" aria-hidden="true" />
             <p className="text-xs font-bold">{saveSuccessToast}</p>
           </div>
           <button
@@ -508,15 +508,15 @@ export function StaffAndAttendance({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* LEFT: Geofence Check-in Form (5 cols) */}
           <div className="space-y-6 lg:col-span-5">
-            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <div className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
-                    <Compass className="h-4 w-4" />
+                    <Compass className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <h3 className="text-sm font-bold text-slate-900">Registrar Asistencia en Obra</h3>
                 </div>
-                <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 uppercase">
+                <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-700">
                   Geocerca Activa
                 </span>
               </div>
@@ -560,7 +560,7 @@ export function StaffAndAttendance({
                       ))}
                     </select>
                     <p className="mt-1 flex items-center gap-1 text-[11px] text-slate-400">
-                      <MapPin className="h-3 w-3 text-slate-400" />
+                      <MapPin className="h-3 w-3 text-slate-400" aria-hidden="true" />
                       {currentProject
                         ? `Coords Obra: ${currentProject.lat.toFixed(4)}° N, ${currentProject.lng.toFixed(4)}° W (${currentProject.municipality})`
                         : 'Crea un proyecto para habilitar el registro de asistencia.'}
@@ -657,7 +657,7 @@ export function StaffAndAttendance({
                   <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                        <Smartphone className="h-3.5 w-3.5 text-blue-600" />
+                        <Smartphone className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
                         Validación GPS de Ubicación
                       </span>
                       <span className="text-[10px] font-medium text-slate-500">
@@ -673,7 +673,10 @@ export function StaffAndAttendance({
                         disabled={isLocating}
                         className="inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700 disabled:opacity-50"
                       >
-                        <Navigation className={`h-3.5 w-3.5 ${isLocating ? 'animate-spin' : ''}`} />
+                        <Navigation
+                          className={`h-3.5 w-3.5 ${isLocating ? 'animate-spin' : ''}`}
+                          aria-hidden="true"
+                        />
                         {isLocating ? 'Detectando GPS...' : 'Obtener GPS en Vivo'}
                       </button>
 
@@ -700,7 +703,10 @@ export function StaffAndAttendance({
                     {/* GPS Error Alert */}
                     {gpsError && (
                       <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-900">
-                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                        <AlertTriangle
+                          className="mt-0.5 h-4 w-4 shrink-0 text-amber-600"
+                          aria-hidden="true"
+                        />
                         <p>{gpsError}</p>
                       </div>
                     )}
@@ -717,9 +723,15 @@ export function StaffAndAttendance({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
                             {isWithinGeofence ? (
-                              <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
+                              <ShieldCheck
+                                className="h-4 w-4 shrink-0 text-emerald-600"
+                                aria-hidden="true"
+                              />
                             ) : (
-                              <XCircle className="h-4 w-4 shrink-0 text-rose-600" />
+                              <XCircle
+                                className="h-4 w-4 shrink-0 text-rose-600"
+                                aria-hidden="true"
+                              />
                             )}
                             <span className="font-bold">
                               {isWithinGeofence
@@ -787,7 +799,7 @@ export function StaffAndAttendance({
                     type="submit"
                     className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700"
                   >
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4" aria-hidden="true" />
                     Guardar Registro de Asistencia
                   </button>
                 </form>
@@ -801,11 +813,11 @@ export function StaffAndAttendance({
 
           {/* RIGHT: History Table with GPS Badges (7 cols) */}
           <div className="space-y-4 lg:col-span-7">
-            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <div className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
                 <div className="flex items-center gap-2">
                   <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
-                    <Clock className="h-4 w-4" />
+                    <Clock className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
@@ -819,7 +831,7 @@ export function StaffAndAttendance({
 
                 {/* Filter by project */}
                 <div className="flex items-center gap-1.5">
-                  <Filter className="h-3.5 w-3.5 text-slate-400" />
+                  <Filter className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
                   <select
                     value={historyProjectFilter}
                     onChange={(e) => {
@@ -849,13 +861,13 @@ export function StaffAndAttendance({
                       <th className="pb-2.5">Proyecto</th>
                       <th className="pb-2.5">Estado</th>
                       <th className="pb-2.5">Verificación GPS</th>
-                      <th className="pr-1 pb-2.5 text-right">Acción</th>
+                      <th className="pb-2.5 pr-1 text-right">Acción</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {filteredAttendance.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-slate-400 italic">
+                        <td colSpan={6} className="py-8 text-center italic text-slate-400">
                           No hay registros de asistencia para este filtro.
                         </td>
                       </tr>
@@ -897,7 +909,7 @@ export function StaffAndAttendance({
                               {rec.gpsVerified === true ? (
                                 <div className="space-y-0.5">
                                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                                    <ShieldCheck className="h-3 w-3" />
+                                    <ShieldCheck className="h-3 w-3" aria-hidden="true" />
                                     En Obra ({rec.distanceMeters ?? '< 250'}m)
                                   </span>
                                   {rec.gpsCoords && (
@@ -909,12 +921,15 @@ export function StaffAndAttendance({
                               ) : rec.gpsVerified === false ? (
                                 <div className="space-y-0.5">
                                   <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900">
-                                    <AlertTriangle className="h-3 w-3 text-amber-600" />
+                                    <AlertTriangle
+                                      className="h-3 w-3 text-amber-600"
+                                      aria-hidden="true"
+                                    />
                                     Fuera ({rec.distanceMeters ?? '> 250'}m)
                                   </span>
                                   {rec.overrideReason && (
                                     <p
-                                      className="max-w-[140px] truncate text-[10px] text-amber-800 italic"
+                                      className="max-w-[140px] truncate text-[10px] italic text-amber-800"
                                       title={rec.overrideReason}
                                     >
                                       &quot;{rec.overrideReason}&quot;
@@ -922,7 +937,7 @@ export function StaffAndAttendance({
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-[10px] text-slate-400 italic">Sin GPS</span>
+                                <span className="text-[10px] italic text-slate-400">Sin GPS</span>
                               )}
                             </td>
                             <td className="py-3 pr-1 text-right">
@@ -932,7 +947,7 @@ export function StaffAndAttendance({
                                   className="cursor-pointer rounded-lg p-1 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
                                   title="Eliminar registro"
                                 >
-                                  <Trash2 className="h-3.5 w-3.5" />
+                                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                 </button>
                               )}
                             </td>
@@ -954,10 +969,10 @@ export function StaffAndAttendance({
           {employees.map((emp) => (
             <div
               key={emp.id}
-              className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
+              className="shadow-xs space-y-3 rounded-2xl border border-slate-200 bg-white p-5"
             >
               <div className="flex items-start justify-between">
-                <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
+                <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700">
                   {emp.role}
                 </span>
                 <div className="flex items-center gap-1">
@@ -973,7 +988,7 @@ export function StaffAndAttendance({
                       title="Eliminar empleado"
                       className="rounded-lg p-1 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                   )}
                 </div>

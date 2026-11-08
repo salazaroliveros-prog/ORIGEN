@@ -105,7 +105,7 @@ function CalendarView({
             }
             className="rounded-lg p-2 transition-colors hover:bg-slate-100"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setCurrentDate(new Date())}
@@ -119,7 +119,7 @@ function CalendarView({
             }
             className="rounded-lg p-2 transition-colors hover:bg-slate-100"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -332,7 +332,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center gap-2 text-slate-600">
-          <Loader className="h-5 w-5 animate-spin" />
+          <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando personal...</span>
         </div>
       </div>
@@ -356,7 +356,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                 : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
             }`}
           >
-            <Calendar className="h-4 w-4" />
+            <Calendar className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Calendario</span>
           </button>
           <button
@@ -367,7 +367,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                 : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
             }`}
           >
-            <List className="h-4 w-4" />
+            <List className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Lista</span>
           </button>
         </div>
@@ -614,7 +614,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
           onClick={() => setShowForm(true)}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5" aria-hidden="true" />
           Registrar Asistencia
         </button>
       )}

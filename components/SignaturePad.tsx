@@ -269,7 +269,7 @@ export function SignaturePad({
             value={signerName}
             onChange={(e) => setSignerName(e.target.value)}
             placeholder="Ej. Don Mario Cifuentes"
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -282,7 +282,7 @@ export function SignaturePad({
             value={signerDpi}
             onChange={(e) => setSignerDpi(e.target.value)}
             placeholder="XXXX XXXXX XXXX"
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -297,7 +297,7 @@ export function SignaturePad({
           value={signerRole}
           onChange={(e) => setSignerRole(e.target.value)}
           placeholder="Ej. Capataz General de Obra"
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -305,7 +305,7 @@ export function SignaturePad({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
-            <PenTool className="h-3.5 w-3.5 text-blue-600" />
+            <PenTool className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
             Lienzo de Firma Digital (HTML5 Canvas):
           </label>
 
@@ -363,7 +363,7 @@ export function SignaturePad({
       {/* Validation alert */}
       {validationError && (
         <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700">
-          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
           <span>{validationError}</span>
         </div>
       )}
@@ -373,7 +373,7 @@ export function SignaturePad({
         <div className="flex flex-wrap items-center justify-between gap-2">
           {gpsCoords && (
             <p className="flex items-center gap-1 font-mono text-[11px] text-slate-700">
-              <MapPin className="h-3.5 w-3.5 text-rose-500" />
+              <MapPin className="h-3.5 w-3.5 text-rose-500" aria-hidden="true" />
               <span>
                 GPS Obra: {gpsCoords.lat.toFixed(5)}° N, {gpsCoords.lng.toFixed(5)}° W
               </span>
@@ -418,7 +418,7 @@ export function SignaturePad({
 
   if (inline) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">{content}</div>
+      <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">{content}</div>
     );
   }
 
@@ -428,7 +428,7 @@ export function SignaturePad({
         <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
           <div className="flex items-center gap-2">
             <div className="rounded-lg bg-blue-600 p-1.5 text-white">
-              <PenTool className="h-4 w-4" />
+              <PenTool className="h-4 w-4" aria-hidden="true" />
             </div>
             <div>
               <div className="flex items-center gap-2">

@@ -314,7 +314,7 @@ export function DigitalSignaturePad({
             value={signerName}
             onChange={(e) => setSignerName(e.target.value)}
             placeholder="Ej. Don Mario Cifuentes"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -328,7 +328,7 @@ export function DigitalSignaturePad({
             value={signerDpi}
             onChange={(e) => setSignerDpi(e.target.value)}
             placeholder="XXXX XXXXX XXXX"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -343,7 +343,7 @@ export function DigitalSignaturePad({
           value={signerRole}
           onChange={(e) => setSignerRole(e.target.value)}
           placeholder="Ej. Capataz General de Estructura"
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -351,7 +351,7 @@ export function DigitalSignaturePad({
       <div className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-            <Smartphone className="h-3.5 w-3.5 text-blue-600" />
+            <Smartphone className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
             Recuadro de Firma Táctil (HTML5 Canvas):
           </label>
 
@@ -412,7 +412,7 @@ export function DigitalSignaturePad({
         {/* HTML5 Canvas Container */}
         <div
           ref={containerRef}
-          className="relative flex touch-none justify-center overflow-hidden rounded-2xl border-2 border-slate-300 bg-white shadow-inner select-none"
+          className="relative flex touch-none select-none justify-center overflow-hidden rounded-2xl border-2 border-slate-300 bg-white shadow-inner"
         >
           <canvas
             ref={canvasRef}
@@ -438,7 +438,7 @@ export function DigitalSignaturePad({
       {/* Validation alert */}
       {validationError && (
         <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700">
-          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
           <span>{validationError}</span>
         </div>
       )}
@@ -448,7 +448,7 @@ export function DigitalSignaturePad({
         <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
           {gpsCoords && (
             <span className="flex items-center gap-1 font-bold text-cyan-400">
-              <MapPin className="h-3.5 w-3.5 text-rose-400" />
+              <MapPin className="h-3.5 w-3.5 text-rose-400" aria-hidden="true" />
               GPS: {gpsCoords.lat.toFixed(5)}°N, {gpsCoords.lng.toFixed(5)}°W
               {gpsStatus === 'success' && (
                 <span className="py-0.2 rounded border border-emerald-700 bg-emerald-950 px-1 text-[9px] text-emerald-400">
@@ -504,7 +504,7 @@ export function DigitalSignaturePad({
         <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
           <div className="flex items-center gap-2.5">
             <div className="rounded-xl bg-blue-600 p-2 text-white">
-              <PenTool className="h-4 w-4" />
+              <PenTool className="h-4 w-4" aria-hidden="true" />
             </div>
             <div>
               <div className="flex items-center gap-2">

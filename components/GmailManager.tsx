@@ -100,7 +100,7 @@ export function GmailManager({
       <header className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
         <div className="flex items-center gap-3">
           <span className="rounded-xl bg-blue-500/15 p-3 text-blue-300">
-            <Mail className="h-5 w-5" />
+            <Mail className="h-5 w-5" aria-hidden="true" />
           </span>
           <div>
             <h1 className="text-lg font-bold text-white">Envío de correo con Gmail</h1>
@@ -136,7 +136,7 @@ export function GmailManager({
         </div>
         {hasActiveGrant && (
           <p className="mt-3 flex items-center gap-2 text-xs text-emerald-300">
-            <ShieldCheck className="h-4 w-4" />
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
             Permiso temporal activo en esta sesión. El token no se guarda en Firestore ni en
             almacenamiento local.
           </p>
@@ -260,7 +260,7 @@ export function GmailManager({
                 <p className="text-xs text-slate-400">De: {userEmail}</p>
                 <p className="text-xs text-slate-400">Para: {recipient}</p>
                 <p className="mt-2 text-sm font-bold text-white">{subject}</p>
-                <p className="mt-3 text-sm whitespace-pre-wrap text-slate-200">{body}</p>
+                <p className="mt-3 whitespace-pre-wrap text-sm text-slate-200">{body}</p>
               </div>
               <p className="text-xs text-amber-200">
                 Al confirmar, Gmail enviará este contenido al destinatario. Esta operación no se

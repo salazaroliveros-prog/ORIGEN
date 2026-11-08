@@ -168,7 +168,10 @@ export default function SignUpPage() {
 
           {errors.general && (
             <div className="mb-6 flex gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
+              <AlertCircle
+                className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500"
+                aria-hidden="true"
+              />
               <p className="text-xs text-amber-600">{errors.general}</p>
             </div>
           )}
@@ -304,9 +307,9 @@ export default function SignUpPage() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5" />
+                    <EyeOff className="h-5 w-5" aria-hidden="true" />
                   ) : (
-                    <Eye className="h-5 w-5" />
+                    <Eye className="h-5 w-5" aria-hidden="true" />
                   )}
                 </button>
               }
@@ -316,19 +319,21 @@ export default function SignUpPage() {
             )}
 
             {formData.password && formData.confirmPassword && (
-              <div className={`mt-2 flex items-center gap-1 text-xs font-semibold ${
-                formData.password === formData.confirmPassword
-                  ? 'text-emerald-500'
-                  : 'text-rose-500'
-              }`}>
+              <div
+                className={`mt-2 flex items-center gap-1 text-xs font-semibold ${
+                  formData.password === formData.confirmPassword
+                    ? 'text-emerald-500'
+                    : 'text-rose-500'
+                }`}
+              >
                 {formData.password === formData.confirmPassword ? (
                   <>
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4" aria-hidden="true" />
                     Las contraseñas coinciden
                   </>
                 ) : (
                   <>
-                    <AlertCircle className="h-4 w-4" />
+                    <AlertCircle className="h-4 w-4" aria-hidden="true" />
                     Las contraseñas no coinciden
                   </>
                 )}
@@ -367,7 +372,7 @@ export default function SignUpPage() {
               size="lg"
               isLoading={loading}
               disabled={loading}
-              className="w-full mt-4"
+              className="mt-4 w-full"
             >
               {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
             </Button>

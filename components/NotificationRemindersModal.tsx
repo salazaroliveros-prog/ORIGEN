@@ -136,7 +136,7 @@ export function NotificationRemindersModal({
         <div className="flex items-center justify-between border-b border-white/10 bg-slate-950/60 p-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-amber-400/30 bg-amber-500/20 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
-              <Bell className="h-5 w-5" />
+              <Bell className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-lg font-bold tracking-tight text-white">
@@ -166,7 +166,7 @@ export function NotificationRemindersModal({
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Clock className="h-4 w-4" />
+            <Clock className="h-4 w-4" aria-hidden="true" />
             <span>Recordatorios Configurados ({reminders.length})</span>
           </button>
 
@@ -178,7 +178,7 @@ export function NotificationRemindersModal({
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" aria-hidden="true" />
             <span>Configurar Nuevo Recordatorio</span>
           </button>
 
@@ -190,7 +190,7 @@ export function NotificationRemindersModal({
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <ShieldAlert className="h-4 w-4" />
+            <ShieldAlert className="h-4 w-4" aria-hidden="true" />
             <span>Reglas de Flujo & Bloqueos</span>
           </button>
         </div>
@@ -201,7 +201,7 @@ export function NotificationRemindersModal({
           {activeTab === 'list' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs tracking-wider text-slate-400 uppercase">
+                <span className="font-mono text-xs uppercase tracking-wider text-slate-400">
                   Avisos programados en el proyecto activo
                 </span>
                 <button
@@ -222,7 +222,7 @@ export function NotificationRemindersModal({
 
               {reminders.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] py-12 text-center">
-                  <Bell className="mx-auto mb-2 h-10 w-10 text-slate-600" />
+                  <Bell className="mx-auto mb-2 h-10 w-10 text-slate-600" aria-hidden="true" />
                   <p className="text-sm font-semibold text-slate-300">
                     No hay recordatorios configurados
                   </p>
@@ -242,7 +242,7 @@ export function NotificationRemindersModal({
                     return (
                       <div
                         key={rem.id}
-                        className={`rounded-2xl border p-4 transition-all ${
+                        className={`rounded-2xl border p-4 transition-opacity transition-transform ${
                           rem.enabled
                             ? 'border-white/10 bg-white/[0.04] hover:border-white/20'
                             : 'border-white/5 bg-white/[0.01] opacity-60'
@@ -252,7 +252,7 @@ export function NotificationRemindersModal({
                           <div className="flex-1 space-y-1.5">
                             <div className="flex flex-wrap items-center gap-2">
                               <span
-                                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
+                                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                                   rem.priority === 'Alta'
                                     ? 'border-rose-500/30 bg-rose-500/15 text-rose-300'
                                     : rem.priority === 'Media'
@@ -291,7 +291,7 @@ export function NotificationRemindersModal({
 
                             <div className="flex items-center gap-3 pt-1 text-[11px] text-slate-500">
                               <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3 text-slate-400" />
+                                <Calendar className="h-3 w-3 text-slate-400" aria-hidden="true" />
                                 Meta: {rem.targetDate}{' '}
                                 {rem.targetTime ? `a las ${rem.targetTime}` : ''}
                               </span>
@@ -352,7 +352,7 @@ export function NotificationRemindersModal({
           {activeTab === 'create' && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <span className="font-mono text-xs font-bold tracking-wider text-amber-400 uppercase">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-amber-400">
                   1. Selección del Objetivo
                 </span>
 
@@ -369,7 +369,7 @@ export function NotificationRemindersModal({
                         : 'border-white/10 bg-white/[0.02] text-slate-400 hover:text-white'
                     }`}
                   >
-                    <Sliders className="h-4 w-4" />
+                    <Sliders className="h-4 w-4" aria-hidden="true" />
                     <span>Para Tarea de Obra</span>
                   </button>
 
@@ -398,7 +398,7 @@ export function NotificationRemindersModal({
                     <select
                       value={selectedTaskId}
                       onChange={(e) => handleSelectTask(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white transition outline-none focus:border-sky-400"
+                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none transition focus:border-sky-400"
                     >
                       {tasks.map((t) => (
                         <option key={t.id} value={t.id}>
@@ -415,7 +415,7 @@ export function NotificationRemindersModal({
                     <select
                       value={selectedMilestoneId}
                       onChange={(e) => handleSelectMilestone(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white transition outline-none focus:border-amber-400"
+                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none transition focus:border-amber-400"
                     >
                       {milestones.map((m) => (
                         <option key={m.id} value={m.id}>
@@ -429,7 +429,7 @@ export function NotificationRemindersModal({
 
               {/* Title & Description */}
               <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <span className="font-mono text-xs font-bold tracking-wider text-sky-400 uppercase">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-sky-400">
                   2. Mensaje y Contenido del Recordatorio
                 </span>
 
@@ -443,7 +443,7 @@ export function NotificationRemindersModal({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Ej. Revisar encofrado y pruebas de resistencia"
-                    className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white transition outline-none focus:border-sky-400"
+                    className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none transition focus:border-sky-400"
                   />
                 </div>
 
@@ -456,14 +456,14 @@ export function NotificationRemindersModal({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Detalles técnicos, responsable o verificación previa requerida..."
-                    className="w-full resize-none rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white transition outline-none focus:border-sky-400"
+                    className="w-full resize-none rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none transition focus:border-sky-400"
                   />
                 </div>
               </div>
 
               {/* Timing & Channel Options */}
               <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <span className="font-mono text-xs font-bold tracking-wider text-emerald-400 uppercase">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-emerald-400">
                   3. Programación y Canal
                 </span>
 
@@ -476,7 +476,7 @@ export function NotificationRemindersModal({
                       type="date"
                       value={targetDate}
                       onChange={(e) => setTargetDate(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 font-mono text-xs text-white transition outline-none focus:border-emerald-400"
+                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 font-mono text-xs text-white outline-none transition focus:border-emerald-400"
                     />
                   </div>
 
@@ -488,7 +488,7 @@ export function NotificationRemindersModal({
                       type="time"
                       value={targetTime}
                       onChange={(e) => setTargetTime(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 font-mono text-xs text-white transition outline-none focus:border-emerald-400"
+                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 font-mono text-xs text-white outline-none transition focus:border-emerald-400"
                     />
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export function NotificationRemindersModal({
                     <select
                       value={advanceOption}
                       onChange={(e) => setAdvanceOption(e.target.value as ReminderAdvanceOption)}
-                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white transition outline-none focus:border-emerald-400"
+                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none transition focus:border-emerald-400"
                     >
                       <option value="same_day">El mismo día</option>
                       <option value="1_day_before">1 día antes (Recomendado)</option>
@@ -518,7 +518,7 @@ export function NotificationRemindersModal({
                     <select
                       value={priority}
                       onChange={(e) => setPriority(e.target.value as 'Alta' | 'Media' | 'Baja')}
-                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white transition outline-none focus:border-emerald-400"
+                      className="w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none transition focus:border-emerald-400"
                     >
                       <option value="Alta">Alta (Crítica para la ruta)</option>
                       <option value="Media">Media (Procedimiento regular)</option>
@@ -593,7 +593,7 @@ export function NotificationRemindersModal({
                 </button>
                 <button
                   type="submit"
-                  className="cursor-pointer rounded-xl bg-amber-500 px-6 py-2 text-xs font-bold tracking-wide text-slate-950 uppercase shadow-lg shadow-amber-500/20 transition hover:bg-amber-400"
+                  className="cursor-pointer rounded-xl bg-amber-500 px-6 py-2 text-xs font-bold uppercase tracking-wide text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400"
                 >
                   Guardar y Programar Recordatorio
                 </button>
@@ -605,7 +605,10 @@ export function NotificationRemindersModal({
           {activeTab === 'workflow' && (
             <div className="space-y-4">
               <div className="flex items-start gap-3 rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4">
-                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
+                <AlertTriangle
+                  className="mt-0.5 h-5 w-5 shrink-0 text-amber-400"
+                  aria-hidden="true"
+                />
                 <div className="space-y-1 text-xs text-slate-300">
                   <p className="font-bold text-amber-300">
                     Monitoreo del Flujo Constructivo Normativo
@@ -619,7 +622,7 @@ export function NotificationRemindersModal({
               </div>
 
               <div className="space-y-3">
-                <span className="font-mono text-xs font-bold tracking-wider text-slate-400 uppercase">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400">
                   Dependencias y Predecesoras de la Obra
                 </span>
 
@@ -685,7 +688,7 @@ export function NotificationRemindersModal({
                       <div className="shrink-0">
                         {isBlocked ? (
                           <div className="flex items-center gap-1 text-xs font-bold text-rose-400">
-                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                             <span>Bloqueada</span>
                           </div>
                         ) : task.completed ? (
@@ -695,7 +698,7 @@ export function NotificationRemindersModal({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1 text-xs font-bold text-sky-400">
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRight className="h-4 w-4" aria-hidden="true" />
                             <span>En Ejecución</span>
                           </div>
                         )}

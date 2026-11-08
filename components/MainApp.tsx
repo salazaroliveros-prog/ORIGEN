@@ -826,7 +826,7 @@ export default function MainApp() {
             bottom: 'calc(5rem + env(safe-area-inset-bottom))',
             right: 'max(1.5rem, env(safe-area-inset-right))',
           }}
-          className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-slate-950 shadow-xl transition-all hover:bg-amber-400 lg:hidden"
+          className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-slate-950 shadow-xl transition-opacity transition-transform hover:bg-amber-400 lg:hidden"
           aria-label="Configuración de Marca"
         >
           <Settings className="h-6 w-6" aria-hidden="true" />

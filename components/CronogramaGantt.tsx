@@ -351,7 +351,7 @@ export function CronogramaGantt({
       <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
           <span className="rounded-2xl border border-sky-500/30 bg-sky-500/15 p-3 text-sky-400">
-            <CalendarDays className="h-6 w-6" />
+            <CalendarDays className="h-6 w-6" aria-hidden="true" />
           </span>
           <div>
             <div className="flex items-center gap-2">
@@ -427,11 +427,11 @@ export function CronogramaGantt({
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Avance Planificado
             </p>
             <span className="rounded-lg bg-sky-500/10 p-1.5 text-sky-400">
-              <Clock className="h-4 w-4" />
+              <Clock className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 font-mono text-2xl font-black text-sky-400">{stats.avgPlanned}%</p>
@@ -440,7 +440,7 @@ export function CronogramaGantt({
 
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Avance Físico Real
             </p>
             <span className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-400">
@@ -463,13 +463,13 @@ export function CronogramaGantt({
           }`}
         >
           <div className="flex items-start justify-between">
-            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Desvío de Cronograma
             </p>
             <span
               className={`rounded-lg p-1.5 ${stats.varianceGap < 0 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}`}
             >
-              <TrendingUp className="h-4 w-4" />
+              <TrendingUp className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p
@@ -487,11 +487,11 @@ export function CronogramaGantt({
 
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Hitos Críticos
             </p>
             <span className="rounded-lg bg-amber-500/10 p-1.5 text-amber-400">
-              <Award className="h-4 w-4" />
+              <Award className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 font-mono text-2xl font-black text-amber-400">
@@ -511,13 +511,16 @@ export function CronogramaGantt({
             <div className="flex flex-wrap items-center gap-2">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute top-2.5 left-3 h-3.5 w-3.5 text-slate-400" />
+                <Search
+                  className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400"
+                  aria-hidden="true"
+                />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar tarea o fase..."
-                  className="rounded-xl border border-slate-700 bg-slate-800 py-1.5 pr-3 pl-8 text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                  className="rounded-xl border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
 
@@ -544,7 +547,7 @@ export function CronogramaGantt({
                     : 'border border-slate-700 bg-slate-800 text-slate-400 hover:text-white'
                 }`}
               >
-                <Flame className="h-3.5 w-3.5 text-rose-400" />
+                <Flame className="h-3.5 w-3.5 text-rose-400" aria-hidden="true" />
                 Solo Ruta Crítica
               </button>
             </div>
@@ -575,7 +578,7 @@ export function CronogramaGantt({
             <div className="min-w-[1050px]">
               {/* Header Time Axis */}
               <div className="grid grid-cols-[280px_1fr] border-b border-slate-800 pb-2">
-                <div className="pl-2 text-xs font-extrabold tracking-wider text-slate-400 uppercase">
+                <div className="pl-2 text-xs font-extrabold uppercase tracking-wider text-slate-400">
                   Fase & Actividad de Construcción
                 </div>
                 <div className="relative h-7 font-mono text-[10px] text-slate-400">
@@ -610,7 +613,7 @@ export function CronogramaGantt({
                       className="grid grid-cols-[280px_1fr] items-center py-3 transition hover:bg-slate-800/40"
                     >
                       {/* Left Task Metadata */}
-                      <div className="space-y-0.5 pr-4 pl-2">
+                      <div className="space-y-0.5 pl-2 pr-4">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="py-0.2 rounded border border-amber-800/60 bg-amber-950/60 px-1.5 font-mono text-[10px] font-bold text-amber-400">
                             {t.phase}
@@ -650,7 +653,7 @@ export function CronogramaGantt({
                           return (
                             <div
                               key={idx}
-                              className="absolute top-0 bottom-0 border-l border-slate-800/40"
+                              className="absolute bottom-0 top-0 border-l border-slate-800/40"
                               style={{ left: `${x}px` }}
                             />
                           );
@@ -658,19 +661,19 @@ export function CronogramaGantt({
 
                         {/* Today Marker Line */}
                         <div
-                          className="absolute top-0 bottom-0 z-20 w-[2px] bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"
+                          className="absolute bottom-0 top-0 z-20 w-[2px] bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"
                           style={{ left: `${ganttConfig.todayX}px` }}
                           title="Fecha Actual: 24 de Octubre de 2026"
                         />
 
                         {/* Planned Baseline Bar */}
                         <div
-                          className="absolute z-10 h-5 overflow-hidden rounded-md border border-slate-700/80 bg-slate-800 transition-all"
+                          className="absolute z-10 h-5 overflow-hidden rounded-md border border-slate-700/80 bg-slate-800 transition-opacity transition-transform"
                           style={{ left: `${xStart}px`, width: `${barWidth}px` }}
                         >
                           {/* Real Progress Fill */}
                           <div
-                            className={`h-full transition-all ${
+                            className={`h-full transition-opacity transition-transform ${
                               t.status === 'retraso_critico'
                                 ? 'bg-rose-500'
                                 : t.status === 'retraso_leve'
@@ -685,7 +688,7 @@ export function CronogramaGantt({
                           {/* Planned Progress Target Marker */}
                           {t.plannedPercent > 0 && t.plannedPercent < 100 && (
                             <div
-                              className="absolute top-0 bottom-0 z-10 w-[2px] bg-white shadow"
+                              className="absolute bottom-0 top-0 z-10 w-[2px] bg-white shadow"
                               style={{ left: `${plannedIndicatorX}px` }}
                               title={`Avance Planificado: ${t.plannedPercent}%`}
                             />
@@ -718,7 +721,7 @@ export function CronogramaGantt({
           <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
             <div>
               <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
-                <TrendingUp className="h-4 w-4 text-sky-400" />
+                <TrendingUp className="h-4 w-4 text-sky-400" aria-hidden="true" />
                 Curva S de Avance Físico Acumulado (Planificado vs. Real)
               </h3>
               <p className="mt-0.5 text-xs text-slate-400">
@@ -800,7 +803,7 @@ export function CronogramaGantt({
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
-                <Sliders className="h-4 w-4 text-amber-400" />
+                <Sliders className="h-4 w-4 text-amber-400" aria-hidden="true" />
                 Matriz de Desglose de Fases, Hitos y Ajuste de Avance
               </h3>
               <p className="mt-0.5 text-xs text-slate-400">
@@ -816,7 +819,7 @@ export function CronogramaGantt({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase">
+                <tr className="border-b border-slate-800 text-[11px] font-bold uppercase text-slate-400">
                   <th className="pb-2.5 pl-2">Fase / Actividad</th>
                   <th className="pb-2.5">Fechas Programadas</th>
                   <th className="pb-2.5 text-center">Ruta Crítica</th>
@@ -843,7 +846,7 @@ export function CronogramaGantt({
                     </td>
 
                     <td className="py-3 font-sans text-[11px] text-slate-300">
-                      <Clock className="mr-1 inline h-3 w-3 text-sky-400" />
+                      <Clock className="mr-1 inline h-3 w-3 text-sky-400" aria-hidden="true" />
                       {t.startDate} al {t.endDate}
                     </td>
 

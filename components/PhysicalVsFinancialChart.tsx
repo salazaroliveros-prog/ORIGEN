@@ -101,7 +101,7 @@ export function PhysicalVsFinancialChart({
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="rounded-xl border border-emerald-500/30 bg-emerald-500/20 p-2 text-emerald-400">
-              <Scale className="h-5 w-5" />
+              <Scale className="h-5 w-5" aria-hidden="true" />
             </span>
             <h2 className="text-base font-extrabold tracking-tight text-white sm:text-lg">
               Avance Físico vs. Avance Financiero por Obra
@@ -119,7 +119,7 @@ export function PhysicalVsFinancialChart({
         {/* Global Summary Badge */}
         <div className="flex items-center gap-2 self-start rounded-2xl border border-white/10 bg-white/[0.04] p-2 sm:self-auto">
           <div className="text-right text-xs">
-            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Desfase Global Promedio
             </span>
             <span
@@ -145,33 +145,33 @@ export function PhysicalVsFinancialChart({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-slate-950/50 p-3.5">
           <div>
-            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Promedio Avance Físico
             </span>
             <span className="text-xl font-extrabold text-emerald-400">{avgFisico}%</span>
             <span className="mt-0.5 block text-[10px] text-slate-400">Avance de obra en campo</span>
           </div>
           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-emerald-400">
-            <HardHat className="h-5 w-5" />
+            <HardHat className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
 
         <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-slate-950/50 p-3.5">
           <div>
-            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Promedio Avance Financiero
             </span>
             <span className="text-xl font-extrabold text-amber-400">{avgFinanciero}%</span>
             <span className="mt-0.5 block text-[10px] text-slate-400">Presupuesto consumido</span>
           </div>
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-amber-400">
-            <DollarSign className="h-5 w-5" />
+            <DollarSign className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
 
         <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-slate-950/50 p-3.5">
           <div>
-            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Estado de Salud Financiera
             </span>
             <span className="mt-1 flex items-center gap-1 text-sm font-bold text-white">
@@ -182,7 +182,7 @@ export function PhysicalVsFinancialChart({
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="h-4 w-4 text-rose-400" />
+                  <AlertTriangle className="h-4 w-4 text-rose-400" aria-hidden="true" />
                   <span className="font-extrabold text-rose-400">Revisión de Sobrecostos</span>
                 </>
               )}
@@ -192,7 +192,7 @@ export function PhysicalVsFinancialChart({
             </span>
           </div>
           <div className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-2.5 text-sky-400">
-            <Activity className="h-5 w-5" />
+            <Activity className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
       </div>
@@ -233,7 +233,7 @@ export function PhysicalVsFinancialChart({
                   return (
                     <div className="max-w-xs space-y-2 rounded-2xl border border-white/20 bg-slate-900/95 p-4 text-xs text-white shadow-2xl backdrop-blur-xl">
                       <div>
-                        <span className="block font-mono text-[10px] font-bold text-sky-400 uppercase">
+                        <span className="block font-mono text-[10px] font-bold uppercase text-sky-400">
                           {data.code}
                         </span>
                         <p className="text-sm font-extrabold text-slate-100">{data.fullName}</p>

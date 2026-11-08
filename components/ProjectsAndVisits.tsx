@@ -344,7 +344,7 @@ export function ProjectsAndVisits({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Camera className="h-3.5 w-3.5" />
+              <Camera className="h-3.5 w-3.5" aria-hidden="true" />
               Galería GPS ({projectPhotosCount})
             </button>
             <button
@@ -355,7 +355,7 @@ export function ProjectsAndVisits({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <MapPin className="h-3.5 w-3.5" />
+              <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
               Mapa Google & Clima
             </button>
             <button
@@ -402,7 +402,7 @@ export function ProjectsAndVisits({
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
-                    <span className="rounded border border-sky-400/20 bg-sky-400/10 px-2 py-0.5 font-mono text-[10px] font-bold text-sky-300 uppercase">
+                    <span className="rounded border border-sky-400/20 bg-sky-400/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-sky-300">
                       {proj.code}
                     </span>
                     <span
@@ -422,7 +422,7 @@ export function ProjectsAndVisits({
                   </div>
 
                   <div className="flex items-center gap-1.5 text-xs text-slate-300">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-rose-400" />
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-rose-400" aria-hidden="true" />
                     <span className="truncate">{proj.location}</span>
                   </div>
 
@@ -467,7 +467,7 @@ export function ProjectsAndVisits({
         <div className="space-y-5">
           <div className="glass-panel flex items-start gap-3 border-amber-400/30 bg-amber-400/5 p-4">
             <div className="mt-0.5 shrink-0 rounded-xl bg-amber-400 p-2 text-slate-950">
-              <ShieldCheck className="h-5 w-5" />
+              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="space-y-1 text-xs text-amber-200">
               <p className="text-sm font-bold text-amber-300">
@@ -487,7 +487,7 @@ export function ProjectsAndVisits({
                 <div className="flex flex-col justify-between gap-3 border-b border-white/10 pb-3 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-400/30 bg-sky-400/20 font-bold text-sky-400">
-                      <FileText className="h-5 w-5" />
+                      <FileText className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white">{visit.projectName}</h4>
@@ -512,14 +512,14 @@ export function ProjectsAndVisits({
                       className="cursor-pointer rounded-xl bg-white/[0.08] p-2 text-slate-300 transition hover:bg-white/[0.14] hover:text-white"
                       title="Imprimir Bitácora"
                     >
-                      <Printer className="h-4 w-4" />
+                      <Printer className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div className="space-y-3 md:col-span-2">
-                    <p className="font-mono text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                    <p className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-400">
                       Bitácora de Campo & Novedades
                     </p>
                     <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
@@ -532,11 +532,12 @@ export function ProjectsAndVisits({
                         <strong className="text-white">{visit.workersCount}</strong>
                       </span>
                       <span className="flex items-center gap-1 font-mono text-emerald-400">
-                        <LocateFixed className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                        <LocateFixed
+                          className="h-3.5 w-3.5 shrink-0 text-emerald-400"
+                          aria-hidden="true"
+                        />
                         GPS:{' '}
-                        {(visit.latitude ?? visit.gpsCoords?.lat ?? activeProject.lat).toFixed(
-                          6
-                        )}°,{' '}
+                        {(visit.latitude ?? visit.gpsCoords?.lat ?? activeProject.lat).toFixed(6)}°,{' '}
                         {(visit.longitude ?? visit.gpsCoords?.lng ?? activeProject.lng).toFixed(6)}°
                         <span className="text-[10px] text-slate-400">
                           (±{visit.accuracy ?? 10}m)
@@ -548,7 +549,7 @@ export function ProjectsAndVisits({
                     <div className="space-y-1.5 pt-2">
                       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
                         <span className="flex items-center gap-1 font-semibold">
-                          <Camera className="h-3.5 w-3.5 text-blue-600" />
+                          <Camera className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
                           Fotografías en Obra ({visit.photos?.length || 0})
                         </span>
                         <div className="flex items-center gap-2">
@@ -578,7 +579,7 @@ export function ProjectsAndVisits({
                             <div
                               key={photo.id}
                               onClick={() => setLightboxPhoto(photo)}
-                              className="group relative aspect-4/3 cursor-pointer overflow-hidden rounded-lg border border-slate-200 shadow-2xs"
+                              className="aspect-4/3 shadow-2xs group relative cursor-pointer overflow-hidden rounded-lg border border-slate-200"
                             >
                               <Image
                                 src={photo.url}
@@ -589,7 +590,7 @@ export function ProjectsAndVisits({
                                 className="h-full w-full object-cover transition group-hover:scale-105"
                               />
                               <div className="absolute inset-0 flex items-center justify-center bg-slate-950/40 text-white opacity-0 transition group-hover:opacity-100">
-                                <Eye className="h-4 w-4" />
+                                <Eye className="h-4 w-4" aria-hidden="true" />
                               </div>
                               {photo.coords && (
                                 <div className="absolute bottom-1 left-1 rounded bg-slate-900/80 px-1 font-mono text-[8px] text-white">
@@ -600,7 +601,7 @@ export function ProjectsAndVisits({
                           ))}
                         </div>
                       ) : (
-                        <p className="text-[11px] text-slate-400 italic">
+                        <p className="text-[11px] italic text-slate-400">
                           Sin fotos registradas aún. Use el botón &quot;+ Tomar Foto con
                           Cámara&quot; para documentar este frente.
                         </p>
@@ -613,8 +614,11 @@ export function ProjectsAndVisits({
                     {/* GPS Verification Card */}
                     <div className="space-y-2.5 rounded-xl border border-slate-700 bg-slate-900/90 p-3.5 text-white shadow-sm">
                       <div className="flex items-center justify-between">
-                        <p className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-sky-400 uppercase">
-                          <LocateFixed className="h-3.5 w-3.5 text-emerald-400" />
+                        <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-400">
+                          <LocateFixed
+                            className="h-3.5 w-3.5 text-emerald-400"
+                            aria-hidden="true"
+                          />
                           GPS Satelital Exacto
                         </p>
                         <span
@@ -681,7 +685,7 @@ export function ProjectsAndVisits({
                     {/* Signature Verification Card */}
                     <div className="flex flex-col justify-between space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                       <div>
-                        <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                           Autorizado por Capataz
                         </p>
                         <p className="mt-0.5 text-sm font-bold text-slate-900">
@@ -698,7 +702,7 @@ export function ProjectsAndVisits({
                       <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-2">
                         {visit.signatureDataUrl ? (
                           <div className="flex items-center gap-2">
-                            <div className="flex h-11 w-28 items-center justify-center rounded-lg border border-slate-300 bg-white p-1 shadow-2xs">
+                            <div className="shadow-2xs flex h-11 w-28 items-center justify-center rounded-lg border border-slate-300 bg-white p-1">
                               <Image
                                 src={visit.signatureDataUrl}
                                 alt="Firma Digital"
@@ -726,7 +730,7 @@ export function ProjectsAndVisits({
                               setSigningVisitId(visit.id);
                               setIsSignaturePadOpen(true);
                             }}
-                            className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:bg-blue-700"
+                            className="shadow-2xs inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-700"
                           >
                             <PenTool className="h-3.5 w-3.5" /> Firmar con SignaturePad
                           </button>
@@ -868,7 +872,7 @@ export function ProjectsAndVisits({
           <div className="my-8 w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <PenTool className="h-5 w-5 text-amber-400" />
+                <PenTool className="h-5 w-5 text-amber-400" aria-hidden="true" />
                 <h3 className="text-base font-bold">Nueva Bitácora con Firma de Capataz</h3>
               </div>
               <button
@@ -935,7 +939,7 @@ export function ProjectsAndVisits({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/20 text-emerald-400">
-                      <LocateFixed className="h-4 w-4 animate-pulse" />
+                      <LocateFixed className="h-4 w-4 animate-pulse" aria-hidden="true" />
                     </div>
                     <div>
                       <h4 className="flex items-center gap-1.5 text-xs font-bold text-white">
@@ -953,7 +957,7 @@ export function ProjectsAndVisits({
                     type="button"
                     onClick={() => handleAcquireExactGps(activeProject.lat, activeProject.lng)}
                     disabled={isCapturingGps}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-200 shadow-xs transition hover:bg-slate-700 disabled:opacity-50"
+                    className="shadow-xs inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:opacity-50"
                   >
                     <Radio
                       className={`h-3 w-3 text-emerald-400 ${isCapturingGps ? 'animate-spin' : ''}`}
@@ -1017,7 +1021,7 @@ export function ProjectsAndVisits({
                   value={visitNotes}
                   onChange={(e) => setVisitNotes(e.target.value)}
                   placeholder="Describa avances de fundición, recepción de materiales, inspección estructural o incidentes..."
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                   required
                 />
               </div>
@@ -1026,8 +1030,8 @@ export function ProjectsAndVisits({
               <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-white shadow-sm">
                 <div className="flex flex-col justify-between gap-2.5 sm:flex-row sm:items-center">
                   <div>
-                    <label className="flex items-center gap-1.5 text-xs font-extrabold tracking-wider text-amber-400 uppercase">
-                      <Camera className="h-4 w-4 text-amber-400" />
+                    <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-400">
+                      <Camera className="h-4 w-4 text-amber-400" aria-hidden="true" />
                       Fotografía de Obra en Vivo (Cámara Móvil)
                     </label>
                     <p className="text-[11px] text-slate-400">
@@ -1044,7 +1048,7 @@ export function ProjectsAndVisits({
                       }}
                       className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3.5 py-2 text-xs font-extrabold text-slate-950 shadow-md transition hover:from-amber-400 hover:to-amber-500 active:scale-95"
                     >
-                      <Camera className="h-4 w-4 text-slate-950" />
+                      <Camera className="h-4 w-4 text-slate-950" aria-hidden="true" />
                       Capturar Foto con Cámara
                     </button>
                     <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-slate-600 hover:text-white">
@@ -1090,7 +1094,7 @@ export function ProjectsAndVisits({
                             onClick={() =>
                               setVisitAttachedPhotos((prev) => prev.filter((_, i) => i !== idx))
                             }
-                            className="absolute top-1 right-1 cursor-pointer rounded-lg bg-rose-600/90 p-1 text-white shadow transition hover:bg-rose-600"
+                            className="absolute right-1 top-1 cursor-pointer rounded-lg bg-rose-600/90 p-1 text-white shadow transition hover:bg-rose-600"
                             title="Eliminar foto"
                           >
                             <X className="h-3.5 w-3.5" />
@@ -1106,7 +1110,7 @@ export function ProjectsAndVisits({
                 ) : (
                   <div className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-950/60 p-3">
                     <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                      <Camera className="h-3.5 w-3.5 text-amber-400/70" />
+                      <Camera className="h-3.5 w-3.5 text-amber-400/70" aria-hidden="true" />
                       Sin fotografía adjunta. Haz clic en &quot;Capturar Foto con Cámara&quot; para
                       abrir la cámara móvil.
                     </span>
@@ -1135,13 +1139,13 @@ export function ProjectsAndVisits({
                     setSigningVisitId(null);
                     setIsSignaturePadOpen(true);
                   }}
-                  className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold shadow-xs transition ${
+                  className={`shadow-xs inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
                     signedData
                       ? 'bg-emerald-600 text-white hover:bg-emerald-500'
                       : 'bg-blue-600 text-white hover:bg-blue-500'
                   }`}
                 >
-                  <PenTool className="h-3.5 w-3.5" />
+                  <PenTool className="h-3.5 w-3.5" aria-hidden="true" />
                   {signedData ? 'Actualizar Firma' : 'Firmar en Pantalla'}
                 </button>
               </div>

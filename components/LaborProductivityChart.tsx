@@ -120,7 +120,7 @@ export function LaborProductivityChart({
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="rounded-xl border border-sky-500/30 bg-sky-500/20 p-2 text-sky-400">
-              <Users className="h-5 w-5" />
+              <Users className="h-5 w-5" aria-hidden="true" />
             </span>
             <h3 className="text-base font-extrabold tracking-tight text-white sm:text-lg">
               Asistencia y horas estimadas de mano de obra
@@ -164,7 +164,7 @@ export function LaborProductivityChart({
               onClick={() => setViewScope('empleado')}
               className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'empleado'
-                  ? 'bg-sky-500 text-slate-950 shadow-xs'
+                  ? 'shadow-xs bg-sky-500 text-slate-950'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -174,7 +174,7 @@ export function LaborProductivityChart({
               onClick={() => setViewScope('rol')}
               className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'rol'
-                  ? 'bg-sky-500 text-slate-950 shadow-xs'
+                  ? 'shadow-xs bg-sky-500 text-slate-950'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -184,7 +184,7 @@ export function LaborProductivityChart({
               onClick={() => setViewScope('proyecto')}
               className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'proyecto'
-                  ? 'bg-sky-500 text-slate-950 shadow-xs'
+                  ? 'shadow-xs bg-sky-500 text-slate-950'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -198,7 +198,7 @@ export function LaborProductivityChart({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
           <div>
-            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Horas Estimadas
             </span>
             <p className="mt-0.5 text-xl font-extrabold text-amber-400">
@@ -207,13 +207,13 @@ export function LaborProductivityChart({
             <span className="text-[11px] text-slate-400">8 h por día presente + horas extra</span>
           </div>
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-amber-400">
-            <Clock className="h-5 w-5" />
+            <Clock className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
 
         <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
           <div>
-            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Días con asistencia
             </span>
             <p className="mt-0.5 text-xl font-extrabold text-sky-400">
@@ -222,13 +222,13 @@ export function LaborProductivityChart({
             <span className="text-[11px] text-slate-400">Registros con estado Presente</span>
           </div>
           <div className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-3 text-sky-400">
-            <Calendar className="h-5 w-5" />
+            <Calendar className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
 
         <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
           <div>
-            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Horas extra registradas
             </span>
             <p className="mt-0.5 text-xl font-extrabold text-emerald-400">
@@ -237,7 +237,7 @@ export function LaborProductivityChart({
             <span className="text-[11px] text-slate-400">Suma de horas extra en asistencia</span>
           </div>
           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-emerald-400">
-            <Award className="h-5 w-5" />
+            <Award className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
       </div>

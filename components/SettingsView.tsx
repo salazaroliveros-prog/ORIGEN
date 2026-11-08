@@ -230,7 +230,7 @@ export function SettingsView() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center gap-2 text-slate-600">
-          <Loader className="h-5 w-5 animate-spin" />
+          <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando configuración...</span>
         </div>
       </div>
@@ -241,7 +241,7 @@ export function SettingsView() {
     <div className="space-y-6 bg-slate-50 p-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Settings className="h-8 w-8 text-slate-900" />
+        <Settings className="h-8 w-8 text-slate-900" aria-hidden="true" />
         <h1 className="text-3xl font-bold text-slate-900">Configuración</h1>
       </div>
 
@@ -302,7 +302,7 @@ export function SettingsView() {
         </div>
 
         {/* Logo Upload - FEATURE 3.1 - FIXED: Improved drop zone visibility */}
-        <div className="mb-4 cursor-pointer rounded-lg border-4 border-dashed border-blue-300 p-6 text-center transition-all hover:border-blue-500 hover:bg-blue-50">
+        <div className="mb-4 cursor-pointer rounded-lg border-4 border-dashed border-blue-300 p-6 text-center transition-opacity transition-transform hover:border-blue-500 hover:bg-blue-50">
           {logoPreview ? (
             <div className="relative inline-block">
               <Image
@@ -319,12 +319,12 @@ export function SettingsView() {
                 }}
                 className="absolute -right-2 -top-2 rounded-full bg-red-600 p-1 text-white transition-colors hover:bg-red-700"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           ) : (
             <div>
-              <ImageIcon className="mx-auto mb-2 h-12 w-12 text-slate-400" />
+              <ImageIcon className="mx-auto mb-2 h-12 w-12 text-slate-400" aria-hidden="true" />
               <p className="mb-2 text-sm text-slate-600">Haz clic o arrastra tu logo aquí</p>
               <input
                 type="file"
@@ -351,12 +351,12 @@ export function SettingsView() {
         >
           {saving ? (
             <>
-              <Loader className="h-5 w-5 animate-spin" />
+              <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
               Guardando...
             </>
           ) : (
             <>
-              <Save className="h-5 w-5" />
+              <Save className="h-5 w-5" aria-hidden="true" />
               Guardar Cambios
             </>
           )}
@@ -367,7 +367,7 @@ export function SettingsView() {
       <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
-            <DollarSign className="h-6 w-6" />
+            <DollarSign className="h-6 w-6" aria-hidden="true" />
             Tasas de Cambio
           </h2>
           <button
@@ -410,7 +410,7 @@ export function SettingsView() {
       {/* User Invitations - FEATURE 3.4 */}
       <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-slate-900">
-          <Users className="h-6 w-6" />
+          <Users className="h-6 w-6" aria-hidden="true" />
           Invitar Usuarios
         </h2>
 
@@ -441,7 +441,7 @@ export function SettingsView() {
             onClick={handleGenerateInvite}
             className="col-span-1 flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 md:col-span-2"
           >
-            <Link2 className="h-5 w-5" />
+            <Link2 className="h-5 w-5" aria-hidden="true" />
             Generar Invitación
           </button>
         </div>
@@ -491,12 +491,12 @@ export function SettingsView() {
               >
                 {copiedLink === user.inviteLink ? (
                   <>
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4" aria-hidden="true" />
                     Copiado
                   </>
                 ) : (
                   <>
-                    <Copy className="h-4 w-4" />
+                    <Copy className="h-4 w-4" aria-hidden="true" />
                     Copiar
                   </>
                 )}
@@ -509,7 +509,7 @@ export function SettingsView() {
       {/* System Info */}
       <div className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-sm text-slate-600">
         <div className="flex gap-2">
-          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-slate-700" />
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-slate-700" aria-hidden="true" />
           <div>
             <p className="font-semibold text-slate-900">Versión del Sistema</p>
             <p>ORIGEN ERP v2.0.0 • Última actualización: hoy</p>

@@ -91,10 +91,10 @@ export function PWAInstallPrompt({ className = '' }: PWAInstallPromptProps) {
   if (isIOS) {
     return (
       <div
-        className={`animate-in slide-in-from-bottom fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-4 z-40 rounded-2xl border border-amber-500/30 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md duration-300 ${className}`}
+        className={`animate-in slide-in-from-bottom fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-4 right-4 z-40 rounded-2xl border border-amber-500/30 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md duration-300 ${className}`}
       >
         <div className="mb-3 flex items-center gap-3">
-          <Apple className="h-5 w-5 text-amber-400" />
+          <Apple className="h-5 w-5 text-amber-400" aria-hidden="true" />
           <h3 className="text-sm font-bold text-white">Instalar en iOS</h3>
         </div>
         <p className="mb-3 text-xs text-slate-400">
@@ -128,10 +128,10 @@ export function PWAInstallPrompt({ className = '' }: PWAInstallPromptProps) {
   if (isAndroid && deferredPrompt) {
     return (
       <div
-        className={`animate-in slide-in-from-bottom fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-4 z-40 rounded-2xl border border-sky-500/30 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md duration-300 ${className}`}
+        className={`animate-in slide-in-from-bottom fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-4 right-4 z-40 rounded-2xl border border-sky-500/30 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md duration-300 ${className}`}
       >
         <div className="mb-3 flex items-center gap-3">
-          <Download className="h-5 w-5 text-sky-400" />
+          <Download className="h-5 w-5 text-sky-400" aria-hidden="true" />
           <h3 className="text-sm font-bold text-white">Instalar ConstructERP</h3>
         </div>
         <p className="mb-3 text-xs text-slate-400">
@@ -163,10 +163,10 @@ export function PWAInstallPrompt({ className = '' }: PWAInstallPromptProps) {
   if (isDesktop && deferredPrompt) {
     return (
       <div
-        className={`animate-in slide-in-from-right fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 w-64 rounded-2xl border border-amber-500/30 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md duration-300 lg:bottom-4 ${className}`}
+        className={`animate-in slide-in-from-right fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] right-4 z-40 w-64 rounded-2xl border border-amber-500/30 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md duration-300 lg:bottom-4 ${className}`}
       >
         <div className="mb-3 flex items-center gap-3">
-          <Monitor className="h-5 w-5 text-amber-400" />
+          <Monitor className="h-5 w-5 text-amber-400" aria-hidden="true" />
           <h3 className="text-sm font-bold text-white">Instalar en tu computadora</h3>
         </div>
         <p className="mb-3 text-xs text-slate-400">

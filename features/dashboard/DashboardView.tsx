@@ -342,7 +342,7 @@ export function DashboardView({
       <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/15 bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-slate-950/90 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.45)] ring-1 ring-white/10 backdrop-blur-2xl md:flex-row md:items-center">
         <div className="flex items-center gap-3.5">
           <span className="rounded-2xl border border-amber-500/40 bg-amber-500/20 p-3.5 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.25)]">
-            <Activity className="h-6 w-6 stroke-[2.5]" />
+            <Activity className="h-6 w-6 stroke-[2.5]" aria-hidden="true" />
           </span>
           <div>
             <h1 className="text-xl font-black tracking-tight text-white drop-shadow-sm">
@@ -392,7 +392,7 @@ export function DashboardView({
             onClick={() => setIsWidgetModalOpen(true)}
             className="flex items-center gap-2 border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
           >
-            <SlidersHorizontal className="h-4 w-4 text-amber-400" />
+            <SlidersHorizontal className="h-4 w-4 text-amber-400" aria-hidden="true" />
             <span>Personalizar Widgets ({activeWidgetCount}/7)</span>
           </Button>
 
@@ -403,7 +403,7 @@ export function DashboardView({
             onClick={handleExportPdf}
             className="flex items-center gap-2 font-bold shadow-md"
           >
-            <Download className="h-4 w-4 text-slate-950" />
+            <Download className="h-4 w-4 text-slate-950" aria-hidden="true" />
             <span>{isExportingPdf ? 'Generando PDF...' : 'Exportar Reporte PDF'}</span>
           </Button>
         </div>
@@ -432,7 +432,7 @@ export function DashboardView({
               Presupuesto Proyectado
             </p>
             <span className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-400">
-              <DollarSign className="h-4 w-4" />
+              <DollarSign className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 font-mono text-2xl font-black text-emerald-400">
@@ -447,7 +447,7 @@ export function DashboardView({
               Gasto Real Acumulado
             </p>
             <span className="rounded-lg bg-sky-500/10 p-1.5 text-sky-400">
-              <TrendingUp className="h-4 w-4" />
+              <TrendingUp className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 font-mono text-2xl font-black text-sky-400">
@@ -472,7 +472,7 @@ export function DashboardView({
               Alertas de Sobrecosto
             </p>
             <span className="rounded-lg bg-rose-500/20 p-1.5 text-rose-400">
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 text-2xl font-black text-rose-400">{totals.overbudgetCount} Obras</p>
@@ -489,7 +489,7 @@ export function DashboardView({
         <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-rose-800 bg-rose-950/60 p-4 text-rose-200 shadow-lg md:flex-row md:items-center">
           <div className="flex items-center gap-3">
             <span className="shrink-0 rounded-xl border border-rose-700 bg-rose-900/80 p-2 text-rose-300">
-              <AlertTriangle className="h-5 w-5" />
+              <AlertTriangle className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
               <h4 className="text-xs font-extrabold uppercase tracking-wider text-white">
@@ -553,7 +553,7 @@ export function DashboardView({
             <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
               <div className="flex items-center gap-3">
                 <span className="rounded-xl border border-amber-500/40 bg-amber-500/20 p-2.5 text-amber-400">
-                  <Clock className="h-5 w-5 animate-pulse" />
+                  <Clock className="h-5 w-5 animate-pulse" aria-hidden="true" />
                 </span>
                 <div>
                   <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
@@ -636,7 +636,7 @@ export function DashboardView({
                 title="Ocultar Widget"
                 className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
               >
-                <EyeOff className="h-3.5 w-3.5" />
+                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
             <CashFlowProjectionChart
@@ -657,7 +657,7 @@ export function DashboardView({
                 title="Ocultar Widget"
                 className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
               >
-                <EyeOff className="h-3.5 w-3.5" />
+                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
             <LaborProductivityChart
@@ -699,7 +699,7 @@ export function DashboardView({
                   title="Ocultar Widget"
                   className="rounded-lg p-1 text-slate-500 hover:text-slate-200"
                 >
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -772,7 +772,7 @@ export function DashboardView({
             <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
               <div>
                 <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
-                  <Layers className="h-4 w-4 text-amber-400" />
+                  <Layers className="h-4 w-4 text-amber-400" aria-hidden="true" />
                   Comparativa de Presupuesto Asignado vs. Gasto Acumulado (Barras Apiladas)
                 </h3>
                 <p className="mt-0.5 text-xs text-slate-400">
@@ -796,7 +796,7 @@ export function DashboardView({
                   title="Ocultar Widget"
                   className="rounded-lg p-1 text-slate-500 hover:text-slate-200"
                 >
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -860,7 +860,7 @@ export function DashboardView({
                 title="Ocultar Widget"
                 className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
               >
-                <EyeOff className="h-3.5 w-3.5" />
+                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
             <MonthlyExpensesHistogram
@@ -883,7 +883,7 @@ export function DashboardView({
                 title="Ocultar Widget"
                 className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
               >
-                <EyeOff className="h-3.5 w-3.5" />
+                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
             <D3BudgetUtilizationChart
@@ -901,7 +901,7 @@ export function DashboardView({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
-                <Briefcase className="h-4 w-4 text-sky-400" />
+                <Briefcase className="h-4 w-4 text-sky-400" aria-hidden="true" />
                 Desglose Individual de Obras Activas ({filteredProjects.length})
               </h3>
               <button
@@ -909,7 +909,7 @@ export function DashboardView({
                 title="Ocultar Widget"
                 className="rounded-lg p-1 text-slate-500 hover:text-slate-200"
               >
-                <EyeOff className="h-4 w-4" />
+                <EyeOff className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
 
@@ -980,7 +980,7 @@ export function DashboardView({
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
                         <div
-                          className={`h-2 rounded-full transition-all duration-300 ${
+                          className={`h-2 rounded-full transition-opacity transition-transform duration-300 ${
                             isOver ? 'bg-rose-500' : 'bg-emerald-500'
                           }`}
                           style={{ width: `${Math.min(100, pct)}%` }}
@@ -1002,7 +1002,7 @@ export function DashboardView({
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
                 <span className="rounded-2xl border border-amber-500/30 bg-amber-500/20 p-2.5 text-amber-400">
-                  <SlidersHorizontal className="h-5 w-5" />
+                  <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div>
                   <h3 className="text-lg font-extrabold text-white">
@@ -1093,7 +1093,7 @@ export function DashboardView({
                           : 'border-slate-700 bg-slate-800 text-transparent'
                       }`}
                     >
-                      <Check className="h-4 w-4 stroke-[3]" />
+                      <Check className="h-4 w-4 stroke-[3]" aria-hidden="true" />
                     </div>
                   </div>
                 );

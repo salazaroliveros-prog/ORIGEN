@@ -170,7 +170,7 @@ export function MonthlyExpensesHistogram({
     <div className="space-y-6">
       {/* Toast Alert for PDF Success */}
       {pdfSuccessMessage && (
-        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-600/90 p-3.5 text-white shadow-lg transition-all">
+        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-600/90 p-3.5 text-white shadow-lg transition-opacity transition-transform">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="h-5 w-5 text-emerald-200" />
             <span className="text-xs font-semibold">{pdfSuccessMessage}</span>
@@ -186,7 +186,7 @@ export function MonthlyExpensesHistogram({
 
       {/* Top Header Card */}
       <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl sm:p-6">
-        <div className="pointer-events-none absolute top-0 right-0 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute right-0 top-0 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
 
         <div className="relative z-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
@@ -225,7 +225,7 @@ export function MonthlyExpensesHistogram({
                 </>
               ) : (
                 <>
-                  <Download className="h-4 w-4" />
+                  <Download className="h-4 w-4" aria-hidden="true" />
                   <span>Exportar Resumen a PDF</span>
                 </>
               )}
@@ -270,7 +270,7 @@ export function MonthlyExpensesHistogram({
                 onClick={() => setViewMode('histogram')}
                 className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                   viewMode === 'histogram'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    ? 'shadow-xs bg-amber-500 text-slate-950'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -280,7 +280,7 @@ export function MonthlyExpensesHistogram({
                 onClick={() => setViewMode('category')}
                 className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                   viewMode === 'category'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    ? 'shadow-xs bg-amber-500 text-slate-950'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -330,10 +330,10 @@ export function MonthlyExpensesHistogram({
         {/* Card 1: Presupuesto Total */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
           <div className="mb-1 flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-bold tracking-wider uppercase">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
               Presupuesto Proyectado
             </span>
-            <DollarSign className="h-4 w-4 text-blue-400" />
+            <DollarSign className="h-4 w-4 text-blue-400" aria-hidden="true" />
           </div>
           <div className="text-base font-extrabold text-white sm:text-lg">
             {formatMoney(totalBudgetSelected)}
@@ -348,10 +348,10 @@ export function MonthlyExpensesHistogram({
         {/* Card 2: Gastos Reales */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
           <div className="mb-1 flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-bold tracking-wider uppercase">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
               Gastos Reales Ejecutados
             </span>
-            <TrendingUp className="h-4 w-4 text-amber-400" />
+            <TrendingUp className="h-4 w-4 text-amber-400" aria-hidden="true" />
           </div>
           <div className="text-base font-extrabold text-amber-400 sm:text-lg">
             {formatMoney(totalSpentSelected)}
@@ -364,13 +364,13 @@ export function MonthlyExpensesHistogram({
         {/* Card 3: Saldo o Superávit */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
           <div className="mb-1 flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-bold tracking-wider uppercase">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
               Saldo Presupuestario
             </span>
             {netBalance >= 0 ? (
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
             ) : (
-              <AlertTriangle className="h-4 w-4 text-rose-400" />
+              <AlertTriangle className="h-4 w-4 text-rose-400" aria-hidden="true" />
             )}
           </div>
           <div
@@ -386,10 +386,10 @@ export function MonthlyExpensesHistogram({
         {/* Card 4: Promedio Mensual */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
           <div className="mb-1 flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-bold tracking-wider uppercase">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
               Gasto Promedio Mensual
             </span>
-            <Calendar className="h-4 w-4 text-purple-400" />
+            <Calendar className="h-4 w-4 text-purple-400" aria-hidden="true" />
           </div>
           <div className="text-base font-extrabold text-purple-300 sm:text-lg">
             {formatMoney(avgMonthlyExpense)}
@@ -425,7 +425,7 @@ export function MonthlyExpensesHistogram({
 
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <span className="inline-block h-3 w-3 rounded-xs bg-amber-500" />
+              <span className="rounded-xs inline-block h-3 w-3 bg-amber-500" />
               <span className="font-medium text-slate-300">Gastos registrados</span>
             </div>
           </div>
@@ -534,7 +534,7 @@ export function MonthlyExpensesHistogram({
       <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h4 className="flex items-center gap-2 text-sm font-bold text-white">
-            <FileText className="h-4 w-4 text-amber-400" />
+            <FileText className="h-4 w-4 text-amber-400" aria-hidden="true" />
             Gastos Registrados por Mes
           </h4>
           <span className="text-xs text-slate-400">
@@ -544,7 +544,7 @@ export function MonthlyExpensesHistogram({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
-            <thead className="border-b border-slate-700 bg-slate-800/80 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+            <thead className="border-b border-slate-700 bg-slate-800/80 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="px-4 py-3">Periodo</th>
                 <th className="px-4 py-3 text-right">Gastos registrados</th>

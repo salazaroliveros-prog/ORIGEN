@@ -433,7 +433,7 @@ export function SignatureCanvas({
       <div className="flex items-center justify-between border-b border-slate-700/60 bg-slate-800/80 px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-400/30 bg-sky-500/20 text-sky-400">
-            <PenTool className="h-5 w-5" />
+            <PenTool className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
             <h3 className="text-base font-bold tracking-tight text-white">{title}</h3>
@@ -457,7 +457,7 @@ export function SignatureCanvas({
         {/* Signer Info Form */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
-            <label className="mb-1 block text-[11px] font-semibold text-slate-300 uppercase">
+            <label className="mb-1 block text-[11px] font-semibold uppercase text-slate-300">
               Nombre del Capataz / Firmante
             </label>
             <input
@@ -470,7 +470,7 @@ export function SignatureCanvas({
           </div>
 
           <div>
-            <label className="mb-1 block text-[11px] font-semibold text-slate-300 uppercase">
+            <label className="mb-1 block text-[11px] font-semibold uppercase text-slate-300">
               DPI (13 Dígitos - Guatemala)
             </label>
             <input
@@ -483,7 +483,7 @@ export function SignatureCanvas({
           </div>
 
           <div>
-            <label className="mb-1 block text-[11px] font-semibold text-slate-300 uppercase">
+            <label className="mb-1 block text-[11px] font-semibold uppercase text-slate-300">
               Cargo / Rol en Obra
             </label>
             <select
@@ -570,7 +570,7 @@ export function SignatureCanvas({
         {/* The Interactive Canvas Area */}
         <div
           ref={containerRef}
-          className="relative h-48 w-full cursor-crosshair touch-none overflow-hidden rounded-xl border-2 border-dashed border-slate-600 bg-white shadow-inner select-none sm:h-56"
+          className="relative h-48 w-full cursor-crosshair touch-none select-none overflow-hidden rounded-xl border-2 border-dashed border-slate-600 bg-white shadow-inner sm:h-56"
         >
           <canvas
             ref={canvasRef}
@@ -584,7 +584,7 @@ export function SignatureCanvas({
 
           {!hasDrawn && (
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 text-slate-400 opacity-60">
-              <PenTool className="h-8 w-8 text-slate-400" />
+              <PenTool className="h-8 w-8 text-slate-400" aria-hidden="true" />
               <p className="text-xs font-medium">Firme aquí con el dedo o puntero táctil</p>
             </div>
           )}
@@ -593,7 +593,7 @@ export function SignatureCanvas({
         {/* Validation error display */}
         {validationError && (
           <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-400">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>{validationError}</span>
           </div>
         )}
@@ -601,7 +601,7 @@ export function SignatureCanvas({
         {/* Forensic & Legal Footnote */}
         <div className="flex flex-col justify-between gap-2 rounded-xl border border-slate-800 bg-slate-950/70 p-3 text-[11px] text-slate-400 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" />
+            <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
             <span>Certificación digital de campo • Art. 89 Código de Trabajo de Guatemala</span>
           </div>
 
@@ -636,7 +636,7 @@ export function SignatureCanvas({
           type="button"
           onClick={handleSave}
           disabled={isSaving || !hasDrawn}
-          className={`inline-flex cursor-pointer items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold tracking-wider uppercase shadow-lg transition ${
+          className={`inline-flex cursor-pointer items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold uppercase tracking-wider shadow-lg transition ${
             isSuccess
               ? 'bg-emerald-500 text-white'
               : 'bg-sky-400 text-slate-950 shadow-[0_0_15px_rgba(56,189,248,0.3)] hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-50'
@@ -654,7 +654,7 @@ export function SignatureCanvas({
             </>
           ) : (
             <>
-              <FileCheck className="h-4 w-4" />
+              <FileCheck className="h-4 w-4" aria-hidden="true" />
               <span>Firmar y Guardar en Firestore</span>
             </>
           )}

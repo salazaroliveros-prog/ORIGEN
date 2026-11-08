@@ -198,7 +198,7 @@ export function JobsiteGeofencingTracker({
       <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-slate-800 bg-slate-900/90 p-6 shadow-xl md:flex-row md:items-center">
         <div className="flex items-center gap-4">
           <span className="rounded-2xl border border-amber-500/30 bg-amber-500/20 p-3.5 text-amber-400">
-            <Compass className="h-7 w-7" />
+            <Compass className="h-7 w-7" aria-hidden="true" />
           </span>
           <div>
             <div className="flex items-center gap-2">
@@ -220,7 +220,7 @@ export function JobsiteGeofencingTracker({
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -235,11 +235,11 @@ export function JobsiteGeofencingTracker({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Total Marcajes Hoy
             </p>
             <span className="rounded-lg bg-blue-500/10 p-1.5 text-blue-400">
-              <Smartphone className="h-4 w-4" />
+              <Smartphone className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 text-2xl font-black text-white">{projectAttendance.length}</p>
@@ -248,7 +248,7 @@ export function JobsiteGeofencingTracker({
 
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Dentro de Perímetro
             </p>
             <span className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-400">
@@ -269,11 +269,11 @@ export function JobsiteGeofencingTracker({
           }`}
         >
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-rose-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-rose-400">
               Alertas Fuera de Obra
             </p>
             <span className="rounded-lg bg-rose-500/20 p-1.5 text-rose-400">
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 text-2xl font-black text-rose-400">{geofenceViolations.length}</p>
@@ -286,11 +286,11 @@ export function JobsiteGeofencingTracker({
 
         <Card variant="elevated" padding="md" className="border-slate-800 bg-slate-900/80">
           <div className="flex items-start justify-between">
-            <p className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Radio Tolerancia Geofence
             </p>
             <span className="rounded-lg bg-amber-500/10 p-1.5 text-amber-400">
-              <Sliders className="h-4 w-4" />
+              <Sliders className="h-4 w-4" aria-hidden="true" />
             </span>
           </div>
           <p className="mt-1 text-2xl font-black text-amber-400">{allowedRadiusMeters} m</p>
@@ -339,8 +339,8 @@ export function JobsiteGeofencingTracker({
           {/* Interactive Check-In Tester */}
           <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h4 className="flex items-center gap-2 text-xs font-extrabold tracking-wider text-white uppercase">
-                <Navigation className="h-4 w-4 text-emerald-400" />
+              <h4 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-white">
+                <Navigation className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                 Validación de Entrada / Marcaje con GPS
               </h4>
               <span className="font-mono text-[10px] text-slate-400">
@@ -356,7 +356,7 @@ export function JobsiteGeofencingTracker({
                 <select
                   value={selectedEmpId}
                   onChange={(e) => setSelectedEmpId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   {employees.map((e) => (
                     <option key={e.id} value={e.id}>
@@ -374,7 +374,7 @@ export function JobsiteGeofencingTracker({
                   onClick={handleGetDeviceGps}
                   className="flex flex-1 items-center justify-center gap-1.5 border-sky-500/30 bg-sky-500/10 text-xs font-bold text-sky-300"
                 >
-                  <Navigation className="h-3.5 w-3.5 text-sky-400" />
+                  <Navigation className="h-3.5 w-3.5 text-sky-400" aria-hidden="true" />
                   <span>Obtener GPS Real</span>
                 </Button>
 
@@ -394,7 +394,7 @@ export function JobsiteGeofencingTracker({
                   onClick={handleSimulateOffSite}
                   className="flex flex-1 items-center justify-center gap-1.5 border-rose-500/30 bg-rose-500/10 text-xs font-bold text-rose-300"
                 >
-                  <AlertTriangle className="h-3.5 w-3.5 text-rose-400" />
+                  <AlertTriangle className="h-3.5 w-3.5 text-rose-400" aria-hidden="true" />
                   <span>Simular Fuera (+850m)</span>
                 </Button>
               </div>
@@ -443,7 +443,7 @@ export function JobsiteGeofencingTracker({
                       value={overrideReason}
                       onChange={(e) => setOverrideReason(e.target.value)}
                       placeholder="Ej. Trámite de licencia en municipalidad / Compra urgente de insumos"
-                      className="w-full rounded-xl border border-rose-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                      className="w-full rounded-xl border border-rose-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
                     />
                   </div>
                 )}
@@ -475,7 +475,7 @@ export function JobsiteGeofencingTracker({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
-            <Bell className="h-4 w-4 text-rose-400" />
+            <Bell className="h-4 w-4 text-rose-400" aria-hidden="true" />
             Alertas de Marcaje Fuera de Perímetro ({geofenceViolations.length})
           </h3>
           <span className="font-mono text-xs text-slate-400">
@@ -496,7 +496,7 @@ export function JobsiteGeofencingTracker({
                       <strong className="text-sm font-extrabold text-white">
                         {v.employeeName}
                       </strong>
-                      <span className="rounded border border-rose-700 bg-rose-900 px-2 py-0.5 font-mono text-[10px] text-rose-100 uppercase">
+                      <span className="rounded border border-rose-700 bg-rose-900 px-2 py-0.5 font-mono text-[10px] uppercase text-rose-100">
                         {v.role}
                       </span>
                     </div>
@@ -551,7 +551,7 @@ export function JobsiteGeofencingTracker({
           </div>
         ) : (
           <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-slate-400">
-            <ShieldCheck className="mx-auto h-8 w-8 text-emerald-400" />
+            <ShieldCheck className="mx-auto h-8 w-8 text-emerald-400" aria-hidden="true" />
             <p className="text-xs font-bold text-white">Sin alertas pendientes de geofencing</p>
             <p className="text-[11px] text-slate-500">
               Todo el personal registrado se encuentra dentro del perímetro de obra autorizado.
@@ -569,7 +569,7 @@ export function JobsiteGeofencingTracker({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
-            <thead className="border-b border-slate-700 bg-slate-800/80 font-mono text-[10px] text-slate-400 uppercase">
+            <thead className="border-b border-slate-700 bg-slate-800/80 font-mono text-[10px] uppercase text-slate-400">
               <tr>
                 <th className="p-3">Empleado</th>
                 <th className="p-3">Rol</th>

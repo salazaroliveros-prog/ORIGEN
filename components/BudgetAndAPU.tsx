@@ -363,7 +363,7 @@ export function BudgetAndAPU({
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-xl bg-blue-50 p-2 text-blue-600">
-                <Calculator className="h-5 w-5" />
+                <Calculator className="h-5 w-5" aria-hidden="true" />
               </span>
               <h2 className="text-lg font-bold text-slate-900">
                 Presupuesto & Análisis de Precios Unitarios (APU) Inteligente
@@ -382,7 +382,7 @@ export function BudgetAndAPU({
               disabled={!canWrite}
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:from-blue-700 hover:to-indigo-700"
             >
-              <Sparkles className="h-4 w-4 text-amber-300" />
+              <Sparkles className="h-4 w-4 text-amber-300" aria-hidden="true" />
               Generar APU con IA
             </button>
 
@@ -390,7 +390,7 @@ export function BudgetAndAPU({
               onClick={handleRunAiAudit}
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 transition hover:bg-slate-50"
             >
-              <ShieldCheck className="h-4 w-4 text-blue-600" />
+              <ShieldCheck className="h-4 w-4 text-blue-600" aria-hidden="true" />
               Auditar con IA
             </button>
 
@@ -399,7 +399,7 @@ export function BudgetAndAPU({
               disabled={!canWrite}
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 transition hover:bg-slate-50"
             >
-              <TrendingUp className="h-4 w-4 text-emerald-600" />
+              <TrendingUp className="h-4 w-4 text-emerald-600" aria-hidden="true" />
               Precios Mercado GT
             </button>
 
@@ -408,7 +408,7 @@ export function BudgetAndAPU({
               disabled={!canWrite}
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               Renglón Manual
             </button>
           </div>
@@ -418,7 +418,7 @@ export function BudgetAndAPU({
         <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs md:flex-row md:items-center">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="flex items-center gap-1.5 font-bold text-slate-700">
-              <MapPin className="h-4 w-4 shrink-0 text-blue-600" />
+              <MapPin className="h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />
               Área o Departamento de la Obra:
             </span>
             <select
@@ -452,12 +452,13 @@ export function BudgetAndAPU({
                 disabled={!canWrite}
                 className="shadow-xs inline-flex animate-pulse cursor-pointer items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-amber-600"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                 Actualizar Costos a {selectedDept}
               </button>
             ) : (
               <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
-                <Check className="h-3.5 w-3.5" /> Costos sincronizados con {appliedDept}
+                <Check className="h-3.5 w-3.5" aria-hidden="true" /> Costos sincronizados con{' '}
+                {appliedDept}
               </span>
             )}
           </div>
@@ -465,7 +466,7 @@ export function BudgetAndAPU({
 
         {/* Logistics Note Bar */}
         <div className="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-2.5 text-[11px] text-slate-600">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />
           <p>
             <strong>Condiciones de Plaza ({currentDeptInfo.name}):</strong>{' '}
             {currentDeptInfo.logisticsNotes}
@@ -477,7 +478,7 @@ export function BudgetAndAPU({
       {recalcToast && (
         <div className="animate-in fade-in shadow-xs flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
           <div className="flex items-center gap-2.5">
-            <Check className="h-5 w-5 text-emerald-600" />
+            <Check className="h-5 w-5 text-emerald-600" aria-hidden="true" />
             <p className="text-xs font-bold">{recalcToast}</p>
           </div>
           <button
@@ -532,7 +533,7 @@ export function BudgetAndAPU({
       <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div className="flex items-center gap-2">
-            <Layers className="h-4 w-4 text-blue-600" />
+            <Layers className="h-4 w-4 text-blue-600" aria-hidden="true" />
             <h3 className="text-sm font-bold text-slate-900">
               Listado de Renglones de Obra (Presupuesto)
             </h3>
@@ -590,7 +591,7 @@ export function BudgetAndAPU({
                         className="cursor-pointer rounded-lg p-1.5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600"
                         title="Ver desglose detallado de materiales, mano de obra y equipo"
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-4 w-4" aria-hidden="true" />
                       </button>
                       {onDeleteBudgetItem && canWrite && (
                         <button
@@ -601,7 +602,7 @@ export function BudgetAndAPU({
                           className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
                           title="Eliminar partida"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </button>
                       )}
                     </div>
@@ -615,12 +616,12 @@ export function BudgetAndAPU({
 
       {/* MODAL 1: AI APU GENERATION STUDIO */}
       {isAiStudioOpen && (
-        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
           <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 p-5 text-white">
               <div className="flex items-center gap-2.5">
                 <span className="rounded-xl border border-blue-400/30 bg-blue-500/20 p-2 text-blue-300">
-                  <Sparkles className="h-5 w-5 text-amber-300" />
+                  <Sparkles className="h-5 w-5 text-amber-300" aria-hidden="true" />
                 </span>
                 <div>
                   <h3 className="text-base font-bold">Generador Inteligente de APU con IA</h3>
@@ -731,6 +732,7 @@ export function BudgetAndAPU({
                 >
                   <Sparkles
                     className={`h-4 w-4 ${isGeneratingAi ? 'animate-spin text-amber-300' : ''}`}
+                    aria-hidden="true"
                   />
                   {isGeneratingAi
                     ? 'Calculando Precios Unitarios en Guatemala...'
@@ -832,7 +834,7 @@ export function BudgetAndAPU({
                   {/* Regional Note */}
                   {aiResult.regionalAdjustmentNote && (
                     <div className="flex items-start gap-1.5 rounded-lg border border-blue-200 bg-blue-50 p-2.5 text-[11px] text-blue-900">
-                      <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                      <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />
                       <p>{aiResult.regionalAdjustmentNote}</p>
                     </div>
                   )}
@@ -842,7 +844,8 @@ export function BudgetAndAPU({
                     disabled={!canWrite}
                     className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
                   >
-                    <Check className="h-4 w-4" /> Incorporar este Renglón al Presupuesto
+                    <Check className="h-4 w-4" aria-hidden="true" /> Incorporar este Renglón al
+                    Presupuesto
                   </button>
                 </div>
               )}
@@ -853,11 +856,11 @@ export function BudgetAndAPU({
 
       {/* MODAL 2: AI BUDGET AUDIT */}
       {isAuditModalOpen && (
-        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
           <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-5 text-white">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-blue-400" />
+                <ShieldCheck className="h-5 w-5 text-blue-400" aria-hidden="true" />
                 <div>
                   <h3 className="text-base font-bold">Auditoría Financiera & de Riesgos con IA</h3>
                   <p className="text-xs text-slate-400">
@@ -876,7 +879,10 @@ export function BudgetAndAPU({
             <div className="space-y-4 overflow-y-auto p-6">
               {isAuditing ? (
                 <div className="space-y-3 py-12 text-center">
-                  <Sparkles className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+                  <Sparkles
+                    className="mx-auto h-8 w-8 animate-spin text-blue-600"
+                    aria-hidden="true"
+                  />
                   <p className="text-xs font-bold text-slate-700">
                     Analizando partidas con el modelo Gemini 3.8 Flash...
                   </p>
@@ -915,7 +921,7 @@ export function BudgetAndAPU({
                   {auditResult.alerts && auditResult.alerts.length > 0 && (
                     <div className="space-y-2">
                       <p className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        <AlertTriangle className="h-4 w-4 text-amber-600" aria-hidden="true" />
                         Observaciones y Alertas de Costos:
                       </p>
                       <div className="space-y-2">
@@ -965,11 +971,11 @@ export function BudgetAndAPU({
 
       {/* MODAL 3: GUATEMALA MARKET REFERENCE PRICING CATALOGUE */}
       {isMarketCatalogueOpen && (
-        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
           <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-5 text-white">
               <div className="flex items-center gap-2.5">
-                <TrendingUp className="h-5 w-5 text-emerald-400" />
+                <TrendingUp className="h-5 w-5 text-emerald-400" aria-hidden="true" />
                 <div>
                   <h3 className="text-base font-bold">
                     Catálogo de Precios de Referencia - Mercado de Guatemala
@@ -990,7 +996,10 @@ export function BudgetAndAPU({
 
             <div className="flex flex-col gap-2 border-b border-slate-200 bg-slate-50 p-4 sm:flex-row">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                <Search
+                  className="absolute left-3 top-2.5 h-4 w-4 text-slate-400"
+                  aria-hidden="true"
+                />
                 <input
                   type="text"
                   value={marketSearchQuery}
@@ -1068,7 +1077,7 @@ export function BudgetAndAPU({
 
       {/* MODAL 4: INSPECT ITEM APU BREAKDOWN */}
       {inspectingItem && (
-        <div className="animate-in fade-in backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
           <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div>
@@ -1156,7 +1165,7 @@ export function BudgetAndAPU({
 
       {/* MODAL 5: MANUAL APU CREATION */}
       {isManualModalOpen && (
-        <div className="backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
           <div className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <h3 className="text-base font-bold">Nuevo Renglón APU Manual</h3>

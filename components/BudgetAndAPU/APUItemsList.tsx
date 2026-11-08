@@ -292,7 +292,7 @@ export function APUItemsList({
     return (
       <div className="p-6">
         <div className="flex items-center justify-center gap-2 text-slate-600">
-          <Loader className="h-5 w-5 animate-spin" />
+          <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando APU...</span>
         </div>
       </div>
@@ -622,7 +622,7 @@ export function APUItemsList({
                       className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-100"
                       title="Editar"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleDelete(item.id)}
@@ -658,7 +658,7 @@ export function APUItemsList({
                   className="rounded-lg p-2 text-blue-600 hover:bg-blue-100"
                   title="Editar"
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => handleDelete(item.id)}
@@ -698,7 +698,7 @@ export function APUItemsList({
           onClick={() => setShowForm(true)}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5" aria-hidden="true" />
           Agregar Línea
         </button>
       )}

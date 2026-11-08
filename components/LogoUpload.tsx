@@ -159,14 +159,14 @@ export function LogoUpload({
 
         {error && (
           <div className="mb-3 flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 p-2">
-            <AlertCircle className="h-3 w-3 shrink-0 text-red-400" />
+            <AlertCircle className="h-3 w-3 shrink-0 text-red-400" aria-hidden="true" />
             <span className="text-[11px] text-red-200">{error}</span>
           </div>
         )}
 
         <div className="space-y-3">
           <div>
-            <label className="mb-1.5 block text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               Logo Personalizado
             </label>
             <div className="group relative flex aspect-square h-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-white/20 bg-white/[0.03] transition-colors hover:border-white/40">
@@ -187,7 +187,7 @@ export function LogoUpload({
                 />
               ) : (
                 <div className="flex flex-col items-center gap-1.5 text-slate-400">
-                  <Upload className="h-6 w-6 opacity-50" />
+                  <Upload className="h-6 w-6 opacity-50" aria-hidden="true" />
                   <span className="text-[11px] font-medium">Subir logo</span>
                   <span className="text-[10px] opacity-60">PNG, JPG, SVG, WebP (5 MB)</span>
                 </div>
@@ -209,11 +209,11 @@ export function LogoUpload({
                 </div>
               )}
               <RefreshCw
-                className={`absolute top-1.5 right-1.5 h-3 w-3 text-slate-400 ${isCustom ? 'text-amber-400' : ''}`}
+                className={`absolute right-1.5 top-1.5 h-3 w-3 text-slate-400 ${isCustom ? 'text-amber-400' : ''}`}
               />
             </div>
             {uploading && (
-              <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-1.5 rounded-lg bg-black/80 px-1.5 py-0.5 text-[10px] text-white backdrop-blur">
+              <div className="absolute left-1.5 top-1.5 z-10 flex items-center gap-1.5 rounded-lg bg-black/80 px-1.5 py-0.5 text-[10px] text-white backdrop-blur">
                 <div className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 <span>Subiendo...</span>
               </div>
@@ -223,7 +223,7 @@ export function LogoUpload({
           {isExpanded && (
             <div className="space-y-3 border-t border-white/10 pt-3">
               <div>
-                <label className="mb-1.5 block text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   Colores de Marca
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -261,7 +261,7 @@ export function LogoUpload({
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   Nombre de Empresa
                 </label>
                 <input
@@ -332,14 +332,14 @@ export function LogoUpload({
 
         {error && (
           <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3">
-            <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-400" aria-hidden="true" />
             <span className="text-sm text-red-200">{error}</span>
           </div>
         )}
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <label className="mb-3 block text-xs font-semibold tracking-wider text-slate-400 uppercase">
+            <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-slate-400">
               Logo Personalizado
             </label>
             <div className="group relative">
@@ -365,7 +365,7 @@ export function LogoUpload({
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-slate-400">
-                    <Upload className="h-8 w-8 opacity-50" />
+                    <Upload className="h-8 w-8 opacity-50" aria-hidden="true" />
                     <span className="text-sm font-medium">Subir logo de empresa</span>
                     <span className="text-xs opacity-70">PNG, JPG, SVG, WebP (máx. 5 MB)</span>
                   </div>
@@ -389,11 +389,11 @@ export function LogoUpload({
                   </div>
                 )}
                 <RefreshCw
-                  className={`absolute top-2 right-2 h-4 w-4 text-slate-400 ${isCustom ? 'text-amber-400' : ''}`}
+                  className={`absolute right-2 top-2 h-4 w-4 text-slate-400 ${isCustom ? 'text-amber-400' : ''}`}
                 />
               </div>
               {uploading && (
-                <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/80 px-2 py-1 text-xs text-white backdrop-blur">
+                <div className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-lg bg-black/80 px-2 py-1 text-xs text-white backdrop-blur">
                   <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   <span>Subiendo...</span>
                 </div>
@@ -404,7 +404,7 @@ export function LogoUpload({
           {isExpanded && (
             <div className="space-y-4 md:col-span-2">
               <div>
-                <label className="mb-3 block text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Colores de Marca
                 </label>
                 <div className="grid grid-cols-2 gap-4">
@@ -440,7 +440,7 @@ export function LogoUpload({
               </div>
 
               <div>
-                <label className="mb-3 block text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Nombre de Empresa
                 </label>
                 <input

@@ -109,8 +109,8 @@ export function ExpensesManager({
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 rounded-full rounded-full bg-slate-800 flex items-center justify-center mb-4">
-            <FolderOpen className="h-6 w-6 text-slate-400" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-800">
+            <FolderOpen className="h-6 w-6 text-slate-400" aria-hidden="true" />
           </div>
           <h2 className="text-lg font-medium text-slate-100">Sin proyectos disponibles</h2>
           <p className="mt-1 text-sm text-slate-400">
@@ -134,7 +134,7 @@ export function ExpensesManager({
   const formatMoney = (val: number) => {
     if (!company) return formatGTQ(val);
     return currency === 'GTQ' ? formatGTQ(val) : formatUSD(val, company.exchangeRate);
-};
+  };
 
   // Helper to check APU budget overrun
   const checkApuOverrun = (apuId: string, additionalAmount: number, excludeExpenseId?: string) => {
@@ -385,7 +385,7 @@ export function ExpensesManager({
         <div className="animate-in fade-in slide-in-from-top flex items-start justify-between gap-3 rounded-2xl border-2 border-rose-300 bg-rose-50 p-4 shadow-lg duration-200">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 shrink-0 rounded-xl bg-rose-600 p-2 text-white shadow-sm">
-              <AlertTriangle className="h-5 w-5" />
+              <AlertTriangle className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="space-y-1 text-xs">
               <h4 className="flex items-center gap-2 text-sm font-bold text-rose-950">
@@ -394,7 +394,7 @@ export function ExpensesManager({
                   Exceso: Q{warningToast.diff.toLocaleString('es-GT')}
                 </span>
               </h4>
-              <p className="leading-relaxed font-medium text-rose-800">{warningToast.message}</p>
+              <p className="font-medium leading-relaxed text-rose-800">{warningToast.message}</p>
               <div className="flex items-center gap-4 pt-1 text-[11px] text-rose-700">
                 <span>
                   Presupuesto Renglón:{' '}
@@ -418,7 +418,7 @@ export function ExpensesManager({
       )}
 
       {/* Header bar */}
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
+      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-900">
@@ -441,18 +441,18 @@ export function ExpensesManager({
               onClick={() => setActiveExpenseTab('facturas')}
               className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'facturas'
-                  ? 'bg-white text-slate-900 shadow-xs'
+                  ? 'shadow-xs bg-white text-slate-900'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Receipt className="h-3.5 w-3.5 text-blue-600" />
+              <Receipt className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
               Facturas & Aprobación
             </button>
             <button
               onClick={() => setActiveExpenseTab('histograma')}
               className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'histograma'
-                  ? 'bg-amber-500 text-slate-950 shadow-xs'
+                  ? 'shadow-xs bg-amber-500 text-slate-950'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -485,9 +485,9 @@ export function ExpensesManager({
         <>
           {/* Metrics & Two-Step Approval Summary Bar */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="shadow-xs flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
               <div>
-                <span className="block text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Total Ejecutado Aprobado
                 </span>
                 <p className="mt-0.5 text-lg font-bold text-emerald-600">
@@ -498,26 +498,26 @@ export function ExpensesManager({
                 </span>
               </div>
               <div className="rounded-xl bg-emerald-50 p-3 text-emerald-600">
-                <ShieldCheck className="h-6 w-6" />
+                <ShieldCheck className="h-6 w-6" aria-hidden="true" />
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="shadow-xs flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
               <div>
-                <span className="block text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Pendientes de Revisión PM
                 </span>
                 <p className="mt-0.5 text-lg font-bold text-amber-600">{pendingCount} gastos</p>
                 <span className="text-[11px] text-slate-400">Paso 1: Registrados en campo</span>
               </div>
               <div className="rounded-xl bg-amber-50 p-3 text-amber-600">
-                <Clock className="h-6 w-6" />
+                <Clock className="h-6 w-6" aria-hidden="true" />
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="shadow-xs flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
               <div>
-                <span className="block text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Control Presupuestario APU
                 </span>
                 <p className="mt-0.5 text-lg font-bold text-slate-900">Visto Bueno PM</p>
@@ -526,7 +526,7 @@ export function ExpensesManager({
                 </span>
               </div>
               <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
-                <History className="h-6 w-6" />
+                <History className="h-6 w-6" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -538,7 +538,7 @@ export function ExpensesManager({
                 onClick={() => setStatusFilter('todos')}
                 className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'todos'
-                    ? 'bg-white text-slate-900 shadow-xs'
+                    ? 'shadow-xs bg-white text-slate-900'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -548,18 +548,18 @@ export function ExpensesManager({
                 onClick={() => setStatusFilter('pendientes')}
                 className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'pendientes'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    ? 'shadow-xs bg-amber-500 text-slate-950'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Clock className="h-3.5 w-3.5" />
+                <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                 Pendientes de Aprobación PM ({pendingCount})
               </button>
               <button
                 onClick={() => setStatusFilter('aprobados')}
                 className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'aprobados'
-                    ? 'bg-emerald-600 text-white shadow-xs'
+                    ? 'shadow-xs bg-emerald-600 text-white'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -574,7 +574,7 @@ export function ExpensesManager({
           </div>
 
           {/* Expenses Table */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+          <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-500">
@@ -657,7 +657,7 @@ export function ExpensesManager({
                                   className="h-full w-full object-cover transition group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
-                                  <Eye className="h-3.5 w-3.5 text-white" />
+                                  <Eye className="h-3.5 w-3.5 text-white" aria-hidden="true" />
                                 </div>
                               </div>
                               <div className="hidden pr-1 text-left sm:block">
@@ -676,7 +676,7 @@ export function ExpensesManager({
                               className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] font-semibold text-amber-800 transition hover:bg-amber-100"
                               title="Tomar fotografía del recibo físico con la cámara del dispositivo"
                             >
-                              <Camera className="h-3.5 w-3.5 text-amber-600" />
+                              <Camera className="h-3.5 w-3.5 text-amber-600" aria-hidden="true" />
                               <span>Foto</span>
                             </button>
                           )}
@@ -720,7 +720,7 @@ export function ExpensesManager({
                                 setApprovalModalExpense(ex);
                                 setApprovalDecision(isApproved ? 'Pendiente' : 'Aprobado');
                               }}
-                              className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11px] font-bold shadow-xs transition ${
+                              className={`shadow-xs cursor-pointer rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
                                 isApproved
                                   ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                                   : 'bg-emerald-600 text-white hover:bg-emerald-500'
@@ -740,7 +740,7 @@ export function ExpensesManager({
                               className="rounded-lg p-1.5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600"
                               title="Ver Pista de Auditoría Completa"
                             >
-                              <FileSearch className="h-4 w-4" />
+                              <FileSearch className="h-4 w-4" aria-hidden="true" />
                             </button>
                           </div>
                         </td>
@@ -760,7 +760,7 @@ export function ExpensesManager({
           <div className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                <ShieldCheck className="h-5 w-5 text-emerald-400" aria-hidden="true" />
                 <h3 className="text-base font-bold">Aprobación de Gasto por Project Manager</h3>
               </div>
               <button
@@ -790,7 +790,7 @@ export function ExpensesManager({
 
               {/* Approval Decision Selection */}
               <div>
-                <label className="mb-1.5 block text-xs font-bold tracking-wider text-slate-700 uppercase">
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
                   Decisión del Project Manager (Paso 2)
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -832,7 +832,7 @@ export function ExpensesManager({
 
               {/* PM Name */}
               <div>
-                <label className="mb-1 block text-xs font-bold tracking-wider text-slate-700 uppercase">
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-700">
                   Nombre del Project Manager / Auditor
                 </label>
                 <input
@@ -846,7 +846,7 @@ export function ExpensesManager({
 
               {/* Note / Audit Observation */}
               <div>
-                <label className="mb-1 block text-xs font-bold tracking-wider text-slate-700 uppercase">
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-700">
                   Observación para Pista de Auditoría
                 </label>
                 <textarea
@@ -885,7 +885,7 @@ export function ExpensesManager({
           <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <History className="h-5 w-5 text-blue-400" />
+                <History className="h-5 w-5 text-blue-400" aria-hidden="true" />
                 <div>
                   <h3 className="text-sm font-bold sm:text-base">Pista de Auditoría del Gasto</h3>
                   <p className="text-[11px] text-slate-400">
@@ -920,17 +920,17 @@ export function ExpensesManager({
               </div>
 
               <div className="space-y-3">
-                <h4 className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-slate-800 uppercase">
-                  <Clock className="h-3.5 w-3.5 text-blue-600" />
+                <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800">
+                  <Clock className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
                   Línea de Tiempo Inalterable
                 </h4>
 
                 {viewingAuditExpense.auditTrail && viewingAuditExpense.auditTrail.length > 0 ? (
-                  <div className="relative space-y-4 pl-6 before:absolute before:top-2 before:bottom-2 before:left-2 before:w-0.5 before:bg-slate-200">
+                  <div className="relative space-y-4 pl-6 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-0.5 before:bg-slate-200">
                     {viewingAuditExpense.auditTrail.map((entry, idx) => (
                       <div key={entry.id || idx} className="relative space-y-1 text-xs">
                         <div
-                          className={`absolute top-0.5 -left-6 h-4 w-4 rounded-full border-2 border-white ${
+                          className={`absolute -left-6 top-0.5 h-4 w-4 rounded-full border-2 border-white ${
                             entry.action === 'APROBADO'
                               ? 'bg-emerald-500 ring-2 ring-emerald-100'
                               : entry.action === 'RECHAZADO'
@@ -956,7 +956,7 @@ export function ExpensesManager({
                           {entry.role})
                         </p>
                         {entry.note && (
-                          <p className="rounded-lg border border-slate-200 bg-white p-2 text-[11px] text-slate-500 italic">
+                          <p className="rounded-lg border border-slate-200 bg-white p-2 text-[11px] italic text-slate-500">
                             &quot;{entry.note}&quot;
                           </p>
                         )}
@@ -964,7 +964,7 @@ export function ExpensesManager({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 italic">
+                  <p className="text-xs italic text-slate-400">
                     No hay registros de auditoría anteriores.
                   </p>
                 )}
@@ -990,7 +990,7 @@ export function ExpensesManager({
           <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <Receipt className="h-5 w-5 text-amber-400" />
+                <Receipt className="h-5 w-5 text-amber-400" aria-hidden="true" />
                 <h3 className="text-base font-bold">Registrar Gasto o Factura FEL</h3>
               </div>
               <button
@@ -1127,26 +1127,26 @@ export function ExpensesManager({
                 </div>
               </div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">
-                    Descripción del Insumo / Gasto
-                  </label>
-                  <input
-                    type="text"
-                    value={desc}
-                    onChange={(e) => setDesc(e.target.value)}
-                    placeholder="Ej. Compra de 250 bolsas de Cemento Progreso"
-                    aria-label="Descripción del Insumo / Gasto"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  Descripción del Insumo / Gasto
+                </label>
+                <input
+                  type="text"
+                  value={desc}
+                  onChange={(e) => setDesc(e.target.value)}
+                  placeholder="Ej. Compra de 250 bolsas de Cemento Progreso"
+                  aria-label="Descripción del Insumo / Gasto"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                  required
+                />
+              </div>
 
               {/* Receipt / Invoice Photo Capture Section */}
               <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <Camera className="h-4 w-4 text-amber-600" />
+                    <Camera className="h-4 w-4 text-amber-600" aria-hidden="true" />
                     <span className="text-xs font-bold text-slate-800">
                       Comprobante Físico / Factura
                     </span>
@@ -1192,7 +1192,7 @@ export function ExpensesManager({
                         className="rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
                         title="Tomar foto de nuevo"
                       >
-                        <RotateCw className="h-4 w-4" />
+                        <RotateCw className="h-4 w-4" aria-hidden="true" />
                       </button>
                       <button
                         type="button"
@@ -1218,11 +1218,11 @@ export function ExpensesManager({
                       }}
                       className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900 transition hover:bg-amber-100"
                     >
-                      <Camera className="h-4 w-4 text-amber-600" />
+                      <Camera className="h-4 w-4 text-amber-600" aria-hidden="true" />
                       Tomar Foto del Recibo con Cámara
                     </button>
                     <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
-                      <Upload className="h-3.5 w-3.5" />
+                      <Upload className="h-3.5 w-3.5" aria-hidden="true" />
                       Subir Archivo
                       <input
                         type="file"
@@ -1288,7 +1288,7 @@ export function ExpensesManager({
           <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 p-3.5 text-white">
               <div className="flex items-center gap-2">
-                <Receipt className="h-4 w-4 text-emerald-400" />
+                <Receipt className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                 <div>
                   <h4 className="text-xs font-bold">
                     Factura FEL {viewingReceiptExpense.facturaNumber} •{' '}
@@ -1310,7 +1310,7 @@ export function ExpensesManager({
                   className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
                   title="Descargar imagen"
                 >
-                  <Download className="h-4 w-4" />
+                  <Download className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => setViewingReceiptExpense(null)}

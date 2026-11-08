@@ -429,13 +429,13 @@ export function D3BudgetUtilizationChart({
   return (
     <div
       ref={containerRef}
-      className={`glass-panel relative space-y-4 p-5 select-none ${className}`}
+      className={`glass-panel relative select-none space-y-4 p-5 ${className}`}
     >
       {/* Top Header Controls */}
       <div className="flex flex-col justify-between gap-3 border-b border-white/10 pb-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2.5">
           <div className="rounded-xl border border-sky-400/30 bg-sky-500/20 p-2 text-sky-400">
-            <TrendingUp className="h-5 w-5" />
+            <TrendingUp className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -476,7 +476,7 @@ export function D3BudgetUtilizationChart({
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <PieChartIcon className="h-3.5 w-3.5" />
+            <PieChartIcon className="h-3.5 w-3.5" aria-hidden="true" />
             <span>Medidor Global</span>
           </button>
         </div>
@@ -485,7 +485,7 @@ export function D3BudgetUtilizationChart({
       {/* Quick Summary Metrics Grid */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
-          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+          <span className="block font-mono text-[10px] uppercase text-slate-400">
             Presupuesto Global
           </span>
           <div className="mt-0.5 text-sm font-bold text-white sm:text-base">
@@ -495,7 +495,7 @@ export function D3BudgetUtilizationChart({
         </div>
 
         <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
-          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+          <span className="block font-mono text-[10px] uppercase text-slate-400">
             Gasto Real Ejecutado
           </span>
           <div className="mt-0.5 text-sm font-bold text-sky-400 sm:text-base">
@@ -507,7 +507,7 @@ export function D3BudgetUtilizationChart({
         </div>
 
         <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
-          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+          <span className="block font-mono text-[10px] uppercase text-slate-400">
             Remanente Disponible
           </span>
           <div className="mt-0.5 text-sm font-bold text-emerald-400 sm:text-base">
@@ -519,7 +519,7 @@ export function D3BudgetUtilizationChart({
         </div>
 
         <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
-          <span className="block font-mono text-[10px] text-slate-400 uppercase">
+          <span className="block font-mono text-[10px] uppercase text-slate-400">
             Control de Desvío
           </span>
           <div className="mt-0.5 text-sm font-bold text-amber-400 sm:text-base">
@@ -586,7 +586,7 @@ export function D3BudgetUtilizationChart({
                 </span>
               </div>
             </div>
-            <p className="pt-1 text-[10px] text-slate-400 italic">
+            <p className="pt-1 text-[10px] italic text-slate-400">
               Haga clic para seleccionar obra
             </p>
           </div>

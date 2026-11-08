@@ -136,9 +136,9 @@ export function FcmPushNotificationBanner({
       <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-white shadow-xl sm:p-5 md:flex-row md:items-center">
         <div className="flex items-center gap-3.5">
           <div className="relative shrink-0 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-3 text-amber-400">
-            <BellRing className="h-6 w-6 animate-pulse" />
+            <BellRing className="h-6 w-6 animate-pulse" aria-hidden="true" />
             {pendingSignatureAlertsCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-slate-900 bg-rose-500 text-[10px] font-black text-white">
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-slate-900 bg-rose-500 text-[10px] font-black text-white">
                 {pendingSignatureAlertsCount}
               </span>
             )}
@@ -169,7 +169,7 @@ export function FcmPushNotificationBanner({
               disabled={isActivating}
               className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-400 px-4 py-2 text-xs font-black text-slate-900 shadow-md transition hover:bg-amber-300"
             >
-              <Bell className="h-4 w-4" />
+              <Bell className="h-4 w-4" aria-hidden="true" />
               {isActivating ? 'Activando...' : 'Activar Notificaciones Push'}
             </button>
           ) : (
@@ -184,7 +184,7 @@ export function FcmPushNotificationBanner({
             className="flex cursor-pointer items-center gap-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-slate-700"
           >
             Ver Alertas ({alerts.length})
-            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -192,7 +192,7 @@ export function FcmPushNotificationBanner({
       {process.env.NODE_ENV === 'development' && (
         <div className="flex flex-col items-start justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-3 text-xs sm:flex-row sm:items-center">
           <div className="flex items-center gap-2 font-semibold text-slate-300">
-            <Sparkles className="h-4 w-4 shrink-0 text-amber-400" />
+            <Sparkles className="h-4 w-4 shrink-0 text-amber-400" aria-hidden="true" />
             <span>Simulador de Envío FCM en Obra:</span>
           </div>
 
@@ -223,7 +223,7 @@ export function FcmPushNotificationBanner({
             <div className="flex items-center justify-between border-b border-slate-800 p-4">
               <div className="flex items-center gap-2">
                 <div className="rounded-xl border border-amber-500/30 bg-amber-500/20 p-2 text-amber-400">
-                  <Bell className="h-4 w-4" />
+                  <Bell className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="text-sm font-extrabold sm:text-base">

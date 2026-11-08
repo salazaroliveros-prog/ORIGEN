@@ -203,11 +203,11 @@ export function GuatemalanPayroll({
   return (
     <div className="space-y-6">
       {/* Header with Print & Export Controls */}
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
+      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-lg bg-blue-50 p-1.5 text-blue-700">
-              <Banknote className="h-5 w-5" />
+              <Banknote className="h-5 w-5" aria-hidden="true" />
             </span>
             <h2 className="text-lg font-bold text-slate-900">
               Planilla & Prestaciones Laborales de Guatemala
@@ -226,11 +226,11 @@ export function GuatemalanPayroll({
               onClick={() => setViewMode('validador')}
               className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                 viewMode === 'validador'
-                  ? 'bg-blue-600 font-bold text-white shadow-xs'
+                  ? 'shadow-xs bg-blue-600 font-bold text-white'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <ShieldCheck className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
               <span>Validador Legal IGSS / Prestaciones</span>
               <span className="py-0.2 rounded-full bg-white/20 px-1.5 font-mono text-[9px] text-white">
                 Auto
@@ -240,7 +240,7 @@ export function GuatemalanPayroll({
               onClick={() => setViewMode('summary_prestaciones')}
               className={`cursor-pointer rounded-lg px-3 py-1.5 transition ${
                 viewMode === 'summary_prestaciones'
-                  ? 'bg-white text-slate-900 shadow-xs'
+                  ? 'shadow-xs bg-white text-slate-900'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -250,7 +250,7 @@ export function GuatemalanPayroll({
               onClick={() => setViewMode('regular')}
               className={`cursor-pointer rounded-lg px-3 py-1.5 transition ${
                 viewMode === 'regular'
-                  ? 'bg-white text-slate-900 shadow-xs'
+                  ? 'shadow-xs bg-white text-slate-900'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -275,17 +275,17 @@ export function GuatemalanPayroll({
       </div>
 
       {/* Filters: Period, Month, Search */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+      <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             {/* Period Selector */}
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-slate-500" />
+              <Calendar className="h-4 w-4 text-slate-500" aria-hidden="true" />
               <label className="text-xs font-semibold text-slate-700">Periodo:</label>
               <select
                 value={payrollPeriod}
                 onChange={(e) => setPayrollPeriod(e.target.value as PayrollPeriod)}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="mensual">Mensual (30 días)</option>
                 <option value="quincenal">Quincenal (15 días)</option>
@@ -298,7 +298,7 @@ export function GuatemalanPayroll({
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 {availableMonths.map((month) => (
                   <option key={month} value={month}>
@@ -312,13 +312,16 @@ export function GuatemalanPayroll({
           {/* Search */}
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search
+                className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                aria-hidden="true"
+              />
               <input
                 type="text"
                 placeholder="Buscar por nombre o puesto..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white py-1.5 pr-3 pl-9 text-xs text-slate-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none lg:w-64"
+                className="w-full rounded-lg border border-slate-300 bg-white py-1.5 pl-9 pr-3 text-xs text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 lg:w-64"
               />
             </div>
             {searchQuery && (
@@ -334,7 +337,7 @@ export function GuatemalanPayroll({
 
         {/* Filter Summary */}
         <div className="mt-3 flex items-center gap-2 text-xs text-slate-600">
-          <Filter className="h-3.5 w-3.5" />
+          <Filter className="h-3.5 w-3.5" aria-hidden="true" />
           <span>
             Mostrando <strong>{filteredEmployees.length}</strong> de{' '}
             <strong>{employees.length}</strong> empleados
@@ -374,8 +377,8 @@ export function GuatemalanPayroll({
 
           {/* Summary KPI Cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-              <p className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 Masa Salarial Base
               </p>
               <p className="mt-1 text-lg font-extrabold text-slate-900">{formatGTQ(totals.base)}</p>
@@ -383,8 +386,8 @@ export function GuatemalanPayroll({
                 {employees.length} colaboradores activos
               </p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-              <p className="text-[11px] font-bold tracking-wider text-rose-600 uppercase">
+            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-rose-600">
                 IGSS Laboral (4.83%)
               </p>
               <p className="mt-1 text-lg font-extrabold text-rose-600">
@@ -392,8 +395,8 @@ export function GuatemalanPayroll({
               </p>
               <p className="mt-0.5 text-[10px] text-slate-400">Deducción de planilla</p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-              <p className="text-[11px] font-bold tracking-wider text-blue-600 uppercase">
+            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-blue-600">
                 IGSS Patronal (12.67%)
               </p>
               <p className="mt-1 text-lg font-extrabold text-blue-600">
@@ -401,8 +404,8 @@ export function GuatemalanPayroll({
               </p>
               <p className="mt-0.5 text-[10px] text-slate-400">Incluye 1% IRTRA + 1% INTECAP</p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-              <p className="text-[11px] font-bold tracking-wider text-amber-600 uppercase">
+            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600">
                 Provisión Bono 14 & Aguinaldo
               </p>
               <p className="mt-1 text-lg font-extrabold text-amber-600">
@@ -415,13 +418,16 @@ export function GuatemalanPayroll({
           </div>
 
           {/* Printable Document Container (PDF Style) */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs print:border-none print:shadow-none">
+          <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white print:border-none print:shadow-none">
             {/* Printable Official Header */}
             <div className="border-b border-slate-200 bg-slate-50/70 p-6 print:border-b-2 print:border-black print:bg-white print:p-0">
               <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                   <div className="flex items-center gap-2">
-                    <Building className="h-5 w-5 text-blue-600 print:text-black" />
+                    <Building
+                      className="h-5 w-5 text-blue-600 print:text-black"
+                      aria-hidden="true"
+                    />
                     <h3 className="text-base font-extrabold text-slate-900 print:text-lg">
                       {company.commercialName || 'ConstructERP Guatemala, S.A.'}
                     </h3>
@@ -446,7 +452,7 @@ export function GuatemalanPayroll({
             {viewMode === 'summary_prestaciones' ? (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-left text-xs">
-                  <thead className="border-b border-slate-200 bg-slate-100 font-bold text-slate-700 uppercase print:bg-slate-200 print:text-black">
+                  <thead className="border-b border-slate-200 bg-slate-100 font-bold uppercase text-slate-700 print:bg-slate-200 print:text-black">
                     <tr>
                       <th className="border-r border-slate-200 p-3">Colaborador / Puesto</th>
                       <th className="border-r border-slate-200 p-3 text-right">
@@ -460,13 +466,13 @@ export function GuatemalanPayroll({
                       </th>
                       <th className="border-r border-slate-200 p-3 text-right text-amber-800">
                         <div>Provisión Bono 14</div>
-                        <div className="text-[10px] font-normal text-slate-500 normal-case">
+                        <div className="text-[10px] font-normal normal-case text-slate-500">
                           Decreto 42-92 (8.33%)
                         </div>
                       </th>
                       <th className="border-r border-slate-200 p-3 text-right text-amber-800">
                         <div>Provisión Aguinaldo</div>
-                        <div className="text-[10px] font-normal text-slate-500 normal-case">
+                        <div className="text-[10px] font-normal normal-case text-slate-500">
                           Decreto 76-78 (8.33%)
                         </div>
                       </th>
@@ -553,7 +559,7 @@ export function GuatemalanPayroll({
               /* View Mode 2: Regular Liquid Pay Table */
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-slate-200 bg-slate-50 font-semibold text-slate-700 uppercase">
+                  <thead className="border-b border-slate-200 bg-slate-50 font-semibold uppercase text-slate-700">
                     <tr>
                       <th className="p-3.5">Colaborador</th>
                       <th className="p-3.5">Puesto</th>

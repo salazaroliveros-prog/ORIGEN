@@ -346,13 +346,13 @@ export function CameraCaptureModal({
               className={`rounded-xl p-2 ${mode === 'receipt' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}`}
             >
               {mode === 'receipt' ? (
-                <Receipt className="h-5 w-5" />
+                <Receipt className="h-5 w-5" aria-hidden="true" />
               ) : (
-                <Camera className="h-5 w-5" />
+                <Camera className="h-5 w-5" aria-hidden="true" />
               )}
             </div>
             <div>
-              <h3 className="text-sm leading-tight font-bold sm:text-base">{modalTitle}</h3>
+              <h3 className="text-sm font-bold leading-tight sm:text-base">{modalTitle}</h3>
               <p className="hidden text-[11px] text-slate-400 sm:block">{modalSubtitle}</p>
             </div>
           </div>
@@ -375,7 +375,7 @@ export function CameraCaptureModal({
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              <Camera className="h-3.5 w-3.5" />
+              <Camera className="h-3.5 w-3.5" aria-hidden="true" />
               Cámara en Vivo
             </button>
             <button
@@ -386,7 +386,7 @@ export function CameraCaptureModal({
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              <Upload className="h-3.5 w-3.5" />
+              <Upload className="h-3.5 w-3.5" aria-hidden="true" />
               Subir Imagen / Archivo
             </button>
           </div>
@@ -410,8 +410,8 @@ export function CameraCaptureModal({
                 unoptimized
                 className="max-h-[460px] w-auto object-contain"
               />
-              <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/80 px-2.5 py-1 text-[11px] text-white backdrop-blur-xs">
-                <Check className="h-3.5 w-3.5 text-emerald-400" />
+              <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/80 px-2.5 py-1 text-[11px] text-white backdrop-blur-xs">
+                <Check className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
                 Fotografía capturada con éxito
               </div>
             </div>
@@ -432,10 +432,10 @@ export function CameraCaptureModal({
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6 sm:p-8">
                   <div className="relative flex h-full max-h-[360px] w-full max-w-sm flex-col justify-between rounded-xl border-2 border-dashed border-amber-400/80 bg-amber-400/5 p-3 shadow-2xl">
                     {/* Corner Reticles */}
-                    <div className="absolute -top-1 -left-1 h-6 w-6 border-t-4 border-l-4 border-amber-400" />
-                    <div className="absolute -top-1 -right-1 h-6 w-6 border-t-4 border-r-4 border-amber-400" />
+                    <div className="absolute -left-1 -top-1 h-6 w-6 border-l-4 border-t-4 border-amber-400" />
+                    <div className="absolute -right-1 -top-1 h-6 w-6 border-r-4 border-t-4 border-amber-400" />
                     <div className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-amber-400" />
-                    <div className="absolute -right-1 -bottom-1 h-6 w-6 border-r-4 border-b-4 border-amber-400" />
+                    <div className="absolute -bottom-1 -right-1 h-6 w-6 border-b-4 border-r-4 border-amber-400" />
 
                     <div className="self-center rounded border border-amber-400/40 bg-slate-950/70 px-2 py-0.5 text-[10px] font-bold text-amber-300">
                       Enfoque la Factura / Recibo dentro del marco
@@ -450,11 +450,11 @@ export function CameraCaptureModal({
                 <div className="pointer-events-none absolute inset-0">
                   {/* Grid lines for rule of thirds */}
                   <div className="grid h-full w-full grid-cols-3 grid-rows-3 opacity-25">
-                    <div className="border-r border-b border-white" />
-                    <div className="border-r border-b border-white" />
+                    <div className="border-b border-r border-white" />
+                    <div className="border-b border-r border-white" />
                     <div className="border-b border-white" />
-                    <div className="border-r border-b border-white" />
-                    <div className="border-r border-b border-white" />
+                    <div className="border-b border-r border-white" />
+                    <div className="border-b border-r border-white" />
                     <div className="border-b border-white" />
                     <div className="border-r border-white" />
                     <div className="border-r border-white" />
@@ -470,14 +470,14 @@ export function CameraCaptureModal({
               )}
 
               {/* Status and Controls Over Video */}
-              <div className="absolute top-3 left-3 flex items-center gap-2">
+              <div className="absolute left-3 top-3 flex items-center gap-2">
                 <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] text-white backdrop-blur-xs">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
                   Cámara Activa ({facingMode === 'environment' ? 'Trasera' : 'Frontal'})
                 </div>
                 {coords && (
                   <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 font-mono text-[10px] text-sky-300 backdrop-blur-xs">
-                    <MapPin className="h-3 w-3 text-sky-400" />
+                    <MapPin className="h-3 w-3 text-sky-400" aria-hidden="true" />
                     {coords.lat.toFixed(4)}°N, {coords.lng.toFixed(4)}°W
                     <span className="font-sans">
                       {gpsStatus === 'ready'
@@ -491,14 +491,14 @@ export function CameraCaptureModal({
               </div>
 
               {/* Camera Switch Button */}
-              <div className="absolute top-3 right-3">
+              <div className="absolute right-3 top-3">
                 <button
                   type="button"
                   onClick={handleToggleFacingMode}
                   className="flex cursor-pointer items-center gap-1 rounded-xl border border-slate-700 bg-slate-900/80 p-2 text-xs text-white backdrop-blur-xs transition hover:bg-slate-800"
                   title="Cambiar entre cámara trasera y frontal"
                 >
-                  <RotateCcw className="h-4 w-4 text-blue-400" />
+                  <RotateCcw className="h-4 w-4 text-blue-400" aria-hidden="true" />
                   <span className="hidden text-[10px] sm:inline">Girar Cámara</span>
                 </button>
               </div>
@@ -506,7 +506,7 @@ export function CameraCaptureModal({
               {/* Error warning if any */}
               {cameraError && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/90 p-6 text-center text-white">
-                  <CameraOff className="mb-2 h-10 w-10 text-rose-400" />
+                  <CameraOff className="mb-2 h-10 w-10 text-rose-400" aria-hidden="true" />
                   <p className="mb-1 text-sm font-bold text-rose-300">
                     Acceso a cámara no disponible
                   </p>
@@ -516,7 +516,7 @@ export function CameraCaptureModal({
                     onClick={() => fileInputRef.current?.click()}
                     className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-500"
                   >
-                    <Upload className="h-4 w-4" />
+                    <Upload className="h-4 w-4" aria-hidden="true" />
                     Subir foto desde este dispositivo
                   </button>
                 </div>
@@ -526,7 +526,7 @@ export function CameraCaptureModal({
             /* File Upload Tab */
             <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center text-slate-300">
               <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-blue-400">
-                <Upload className="h-8 w-8" />
+                <Upload className="h-8 w-8" aria-hidden="true" />
               </div>
               <h4 className="mb-1 text-sm font-bold text-white">Cargar Fotografía o Recibo</h4>
               <p className="mb-4 max-w-sm text-xs text-slate-400">
@@ -538,7 +538,7 @@ export function CameraCaptureModal({
                 onClick={() => fileInputRef.current?.click()}
                 className="flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg transition hover:bg-blue-500"
               >
-                <Upload className="h-4 w-4" />
+                <Upload className="h-4 w-4" aria-hidden="true" />
                 Examinar Archivos
               </button>
               <input
@@ -583,7 +583,7 @@ export function CameraCaptureModal({
                   onClick={handleRetake}
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
                 >
-                  <RotateCcw className="h-3.5 w-3.5" />
+                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                   Tomar de Nuevo
                 </button>
                 <div className="flex items-center gap-2">
@@ -599,7 +599,7 @@ export function CameraCaptureModal({
                     onClick={handleConfirm}
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md transition hover:bg-blue-700"
                   >
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4" aria-hidden="true" />
                     {mode === 'receipt' ? 'Adjuntar Recibo' : 'Adjuntar a Bitácora'}
                   </button>
                 </div>
@@ -609,7 +609,7 @@ export function CameraCaptureModal({
             /* Live Camera Snapshot trigger */
             <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
               <div className="flex items-center gap-2 text-xs text-slate-600">
-                <label className="flex cursor-pointer items-center gap-1.5 select-none">
+                <label className="flex cursor-pointer select-none items-center gap-1.5">
                   <input
                     type="checkbox"
                     checked={addWatermark}
@@ -636,7 +636,7 @@ export function CameraCaptureModal({
                   disabled={!stream}
                   className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-blue-500 active:scale-95 disabled:opacity-50"
                 >
-                  <Camera className="h-4 w-4" />
+                  <Camera className="h-4 w-4" aria-hidden="true" />
                   <span>Capturar Foto</span>
                 </button>
               </div>

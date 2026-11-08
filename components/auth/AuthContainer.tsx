@@ -141,7 +141,10 @@ export function AuthContainer(): React.ReactElement {
 
           {isLocked && (
             <div className="mb-6 flex gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
+              <AlertCircle
+                className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500"
+                aria-hidden="true"
+              />
               <div>
                 <p className="text-sm font-semibold text-red-500">Cuenta Bloqueada</p>
                 <p className="mt-1 text-xs text-red-400">
@@ -210,7 +213,7 @@ export function AuthContainer(): React.ReactElement {
             />
             {errors.password && (
               <p id="password-error" className="mt-1 flex items-center gap-1 text-xs text-red-400">
-                <AlertCircle className="h-3 w-3" />
+                <AlertCircle className="h-3 w-3" aria-hidden="true" />
                 {errors.password}
               </p>
             )}
@@ -250,7 +253,7 @@ export function AuthContainer(): React.ReactElement {
                 </>
               ) : (
                 <>
-                  <ArrowRight className="mr-2 h-4 w-4" />
+                  <ArrowRight className="mr-2 h-4 w-4" aria-hidden="true" />
                   Iniciar Sesión
                 </>
               )}

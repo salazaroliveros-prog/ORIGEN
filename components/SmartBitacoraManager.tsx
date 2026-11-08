@@ -285,7 +285,7 @@ export function SmartBitacoraManager({
       <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-indigo-500/20 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 p-6 shadow-2xl md:flex-row md:items-center">
         <div className="flex items-center gap-4">
           <span className="rounded-2xl border border-indigo-500/30 bg-indigo-500/20 p-3.5 text-indigo-400">
-            <Sparkles className="h-7 w-7" />
+            <Sparkles className="h-7 w-7" aria-hidden="true" />
           </span>
           <div>
             <div className="flex items-center gap-2">
@@ -307,7 +307,7 @@ export function SmartBitacoraManager({
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -323,7 +323,7 @@ export function SmartBitacoraManager({
         <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl lg:col-span-5">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
-              <Mic className="h-4 w-4 text-amber-400" />
+              <Mic className="h-4 w-4 text-amber-400" aria-hidden="true" />
               Dictado de Capataz & Dictado por Voz
             </h3>
             <span className="rounded-md bg-slate-800 px-2 py-0.5 font-mono text-[10px] text-slate-400">
@@ -397,12 +397,12 @@ export function SmartBitacoraManager({
                     className="p-2 text-slate-400 hover:text-white"
                     title="Limpiar nota"
                   >
-                    <RotateCcw className="h-4 w-4" />
+                    <RotateCcw className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 )}
               </div>
 
-              <p className="text-[11px] leading-relaxed text-slate-400 italic">
+              <p className="text-[11px] italic leading-relaxed text-slate-400">
                 Ejemplo: &quot;Hoy vino la cuadrilla de fundición, colamos 18 metros cúbicos de
                 concreto en zapatas Z-3 y Z-4, llovió a las 2pm por una hora, recibimos 35 quintales
                 de hierro de 1/2 pulgada de Distribuidora El Sol, sin accidentes.&quot;
@@ -419,13 +419,13 @@ export function SmartBitacoraManager({
                 value={voiceNotes}
                 onChange={(e) => setVoiceNotes(e.target.value)}
                 placeholder="Presione el botón de micrófono para hablar o escriba directamente la nota de campo del capataz aquí..."
-                className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 leading-relaxed font-medium text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 font-medium leading-relaxed text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             {errorMessage && (
               <div className="flex items-center gap-2 rounded-xl border border-rose-800 bg-rose-950/60 p-3 text-xs text-rose-300">
-                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
+                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" aria-hidden="true" />
                 <span>{errorMessage}</span>
               </div>
             )}
@@ -439,12 +439,12 @@ export function SmartBitacoraManager({
             >
               {isGenerating ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin text-slate-950" />
+                  <RefreshCw className="h-4 w-4 animate-spin text-slate-950" aria-hidden="true" />
                   <span>Procesando con Gemini IA...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4 text-slate-950" />
+                  <Sparkles className="h-4 w-4 text-slate-950" aria-hidden="true" />
                   <span>Generar Bitácora Inteligente Oficial</span>
                 </>
               )}
@@ -466,7 +466,7 @@ export function SmartBitacoraManager({
                     : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
                 }`}
               >
-                <FileText className="h-3.5 w-3.5" />
+                <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>{b.folioNumber}</span>
                 <span className="font-mono text-[10px] text-slate-500">({b.date})</span>
               </button>
@@ -479,7 +479,7 @@ export function SmartBitacoraManager({
               <div className="flex flex-col items-start justify-between gap-3 border-b border-slate-800 pb-4 sm:flex-row sm:items-center">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-extrabold text-amber-400 uppercase">
+                    <span className="font-mono text-xs font-extrabold uppercase text-amber-400">
                       {selectedBitacora.folioNumber}
                     </span>
                     <span className="rounded-md border border-emerald-700 bg-emerald-900/60 px-2 py-0.5 text-xs font-extrabold text-emerald-300">
@@ -511,19 +511,19 @@ export function SmartBitacoraManager({
               {/* Clima & Resumen */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-1 rounded-2xl border border-slate-700/60 bg-slate-800/50 p-4">
-                  <span className="flex items-center gap-1 font-mono text-[10px] font-bold text-amber-400 uppercase">
+                  <span className="flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-amber-400">
                     <CloudRain className="h-3.5 w-3.5" /> Clima y Condiciones de Obra
                   </span>
-                  <p className="text-xs leading-relaxed font-medium text-slate-200">
+                  <p className="text-xs font-medium leading-relaxed text-slate-200">
                     {selectedBitacora.climaYCondiciones}
                   </p>
                 </div>
 
                 <div className="space-y-1 rounded-2xl border border-slate-700/60 bg-slate-800/50 p-4">
-                  <span className="flex items-center gap-1 font-mono text-[10px] font-bold text-sky-400 uppercase">
+                  <span className="flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-sky-400">
                     <User className="h-3.5 w-3.5" /> Personal en Campo
                   </span>
-                  <p className="text-xs leading-relaxed font-medium text-slate-200">
+                  <p className="text-xs font-medium leading-relaxed text-slate-200">
                     {selectedBitacora.personalEnCampo.detalles} (Total:{' '}
                     {selectedBitacora.personalEnCampo.totalOperarios} operarios)
                   </p>
@@ -532,17 +532,17 @@ export function SmartBitacoraManager({
 
               {/* Resumen Ejecutivo */}
               <div className="space-y-1 rounded-2xl border border-slate-800 bg-slate-950 p-4">
-                <span className="font-mono text-[10px] font-bold text-emerald-400 uppercase">
+                <span className="font-mono text-[10px] font-bold uppercase text-emerald-400">
                   Resumen Ejecutivo de la Jornada
                 </span>
-                <p className="text-xs leading-relaxed font-medium text-slate-200">
+                <p className="text-xs font-medium leading-relaxed text-slate-200">
                   {selectedBitacora.resumenEjecutivo}
                 </p>
               </div>
 
               {/* Trabajos Ejecutados */}
               <div className="space-y-3">
-                <h4 className="flex items-center gap-1.5 font-mono text-xs font-extrabold tracking-wider text-slate-400 uppercase">
+                <h4 className="flex items-center gap-1.5 font-mono text-xs font-extrabold uppercase tracking-wider text-slate-400">
                   <Layers className="h-4 w-4 text-indigo-400" /> Trabajos y Unidades Ejecutadas
                 </h4>
 
@@ -574,7 +574,7 @@ export function SmartBitacoraManager({
 
               {/* Materiales Ingresados */}
               <div className="space-y-3">
-                <h4 className="flex items-center gap-1.5 font-mono text-xs font-extrabold tracking-wider text-slate-400 uppercase">
+                <h4 className="flex items-center gap-1.5 font-mono text-xs font-extrabold uppercase tracking-wider text-slate-400">
                   <Building2 className="h-4 w-4 text-amber-400" /> Materiales e Insumos Ingresados
                 </h4>
 
@@ -597,7 +597,7 @@ export function SmartBitacoraManager({
               {/* Cumplimiento AGIES & Planificación */}
               <div className="grid grid-cols-1 gap-4 font-mono text-xs md:grid-cols-2">
                 <div className="space-y-1 rounded-2xl border border-emerald-800/80 bg-emerald-950/30 p-3.5 text-emerald-200">
-                  <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 uppercase">
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-emerald-400">
                     <ShieldCheck className="h-3.5 w-3.5" /> AGIES & Normativa Guatemala
                   </span>
                   <p className="font-sans text-[11px] leading-relaxed text-slate-300">
@@ -606,7 +606,7 @@ export function SmartBitacoraManager({
                 </div>
 
                 <div className="space-y-1 rounded-2xl border border-sky-800/80 bg-sky-950/30 p-3.5 text-sky-200">
-                  <span className="flex items-center gap-1 text-[10px] font-bold text-sky-400 uppercase">
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-sky-400">
                     <Calendar className="h-3.5 w-3.5" /> Planificación de Mañana
                   </span>
                   <p className="font-sans text-[11px] leading-relaxed text-slate-300">
@@ -618,7 +618,7 @@ export function SmartBitacoraManager({
               {/* Signature Section */}
               <div className="flex items-center justify-between border-t border-slate-800 pt-4">
                 <div>
-                  <span className="block font-mono text-[10px] text-slate-400 uppercase">
+                  <span className="block font-mono text-[10px] uppercase text-slate-400">
                     Firma Capataz Responsable
                   </span>
                   {selectedBitacora.capatazSignatureUrl ? (
@@ -636,7 +636,7 @@ export function SmartBitacoraManager({
                       </span>
                     </div>
                   ) : (
-                    <span className="text-xs text-amber-400 italic">
+                    <span className="text-xs italic text-amber-400">
                       Pendiente de firma sobre lienzo
                     </span>
                   )}
@@ -648,14 +648,14 @@ export function SmartBitacoraManager({
                   onClick={() => window.print()}
                   className="flex items-center gap-2"
                 >
-                  <Printer className="h-4 w-4" />
+                  <Printer className="h-4 w-4" aria-hidden="true" />
                   <span>Imprimir Folio</span>
                 </Button>
               </div>
             </div>
           ) : (
             <div className="space-y-2 rounded-3xl border border-slate-800 bg-slate-900 p-12 text-center text-slate-400">
-              <FileText className="mx-auto h-8 w-8 text-slate-600" />
+              <FileText className="mx-auto h-8 w-8 text-slate-600" aria-hidden="true" />
               <p className="text-sm font-bold text-white">No hay bitácoras seleccionadas</p>
             </div>
           )}

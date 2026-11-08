@@ -333,7 +333,7 @@ export function GuatemalanPayrollTable({
   return (
     <div className="space-y-4">
       {/* Control bar: Period, Frequency, Search & Filter tools */}
-      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+      <div className="shadow-xs space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
         <div className="flex flex-col items-stretch justify-between gap-3 lg:flex-row lg:items-center">
           {/* Frequency & Period Selectors */}
           <div className="flex flex-col flex-wrap items-start gap-2.5 sm:flex-row sm:items-center">
@@ -343,11 +343,11 @@ export function GuatemalanPayrollTable({
                 onClick={() => handleFrequencyChange('quincenal')}
                 className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                   frequency === 'quincenal'
-                    ? 'bg-blue-600 font-bold text-white shadow-xs'
+                    ? 'shadow-xs bg-blue-600 font-bold text-white'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Calendar className="h-3.5 w-3.5" />
+                <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                 Quincenal (15 días)
               </button>
               <button
@@ -355,11 +355,11 @@ export function GuatemalanPayrollTable({
                 onClick={() => handleFrequencyChange('mensual')}
                 className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                   frequency === 'mensual'
-                    ? 'bg-blue-600 font-bold text-white shadow-xs'
+                    ? 'shadow-xs bg-blue-600 font-bold text-white'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Layers className="h-3.5 w-3.5" />
+                <Layers className="h-3.5 w-3.5" aria-hidden="true" />
                 Mensual (30 días)
               </button>
             </div>
@@ -368,13 +368,13 @@ export function GuatemalanPayrollTable({
 
             {/* Period Selector Dropdown */}
             <div className="flex w-full items-center gap-1.5 sm:w-auto">
-              <span className="text-xs font-bold whitespace-nowrap text-slate-700">
+              <span className="whitespace-nowrap text-xs font-bold text-slate-700">
                 Período de Pago:
               </span>
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="w-full cursor-pointer rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none sm:w-auto"
+                className="w-full cursor-pointer rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:w-auto"
               >
                 {periodOptions.map((opt) => (
                   <option key={opt.label} value={opt.label}>
@@ -391,10 +391,10 @@ export function GuatemalanPayrollTable({
               type="button"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs transition hover:bg-rose-500 disabled:opacity-50"
+              className="shadow-xs inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-extrabold text-white transition hover:bg-rose-500 disabled:opacity-50"
               title="Descargar reporte en formato PDF listo para auditoría y firma de contador"
             >
-              <FileText className="h-3.5 w-3.5" />
+              <FileText className="h-3.5 w-3.5" aria-hidden="true" />
               {isExportingPdf ? 'Generando PDF...' : 'Exportar PDF Contable'}
             </button>
 
@@ -420,19 +420,22 @@ export function GuatemalanPayrollTable({
         {/* Search Bar & Role Filter */}
         <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-100 pt-2.5 sm:flex-row">
           <div className="relative w-full sm:w-80">
-            <Search className="absolute top-2.5 left-3 h-3.5 w-3.5 text-slate-400" />
+            <Search
+              className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400"
+              aria-hidden="true"
+            />
             <input
               type="text"
               placeholder="Buscar por nombre de empleado, DPI, puesto o IGSS..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-slate-50 py-1.5 pr-7 pl-8 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 py-1.5 pl-8 pr-7 text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute top-2 right-2.5 cursor-pointer text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-2 cursor-pointer text-slate-400 hover:text-slate-600"
                 title="Limpiar búsqueda"
               >
                 <X className="h-3.5 w-3.5" />
@@ -441,7 +444,7 @@ export function GuatemalanPayrollTable({
           </div>
 
           <div className="flex w-full items-center justify-between gap-2.5 sm:w-auto sm:justify-end">
-            <span className="text-xs font-medium whitespace-nowrap text-slate-500">
+            <span className="whitespace-nowrap text-xs font-medium text-slate-500">
               Filtrar Puesto:
             </span>
             <select
@@ -465,12 +468,12 @@ export function GuatemalanPayrollTable({
       </div>
 
       {/* Main Table Container */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+      <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
         {/* Table Header Banner */}
         <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-200 bg-slate-50/90 p-4 sm:flex-row sm:items-center">
           <div>
             <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <Banknote className="h-4 w-4 text-blue-600" />
+              <Banknote className="h-4 w-4 text-blue-600" aria-hidden="true" />
               Planilla de Sueldos y Retenciones Estatutarias — Guatemala
             </h3>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -488,15 +491,15 @@ export function GuatemalanPayrollTable({
         {/* Scrollable Table */}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
-            <thead className="border-b border-slate-200 bg-slate-100 text-[11px] font-bold text-slate-700 uppercase">
+            <thead className="border-b border-slate-200 bg-slate-100 text-[11px] font-bold uppercase text-slate-700">
               <tr>
                 <th
                   onClick={() => handleSort('name')}
-                  className="cursor-pointer border-r border-slate-200 p-3 transition select-none hover:bg-slate-200"
+                  className="cursor-pointer select-none border-r border-slate-200 p-3 transition hover:bg-slate-200"
                 >
                   <div className="flex items-center gap-1">
                     <span>Nombre de Empleado / Cargo</span>
-                    <ArrowUpDown className="h-3 w-3 text-slate-400" />
+                    <ArrowUpDown className="h-3 w-3 text-slate-400" aria-hidden="true" />
                   </div>
                 </th>
                 <th className="border-r border-slate-200 p-3 text-center">Días</th>
@@ -510,43 +513,43 @@ export function GuatemalanPayrollTable({
                 </th>
                 <th className="border-r border-slate-200 p-3 text-right text-emerald-700">
                   <div>Bono Dto. 37-2001</div>
-                  <div className="text-[9px] font-normal text-emerald-600 normal-case">
+                  <div className="text-[9px] font-normal normal-case text-emerald-600">
                     Q250m / Q125q
                   </div>
                 </th>
                 <th
                   onClick={() => handleSort('igss')}
-                  className="cursor-pointer border-r border-slate-200 bg-rose-50/50 p-3 text-right font-black text-rose-700 transition select-none hover:bg-rose-100/50"
+                  className="cursor-pointer select-none border-r border-slate-200 bg-rose-50/50 p-3 text-right font-black text-rose-700 transition hover:bg-rose-100/50"
                 >
                   <div className="flex items-center justify-end gap-1">
                     <span>IGSS Lab. (4.83%)</span>
-                    <ArrowUpDown className="h-3 w-3 text-rose-400" />
+                    <ArrowUpDown className="h-3 w-3 text-rose-400" aria-hidden="true" />
                   </div>
                 </th>
                 <th className="border-r border-slate-200 p-3 text-right text-amber-800">
                   <div>Provisión Bono 14</div>
-                  <div className="text-[9px] font-normal text-amber-600 normal-case">
+                  <div className="text-[9px] font-normal normal-case text-amber-600">
                     Dto. 42-92 (8.33%)
                   </div>
                 </th>
                 <th className="border-r border-slate-200 p-3 text-right text-amber-800">
                   <div>Provisión Aguinaldo</div>
-                  <div className="text-[9px] font-normal text-amber-600 normal-case">
+                  <div className="text-[9px] font-normal normal-case text-amber-600">
                     Dto. 76-78 (8.33%)
                   </div>
                 </th>
                 <th
                   onClick={() => handleSort('liquido')}
-                  className="cursor-pointer border-r border-slate-200 bg-emerald-100/60 p-3 text-right font-black text-emerald-900 transition select-none hover:bg-emerald-200/60"
+                  className="cursor-pointer select-none border-r border-slate-200 bg-emerald-100/60 p-3 text-right font-black text-emerald-900 transition hover:bg-emerald-200/60"
                 >
                   <div className="flex items-center justify-end gap-1">
                     <span>Líquido a Recibir</span>
-                    <ArrowUpDown className="h-3 w-3 text-emerald-700" />
+                    <ArrowUpDown className="h-3 w-3 text-emerald-700" aria-hidden="true" />
                   </div>
                 </th>
                 <th className="border-r border-slate-200 p-3 text-right text-blue-700">
                   <div>IGSS Pat. (12.67%)</div>
-                  <div className="text-[9px] font-normal text-blue-500 normal-case">
+                  <div className="text-[9px] font-normal normal-case text-blue-500">
                     IGSS+IRTRA+INTECAP
                   </div>
                 </th>
@@ -637,7 +640,7 @@ export function GuatemalanPayrollTable({
                   </td>
 
                   {/* Acciones */}
-                  <td className="space-x-1 p-3 text-center whitespace-nowrap">
+                  <td className="space-x-1 whitespace-nowrap p-3 text-center">
                     <button
                       type="button"
                       onClick={() =>
@@ -678,14 +681,14 @@ export function GuatemalanPayrollTable({
             <tfoot className="border-t-2 border-slate-300 bg-slate-100 text-slate-900">
               <tr className="border-b border-slate-300 bg-slate-200/90 text-[12px] font-black">
                 <td
-                  className="border-r border-slate-300 p-3.5 tracking-wider text-slate-900 uppercase"
+                  className="border-r border-slate-300 p-3.5 uppercase tracking-wider text-slate-900"
                   colSpan={3}
                 >
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-blue-700" />
+                    <ShieldCheck className="h-4 w-4 text-blue-700" aria-hidden="true" />
                     <span>TOTAL GENERAL ({filteredCalculations.length} COLABORADORES)</span>
                   </div>
-                  <div className="mt-0.5 text-[10px] font-normal text-slate-600 normal-case">
+                  <div className="mt-0.5 text-[10px] font-normal normal-case text-slate-600">
                     Resumen acumulado para: <strong>{selectedPeriod}</strong>
                   </div>
                 </td>
@@ -727,7 +730,7 @@ export function GuatemalanPayrollTable({
 
                 {/* TOTAL LÍQUIDO A PAGAR (DESTACADO) */}
                 <td className="border-r border-slate-300 bg-emerald-200/70 p-3 text-right font-mono text-sm font-black text-emerald-950">
-                  <div className="font-sans text-[9px] font-bold tracking-wider text-emerald-800 uppercase">
+                  <div className="font-sans text-[9px] font-bold uppercase tracking-wider text-emerald-800">
                     Líquido Total
                   </div>
                   {formatGTQ(totals.salarioLiquido)}
@@ -802,7 +805,7 @@ export function GuatemalanPayrollTable({
           <div className="my-8 flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 p-4 text-white">
               <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-amber-400" />
+                <FileText className="h-5 w-5 text-amber-400" aria-hidden="true" />
                 <div>
                   <h3 className="text-sm font-bold text-white">
                     Vista Previa de Informe Contable PDF — Planilla & Prestaciones
@@ -874,7 +877,7 @@ export function GuatemalanPayrollTable({
               {/* Summary Totals Table */}
               <div className="overflow-hidden rounded-xl border border-slate-200 text-xs">
                 <table className="w-full border-collapse text-left">
-                  <thead className="bg-slate-800 text-[10px] font-bold text-white uppercase">
+                  <thead className="bg-slate-800 text-[10px] font-bold uppercase text-white">
                     <tr>
                       <th className="p-2.5">Materia Imponible</th>
                       <th className="p-2.5 text-right">Sueldo Base Total</th>
@@ -945,9 +948,9 @@ export function GuatemalanPayrollTable({
                   handleExportPdf();
                 }}
                 disabled={isExportingPdf}
-                className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-rose-700 disabled:opacity-50"
+                className="shadow-xs flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-5 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-50"
               >
-                <FileText className="h-4 w-4" />
+                <FileText className="h-4 w-4" aria-hidden="true" />
                 {isExportingPdf ? 'Descargando...' : 'Descargar Archivo PDF'}
               </button>
             </div>

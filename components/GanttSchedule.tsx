@@ -390,9 +390,9 @@ export function GanttSchedule({
       {flowWarningMessage && (
         <div className="animate-in fade-in slide-in-from-top-2 flex items-start justify-between gap-3 rounded-2xl border border-rose-500/30 bg-rose-500/15 p-4 text-rose-200 shadow-lg duration-300">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-rose-400" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-rose-400" aria-hidden="true" />
             <div>
-              <h4 className="font-mono text-xs font-bold tracking-wider text-rose-300 uppercase">
+              <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-rose-300">
                 Alerta de Flujo Constructivo:
               </h4>
               <p className="mt-0.5 text-xs">{flowWarningMessage}</p>
@@ -411,14 +411,14 @@ export function GanttSchedule({
           HERO PROGRESS HUD: VISUALIZADOR DEL PROGRESO GENERAL HACIA EL OBJETIVO FINAL
           ========================================================================= */}
       <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-xl">
-        <div className="pointer-events-none absolute -top-16 -right-16 h-80 w-80 rounded-full bg-sky-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-80 w-80 rounded-full bg-sky-500/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -left-16 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
 
         <div className="relative z-10 flex flex-col items-center justify-between gap-6 lg:flex-row">
           {/* Left Title & Status */}
           <div className="space-y-2 text-center lg:text-left">
             <div className="flex items-center justify-center gap-2 lg:justify-start">
-              <span className="rounded-full border border-sky-400/30 bg-sky-400/15 px-3 py-1 font-mono text-[10px] font-bold tracking-widest text-sky-300 uppercase">
+              <span className="rounded-full border border-sky-400/30 bg-sky-400/15 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-sky-300">
                 Seguimiento de Progreso & Control de Hitos
               </span>
               <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
@@ -444,14 +444,14 @@ export function GanttSchedule({
                 </span>
               </div>
               <div className="flex items-center gap-2 text-slate-300">
-                <Target className="h-4 w-4 text-amber-400" />
+                <Target className="h-4 w-4 text-amber-400" aria-hidden="true" />
                 <span>
                   <strong>{progressStats.completedMilestonesCount}</strong> de{' '}
                   {progressStats.totalMilestonesCount} hitos certificados
                 </span>
               </div>
               <div className="flex items-center gap-2 text-rose-300">
-                <AlertTriangle className="h-4 w-4 text-rose-400" />
+                <AlertTriangle className="h-4 w-4 text-rose-400" aria-hidden="true" />
                 <span>{progressStats.criticalTasksCount} en ruta crítica</span>
               </div>
             </div>
@@ -487,7 +487,7 @@ export function GanttSchedule({
                   strokeDashoffset={2 * Math.PI * 50 * (1 - progressStats.overallGoalPercent / 100)}
                   strokeLinecap="round"
                   fill="transparent"
-                  className="transition-all duration-700 ease-out"
+                  className="transition-opacity transition-transform duration-700 ease-out"
                 />
               </svg>
 
@@ -495,7 +495,7 @@ export function GanttSchedule({
                 <span className="font-mono text-3xl font-black tracking-tight text-white">
                   {progressStats.overallGoalPercent}%
                 </span>
-                <span className="font-mono text-[10px] tracking-wider text-slate-400 uppercase">
+                <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
                   Avance Global
                 </span>
               </div>
@@ -503,7 +503,7 @@ export function GanttSchedule({
 
             <div className="mt-3 w-full text-center">
               <span className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-300">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                <ShieldCheck className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                 Meta: Entrega Final ({activeProject.endDate || 'Sin fecha configurada'})
               </span>
             </div>
@@ -515,15 +515,15 @@ export function GanttSchedule({
               onClick={() => openReminderModal()}
               className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-amber-400/40 bg-amber-500/20 px-5 py-3 text-xs font-bold text-amber-300 shadow-lg shadow-amber-500/10 transition hover:bg-amber-500/30"
             >
-              <Bell className="h-4 w-4" />
+              <Bell className="h-4 w-4" aria-hidden="true" />
               <span>Configurar Recordatorios ({currentReminders.length})</span>
             </button>
 
             <button
               onClick={() => setIsNewTaskModalOpen(true)}
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-sky-500 px-5 py-3 text-xs font-bold tracking-wider text-slate-950 uppercase shadow-lg shadow-sky-500/20 transition hover:bg-sky-400"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-sky-500 px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-400"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               <span>Nueva Actividad</span>
             </button>
 
@@ -552,7 +552,7 @@ export function GanttSchedule({
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${
+                  className={`h-full rounded-full transition-opacity transition-transform duration-500 ${
                     pp.progress >= 100
                       ? 'bg-emerald-500'
                       : pp.progress > 0
@@ -583,7 +583,7 @@ export function GanttSchedule({
                 : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Sliders className="h-4 w-4" />
+            <Sliders className="h-4 w-4" aria-hidden="true" />
             <span>Registro de Avance & Tareas ({projectTasks.length})</span>
           </button>
 
@@ -595,7 +595,7 @@ export function GanttSchedule({
                 : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Award className="h-4 w-4" />
+            <Award className="h-4 w-4" aria-hidden="true" />
             <span>Hitos hacia el Objetivo ({projectMilestones.length})</span>
           </button>
 
@@ -607,7 +607,7 @@ export function GanttSchedule({
                 : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Bell className="h-4 w-4" />
+            <Bell className="h-4 w-4" aria-hidden="true" />
             <span>Recordatorios Configurados</span>
           </button>
         </div>
@@ -619,7 +619,7 @@ export function GanttSchedule({
             placeholder="Buscar por tarea, fase o responsable..."
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-slate-800/80 px-3 py-1.5 text-xs text-white transition outline-none placeholder:text-slate-500 focus:border-sky-400 sm:w-64"
+            className="w-full rounded-xl border border-white/10 bg-slate-800/80 px-3 py-1.5 text-xs text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400 sm:w-64"
           />
 
           <div className="flex gap-1">
@@ -666,7 +666,7 @@ export function GanttSchedule({
       {viewMode === 'tasks' && (
         <div className="overflow-hidden rounded-3xl border border-white/15 bg-slate-900/80 shadow-xl backdrop-blur-xl">
           <div className="flex items-center justify-between border-b border-white/10 bg-slate-950/60 p-4">
-            <span className="font-mono text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400">
               Listado de Actividades Programadas - Registra el Avance en Tiempo Real
             </span>
             <span className="text-xs text-slate-500">
@@ -687,19 +687,19 @@ export function GanttSchedule({
               return (
                 <div
                   key={t.id}
-                  className={`flex flex-col items-start justify-between gap-5 p-5 transition-all hover:bg-white/[0.02] xl:flex-row xl:items-center ${
+                  className={`flex flex-col items-start justify-between gap-5 p-5 transition-opacity transition-transform hover:bg-white/[0.02] xl:flex-row xl:items-center ${
                     isCompleted ? 'bg-emerald-950/10' : ''
                   }`}
                 >
                   {/* Left: Task Details */}
                   <div className="min-w-[280px] flex-1 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-sky-500/30 bg-sky-500/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-sky-300 uppercase">
+                      <span className="rounded-full border border-sky-500/30 bg-sky-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-300">
                         {t.phase}
                       </span>
 
                       {t.criticalPath && (
-                        <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-rose-300 uppercase">
+                        <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-300">
                           Ruta Crítica
                         </span>
                       )}
@@ -712,7 +712,7 @@ export function GanttSchedule({
 
                       {flowCheck.isBlocked && !isCompleted && (
                         <span className="flex items-center gap-1 rounded border border-amber-400/30 bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                          <AlertTriangle className="h-3 w-3 text-amber-400" />
+                          <AlertTriangle className="h-3 w-3 text-amber-400" aria-hidden="true" />
                           Predecesora Requerida
                         </span>
                       )}
@@ -747,7 +747,7 @@ export function GanttSchedule({
 
                     <div className="flex items-center gap-4 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                        <Calendar className="h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
                         {t.startDate} al {t.endDate}
                       </span>
                       {t.assignedTo && (
@@ -845,7 +845,7 @@ export function GanttSchedule({
                         className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20"
                         title="Programar recordatorio para esta tarea"
                       >
-                        <Bell className="h-3.5 w-3.5" />
+                        <Bell className="h-3.5 w-3.5" aria-hidden="true" />
                         <span>Recordatorio</span>
                       </button>
                     </div>
@@ -864,7 +864,7 @@ export function GanttSchedule({
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4">
             <div className="flex items-center gap-3">
-              <Award className="h-6 w-6 text-amber-400" />
+              <Award className="h-6 w-6 text-amber-400" aria-hidden="true" />
               <div>
                 <h3 className="text-sm font-bold text-white">
                   Secuencia de Hitos Críticos para Entrega de Obra
@@ -886,7 +886,7 @@ export function GanttSchedule({
                 onClick={() => setIsMilestoneModalOpen(true)}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500 px-3 py-2 text-xs font-bold text-slate-950 transition hover:bg-amber-400"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                 Nuevo hito
               </button>
             </div>
@@ -903,7 +903,7 @@ export function GanttSchedule({
               return (
                 <div
                   key={m.id}
-                  className={`flex flex-col justify-between rounded-3xl border p-5 transition-all ${
+                  className={`flex flex-col justify-between rounded-3xl border p-5 transition-opacity transition-transform ${
                     isDone
                       ? 'border-emerald-500/30 bg-emerald-950/20 shadow-lg shadow-emerald-950/20'
                       : m.progress > 0
@@ -913,7 +913,7 @@ export function GanttSchedule({
                 >
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300 uppercase">
+                      <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-amber-300">
                         Paso {index + 1} • {m.phase}
                       </span>
                       <span className="font-mono text-xs font-bold text-slate-400">
@@ -935,7 +935,7 @@ export function GanttSchedule({
                   <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
                     <div className="space-y-1">
                       <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
-                        <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                        <Calendar className="h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
                         Meta: {m.targetDate}
                       </span>
                       {m.completedAt && (
@@ -985,7 +985,7 @@ export function GanttSchedule({
               onClick={() => openReminderModal()}
               className="flex cursor-pointer items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-amber-400"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               <span>Nuevo Recordatorio</span>
             </button>
           </div>
@@ -1274,7 +1274,7 @@ export function GanttSchedule({
                 id="new-task-title"
                 className="flex items-center gap-2 text-base font-bold text-white"
               >
-                <Plus className="h-5 w-5 text-sky-400" />
+                <Plus className="h-5 w-5 text-sky-400" aria-hidden="true" />
                 <span>Agregar Nueva Tarea al Cronograma</span>
               </h3>
               <button
@@ -1447,7 +1447,7 @@ export function GanttSchedule({
                 </button>
                 <button
                   type="submit"
-                  className="cursor-pointer rounded-xl bg-sky-500 px-5 py-2 text-xs font-bold tracking-wider text-slate-950 uppercase shadow-lg transition hover:bg-sky-400"
+                  className="cursor-pointer rounded-xl bg-sky-500 px-5 py-2 text-xs font-bold uppercase tracking-wider text-slate-950 shadow-lg transition hover:bg-sky-400"
                 >
                   Crear Actividad
                 </button>

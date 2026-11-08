@@ -35,9 +35,7 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
           <h3 className="text-lg font-semibold text-white">Resumen de Presupuesto</h3>
           <span
             className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-              isOverBudget
-                ? 'bg-red-500/20 text-red-300'
-                : 'bg-emerald-500/20 text-emerald-300'
+              isOverBudget ? 'bg-red-500/20 text-red-300' : 'bg-emerald-500/20 text-emerald-300'
             }`}
           >
             {isOverBudget ? 'Sobregasto' : 'Dentro de presupuesto'}
@@ -89,7 +87,7 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-slate-800">
             <div
-              className={`h-full transition-all ${
+              className={`h-full transition-opacity transition-transform ${
                 isOverBudget ? 'bg-red-500' : 'bg-emerald-500'
               }`}
               style={{ width: `${Math.min(utilizationPercent, 100)}%` }}

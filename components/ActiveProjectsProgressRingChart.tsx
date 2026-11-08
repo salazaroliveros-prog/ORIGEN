@@ -4,7 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Project, CompanySettings } from '@/lib/types';
 import { formatGTQ, formatUSD } from '@/lib/data';
-import { Activity, Layers, CheckCircle2, AlertCircle, PieChart as PieChartIcon, ArrowRight } from 'lucide-react';
+import {
+  Activity,
+  Layers,
+  CheckCircle2,
+  AlertCircle,
+  PieChart as PieChartIcon,
+  ArrowRight,
+} from 'lucide-react';
 
 interface ActiveProjectsProgressRingChartProps {
   projects: Project[];
@@ -100,7 +107,11 @@ export function ActiveProjectsProgressRingChart({
     const remainingVal = Math.max(0, 100 - progressVal);
     return [
       { name: 'Avance Acumulado Realizado', value: progressVal, color: '#38bdf8' },
-      { name: 'Pendiente para Finalización', value: remainingVal, color: 'rgba(255, 255, 255, 0.08)' },
+      {
+        name: 'Pendiente para Finalización',
+        value: remainingVal,
+        color: 'rgba(255, 255, 255, 0.08)',
+      },
     ];
   }, [cumulativeProgressPercent]);
 
@@ -114,15 +125,14 @@ export function ActiveProjectsProgressRingChart({
       <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-500/20 text-sky-400 border border-sky-400/30">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-sky-400/30 bg-sky-500/20 text-sky-400">
               <PieChartIcon className="h-4 w-4" />
             </span>
-            <h2 className="text-base font-bold text-white">
-              Avance Porcentual Acumulado de Obras
-            </h2>
+            <h2 className="text-base font-bold text-white">Avance Porcentual Acumulado de Obras</h2>
           </div>
           <p className="mt-1 text-xs text-slate-400">
-            Visualización gráfica en anillo del rendimiento físico consolidado de proyectos activos en Guatemala
+            Visualización gráfica en anillo del rendimiento físico consolidado de proyectos activos
+            en Guatemala
           </p>
         </div>
 
@@ -131,7 +141,7 @@ export function ActiveProjectsProgressRingChart({
           <button
             type="button"
             onClick={() => setCalculationMode('weighted')}
-            className={`rounded-lg px-3 py-1 text-xs font-semibold transition-all ${
+            className={`rounded-lg px-3 py-1 text-xs font-semibold transition-opacity transition-transform ${
               calculationMode === 'weighted'
                 ? 'bg-sky-500 text-white shadow-md shadow-sky-950/50'
                 : 'text-slate-400 hover:text-white'
@@ -142,7 +152,7 @@ export function ActiveProjectsProgressRingChart({
           <button
             type="button"
             onClick={() => setCalculationMode('average')}
-            className={`rounded-lg px-3 py-1 text-xs font-semibold transition-all ${
+            className={`rounded-lg px-3 py-1 text-xs font-semibold transition-opacity transition-transform ${
               calculationMode === 'average'
                 ? 'bg-sky-500 text-white shadow-md shadow-sky-950/50'
                 : 'text-slate-400 hover:text-white'
@@ -154,7 +164,7 @@ export function ActiveProjectsProgressRingChart({
       </div>
 
       {/* Main Content Area */}
-      <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-12 items-center">
+      <div className="mt-5 grid grid-cols-1 items-center gap-6 lg:grid-cols-12">
         {/* Recharts Donut / Ring Chart */}
         <div className="relative flex flex-col items-center justify-center lg:col-span-6">
           <div className="relative h-64 w-full max-w-[320px]">
@@ -176,11 +186,15 @@ export function ActiveProjectsProgressRingChart({
                               </p>
                               <p className="flex justify-between gap-3">
                                 <span>Presupuesto:</span>
-                                <strong className="text-white">{formatMoney(data.budgetTotal)}</strong>
+                                <strong className="text-white">
+                                  {formatMoney(data.budgetTotal)}
+                                </strong>
                               </p>
                               <p className="flex justify-between gap-3">
                                 <span>Ejecutado:</span>
-                                <strong className="text-emerald-400">{formatMoney(data.spentTotal)}</strong>
+                                <strong className="text-emerald-400">
+                                  {formatMoney(data.spentTotal)}
+                                </strong>
                               </p>
                               <p className="flex justify-between gap-3">
                                 <span>Peso en Cartera:</span>
@@ -193,7 +207,9 @@ export function ActiveProjectsProgressRingChart({
                       return (
                         <div className="rounded-xl border border-slate-700 bg-slate-950/95 p-2.5 text-xs text-white">
                           <p className="font-bold">{data.name}</p>
-                          <p className="text-sky-400 font-semibold">{data.value}% de la meta global</p>
+                          <p className="font-semibold text-sky-400">
+                            {data.value}% de la meta global
+                          </p>
                         </div>
                       );
                     }
@@ -262,7 +278,7 @@ export function ActiveProjectsProgressRingChart({
         {/* Breakdown List & Metrics Table */}
         <div className="space-y-3 lg:col-span-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-2">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Desglose de Avance Físico por Obra
             </span>
             <span className="text-[11px] font-medium text-slate-400">
@@ -277,7 +293,7 @@ export function ActiveProjectsProgressRingChart({
                 <div
                   key={p.id}
                   onClick={() => onSelectProject?.(p.id)}
-                  className={`group flex cursor-pointer items-center justify-between rounded-xl border p-2.5 transition-all ${
+                  className={`group flex cursor-pointer items-center justify-between rounded-xl border p-2.5 transition-opacity transition-transform ${
                     isSelected
                       ? 'border-sky-400/50 bg-sky-500/10 shadow-lg shadow-sky-950/40'
                       : 'border-white/5 bg-slate-950/50 hover:border-white/20 hover:bg-slate-800/50'
@@ -285,7 +301,7 @@ export function ActiveProjectsProgressRingChart({
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className="h-3.5 w-3.5 rounded-full shrink-0 shadow-sm"
+                      className="h-3.5 w-3.5 shrink-0 rounded-full shadow-sm"
                       style={{ backgroundColor: p.color }}
                     />
                     <div>
@@ -293,7 +309,7 @@ export function ActiveProjectsProgressRingChart({
                         <span className="font-mono text-[11px] font-bold text-sky-400">
                           {p.code}
                         </span>
-                        <span className="text-xs font-bold text-white group-hover:text-sky-300 transition-colors">
+                        <span className="text-xs font-bold text-white transition-colors group-hover:text-sky-300">
                           {p.shortName}
                         </span>
                       </div>
@@ -306,13 +322,13 @@ export function ActiveProjectsProgressRingChart({
                   <div className="flex items-center gap-3">
                     {/* Mini Progress Bar */}
                     <div className="hidden w-20 sm:block">
-                      <div className="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                      <div className="mb-0.5 flex justify-between text-[10px] text-slate-400">
                         <span>Físico</span>
                         <span className="font-bold text-slate-200">{p.progressPercent}%</span>
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                         <div
-                          className="h-full rounded-full transition-all duration-500"
+                          className="h-full rounded-full transition-opacity transition-transform duration-500"
                           style={{
                             width: `${p.progressPercent}%`,
                             backgroundColor: p.color,
@@ -321,7 +337,7 @@ export function ActiveProjectsProgressRingChart({
                       </div>
                     </div>
 
-                    <span className="rounded-lg bg-slate-900 border border-white/10 px-2 py-1 text-xs font-black text-white">
+                    <span className="rounded-lg border border-white/10 bg-slate-900 px-2 py-1 text-xs font-black text-white">
                       {p.progressPercent}%
                     </span>
                   </div>
@@ -331,9 +347,9 @@ export function ActiveProjectsProgressRingChart({
           </div>
 
           {/* Footer Summary Strip */}
-          <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-950/80 p-3 border border-white/5 text-xs">
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-white/5 bg-slate-950/80 p-3 text-xs">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
               <span className="text-slate-300">
                 Ejecutado: <strong className="text-emerald-400">{formatMoney(totalSpent)}</strong>
               </span>

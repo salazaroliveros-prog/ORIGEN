@@ -103,7 +103,7 @@ function Kpi({
 }) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-      <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
       <p className={`mt-1 text-xl font-bold ${tone}`}>{value}</p>
       {hint ? <p className="mt-1 text-[11px] text-slate-400">{hint}</p> : null}
     </div>
@@ -176,7 +176,7 @@ export function ProjectBudgetSummary({
       <Card variant="elevated" padding="md">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Resumen financiero del proyecto
             </p>
             <h3 className="truncate text-lg font-bold text-white">
@@ -234,7 +234,7 @@ export function ProjectBudgetSummary({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card variant="elevated" padding="md">
           <div className="mb-3 flex items-center gap-2">
-            <TrendingUp className="text-brand-secondary h-4 w-4" />
+            <TrendingUp className="h-4 w-4 text-brand-secondary" aria-hidden="true" />
             <h4 className="text-sm font-semibold text-white">Costos de construcción</h4>
           </div>
           <div className="space-y-3">
@@ -274,7 +274,7 @@ export function ProjectBudgetSummary({
 
         <Card variant="elevated" padding="md">
           <div className="mb-3 flex items-center gap-2">
-            <Calendar className="text-brand-secondary h-4 w-4" />
+            <Calendar className="h-4 w-4 text-brand-secondary" aria-hidden="true" />
             <h4 className="text-sm font-semibold text-white">Cronograma de ejecución</h4>
           </div>
           <Bar
@@ -339,7 +339,7 @@ export function ProjectBudgetSummary({
 
         <Card variant="elevated" padding="md">
           <div className="mb-3 flex items-center gap-2">
-            <Package className="text-brand-secondary h-4 w-4" />
+            <Package className="h-4 w-4 text-brand-secondary" aria-hidden="true" />
             <h4 className="text-sm font-semibold text-white">Materiales requeridos</h4>
             <span className="ml-auto text-[11px] text-slate-400">
               {formatMoney(materials.reduce((total, material) => total + material.subtotalGTQ, 0))}
@@ -376,7 +376,7 @@ export function ProjectBudgetSummary({
 
         <Card variant="elevated" padding="md">
           <div className="mb-3 flex items-center gap-2">
-            <Users className="text-brand-secondary h-4 w-4" />
+            <Users className="h-4 w-4 text-brand-secondary" aria-hidden="true" />
             <h4 className="text-sm font-semibold text-white">Mano de obra requerida</h4>
             <span className="ml-auto text-[11px] text-slate-400">
               {formatMoney(labor.totalCostGTQ)}
@@ -416,7 +416,7 @@ export function ProjectBudgetSummary({
 
       <Card variant="elevated" padding="md">
         <div className="mb-3 flex items-center gap-2">
-          <FileText className="text-brand-secondary h-4 w-4" />
+          <FileText className="h-4 w-4 text-brand-secondary" aria-hidden="true" />
           <h4 className="text-sm font-semibold text-white">Cotizaciones vinculadas</h4>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

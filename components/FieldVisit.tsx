@@ -127,10 +127,10 @@ export function FieldVisit({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Top Banner & Action */}
-      <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
+      <div className="shadow-xs flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-bold text-blue-600">
-            <FileText className="h-5 w-5" />
+            <FileText className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
             <h3 className="text-base font-bold text-slate-900">
@@ -146,7 +146,7 @@ export function FieldVisit({
           <button
             type="button"
             onClick={() => setIsCreatingNew(!isCreatingNew)}
-            className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
+            className="shadow-xs inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
           >
             {isCreatingNew ? (
               'Cerrar Formulario'
@@ -167,7 +167,7 @@ export function FieldVisit({
         >
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h4 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <Sparkles className="h-4 w-4 text-blue-600" />
+              <Sparkles className="h-4 w-4 text-blue-600" aria-hidden="true" />
               Redactar Nuevo Reporte de Bitácora
             </h4>
             <span className="font-mono text-xs text-slate-500">
@@ -250,7 +250,7 @@ export function FieldVisit({
               value={newNotes}
               onChange={(e) => setNewNotes(e.target.value)}
               placeholder="Describa los frentes avanzados, fundiciones, recepción de materiales o incidencias del día..."
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -260,7 +260,7 @@ export function FieldVisit({
             <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
               <div>
                 <p className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                  <PenTool className="h-3.5 w-3.5 text-blue-600" />
+                  <PenTool className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
                   Firma Digital del Capataz (Lienzo Canvas)
                 </p>
                 <p className="text-[11px] text-slate-500">
@@ -312,7 +312,7 @@ export function FieldVisit({
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
+              className="shadow-xs inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
             >
               <CheckCircle2 className="h-4 w-4" /> Guardar Reporte de Bitácora
             </button>
@@ -323,7 +323,7 @@ export function FieldVisit({
       {/* Visits List */}
       {displayVisits.length === 0 ? (
         <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-8 text-center">
-          <FileText className="mx-auto h-10 w-10 text-slate-300" />
+          <FileText className="mx-auto h-10 w-10 text-slate-300" aria-hidden="true" />
           <h4 className="text-sm font-bold text-slate-700">
             No hay bitácoras de campo registradas
           </h4>
@@ -341,13 +341,13 @@ export function FieldVisit({
               <div
                 key={item.id}
                 id={`field-visit-${item.id}`}
-                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition hover:border-slate-300"
+                className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300"
               >
                 {/* Header row */}
                 <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-bold text-blue-600">
-                      <FileText className="h-5 w-5" />
+                      <FileText className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
@@ -385,7 +385,7 @@ export function FieldVisit({
                       className="cursor-pointer rounded-lg bg-slate-100 p-2 text-slate-700 transition hover:bg-slate-200"
                       title="Imprimir Bitácora"
                     >
-                      <Printer className="h-4 w-4" />
+                      <Printer className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -395,7 +395,7 @@ export function FieldVisit({
                   {/* Left 2 cols: Notes, Workers, Photos */}
                   <div className="space-y-3 md:col-span-2">
                     <div>
-                      <p className="mb-1 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                         Reporte Diario de Actividades
                       </p>
                       <p className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
@@ -405,13 +405,13 @@ export function FieldVisit({
 
                     <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-500">
                       <span className="flex items-center gap-1">
-                        <Users className="h-3.5 w-3.5 text-blue-600" />
+                        <Users className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
                         Obreros en Frentes:{' '}
                         <strong className="text-slate-800">{item.workersCount}</strong>
                       </span>
                       {item.gpsCoords && (
                         <span className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5 text-rose-500" />
+                          <MapPin className="h-3.5 w-3.5 text-rose-500" aria-hidden="true" />
                           GPS: {item.gpsCoords.lat.toFixed(4)}°N, {item.gpsCoords.lng.toFixed(4)}°W
                         </span>
                       )}
@@ -421,7 +421,7 @@ export function FieldVisit({
                     {item.photos && item.photos.length > 0 && (
                       <div className="space-y-1.5 pt-2">
                         <p className="flex items-center gap-1 text-xs font-semibold text-slate-600">
-                          <Camera className="h-3.5 w-3.5 text-blue-600" />
+                          <Camera className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
                           Fotografías de Evidencia ({item.photos.length})
                         </p>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -429,7 +429,7 @@ export function FieldVisit({
                             <div
                               key={ph.id}
                               onClick={() => setSelectedPhoto(ph)}
-                              className="group relative aspect-4/3 cursor-pointer overflow-hidden rounded-lg border border-slate-200 shadow-2xs"
+                              className="aspect-4/3 shadow-2xs group relative cursor-pointer overflow-hidden rounded-lg border border-slate-200"
                             >
                               <Image
                                 src={ph.url}
@@ -440,7 +440,7 @@ export function FieldVisit({
                                 className="h-full w-full object-cover transition group-hover:scale-105"
                               />
                               <div className="absolute inset-0 flex items-center justify-center bg-slate-950/40 text-white opacity-0 transition group-hover:opacity-100">
-                                <Eye className="h-4 w-4" />
+                                <Eye className="h-4 w-4" aria-hidden="true" />
                               </div>
                             </div>
                           ))}
@@ -452,8 +452,8 @@ export function FieldVisit({
                   {/* Right col: Signature Card */}
                   <div className="flex flex-col justify-between space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <div>
-                      <p className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
-                        <ShieldCheck className="h-3 w-3 text-blue-600" />
+                      <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        <ShieldCheck className="h-3 w-3 text-blue-600" aria-hidden="true" />
                         Aprobación del Capataz
                       </p>
                       <p className="mt-1 text-sm font-bold text-slate-900">{item.foremanName}</p>
@@ -471,7 +471,7 @@ export function FieldVisit({
                           <p className="mb-1 text-[10px] font-semibold text-slate-400">
                             Firma en Pantalla (Canvas):
                           </p>
-                          <div className="flex h-14 items-center justify-center rounded-lg border border-slate-300 bg-white p-1 shadow-2xs">
+                          <div className="shadow-2xs flex h-14 items-center justify-center rounded-lg border border-slate-300 bg-white p-1">
                             {item.signatureDataUrl && (
                               <Image
                                 src={item.signatureDataUrl}
@@ -499,13 +499,13 @@ export function FieldVisit({
                       ) : (
                         <div>
                           <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-100/70 p-2 text-[11px] text-amber-800">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                             Reporte pendiente de firma formal del capataz.
                           </div>
                           <button
                             type="button"
                             onClick={() => setActiveSigningVisitId(item.id)}
-                            className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
+                            className="shadow-xs inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
                           >
                             <PenTool className="h-3.5 w-3.5" /> Firmar con SignaturePad
                           </button>

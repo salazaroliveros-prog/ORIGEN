@@ -248,7 +248,7 @@ export function PayrollView({ projectId }: { projectId: string }) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center gap-2 text-slate-600">
-          <Loader className="h-5 w-5 animate-spin" />
+          <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando nómina...</span>
         </div>
       </div>
@@ -269,14 +269,14 @@ export function PayrollView({ projectId }: { projectId: string }) {
             onClick={calculateBono14Preview}
             className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-purple-700"
           >
-            <DollarSign className="h-5 w-5" />
+            <DollarSign className="h-5 w-5" aria-hidden="true" />
             <span className="hidden sm:inline">Bono 14</span>
           </button>
           <button
             onClick={handleExportIGSS}
             className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-700"
           >
-            <Download className="h-5 w-5" />
+            <Download className="h-5 w-5" aria-hidden="true" />
             <span className="hidden sm:inline">Exportar IGSS</span>
           </button>
         </div>
@@ -461,7 +461,7 @@ export function PayrollView({ projectId }: { projectId: string }) {
       {/* ISR 2024 Info */}
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
         <div className="flex gap-3">
-          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" aria-hidden="true" />
           <div>
             <p className="font-semibold text-blue-900">ISR 2024 - Guatemala</p>
             <p className="mt-1 text-sm text-blue-800">

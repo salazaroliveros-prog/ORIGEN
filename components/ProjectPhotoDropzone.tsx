@@ -118,7 +118,7 @@ export function ProjectPhotoDropzone({
       {/* Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'} ${isDragReject ? 'border-red-500 bg-red-50' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${uploading ? 'pointer-events-none' : ''} `}
+        className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-opacity transition-transform ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'} ${isDragReject ? 'border-red-500 bg-red-50' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${uploading ? 'pointer-events-none' : ''} `}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center gap-3">
@@ -156,21 +156,21 @@ export function ProjectPhotoDropzone({
               <div key={index} className="group relative">
                 <div className="aspect-square overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                   <Image
-          src={file.url}
-          alt={file.filename}
-          className="h-full w-full object-cover"
-          width={800}
-          quality={80}
-        />
+                    src={file.url}
+                    alt={file.filename}
+                    className="h-full w-full object-cover"
+                    width={800}
+                    quality={80}
+                  />
                 </div>
                 <button
                   onClick={() => removePhoto(index)}
-                  className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+                  className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
                   title="Eliminar foto"
                 >
                   <X className="h-4 w-4" />
                 </button>
-                <div className="absolute right-0 bottom-0 left-0 rounded-b-lg bg-black/60 p-1.5 text-xs text-white">
+                <div className="absolute bottom-0 left-0 right-0 rounded-b-lg bg-black/60 p-1.5 text-xs text-white">
                   <p className="truncate">{file.filename}</p>
                 </div>
               </div>

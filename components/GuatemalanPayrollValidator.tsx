@@ -311,7 +311,7 @@ export function GuatemalanPayrollValidator({
     <div className="space-y-6">
       {/* Top Audit Scorecard */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="shadow-xs flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5">
           <div
             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-extrabold ${
               complianceScore >= 90
@@ -324,7 +324,7 @@ export function GuatemalanPayrollValidator({
             {complianceScore}%
           </div>
           <div>
-            <span className="block font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+            <span className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Cumplimiento Legal
             </span>
             <h4 className="text-base font-bold text-slate-800">
@@ -340,34 +340,34 @@ export function GuatemalanPayrollValidator({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Infracciones Críticas
             </span>
-            <XCircle className="h-4 w-4 text-rose-500" />
+            <XCircle className="h-4 w-4 text-rose-500" aria-hidden="true" />
           </div>
           <div className="mt-2 text-2xl font-black text-rose-600">{totalErrors}</div>
           <p className="mt-1 text-xs text-slate-500">Salario mínimo o prestaciones deficientes</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Observaciones
             </span>
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <AlertTriangle className="h-4 w-4 text-amber-500" aria-hidden="true" />
           </div>
           <div className="mt-2 text-2xl font-black text-amber-600">{totalWarnings}</div>
           <p className="mt-1 text-xs text-slate-500">Falta de DPI o carnet IGSS incompleto</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Marco Legal Vigente
             </span>
-            <Scale className="h-4 w-4 text-blue-600" />
+            <Scale className="h-4 w-4 text-blue-600" aria-hidden="true" />
           </div>
           <div className="mt-2 text-sm font-bold text-slate-800">MINTRAB & IGSS 2026</div>
           <p className="mt-1 text-[11px] text-slate-500">
@@ -377,16 +377,19 @@ export function GuatemalanPayrollValidator({
       </div>
 
       {/* Control Bar */}
-      <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row">
+      <div className="shadow-xs flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row">
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              aria-hidden="true"
+            />
             <input
               type="text"
               placeholder="Buscar colaborador, puesto o DPI..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pr-3 pl-9 text-xs text-slate-800 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 focus:border-blue-500 focus:outline-none"
             />
           </div>
 
@@ -394,7 +397,7 @@ export function GuatemalanPayrollValidator({
             <button
               onClick={() => setFilterSeverity('all')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
-                filterSeverity === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                filterSeverity === 'all' ? 'shadow-xs bg-white text-slate-900' : 'text-slate-600'
               }`}
             >
               Todos ({employees.length})
@@ -403,7 +406,7 @@ export function GuatemalanPayrollValidator({
               onClick={() => setFilterSeverity('errors')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
                 filterSeverity === 'errors'
-                  ? 'bg-rose-50 font-bold text-rose-700 shadow-xs'
+                  ? 'shadow-xs bg-rose-50 font-bold text-rose-700'
                   : 'text-slate-600'
               }`}
             >
@@ -413,7 +416,7 @@ export function GuatemalanPayrollValidator({
               onClick={() => setFilterSeverity('warnings')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
                 filterSeverity === 'warnings'
-                  ? 'bg-amber-50 font-bold text-amber-700 shadow-xs'
+                  ? 'shadow-xs bg-amber-50 font-bold text-amber-700'
                   : 'text-slate-600'
               }`}
             >
@@ -423,7 +426,7 @@ export function GuatemalanPayrollValidator({
               onClick={() => setFilterSeverity('valid')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
                 filterSeverity === 'valid'
-                  ? 'bg-emerald-50 font-bold text-emerald-700 shadow-xs'
+                  ? 'shadow-xs bg-emerald-50 font-bold text-emerald-700'
                   : 'text-slate-600'
               }`}
             >
@@ -434,9 +437,9 @@ export function GuatemalanPayrollValidator({
 
         <button
           onClick={handleExportAuditCSV}
-          className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
+          className="shadow-xs inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-4 w-4" aria-hidden="true" />
           <span>Exportar Informe de Auditoría</span>
         </button>
       </div>
@@ -453,7 +456,7 @@ export function GuatemalanPayrollValidator({
           return (
             <div
               key={emp.id}
-              className={`rounded-2xl border bg-white p-4 shadow-xs transition sm:p-5 ${
+              className={`shadow-xs rounded-2xl border bg-white p-4 transition sm:p-5 ${
                 hasError
                   ? 'border-rose-300 bg-rose-50/20'
                   : hasWarning
@@ -566,9 +569,9 @@ export function GuatemalanPayrollValidator({
                         }`}
                       >
                         {hasError ? (
-                          <XCircle className="h-5 w-5" />
+                          <XCircle className="h-5 w-5" aria-hidden="true" />
                         ) : hasWarning ? (
-                          <AlertTriangle className="h-5 w-5" />
+                          <AlertTriangle className="h-5 w-5" aria-hidden="true" />
                         ) : (
                           <CheckCircle2 className="h-5 w-5" />
                         )}
@@ -622,7 +625,7 @@ export function GuatemalanPayrollValidator({
                           className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 transition hover:bg-amber-100"
                           title="Ajustar automáticamente al salario mínimo y bonificación legal"
                         >
-                          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                          <Sparkles className="h-3.5 w-3.5 text-amber-600" aria-hidden="true" />
                           <span>Subsanar por Ley</span>
                         </button>
                       )}
@@ -661,7 +664,7 @@ export function GuatemalanPayrollValidator({
                           </div>
 
                           {issue.suggestedAction && (
-                            <span className="shrink-0 text-[10px] font-bold text-slate-600 italic">
+                            <span className="shrink-0 text-[10px] font-bold italic text-slate-600">
                               Sugerencia: {issue.suggestedAction}
                             </span>
                           )}

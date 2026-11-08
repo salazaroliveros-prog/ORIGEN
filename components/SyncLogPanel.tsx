@@ -76,7 +76,7 @@ export function SyncLogPanel({
                     : 'border-emerald-500/30 bg-emerald-500/20 text-emerald-400'
               }`}
             >
-              <Database className="h-6 w-6" />
+              <Database className="h-6 w-6" aria-hidden="true" />
             </span>
             <div>
               <div className="flex items-center gap-2">
@@ -157,13 +157,13 @@ export function SyncLogPanel({
         {/* Search & Filter Controls */}
         <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-800/40 p-3 text-xs sm:flex-row">
           <div className="relative w-full flex-1 sm:w-auto">
-            <Search className="absolute top-2.5 left-3 h-4 w-4 text-slate-500" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" aria-hidden="true" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por colección, ruta o tipo..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-900 py-1.5 pr-3 pl-9 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-700 bg-slate-900 py-1.5 pl-9 pr-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
@@ -225,9 +225,9 @@ export function SyncLogPanel({
                     {isSuccess ? (
                       <CheckCircle2 className="h-4 w-4" />
                     ) : isSyncing ? (
-                      <RefreshCw className="h-4 w-4" />
+                      <RefreshCw className="h-4 w-4" aria-hidden="true" />
                     ) : (
-                      <WifiOff className="h-4 w-4" />
+                      <WifiOff className="h-4 w-4" aria-hidden="true" />
                     )}
                   </span>
 
@@ -264,7 +264,7 @@ export function SyncLogPanel({
 
           {filteredLogs.length === 0 && (
             <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/60 p-8 text-center text-slate-400">
-              <Database className="mx-auto h-8 w-8 text-slate-500 opacity-30" />
+              <Database className="mx-auto h-8 w-8 text-slate-500 opacity-30" aria-hidden="true" />
               <p className="text-xs font-bold text-white">
                 Sin registros de sincronización coincidentes
               </p>
@@ -291,7 +291,7 @@ export function SyncLogPanel({
               onClick={onForceResync}
               className="flex items-center gap-1.5 border-sky-500/30 bg-sky-500/10 text-xs font-bold text-sky-300"
             >
-              <RefreshCw className="h-3.5 w-3.5 text-sky-400" />
+              <RefreshCw className="h-3.5 w-3.5 text-sky-400" aria-hidden="true" />
               <span>Forzar Resincronización</span>
             </Button>
 

@@ -171,7 +171,7 @@ export function PayrollEstimateView({
         role="alert"
         className="flex gap-3 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-100"
       >
-        <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+        <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
         <p>
           <strong>Estimación no oficial.</strong> No sustituye una planilla revisada por contador o
           asesor laboral, no valida cumplimiento legal y no presenta declaraciones. Verifica tasas,
@@ -250,7 +250,7 @@ export function PayrollEstimateView({
             className="min-h-10 rounded-xl border border-slate-600 px-3 text-white"
             aria-label="Exportar estimación a CSV"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4" aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -258,7 +258,7 @@ export function PayrollEstimateView({
             className="min-h-10 rounded-xl border border-slate-600 px-3 text-white"
             aria-label="Imprimir estimación"
           >
-            <Printer className="h-4 w-4" />
+            <Printer className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       </section>
@@ -338,7 +338,7 @@ export function PayrollEstimateView({
 function Summary({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
-      <p className="text-[11px] font-bold text-slate-400 uppercase">{label}</p>
+      <p className="text-[11px] font-bold uppercase text-slate-400">{label}</p>
       <p className="mt-1 font-mono text-xl font-black text-emerald-300">{formatGTQ(value)}</p>
     </div>
   );

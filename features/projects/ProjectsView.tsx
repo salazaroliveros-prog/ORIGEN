@@ -171,10 +171,10 @@ export function ProjectsView({
       <ViewTransition enter="suspense-fade" exit="suspense-fade" default="none">
         <div className="responsive-container safe-area-top safe-area-bottom flex min-h-full items-center justify-center">
           <div className="space-y-4 text-center">
-            <Skeleton height="48px" width="160px" className="mx-auto" />
-            <Skeleton height="24px" width="200px" className="mx-auto" />
-            <Skeleton height="8px" width="100%" className="mx-auto w-1/2" />
-            <Skeleton height="8px" width="100%" className="mx-auto w-3/4" />
+            <Skeleton height="48px" width="160px" className="mx-auto" aria-hidden="true" />
+            <Skeleton height="24px" width="200px" className="mx-auto" aria-hidden="true" />
+            <Skeleton height="8px" width="100%" className="mx-auto w-1/2" aria-hidden="true" />
+            <Skeleton height="8px" width="100%" className="mx-auto w-3/4" aria-hidden="true" />
           </div>
         </div>
       </ViewTransition>
