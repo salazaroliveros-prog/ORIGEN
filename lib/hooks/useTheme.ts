@@ -5,23 +5,19 @@ import { useState, useEffect } from 'react';
 export type Theme = 'dark' | 'light';
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>('dark');
-
-  useEffect(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem('constructerp_theme') as Theme;
         if (saved === 'light' || saved === 'dark') {
-          setTheme(saved);
-          applyTheme(saved);
-        } else {
-          applyTheme('dark');
+          return saved;
         }
-      } catch (e) {
-        applyTheme('dark');
+      } catch {
+        // Ignore errors reading localStorage
       }
     }
-  }, []);
+    return 'dark';
+  });
 
   const applyTheme = (newTheme: Theme) => {
     if (typeof document !== 'undefined') {
@@ -38,10 +34,13 @@ export function useTheme() {
     }
   };
 
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
   const toggleTheme = () => {
     const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
-    applyTheme(nextTheme);
     if (typeof window !== 'undefined') {
       localStorage.setItem('constructerp_theme', nextTheme);
     }
