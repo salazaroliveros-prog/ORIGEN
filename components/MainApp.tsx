@@ -34,7 +34,7 @@ import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
 import { useProjectData } from '@/lib/services/projectData';
 import type { CompanySettings, Employee, TaskReminder } from '@/lib/types';
 import { isPrimaryAdministrator } from '@/lib/firebaseAuth';
-import { ViewTransition, addTransitionType, startTransition } from 'react';
+import { startTransition } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Settings } from 'lucide-react';
@@ -195,7 +195,7 @@ export default function MainApp() {
 
   useEffect(() => {
     startTransition(() => {
-      addTransitionType('tab-change');
+      
     });
   }, [activeTab]);
 
@@ -479,11 +479,6 @@ export default function MainApp() {
 
         {/* Feature view content */}
         {!(authStatus === 'authenticated' && workspaceLoading) && (
-          <ViewTransition
-            enter={{ 'tab-change': 'route-fade', default: 'none' }}
-            exit={{ 'tab-change': 'route-fade', default: 'none' }}
-            default="none"
-          >
             <>
               {activeTab === 'dashboard' && (
                 <DashboardView
@@ -714,7 +709,6 @@ export default function MainApp() {
                 </div>
               )}
             </>
-          </ViewTransition>
         )}
       </main>
 

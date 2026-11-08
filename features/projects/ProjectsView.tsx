@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, ViewTransition, startTransition } from 'react';
+import React, { useMemo, useState, startTransition } from 'react';
 import {
   Plus,
   Edit2,
@@ -168,7 +168,7 @@ export function ProjectsView({
 
   if (loading) {
     return (
-      <ViewTransition enter="suspense-fade" exit="suspense-fade" default="none">
+      <div className="transition-container" style={{ transition: "fade" }}>
         <div className="responsive-container safe-area-top safe-area-bottom flex min-h-full items-center justify-center">
           <div className="space-y-4 text-center">
             <Skeleton height="48px" width="160px" className="mx-auto" aria-hidden="true" />
@@ -177,7 +177,7 @@ export function ProjectsView({
             <Skeleton height="8px" width="100%" className="mx-auto w-3/4" aria-hidden="true" />
           </div>
         </div>
-      </ViewTransition>
+      </div>
     );
   }
 
@@ -242,19 +242,15 @@ export function ProjectsView({
           <ul className="space-y-3">
             {visibleProjects.map((p) => {
               return (
-                <ViewTransition key={p.id} default="none">
+                <div key={p.id} className="glass-l1" >
                   <li className="glass-l1 flex flex-col justify-between gap-3 rounded-xl border border-white/10 p-4 duration-200 hover:bg-white/[0.05] lg:flex-row lg:items-center">
                     <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
                       <div className="flex items-center gap-3">
-                        <ViewTransition
-                          name={`project-avatar-${p.id}`}
-                          share="morph"
-                          default="none"
-                        >
+                        <div className="project-avatar-wrapper" style={{}}>
                           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 text-white shadow-lg">
                             <span className="text-sm font-bold">{p.code?.charAt(0) || 'P'}</span>
                           </div>
-                        </ViewTransition>
+                        </div>
                         <div className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-semibold text-slate-200">
                             {p.code || 'PRO-001'}
@@ -353,7 +349,7 @@ export function ProjectsView({
                       </div>
                     </div>
                   </li>
-                </ViewTransition>
+                </div>
               );
             })}
             {visibleProjects.length === 0 && (
