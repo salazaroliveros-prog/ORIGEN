@@ -11,7 +11,7 @@
 import { expect, test } from '@playwright/test';
 
 const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'Origen2026!Secure';
+const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 
 async function ensureAuthenticated(page: any) {
   test.setTimeout(120_000);

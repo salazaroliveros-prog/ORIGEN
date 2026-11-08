@@ -20,7 +20,7 @@ test.describe('Navegación principal', () => {
     const loginVisible = await loginButton.isVisible({ timeout: 3000 }).catch(() => false);
     if (loginVisible) {
       await page.getByLabel('Correo electrónico').fill('salazaroliveros@gmail.com');
-      await page.locator('#password').fill('Origen2026!Secure');
+      await page.locator('#password').fill('AngelDarioJose.2026');
       await loginButton.click();
       await page.waitForTimeout(4000);
     }

@@ -23,7 +23,7 @@ test('autenticación y operaciones de módulos ERP en Firebase', async ({ page }
   expect(configResponse.ok()).toBe(true);
 
   const adminEmail = 'salazaroliveros@gmail.com';
-  const adminPassword = 'Origen2026!Secure';
+  const adminPassword = 'AngelDarioJose.2026';
 
   await page.goto('/');
   await page.waitForTimeout(3000);

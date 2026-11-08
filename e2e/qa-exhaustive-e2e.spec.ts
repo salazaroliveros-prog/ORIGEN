@@ -10,13 +10,13 @@
  *  4. Profundidad de Pruebas (submenús, módulos anidados, capas profundas)
  *  5. Objetivo Final: Validación del 100% de la aplicación
  *
- * Credenciales: salazaroliveros@gmail.com / Origen2026!Secure
+ * Credenciales: salazaroliveros@gmail.com / AngelDarioJose.2026
  */
 
 import { expect, test } from '@playwright/test';
 
 const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'Origen2026!Secure';
+const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 
 // ============================================================
 // HELPERS

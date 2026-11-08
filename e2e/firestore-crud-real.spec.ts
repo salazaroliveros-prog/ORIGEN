@@ -25,14 +25,14 @@
  *
  * CREDENCIALES DE PRUEBA (reales, definidas en .env.local):
  *   Email:    salazaroliveros@gmail.com
- *   Password: Origen2026!Secure
+ *   Password: AngelDarioJose.2026
  *   Project:  origen-erp-guatemala (ID: 893831571998)
  */
 
 import { expect, test } from '@playwright/test';
 
 const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'Origen2026!Secure';
+const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 
 // ============================================================
 // HELPERS
