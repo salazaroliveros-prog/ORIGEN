@@ -128,7 +128,7 @@ export function GmailManager({
             className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-200 hover:bg-blue-500/10 disabled:opacity-50"
           >
             {isAuthorizing
-              ? 'Esperando autorización...'
+              ? 'Esperando autorización…'
               : hasActiveGrant
                 ? 'Renovar permiso Gmail'
                 : 'Conectar / autorizar Gmail'}
@@ -209,7 +209,7 @@ export function GmailManager({
               maxLength={100000}
               required
               className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
-              placeholder="Redacta el contenido del correo..."
+              placeholder="Redacta el contenido del correo…"
             />
           </label>
           {project && (
@@ -273,7 +273,7 @@ export function GmailManager({
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                {isSending ? 'Enviando...' : 'Confirmar y enviar'}
+                {isSending ? 'Enviando…' : 'Confirmar y enviar'}
               </button>
             </div>
           )}

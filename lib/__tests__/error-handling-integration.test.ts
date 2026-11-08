@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Error Handling Integration Tests
- * 
+ *
  * Tests de integración para manejo de errores
  */
 
@@ -114,7 +114,7 @@ describe('Error Handling Integration Tests', () => {
         error: null,
         errorInfo: null,
       };
-      
+
       expect(resetBoundary.hasError).toBe(false);
       expect(resetBoundary.error).toBeNull();
     });
@@ -122,31 +122,31 @@ describe('Error Handling Integration Tests', () => {
 
   describe('Error Pages', () => {
     it('should validate 404 page structure', () => {
-      const page404 = mockErrorPages.find(p => p.statusCode === 404);
+      const page404 = mockErrorPages.find((p) => p.statusCode === 404);
       expect(page404).toBeDefined();
       expect(page404?.title).toBeDefined();
       expect(page404?.description).toBeDefined();
     });
 
     it('should validate 500 page structure', () => {
-      const page500 = mockErrorPages.find(p => p.statusCode === 500);
+      const page500 = mockErrorPages.find((p) => p.statusCode === 500);
       expect(page500).toBeDefined();
       expect(page500?.title).toBeDefined();
       expect(page500?.description).toBeDefined();
     });
 
     it('should validate home button visibility', () => {
-      const page404 = mockErrorPages.find(p => p.statusCode === 404);
+      const page404 = mockErrorPages.find((p) => p.statusCode === 404);
       expect(page404?.showHomeButton).toBe(true);
     });
 
     it('should validate error page titles', () => {
-      const page404 = mockErrorPages.find(p => p.statusCode === 404);
+      const page404 = mockErrorPages.find((p) => p.statusCode === 404);
       expect(page404?.title).toBe('Page Not Found');
     });
 
     it('should validate error page descriptions', () => {
-      const page500 = mockErrorPages.find(p => p.statusCode === 500);
+      const page500 = mockErrorPages.find((p) => p.statusCode === 500);
       expect(page500?.description).toContain('wrong');
     });
   });
@@ -159,7 +159,7 @@ describe('Error Handling Integration Tests', () => {
         url: '/dashboard',
         timestamp: '2024-10-27T10:00:00',
       };
-      
+
       expect(errorLog.error).toBeDefined();
       expect(errorLog.userId).toBeDefined();
       expect(errorLog.url).toBeDefined();
@@ -170,7 +170,7 @@ describe('Error Handling Integration Tests', () => {
       const errorLog = {
         timestamp: '2024-10-27T10:00:00',
       };
-      
+
       const timestamp = new Date(errorLog.timestamp);
       expect(timestamp).toBeInstanceOf(Date);
     });
@@ -181,7 +181,7 @@ describe('Error Handling Integration Tests', () => {
         component: 'ProjectList',
         action: 'load-projects',
       };
-      
+
       expect(errorContext.route).toBeDefined();
       expect(errorContext.component).toBeDefined();
       expect(errorContext.action).toBeDefined();
@@ -195,7 +195,7 @@ describe('Error Handling Integration Tests', () => {
         currentRetry: 1,
         delay: 1000,
       };
-      
+
       expect(retryConfig.maxRetries).toBeGreaterThan(0);
       expect(retryConfig.currentRetry).toBeLessThanOrEqual(retryConfig.maxRetries);
     });
@@ -204,7 +204,7 @@ describe('Error Handling Integration Tests', () => {
       const backoff = (retryCount: number) => Math.pow(2, retryCount) * 1000;
       const delay1 = backoff(1);
       const delay2 = backoff(2);
-      
+
       expect(delay2).toBeGreaterThan(delay1);
     });
 
@@ -212,9 +212,9 @@ describe('Error Handling Integration Tests', () => {
       const recovery = {
         action: 'retry',
         canRecover: true,
-        userMessage: 'Retrying...',
+        userMessage: 'Retrying…',
       };
-      
+
       expect(recovery.action).toBe('retry');
       expect(recovery.canRecover).toBe(true);
     });
@@ -228,7 +228,7 @@ describe('Error Handling Integration Tests', () => {
         isNetworkError: true,
         statusCode: 0,
       };
-      
+
       expect(networkError.isNetworkError).toBe(true);
       expect(networkError.statusCode).toBe(0);
     });
@@ -240,7 +240,7 @@ describe('Error Handling Integration Tests', () => {
         isTimeout: true,
         timeout: 30000,
       };
-      
+
       expect(timeoutError.isTimeout).toBe(true);
       expect(timeoutError.timeout).toBe(30000);
     });
@@ -251,7 +251,7 @@ describe('Error Handling Integration Tests', () => {
         code: 'CONNECTION_ERROR',
         isConnected: false,
       };
-      
+
       expect(connectionError.isConnected).toBe(false);
     });
   });
@@ -264,7 +264,7 @@ describe('Error Handling Integration Tests', () => {
         field: 'email',
         value: 'invalid-email',
       };
-      
+
       expect(validationError.field).toBeDefined();
       expect(validationError.value).toBeDefined();
     });
@@ -274,7 +274,7 @@ describe('Error Handling Integration Tests', () => {
         { field: 'email', message: 'Invalid email' },
         { field: 'password', message: 'Password too short' },
       ];
-      
+
       expect(validationErrors).toHaveLength(2);
     });
 
@@ -283,8 +283,8 @@ describe('Error Handling Integration Tests', () => {
         { field: 'email', message: 'Invalid email' },
         { field: 'password', message: 'Password too short' },
       ];
-      
-      const errorMessages = errors.map(e => e.message);
+
+      const errorMessages = errors.map((e) => e.message);
       expect(errorMessages).toHaveLength(2);
     });
   });
@@ -297,7 +297,7 @@ describe('Error Handling Integration Tests', () => {
         statusCode: 400,
         endpoint: '/api/projects',
       };
-      
+
       expect(apiError.endpoint).toBeDefined();
       expect(apiError.statusCode).toBeGreaterThanOrEqual(400);
     });
@@ -308,7 +308,7 @@ describe('Error Handling Integration Tests', () => {
         code: 'UNAUTHORIZED',
         statusCode: 401,
       };
-      
+
       expect(unauthorizedError.statusCode).toBe(401);
     });
 
@@ -318,7 +318,7 @@ describe('Error Handling Integration Tests', () => {
         code: 'FORBIDDEN',
         statusCode: 403,
       };
-      
+
       expect(forbiddenError.statusCode).toBe(403);
     });
 
@@ -328,7 +328,7 @@ describe('Error Handling Integration Tests', () => {
         code: 'NOT_FOUND',
         statusCode: 404,
       };
-      
+
       expect(notFoundError.statusCode).toBe(404);
     });
   });
@@ -339,7 +339,7 @@ describe('Error Handling Integration Tests', () => {
         technical: 'NETWORK_ERROR',
         user: 'Please check your internet connection',
       };
-      
+
       expect(errorTranslation.user).toBeDefined();
     });
 
@@ -348,7 +348,7 @@ describe('Error Handling Integration Tests', () => {
         message: 'File upload failed',
         action: 'Please try again with a smaller file',
       };
-      
+
       expect(actionableMessage.action).toBeDefined();
     });
 
@@ -366,7 +366,7 @@ describe('Error Handling Integration Tests', () => {
         firstSeen: '2024-10-27T10:00:00',
         lastSeen: '2024-10-27T11:00:00',
       };
-      
+
       expect(errorTracking.errorId).toBeDefined();
       expect(errorTracking.occurrences).toBeGreaterThan(0);
     });
@@ -376,7 +376,7 @@ describe('Error Handling Integration Tests', () => {
         occurrences: 5,
         timeWindow: 3600, // 1 hour in seconds
       };
-      
+
       const frequency = errorTracking.occurrences / errorTracking.timeWindow;
       expect(frequency).toBeGreaterThan(0);
     });

@@ -671,7 +671,7 @@ export function ProjectForm({
                 disabled={submitting}
                 className="min-h-11 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)] transition hover:bg-amber-400 disabled:opacity-50"
               >
-                {submitting ? 'Guardando...' : editingProject ? 'Actualizar' : 'Crear Proyecto'}
+                {submitting ? 'Guardando…' : editingProject ? 'Actualizar' : 'Crear Proyecto'}
               </button>
             </div>
           </form>

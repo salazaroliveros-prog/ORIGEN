@@ -962,7 +962,7 @@ export function ProjectsAndVisits({
                     <Radio
                       className={`h-3 w-3 text-emerald-400 ${isCapturingGps ? 'animate-spin' : ''}`}
                     />
-                    {isCapturingGps ? 'Fijando GPS...' : 'Recapturar GPS'}
+                    {isCapturingGps ? 'Fijando GPS…' : 'Recapturar GPS'}
                   </button>
                 </div>
 
@@ -1020,7 +1020,7 @@ export function ProjectsAndVisits({
                   rows={3}
                   value={visitNotes}
                   onChange={(e) => setVisitNotes(e.target.value)}
-                  placeholder="Describa avances de fundición, recepción de materiales, inspección estructural o incidentes..."
+                  placeholder="Describa avances de fundición, recepción de materiales, inspección estructural o incidentes…"
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                   required
                 />

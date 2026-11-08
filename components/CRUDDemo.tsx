@@ -333,7 +333,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
               aria-label="Crear proyecto"
               disabled={loadingCreateProject}
             >
-              {loadingCreateProject ? 'Cargando...' : '➕ Crear Proyecto'}
+              {loadingCreateProject ? 'Cargando…' : '➕ Crear Proyecto'}
             </button>
           </div>
           <div className="space-y-2">
@@ -378,7 +378,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
               aria-label="Crear gasto"
               disabled={loadingCreateExpense}
             >
-              {loadingCreateExpense ? 'Cargando...' : '➕ Crear Gasto'}
+              {loadingCreateExpense ? 'Cargando…' : '➕ Crear Gasto'}
             </button>
           </div>
           <div className="space-y-2">
@@ -423,7 +423,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
               aria-label="Registrar asistencia"
               disabled={loadingCreateAttendance}
             >
-              {loadingCreateAttendance ? 'Cargando...' : '➕ Registrar Asistencia'}
+              {loadingCreateAttendance ? 'Cargando…' : '➕ Registrar Asistencia'}
             </button>
           </div>
           <div className="space-y-2">
@@ -459,7 +459,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
               aria-label="Crear empleado"
               disabled={loadingCreateEmployee}
             >
-              {loadingCreateEmployee ? 'Cargando...' : '➕ Crear Empleado'}
+              {loadingCreateEmployee ? 'Cargando…' : '➕ Crear Empleado'}
             </button>
           </div>
           <div className="space-y-2">

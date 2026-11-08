@@ -563,7 +563,7 @@ export function MachineryManager({
             }
             className="min-h-10 rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isRecording ? 'Registrando...' : 'Registrar operación y gasto'}
+            {isRecording ? 'Registrando…' : 'Registrar operación y gasto'}
           </button>
           <p className="text-[11px] text-slate-500 sm:col-span-2 lg:col-span-4">
             El costo se calcula con la tarifa horaria registrada; los galones quedan en la bitácora
@@ -748,7 +748,7 @@ export function MachineryManager({
                   disabled={!canWrite || isSaving}
                   className="min-h-11 rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSaving ? 'Guardando...' : 'Guardar Maquinaria'}
+                  {isSaving ? 'Guardando…' : 'Guardar Maquinaria'}
                 </button>
               </div>
             </form>

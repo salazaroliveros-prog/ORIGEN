@@ -332,7 +332,7 @@ export function CanvasSignature({
             <MapPin className="h-3 w-3 text-sky-600" aria-hidden="true" />
             {gpsCoords
               ? `${gpsCoords.lat.toFixed(4)}°N, ${gpsCoords.lng.toFixed(4)}°W`
-              : 'Obteniendo GPS...'}
+              : 'Obteniendo GPS…'}
           </div>
         </div>
 

@@ -153,7 +153,7 @@ export function AiAssistantView({ company, activeProject }: AiAssistantViewProps
               rows={2}
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Escribe una consulta técnica..."
+              placeholder="Escribe una consulta técnica…"
               disabled={isSending}
               className="min-h-11 flex-1 resize-y rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
             />

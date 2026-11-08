@@ -249,7 +249,7 @@ export function FieldVisit({
               rows={3}
               value={newNotes}
               onChange={(e) => setNewNotes(e.target.value)}
-              placeholder="Describa los frentes avanzados, fundiciones, recepción de materiales o incidencias del día..."
+              placeholder="Describa los frentes avanzados, fundiciones, recepción de materiales o incidencias del día…"
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />

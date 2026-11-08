@@ -52,11 +52,11 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
       const rangeStart = Math.max(2, currentPage - halfWindow);
       const rangeEnd = Math.min(totalPages - 1, currentPage + halfWindow);
 
-      if (rangeStart > 2) pages.push('...');
+      if (rangeStart > 2) pages.push('…');
       for (let i = rangeStart; i <= rangeEnd; i++) {
         pages.push(i);
       }
-      if (rangeEnd < totalPages - 1) pages.push('...');
+      if (rangeEnd < totalPages - 1) pages.push('…');
 
       // Always show last page
       pages.push(totalPages);
@@ -70,7 +70,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
       {/* Info text */}
       <div className="text-xs text-slate-400 sm:text-sm">
         Mostrando <span className="font-semibold text-white">{startItem}</span> a{' '}
@@ -96,7 +96,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         {/* Page buttons */}
         <div className="flex gap-1">
           {pageNumbers.map((page, idx) =>
-            page === '...' ? (
+            page === '…' ? (
               <span key={`ellipsis-${idx}`} className="px-2 py-1 text-slate-500">
                 ...
               </span>

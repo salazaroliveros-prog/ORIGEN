@@ -652,7 +652,7 @@ export function BudgetAndAPU({
                     rows={2}
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder="Ej. Muro perimetral de block 14x19x39 de 50 kg/cm² con solera intermedia y columnas de amarre..."
+                    placeholder="Ej. Muro perimetral de block 14x19x39 de 50 kg/cm² con solera intermedia y columnas de amarre…"
                     className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
                     required
                   />
@@ -735,7 +735,7 @@ export function BudgetAndAPU({
                     aria-hidden="true"
                   />
                   {isGeneratingAi
-                    ? 'Calculando Precios Unitarios en Guatemala...'
+                    ? 'Calculando Precios Unitarios en Guatemala…'
                     : 'Calcular Análisis APU con IA'}
                 </button>
               </form>
@@ -1004,7 +1004,7 @@ export function BudgetAndAPU({
                   type="text"
                   value={marketSearchQuery}
                   onChange={(e) => setMarketSearchQuery(e.target.value)}
-                  placeholder="Buscar insumo (ej. cemento, hierro, arena, block)..."
+                  placeholder="Buscar insumo (ej. cemento, hierro, arena, block)…"
                   className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs"
                 />
               </div>

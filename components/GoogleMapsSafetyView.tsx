@@ -111,7 +111,7 @@ export function GoogleMapsSafetyView({
             className={`h-3.5 w-3.5 ${isLoadingWeather ? 'animate-spin' : ''}`}
             aria-hidden="true"
           />
-          {isLoadingWeather ? 'Consultando Alertas...' : 'Actualizar Alertas (Google Search)'}
+          {isLoadingWeather ? 'Consultando Alertas…' : 'Actualizar Alertas (Google Search)'}
         </button>
       </div>
 

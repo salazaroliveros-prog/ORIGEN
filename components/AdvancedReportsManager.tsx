@@ -357,15 +357,13 @@ export function AdvancedReportsManager({
 
           // Truncate supplier if too long
           const supplierClean =
-            exp.supplier.length > 25 ? exp.supplier.substring(0, 25) + '...' : exp.supplier;
+            exp.supplier.length > 25 ? exp.supplier.substring(0, 25) + '…' : exp.supplier;
           doc.text(supplierClean, margin + 20, y + 4.5);
           doc.text(exp.nitSupplier, margin + 65, y + 4.5);
           doc.text(exp.facturaNumber, margin + 88, y + 4.5);
 
           const descClean =
-            exp.description.length > 30
-              ? exp.description.substring(0, 30) + '...'
-              : exp.description;
+            exp.description.length > 30 ? exp.description.substring(0, 30) + '…' : exp.description;
           doc.text(descClean, margin + 112, y + 4.5);
 
           doc.setFont('helvetica', 'bold');
@@ -424,7 +422,7 @@ export function AdvancedReportsManager({
           doc.setTextColor(71, 85, 105);
 
           const notesClean =
-            visit.notes.length > 95 ? visit.notes.substring(0, 95) + '...' : visit.notes;
+            visit.notes.length > 95 ? visit.notes.substring(0, 95) + '…' : visit.notes;
           doc.text(`Novedades: "${notesClean}"`, margin + 3, y + 10);
 
           doc.setFont('helvetica', 'bold');
@@ -553,7 +551,7 @@ export function AdvancedReportsManager({
             title="Exportar todas las bitácoras y registros de gastos a formato .xlsx profesional con macros preconfiguradas"
           >
             <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-            {isExportingExcel ? 'Generando .xlsx...' : 'Exportar .xlsx Contable'}
+            {isExportingExcel ? 'Generando .xlsx…' : 'Exportar .xlsx Contable'}
           </button>
 
           {/* View Preconfigured VBA Macros */}
@@ -580,7 +578,7 @@ export function AdvancedReportsManager({
             className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
           >
             <Download className="h-4 w-4" aria-hidden="true" />
-            {isGenerating ? 'Generando PDF...' : 'Descargar PDF'}
+            {isGenerating ? 'Generando PDF…' : 'Descargar PDF'}
           </button>
         </div>
       </div>

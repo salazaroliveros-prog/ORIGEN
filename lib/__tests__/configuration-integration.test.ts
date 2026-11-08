@@ -1,6 +1,6 @@
 /**
  * ORIGEN ERP - Configuration Integration Tests
- * 
+ *
  * Tests de integración para configuración del sistema
  */
 
@@ -157,7 +157,7 @@ describe('Configuration Integration Tests', () => {
           domains: ['example.com'],
         },
       };
-      
+
       expect(nextConfig.output).toBe('standalone');
       expect(nextConfig.reactStrictMode).toBe(true);
       expect(nextConfig.swcMinify).toBe(true);
@@ -169,7 +169,7 @@ describe('Configuration Integration Tests', () => {
           domains: ['images.unsplash.com', 'picsum.photos'],
         },
       };
-      
+
       expect(nextConfig.images.domains).toHaveLength(2);
     });
   });
@@ -185,7 +185,7 @@ describe('Configuration Integration Tests', () => {
           jsx: 'preserve',
         },
       };
-      
+
       expect(tsConfig.compilerOptions.strict).toBe(true);
       expect(tsConfig.compilerOptions.target).toBe('ES2020');
     });
@@ -204,7 +204,7 @@ describe('Configuration Integration Tests', () => {
           },
         },
       };
-      
+
       expect(tailwindConfig.content).toBeDefined();
       expect(tailwindConfig.theme).toBeDefined();
     });
@@ -219,7 +219,7 @@ describe('Configuration Integration Tests', () => {
           },
         },
       };
-      
+
       expect(tailwindConfig.theme.extend.colors.primary).toBeDefined();
     });
   });
@@ -232,17 +232,17 @@ describe('Configuration Integration Tests', () => {
         'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
         'NEXT_PUBLIC_FIREBASE_APP_ID',
       ];
-      
+
       expect(requiredVars).toHaveLength(4);
     });
 
     it('should validate Firebase config variables', () => {
       const firebaseVars = {
         NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'origen-erp-guatemala',
-        NEXT_PUBLIC_FIREBASE_API_KEY: 'AIza...',
+        NEXT_PUBLIC_FIREBASE_API_KEY: 'AIza…',
         NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'origen-erp-guatemala.firebaseapp.com',
       };
-      
+
       expect(firebaseVars.NEXT_PUBLIC_FIREBASE_PROJECT_ID).toBeDefined();
       expect(firebaseVars.NEXT_PUBLIC_FIREBASE_API_KEY).toBeDefined();
       expect(firebaseVars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN).toBeDefined();
@@ -258,7 +258,7 @@ describe('Configuration Integration Tests', () => {
           'no-unused-vars': 'error',
         },
       };
-      
+
       expect(eslintConfig.extends).toBeDefined();
       expect(eslintConfig.rules).toBeDefined();
     });
@@ -272,7 +272,7 @@ describe('Configuration Integration Tests', () => {
         tabWidth: 2,
         trailingComma: 'es5',
       };
-      
+
       expect(prettierConfig.semi).toBe(true);
       expect(prettierConfig.singleQuote).toBe(true);
       expect(prettierConfig.tabWidth).toBe(2);

@@ -626,7 +626,7 @@ export function CotizacionesView({
     };
 
     try {
-      toast.loading('Generando documento PDF...', { id: 'pdf-toast' });
+      toast.loading('Generando documento PDF…', { id: 'pdf-toast' });
       await generateQuoteCommercialPdf(pdfData, company);
       toast.success('¡PDF de cotización descargado correctamente!', { id: 'pdf-toast' });
     } catch (err) {
@@ -784,7 +784,7 @@ export function CotizacionesView({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por cliente, NIT o código..."
+              placeholder="Buscar por cliente, NIT o código…"
               className="w-full rounded-xl border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
@@ -1149,7 +1149,7 @@ export function CotizacionesView({
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     rows={3}
-                    placeholder="Condiciones, exclusiones, garantías u observaciones acordadas..."
+                    placeholder="Condiciones, exclusiones, garantías u observaciones acordadas…"
                     className="w-full resize-y rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
@@ -1229,7 +1229,7 @@ export function CotizacionesView({
                       type="text"
                       value={newItemDesc}
                       onChange={(e) => setNewItemDesc(e.target.value)}
-                      placeholder="Descripción técnica del trabajo..."
+                      placeholder="Descripción técnica del trabajo…"
                       name="newItemDesc"
                       className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-white focus:outline-none sm:col-span-6"
                     />
@@ -1322,7 +1322,7 @@ export function CotizacionesView({
                 disabled={!canWrite || isSavingQuote || projects.length === 0}
                 className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSavingQuote ? 'Guardando...' : 'Guardar Borrador'}
+                {isSavingQuote ? 'Guardando…' : 'Guardar Borrador'}
               </button>
 
               <button
@@ -1332,7 +1332,7 @@ export function CotizacionesView({
                 className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500 px-5 py-2 text-xs font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="h-3.5 w-3.5" aria-hidden="true" />
-                {isSavingQuote ? 'Guardando...' : '                Guardar como Enviada'}
+                {isSavingQuote ? 'Guardando…' : '                Guardar como Enviada'}
               </button>
             </div>
           </div>

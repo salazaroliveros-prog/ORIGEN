@@ -328,7 +328,7 @@ export function ReportsView({
     }
     try {
       setIsExportingAuditPdf(true);
-      toast.loading('Generando cédula de auditoría de obra...', { id: 'audit-pdf' });
+      toast.loading('Generando cédula de auditoría de obra…', { id: 'audit-pdf' });
       await exportConstructionAuditPdf({
         project,
         expenses: projectExpenses,
@@ -420,7 +420,7 @@ export function ReportsView({
             rows={4}
             value={actaNotes}
             onChange={(event) => setActaNotes(event.target.value)}
-            placeholder="Describe el estado de la obra y los acuerdos a documentar..."
+            placeholder="Describe el estado de la obra y los acuerdos a documentar…"
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
           />
           <p className="mt-2 text-[11px] text-amber-200">

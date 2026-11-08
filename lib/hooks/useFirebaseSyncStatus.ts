@@ -38,7 +38,7 @@ export function useFirebaseSyncStatus() {
           second: '2-digit',
         }),
         status: 'sincronizando',
-        details: 'Reconectando con la base de datos Firestore...',
+        details: 'Reconectando con la base de datos Firestore…',
       };
       setSyncLogs((prev) => [newLog, ...prev]);
 
@@ -87,7 +87,7 @@ export function useFirebaseSyncStatus() {
             second: '2-digit',
           }),
           status: 'sincronizando',
-          details: detail.details || 'Enviando petición a la base de datos...',
+          details: detail.details || 'Enviando petición a la base de datos…',
         };
         setSyncLogs((prev) => [newLog, ...prev.slice(0, 19)]);
       }
@@ -129,7 +129,7 @@ export function useFirebaseSyncStatus() {
     notifySyncStart({
       operation: 'Resincronización Manual',
       path: 'firestore/all',
-      details: 'Forzando actualización de la caché...',
+      details: 'Forzando actualización de la caché…',
     });
     setTimeout(() => {
       setStatus('online');

@@ -455,7 +455,7 @@ export function NotificationRemindersModal({
                     rows={2}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Detalles técnicos, responsable o verificación previa requerida..."
+                    placeholder="Detalles técnicos, responsable o verificación previa requerida…"
                     className="w-full resize-none rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-xs text-white outline-none transition focus:border-sky-400"
                   />
                 </div>

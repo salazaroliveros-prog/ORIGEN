@@ -414,7 +414,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                     type="text"
                     value={foremanName}
                     onChange={(e) => setForemanName(e.target.value)}
-                    placeholder="Nombre del capataz..."
+                    placeholder="Nombre del capataz…"
                     className="w-full rounded-xl border border-white/20 bg-slate-900 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none"
                   />
                 </div>
@@ -553,7 +553,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                       rows={3}
                       value={logbookQuestion}
                       onChange={(e) => setLogbookQuestion(e.target.value)}
-                      placeholder="Escriba su pregunta sobre lo reportado por el capataz, fecha, materiales, etc..."
+                      placeholder="Escriba su pregunta sobre lo reportado por el capataz, fecha, materiales, etc…"
                       className="w-full rounded-2xl border border-white/20 bg-slate-950 p-3 text-xs text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400 sm:text-sm"
                     />
                   </div>

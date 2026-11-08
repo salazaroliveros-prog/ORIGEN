@@ -241,7 +241,7 @@ export function PayrollEstimateView({
               disabled={isSavingRates}
               className="min-h-10 flex-1 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
             >
-              {isSavingRates ? 'Guardando...' : 'Guardar parámetros'}
+              {isSavingRates ? 'Guardando…' : 'Guardar parámetros'}
             </button>
           )}
           <button

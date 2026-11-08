@@ -132,7 +132,7 @@ export function SyncLogPanel({
               {status === 'offline'
                 ? 'Sin Internet'
                 : status === 'syncing'
-                  ? 'Sincronizando...'
+                  ? 'Sincronizando…'
                   : 'Conectado a Firestore'}
             </strong>
           </div>
@@ -162,7 +162,7 @@ export function SyncLogPanel({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por colección, ruta o tipo..."
+              placeholder="Buscar por colección, ruta o tipo…"
               className="w-full rounded-xl border border-slate-700 bg-slate-900 py-1.5 pl-9 pr-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>

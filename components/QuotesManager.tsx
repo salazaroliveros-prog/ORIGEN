@@ -76,7 +76,7 @@ export function QuotesManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
+      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-bold text-slate-900">
             Cotizaciones a Clientes & Presupuestos Comerciales
@@ -97,11 +97,11 @@ export function QuotesManager({
         {quotes.map((quote) => (
           <div
             key={quote.id}
-            className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
+            className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5"
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
+                <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700">
                   Cotización #{quote.id}
                 </span>
                 <h3 className="mt-1 text-base font-bold text-slate-900">{quote.clientName}</h3>
@@ -203,7 +203,7 @@ export function QuotesManager({
                   type="text"
                   value={itemDesc}
                   onChange={(e) => setItemDesc(e.target.value)}
-                  placeholder="Descripción técnica del trabajo..."
+                  placeholder="Descripción técnica del trabajo…"
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                 />
               </div>

@@ -374,7 +374,7 @@ export default function SignUpPage() {
               disabled={loading}
               className="mt-4 w-full"
             >
-              {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+              {loading ? 'Creando cuenta…' : 'Crear Cuenta'}
             </Button>
           </form>
 

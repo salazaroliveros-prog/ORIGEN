@@ -161,9 +161,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     const linkedMatch = linkedOptions.find((option) => option.includes(code));
     if (linkedMatch) await linked.selectOption({ label: linkedMatch });
 
-    await page
-      .getByPlaceholder('Descripción técnica del trabajo...')
-      .fill('Renglón QA de ingresos');
+    await page.getByPlaceholder('Descripción técnica del trabajo…').fill('Renglón QA de ingresos');
     await page.getByPlaceholder('Cant.').fill('1');
     await page.getByPlaceholder('Precio Q').fill('25000');
     await page.getByRole('button', { name: 'Agregar a la lista' }).click();

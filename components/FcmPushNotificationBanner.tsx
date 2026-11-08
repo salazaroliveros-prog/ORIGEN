@@ -170,7 +170,7 @@ export function FcmPushNotificationBanner({
               className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-400 px-4 py-2 text-xs font-black text-slate-900 shadow-md transition hover:bg-amber-300"
             >
               <Bell className="h-4 w-4" aria-hidden="true" />
-              {isActivating ? 'Activando...' : 'Activar Notificaciones Push'}
+              {isActivating ? 'Activando…' : 'Activar Notificaciones Push'}
             </button>
           ) : (
             <span className="inline-flex items-center gap-1 rounded-xl border border-emerald-800 bg-emerald-950/60 px-3 py-1.5 text-xs font-bold text-emerald-400">

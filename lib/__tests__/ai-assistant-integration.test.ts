@@ -34,7 +34,7 @@ const mockConversations: AIConversation[] = [
     userId: 'user-001',
     question: '¿Cómo optimizar el presupuesto del proyecto?',
     answer:
-      'Para optimizar el presupuesto, puedes: 1. Revisar APU items, 2. Negociar proveedores, 3. Optimizar tiempos...',
+      'Para optimizar el presupuesto, puedes: 1. Revisar APU items, 2. Negociar proveedores, 3. Optimizar tiempos…',
     timestamp: '2024-10-27T10:00:00',
     context: 'proj-001',
     companyId: 'comp-001',

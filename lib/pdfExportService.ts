@@ -254,7 +254,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     doc.text(proj.code, rx + 2, y + 4.2);
     rx += projColWidths[0];
     // Nombre
-    const truncatedName = proj.name.length > 32 ? proj.name.substring(0, 30) + '...' : proj.name;
+    const truncatedName = proj.name.length > 32 ? proj.name.substring(0, 30) + '…' : proj.name;
     doc.text(truncatedName, rx + 2, y + 4.2);
     rx += projColWidths[1];
     // Presupuesto
@@ -459,11 +459,11 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
       doc.text(exp.facturaNumber || 'S/N', cx + 2, y + 4.2);
       cx += expColWidths[1];
       const truncSup =
-        exp.supplier.length > 28 ? exp.supplier.substring(0, 26) + '...' : exp.supplier;
+        exp.supplier.length > 28 ? exp.supplier.substring(0, 26) + '…' : exp.supplier;
       doc.text(truncSup, cx + 2, y + 4.2);
       cx += expColWidths[2];
       const truncCat =
-        exp.category.length > 24 ? exp.category.substring(0, 22) + '...' : exp.category;
+        exp.category.length > 24 ? exp.category.substring(0, 22) + '…' : exp.category;
       doc.text(truncCat, cx + 2, y + 4.2);
       cx += expColWidths[3];
       doc.text(formatMoney(exp.amount), cx + expColWidths[4] - 2, y + 4.2, { align: 'right' });
@@ -562,15 +562,8 @@ export interface ExportConstructionAuditPdfOptions {
 export async function exportConstructionAuditPdf(
   options: ExportConstructionAuditPdfOptions
 ): Promise<void> {
-  const {
-    project,
-    expenses,
-    fieldVisits,
-    company,
-    auditNotes,
-    auditorName,
-    auditorColNumber,
-  } = options;
+  const { project, expenses, fieldVisits, company, auditNotes, auditorName, auditorColNumber } =
+    options;
 
   const { jsPDF } = await import('jspdf');
 
@@ -696,7 +689,10 @@ export async function exportConstructionAuditPdf(
 
   // Left Title
   const compName =
-    company?.legalName || company?.commercialName || company?.companyName || 'ConstructERP Guatemala, S.A.';
+    company?.legalName ||
+    company?.commercialName ||
+    company?.companyName ||
+    'ConstructERP Guatemala, S.A.';
   addText(compName.toUpperCase(), margin + 4, y + 6, {
     fontSize: 10.5,
     fontStyle: 'bold',
@@ -796,11 +792,16 @@ export async function exportConstructionAuditPdf(
     color: [51, 65, 85],
     maxWidth: colW - 6,
   });
-  addText(`Jurisdicción: ${project.municipality || 'Guatemala'}, ${project.department || 'Guatemala'}`, col2X + 3, y + 16.5, {
-    fontSize: 6.5,
-    color: [100, 116, 139],
-    maxWidth: colW - 6,
-  });
+  addText(
+    `Jurisdicción: ${project.municipality || 'Guatemala'}, ${project.department || 'Guatemala'}`,
+    col2X + 3,
+    y + 16.5,
+    {
+      fontSize: 6.5,
+      color: [100, 116, 139],
+      maxWidth: colW - 6,
+    }
+  );
 
   // Col 3: Plazos y Fechas
   const col3X = margin + colW * 2;
@@ -884,8 +885,16 @@ export async function exportConstructionAuditPdf(
   // KPI 3: Saldo Presupuestario
   const kpi3X = kpi2X + cardW + 3;
   const isBalancePositive = budgetBalance >= 0;
-  doc.setFillColor(isBalancePositive ? 240 : 254, isBalancePositive ? 253 : 242, isBalancePositive ? 244 : 242);
-  doc.setDrawColor(isBalancePositive ? 187 : 254, isBalancePositive ? 247 : 202, isBalancePositive ? 208 : 202);
+  doc.setFillColor(
+    isBalancePositive ? 240 : 254,
+    isBalancePositive ? 253 : 242,
+    isBalancePositive ? 244 : 242
+  );
+  doc.setDrawColor(
+    isBalancePositive ? 187 : 254,
+    isBalancePositive ? 247 : 202,
+    isBalancePositive ? 208 : 202
+  );
   doc.roundedRect(kpi3X, y, cardW, cardH, 1, 1, 'FD');
   addText('SALDO POR EJECUTAR', kpi3X + 3, y + 3.8, {
     fontSize: 6.5,
@@ -1163,7 +1172,11 @@ export async function exportConstructionAuditPdf(
 
       // Categoría
       const catShort = exp.category.split('(')[0].trim();
-      addText(catShort, eX + 2, y + 4.2, { fontSize: 6.5, color: [15, 23, 42], maxWidth: expCols[1].width - 3 });
+      addText(catShort, eX + 2, y + 4.2, {
+        fontSize: 6.5,
+        color: [15, 23, 42],
+        maxWidth: expCols[1].width - 3,
+      });
       eX += expCols[1].width;
 
       // No. Factura / DTE
@@ -1400,7 +1413,9 @@ export async function exportConstructionAuditPdf(
     color: [15, 23, 42],
   });
   const resName = company?.architectName || 'Arq. Responsable Técnico';
-  const resCol = company?.architectColNumber ? `Col. No. ${company.architectColNumber}` : 'Colegio CIG / CA';
+  const resCol = company?.architectColNumber
+    ? `Col. No. ${company.architectColNumber}`
+    : 'Colegio CIG / CA';
   addText(`${resName} • ${resCol}`, sX + sigW / 2, y + 7.5, {
     fontSize: 6.5,
     align: 'center',
@@ -1422,7 +1437,9 @@ export async function exportConstructionAuditPdf(
     color: [15, 23, 42],
   });
   const auditOfficer = auditorName?.trim() || 'Auditor Interno / Contador General';
-  const auditOfficerReg = auditorColNumber?.trim() ? `Registro: ${auditorColNumber}` : 'Registro SAT / CPA';
+  const auditOfficerReg = auditorColNumber?.trim()
+    ? `Registro: ${auditorColNumber}`
+    : 'Registro SAT / CPA';
   addText(`${auditOfficer} • ${auditOfficerReg}`, sX + sigW / 2, y + 7.5, {
     fontSize: 6.5,
     align: 'center',

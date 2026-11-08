@@ -395,7 +395,7 @@ export function GuatemalanPayrollTable({
               title="Descargar reporte en formato PDF listo para auditoría y firma de contador"
             >
               <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-              {isExportingPdf ? 'Generando PDF...' : 'Exportar PDF Contable'}
+              {isExportingPdf ? 'Generando PDF…' : 'Exportar PDF Contable'}
             </button>
 
             <button
@@ -426,7 +426,7 @@ export function GuatemalanPayrollTable({
             />
             <input
               type="text"
-              placeholder="Buscar por nombre de empleado, DPI, puesto o IGSS..."
+              placeholder="Buscar por nombre de empleado, DPI, puesto o IGSS…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-xl border border-slate-300 bg-slate-50 py-1.5 pl-8 pr-7 text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -951,7 +951,7 @@ export function GuatemalanPayrollTable({
                 className="shadow-xs flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-5 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-50"
               >
                 <FileText className="h-4 w-4" aria-hidden="true" />
-                {isExportingPdf ? 'Descargando...' : 'Descargar Archivo PDF'}
+                {isExportingPdf ? 'Descargando…' : 'Descargar Archivo PDF'}
               </button>
             </div>
           </div>

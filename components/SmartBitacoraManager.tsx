@@ -368,7 +368,7 @@ export function SmartBitacoraManager({
                       : 'bg-slate-800 text-slate-400'
                   }`}
                 >
-                  {isRecording ? '● Grabando nota...' : 'Listo para grabar'}
+                  {isRecording ? '● Grabando nota…' : 'Listo para grabar'}
                 </span>
               </div>
 
@@ -418,7 +418,7 @@ export function SmartBitacoraManager({
                 rows={5}
                 value={voiceNotes}
                 onChange={(e) => setVoiceNotes(e.target.value)}
-                placeholder="Presione el botón de micrófono para hablar o escriba directamente la nota de campo del capataz aquí..."
+                placeholder="Presione el botón de micrófono para hablar o escriba directamente la nota de campo del capataz aquí…"
                 className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 font-medium leading-relaxed text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500"
               />
             </div>

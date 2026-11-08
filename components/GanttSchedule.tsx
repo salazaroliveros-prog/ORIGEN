@@ -616,7 +616,7 @@ export function GanttSchedule({
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <input
             type="text"
-            placeholder="Buscar por tarea, fase o responsable..."
+            placeholder="Buscar por tarea, fase o responsable…"
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-slate-800/80 px-3 py-1.5 text-xs text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400 sm:w-64"

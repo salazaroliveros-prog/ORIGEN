@@ -404,7 +404,7 @@ export function DashboardView({
             className="flex items-center gap-2 font-bold shadow-md"
           >
             <Download className="h-4 w-4 text-slate-950" aria-hidden="true" />
-            <span>{isExportingPdf ? 'Generando PDF...' : 'Exportar Reporte PDF'}</span>
+            <span>{isExportingPdf ? 'Generando PDF…' : 'Exportar Reporte PDF'}</span>
           </Button>
         </div>
       </div>

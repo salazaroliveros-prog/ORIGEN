@@ -386,7 +386,7 @@ export function GuatemalanPayrollValidator({
             />
             <input
               type="text"
-              placeholder="Buscar colaborador, puesto o DPI..."
+              placeholder="Buscar colaborador, puesto o DPI…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 focus:border-blue-500 focus:outline-none"

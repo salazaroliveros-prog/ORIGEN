@@ -10,7 +10,9 @@ test.setTimeout(300_000);
  * Utilidades compartidas para el flujo E2E completo del ciclo de vida del proyecto.
  */
 async function ensureAuthenticated(page: Page) {
-  await page.goto(`/?__test_email=${encodeURIComponent(ADMIN_EMAIL)}&__test_password=${encodeURIComponent(ADMIN_PASSWORD)}`);
+  await page.goto(
+    `/?__test_email=${encodeURIComponent(ADMIN_EMAIL)}&__test_password=${encodeURIComponent(ADMIN_PASSWORD)}`
+  );
   await page.waitForTimeout(5000);
 
   // Verificar si ya está autenticado (botón Tablero visible)
@@ -28,7 +30,9 @@ async function ensureAuthenticated(page: Page) {
     await page.waitForTimeout(5000);
 
     // Diagnostic: verificar si hay error de auth
-    const errorToast = page.locator('[role="alert"], .text-red-200, .text-red-400, .text-red-500').first();
+    const errorToast = page
+      .locator('[role="alert"], .text-red-200, .text-red-400, .text-red-500')
+      .first();
     if (await errorToast.isVisible({ timeout: 2000 })) {
       const errorText = await errorToast.textContent();
       console.log('AUTH ERROR:', errorText);
@@ -50,18 +54,22 @@ async function openTab(page: Page, name: RegExp | string) {
  * Escribe partidas APU directamente a Firestore vía Firebase SDK,
  * evitando el problema de React 19 componentes controlados con Playwright.
  */
-async function createAPUItemsViaFirebase(page: Page, projectId: string, items: Array<{
-  code: string;
-  description: string;
-  unit: string;
-  quantity: number;
-  materialUnitCostGTQ: number;
-  laborUnitCostGTQ: number;
-  equipmentUnitCostGTQ: number;
-  totalUnitCostGTQ: number;
-  totalPriceGTQ: number;
-  department: string;
-}>) {
+async function createAPUItemsViaFirebase(
+  page: Page,
+  projectId: string,
+  items: Array<{
+    code: string;
+    description: string;
+    unit: string;
+    quantity: number;
+    materialUnitCostGTQ: number;
+    laborUnitCostGTQ: number;
+    equipmentUnitCostGTQ: number;
+    totalUnitCostGTQ: number;
+    totalPriceGTQ: number;
+    department: string;
+  }>
+) {
   // Obtener companyId del localStorage del navegador
   const companyId = await page.evaluate(() => {
     try {
@@ -120,7 +128,9 @@ async function getProjectIdByCode(page: Page, code: string): Promise<string> {
   // Fallback: consultar API route
   let lastError: string = '';
   for (let i = 0; i < 5; i++) {
-    const res = await page.request.get(`http://localhost:3000/api/e2e-project-id?code=${encodeURIComponent(code)}`);
+    const res = await page.request.get(
+      `http://localhost:3000/api/e2e-project-id?code=${encodeURIComponent(code)}`
+    );
     if (res.ok()) {
       const data = await res.json();
       return data.projectId;
@@ -128,7 +138,9 @@ async function getProjectIdByCode(page: Page, code: string): Promise<string> {
     lastError = await res.text();
     await page.waitForTimeout(1000);
   }
-  throw new Error(`Proyecto no encontrado después de reintentos: ${code}. Último error: ${lastError}`);
+  throw new Error(
+    `Proyecto no encontrado después de reintentos: ${code}. Último error: ${lastError}`
+  );
 }
 
 async function createProject(page: Page, code: string, name: string, progress: number) {
@@ -155,9 +167,7 @@ async function createProject(page: Page, code: string, name: string, progress: n
  * ============================================================================
  */
 test.describe('FASE 1 — Módulo de Proyectos: ciclo de vida completo', () => {
-  test('crea un proyecto con todos los campos y valida integridad de datos', async ({
-    page,
-  }) => {
+  test('crea un proyecto con todos los campos y valida integridad de datos', async ({ page }) => {
     await ensureAuthenticated(page);
     const code = `QA-PROJ-${RUN_ID}`;
     const name = `QA Proyecto Integridad ${RUN_ID}`;
@@ -219,9 +229,7 @@ test.describe('FASE 1 — Módulo de Proyectos: ciclo de vida completo', () => {
  * ============================================================================
  */
 test.describe('FASE 2 — Módulo de Presupuestos APU: generación y factorización de costos', () => {
-  test('genera un presupuesto a partir del proyecto creado y valida cálculos', async ({
-    page,
-  }) => {
+  test('genera un presupuesto a partir del proyecto creado y valida cálculos', async ({ page }) => {
     await ensureAuthenticated(page);
     const code = `QA-APU-${RUN_ID}`;
     await createProject(page, code, `QA Presupuesto ${RUN_ID}`, 0);
@@ -239,7 +247,7 @@ test.describe('FASE 2 — Módulo de Presupuestos APU: generación y factorizaci
     await createAPUItemsViaFirebase(page, projectId, [
       {
         code: `${code.slice(-8)}-CONC`,
-        description: 'Concreto f\'c=250 psi',
+        description: "Concreto f'c=250 psi",
         unit: 'm3',
         quantity: 10,
         materialUnitCostGTQ: 450,
@@ -267,7 +275,7 @@ test.describe('FASE 2 — Módulo de Presupuestos APU: generación y factorizaci
     await page.waitForTimeout(2000);
 
     // Verificar que los renglones aparecen en la tabla
-    await expect(page.getByText('Concreto f\'c=250 psi').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Concreto f'c=250 psi").first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText('4,500').first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText('6,000').first()).toBeVisible({ timeout: 20_000 });
 
@@ -319,7 +327,9 @@ test.describe('FASE 3 — Módulo de Cotizaciones: búsqueda y selección de cli
     }
 
     // Agregar renglón a la cotización
-    await quoteModal.getByPlaceholder('Descripción técnica del trabajo...').fill('Construcción de cimentación');
+    await quoteModal
+      .getByPlaceholder('Descripción técnica del trabajo…')
+      .fill('Construcción de cimentación');
     await quoteModal.getByPlaceholder('Cant.').fill('1');
     await quoteModal.getByPlaceholder('Precio Q').fill('15000');
     await quoteModal.getByRole('button', { name: 'Agregar a la lista' }).click();
@@ -391,7 +401,10 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
       await page.waitForTimeout(1000);
       await page.getByLabel('Nombre del Hito').fill('Cimentación completada');
       await page.getByLabel('Fecha').fill('2026-12-01');
-      await page.getByRole('button', { name: /Guardar|Registrar/i }).first().click();
+      await page
+        .getByRole('button', { name: /Guardar|Registrar/i })
+        .first()
+        .click();
       await page.waitForTimeout(2500);
       await expect(page.getByText('Cimentación completada')).toBeVisible({ timeout: 15_000 });
     }
@@ -403,7 +416,9 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
     await openTab(page, 'Maquinaria');
     await page.waitForTimeout(1500);
 
-    const newMacBtn = page.getByRole('button', { name: /Registrar Maquinaria|Nueva Maquinaria/i }).first();
+    const newMacBtn = page
+      .getByRole('button', { name: /Registrar Maquinaria|Nueva Maquinaria/i })
+      .first();
     if (!(await newMacBtn.isVisible().catch(() => false))) return;
 
     await newMacBtn.click();
@@ -476,7 +491,9 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
     await page.waitForTimeout(1500);
 
     const empSelect = page.locator('#attendance-employee');
-    const empOption = empSelect.locator('option').filter({ hasText: `Empleado Campo QA-${RUN_ID}` });
+    const empOption = empSelect
+      .locator('option')
+      .filter({ hasText: `Empleado Campo QA-${RUN_ID}` });
     if ((await empOption.count()) > 0) {
       const empId = await empOption.getAttribute('value');
       await empSelect.selectOption(empId!);
@@ -516,7 +533,9 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
     const match = options.find((o) => o.includes(code));
     if (match) await projectSelect.selectOption({ label: match });
 
-    await page.getByLabel('Descripción Detallada del Insumo o Servicio *').fill('Compra de acero estructural QA');
+    await page
+      .getByLabel('Descripción Detallada del Insumo o Servicio *')
+      .fill('Compra de acero estructural QA');
     await page.getByLabel('Proveedor / Emisor SAT').fill('Acero Progreso');
     await page.getByLabel('NIT del Proveedor').fill('CF');
     await page.getByLabel('No. Factura SAT Serie/Número').fill(`FEL-QA-${RUN_ID}`);
@@ -524,7 +543,9 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
     await page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).click();
     await page.waitForTimeout(3500);
 
-    await expect(page.getByText('Compra de acero estructural QA').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Compra de acero estructural QA').first()).toBeVisible({
+      timeout: 20_000,
+    });
     await expect(page.getByText('18,000').first()).toBeVisible();
 
     // Propagación: verificar que el gasto se refleja en el proyecto
@@ -556,7 +577,9 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
     if (match) await projectSelect.selectOption({ label: match });
 
     // Llenar solo descripción, dejar monto vacío
-    await page.getByLabel('Descripción Detallada del Insumo o Servicio *').fill('Gasto incompleto QA');
+    await page
+      .getByLabel('Descripción Detallada del Insumo o Servicio *')
+      .fill('Gasto incompleto QA');
     await page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).click();
     await page.waitForTimeout(3500);
 

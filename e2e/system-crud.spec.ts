@@ -147,14 +147,19 @@ test('autenticación y operaciones de módulos ERP en Firebase', async ({ page }
   });
   await quoteModal.getByPlaceholder('Ej. Ing. Guillermo Morales').fill(quoteClientName);
   await quoteModal
-    .getByPlaceholder('Descripción técnica del trabajo...')
+    .getByPlaceholder('Descripción técnica del trabajo…')
     .fill('Obra de prueba extremo a extremo');
   await quoteModal.getByRole('button', { name: 'Agregar a la lista' }).click();
   await quoteModal.getByRole('button', { name: 'Guardar Borrador' }).click();
   await expect(quoteModal).toBeHidden();
   await expect(page.getByRole('heading', { name: quoteClientName }).first()).toBeVisible();
   await page.getByTitle('Marcar como Aceptada / Ganada').first().click();
-  await expect(page.locator('span').filter({ hasText: /^Aceptada$/ }).first()).toBeVisible();
+  await expect(
+    page
+      .locator('span')
+      .filter({ hasText: /^Aceptada$/ })
+      .first()
+  ).toBeVisible();
 
   await page.getByRole('button', { name: 'Maquinaria' }).click();
   await page.getByRole('button', { name: 'Registrar Maquinaria' }).click();

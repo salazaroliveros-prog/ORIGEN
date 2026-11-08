@@ -677,7 +677,7 @@ export function StaffAndAttendance({
                           className={`h-3.5 w-3.5 ${isLocating ? 'animate-spin' : ''}`}
                           aria-hidden="true"
                         />
-                        {isLocating ? 'Detectando GPS...' : 'Obtener GPS en Vivo'}
+                        {isLocating ? 'Detectando GPS…' : 'Obtener GPS en Vivo'}
                       </button>
 
                       <div className="flex gap-1.5">
@@ -1150,7 +1150,7 @@ export function StaffAndAttendance({
                   disabled={isSavingEmployee}
                   className="min-h-11 rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-800"
                 >
-                  {isSavingEmployee ? 'Guardando...' : 'Guardar Empleado'}
+                  {isSavingEmployee ? 'Guardando…' : 'Guardar Empleado'}
                 </button>
               </div>
             </form>

@@ -318,7 +318,7 @@ export function GuatemalanPayroll({
               />
               <input
                 type="text"
-                placeholder="Buscar por nombre o puesto..."
+                placeholder="Buscar por nombre o puesto…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white py-1.5 pl-9 pr-3 text-xs text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 lg:w-64"
