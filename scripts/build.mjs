@@ -23,19 +23,6 @@ buildProcess.on('exit', (code) => {
     process.exit(code ?? 1);
   }
 
-  console.log('[build.mjs] Next.js build complete. Running prepare-dist.mjs...');
-  const prepare = spawn(process.execPath, [path.join(appRoot, 'scripts', 'prepare-dist.mjs')], {
-    cwd: appRoot,
-    stdio: 'inherit',
-    env: process.env,
-  });
-
-  prepare.on('exit', (prepCode) => {
-    if (prepCode !== 0) {
-      console.error(`[build.mjs] prepare-dist failed with code ${prepCode}`);
-      process.exit(prepCode ?? 1);
-    }
-    console.log('[build.mjs] Production build and artifact preparation finished successfully.');
-    process.exit(0);
-  });
+  console.log('[build.mjs] Next.js build complete.');
+  process.exit(0);
 });

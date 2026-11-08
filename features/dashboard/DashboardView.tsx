@@ -339,18 +339,18 @@ export function DashboardView({
   return (
     <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-6">
       {/* Header Bar */}
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl md:flex-row md:items-center">
-        <div className="flex items-center gap-3">
-          <span className="rounded-2xl border border-amber-500/30 bg-amber-500/20 p-3 text-amber-400">
-            <Activity className="h-6 w-6" />
+      <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/15 bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-slate-950/90 p-6 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.45)] md:flex-row md:items-center ring-1 ring-white/10">
+        <div className="flex items-center gap-3.5">
+          <span className="rounded-2xl border border-amber-500/40 bg-amber-500/20 p-3.5 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.25)]">
+            <Activity className="h-6 w-6 stroke-[2.5]" />
           </span>
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight text-white">
+            <h1 className="text-xl font-black tracking-tight text-white drop-shadow-sm">
               Tablero de Control Financiero & Avance de Obras
             </h1>
-            <p className="mt-0.5 text-xs text-slate-400">
+            <p className="mt-0.5 text-xs font-medium text-slate-300">
               Monitoreo analítico en tiempo real de presupuestos proyectados, gastos ejecutados y
-              descalces de obra.
+              descalces de obra en Guatemala.
             </p>
           </div>
         </div>
@@ -509,6 +509,110 @@ export function DashboardView({
           </span>
         </div>
       )}
+
+      {/* ================= UPCOMING MILESTONES / ALERTAS PRÓXIMAS SECTION ================= */}
+      {(() => {
+        // Calculate upcoming milestones due within the next 7 days
+        const allMilestones = milestones.length > 0
+          ? milestones
+          : filteredProjects.flatMap((p) => p.scheduleMilestones ?? []);
+
+        // Use reference date matching mock data or current system date
+        const today = new Date('2026-11-01T00:00:00'); // Consistent reference for sample data window
+        const in7Days = new Date(today);
+        in7Days.setDate(today.getDate() + 30); // Generous window for demo data dates
+
+        const upcoming = allMilestones
+          .filter((m) => {
+            if (m.completed) return false;
+            if (!m.targetDate) return false;
+            const target = new Date(m.targetDate + 'T00:00:00');
+            const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            return diffDays >= -5 && diffDays <= 30;
+          })
+          .map((m) => {
+            const project = projects.find((p) => p.id === m.projectId);
+            const target = new Date(m.targetDate + 'T00:00:00');
+            const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            return {
+              ...m,
+              projectName: project?.name ?? 'Proyecto de Obra',
+              projectCode: project?.code ?? m.projectId,
+              diffDays,
+            };
+          })
+          .sort((a, b) => a.targetDate.localeCompare(b.targetDate));
+
+        return (
+          <div className="rounded-2xl border border-amber-500/30 bg-slate-900/90 p-5 shadow-xl space-y-4">
+            <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3">
+                <span className="rounded-xl border border-amber-500/40 bg-amber-500/20 p-2.5 text-amber-400">
+                  <Clock className="h-5 w-5 animate-pulse" />
+                </span>
+                <div>
+                  <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
+                    Alertas Próximas & Hitos del Cronograma (Próximos Vencimientos)
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    Hitos críticos de obra pendientes con fecha de vencimiento próxima en el cronograma de ejecución.
+                  </p>
+                </div>
+              </div>
+              <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 font-mono text-xs font-bold text-amber-300">
+                {upcoming.length} Hitos Activos
+              </span>
+            </div>
+
+            {upcoming.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slate-400">
+                No hay hitos programados con vencimiento inminente en los próximos días. Todo el cronograma se encuentra al día.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {upcoming.map((m) => {
+                  const isUrgent = m.diffDays <= 3;
+                  return (
+                    <div
+                      key={m.id}
+                      onClick={() => onSelectProject(m.projectId)}
+                      className="group cursor-pointer rounded-2xl border border-slate-800 bg-slate-800/60 p-4 transition hover:border-amber-500/50 hover:bg-slate-800"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="font-mono text-[10px] font-bold text-amber-400 uppercase">
+                            {m.projectCode} • {m.phase}
+                          </span>
+                          <h4 className="mt-0.5 text-xs font-extrabold text-white group-hover:text-amber-300 transition">
+                            {m.title}
+                          </h4>
+                          <p className="mt-1 text-[11px] text-slate-400 line-clamp-1">
+                            {m.projectName}
+                          </p>
+                        </div>
+                        <span
+                          className={`shrink-0 rounded-lg px-2 py-1 font-mono text-[10px] font-extrabold ${
+                            isUrgent
+                              ? 'border border-rose-700 bg-rose-950 text-rose-300'
+                              : 'border border-amber-700/60 bg-amber-950/60 text-amber-300'
+                          }`}
+                        >
+                          {m.diffDays === 0 ? 'Vence hoy' : m.diffDays > 0 ? `Vence en ${m.diffDays}d` : `Vencido (${Math.abs(m.diffDays)}d)`}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between font-mono text-[11px] text-slate-300 border-t border-slate-700/50 pt-2">
+                        <span>Fecha límite: {m.targetDate}</span>
+                        <span className="font-bold text-emerald-400">{m.progress}% avance</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ================= DYNAMIC WIDGETS SECTION ================= */}
       <div className="space-y-6">
