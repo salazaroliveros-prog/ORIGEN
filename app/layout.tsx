@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Toaster } from 'react-hot-toast';
+import './polyfills';
 
 export const viewport: Viewport = {
   width: 'device-width',

@@ -23,8 +23,25 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   },
   reactStrictMode: true,
+  // Mejorar compatibilidad cross-browser
+  transpilePackages: [],
+  // Configuración de webpack para mejor compatibilidad
+  webpack: (config, { isServer }) => {
+    // Optimizar para navegadores más antiguos
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

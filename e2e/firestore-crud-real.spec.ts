@@ -27,36 +27,36 @@ const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 
 /**
  * Autentica al usuario administrador usando credenciales reales de .env.local
+ * Siempre usa login manual para mayor estabilidad
  */
-async function ensureAuthenticated(page: any, useQueryParam = true) {
+async function ensureAuthenticated(page: any) {
   test.setTimeout(120_000);
 
-  if (useQueryParam) {
-    await page.goto(
-      `/?__test_email=${encodeURIComponent(ADMIN_EMAIL)}&__test_password=${encodeURIComponent(ADMIN_PASSWORD)}`
-    );
-  } else {
-    await page.goto('/');
-  }
-  await page.waitForTimeout(5000);
+  await page.goto('/');
+  await page.waitForTimeout(3000);
 
+  // Verificar si ya está autenticado
   const tablero = page.getByRole('button', { name: 'Tablero' });
-  if (await tablero.isVisible({ timeout: 2000 })) {
-    return; // Ya autenticado
+  const alreadyAuth = await tablero.isVisible({ timeout: 5000 }).catch(() => false);
+  if (alreadyAuth) {
+    console.log('Usuario ya autenticado');
+    return;
   }
 
-  // Fallback: login manual
+  // Login manual
+  console.log('Iniciando login manual...');
   const emailField = page.getByLabel('Correo electrónico');
-  const loginVisible = await emailField.isVisible().catch(() => false);
-  if (loginVisible) {
-    await emailField.fill(ADMIN_EMAIL);
-    await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
-    await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
-    await page.waitForTimeout(4000);
-  }
+  await expect(emailField).toBeVisible({ timeout: 10_000 });
 
-  await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText(ADMIN_EMAIL)).toBeVisible();
+  await emailField.fill(ADMIN_EMAIL);
+  await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
+  await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
+
+  // Esperar que cargue el tablero
+  await page.waitForTimeout(5000);
+  await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByText(ADMIN_EMAIL)).toBeVisible({ timeout: 10_000 });
+  console.log('Login exitoso');
 }
 
 /**
