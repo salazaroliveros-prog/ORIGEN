@@ -101,10 +101,13 @@ async function createProjectViaUI(page: any, data: any) {
   await dialog.getByLabel('Avance (%)').fill(data.progressPercent);
   await dialog.getByLabel('Fecha de Inicio').fill(data.startDate);
   await dialog.getByLabel('Fecha de Finalización').fill(data.endDate);
+
+  // Hacer clic en Crear Proyecto y esperar a que el diálogo se cierre
   await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
 
-  await expect(dialog).toBeHidden();
-  await page.waitForTimeout(2000);
+  // Esperar a que el diálogo se cierre (puede tomar tiempo por validación y guardado en Firestore)
+  await expect(dialog).toBeHidden({ timeout: 15_000 });
+  await page.waitForTimeout(3000);
 
   // Verificar que el proyecto se persiste en Firestore (visible en lista)
   await expect(page.getByText(data.code).first()).toBeVisible({ timeout: 20_000 });
