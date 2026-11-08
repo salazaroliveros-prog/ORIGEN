@@ -1,20 +1,23 @@
-# ORIGEN ERP - Guía de Debugging
+---
+contentType: How-to
+title: Cómo depurar ORIGEN ERP
+---
+
+# Cómo depurar ORIGEN ERP
 
 Esta guía proporciona instrucciones para diagnosticar y resolver problemas comunes en el sistema ORIGEN ERP.
 
-## 📋 Tabla de Contenidos
+## Tabla de contenidos
 
-- [Herramientas de Debugging](#herramientas-de-debugging)
-- [Debugging de Tests de Integración](#debugging-de-tests-de-integración)
-- [Debugging de Tests E2E](#debugging-de-tests-e2e)
-- [Debugging del Servidor Next.js](#debugging-del-servidor-nextjs)
-- [Debugging de Firebase](#debugging-de-firebase)
-- [Debugging de Build](#debugging-de-build)
-- [Problemas Comunes](#problemas-comunes)
+- [Herramientas de depuración](#herramientas-de-depuración)
+- [Depuración de pruebas de integración](#depuración-de-pruebas-de-integración)
+- [Depuración de pruebas E2E](#depuración-de-pruebas-e2e)
+- [Depuración del servidor Next.js](#depuración-del-servidor-nextjs)
+- [Depuración de Firebase](#depuración-de-firebase)
+- [Depuración de build](#depuración-de-build)
+- [Problemas comunes](#problemas-comunes)
 
----
-
-## Herramientas de Debugging
+## Herramientas de depuración
 
 ### 1. VS Code Debugger
 
@@ -48,15 +51,17 @@ Configura `.vscode/launch.json`:
 
 ### 2. Playwright Inspector
 
+Ejecuta:
+
 ```bash
 npx playwright test --debug
 ```
 
-Abre el inspector de Playwright para debugging visual de tests E2E.
+Abre el inspector de Playwright para depuración visual de pruebas E2E.
 
 ### 3. Console.log
 
-Agrega `console.log` en el código para debugging rápido:
+Agrega `console.log` en el código para depuración rápida:
 
 ```typescript
 console.log('Debug:', { variable, value });
@@ -64,23 +69,25 @@ console.log('Debug:', { variable, value });
 
 ### 4. Browser DevTools
 
-Para tests E2E, usa `--headed` para ver el navegador:
+Para pruebas E2E, usa `--headed` para ver el navegador:
 
 ```bash
 npx playwright test --headed
 ```
 
----
+## Depuración de pruebas de integración
 
-## Debugging de Tests de Integración
+### Ver output detallado
 
-### Ver Output Detallado
+Ejecuta:
 
 ```bash
 npm test -- --reporter=verbose
 ```
 
-### Ejecutar en Modo Watch con Debugging
+### Ejecutar en modo watch con depuración
+
+Ejecuta:
 
 ```bash
 npm run test:watch
@@ -88,29 +95,33 @@ npm run test:watch
 
 Presiona `p` en la terminal para filtrar por patrón de archivo.
 
-### Debugging de un Test Específico
+### Depurar una prueba específica
 
-1. Agrega `.only` al test:
+1. Agrega `.only` a la prueba:
+
 ```typescript
 it.only('should do something', () => {
   // ...
 });
 ```
 
-2. Ejecuta el test:
+2. Ejecuta la prueba:
+
 ```bash
 npm test
 ```
 
-3. Elimina `.only` después de debugging.
+3. Elimina `.only` después de depurar.
 
-### Ver Stack Trace Completo
+### Ver stack trace completo
+
+Ejecuta:
 
 ```bash
 npm test -- --no-coverage
 ```
 
-### Debugging de Async Tests
+### Depuración de pruebas async
 
 Usa `await` correctamente y agrega timeouts:
 
@@ -121,37 +132,41 @@ it('should handle async', async () => {
 }, 10000); // 10s timeout
 ```
 
----
-
-## Debugging de Tests E2E
+## Depuración de pruebas E2E
 
 ### Usar Playwright Inspector
+
+Ejecuta:
 
 ```bash
 npx playwright test --debug
 ```
 
 El inspector permite:
-- Ver cada paso del test
+
+- Ver cada paso de la prueba
 - Inspeccionar el DOM
-- Ejecutar tests paso a paso
+- Ejecutar pruebas paso a paso
 - Ver network requests
 
-### Ejecutar en Modo Headed
+### Ejecutar en modo headed
+
+Ejecuta:
 
 ```bash
 npx playwright test --headed
 ```
 
-Permite ver el navegador mientras se ejecutan los tests.
+Permite ver el navegador mientras se ejecutan las pruebas.
 
-### Ver Screenshots de Fallos
+### Ver screenshots de fallos
 
-Los screenshots se guardan en `test-results/` automáticamente cuando un test falla.
+Los screenshots se guardan en `test-results/` automáticamente cuando una prueba falla.
 
-### Grabar Video de Tests
+### Grabar video de pruebas
 
 En `playwright.config.ts`:
+
 ```typescript
 export default defineConfig({
   use: {
@@ -160,7 +175,7 @@ export default defineConfig({
 });
 ```
 
-### Debugging de Selectores
+### Depurar selectores
 
 Usa el Playwright Codegen para generar selectores:
 
@@ -168,9 +183,10 @@ Usa el Playwright Codegen para generar selectores:
 npx playwright codegen http://localhost:3000
 ```
 
-### Ver Network Requests
+### Ver network requests
 
 En `playwright.config.ts`:
+
 ```typescript
 export default defineConfig({
   use: {
@@ -181,9 +197,10 @@ export default defineConfig({
 
 Luego revisa el trace en el reporte.
 
-### Timeout Problems
+### Timeout problems
 
 Aumentar timeout global:
+
 ```typescript
 export default defineConfig({
   timeout: 60000,
@@ -191,6 +208,7 @@ export default defineConfig({
 ```
 
 O aumentar timeout específico:
+
 ```typescript
 test('slow test', async ({ page }) => {
   test.setTimeout(60000);
@@ -198,11 +216,11 @@ test('slow test', async ({ page }) => {
 });
 ```
 
----
+## Depuración del servidor Next.js
 
-## Debugging del Servidor Next.js
+### Ver errores de compilación
 
-### Ver Errores de Compilación
+Ejecuta:
 
 ```bash
 npm run dev
@@ -210,23 +228,24 @@ npm run dev
 
 Los errores de compilación se muestran en la terminal y en el navegador.
 
-### Ver Errores de Runtime
+### Ver errores de runtime
 
 1. Abre el navegador
 2. Presiona `F12` para abrir DevTools
 3. Ve a la pestaña "Console"
 4. Revisa los errores
 
-### Ver Source Maps
+### Ver source maps
 
-Asegúrate de que `next.config.js` tenga:
-```javascript
+Asegúrate de que `next.config.ts` tenga:
+
+```typescript
 module.exports = {
   productionBrowserSourceMaps: true,
 };
 ```
 
-### Debugging de API Routes
+### Depuración de API routes
 
 1. Agrega `console.log` en la ruta API
 2. Revisa la terminal del servidor
@@ -236,7 +255,9 @@ module.exports = {
 curl http://localhost:3000/api/projects
 ```
 
-### Ver Builds de Desarrollo
+### Ver builds de desarrollo
+
+Ejecuta:
 
 ```bash
 npm run build
@@ -244,11 +265,11 @@ npm run build
 
 Revisa los warnings y errores de build.
 
----
+## Depuración de Firebase
 
-## Debugging de Firebase
+### Ver emuladores
 
-### Ver Emulators
+Ejecuta:
 
 ```bash
 firebase emulators:start
@@ -256,13 +277,15 @@ firebase emulators:start
 
 Abre http://localhost:4000 para ver la UI de emuladores.
 
-### Debugging de Firestore Rules
+### Depuración de Firestore Rules
 
 1. Abre la UI de emuladores
 2. Ve a "Firestore"
 3. Revisa los logs de operations
 
-### Debugging de Auth
+### Depuración de Auth
+
+Ejecuta:
 
 ```bash
 firebase emulators:start --only auth
@@ -270,9 +293,10 @@ firebase emulators:start --only auth
 
 Abre http://localhost:9099 para ver la UI de Auth emulator.
 
-### Ver Logs de Firebase
+### Ver logs de Firebase
 
 En el código, agrega logging:
+
 ```typescript
 import { getFirestore } from 'firebase/firestore';
 
@@ -280,7 +304,9 @@ const db = getFirestore();
 console.log('Firestore instance:', db);
 ```
 
-### Debugging de Rules Tests
+### Depuración de rules tests
+
+Ejecuta:
 
 ```bash
 npm run test:rules
@@ -288,11 +314,11 @@ npm run test:rules
 
 Revisa el output para ver qué rules fallaron.
 
----
+## Depuración de build
 
-## Debugging de Build
+### Ver build logs
 
-### Ver Build Logs
+Ejecuta:
 
 ```bash
 npm run build
@@ -300,7 +326,9 @@ npm run build
 
 Revisa los warnings y errores de build.
 
-### Ver Bundle Size
+### Ver bundle size
+
+Ejecuta:
 
 ```bash
 npm run build:analyze
@@ -308,10 +336,11 @@ npm run build:analyze
 
 Abre el reporte de análisis para ver el tamaño de bundles.
 
-### Debugging de Webpack
+### Depuración de Webpack
 
-Agrega modo verbose en `next.config.js`:
-```javascript
+Agrega modo verbose en `next.config.ts`:
+
+```typescript
 module.exports = {
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -322,19 +351,18 @@ module.exports = {
 };
 ```
 
-### Ver Build Output
+### Ver build output
 
 El build output está en `.next/`. Revisa los archivos generados.
 
----
-
-## Problemas Comunes
+## Problemas comunes
 
 ### 1. "Module not found"
 
-**Causa:** Dependencia no instalada o path incorrecto.
+Causa: dependencia no instalada o path incorrecto.
 
-**Solución:**
+Solución:
+
 ```bash
 npm install
 # O instalar dependencia específica
@@ -343,9 +371,10 @@ npm install nombre-de-dependencia
 
 ### 2. "Cannot read property of undefined"
 
-**Causa:** Intentando acceder a una propiedad de `undefined`.
+Causa: intentando acceder a una propiedad de `undefined`.
 
-**Solución:**
+Solución:
+
 ```typescript
 // Agregar validación
 if (obj && obj.property) {
@@ -358,27 +387,30 @@ const value = obj?.property;
 
 ### 3. "Network request failed"
 
-**Causa:** API no responde o firewall bloqueando.
+Causa: API no responde o firewall bloqueando.
 
-**Solución:**
-- Verificar que el servidor esté corriendo
-- Verificar que el puerto sea correcto
-- Verificar firewall/antivirus
+Solución:
+
+- Verifica que el servidor esté corriendo
+- Verifica que el puerto sea correcto
+- Verifica firewall/antivirus
 
 ### 4. "Timeout exceeded"
 
-**Causa:** Operación tarda más del timeout permitido.
+Causa: operación tarda más del timeout permitido.
 
-**Solución:**
-- Aumentar el timeout
-- Optimizar la operación
-- Verificar la red
+Solución:
+
+- Aumenta el timeout
+- Optimiza la operación
+- Verifica la red
 
 ### 5. "Too many open files"
 
-**Causa:** Límite de archivos abiertos del sistema.
+Causa: límite de archivos abiertos del sistema.
 
-**Solución:**
+Solución:
+
 ```bash
 # En Linux/Mac
 ulimit -n 65536
@@ -389,9 +421,10 @@ ulimit -n 65536
 
 ### 6. "Out of memory"
 
-**Causa:** Memoria insuficiente.
+Causa: memoria insuficiente.
 
-**Solución:**
+Solución:
+
 ```bash
 # Aumentar memoria de Node
 node --max-old-space-size=4096 node_modules/.bin/vitest
@@ -399,9 +432,10 @@ node --max-old-space-size=4096 node_modules/.bin/vitest
 
 ### 7. "Port already in use"
 
-**Causa:** El puerto ya está en uso por otro proceso.
+Causa: el puerto ya está en uso por otro proceso.
 
-**Solución:**
+Solución:
+
 ```bash
 # En Windows
 netstat -ano | findstr :3000
@@ -413,34 +447,35 @@ lsof -ti:3000 | xargs kill -9
 
 ### 8. "ESLint error"
 
-**Causa:** Código no cumple con las reglas de ESLint.
+Causa: código no cumple con las reglas de ESLint.
 
-**Solución:**
+Solución:
+
 ```bash
 npm run lint:fix
 ```
 
 ### 9. "TypeScript error"
 
-**Causa:** Código no cumple con tipos de TypeScript.
+Causa: código no cumple con tipos de TypeScript.
 
-**Solución:**
+Solución:
+
 ```bash
 npm run type-check
 ```
 
 ### 10. "Firebase emulator not running"
 
-**Causa:** Emuladores no iniciados.
+Causa: emuladores no iniciados.
 
-**Solución:**
+Solución:
+
 ```bash
 firebase emulators:start
 ```
 
----
-
-## 🎯 Tips de Debugging
+## Tips de depuración
 
 1. **Divide y vencerás**
    - Aísla el problema en el código más pequeño posible
@@ -449,7 +484,7 @@ firebase emulators:start
 2. **Usa console.log estratégicamente**
    - Agrega logs en puntos clave del flujo
    - Usa `console.table` para arrays/objetos
-   - Elimina logs después de debugging
+   - Elimina logs después de depurar
 
 3. **Revisa la documentación**
    - Consulta la documentación de las bibliotecas
@@ -473,9 +508,7 @@ firebase emulators:start
    - Corrige el bug
    - Verifica que el test pase
 
----
-
-## 📚 Recursos Adicionales
+## Recursos adicionales
 
 - [VS Code Debugging](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
 - [Playwright Debugging](https://playwright.dev/docs/debug)
@@ -483,6 +516,4 @@ firebase emulators:start
 - [Next.js Debugging](https://nextjs.org/docs/app/building-your-application/debugging)
 - [Firebase Debugging](https://firebase.google.com/docs/emulator-suite/debug)
 
----
-
-**Última actualización:** 27 de Octubre de 2026
+**Última actualización:** 27 de octubre de 2026

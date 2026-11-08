@@ -1,8 +1,14 @@
-# ORIGEN ERP - QUICK REFERENCE GUIDE
+---
+contentType: Reference
+title: Quick reference guide — ORIGEN ERP
+---
 
-## 🚀 COMPONENTS OVERVIEW
+# Quick reference guide — ORIGEN ERP
+
+## Components overview
 
 ### 1. Authentication (`AuthContainer.tsx`)
+
 ```typescript
 import { AuthContainer } from '@/components/auth/AuthContainer';
 
@@ -12,167 +18,167 @@ import { AuthContainer } from '@/components/auth/AuthContainer';
 }} />
 ```
 
-**Features:**
+Features:
+
 - Rate limiting: 5 failed attempts → 15-min lockout
 - Password visibility toggle
 - localStorage-based attack tracking
 
----
-
 ### 2. Dashboard (`DashboardOverview.tsx`)
+
 ```typescript
 import { DashboardOverview } from '@/components/DashboardOverview';
 
-<DashboardOverview 
+<DashboardOverview
   projectId={projectId}
   onProjectSelect={(id) => navigate(`/projects/${id}`)}
 />
 ```
 
-**Features:**
+Features:
+
 - Loading skeleton animation
 - KPI cards with memoization
 - Empty state handling
 - Real-time calculations
 
----
-
 ### 3. Projects (`ProjectsList.tsx`)
+
 ```typescript
 import { ProjectsList } from '@/components/ProjectsList';
 
-<ProjectsList 
+<ProjectsList
   onCreateNew={() => setShowForm(true)}
   onSelectProject={(id) => navigate(`/projects/${id}`)}
 />
 ```
 
-**Features:**
+Features:
+
 - Sticky create button (responsive)
 - Delete confirmation (archives data)
 - Sort preferences saved
-- Pagination (10/page)
+- Pagination (10 per page)
 
----
+### 4. Budget and APU (`APUItemsList.tsx`)
 
-### 4. Budget & APU (`APUItemsList.tsx`)
 ```typescript
 import { APUItemsList } from '@/components/BudgetAndAPU/APUItemsList';
 
-<APUItemsList 
+<APUItemsList
   projectId={projectId}
   items={apuItems}
   onUpdateBudget={(summary) => setBudgetSummary(summary)}
 />
 ```
 
-**Features:**
-- Responsive table/cards
+Features:
+
+- Responsive table and cards
 - Real-time updates
-- Quantity validation (> 0, max 10k)
+- Quantity validation (greater than 0, max 10,000)
 - Currency conversion (GTQ/USD)
 
----
-
 ### 5. Expenses (`ExpensesView.tsx`)
+
 ```typescript
 import { ExpensesView } from '@/components/ExpensesView';
 
 <ExpensesView projectId={projectId} />
 ```
 
-**Features:**
+Features:
+
 - 6 category colors
 - Receipt photo preview
 - CSV export with filters
 - Amount formatting
 - Duplicate detection
 
----
-
 ### 6. Personnel (`PersonnelView.tsx`)
+
 ```typescript
 import { PersonnelView } from '@/components/PersonnelView';
 
 <PersonnelView projectId={projectId} />
 ```
 
-**Features:**
-- Calendar/List toggle
+Features:
+
+- Calendar and list toggle
 - Overtime validation (max 12h)
 - Attendance tracking
 - Touch-friendly interface
 
----
-
 ### 7. Payroll (`PayrollView.tsx`)
+
 ```typescript
 import { PayrollView } from '@/components/PayrollView';
 
 <PayrollView projectId={projectId} />
 ```
 
-**Features:**
+Features:
+
 - Sticky net pay column
 - Bono 14 preview
 - ISR 2024 calculation (Guatemala)
 - IGSS export validation
 
----
-
 ### 8. Quotations (`QuotationsView.tsx`)
+
 ```typescript
 import { QuotationsView } from '@/components/QuotationsView';
 
 <QuotationsView projectId={projectId} />
 ```
 
-**Features:**
+Features:
+
 - Line items count
 - PDF with logo
 - Expiry warnings (3 days)
-- Discount validation (max 50%)
-
----
+- Discount validation (max 50 percent)
 
 ### 9. Reports (`ReportsView.tsx`)
+
 ```typescript
 import { ReportsView } from '@/components/ReportsView';
 
 <ReportsView projectId={projectId} />
 ```
 
-**Features:**
+Features:
+
 - Simplified date picker
 - Filter state persistence
 - Excel export
 
----
-
 ### 10. Settings (`SettingsView.tsx`)
+
 ```typescript
 import { SettingsView } from '@/components/SettingsView';
 
 <SettingsView />
 ```
 
-**Features:**
-- Logo upload + optimization
+Features:
+
+- Logo upload and optimization
 - Exchange rate updates (API)
 - User invitations
 - Role descriptions
 
----
-
-## 📱 MOBILE UTILITIES
+## Mobile utilities
 
 ### useMobileView
+
 ```typescript
 import { useMobileView } from '@/lib/components/MobileResponsive';
 
 function MyComponent() {
   const { isMobile, safeAreaInsets } = useMobileView();
-  
+
   return (
     <div style={{ paddingTop: safeAreaInsets.top }}>
       {isMobile ? <MobileLayout /> : <DesktopLayout />}
@@ -182,10 +188,11 @@ function MyComponent() {
 ```
 
 ### ResponsiveTable
+
 ```typescript
 import { ResponsiveTable } from '@/lib/components/MobileResponsive';
 
-<ResponsiveTable 
+<ResponsiveTable
   columns={[
     { key: 'name', label: 'Name' },
     { key: 'amount', label: 'Amount', align: 'right' }
@@ -196,6 +203,7 @@ import { ResponsiveTable } from '@/lib/components/MobileResponsive';
 ```
 
 ### TouchButton
+
 ```typescript
 import { TouchButton } from '@/lib/components/MobileResponsive';
 
@@ -204,32 +212,33 @@ import { TouchButton } from '@/lib/components/MobileResponsive';
 </TouchButton>
 ```
 
----
-
-## ♿ ACCESSIBILITY
+## Accessibility
 
 ### AccessibleInput
+
 ```typescript
 import { AccessibleInput } from '@/lib/components/Accessibility';
 
-<AccessibleInput 
+<AccessibleInput
   label="Email"
   placeholder="user@example.com"
   required
   error={errors.email}
-  hint="We'll never share your email"
+  hint="We will never share your email"
 />
 ```
 
-### Color Contrast Check
+### Color contrast check
+
 ```typescript
 import { getContrastRatio, isWCAGAACompliant } from '@/lib/components/Accessibility';
 
 const ratio = getContrastRatio('#FFFFFF', '#000000');
-console.log(isWCAGAACompliant(ratio)); // true (4.5:1 ✓)
+console.log(isWCAGAACompliant(ratio)); // true (4.5:1)
 ```
 
-### Keyboard Navigation
+### Keyboard navigation
+
 ```typescript
 import { useKeyboardNavigation } from '@/lib/components/Accessibility';
 
@@ -239,11 +248,10 @@ const { selectedIndex, containerRef } = useKeyboardNavigation(
 );
 ```
 
----
+## Testing
 
-## 🧪 TESTING
+### Run tests
 
-### Run Tests
 ```bash
 # All tests
 npm run test
@@ -260,7 +268,8 @@ npm run test:coverage
 npm run test:performance
 ```
 
-### Example Test
+### Example test
+
 ```typescript
 describe('MyComponent', () => {
   it('should validate input', () => {
@@ -270,70 +279,49 @@ describe('MyComponent', () => {
 });
 ```
 
----
+## Styling conventions
 
-## 🎨 STYLING CONVENTIONS
+### Tailwind classes used
 
-### Tailwind Classes Used
-```typescript
-// Layout
-'flex', 'grid', 'space-y-', 'gap-'
+| Category    | Classes                                            |
+| ----------- | -------------------------------------------------- |
+| Layout      | `flex`, `grid`, `space-y-`, `gap-`                 |
+| Colors      | `bg-blue-50`, `text-slate-900`, `border-slate-200` |
+| Responsive  | `sm:`, `md:`, `lg:`, `hidden sm:block`             |
+| Spacing     | `p-4`, `px-3`, `py-2`, `mb-1`                      |
+| Interactive | `hover:`, `focus:`, `active:`, `disabled:`         |
+| Animations  | `animate-pulse`, `transition-all`                  |
 
-// Colors
-'bg-blue-50', 'text-slate-900', 'border-slate-200'
+### Color palette
 
-// Responsive
-'sm:', 'md:', 'lg:', 'hidden sm:block'
+| Role    | Classes                            |
+| ------- | ---------------------------------- |
+| Primary | `bg-blue-600`, `hover:bg-blue-700` |
+| Success | `bg-green-50`, `text-green-700`    |
+| Warning | `bg-yellow-50`, `text-yellow-700`  |
+| Error   | `bg-red-50`, `text-red-700`        |
+| Neutral | `bg-slate-100`, `border-slate-200` |
 
-// Spacing
-'p-4', 'px-3', 'py-2', 'mb-1'
-
-// Interactive
-'hover:', 'focus:', 'active:', 'disabled:'
-
-// Animations
-'animate-pulse', 'transition-all'
-```
-
-### Color Palette
-```typescript
-// Primary
-'bg-blue-600', 'hover:bg-blue-700'
-
-// Success
-'bg-green-50', 'text-green-700'
-
-// Warning
-'bg-yellow-50', 'text-yellow-700'
-
-// Error
-'bg-red-50', 'text-red-700'
-
-// Neutral
-'bg-slate-100', 'border-slate-200'
-```
-
----
-
-## 💾 FORM VALIDATION PATTERN
+## Form validation pattern
 
 ```typescript
 // 1. Define form state
 const [formData, setFormData] = useState({
   email: '',
   amount: '',
-  date: ''
+  date: '',
 });
 const [errors, setErrors] = useState<FormErrors>({});
 
 // 2. Validate
 const validateForm = (): boolean => {
   const errors: FormErrors = {};
-  
+
   if (!formData.email) errors.email = 'Required';
-  if (!formData.amount || parseFloat(formData.amount) <= 0) 
-    errors.amount = 'Must be > 0';
-  
+  if (!formData.amount || parseFloat(formData.amount) <= 0) {
+    errors.amount = 'Must be greater than 0';
+  }
+
   setErrors(errors);
   return Object.keys(errors).length === 0;
 };
@@ -342,7 +330,7 @@ const validateForm = (): boolean => {
 const handleSubmit = (e) => {
   e.preventDefault();
   if (!validateForm()) return;
-  
+
   // Submit data
 };
 
@@ -353,9 +341,7 @@ onChange={(e) => {
 }}
 ```
 
----
-
-## 🔄 REAL-TIME UPDATES PATTERN
+## Real-time updates pattern
 
 ```typescript
 // Always include all dependencies
@@ -364,110 +350,108 @@ useEffect(() => {
     const summary = calculateBudget(items, expenses);
     onUpdateBudget?.(summary);
   };
-  
+
   calculate();
-}, [items, expenses, onUpdateBudget]); // ⚠️ ALL dependencies
+}, [items, expenses, onUpdateBudget]); // All dependencies
 ```
 
----
+## Calculation helpers
 
-## 📊 CALCULATION HELPERS
+### Budget calculation
 
-### Budget Calculation
 ```typescript
 import { calculateBudgetSummary } from '@/lib/utils/calculations';
 
 const summary = calculateBudgetSummary(apuItems, totalExpenses);
-// Returns: { allocated, spent, remaining, utilization%, utilization }
+// Returns: { allocated, spent, remaining, utilizationPercent, utilization }
 ```
 
-### Payroll Calculation
+### Payroll calculation
+
 ```typescript
 import { calculatePayroll } from '@/lib/utils/calculations';
 
 const payroll = calculatePayroll({
   baseSalary: 10000,
   hoursWorked: 160,
-  bonuses: 500
+  bonuses: 500,
 });
 // Returns: { gross, igss, isr, netPay }
 ```
 
 ### ISR 2024 (Guatemala)
-```typescript
-// Automatically calculated in PayrollView
-// Ranges:
-// Q0-Q6,750: 0%
-// Q6,750-Q33,750: 15%
-// Q33,750-Q65,000: 20%
-// Q65,000-Q120,000: 25%
-// Q120,000+: 27%
-```
 
----
+Automatically calculated in PayrollView.
 
-## 🔐 SECURITY BEST PRACTICES
+Ranges:
 
-1. **Never store passwords** - Always hash server-side
-2. **Rate limiting** - 5 attempts → 15-min lockout
-3. **Input validation** - Validate on both client & server
-4. **Type safety** - Use TypeScript for all data
-5. **Error handling** - Don't expose sensitive data
-6. **localStorage** - Only store non-sensitive data
+- Q0–Q6,750: 0 percent
+- Q6,750–Q33,750: 15 percent
+- Q33,750–Q65,000: 20 percent
+- Q65,000–Q120,000: 25 percent
+- Q120,000+: 27 percent
 
----
+## Security best practices
 
-## 📱 RESPONSIVE BREAKPOINTS
+1. Never store passwords — always hash server-side
+2. Rate limiting — 5 attempts → 15-min lockout
+3. Input validation — validate on both client and server
+4. Type safety — use TypeScript for all data
+5. Error handling — do not expose sensitive data
+6. localStorage — only store non-sensitive data
 
-```typescript
-// Tailwind breakpoints used
-'sm': '640px',   // Small (mobile)
-'md': '768px',   // Medium (tablet)
-'lg': '1024px',  // Large (desktop)
-'xl': '1280px'   // X-Large (wide desktop)
+## Responsive breakpoints
 
-// Usage
-'hidden sm:block'      // Hidden on mobile, visible on tablet+
-'sm:hidden'            // Visible on mobile, hidden on tablet+
-'grid-cols-1 md:grid-cols-2'  // 1 col mobile, 2 cols tablet+
-```
+| Breakpoint | Value   | Use                        |
+| ---------- | ------- | -------------------------- |
+| sm         | 640 px  | Small (mobile)             |
+| md         | 768 px  | Medium (tablet)            |
+| lg         | 1024 px | Large (desktop)            |
+| xl         | 1280 px | Extra-large (wide desktop) |
 
----
+Usage:
 
-## 🎯 COMMON TASKS
+- `hidden sm:block` — hidden on mobile, visible on tablet and up
+- `sm:hidden` — visible on mobile, hidden on tablet and up
+- `grid-cols-1 md:grid-cols-2` — 1 column on mobile, 2 columns on tablet and up
 
-### Add a New Expense
+## Common tasks
+
+### Add a new expense
+
 ```typescript
 const newExpense: ExpenseRecord = {
   id: `exp-${Date.now()}`,
   projectId,
   date: new Date().toISOString().split('T')[0],
   category: 'Materiales (Cementos, Hierro)',
-  description: 'Cemento y Arena',
+  description: 'Cemento y arena',
   supplier: 'Cementos Progreso',
   amount: 25000,
-  currency: 'GTQ'
+  currency: 'GTQ',
 };
 
-setExpenses(prev => [...prev, newExpense]);
+setExpenses((prev) => [...prev, newExpense]);
 ```
 
-### Add a New Project
+### Add a new project
+
 ```typescript
 const newProject: ProjectRecord = {
   id: `proj-${Date.now()}`,
   name: 'Nuevo Proyecto',
   clientName: 'Cliente A',
   budget: 500000,
-  status: 'active'
+  status: 'active',
 };
 
-setProjects(prev => [...prev, newProject]);
+setProjects((prev) => [...prev, newProject]);
 ```
 
-### Filter Data
+### Filter data
+
 ```typescript
-const filtered = items.filter(item => {
+const filtered = items.filter((item) => {
   const dateMatch = item.date >= startDate && item.date <= endDate;
   const categoryMatch = !category || item.category === category;
   return dateMatch && categoryMatch;
@@ -475,12 +459,10 @@ const filtered = items.filter(item => {
 ```
 
 ### Export to CSV
+
 ```typescript
-const csv = [
-  ['Header1', 'Header2'],
-  ...data.map(item => [item.field1, item.field2])
-]
-  .map(row => row.map(cell => `"${cell}"`).join(','))
+const csv = [['Header1', 'Header2'], ...data.map((item) => [item.field1, item.field2])]
+  .map((row) => row.map((cell) => `"${cell}"`).join(','))
   .join('\n');
 
 const blob = new Blob([csv], { type: 'text/csv' });
@@ -490,60 +472,59 @@ link.download = `export_${new Date().toISOString().split('T')[0]}.csv`;
 link.click();
 ```
 
----
+## Common pitfalls
 
-## ❌ COMMON PITFALLS
+### Missing dependencies in useEffect
 
-1. **Missing dependencies in useEffect**
-   ```typescript
-   // ❌ Bad - missing dependency
-   useEffect(() => {
-     calculate(items);
-   }, []); // Items not included!
-   
-   // ✅ Good
-   useEffect(() => {
-     calculate(items);
-   }, [items]);
-   ```
+```typescript
+// Bad — missing dependency
+useEffect(() => {
+  calculate(items);
+}, []); // Items not included!
 
-2. **Forgetting to clear errors**
-   ```typescript
-   // ✅ Clear error when user types
-   onChange={(e) => {
-     setFormData({ ...formData, email: e.target.value });
-     if (errors.email) setErrors({ ...errors, email: '' });
-   }}
-   ```
+// Good
+useEffect(() => {
+  calculate(items);
+}, [items]);
+```
 
-3. **Not validating before submit**
-   ```typescript
-   // ✅ Always validate first
-   const handleSubmit = (e) => {
-     e.preventDefault();
-     if (!validateForm()) return; // Stop here
-     submitData();
-   };
-   ```
+### Forgetting to clear errors
 
-4. **Not handling loading states**
-   ```typescript
-   // ✅ Show feedback while loading
-   {loading ? <Skeleton /> : <Content />}
-   ```
+```typescript
+// Clear error when user types
+onChange={(e) => {
+  setFormData({ ...formData, email: e.target.value });
+  if (errors.email) setErrors({ ...errors, email: '' });
+}}
+```
 
----
+### Not validating before submit
 
-## 📞 SUPPORT
+```typescript
+// Always validate first
+const handleSubmit = (e) => {
+  e.preventDefault();
+  if (!validateForm()) return; // Stop here
+  submitData();
+};
+```
+
+### Not handling loading states
+
+```typescript
+// Show feedback while loading
+{loading ? <Skeleton /> : <Content />}
+```
+
+## Support
 
 For issues or questions:
-1. Check the IMPLEMENTATION_COMPLETE.md for full documentation
+
+1. Check `IMPLEMENTATION_COMPLETE.md` for full documentation
 2. Review the test files for usage examples
 3. Check component JSDoc comments for API details
 4. Review git history for recent changes
 
----
-
-**Version:** 2.0.0
-**Last Updated:** 2024-01-15
-**Status:** Production Ready ✅
+Version: 2.0.0  
+Last updated: January 15, 2024  
+Status: Production ready

@@ -1,74 +1,74 @@
-# Configurar GitHub Secrets para CI/CD
+---
+contentType: Guide
+title: Configurar GitHub Secrets para CI/CD — ORIGEN ERP
+---
 
-## 🔑 Variables de Entorno Requeridas
+# Configurar GitHub Secrets para CI/CD — ORIGEN ERP
 
-El CI de GitHub Actions necesita las siguientes variables de entorno de Firebase para que el build pase correctamente.
+## Required environment variables
 
-## 📋 Pasos para Configurar
+GitHub Actions CI needs the following Firebase environment variables for the build to pass correctly.
 
-### 1. Ir a GitHub Secrets
-1. Navega al repositorio: https://github.com/salazaroliveros-prog/ORIGEN
-2. Ve a: **Settings** → **Secrets and variables** → **Actions**
-3. Haz clic en **New repository secret**
+## Steps to configure
 
-### 2. Agregar cada variable
+### 1. Go to GitHub Secrets
 
-Para cada variable, agrega:
+1. Navigate to the repository: https://github.com/salazaroliveros-prog/ORIGEN
+2. Go to: **Settings** → **Secrets and variables** → **Actions**
+3. Click on **New repository secret**
+
+### 2. Add each variable
+
+For each variable, add:
 
 #### NEXT_PUBLIC_FIREBASE_PROJECT_ID
-- **Name**: `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- **Value**: `origen-erp-guatemala`
+
+- **Name:** `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- **Value:** `origen-erp-guatemala`
 
 #### NEXT_PUBLIC_FIREBASE_API_KEY
-- **Name**: `NEXT_PUBLIC_FIREBASE_API_KEY`
-- **Value**: `AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI`
+
+- **Name:** `NEXT_PUBLIC_FIREBASE_API_KEY`
+- **Value:** `AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI`
 
 #### NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-- **Name**: `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- **Value**: `origen-erp-guatemala.firebaseapp.com`
+
+- **Name:** `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- **Value:** `origen-erp-guatemala.firebaseapp.com`
 
 #### NEXT_PUBLIC_FIREBASE_APP_ID
-- **Name**: `NEXT_PUBLIC_FIREBASE_APP_ID`
-- **Value**: `1:893831571998:web:4e38903eeb0dff05011c0f`
+
+- **Name:** `NEXT_PUBLIC_FIREBASE_APP_ID`
+- **Value:** `1:893831571998:web:4e38903eeb0dff05011c0f`
 
 #### NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-- **Name**: `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- **Value**: `origen-erp-guatemala.firebasestorage.app`
+
+- **Name:** `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- **Value:** `origen-erp-guatemala.firebasestorage.app`
 
 #### NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-- **Name**: `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- **Value**: `893831571998`
+
+- **Name:** `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- **Value:** `893831571998`
 
 #### NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-- **Name**: `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
-- **Value**: (dejar vacío)
+
+- **Name:** `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
+- **Value:** Leave empty
 
 #### NEXT_PUBLIC_FIRESTORE_DATABASE_ID
-- **Name**: `NEXT_PUBLIC_FIRESTORE_DATABASE_ID`
-- **Value**: `(default)`
 
-### 3. Verificar
+- **Name:** `NEXT_PUBLIC_FIRESTORE_DATABASE_ID`
+- **Value:** `(default)`
 
-Después de agregar todas las variables:
-1. Ve a **Actions** tab
-2. Busca el último workflow que falló
-3. Haz clic en **Re-run all jobs**
+### 3. Verify
 
-## ⚠️ Nota Importante
+After adding all variables:
 
-Las credenciales de Firebase (`NEXT_PUBLIC_FIREBASE_*`) son **públicas** y están diseñadas para usarse en el cliente. No son secretos sensibles como claves privadas o tokens de servicio.
+1. Go to the **Actions** tab
+2. Search for the last workflow that failed
+3. Click on **Re-run all jobs**
 
-Sin embargo, GitHub Actions necesita tener acceso a estas variables durante el build para que Next.js pueda incluir la configuración de Firebase en el bundle de producción.
+## Important note
 
-## 🚀 Después de Configurar
-
-Una vez configurados los secrets:
-1. Los builds de CI pasarán
-2. Vercel también desplegará correctamente (ya tiene las variables configuradas)
-3. La aplicación funcionará en producción
-
-## 📝 Referencia
-
-- Archivo `.env` local tiene las mismas credenciales
-- Vercel ya tiene estas variables configuradas en su Environment Variables
-- Solo falta agregarlas a GitHub Secrets para CI
+Firebase credentials (`NEXT_PUBLIC_FIREBASE_*`) are public and designed to be used on the client. They are not sensitive secrets like private keys or service tokens.

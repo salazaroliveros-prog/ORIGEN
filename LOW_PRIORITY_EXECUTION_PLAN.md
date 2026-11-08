@@ -1,92 +1,65 @@
-# ORIGEN ERP - LOW PRIORITY EXECUTION PLAN
-
-**Fecha:** 2024-01-15
-**Fase:** LOW PRIORITY (19 issues)
-**Tiempo Estimado:** 2 horas
-**Estado:** INICIANDO
-
+---
+contentType: Plan
+title: Low priority execution plan — ORIGEN ERP
 ---
 
-## 🎯 ESTRATEGIA RÁPIDA
+# Low priority execution plan — ORIGEN ERP
 
-### Grupo 1: Progress Bars (3 issues) - 15 MIN
-```
-Objetivo: h-2 → h-3 (más visible)
-Archivos: 
-  • DashboardOverview.tsx (Budget Utilization)
-  • ProjectsList.tsx (Project Progress)
-  • PayrollView.tsx (if exists)
-```
+Fecha: 15 de enero de 2024  
+Fase: Low priority (19 issues)  
+Tiempo estimado: 2 horas  
+Estado: Iniciando
 
-### Grupo 2: Badges & Pills (4 issues) - 20 MIN
-```
+## Estrategia rápida
+
+### Grupo 1: Barras de progreso (3 issues) — 15 MIN
+
+Objetivo: `h-2` → `h-3` (más visible)
+
+Archivos:
+
+- `DashboardOverview.tsx` (Budget Utilization)
+- `ProjectsList.tsx` (Project Progress)
+- `PayrollView.tsx` (si existe)
+
+### Grupo 2: Badges y pills (4 issues) — 20 MIN
+
 Objetivo: Estandarizar styling
+
 Cambios:
-  • All badges: px-2 py-1 rounded-full font-semibold text-xs
-  • Status badges: Usar COLORS.status
-  • Category badges: Usar COLORS.expenseCategories
-```
 
-### Grupo 3: Typography (5 issues) - 15 MIN
-```
-Objetivo: Consistent font sizing
+- Todos los badges: `px-2 py-1 rounded-full font-semibold text-xs`
+- Badges de estado: Usar `COLORS.status`
+- Badges de categoría: Usar `COLORS.expenseCategories`
+
+### Grupo 3: Tipografía (5 issues) — 15 MIN
+
+Objetivo: Tamaños de fuente consistentes
+
 Cambios:
-  • Form labels: text-xs → text-sm (más legible)
-  • Helper text: text-xs text-slate-500
-  • Error text: text-xs text-red-600
-  • Card titles: font-semibold uniform
-```
 
-### Grupo 4: Hover Effects (4 issues) - 20 MIN
-```
-Objetivo: Smooth transitions
+- Etiquetas de formulario: `text-xs` → `text-sm` (más legible)
+- Texto de ayuda: `text-xs text-slate-500`
+- Texto de error: `text-xs text-red-600`
+- Títulos de tarjeta: `font-semibold` uniforme
+
+### Grupo 4: Efectos hover (4 issues) — 20 MIN
+
+Objetivo: Transiciones suaves
+
 Cambios:
-  • Buttons: hover:shadow-md transition-all
-  • Cards: hover:shadow-md transition-shadow
-  • Links: hover:text-blue-700
-  • Inputs: focus:ring-2 focus:ring-blue-500
-```
 
-### Grupo 5: Empty States & Polish (3 issues) - 10 MIN
-```
-Objetivo: Better messaging
+- Botones: `hover:shadow-md transition-all`
+- Tarjetas: `hover:shadow-md transition-shadow`
+- Enlaces: `hover:text-blue-700`
+- Inputs: `focus:ring-2 focus:ring-blue-500`
+
+### Grupo 5: Estados vacíos y pulido (3 issues) — 10 MIN
+
+Objetivo: Mejorar mensajes
+
 Cambios:
-  • Empty states: Icon + text + CTA
-  • Placeholders: Better contrast
-  • No data: Professional styling
-```
 
----
-
-## 📋 EJECUCIÓN RÁPIDA
-
-**Total Time: ~80 minutes**
-
-### FASE 1: Progress Bars (15 min)
-- [ ] Search all "h-2" en componentes
-- [ ] Cambiar a "h-3"
-- [ ] Verificar visual
-
-### FASE 2: Badges (20 min)
-- [ ] ProjectsList status badges
-- [ ] ExpensesView category badges
-- [ ] QuotationsView status badges
-- [ ] Aplicar colores uniformes
-
-### FASE 3: Typography (15 min)
-- [ ] Form labels: review & update
-- [ ] Error messages: uniform text-xs text-red-600
-- [ ] Helper text: uniform text-xs text-slate-500
-
-### FASE 4: Hover Effects (20 min)
-- [ ] Review button classes
-- [ ] Add hover:shadow-md transition-all
-- [ ] Cards: Add hover effects
-
-### FASE 5: Polish (10 min)
-- [ ] Empty states review
-- [ ] Final touches
-
----
-
-**NEXT: Start FASE 1**
+- Estados vacíos: Icono + texto + llamada a la acción
+- Marcadores de posición: Mejor contraste
+- Sin datos: Estilado profesional

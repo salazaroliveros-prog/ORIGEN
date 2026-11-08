@@ -1,114 +1,64 @@
-# ORIGEN ERP - LOW PRIORITY PHASE
-
-**Fecha:** 2024-01-15
-**Fase:** LOW PRIORITY (19 issues)
-**Tiempo Estimado:** 2 horas
-**Estado:** INICIANDO
-
+---
+contentType: Plan
+title: Low priority phase — ORIGEN ERP
 ---
 
-## 🎯 LOW PRIORITY ISSUES (Polish & Refinement)
+# Low priority phase — ORIGEN ERP
 
-### Grupo 1: Typography Fixes (5 issues)
-**Objetivo:** Mejorar tamaños y pesos de fuentes
+Fecha: 15 de enero de 2024  
+Fase: Low priority (19 issues)  
+Tiempo estimado: 2 horas  
+Estado: Iniciando
 
-**Changes:**
-- [ ] Form labels: text-xs → text-sm (más legible)
-- [ ] Card titles: Asegurar font-semibold uniform
-- [ ] Badge text: text-xs font-semibold (consistent)
-- [ ] Helper text: text-xs text-slate-500 (consistent)
-- [ ] Error messages: text-xs text-red-600 (consistent)
+## Low priority issues (polish and refinement)
 
-**Time:** ~20 min
+### Group 1: Typography fixes (5 issues)
 
----
+Objetivo: Mejorar tamaños y pesos de fuentes
 
-### Grupo 2: Hover Effects & Transitions (4 issues)
-**Objetivo:** Mejorar feedback visual en interacciones
+Cambios:
 
-**Changes:**
-- [ ] All buttons: `hover:shadow-md transition-all`
-- [ ] All cards: `hover:shadow-md transition-shadow`
-- [ ] Input focus: `focus:ring-2 focus:ring-blue-500` (verified)
-- [ ] Links: `hover:text-blue-700 underline` (on hover)
+- Etiquetas de formulario: `text-xs` → `text-sm` (más legible)
+- Títulos de tarjetas: Asegurar `font-semibold` uniforme
+- Texto de badge: `text-xs font-semibold` (consistente)
+- Texto de ayuda: `text-xs text-slate-500` (consistente)
+- Mensajes de error: `text-xs text-red-600` (consistente)
 
-**Time:** ~30 min
+Tiempo: Aproximadamente 20 minutos
 
----
+### Group 2: Hover effects and transitions (4 issues)
 
-### Grupo 3: Progress Bar & Indicators (3 issues)
-**Objetivo:** Mejorar visibilidad de progress bars
+Objetivo: Mejorar feedback visual en interacciones
 
-**Changes:**
-- [ ] Progress bar height: h-2 → h-3
-- [ ] Progress bar radius: No cambios, rounded-full
-- [ ] Budget utilization bar: Add shadow/border
-- [ ] Status indicators: Mejorar contrast
+Cambios:
 
-**Time:** ~15 min
+- Todos los botones: `hover:shadow-md transition-all`
+- Todas las tarjetas: `hover:shadow-md transition-shadow`
+- Enfoque de inputs: `focus:ring-2 focus:ring-blue-500` (verificado)
+- Enlaces: `hover:text-blue-700 underline` (al pasar el cursor)
 
----
+Tiempo: Aproximadamente 30 minutos
 
-### Grupo 4: Badge & Pill Styling (4 issues)
-**Objetivo:** Estandarizar badges y pills
+### Group 3: Progress bar and indicators (3 issues)
 
-**Changes:**
-- [ ] All badges: px-2 py-1 rounded-full font-semibold text-xs
-- [ ] Status badges: Usar COLORS.status
-- [ ] Category badges: Usar COLORS.expenseCategories
-- [ ] Priority badges: Agregar colores
+Objetivo: Mejorar visibilidad de barras de progreso
 
-**Time:** ~25 min
+Cambios:
 
----
+- Altura de barra de progreso: `h-2` → `h-3`
+- Radio de barra de progreso: Sin cambios, `rounded-full`
+- Barra de utilización de presupuesto: Agregar sombra o borde
+- Indicadores de estado: Mejorar contraste
 
-### Grupo 5: Placeholder & Empty States (3 issues)
-**Objetivo:** Mejorar messaging y empty states
+Tiempo: Aproximadamente 15 minutos
 
-**Changes:**
-- [ ] Empty states: Icono + texto + CTA
-- [ ] Placeholders: Mejorar contraste
-- [ ] No data states: Styling consistente
-- [ ] Loading states: Skeleton components uniform
+### Group 4: Badge and pill styling (4 issues)
 
-**Time:** ~20 min
+Objetivo: Estandarizar badges y pills
 
----
+Cambios:
 
-## 🔧 ESTRATEGIA DE EJECUCIÓN
-
-**Paso 1:** Typography (5 min)
-- Buscar/Replace todas las etiquetas
-- Verificar consistency
-
-**Paso 2:** Hover Effects (10 min)
-- Agregar clases transition
-- Verificar en componentes principales
-
-**Paso 3:** Progress Bars (5 min)
-- h-2 → h-3 en todos los progress bars
-- Verificar visual
-
-**Paso 4:** Badges (10 min)
-- Estandarizar clase de badge
-- Aplicar a componentes
-
-**Paso 5:** Empty States (10 min)
-- Mejorar mensajes
-- Agregar consistency
-
----
-
-## ✅ SUCCESS CRITERIA
-
-- [ ] Todas las fuentes: Consistent sizing & weight
-- [ ] Todos los hover effects: Smooth & visible
-- [ ] Todos los progress bars: h-3 uniform
-- [ ] Todos los badges: Styling consistente
-- [ ] Todos los empty states: Professional look
-
-**Expected Score Gain:** +0.08 → Final: 9.30/10
-
----
-
-**NEXT: Ejecutar LOW PRIORITY fixes**
+- Todos los badges: `px-2 py-1 rounded-full font-semibold text-xs`
+- Badges de estado: Usar `COLORS.status`
+- Badges de categoría: Usar `COLORS.expenseCategories`
+- Badges de prioridad: Agregar colores

@@ -1,31 +1,42 @@
-# Instrucciones para Actualizar el Workflow de CI
+---
+contentType: Guide
+title: Instructions to update CI workflow — ORIGEN ERP
+---
 
-## ⚠️ GitHub está rechazando el push automático
+# Instructions to update CI workflow — ORIGEN ERP
 
-GitHub no permite que una OAuth App modifique workflows sin el permiso `workflow`. Tienes dos opciones:
+## GitHub is rejecting automatic push
 
-## Opción 1: Modificar el workflow manualmente (Recomendado)
+GitHub does not allow an OAuth app to modify workflows without the `workflow` permission. You have two options:
 
-### Paso 1: Ir al archivo del workflow
-1. Navega a: https://github.com/salazaroliveros-prog/ORIGEN/blob/main/.github/workflows/ci.yml
-2. Haz clic en el lápiz (✏️) para editar
+## Option 1: Modify workflow manually (recommended)
 
-### Paso 2: Agregar permisos
-En la sección `permissions`, cámbiala a:
+### Step 1: Go to workflow file
+
+1. Navigate to: https://github.com/salazaroliveros-prog/ORIGEN/blob/main/.github/workflows/ci.yml
+2. Click the pencil icon to edit
+
+### Step 2: Add permissions
+
+In the `permissions` section, change to:
+
 ```yaml
 permissions:
   contents: read
   actions: read
 ```
 
-### Paso 3: Agregar variables de entorno al build
-En el step "Build", reemplaza:
+### Step 3: Add environment variables to build
+
+In the "Build" step, replace:
+
 ```yaml
 - name: Build
   run: npm run build
 ```
 
-Con:
+With:
+
 ```yaml
 - name: Build
   env:
@@ -40,76 +51,20 @@ Con:
   run: npm run build
 ```
 
-### Paso 4: Commit
-1. Haz clic en "Commit changes"
-2. Selecciona "Commit directly to the main branch"
-3. Haz clic en "Commit changes"
+### Step 4: Commit
 
-## Opción 2: Agregar permiso workflow al token de GitHub
+1. Click "Commit changes"
+2. Select "Commit directly to the main branch"
+3. Click "Commit changes"
 
-Si prefieres que pueda hacer push automático en el futuro:
+## Option 2: Add workflow permission to GitHub token
 
-1. Ve a: https://github.com/settings/tokens
-2. Regenera tu token de GitHub
-3. Agrega el scope `workflow`
-4. Actualiza el token en tu git config
-5. Intenta el push nuevamente
+If you prefer automatic push in the future:
 
-## ✅ Después de actualizar el workflow
+1. Go to: https://github.com/settings/tokens
+2. Regenerate your GitHub token
+3. Add the `workflow` scope
+4. Update the token in your git config
+5. Try the push again
 
-Una vez actualizado:
-1. El CI se ejecutará automáticamente
-2. Verificará que el build pase
-3. Vercel desplegará automáticamente si el build pasa
-
-## 📋 Archivo completo actualizado
-
-```yaml
-name: CI
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-permissions:
-  contents: read
-  actions: read
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Run tests
-        run: npm test
-
-      - name: Build
-        env:
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-          NEXT_PUBLIC_FIRESTORE_DATABASE_ID: ${{ secrets.NEXT_PUBLIC_FIRESTORE_DATABASE_ID }}
-        run: npm run build
-```
+## After updating the workflow
