@@ -52,20 +52,16 @@ export function CostBreakdownChart({
           strokeDasharray="5 5"
           fill="#8884d8"
           fontSize={12}
-          show={showXAxis}
         />
         <YAxis
           fill="#8884d8"
           fontSize={12}
-          show={showYAxis}
-          tickFormatter: (value: number) => `Q${value.toLocaleString()}`
+          tickFormatter={(value: number) => `Q${value.toLocaleString()}`}
         />
         <Tooltip />
         <Legend
           verticalAlign="bottom"
           height={36}
-          fontSize={12}
-          show={showLegend}
         />
         <Bar
           dataKey="cost"
@@ -73,7 +69,7 @@ export function CostBreakdownChart({
           fill="#1e3a8a"
           stroke="#1e3a8a"
           strokeWidth={2}
-          radius={{ x: 3, y: 0 }}
+          radius={3}
         />
       </BarChart>
     </ResponsiveContainer>

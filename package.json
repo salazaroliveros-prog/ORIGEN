@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-  "node": ">=18.0.0 <24.0.0"
-},
-"scripts": {
+    "node": ">=18.0.0 <24.0.0"
+  },
+  "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
     "build:analyze": "ANALYZE=true next build",
@@ -55,6 +55,7 @@
     "react-dom": "^19.2.1",
     "react-dropzone": "^20.1.4",
     "react-hot-toast": "^2.6.1",
+    "react-tooltip": "^6.0.10",
     "recharts": "^3.10.1",
     "zod": "^4.6.7"
   },
@@ -86,6 +87,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "15.0.0",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-next": "^0.0.0",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.1.1",
     "husky": "^9.1.7",
@@ -103,9 +105,6 @@
     "vite": "8.3.6",
     "vitest": "5.1.0",
     "wait-on": "9.5.1"
-  },
-  "optionalDependencies": {
-    "@next/swc-win32-x64-msvc": "16.4.5"
   },
   "overrides": {
     "@grpc/grpc-js": "^1.14.5",

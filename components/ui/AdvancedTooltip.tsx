@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import Tooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 
 interface AdvancedTooltipProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   text: string;
   place?: 'top' | 'bottom' | 'left' | 'right';
   delayShow?: number;
@@ -26,7 +26,6 @@ export function AdvancedTooltip({
     <Tooltip
       id="advanced-tooltip"
       place={place}
-      effect={effect}
       delayShow={delayShow}
       delayHide={delayHide}
       aria-label={text}

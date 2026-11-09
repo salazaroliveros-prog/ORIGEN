@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Input } from './Input';
 import { Button } from './Button';
-import { useDebounce } from '@/lib/hooks/usePagination'; // reuse hook or create simple one
+import { useDebounce } from '@/lib/hooks/useDebounce';
 
 export interface SearchBarProps {
   placeholder?: string;
