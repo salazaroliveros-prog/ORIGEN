@@ -2,7 +2,10 @@
   "name": "constructerp-guatemala",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
+  "engines": {
+  "node": ">=18.0.0 <24.0.0"
+},
+"scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
     "build:analyze": "ANALYZE=true next build",

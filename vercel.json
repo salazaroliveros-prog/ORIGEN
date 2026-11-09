@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "version": 2,
   "buildCommand": "npm run build",
@@ -90,3 +91,6 @@
   "cleanUrls": true,
   "trailingSlash": false
 }
+=======
+{"framework": "nextjs", "buildCommand": "npm run build", "outputDirectory": ".next/standalone", "installCommand": "npm install"}
+>>>>>>> 4eb7373a1f48fe2146a4aec664e87b148d9e8a07
