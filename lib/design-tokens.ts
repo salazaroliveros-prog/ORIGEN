@@ -123,5 +123,72 @@ export function getColorWithOpacity(color: string, opacity: number): string {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
+// ============================================
+// SENTINEL-IOT GLASSMORPHISM DESIGN TOKENS
+// ============================================
+
+export const sentinelIotDesignTokens = {
+  // Glass colors - premium glassmorphism palette
+  glass: {
+    // Light glass variants
+    l1: 'bg-white/[0.04] border border-white/10 backdrop-blur-sm',
+    l2: 'bg-white/[0.06] border border-white/12 backdrop-blur-md',
+    l3: 'bg-white/[0.08] border border-white/15 backdrop-blur-lg',
+    // Dark glass variants  
+    darkL1: 'bg-slate-900/[0.3] border border-slate-700/30 backdrop-blur-sm',
+    darkL2: 'bg-slate-900/[0.4] border border-slate-600/40 backdrop-blur-md',
+    darkL3: 'bg-slate-900/[0.5] border border-slate-500/50 backdrop-blur-lg',
+    // Glow effects
+    glowPrimary: '0 0 20px rgba(99, 102, 241, 0.4)',  // sky-500 glow
+    glowSecondary: '0 0 15px rgba(168, 85, 247, 0.3)', // violet-500 glow
+    // Accent colors (matching SENTINEL-IOT's premium palette)
+    accentPrimary: '#6366F1',   // indigo-600
+    accentSecondary: '#A855FF', // violet-500
+    accentTertiary: '#0891B2',  // sky-600
+  },
+  // Status colors for threat indicators
+  threatStatus: {
+    critical: 'bg-red-500/10 border border-red-500/30 text-red-400',
+    high: 'bg-orange-500/10 border border-orange-500/30 text-orange-300',
+    medium: 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-300',
+    low: 'bg-green-500/10 border border-green-500/30 text-green-300',
+    unknown: 'bg-slate-500/10 border border-slate-500/30 text-slate-400',
+  },
+  // Network threat types
+  threatTypes: {
+    ssh: 'bg-slate-950/20 border border-slate-700',
+    telnet: 'bg-slate-950/20 border border-slate-700',
+    http: 'bg-slate-950/20 border border-slate-700',
+    https: 'bg-slate-950/20 border border-slate-700',
+    malware: 'bg-slate-950/20 border border-slate-700',
+    bruteForce: 'bg-slate-950/20 border border-slate-700',
+  },
+  // Chart colors for threat visualization
+  chartColors: {
+    critical: 'rgba(239, 68, 68, 0.8)',
+    high: 'rgba(251, 191, 36, 0.8)',
+    medium: 'rgba(34, 197, 94, 0.8)',
+    low: 'rgba(56, 189, 248, 0.8)',
+    background: 'rgba(30, 64, 175, 0.5)',
+  },
+  // Touch targets (accesibilidad móvil - already defined in original tokens)
+  touch: {
+    minSize: '44px',
+  },
+  // Animation durations specific to dashboard
+  animations: {
+    fadeIn: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
+    slideIn: '200ms cubic-bezier(0.4, 0, 0.2, 1)',
+    pulseSlow: '2s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+    bounce: '0.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite',
+  },
+} as const;
+
 // Export types for TypeScript
-export type DesignTokens = typeof designTokens;
+export type SentinelIotDesignTokens = typeof sentinelIotDesignTokens;
+
+// Export combined type for use throughout the app
+export interface CombinedDesignTokens {
+  design: typeof designTokens;
+  sentinelIot: typeof sentinelIotDesignTokens;
+}

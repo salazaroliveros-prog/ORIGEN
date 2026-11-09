@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
 import './polyfills';
+import { SentinelIOTDashboard } from '@/components/sentinel-dashboard';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -103,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="h-full min-h-screen overflow-x-hidden bg-bg-ambient text-slate-100 antialiased selection:bg-brand-primary selection:text-slate-950">
+        <SentinelIOTDashboard className="fixed top-0 right-0 w-64 h-full z-50 md:hidden" />
         <Toaster
           position="bottom-right"
           toastOptions={{
@@ -121,6 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         {children}
+        <SentinelIOTDashboard className="fixed top-0 right-0 w-64 h-screen z-50 hidden md:block" />
       </body>
     </html>
   );
