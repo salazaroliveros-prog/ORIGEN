@@ -52,7 +52,7 @@ export function Select({
           id={inputId}
           aria-invalid={error ? true : undefined}
           aria-describedby={error || helperText ? messageId : undefined}
-          className={`w-full cursor-pointer appearance-none rounded-lg border bg-white/[0.03] px-3 py-2.5 text-sm text-slate-100 transition-opacity transition-transform duration-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary/50 ${leftIcon ? 'pl-9' : ''} ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className}`}
+          className={`w-full cursor-pointer appearance-none rounded-lg border bg-white/[0.03] px-3 py-2.5 text-sm text-slate-100 transition duration-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary/50 ${leftIcon ? 'pl-9' : ''} ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className}`}
           {...props}
         >
           {options.map((option) => (

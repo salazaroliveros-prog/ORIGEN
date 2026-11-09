@@ -87,7 +87,7 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-slate-800">
             <div
-              className={`h-full transition-opacity transition-transform ${
+              className={`h-full transition ${
                 isOverBudget ? 'bg-red-500' : 'bg-emerald-500'
               }`}
               style={{ width: `${Math.min(utilizationPercent, 100)}%` }}

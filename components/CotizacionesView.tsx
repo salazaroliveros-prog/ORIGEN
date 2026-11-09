@@ -914,6 +914,7 @@ export function CotizacionesView({
                     onClick={() => handleShareWhatsApp(q)}
                     className="cursor-pointer rounded-xl border border-emerald-500/30 bg-emerald-600/20 p-2 text-emerald-400 transition hover:bg-emerald-600/30"
                     title="Compartir cotización por WhatsApp"
+                    aria-label={`Compartir cotización ${q.id} por WhatsApp`}
                   >
                     <Share2 className="h-4 w-4" />
                   </button>
@@ -924,6 +925,7 @@ export function CotizacionesView({
                       onClick={() => handleUpdateStatus(q.id, 'Aceptada')}
                       className="cursor-pointer rounded-xl bg-emerald-600 p-2 text-white transition hover:bg-emerald-500"
                       title="Marcar como Aceptada / Ganada"
+                      aria-label={`Marcar cotización ${q.id} como aceptada`}
                     >
                       <Check className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -1167,8 +1169,8 @@ export function CotizacionesView({
                 </div>
 
                 {/* Items Table */}
-                <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40">
-                  <table className="w-full text-left text-xs">
+                <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/40">
+                  <table className="w-full min-w-[42rem] text-left text-xs">
                     <thead>
                       <tr className="border-b border-slate-800 bg-slate-900/60 text-[10px] font-bold uppercase text-slate-400">
                         <th className="py-2 pl-3">Descripción de Partida</th>
@@ -1209,6 +1211,7 @@ export function CotizacionesView({
                               type="button"
                               onClick={() => handleRemoveItem(idx)}
                               className="cursor-pointer rounded p-1 text-slate-500 transition hover:text-rose-400"
+                              aria-label={`Quitar partida ${item.description}`}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -1332,7 +1335,7 @@ export function CotizacionesView({
                 className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500 px-5 py-2 text-xs font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="h-3.5 w-3.5" aria-hidden="true" />
-                {isSavingQuote ? 'Guardando…' : '                Guardar como Enviada'}
+                {isSavingQuote ? 'Guardando…' : 'Guardar como Enviada'}
               </button>
             </div>
           </div>

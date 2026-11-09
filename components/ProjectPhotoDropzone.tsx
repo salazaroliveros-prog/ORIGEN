@@ -118,7 +118,7 @@ export function ProjectPhotoDropzone({
       {/* Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-opacity transition-transform ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'} ${isDragReject ? 'border-red-500 bg-red-50' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${uploading ? 'pointer-events-none' : ''} `}
+        className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'} ${isDragReject ? 'border-red-500 bg-red-50' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${uploading ? 'pointer-events-none' : ''} `}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center gap-3">
@@ -160,6 +160,7 @@ export function ProjectPhotoDropzone({
                     alt={file.filename}
                     className="h-full w-full object-cover"
                     width={800}
+                    height={800}
                     quality={80}
                   />
                 </div>

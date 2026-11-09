@@ -1,19 +1,13 @@
 import { expect, test } from '@playwright/test';
+import { ADMIN_EMAIL, ensureAuthenticated } from './testCredentials';
 
 /**
- * auth.spec.ts — Autenticación automática de ORIGEN ERP
- *
- * El sistema entra directamente con el correo administrativo configurado
- * (salazaroliveros@gmail.com) sin pantalla de login ni diálogo de contraseña.
+ * auth.spec.ts — Autenticación de ORIGEN ERP con la cuenta E2E configurada.
  */
 
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-
-test.describe('Autenticación automática', () => {
+test.describe('Autenticación', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    // Dar tiempo para que la autenticación automática se complete
-    await page.waitForTimeout(4000);
+    await ensureAuthenticated(page);
   });
 
   test('la página carga con título que contiene ORIGEN o ConstructERP', async ({ page }) => {
@@ -34,10 +28,9 @@ test.describe('Autenticación automática', () => {
     });
   });
 
-  test('la app NO muestra un diálogo de inicio de sesión al cargar (auth es automática)', async ({
+  test('la sesión autenticada no muestra el formulario de inicio de sesión', async ({
     page,
   }) => {
-    // El sistema hace auto-auth: no debe haber campo de correo electrónico en pantalla
     const emailInput = page.getByLabel('Correo electrónico');
     const isVisible = await emailInput.isVisible().catch(() => false);
     expect(isVisible).toBe(false);

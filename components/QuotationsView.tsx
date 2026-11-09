@@ -9,12 +9,19 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
+import { jsPDF } from 'jspdf';
 import Image from 'next/image';
 import { Plus, Pencil, Trash2, FileText, Download, Loader, Eye, Clock } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 import { Modal } from '@/components/ui/Modal';
 import { Alert } from '@/components/ui/Alert';
+import {
+  calculateTotals,
+  getDaysUntilExpiry,
+  getExpiryStatus,
+  validateDiscountValue,
+} from '@/lib/quotationUtils';
 
 interface LineItem {
   id: string;
@@ -69,7 +76,7 @@ export function QuotationsView({ projectId }: { projectId: string }) {
     lineItems: [{ id: '1', description: '', quantity: 1, unitPrice: 0, total: 0 }],
     discount: '0',
     notes: '',
-    logoUrl: 'https://via.placeholder.com/150x50?text=ORIGEN+ERP',
+    logoUrl: '/assets/branding/web-banner-logo.png',
   });
 
   const [previewQuotation, setPreviewQuotation] = useState<QuotationRecord | null>(null);
@@ -107,7 +114,7 @@ export function QuotationsView({ projectId }: { projectId: string }) {
           total: 103000,
           status: 'sent',
           notes: 'Cotización válida por 30 días',
-          logoUrl: 'https://via.placeholder.com/150x50?text=ORIGEN+ERP',
+          logoUrl: '/assets/branding/web-banner-logo.png',
         },
       ]);
       setLoading(false);
@@ -116,73 +123,77 @@ export function QuotationsView({ projectId }: { projectId: string }) {
     return () => clearTimeout(timer);
   }, [projectId]);
 
-  // FEATURE 3.4: Discount validation (max 50%)
-  const validateDiscount = (value: string): boolean => {
-    const discount = parseFloat(value);
-    if (discount < 0 || discount > 50) {
-      return false;
-    }
-    return true;
-  };
+  const validateDiscount = (value: string): boolean => validateDiscountValue(value);
 
-  // Calculate totals
-  const calculateTotals = (items: LineItem[], discount: number) => {
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const discountAmount = (subtotal * discount) / 100;
-    const taxableAmount = subtotal - discountAmount;
-    const tax = taxableAmount * 0.12; // 12% IVA Guatemala (Decreto 27-92)
-    const total = taxableAmount + tax;
+  const buildEmptyLineItem = (): LineItem => ({
+    id: `item-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    description: '',
+    quantity: 1,
+    unitPrice: 0,
+    total: 0,
+  });
 
-    return {
-      subtotal,
-      discountAmount,
-      tax,
-      total,
-    };
+  const resetForm = () => {
+    setFormData({
+      clientName: '',
+      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      lineItems: [buildEmptyLineItem()],
+      discount: '0',
+      notes: '',
+      logoUrl: '/assets/branding/web-banner-logo.png',
+    });
+    setFormErrors({});
+    setEditingId(null);
   };
 
   // Handle line item change
   const handleLineItemChange = (index: number, field: keyof LineItem, value: string | number) => {
-    const newItems = [...formData.lineItems];
-    const item = newItems[index];
+    setFormData((prev) => {
+      const nextItems = prev.lineItems.map((item, itemIndex) => {
+        if (itemIndex !== index) return item;
 
-    if (field === 'quantity' || field === 'unitPrice') {
-      const num = parseFloat(value.toString());
-      if (!isNaN(num)) {
-        item[field] = num;
-        item.total = newItems[index].quantity * newItems[index].unitPrice;
-      }
-    } else {
-      (item[field] as any) = value;
-    }
+        const nextItem: LineItem = { ...item };
 
-    setFormData({ ...formData, lineItems: newItems });
+        if (field === 'quantity' || field === 'unitPrice') {
+          const numericValue = Number(value);
+          if (!Number.isFinite(numericValue)) {
+            return item;
+          }
+
+          nextItem[field] = numericValue;
+          nextItem.total = nextItem.quantity * nextItem.unitPrice;
+          return nextItem;
+        }
+
+        const typedValue = value as string;
+        nextItem[field] = typedValue as never;
+        return nextItem;
+      });
+
+      return { ...prev, lineItems: nextItems };
+    });
   };
 
   // Add line item
   const addLineItem = () => {
-    const newItem: LineItem = {
-      id: `item-${Date.now()}`,
-      description: '',
-      quantity: 1,
-      unitPrice: 0,
-      total: 0,
-    };
-    setFormData({
-      ...formData,
-      lineItems: [...formData.lineItems, newItem],
-    });
+    setFormData((prev) => ({
+      ...prev,
+      lineItems: [...prev.lineItems, buildEmptyLineItem()],
+    }));
   };
 
   // Remove line item
   const removeLineItem = (index: number) => {
-    if (formData.lineItems.length === 1) {
-      toast.error('Debe haber al menos un artículo');
-      return;
-    }
-    setFormData({
-      ...formData,
-      lineItems: formData.lineItems.filter((_, i) => i !== index),
+    setFormData((prev) => {
+      if (prev.lineItems.length === 1) {
+        toast.error('Debe haber al menos un artículo');
+        return prev;
+      }
+
+      return {
+        ...prev,
+        lineItems: prev.lineItems.filter((_, i) => i !== index),
+      };
     });
   };
 
@@ -249,80 +260,101 @@ export function QuotationsView({ projectId }: { projectId: string }) {
         toast.success('Cotización creada');
       }
 
-      // Reset form
-      setFormData({
-        clientName: '',
-        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        lineItems: [{ id: '1', description: '', quantity: 1, unitPrice: 0, total: 0 }],
-        discount: '0',
-        notes: '',
-        logoUrl: 'https://via.placeholder.com/150x50?text=ORIGEN+ERP',
-      });
-      setFormErrors({});
-      setEditingId(null);
+      resetForm();
       setShowForm(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error');
     }
   };
 
-  // FEATURE 3.2: Generate PDF with logo
+  // FEATURE 3.2: Generate real PDF export
   const handleExportPDF = (quotation: QuotationRecord) => {
-    // Simulate PDF export with logo
-    const pdfContent = `
-ORIGEN ERP - COTIZACIÓN
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-Logo: ${quotation.logoUrl}
+    pdf.setFillColor(37, 99, 235);
+    pdf.rect(0, 0, pageWidth, 24, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.text('ORIGEN ERP - Cotización', 14, 14);
 
-Cliente: ${quotation.clientName}
-Fecha: ${quotation.date}
-Vencimiento: ${quotation.expiryDate}
+    pdf.setTextColor(15, 23, 42);
+    pdf.setFontSize(10);
+    pdf.text(`Cliente: ${quotation.clientName}`, 14, 38);
+    pdf.text(`Fecha: ${quotation.date}`, 14, 44);
+    pdf.text(`Vencimiento: ${quotation.expiryDate}`, 14, 50);
+    pdf.text(`Estado: ${quotation.status}`, 14, 56);
 
---- ARTÍCULOS (${quotation.lineItems.length} items) ---
-${quotation.lineItems
-  .map(
-    (item) => `
-${item.description}
-Cantidad: ${item.quantity}
-Precio Unitario: Q${item.unitPrice.toLocaleString()}
-Total: Q${item.total.toLocaleString()}
-`
-  )
-  .join('\n')}
+    pdf.setFontSize(11);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text('Detalle', 14, 72);
 
-Subtotal: Q${quotation.subtotal.toLocaleString()}
-Descuento: ${quotation.discount}% (Q${quotation.discountAmount.toLocaleString()})
-IVA (13%): Q${quotation.tax.toLocaleString()}
-TOTAL: Q${quotation.total.toLocaleString()}
+    let y = 80;
+    pdf.setFontSize(9);
 
-Notas: ${quotation.notes}
-    `;
+    quotation.lineItems.forEach((item) => {
+      const itemText = `${item.description} | Qty ${item.quantity} | Q${item.unitPrice.toLocaleString()} | Total Q${item.total.toLocaleString()}`;
+      const splitText = pdf.splitTextToSize(itemText, 170);
 
-    const blob = new Blob([pdfContent], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `cotizacion_${quotation.clientName}_${quotation.date}.txt`;
-    link.click();
+      if (y + splitText.length * 5 > pageHeight - 40) {
+        pdf.addPage();
+        y = 20;
+      }
 
-    toast.success('PDF exportado con logo');
+      pdf.text(splitText, 14, y);
+      y += splitText.length * 5 + 2;
+    });
+
+    pdf.setFontSize(10);
+    pdf.text(`Subtotal: Q${quotation.subtotal.toLocaleString()}`, 130, y + 10);
+    pdf.text(`Descuento (${quotation.discount}%): -Q${quotation.discountAmount.toLocaleString()}`, 130, y + 17);
+    pdf.text(`IVA (12%): Q${quotation.tax.toLocaleString()}`, 130, y + 24);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(`TOTAL: Q${quotation.total.toLocaleString()}`, 130, y + 33);
+    pdf.setFont('helvetica', 'normal');
+
+    if (quotation.notes) {
+      pdf.text('Notas:', 14, y + 12);
+      pdf.splitTextToSize(quotation.notes, 110).forEach((line: string, index: number) => {
+        pdf.text(line, 14, y + 18 + index * 5);
+      });
+    }
+
+    pdf.save(`cotizacion_${quotation.clientName}_${quotation.date}.pdf`);
+    toast.success('PDF exportado correctamente');
   };
 
-  // FEATURE 3.1: Calculate days until expiry
-  const getDaysUntilExpiry = (expiryDate: string): number => {
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    expiry.setHours(0, 0, 0, 0);
-    const diff = expiry.getTime() - today.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  const handleEditQuotation = (quotation: QuotationRecord) => {
+    setEditingId(quotation.id);
+    setFormData({
+      clientName: quotation.clientName,
+      expiryDate: quotation.expiryDate,
+      lineItems: quotation.lineItems.map((item) => ({ ...item })),
+      discount: String(quotation.discount),
+      notes: quotation.notes,
+      logoUrl: quotation.logoUrl,
+    });
+    setFormErrors({});
+    setShowForm(true);
   };
 
-  // FEATURE 3.1: Check expiry warning
-  const getExpiryStatus = (daysLeft: number): { status: string; color: string } => {
-    if (daysLeft < 0) return { status: 'Vencida', color: 'text-red-700' };
-    if (daysLeft === 0) return { status: 'Hoy vence', color: 'text-orange-700' };
-    if (daysLeft <= 3) return { status: `${daysLeft} días`, color: 'text-orange-600' };
-    return { status: `${daysLeft} días`, color: 'text-green-600' };
+  const handleCancelForm = () => {
+    resetForm();
+    setShowForm(false);
+  };
+
+  const handleDeleteQuotation = (quotationId: string) => {
+    const confirmed = window.confirm('¿Deseas eliminar esta cotización?');
+    if (!confirmed) {
+      return;
+    }
+
+    setQuotations((prev) => prev.filter((quotation) => quotation.id !== quotationId));
+    if (previewQuotation?.id === quotationId) {
+      setPreviewQuotation(null);
+    }
+    toast.success('Cotización eliminada');
   };
 
   if (loading) {
@@ -478,17 +510,14 @@ Notas: ${quotation.notes}
                   value={formData.discount}
                   onChange={(e) => {
                     const value = e.target.value;
-                    if (validateDiscount(value) || value === '') {
-                      setFormData({ ...formData, discount: value });
-                      if (formErrors.discount)
-                        setFormErrors({
-                          ...formErrors,
-                          discount: '',
-                        });
-                    } else {
+                    const nextValue = value === '' ? '' : value;
+
+                    setFormData({ ...formData, discount: nextValue });
+
+                    if (formErrors.discount) {
                       setFormErrors({
                         ...formErrors,
-                        discount: 'Máximo 50%',
+                        discount: validateDiscountValue(nextValue) ? '' : 'Máximo 50%',
                       });
                     }
                   }}
@@ -530,10 +559,7 @@ Notas: ${quotation.notes}
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
               <button
                 type="button"
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingId(null);
-                }}
+                onClick={handleCancelForm}
                 className="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition-colors hover:bg-slate-50"
               >
                 Cancelar
@@ -623,14 +649,18 @@ Notas: ${quotation.notes}
                     <Download className="h-4 w-4" aria-hidden="true" />
                   </button>
                   <button
+                    onClick={() => handleEditQuotation(quotation)}
                     className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100"
                     title="Editar"
+                    aria-label={`Editar cotización de ${quotation.clientName}`}
                   >
                     <Pencil className="h-4 w-4" aria-hidden="true" />
                   </button>
                   <button
+                    onClick={() => handleDeleteQuotation(quotation.id)}
                     className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100"
                     title="Eliminar"
+                    aria-label={`Eliminar cotización de ${quotation.clientName}`}
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -666,9 +696,9 @@ Notas: ${quotation.notes}
               <Image
                 src={previewQuotation.logoUrl}
                 alt="Logo"
-                width={200}
-                height={50}
-                className="inline-block h-12"
+                width={153}
+                height={153}
+                className="inline-block h-12 w-12 object-contain"
               />
             </div>
 

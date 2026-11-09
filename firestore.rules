@@ -46,10 +46,15 @@ service cloud.firestore {
 
     function canCreatePendingMachineryExpense(data) {
       return data.category == 'Maquinaria y Combustible' &&
-        data.supplier == 'Operación interna' &&
-        data.facturaNumber == 'SIN-FACTURA' &&
         data.paymentMethod == 'Pendiente' &&
         data.approvalStatus == 'Pendiente' &&
+        data.machineryLogId is string &&
+        existsAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)) &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.expenseId == data.id &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.companyId == data.companyId &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.projectId == data.projectId &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.costGTQ == data.amount &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.createdBy == request.auth.uid &&
         hasCompanyRole(data.companyId, ['owner', 'admin', 'project_manager', 'field_worker']);
     }
 
@@ -70,6 +75,11 @@ service cloud.firestore {
         get(/databases/$(database)/documents/projects/$(projectId)).data.companyId == companyId;
     }
 
+    function isMachineryInCompany(machineryId, companyId) {
+      return exists(/databases/$(database)/documents/machinery/$(machineryId)) &&
+        get(/databases/$(database)/documents/machinery/$(machineryId)).data.companyId == companyId;
+    }
+
     match /{path=**}/members/{memberId} {
       allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
@@ -85,11 +95,13 @@ service cloud.firestore {
         data.code is string && data.code.size() <= 64 &&
         data.name is string && data.name.size() <= 200 &&
         data.client is string && data.client.size() <= 200 &&
-        data.budgetTotal is number &&
-        data.spentTotal is number &&
+        data.budgetTotal is number && data.budgetTotal >= 0 &&
+        data.spentTotal is number && data.spentTotal >= 0 &&
+        (!data.keys().hasAny(['progressPercent']) ||
+          (data.progressPercent is number && data.progressPercent >= 0 && data.progressPercent <= 100)) &&
         data.status in ['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado'] &&
         data.companyId is string &&
-        data.ownerId == data.companyId;
+        data.ownerId is string && data.ownerId.size() <= 128;
     }
 
     function isValidFieldVisit(data) {
@@ -110,7 +122,7 @@ service cloud.firestore {
         data.projectId is string && data.projectId.size() <= 128 &&
         data.date is string && data.date.size() <= 30 &&
         data.category is string && data.category.size() <= 100 &&
-        data.amount is number &&
+        data.amount is number && data.amount >= 0 &&
         data.currency in ['GTQ', 'USD'] &&
         data.companyId is string &&
         data.authorId is string;
@@ -295,11 +307,14 @@ service cloud.firestore {
         (isSignedIn() && existing().ownerId == request.auth.uid);
       allow list: if (isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.ownerId == request.auth.uid));
-      allow create: if isValidId(projectId) && canManageProjects(incoming().companyId) &&
+      allow create: if isValidId(projectId) && incoming().id == projectId &&
+        canManageProjects(incoming().companyId) &&
+        incoming().ownerId == request.auth.uid &&
         isValidProject(incoming());
       allow update: if isValidId(projectId) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageProjects(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == projectId &&
             incoming().companyId == existing().companyId &&
             incoming().ownerId == existing().ownerId &&
             isValidProject(incoming()))
@@ -318,12 +333,16 @@ service cloud.firestore {
         (isSignedIn() && existing().authorId == request.auth.uid);
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.authorId == request.auth.uid);
-      allow create: if isValidId(visitId) && canManageFieldOperations(incoming().companyId) &&
+      allow create: if isValidId(visitId) && incoming().id == visitId &&
+        canManageFieldOperations(incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         incoming().authorId == request.auth.uid && isValidFieldVisit(incoming());
       allow update: if isValidId(visitId) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFieldOperations(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == visitId &&
             incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
             incoming().authorId == existing().authorId &&
             isValidFieldVisit(incoming()))
           : (isSignedIn() &&
@@ -341,12 +360,16 @@ service cloud.firestore {
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.authorId == request.auth.uid);
       allow create: if isValidId(expenseId) &&
+        incoming().id == expenseId &&
         (canManageFinance(incoming().companyId) || canCreatePendingMachineryExpense(incoming())) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         incoming().authorId == request.auth.uid && isValidExpense(incoming());
       allow update: if isValidId(expenseId) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFinance(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == expenseId &&
             incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
             incoming().authorId == existing().authorId &&
             isValidExpense(incoming()))
           : (isSignedIn() &&
@@ -369,12 +392,16 @@ service cloud.firestore {
           resource.data.companyId,
           ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
         );
-      allow create: if isValidId(attendanceId) && canManageFieldOperations(incoming().companyId) &&
+      allow create: if isValidId(attendanceId) && incoming().id == attendanceId &&
+        canManageFieldOperations(incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         incoming().authorId == request.auth.uid && isValidAttendance(incoming());
       allow update: if isValidId(attendanceId) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFieldOperations(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == attendanceId &&
             incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
             incoming().authorId == existing().authorId &&
             isValidAttendance(incoming()))
           : (isSignedIn() &&
@@ -460,11 +487,14 @@ service cloud.firestore {
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(quoteId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
-        incoming().id == quoteId && isValidQuote(incoming());
+        incoming().id == quoteId &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isValidQuote(incoming());
       allow update: if isValidId(quoteId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
         incoming().companyId == existing().companyId &&
         incoming().createdBy == existing().createdBy &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         isValidQuote(incoming());
       allow delete: if isValidId(quoteId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']);
@@ -512,14 +542,31 @@ service cloud.firestore {
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
         incoming().id == logId &&
         incoming().createdBy == request.auth.uid &&
-        incoming().machineryId is string &&
-        incoming().projectId is string &&
+        incoming().expenseId is string &&
+        isMachineryInCompany(incoming().machineryId, incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().machineryName is string &&
         incoming().date is string &&
+        incoming().operatorName is string &&
         incoming().hoursWorked is number &&
         incoming().hoursWorked > 0 &&
+        incoming().fuelGallons is number &&
+        incoming().fuelGallons >= 0 &&
         incoming().costGTQ is number &&
         incoming().costGTQ >= 0;
-      allow update, delete: if hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+      allow update: if isValidId(logId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']) &&
+        incoming().id == existing().id && incoming().id == logId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().expenseId == existing().expenseId &&
+        incoming().machineryId == existing().machineryId &&
+        incoming().projectId == existing().projectId &&
+        incoming().hoursWorked is number && incoming().hoursWorked > 0 &&
+        incoming().fuelGallons is number && incoming().fuelGallons >= 0 &&
+        incoming().costGTQ is number && incoming().costGTQ >= 0;
+      allow delete: if isValidId(logId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
     }
 
     // FCM registration tokens are private to the authenticated user.
@@ -556,6 +603,29 @@ service cloud.firestore {
         incoming().ownerId == existing().ownerId &&
         incoming().id == alertId;
       allow delete: if isValidId(alertId) && isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    match /qa_runs/{runId} {
+      allow get: if isSignedIn() &&
+        (resource == null || isCompanyMember(resource.data.companyId));
+      allow list: if false;
+      allow create: if isValidId(runId) &&
+        incoming().id == runId &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().createdDocumentIds is list &&
+        incoming().createdDocumentIds.size() <= 100 &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin']);
+      allow update: if isValidId(runId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        incoming().id == existing().id &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdDocumentIds is list &&
+        incoming().createdDocumentIds.size() <= 100 &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['createdDocumentIds', 'updatedAt']);
+      allow delete: if isValidId(runId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
     }
   }
 }

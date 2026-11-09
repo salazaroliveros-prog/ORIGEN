@@ -18,7 +18,7 @@ Date: May 16, 2025
 
 | Field     | Value                                          |
 | --------- | ---------------------------------------------- |
-| User      | salazaroliveros@gmail.com (auto-authenticated) |
+| User      | Cuenta de pruebas autenticada (registro histórico) |
 | Role      | Owner/Admin                                    |
 | Company   | ConstructERP Guatemala                         |
 | Workspace | Active                                         |

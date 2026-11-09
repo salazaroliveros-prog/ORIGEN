@@ -437,7 +437,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 </div>
 
                 {/* Image Container with Preview or Placeholder */}
-                <div className="sm:aspect-4/3 group relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-inner">
+                <div className="sm:aspect-[4/3] group relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-inner">
                   {uploadedImage ? (
                     <>
                       <Image

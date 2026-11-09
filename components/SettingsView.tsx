@@ -71,7 +71,7 @@ export function SettingsView() {
     phone: '+502 7654-3210',
     email: 'info@origen.com',
     address: 'Guatemala City, GT',
-    logoUrl: 'https://via.placeholder.com/200x100?text=ORIGEN+ERP',
+    logoUrl: '/assets/branding/web-banner-logo.png',
   });
 
   // Logo preview
@@ -302,7 +302,7 @@ export function SettingsView() {
         </div>
 
         {/* Logo Upload - FEATURE 3.1 - FIXED: Improved drop zone visibility */}
-        <div className="mb-4 cursor-pointer rounded-lg border-4 border-dashed border-blue-300 p-6 text-center transition-opacity transition-transform hover:border-blue-500 hover:bg-blue-50">
+        <div className="mb-4 cursor-pointer rounded-lg border-4 border-dashed border-blue-300 p-6 text-center transition hover:border-blue-500 hover:bg-blue-50">
           {logoPreview ? (
             <div className="relative inline-block">
               <Image
@@ -310,7 +310,7 @@ export function SettingsView() {
                 alt="Logo preview"
                 width={300}
                 height={130}
-                className="mx-auto max-h-32"
+                className="mx-auto max-h-32 object-contain"
               />
               <button
                 onClick={() => {

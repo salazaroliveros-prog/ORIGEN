@@ -284,7 +284,7 @@ export function FieldPhotoGallery({
             >
               {/* Image Container with GPS Badge */}
               <div
-                className="aspect-4/3 relative cursor-pointer overflow-hidden bg-slate-900"
+                className="aspect-[4/3] relative cursor-pointer overflow-hidden bg-slate-900"
                 onClick={() => setSelectedPhoto(photo)}
               >
                 <Image
@@ -368,7 +368,7 @@ export function FieldPhotoGallery({
 
             <div className="space-y-4 p-5">
               {/* Video Preview or Captured Image */}
-              <div className="aspect-4/3 relative flex items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+              <div className="aspect-[4/3] relative flex items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
                 {capturedDataUrl ? (
                   <Image
                     src={capturedDataUrl}

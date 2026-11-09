@@ -579,7 +579,7 @@ export function ProjectsAndVisits({
                             <div
                               key={photo.id}
                               onClick={() => setLightboxPhoto(photo)}
-                              className="aspect-4/3 shadow-2xs group relative cursor-pointer overflow-hidden rounded-lg border border-slate-200"
+                              className="aspect-[4/3] shadow-2xs group relative cursor-pointer overflow-hidden rounded-lg border border-slate-200"
                             >
                               <Image
                                 src={photo.url}

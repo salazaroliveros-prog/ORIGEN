@@ -162,7 +162,7 @@ export function ProjectsList() {
       <div className="mb-6 flex flex-wrap gap-2">
         <button
           onClick={() => handleSort('date')}
-          className={`flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold transition-opacity transition-transform duration-200 sm:gap-2 sm:px-3 sm:text-sm ${
+          className={`flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold transition duration-200 sm:gap-2 sm:px-3 sm:text-sm ${
             sortBy === 'date'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
               : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
@@ -180,7 +180,7 @@ export function ProjectsList() {
         </button>
         <button
           onClick={() => handleSort('name')}
-          className={`rounded-lg px-3 py-2 text-sm font-semibold transition-opacity transition-transform duration-200 ${
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition duration-200 ${
             sortBy === 'name'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
               : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
@@ -190,7 +190,7 @@ export function ProjectsList() {
         </button>
         <button
           onClick={() => handleSort('budget')}
-          className={`rounded-lg px-3 py-2 text-sm font-semibold transition-opacity transition-transform duration-200 ${
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition duration-200 ${
             sortBy === 'budget'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
               : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
@@ -200,7 +200,7 @@ export function ProjectsList() {
         </button>
         <button
           onClick={() => handleSort('status')}
-          className={`rounded-lg px-3 py-2 text-sm font-semibold transition-opacity transition-transform duration-200 ${
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition duration-200 ${
             sortBy === 'status'
               ? 'bg-blue-600 text-white shadow-md hover:shadow-lg'
               : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-sm'
@@ -219,7 +219,7 @@ export function ProjectsList() {
         <>
           {/* Desktop Table View */}
           <div className="hidden sm:block">
-            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-opacity transition-transform duration-200 hover:shadow-md">
+            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-200 hover:shadow-md">
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-slate-50">
@@ -254,7 +254,7 @@ export function ProjectsList() {
                         <div className="flex items-center justify-center gap-3">
                           <div className="h-3 w-24 overflow-hidden rounded-full bg-slate-200 shadow-sm">
                             <div
-                              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-opacity transition-transform"
+                              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition"
                               style={{
                                 width: `${Math.min(project.progressPercent || 0, 100)}%`,
                               }}
@@ -278,14 +278,14 @@ export function ProjectsList() {
                         <div className="flex justify-center gap-2">
                           <Link
                             href={`/projects/${project.id}/edit`}
-                            className="rounded-lg p-2 text-blue-600 transition-opacity transition-transform duration-200 hover:bg-blue-100 active:scale-95"
+                            className="rounded-lg p-2 text-blue-600 transition duration-200 hover:bg-blue-100 active:scale-95"
                             title="Editar"
                           >
                             <Pencil className="h-4 w-4" aria-hidden="true" />
                           </Link>
                           <button
                             onClick={() => handleDeleteClick(project.id, project.name)}
-                            className="rounded-lg p-2 text-red-600 transition-opacity transition-transform duration-200 hover:bg-red-100 active:scale-95"
+                            className="rounded-lg p-2 text-red-600 transition duration-200 hover:bg-red-100 active:scale-95"
                             title="Archivar"
                             disabled={deleting === project.id}
                           >
@@ -310,7 +310,7 @@ export function ProjectsList() {
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className="block rounded-lg border border-slate-200 bg-white p-4 transition-opacity transition-transform duration-200 hover:border-slate-300 hover:shadow-md"
+                className="block rounded-lg border border-slate-200 bg-white p-4 transition duration-200 hover:border-slate-300 hover:shadow-md"
               >
                 <div className="mb-3 flex items-start justify-between">
                   <div>
@@ -415,7 +415,7 @@ export function ProjectsList() {
         href="/projects?create=true"
         className="fixed bottom-20 right-4 z-50 sm:static sm:bottom-auto sm:right-auto sm:mt-6 sm:pt-4"
       >
-        <button className="flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-blue-600 font-semibold text-white shadow-lg transition-opacity transition-transform duration-200 hover:bg-blue-700 hover:shadow-xl active:scale-95 sm:h-auto sm:w-auto sm:rounded-lg sm:px-6 sm:py-2 sm:shadow-sm sm:hover:shadow-md">
+        <button className="flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-blue-600 font-semibold text-white shadow-lg transition duration-200 hover:bg-blue-700 hover:shadow-xl active:scale-95 sm:h-auto sm:w-auto sm:rounded-lg sm:px-6 sm:py-2 sm:shadow-sm sm:hover:shadow-md">
           <Plus className="h-6 w-6" aria-hidden="true" />
           <span className="hidden sm:inline">Crear Proyecto</span>
         </button>

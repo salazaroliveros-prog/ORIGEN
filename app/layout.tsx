@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Toaster } from 'react-hot-toast';
+import './globals.css';
 import './polyfills';
 
 export const viewport: Viewport = {
@@ -59,20 +60,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Registrar Service Worker para PWA offline en clientes
-  if (typeof window !== 'undefined') {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch((err) => {
-        console.warn('[PWA] Service Worker registration failed:', err);
-      });
-    }
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/firebase-messaging-sw.js').catch((err) => {
-        console.warn('[PWA] Firebase Messaging SW registration failed:', err);
-      });
-    }
-  }
-
   return (
     <html lang="es" suppressHydrationWarning className="h-full touch-manipulation">
       <head>

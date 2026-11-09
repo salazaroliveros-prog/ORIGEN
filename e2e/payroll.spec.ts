@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { ensureAuthenticated } from './testCredentials';
 
 /**
  * payroll.spec.ts — Flujos de personal y planillas en ORIGEN ERP
  *
  * Verifica la sección 'Personal & IGSS' y sub-secciones de cuadrillas y asistencia.
- * La visibilidad de la sección personal depende del rol del usuario; el administrador
- * (salazaroliveros@gmail.com) tiene acceso completo.
+ * La visibilidad de la sección personal depende del rol del usuario; usa la cuenta
+ * de pruebas definida en las variables E2E.
  *
  * El app es una SPA en '/'. No existe URL '/payroll'.
  * Selectores confirmados en system-crud.spec.ts.
@@ -13,12 +14,7 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Sección Personal & IGSS', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForTimeout(4000);
-    // Esperar autenticación automática
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
-      timeout: 30_000,
-    });
+    await ensureAuthenticated(page);
   });
 
   test('el botón de navegación Personal & IGSS está visible para el administrador', async ({

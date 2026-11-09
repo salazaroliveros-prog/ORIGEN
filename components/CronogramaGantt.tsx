@@ -668,12 +668,12 @@ export function CronogramaGantt({
 
                         {/* Planned Baseline Bar */}
                         <div
-                          className="absolute z-10 h-5 overflow-hidden rounded-md border border-slate-700/80 bg-slate-800 transition-opacity transition-transform"
+                          className="absolute z-10 h-5 overflow-hidden rounded-md border border-slate-700/80 bg-slate-800 transition"
                           style={{ left: `${xStart}px`, width: `${barWidth}px` }}
                         >
                           {/* Real Progress Fill */}
                           <div
-                            className={`h-full transition-opacity transition-transform ${
+                            className={`h-full transition ${
                               t.status === 'retraso_critico'
                                 ? 'bg-rose-500'
                                 : t.status === 'retraso_leve'

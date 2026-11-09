@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 const RUN_ID = Date.now().toString().slice(-6);
 
 async function ensureAuthenticated(page: Page) {

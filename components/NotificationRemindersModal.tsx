@@ -242,7 +242,7 @@ export function NotificationRemindersModal({
                     return (
                       <div
                         key={rem.id}
-                        className={`rounded-2xl border p-4 transition-opacity transition-transform ${
+                        className={`rounded-2xl border p-4 transition ${
                           rem.enabled
                             ? 'border-white/10 bg-white/[0.04] hover:border-white/20'
                             : 'border-white/5 bg-white/[0.01] opacity-60'

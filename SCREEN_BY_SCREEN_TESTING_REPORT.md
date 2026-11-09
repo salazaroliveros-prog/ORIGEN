@@ -40,7 +40,7 @@ URL: `/` (root)
 
 | Input                            | Expected              |
 | -------------------------------- | --------------------- |
-| Email: salazaroliveros@gmail.com | Redirect to dashboard |
+| Email: cuenta E2E configurada | Redirect to dashboard |
 | Password: correct password       | Redirect to dashboard |
 
 **Test case 2: Invalid email**

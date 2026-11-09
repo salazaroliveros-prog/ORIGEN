@@ -618,7 +618,7 @@ export function ExpensesView({ projectId }: { projectId: string }) {
                     onClick={() => {
                       setPhotoPreview({
                         show: true,
-                        url: 'https://via.placeholder.com/400x300?text=Receipt',
+                        url: '',
                         fileName: 'receipt.jpg',
                       });
                     }}
@@ -666,13 +666,20 @@ export function ExpensesView({ projectId }: { projectId: string }) {
           maxWidth="lg"
         >
           <div className="max-h-96 overflow-auto p-4">
-            <Image
-              src={photoPreview.url}
-              alt="Receipt"
-              width={600}
-              height={400}
-              className="mx-auto h-auto max-w-full"
-            />
+            {photoPreview.url ? (
+              <Image
+                src={photoPreview.url}
+                alt="Recibo"
+                width={600}
+                height={400}
+                className="mx-auto h-auto max-w-full"
+              />
+            ) : (
+              <div className="flex min-h-48 flex-col items-center justify-center gap-2 text-slate-500">
+                <Camera className="h-8 w-8" aria-hidden="true" />
+                <p className="text-sm">No hay una fotografía adjunta a este recibo.</p>
+              </div>
+            )}
             <p className="mt-2 text-xs text-slate-600">{photoPreview.fileName}</p>
           </div>
         </Modal>

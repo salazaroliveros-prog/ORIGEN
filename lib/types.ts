@@ -1,99 +1,214 @@
+/**
+ * Company settings configuration for ORIGEN ERP
+ * Almacena la configuración de la empresa para el sistema
+ */
 export interface CompanySettings {
+  /** Identificador único de la empresa (opcional) */
   companyId?: string;
+  /** ID del propietario de la empresa (opcional) */
   ownerId?: string;
+  /** Razón social legal de la empresa */
   legalName: string;
+  /** Nombre comercial de la empresa */
   commercialName: string;
+  /** Nombre de la empresa */
   companyName: string;
+  /** Número de identificación tributaria */
   nit: string;
+  /** Nombre del arquitecto responsable */
   architectName: string;
+  /** Número de colegiatura del arquitecto */
   architectColNumber: string;
+  /** Dirección de la empresa */
   address: string;
+  /** Teléfono de contacto */
   phone: string;
+  /** Correo electrónico corporativo */
   email: string;
-  exchangeRate: number; // e.g. 7.85 GTQ per USD
+  /** Tipo de cambio (ej. 7.85 GTQ por USD) */
+  exchangeRate: number;
+  /** Color primario de la marca (hex) */
   primaryColor: string;
+  /** Color secundario de la marca (hex) */
   secondaryColor: string;
+  /** URL del logo principal (opcional) */
   logoUrl?: string;
+  /** URL del logo pequeño (opcional) */
   logoSmallUrl?: string;
+  /** URL del logo cuadrado (opcional) */
   logoSquareUrl?: string;
+  /** URL del banner (opcional) */
   bannerUrl?: string;
+  /** Tasas estimadas de planilla (opcional) */
   payrollEstimateRates?: {
+    /** Porcentaje de deducción del empleado */
     employeeDeductionPercent: number;
+    /** Costo patronal IGSS */
     employerCostPercent: number;
+    /** Bono incentivo en GTQ */
     incentiveBonusGTQ: number;
   };
 }
 
+/**
+ * Enum for company roles with predefined values
+ * Roles predefinidos para el sistema ORIGEN
+ */
 export type CompanyRole =
-  'owner' | 'admin' | 'project_manager' | 'finance' | 'field_worker' | 'viewer';
+  | 'owner'
+  | 'admin'
+  | 'project_manager'
+  | 'finance'
+  | 'field_worker'
+  | 'viewer';
 
+/**
+ * Company workspace information
+ * Datos de workspace de compañía
+ */
 export interface CompanyWorkspace {
+  /** Identificador único del workspace */
   id: string;
+  /** Nombre del workspace */
   name: string;
+  /** ID del propietario */
   ownerId: string;
+  /** Fecha de creación */
   createdAt: string;
+  /** Versión del esquema de datos (opcional) */
   dataSchemaVersion?: number;
 }
 
+/**
+ * Company workspace option with membership
+ * Opción de workspace con membresía
+ */
 export interface CompanyWorkspaceOption {
+  /** El workspace */
   workspace: CompanyWorkspace;
+  /** La membresía */
   membership: CompanyMembership;
 }
 
+/**
+ * Company membership details
+ * Detalles de membresía de compañía
+ */
 export interface CompanyMembership {
+  /** ID de la compañía */
   companyId: string;
+  /** ID único del usuario */
   uid: string;
+  /** Correo electrónico del usuario */
   email: string;
+  /** Rol del usuario en la compañía */
   role: CompanyRole;
+  /** Fecha de unión */
   joinedAt: string;
+  /** ID de la invitación (opcional) */
   invitationId?: string;
 }
 
+/**
+ * Company invitation structure
+ * Estructura de invitación de compañía
+ */
 export interface CompanyInvitation {
+  /** Identificador único de la invitación */
   id: string;
+  /** ID de la compañía */
   companyId: string;
+  /** Correo electrónico del invitado */
   email: string;
+  /** Rol del invitado (excluye owner) */
   role: Exclude<CompanyRole, 'owner'>;
+  /** Estado de la invitación */
   status: 'pending' | 'accepted';
+  /** Quien creó la invitación */
   createdBy: string;
+  /** Fecha de creación */
   createdAt: { toDate: () => Date };
+  /** Fecha de expiración */
   expiresAt: { toDate: () => Date };
+  /** Quien aceptó la invitación (opcional) */
   acceptedBy?: string;
 }
 
+/**
+ * Project status values
+ * Valores de estado de proyecto
+ */
 export type ProjectStatus =
-  'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado';
+  | 'En Ejecución'
+  | 'Planificación'
+  | 'Finalizado'
+  | 'Suspendido'
+  | 'Archivado';
 
+/**
+ * Interface for a project in the ORIGEN system
+ * Interfaz para un proyecto en el sistema ORIGEN
+ */
 export interface Project {
+  /** Identificador único del proyecto */
   id: string;
+  /** ID de la compañía (opcional) */
   companyId?: string;
+  /** Código identificador del proyecto */
   code: string;
+  /** Nombre del proyecto */
   name: string;
+  /** Nombre del cliente */
   client: string;
+  /** Ubicación física del proyecto */
   location: string;
+  /** Municipio donde se encuentra */
   municipality: string;
+  /** Departamento de la obra */
   department: string;
+  /** Presupuesto total del proyecto */
   budgetTotal: number;
+  /** Monto total gastado hasta el momento */
   spentTotal: number;
+  /** Porcentaje de progreso (0-100) */
   progressPercent: number;
+  /** Fecha de inicio del proyecto */
   startDate: string;
+  /** Fecha de finalización esperada */
   endDate: string;
+  /** Estado actual del proyecto */
   status: ProjectStatus;
+  /** Fecha de archivado (si aplica) */
   archivedAt?: string | null;
+  /** Estado anterior al archivado (opcional) */
   archivedFromStatus?: Exclude<ProjectStatus, 'Archivado'>;
+  /** Latitud de la ubicación geográfica */
   lat: number;
+  /** Longitud de la ubicación geográfica */
   lng: number;
+  /** ID del propietario del proyecto (opcional) */
   ownerId?: string;
+  /** ID del usuario que creó el proyecto (opcional) */
   createdBy?: string;
+  /** Porcentaje de ganancia esperado (opcional) */
   expectedProfitMarginPercent?: number | null;
+  /** Presupuesto total APU (opcional) */
   apuBudgetTotal?: number;
+  /** Variance de presupuesto APU en GTQ (opcional) */
   apuBudgetVarianceGTQ?: number;
+  /** Tareas programadas (opcional) */
   scheduleTasks?: ScheduleTask[];
+  /** Hitos programados (opcional) */
   scheduleMilestones?: Milestone[];
+  /** Recordatorios de tareas (opcional) */
   taskReminders?: TaskReminder[];
+  /** NIT del cliente (opcional) */
   clientNit?: string;
+  /** Teléfono del cliente (opcional) */
   clientPhone?: string;
+  /** Correo electrónico del cliente (opcional) */
   clientEmail?: string;
+  /** Dirección del cliente (opcional) */
   clientAddress?: string;
 }
 
@@ -242,6 +357,8 @@ export interface ExpenseRecord {
   approvedBy?: string;
   approvedAt?: string;
   auditTrail?: ExpenseAuditEntry[];
+  /** ID del registro de maquinaria asociado (opcional) */
+  machineryLogId?: string;
 }
 
 export interface QuoteRecord {

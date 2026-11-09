@@ -80,7 +80,9 @@ export async function requestFcmPushToken(capatazName: string = 'Don Mario Cifue
       return { granted: false, message: 'Este navegador no soporta Firebase Cloud Messaging.' };
     }
 
-    const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+      scope: '/firebase-messaging/',
+    });
     const messaging = getMessaging(app);
     const fcmToken = await getToken(messaging, {
       vapidKey,

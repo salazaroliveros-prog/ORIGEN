@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 const RUN_ID = Date.now().toString().slice(-6);
 
 test.setTimeout(300_000);
@@ -10,9 +9,7 @@ test.setTimeout(300_000);
  * Utilidades compartidas para el flujo E2E completo del ciclo de vida del proyecto.
  */
 async function ensureAuthenticated(page: Page) {
-  await page.goto(
-    `/?__test_email=${encodeURIComponent(ADMIN_EMAIL)}&__test_password=${encodeURIComponent(ADMIN_PASSWORD)}`
-  );
+  await page.goto('/');
   await page.waitForTimeout(5000);
 
   // Verificar si ya está autenticado (botón Tablero visible)

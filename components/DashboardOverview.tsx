@@ -196,7 +196,7 @@ export function DashboardOverview() {
   if (!projects || projects.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
-        <div className="max-w-md rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-12 text-center transition-opacity transition-transform duration-200 hover:shadow-md">
+        <div className="max-w-md rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-12 text-center transition duration-200 hover:shadow-md">
           <div className="mb-4 inline-flex rounded-full bg-blue-100 p-3">
             <Building2 className="h-8 w-8 text-blue-600" aria-hidden="true" />
           </div>
@@ -207,7 +207,7 @@ export function DashboardOverview() {
           </p>
           <Link
             href="/projects?create=true"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-opacity transition-transform duration-200 hover:bg-blue-700 hover:shadow-lg"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-blue-700 hover:shadow-lg"
           >
             <Plus className="h-5 w-5" aria-hidden="true" />
             Crear Primer Proyecto
@@ -232,7 +232,7 @@ export function DashboardOverview() {
         {kpiCards.map((card, idx) => (
           <div
             key={idx}
-            className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-opacity transition-transform duration-200 hover:border-slate-300 hover:shadow-md`}
+            className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:border-slate-300 hover:shadow-md`}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
@@ -259,7 +259,7 @@ export function DashboardOverview() {
       {/* Charts Section - FIXED: Improved spacing */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Trend Chart - FEATURE 2.1.3: Chart Legend Reposition */}
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-opacity transition-transform duration-200 hover:border-slate-300 hover:shadow-md">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:border-slate-300 hover:shadow-md">
           <h2 className="mb-6 text-lg font-semibold text-slate-900">
             Tendencia de Gastos (6 meses)
           </h2>
@@ -313,7 +313,7 @@ export function DashboardOverview() {
         </div>
 
         {/* Project Status Distribution */}
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-opacity transition-transform duration-200 hover:border-slate-300 hover:shadow-md">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:border-slate-300 hover:shadow-md">
           <h2 className="mb-6 text-lg font-semibold text-slate-900">Estado de Proyectos</h2>
           <div className="flex h-80 items-center justify-center">
             {projects.length > 0 ? (
@@ -388,7 +388,7 @@ export function DashboardOverview() {
                   <div className="ml-4 flex items-center gap-4">
                     <div className="h-3 w-40 overflow-hidden rounded-full bg-slate-200">
                       <div
-                        className={`h-full transition-opacity transition-transform ${
+                        className={`h-full transition ${
                           utilization > 80
                             ? 'bg-red-500'
                             : utilization > 50

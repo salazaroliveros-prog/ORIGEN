@@ -4,7 +4,7 @@
 **Fecha:** 2026-11-08  
 **Aplicación:** ORIGEN ERP — ConstructERP Guatemala  
 **URL base:** http://localhost:3000  
-**Usuario de prueba:** salazaroliveros@gmail.com / Origen2026!Secure  
+**Usuario de prueba:** cuenta desechable configurada con `E2E_ADMIN_EMAIL` y `E2E_ADMIN_PASSWORD`
 **Objetivo:** Validación del 100% de la aplicación, flujo de usuario real, todos los módulos y submenús
 
 ---
@@ -50,7 +50,7 @@ Este plan de pruebas E2E simula el comportamiento de un usuario real que:
 7. Verifica persistencia de datos (recarga de página)
 8. Verifica navegación entre módulos y propagación de datos
 
-**Metodología:** Pruebas funcionales E2E con Playwright, flujo secuencial, datos de prueba únicos por ejecución (timestamps), limpieza implícita mediante IDs únicos.
+**Metodología:** Pruebas funcionales E2E con Playwright y datos sintéticos únicos por ejecución. Los casos con escrituras deben limpiar los datos creados al finalizar.
 
 ---
 
@@ -63,7 +63,7 @@ Este plan de pruebas E2E simula el comportamiento de un usuario real que:
 | Dispositivos móviles | Pixel 5, iPhone 12                               |
 | Variables de entorno | `.env.local` con credenciales Firebase           |
 | Servidor local       | `npm run dev` en puerto 3000                     |
-| Firebase             | Emulator o producción (origen-erp-guatemala)     |
+| Firebase             | Emuladores o proyecto desechable de pruebas; nunca producción |
 
 ---
 
@@ -71,8 +71,8 @@ Este plan de pruebas E2E simula el comportamiento de un usuario real que:
 
 | Usuario           | Rol              | Email                     | Password          | Acceso            |
 | ----------------- | ---------------- | ------------------------- | ----------------- | ----------------- |
-| Administrador     | Owner/Admin      | salazaroliveros@gmail.com | Origen2026!Secure | Todos los módulos |
-| Usuario de prueba | Usuario temporal | ui-e2e@test.com           | SecurePass123!    | Registro y login  |
+| Administrador     | Owner/Admin      | `E2E_ADMIN_EMAIL`          | `E2E_ADMIN_PASSWORD` | Todos los módulos |
+| Usuario de prueba | Usuario temporal | Correo generado por test   | Contraseña generada por test | Registro y login |
 
 ---
 
@@ -94,7 +94,7 @@ Este plan de pruebas E2E simula el comportamiento de un usuario real que:
 | AUTH-010 | Recordarme persiste sesión            | Página de login     | Marcar "Recuérdame" → Iniciar → Cerrar navegador → Abrir  | Sesión aún activa                                             |
 | AUTH-011 | Cierre de sesión                      | Usuario autenticado | Clic en "Cerrar sesión"                                   | Redirección a login, sesión borrada                           |
 | AUTH-012 | Acceso sin autenticación              | Sin sesión activa   | Intentar acceder a /dashboard directamente                | Redirección a login                                           |
-| AUTH-013 | Auto-auth (si habilitado)             | Usuario configurado | Cargar página /                                           | Entrada directa sin pantalla de login                         |
+| AUTH-013 | Persistencia de sesión                 | Usuario autenticado | Recargar la página                                        | La sesión sigue activa sin volver a iniciar sesión             |
 
 ### 4.2. Navegación Global y Menú Principal
 

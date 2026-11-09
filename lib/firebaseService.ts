@@ -64,7 +64,13 @@ const appConfig = {
   measurementId: firebaseConfig.measurementId,
 };
 
-export const app = getApps().length === 0 ? initializeApp(appConfig) : getApps()[0];
+const hasExistingFirebaseApp = getApps().length > 0;
+export const app = hasExistingFirebaseApp ? getApps()[0] : initializeApp(appConfig);
+const isNewFirebaseApp = !hasExistingFirebaseApp;
+const useFirebaseEmulators =
+  process.env.NODE_ENV === 'development' &&
+  process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true';
+const firebaseEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || '127.0.0.1';
 
 // Conexión directa a Firebase/Firestore sin capa intermedia de verificación de aplicaciones.
 
@@ -72,11 +78,16 @@ const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
 export const db = getFirestore(app, firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
 
+if (useFirebaseEmulators && isNewFirebaseApp) {
+  connectAuthEmulator(auth, `http://${firebaseEmulatorHost}:9099`, { disableWarnings: true });
+  connectFirestoreEmulator(db, firebaseEmulatorHost, 8080);
+}
+
 // Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente)
 // En desarrollo (localhost) usa el debug token de Firebase Console para evitar
 // bloqueos de App Check enforcement en el plan Spark.
 // En producción (Vercel) usa la clave de reCAPTCHA Enterprise configurada.
-if (typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
+if (!useFirebaseEmulators && typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
   try {
     // Configurar debug token para desarrollo local si está disponible en .env.local
     if (
@@ -99,6 +110,10 @@ if (typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
 
 // Initialize Firebase Storage
 export const storage = getStorage(app);
+
+if (useFirebaseEmulators && isNewFirebaseApp) {
+  connectStorageEmulator(storage, firebaseEmulatorHost, 9199);
+}
 
 export async function testConnection(): Promise<boolean> {
   const user = auth.currentUser;
@@ -408,9 +423,10 @@ export async function saveExpenseToFirestore(
   userId: string
 ) {
   const path = `expenses/${expense.id}`;
+  const expenseWithOwnership = { ...expense, companyId, authorId: userId };
 
-  // Validar datos antes de guardar
-  const validation = validateExpenseRecord(expense);
+  // Agregar el contexto de persistencia antes de validar el registro.
+  const validation = validateExpenseRecord(expenseWithOwnership);
   if (!validation.success) {
     console.error('Expense validation failed:', validation.error);
     throw new Error(
@@ -420,15 +436,7 @@ export async function saveExpenseToFirestore(
 
   try {
     const docRef = doc(db, 'expenses', expense.id);
-    await setDoc(
-      docRef,
-      {
-        ...expense,
-        companyId,
-        authorId: userId,
-      },
-      { merge: true }
-    );
+    await setDoc(docRef, validation.data, { merge: true });
     return true;
   } catch (err) {
     notifySyncEnd();
@@ -455,9 +463,13 @@ export async function updateExpenseToFirestore(
   userId: string
 ): Promise<boolean> {
   const path = `expenses/${expense.id}`;
+  const expenseWithOwnership = {
+    ...expense,
+    companyId,
+    authorId: expense.authorId ?? userId,
+  };
 
-  // Validar datos antes de guardar
-  const validation = validateExpenseRecord(expense);
+  const validation = validateExpenseRecord(expenseWithOwnership);
   if (!validation.success) {
     console.error('Expense validation failed:', validation.error);
     throw new Error(
@@ -468,8 +480,7 @@ export async function updateExpenseToFirestore(
   try {
     const docRef = doc(db, 'expenses', expense.id);
     await updateDoc(docRef, {
-      ...expense,
-      companyId,
+      ...validation.data,
       updatedBy: userId,
       updatedAt: new Date().toISOString(),
     });
@@ -1020,6 +1031,7 @@ export async function recordMachineryUse(
       currency: 'GTQ',
       paymentMethod: 'Pendiente',
       approvalStatus: 'Pendiente',
+      machineryLogId: log.id,
     };
 
     batch.set(doc(db, 'machineryLogs', log.id), {

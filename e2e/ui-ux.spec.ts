@@ -9,14 +9,11 @@
  */
 
 import { expect, test } from '@playwright/test';
-
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
 async function ensureAuthenticated(page: any) {
   test.setTimeout(120_000);
-  // Use URL query params for E2E auth (documented in useAuthSession.ts)
-  await page.goto(`/?__test_email=${ADMIN_EMAIL}&__test_password=${ADMIN_PASSWORD}`);
+  await page.goto('/');
   await page.waitForTimeout(5000);
 
   // Verify we're authenticated by checking for the dashboard navigation

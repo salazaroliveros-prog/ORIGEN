@@ -1,9 +1,11 @@
 # Reporte de Diagnóstico Completo del Sistema ORIGEN ERP
 
 **Fecha:** 8 de noviembre de 2026
-**Tipo:** Auditoría completa del sistema con datos reales
-**Credenciales:** Credenciales reales de producción desde .env.local
-**Estado:** COMPLETADO con correcciones aplicadas
+**Tipo:** Informe histórico de auditoría
+**Credenciales:** No incluidas; referencias sensibles redactadas
+**Estado:** Histórico; consulte la auditoría vigente enlazada abajo
+
+> **Aviso de vigencia (2026-11-08):** Este informe conserva resultados históricos y no representa el estado verificado actual. Consulte [docs/CRUD_QA_AUDIT.md](docs/CRUD_QA_AUDIT.md) para hallazgos y pruebas recientes. Las credenciales y el token de depuración se redactaron; si fueron válidos, deben rotarse o revocarse.
 
 ---
 
@@ -78,13 +80,13 @@ Storage Bucket: origen-erp-guatemala.firebasestorage.app
 ### Credenciales de Admin (Pruebas)
 
 ```env
-Email: salazaroliveros@gmail.com
-Password: AngelDarioJose.2026
+Email: [REDACTADO; usar E2E_ADMIN_EMAIL]
+Password: [REDACTADO; usar E2E_ADMIN_PASSWORD y rotar la credencial expuesta]
 ```
 
 ### App Check Configuration
 
-- **Debug Token:** FEC69747-ECF8-4FFC-B8B4-BB474D9D55F2
+- **Debug Token:** [REDACTADO; revocar y emitir uno nuevo si todavía se necesita]
 - **reCAPTCHA Key:** 6LfqVQkuAAAAAKOPIrMZpnAxdQYd0XhV_qpGkVUn
 - **Estado:** Configurado correctamente para desarrollo
 
@@ -224,7 +226,7 @@ match /apuItems/{itemId} {
 
 ## 5. Análisis de Problemas Identificados
 
-### 5.1 Problema Principal: Autenticación Automática en E2E
+### 5.1 Hallazgo Histórico: Login E2E por Query Params
 
 **Síntomas:**
 
@@ -233,20 +235,12 @@ match /apuItems/{itemId} {
 - Login automático no funciona consistentemente
 
 **Causa Raíz:**
-El archivo `e2e/firestore-crud-real.spec.ts` usa un query parameter para autenticación automática:
-
-```typescript
-await page.goto(
-  `/?__test_email=${encodeURIComponent(ADMIN_EMAIL)}&__test_password=${encodeURIComponent(ADMIN_PASSWORD)}`
-);
-```
-
-Sin embargo, el mecanismo de autenticación automática puede no estar implementado correctamente en la aplicación, o puede estar siendo bloqueado por App Check.
+Las suites E2E deben iniciar sesión mediante el formulario normal usando `E2E_ADMIN_EMAIL` y `E2E_ADMIN_PASSWORD`. No hay un mecanismo de autenticación por query parameter en la aplicación; esos parámetros eran un workaround obsoleto.
 
 **Impacto:**
 
 - 22 pruebas E2E fallan
-- Tests de Firestore CRUD con datos reales no pueden ejecutarse completamente
+- Las suites E2E requieren un backend desechable o de pruebas y una autorización explícita antes de ejecutar mutaciones
 - No se puede validar completamente la integración con Firebase de producción
 
 ### 5.2 Problema Secundario: App Check en Node.js
@@ -311,10 +305,10 @@ Probablemente relacionado con el problema de autenticación. Si el login falla, 
    - Líneas 488-507: Remover `(request.auth == null || ...)` y usar solo la parte autenticada
    - Verificar que el emulador local use reglas diferentes si es necesario
 
-2. **Corregir autenticación automática en E2E**
-   - Implementar mecanismo robusto de login automático en la aplicación
-   - O usar login manual consistente en todos los tests
-   - Aumentar timeouts o mejorar manejo de errores de autenticación
+2. **Aislar y ejecutar las suites E2E**
+   - Usar una cuenta de prueba por variables de entorno
+   - Ejecutar solo contra un backend desechable y verificar emuladores antes de permitir escrituras
+   - Ejecutar desde un host compatible con Playwright y agregar limpieza de datos
 
 ### 7.2 Prioridad MEDIA (Mejora de calidad)
 
@@ -358,8 +352,7 @@ El sistema ORIGEN ERP está **BIEN CONSTRUIDO** con una arquitectura sólida y p
 
 ### Puntos Débiles
 
-- ⚠️ Autenticación automática en E2E no funciona consistentemente
-- ⚠️ 22 pruebas E2E fallan (96.4% éxito)
+- ⚠️ Las cifras E2E de este informe son históricas y no se revalidaron en la auditoría actual
 - ⚠️ Bypass de seguridad en firestore.rules (riesgo de producción)
 - ⚠️ Flujos críticos no completamente validados con datos reales
 
@@ -402,7 +395,7 @@ allow create: if isValidId(itemId) &&
 
 **Archivo:** `e2e/firestore-crud-real.spec.ts` función `ensureAuthenticated`
 
-**Problema:** La autenticación automática vía query parameters no funcionaba consistentemente, causando timeouts.
+**Problema histórico:** La autenticación vía query parameters no era compatible con la aplicación y causaba timeouts.
 
 **Corrección Aplicada:**
 
@@ -411,7 +404,7 @@ allow create: if isValidId(itemId) &&
 - Agregado logging para depuración
 - Mejorada la detección de usuario ya autenticado
 
-**Estado:** ✅ CORREGIDO - La función ahora usa login manual consistente.
+**Estado actual:** Los tests usan login manual con variables E2E; ejecución de navegador pendiente por limitaciones del entorno.
 
 ### 9.3 Resultados de Re-ejecución de Pruebas E2E
 

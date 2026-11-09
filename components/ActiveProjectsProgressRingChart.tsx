@@ -141,7 +141,7 @@ export function ActiveProjectsProgressRingChart({
           <button
             type="button"
             onClick={() => setCalculationMode('weighted')}
-            className={`rounded-lg px-3 py-1 text-xs font-semibold transition-opacity transition-transform ${
+            className={`rounded-lg px-3 py-1 text-xs font-semibold transition ${
               calculationMode === 'weighted'
                 ? 'bg-sky-500 text-white shadow-md shadow-sky-950/50'
                 : 'text-slate-400 hover:text-white'
@@ -152,7 +152,7 @@ export function ActiveProjectsProgressRingChart({
           <button
             type="button"
             onClick={() => setCalculationMode('average')}
-            className={`rounded-lg px-3 py-1 text-xs font-semibold transition-opacity transition-transform ${
+            className={`rounded-lg px-3 py-1 text-xs font-semibold transition ${
               calculationMode === 'average'
                 ? 'bg-sky-500 text-white shadow-md shadow-sky-950/50'
                 : 'text-slate-400 hover:text-white'
@@ -293,7 +293,7 @@ export function ActiveProjectsProgressRingChart({
                 <div
                   key={p.id}
                   onClick={() => onSelectProject?.(p.id)}
-                  className={`group flex cursor-pointer items-center justify-between rounded-xl border p-2.5 transition-opacity transition-transform ${
+                  className={`group flex cursor-pointer items-center justify-between rounded-xl border p-2.5 transition ${
                     isSelected
                       ? 'border-sky-400/50 bg-sky-500/10 shadow-lg shadow-sky-950/40'
                       : 'border-white/5 bg-slate-950/50 hover:border-white/20 hover:bg-slate-800/50'
@@ -328,7 +328,7 @@ export function ActiveProjectsProgressRingChart({
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                         <div
-                          className="h-full rounded-full transition-opacity transition-transform duration-500"
+                          className="h-full rounded-full transition duration-500"
                           style={{
                             width: `${p.progressPercent}%`,
                             backgroundColor: p.color,

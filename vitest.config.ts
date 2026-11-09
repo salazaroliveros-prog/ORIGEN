@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['lib/**/*.test.ts', 'lib/**/*.test.tsx'],
-    exclude: ['lib/firestore.rules.test.ts', 'lib/firebaseService.emulator.test.ts'],
+    exclude: ['lib/firestore-emulator.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -17,8 +17,7 @@ export default defineConfig({
         'node_modules/',
         'lib/**/*.test.ts',
         'lib/**/*.test.tsx',
-        'lib/firestore.rules.test.ts',
-        'lib/firebaseService.emulator.test.ts',
+        'lib/firestore-emulator.test.ts',
         'scripts/',
         'public/',
         '.next/',

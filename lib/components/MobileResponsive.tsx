@@ -183,7 +183,7 @@ export function ResponsiveModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center">
       <div
-        className={`w-full rounded-t-lg bg-white shadow-lg transition-opacity transition-transform sm:max-w-2xl sm:rounded-lg ${
+        className={`w-full rounded-t-lg bg-white shadow-lg transition sm:max-w-2xl sm:rounded-lg ${
           fullHeight && isMobile ? 'h-[90vh]' : 'h-auto'
         }`}
         style={{

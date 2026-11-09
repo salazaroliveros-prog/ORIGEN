@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
 /**
  * financial.spec.ts — Flujos de gastos y facturas en ORIGEN ERP
@@ -19,8 +20,8 @@ test.describe('Sección Gastos & Facturas', () => {
     const loginButton = page.getByRole('button', { name: 'Iniciar Sesión' });
     const loginVisible = await loginButton.isVisible({ timeout: 3000 }).catch(() => false);
     if (loginVisible) {
-      await page.getByLabel('Correo electrónico').fill('salazaroliveros@gmail.com');
-      await page.locator('#password').fill('AngelDarioJose.2026');
+      await page.getByLabel('Correo electrónico').fill(ADMIN_EMAIL);
+      await page.locator('#password').fill(ADMIN_PASSWORD);
       await loginButton.click();
       await page.waitForTimeout(4000);
     }

@@ -10,13 +10,10 @@
  *  4. Profundidad de Pruebas (submenús, módulos anidados, capas profundas)
  *  5. Objetivo Final: Validación del 100% de la aplicación
  *
- * Credenciales: salazaroliveros@gmail.com / AngelDarioJose.2026
  */
 
 import { expect, test } from '@playwright/test';
-
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
 // ============================================================
 // HELPERS
@@ -25,9 +22,7 @@ const ADMIN_PASSWORD = 'AngelDarioJose.2026';
 async function ensureAuthenticated(page: any, useQueryParam = true) {
   test.setTimeout(120_000);
   if (useQueryParam) {
-    await page.goto(
-      `/?__test_email=${encodeURIComponent(ADMIN_EMAIL)}&__test_password=${encodeURIComponent(ADMIN_PASSWORD)}`
-    );
+    await page.goto('/');
   } else {
     await page.goto('/');
   }

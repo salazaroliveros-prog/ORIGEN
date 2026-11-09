@@ -248,7 +248,7 @@ Este documento define la estrategia integral de pruebas end-to-end (E2E) para el
 | AUTH-013 | Acceso sin autenticación redirige a login           | No hay sesión activa                | Intentar acceder a /dashboard directamente                               | Redirección a página de login o muestra formulario de auth                |
 | AUTH-014 | Ruta protegida sin token                            | No autenticado                      | Acceder a API privada sin Authorization header                           | Respuesta 401/403                                                         |
 | AUTH-015 | Sesión expirada manejo graceful                     | Sesión expirada en servidor         | Intentar acción que requiera auth                                        | Redirección a login o toast de error de sesión                            |
-| AUTH-016 | Auto-auth (si está habilitado)                      | Usuario configurado para auto-login | Cargar página /                                                          | Sistema entra directamente sin pantalla de login                          |
+| AUTH-016 | Persistencia de sesión                              | Usuario autenticado                 | Recargar la página                                                        | La sesión sigue activa sin volver a iniciar sesión                         |
 | AUTH-017 | Contraseña visible/oculta toggle                    | Formulario de login/registro        | Clic en icono de ojo en campo de contraseña                              | Texto alterna entre oculto (puntos) y visible                             |
 
 ## 4. Plan de ejecución y cronograma

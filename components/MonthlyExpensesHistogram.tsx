@@ -170,7 +170,7 @@ export function MonthlyExpensesHistogram({
     <div className="space-y-6">
       {/* Toast Alert for PDF Success */}
       {pdfSuccessMessage && (
-        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-600/90 p-3.5 text-white shadow-lg transition-opacity transition-transform">
+        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-600/90 p-3.5 text-white shadow-lg transition">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="h-5 w-5 text-emerald-200" />
             <span className="text-xs font-semibold">{pdfSuccessMessage}</span>

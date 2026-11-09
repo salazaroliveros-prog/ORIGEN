@@ -200,6 +200,23 @@ const baseQuote = {
 };
 
 describe('rejects invalid entity data', () => {
+  it('accepts expense form data after persistence adds ownership fields', () => {
+    const formValues = {
+      ...baseExpense,
+      companyId: undefined,
+      authorId: undefined,
+    };
+
+    expect(validateExpenseRecord(formValues).success).toBe(false);
+    expect(
+      validateExpenseRecord({
+        ...formValues,
+        companyId: 'company-neg',
+        authorId: 'user-neg',
+      }).success
+    ).toBe(true);
+  });
+
   // Expense negative cases
   it('rejects expense with negative amount (-50)', () => {
     expect(validateExpenseRecord({ ...baseExpense, amount: -50 }).success).toBe(false);

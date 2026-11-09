@@ -35,6 +35,10 @@ export async function GET(req: Request) {
       headers: {
         'Content-Type': 'application/javascript; charset=utf-8',
         'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+        'X-Firebase-Emulator-Mode': String(
+          process.env.NODE_ENV === 'development' &&
+            process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true'
+        ),
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'SAMEORIGIN',
       },

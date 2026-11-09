@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ensureAuthenticated } from './testCredentials';
 
 /**
  * projects.spec.ts — Flujos de proyectos en ORIGEN ERP
@@ -11,12 +12,7 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Sección Proyectos & Firmas', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForTimeout(4000);
-    // Esperar autenticación automática
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
-      timeout: 30_000,
-    });
+    await ensureAuthenticated(page);
     // Navegar a la sección de proyectos
     await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
     await page.waitForTimeout(1500);

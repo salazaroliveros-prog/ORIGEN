@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
 const projectCode = `E2E-${Date.now()}`;
 const originalProjectName = 'Proyecto extremo a extremo';
@@ -22,9 +23,6 @@ test('autenticación y operaciones de módulos ERP en Firebase', async ({ page }
   const configResponse = await page.request.get('/api/firebase-config.js');
   expect(configResponse.ok()).toBe(true);
 
-  const adminEmail = 'salazaroliveros@gmail.com';
-  const adminPassword = 'AngelDarioJose.2026';
-
   await page.goto('/');
   await page.waitForTimeout(3000);
 
@@ -32,18 +30,17 @@ test('autenticación y operaciones de módulos ERP en Firebase', async ({ page }
   const loginButton = page.getByRole('button', { name: 'Iniciar Sesión' });
   const loginVisible = await loginButton.isVisible({ timeout: 3000 }).catch(() => false);
   if (loginVisible) {
-    await page.getByLabel('Correo electrónico').fill(adminEmail);
-    await page.locator('#password').fill(adminPassword);
+    await page.getByLabel('Correo electrónico').fill(ADMIN_EMAIL);
+    await page.locator('#password').fill(ADMIN_PASSWORD);
     await loginButton.click();
     await page.waitForTimeout(4000);
   }
 
   console.log('Autenticación completada');
 
-  const DEFAULT_EMAIL = 'salazaroliveros@gmail.com';
   const projectsNavigation = page.getByRole('button', { name: 'Proyectos & Firmas' });
   await expect(projectsNavigation).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByText(DEFAULT_EMAIL)).toBeVisible();
+  await expect(page.getByText(ADMIN_EMAIL)).toBeVisible();
 
   await projectsNavigation.click();
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).click();

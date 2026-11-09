@@ -18,6 +18,7 @@ export const ExpenseRecordSchema = z.object({
   projectId: z.string().min(1, 'Proyecto requerido').max(128, 'ID de proyecto muy largo'),
   companyId: z.string().min(1, 'Company ID requerido'),
   authorId: z.string().min(1, 'Author ID requerido'),
+  machineryLogId: z.string().max(128, 'ID de bitácora muy largo').optional(),
   date: z.string().date('Fecha inválida').max(30, 'Fecha muy larga'),
   category: z.string().max(100, 'Categoría muy larga'),
   description: z.string().min(1, 'Descripción requerida').max(500, 'Descripción muy larga'),

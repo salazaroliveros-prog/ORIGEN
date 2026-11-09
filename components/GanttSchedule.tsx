@@ -487,7 +487,7 @@ export function GanttSchedule({
                   strokeDashoffset={2 * Math.PI * 50 * (1 - progressStats.overallGoalPercent / 100)}
                   strokeLinecap="round"
                   fill="transparent"
-                  className="transition-opacity transition-transform duration-700 ease-out"
+                  className="transition duration-700 ease-out"
                 />
               </svg>
 
@@ -552,7 +552,7 @@ export function GanttSchedule({
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                 <div
-                  className={`h-full rounded-full transition-opacity transition-transform duration-500 ${
+                  className={`h-full rounded-full transition duration-500 ${
                     pp.progress >= 100
                       ? 'bg-emerald-500'
                       : pp.progress > 0
@@ -687,7 +687,7 @@ export function GanttSchedule({
               return (
                 <div
                   key={t.id}
-                  className={`flex flex-col items-start justify-between gap-5 p-5 transition-opacity transition-transform hover:bg-white/[0.02] xl:flex-row xl:items-center ${
+                  className={`flex flex-col items-start justify-between gap-5 p-5 transition hover:bg-white/[0.02] xl:flex-row xl:items-center ${
                     isCompleted ? 'bg-emerald-950/10' : ''
                   }`}
                 >
@@ -903,7 +903,7 @@ export function GanttSchedule({
               return (
                 <div
                   key={m.id}
-                  className={`flex flex-col justify-between rounded-3xl border p-5 transition-opacity transition-transform ${
+                  className={`flex flex-col justify-between rounded-3xl border p-5 transition ${
                     isDone
                       ? 'border-emerald-500/30 bg-emerald-950/20 shadow-lg shadow-emerald-950/20'
                       : m.progress > 0
