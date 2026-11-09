@@ -52,7 +52,7 @@ export function Select({
           id={inputId}
           aria-invalid={error ? true : undefined}
           aria-describedby={error || helperText ? messageId : undefined}
-          className={`w-full cursor-pointer appearance-none rounded-lg border bg-white/[0.03] px-3 py-2.5 text-sm text-slate-100 transition duration-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary/50 ${leftIcon ? 'pl-9' : ''} ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className}`}
+          className={`w-full cursor-pointer appearance-none rounded-lg border bg-white/[0.03] px-3.5 py-2.5 text-sm text-slate-100 transition duration-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary/50 focus:ring-offset-2 focus:ring-offset-white/[0.03] ${leftIcon ? 'pl-12' : ''} ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className}`}
           {...props}
         >
           {options.map((option) => (
@@ -62,7 +62,7 @@ export function Select({
           ))}
         </select>
         <ChevronDown
-          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors duration-300 group-hover:text-slate-300"
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors duration-300 group-hover:text-slate-300 motion-reduce:transition-none"
           aria-hidden="true"
         />
       </div>

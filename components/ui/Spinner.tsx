@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   label?: string;
@@ -9,9 +7,9 @@ interface SpinnerProps {
 }
 
 const sizeStyles = {
-  sm: 'h-4 w-4 border-2',
-  md: 'h-8 w-8 border-[3px]',
-  lg: 'h-12 w-12 border-4',
+  sm: 'h-3 w-3 border-2',
+  md: 'h-6 w-6 border-[3px]',
+  lg: 'h-8 w-8 border-4',
 };
 
 export function Spinner({ size = 'md', label = 'Cargando', className = '' }: SpinnerProps) {

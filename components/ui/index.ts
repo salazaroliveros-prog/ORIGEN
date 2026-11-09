@@ -9,5 +9,8 @@ export { Modal } from './Modal';
 export { Spinner } from './Spinner';
 export { LoadingScreen } from './LoadingScreen';
 export { ErrorState } from './ErrorState';
+export { AdvancedTooltip } from './AdvancedTooltip';
+export { PaginationControls } from './PaginationControls';
+export { RouteTransition } from './RouteTransition';
 export { FocusVisible } from '../a11y/FocusVisible';
 export { FocusTrap } from '../a11y/FocusTrap';

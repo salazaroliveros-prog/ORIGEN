@@ -15,10 +15,7 @@ interface PaginationControlsProps {
   compact?: boolean;
 }
 
-/**
- * Pagination controls component
- * Shows page buttons, previous/next navigation
- */
+/** Pagination controls component optimized for both desktop and mobile */
 export const PaginationControls: React.FC<PaginationControlsProps> = ({
   currentPage,
   totalPages,
@@ -29,26 +26,20 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   canGoNext,
   compact = false,
 }) => {
-  // Calculate which items are displayed
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
-  // Generate page numbers to display (e.g., 1, 2, 3, ..., 10, 11, 12)
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxButtons = compact ? 3 : 5;
     const halfWindow = Math.floor(maxButtons / 2);
 
     if (totalPages <= maxButtons + 2) {
-      // Show all pages if total is small
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Always show first page
       pages.push(1);
-
-      // Calculate range around current page
       const rangeStart = Math.max(2, currentPage - halfWindow);
       const rangeEnd = Math.min(totalPages - 1, currentPage + halfWindow);
 
@@ -57,8 +48,6 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         pages.push(i);
       }
       if (rangeEnd < totalPages - 1) pages.push('…');
-
-      // Always show last page
       pages.push(totalPages);
     }
 
@@ -70,61 +59,63 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
-      {/* Info text */}
+    <div
+      className="space-y-2 sm:flex-col sm:flex-row items-center justify-between gap-2"
+      role="navigation"
+      aria-label="Paginación"
+    >
       <div className="text-xs text-slate-400 sm:text-sm">
         Mostrando <span className="font-semibold text-white">{startItem}</span> a{' '}
         <span className="font-semibold text-white">{endItem}</span> de{' '}
         <span className="font-semibold text-white">{totalItems}</span> elementos
       </div>
 
-      {/* Navigation buttons */}
-      <div className="flex items-center gap-2">
-        {/* Previous button */}
+      <div className="flex flex-col sm:flex-row items-center gap-2">
         <Button
           variant="secondary"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!canGoPrevious}
-          className="gap-1"
+          className="w-full sm:w-auto"
           aria-label="Página anterior"
         >
           <ChevronLeft className="h-4 w-4" />
-          {!compact && <span>Anterior</span>}
+          {!compact && <span className="sr-only">Página anterior</span>}
         </Button>
 
-        {/* Page buttons */}
-        <div className="flex gap-1">
-          {pageNumbers.map((page, idx) =>
-            page === '…' ? (
-              <span key={`ellipsis-${idx}`} className="px-2 py-1 text-slate-500">
-                ...
-              </span>
-            ) : (
+        <div className="flex gap-2 sm:gap-1 justify-center sm:justify-end">
+          {pageNumbers.map((page, idx) => {
+            if (page === '…') {
+              return (
+                <span key={`ellipsis-${idx}`} className="px-2 py-1 text-slate-500">
+                  …
+                </span>
+              );
+            }
+            return (
               <Button
                 key={page}
                 variant={page === currentPage ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => onPageChange(page as number)}
-                className="min-w-10"
+                className={`min-w-10 w-16 text-center`}
                 aria-current={page === currentPage ? 'page' : undefined}
               >
                 {page}
               </Button>
-            )
-          )}
+            );
+          })}
         </div>
 
-        {/* Next button */}
         <Button
           variant="secondary"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!canGoNext}
-          className="gap-1"
+          className="w-full sm:w-auto"
           aria-label="Siguiente página"
         >
-          {!compact && <span>Siguiente</span>}
+          {!compact && <span className="sr-only">Siguiente</span>}
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

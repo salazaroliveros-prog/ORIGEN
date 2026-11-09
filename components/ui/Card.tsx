@@ -6,12 +6,14 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'elevated' | 'subtle' | 'overlay' | 'glass-l1' | 'glass-l2' | 'glass-l3';
   padding?: 'sm' | 'md' | 'lg';
   hoverable?: boolean;
+  clickable?: boolean;
 }
 
 export function Card({
   variant = 'glass-l2',
   padding = 'md',
   hoverable = false,
+  clickable = false,
   className = '',
   children,
   ...props
@@ -31,9 +33,21 @@ export function Card({
     lg: 'p-8',
   };
 
+  const baseClass = 'rounded-xl overflow-hidden transition-all duration-[300ms] ease-[cubic-bezier(0.4,0,0,0.2,1)]';
+
+  const hoverEffects = hoverable
+    ? 'hover:transform-hover hover:transition-colors hover:bg-white/[0.05]'
+    : '';
+
+  const clickEffects = clickable
+    ? 'active:scale-[0.95] active:transition-shadow'
+    : '';
+
+  const motionSafe = 'motion-reduce:transition-none';
+
   return (
     <div
-      className={`rounded-2xl transition duration-[350ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${variants[variant]} ${paddings[padding]} ${hoverable ? 'hover:border-brand-secondary/50 hover:bg-white/[0.12] hover:shadow-glass-lg' : ''} ${className}`}
+      className={`${baseClass} ${variants[variant]} ${paddings[padding]} ${hoverEffects} ${clickEffects} ${motionSafe} ${className}`}
       {...props}
     >
       {children}

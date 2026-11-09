@@ -25,6 +25,7 @@ interface SkeletonProps {
 export function Skeleton({
   className = '',
   animated = true,
+  count,
   variant = 'rect',
   width,
   height = '24px',

@@ -22,7 +22,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center rounded-xl font-medium transition-transform transition-opacity duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-50 disabled:pointer-events-none touch-manipulation select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400';
+    'inline-flex items-center justify-center rounded-xl font-medium transition-transform transition-opacity duration-[200ms] ease-[cubic-bezier(0.4,0,0,0.2,1)] disabled:opacity-50 disabled:pointer-events-none touch-manipulation select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400';
 
   const variants = {
     primary:
@@ -39,8 +39,8 @@ export function Button({
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-xs min-h-[44px] sm:min-h-[36px]',
-    md: 'px-4 py-2 text-sm min-h-[44px]',
+    sm: 'px-3 py-1.5 text-xs min-h-[48px] sm:min-h-[44px]',
+    md: 'px-4 py-2 text-sm min-h-[48px]',
     lg: 'px-6 py-3 text-base min-h-[52px]',
   };
 
