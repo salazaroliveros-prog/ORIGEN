@@ -300,14 +300,14 @@ export function AuthContainer(): React.ReactElement {
           </div>
 
           <div className="mt-4 rounded-lg bg-white/[0.05] p-3">
-            <p className="text-center text-xs text-slate-400">
+            <p className="text-center text-sm text-slate-400">
               🔒 Tu información está protegida. Se bloquearán intentos después de 5 fallos.
             </p>
           </div>
         </Card>
       </div>
 
-      <p className="mt-6 text-center text-xs text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-400">
         © 2024 ORIGEN ERP. Todos los derechos reservados.
       </p>
     </div>
