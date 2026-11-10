@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useId } from 'react';
 import { X } from 'lucide-react';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
+import { MODALS } from '@/lib/design/constants';
 
 interface ModalProps {
   isOpen: boolean;
@@ -58,7 +59,7 @@ export function Modal({
   return (
     <>
       <div
-        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-250 ${closeOnOverlayClick ? 'cursor-pointer' : ''}`}
+        className={MODALS.backdrop}
         onClick={closeOnOverlayClick ? onClose : undefined}
         role="presentation"
       />
