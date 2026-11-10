@@ -16,7 +16,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://origen-one-kohl.vercel.app'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://origen-one-kohl.vercel.app'
+  ),
   title: 'ConstructERP Guatemala - Control de Obras y Firma Digital',
   description:
     'ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas IGSS, firma digital de capataces y gestión de maquinaria.',

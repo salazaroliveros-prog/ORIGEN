@@ -275,6 +275,29 @@ export function calculateLaborRequirements(items: APUItem[], hoursPerShift = 8):
 
 /**
  * Cobertura del presupuesto: planificado vs APU vs gasto ejecutado.
+ *
+ * Dimensión medida: presupuesto planificado del proyecto (project.budgetTotal)
+ * vs total de partidas APU. Evalúa si el presupuesto autorizado cubre las
+ * partidas APU definidas y qué tanto se ha ejecutado del plan.
+ *
+ * @param project Proyecto con budgetTotal (presupuesto planificado/autorizado) y spentTotal.
+ * @param items Partidas APU del proyecto.
+ * @returns Objeto con:
+ *   - plannedBudgetGTQ: Presupuesto total planificado del proyecto.
+ *   - apuTotalGTQ: Suma de totalPriceGTQ de todas las partidas APU.
+ *   - spentTotalGTQ: Gasto total ejecutado del proyecto.
+ *   - remainingBudgetGTQ: plannedBudgetGTQ - spentTotalGTQ.
+ *   - varianceGTQ: plannedBudgetGTQ - apuTotalGTQ.
+ *     POSITIVO = el presupuesto planificado supera al total APU (sobra cobertura).
+ *     NEGATIVO = el total APU excede el presupuesto planificado (falta cobertura).
+ *   - variancePercent: varianceGTQ expresado como % del plannedBudgetGTQ.
+ *   - budgetUsagePercent: spentTotalGTQ / plannedBudgetGTQ (% del plan ejecutado).
+ *   - apuCoveragePercent: apuTotalGTQ / plannedBudgetGTQ (% del plan cubierto por APU).
+ *   - status: Clasificación de cobertura (sin-presupuesto, bajo-presupuesto, ajustado, sobre-presupuesto).
+ *
+ * @see {@link calculateBudgetSummary} en lib/utils/calculations.ts mide una
+ * dimensión distinta: gasto real ejecutado vs presupuesto APU. No confundir
+ * ambos campos `variance` (signos opuestos y referentes distintos).
  */
 export function calculateBudgetCoverage(
   project: Pick<Project, 'budgetTotal' | 'spentTotal'>,

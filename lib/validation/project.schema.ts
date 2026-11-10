@@ -152,13 +152,11 @@ export function validateAndFixProjectData(data: unknown): ProjectFormProject {
     return fixed;
   } catch (error) {
     console.error('❌ Error validando proyecto:', error);
-    throw new Error(
-      `Datos de proyecto inválidos: ${
-        error instanceof z.ZodError
-          ? error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
-          : String(error)
-      }`
-    );
+    let detail = String(error);
+    if (error instanceof z.ZodError) {
+      detail = error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+    }
+    throw new Error(`Datos de proyecto inválidos: ${detail}`);
   }
 }
 

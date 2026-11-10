@@ -239,7 +239,7 @@ Total = Imponible + Impuesto
 ## Seguridad
 
 - Autenticación de Firebase con correo y contraseña
-- Control de acceso basado en roles (Propietario, Admin, Gerente, Visor)
+- Control de acceso basado en roles (owner, admin, project_manager, finance, field_worker, viewer)
 - Reglas de seguridad de Firestore validadas
 - Validación de entrada en todos los campos
 - Límite de velocidad en llamadas a API

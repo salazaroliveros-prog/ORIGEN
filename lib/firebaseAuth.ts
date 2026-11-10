@@ -17,6 +17,8 @@ import {
   type Auth,
 } from 'firebase/auth';
 
+import { getAuthErrorMessage } from '@/lib/authErrors';
+
 export type AuthSessionStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error';
 
 export type EmailAccountCreationResult =
@@ -39,46 +41,6 @@ async function ensurePersistentSession(): Promise<void> {
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim());
-}
-
-/**
- * Convierte un error de Firebase en un mensaje amigable para el usuario.
- */
-export function getAuthErrorMessage(error: unknown): string {
-  const code =
-    typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : '';
-
-  const errorMessages: Record<string, string> = {
-    'auth/account-exists-with-different-credential':
-      'Este correo ya tiene una cuenta con otro método. Inicia sesión con ese método primero.',
-    'auth/api-key-not-valid':
-      'La configuración de Firebase no es válida. Contacta al administrador.',
-    'auth/cancelled-popup-request': 'Ya hay otra ventana de acceso abierta.',
-    'auth/email-already-in-use': 'Ya existe una cuenta con este correo. Inicia sesión.',
-    'auth/missing-email': 'Escribe tu correo electrónico.',
-    'auth/missing-password': 'Escribe tu contraseña.',
-    'auth/invalid-credential': 'El correo o la contraseña no son correctos.',
-    'auth/invalid-api-key': 'La configuración de Firebase no es válida.',
-    'auth/invalid-email': 'Escribe un correo electrónico válido.',
-    'auth/network-request-failed':
-      'No se pudo conectar con el servidor. Revisa tu conexión a internet.',
-    'auth/operation-not-allowed': 'Este método de acceso no está habilitado.',
-    'auth/popup-blocked': 'El navegador bloqueó la ventana emergente. Permite ventanas emergentes.',
-    'auth/popup-closed-by-user': 'Se canceló el acceso.',
-    'auth/provider-already-linked': 'Esta cuenta ya tiene este proveedor vinculado.',
-    'auth/credential-already-in-use': 'Esta cuenta ya está vinculada a otro usuario.',
-    'auth/web-storage-unsupported': 'El navegador no permite guardar la sesión. Habilita cookies.',
-    'auth/invalid-oauth-client-id': 'La configuración OAuth no es válida.',
-    'auth/unauthorized-continue-uri': 'La URL de acceso no está autorizada.',
-    'auth/too-many-requests': 'Demasiados intentos fallidos. Espera un momento.',
-    'auth/unauthorized-domain': 'Este dominio no está autorizado. Contacta al administrador.',
-    'auth/user-disabled': 'Esta cuenta está deshabilitada.',
-    'auth/user-not-found': 'No existe una cuenta con este correo.',
-    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
-    'auth/wrong-password': 'El correo o la contraseña no son correctos.',
-  };
-
-  return errorMessages[code] || 'No se pudo completar la autenticación. Inténtalo de nuevo.';
 }
 
 /**

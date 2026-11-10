@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 /**
  * Company settings configuration for ORIGEN ERP
  * Almacena la configuración de la empresa para el sistema
@@ -126,10 +128,10 @@ export interface CompanyInvitation {
   status: 'pending' | 'accepted';
   /** Quien creó la invitación */
   createdBy: string;
-  /** Fecha de creación */
-  createdAt: { toDate: () => Date };
-  /** Fecha de expiración */
-  expiresAt: { toDate: () => Date };
+  /** Fecha de creación (Timestamp de Firestore) */
+  createdAt: Timestamp;
+  /** Fecha de expiración (Timestamp de Firestore) */
+  expiresAt: Timestamp;
   /** Quien aceptó la invitación (opcional) */
   acceptedBy?: string;
 }

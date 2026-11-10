@@ -91,7 +91,25 @@ export function validateAPUItem(item: Partial<APUItem>): APUItem {
 }
 
 /**
- * Calculates budget summary from APU items and expenses
+ * Calcula el resumen del presupuesto comparando gasto real ejecutado contra
+ * el total de partidas APU.
+ *
+ * Dimensión medida: gasto real ejecutado (expenses) vs presupuesto APU planificado.
+ *
+ * @param apuItems Partidas APU que constituyen el presupuesto de referencia.
+ * @param totalSpent Monto total gastado ejecutado (suma de ExpenseRecord.amount).
+ * @returns Objeto con:
+ *   - budgetTotal: Suma de totalPriceGTQ de todas las partidas APU (presupuesto APU).
+ *   - spentTotal: Monto total gastado ejecutado.
+ *   - remaining: budgetTotal - spentTotal (positivo = saldo a favor).
+ *   - utilization: Porcentaje de presupuesto APU consumido (0-100%).
+ *   - variance: spentTotal - budgetTotal.
+ *     POSITIVO = sobre gasto respecto al presupuesto APU.
+ *     NEGATIVO = bajo presupuesto (quedan fondos del APU sin ejecutar).
+ *
+ * @see {@link calculateBudgetCoverage} en lib/domain/budgetAnalysis.ts mide una
+ * dimensión distinta: presupuesto planificado del proyecto (project.budgetTotal)
+ * vs total de partidas APU. No confundir ambos campos `variance`.
  */
 export function calculateBudgetSummary(
   apuItems: APUItem[],
@@ -101,7 +119,7 @@ export function calculateBudgetSummary(
   spentTotal: number;
   remaining: number;
   utilization: number; // percentage 0-100
-  variance: number; // spentTotal - budgetTotal (negative = under budget)
+  variance: number; // spentTotal - budgetAPU (positive = over budget vs APU)
 } {
   if (!Array.isArray(apuItems)) throw new Error('APU items must be an array');
   if (!Number.isFinite(totalSpent) || totalSpent < 0) {
