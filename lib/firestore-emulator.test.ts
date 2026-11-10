@@ -16,6 +16,8 @@ import {
   setDoc,
   where,
   writeBatch,
+  type DocumentData,
+  type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -346,11 +348,22 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     const result = await getDocs(
       query(collection(database, 'projects'), where('companyId', '==', COMPANY_A))
     );
-    const projects = result.docs.map((snapshot) => snapshot.data());
-    const totalBudget = projects.reduce((sum, project) => sum + Number(project.budgetTotal), 0);
-    const totalSpent = projects.reduce((sum, project) => sum + Number(project.spentTotal), 0);
+    const projects = result.docs.map(
+      (snapshot: QueryDocumentSnapshot<DocumentData>) => snapshot.data()
+    );
+    const totalBudget = projects.reduce(
+      (sum: number, project: DocumentData) => sum + Number(project.budgetTotal),
+      0
+    );
+    const totalSpent = projects.reduce(
+      (sum: number, project: DocumentData) => sum + Number(project.spentTotal),
+      0
+    );
     const averagePhysicalProgress =
-      projects.reduce((sum, project) => sum + Number(project.progressPercent), 0) / projects.length;
+      projects.reduce(
+        (sum: number, project: DocumentData) => sum + Number(project.progressPercent),
+        0
+      ) / projects.length;
 
     expect(projects).toHaveLength(3);
     expect(totalBudget).toBe(3_500_000);

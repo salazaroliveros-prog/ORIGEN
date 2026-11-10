@@ -36,15 +36,11 @@ export const APUItemsList = React.memo<APUItemsListProps>(
     // Sort items
     const sortedItems = React.useMemo(() => {
       const sorted = [...items];
+      const sortKey: 'code' | 'description' | 'totalPriceGTQ' =
+        sortBy === 'code' ? 'code' : sortBy === 'description' ? 'description' : 'totalPriceGTQ';
       sorted.sort((a, b) => {
-        let aVal: any =
-          a[
-            sortBy === 'code' ? 'code' : sortBy === 'description' ? 'description' : 'totalPriceGTQ'
-          ];
-        let bVal: any =
-          b[
-            sortBy === 'code' ? 'code' : sortBy === 'description' ? 'description' : 'totalPriceGTQ'
-          ];
+        let aVal: string | number = a[sortKey];
+        let bVal: string | number = b[sortKey];
 
         if (typeof aVal === 'string') {
           aVal = aVal.toLowerCase();
@@ -92,7 +88,9 @@ export const APUItemsList = React.memo<APUItemsListProps>(
           <div className="flex gap-2">
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) =>
+                setSortBy(e.target.value as 'code' | 'description' | 'total')
+              }
               className="rounded border border-white/10 bg-slate-950 px-2 py-1 text-xs text-white"
               aria-label="Ordenar por"
             >

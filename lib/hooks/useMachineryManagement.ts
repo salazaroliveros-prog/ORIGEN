@@ -167,8 +167,8 @@ export function useMachineryManagement({
   );
 
   const subscribeMachineryLogsHook = useCallback(
-    (callback: (logs: any[]) => void) => {
-      return subscribeMachineryLogs(companyId, callback as any);
+    (callback: (logs: MachineryLog[]) => void) => {
+      return subscribeMachineryLogs(companyId, callback);
     },
     [companyId]
   );

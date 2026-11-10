@@ -615,10 +615,10 @@ export interface ReactChangeEvent extends React.ChangeEvent<HTMLSelectElement | 
 }
 
 // Recharts Tooltip Types
-export interface RechartsTooltipProps {
+export interface RechartsTooltipProps<TPayload = Record<string, unknown>> {
   active?: boolean;
   payload?: Array<{
-    payload: any;
+    payload: TPayload;
     dataKey: string;
     name: string;
     value: number;
@@ -642,6 +642,26 @@ export interface SpeechRecognitionErrorEvent {
   error: string;
   message?: string;
 }
+
+/**
+ * Instancia de reconocimiento de voz de la Web Speech API
+ * (continua, con resultados interinos). No existe un tipo estándar
+ * en `lib.dom.d.ts`, por lo que se define aquí.
+ */
+export interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
+/** Constructor de `SpeechRecognition` (o su variante `webkit`). */
+export type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
 // API Error Types
 export interface APIError {

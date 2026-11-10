@@ -203,9 +203,12 @@ export function PhysicalVsFinancialChart({
           <BarChart
             data={chartData}
             margin={{ top: 20, right: 25, left: 0, bottom: 25 }}
-            onClick={(state: any) => {
-              if (state && state.activePayload && state.activePayload.length && onSelectProject) {
-                const projId = state.activePayload[0].payload.id;
+            onClick={(state) => {
+              const activePayload = (state as unknown as {
+                activePayload?: Array<{ payload: { id: string } }>;
+              })?.activePayload;
+              if (activePayload?.length && onSelectProject) {
+                const projId = activePayload[0].payload.id;
                 onSelectProject(projId);
               }
             }}

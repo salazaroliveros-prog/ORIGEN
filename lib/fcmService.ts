@@ -10,8 +10,11 @@ import {
   orderBy,
   limit,
   updateDoc,
+  type DocumentData,
+  type QueryDocumentSnapshot,
+  type QuerySnapshot,
 } from 'firebase/firestore';
-import { app, auth, db } from './firebaseService';
+import { app, getAuthOrThrow, getDbOrThrow } from './firebaseService';
 import { playNotificationChime } from './notificationService';
 
 export interface ProjectAlert {
@@ -54,7 +57,7 @@ export async function requestFcmPushToken(capatazName: string = 'Don Mario Cifue
     return { granted: false, message: 'Su navegador no soporta notificaciones Push HTML5.' };
   }
 
-  const user = auth.currentUser;
+  const user = getAuthOrThrow().currentUser;
   if (!user) {
     return { granted: false, message: 'Inicie sesión antes de activar las notificaciones.' };
   }
@@ -83,7 +86,7 @@ export async function requestFcmPushToken(capatazName: string = 'Don Mario Cifue
     const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
       scope: '/firebase-messaging/',
     });
-    const messaging = getMessaging(app);
+    const messaging = getMessaging(app ?? undefined);
     const fcmToken = await getToken(messaging, {
       vapidKey,
       serviceWorkerRegistration: swRegistration,
@@ -93,7 +96,7 @@ export async function requestFcmPushToken(capatazName: string = 'Don Mario Cifue
     }
 
     // Save FCM Token record in Firestore
-    const tokenDocRef = doc(db, 'fcm_tokens', fcmToken);
+    const tokenDocRef = doc(getDbOrThrow(), 'fcm_tokens', fcmToken);
     await setDoc(
       tokenDocRef,
       {
@@ -132,12 +135,12 @@ export async function requestFcmPushToken(capatazName: string = 'Don Mario Cifue
 export async function sendCapatazProjectAlert(
   alertData: Omit<ProjectAlert, 'id' | 'ownerId' | 'timestamp' | 'read' | 'status'>
 ): Promise<string> {
-  const ownerId = auth.currentUser?.uid;
+  const ownerId = getAuthOrThrow().currentUser?.uid;
   if (!ownerId) {
     throw new Error('Inicie sesión antes de crear una alerta.');
   }
 
-  const alertRef = doc(collection(db, 'project_alerts'));
+  const alertRef = doc(collection(getDbOrThrow(), 'project_alerts'));
   const alertId = alertRef.id;
   const timestamp = new Date().toISOString();
 
@@ -187,7 +190,7 @@ export async function sendCapatazProjectAlert(
 export function subscribeCapatazAlerts(callback: (alerts: ProjectAlert[]) => void) {
   let unsubscribeSnapshot: (() => void) | undefined;
   const unsubscribeAuth = onAuthStateChanged(
-    auth,
+    getAuthOrThrow(),
     (user) => {
       unsubscribeSnapshot?.();
       unsubscribeSnapshot = undefined;
@@ -198,7 +201,7 @@ export function subscribeCapatazAlerts(callback: (alerts: ProjectAlert[]) => voi
       }
 
       const alertsQuery = query(
-        collection(db, 'project_alerts'),
+        collection(getDbOrThrow(), 'project_alerts'),
         where('ownerId', '==', user.uid),
         orderBy('timestamp', 'desc'),
         limit(20)
@@ -206,14 +209,14 @@ export function subscribeCapatazAlerts(callback: (alerts: ProjectAlert[]) => voi
 
       unsubscribeSnapshot = onSnapshot(
         alertsQuery,
-        (snapshot) => {
+        (snapshot: QuerySnapshot<DocumentData>) => {
           const list: ProjectAlert[] = [];
-          snapshot.forEach((docSnap) => {
+          snapshot.forEach((docSnap: QueryDocumentSnapshot<DocumentData>) => {
             list.push(docSnap.data() as ProjectAlert);
           });
           callback(list);
         },
-        (error) => {
+        (error: Error) => {
           console.warn('Error listening to project_alerts snapshot:', error);
           callback([]);
         }
@@ -235,10 +238,10 @@ export function subscribeCapatazAlerts(callback: (alerts: ProjectAlert[]) => voi
  * Marks an alert as read / signed in Firestore.
  */
 export async function markAlertAsSigned(alertId: string, signerName: string) {
-  if (!auth.currentUser) {
+  if (!getAuthOrThrow().currentUser) {
     throw new Error('Inicie sesión antes de firmar una alerta.');
   }
-  const alertRef = doc(db, 'project_alerts', alertId);
+  const alertRef = doc(getDbOrThrow(), 'project_alerts', alertId);
   await updateDoc(alertRef, {
     read: true,
     status: 'Firmado',

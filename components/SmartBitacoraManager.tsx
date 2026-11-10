@@ -28,6 +28,8 @@ import {
   CompanySettings,
   SpeechRecognitionEvent,
   SpeechRecognitionErrorEvent,
+  SpeechRecognitionInstance,
+  SpeechRecognitionConstructor,
 } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -153,15 +155,19 @@ export function SmartBitacoraManager({
   const [showSignModal, setShowSignModal] = useState<boolean>(false);
 
   // Speech Recognition ref
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   const activeProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
 
   // Initialize Web Speech API if supported in browser
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const speechWindow = window as unknown as {
+        SpeechRecognition?: SpeechRecognitionConstructor;
+        webkitSpeechRecognition?: SpeechRecognitionConstructor;
+      };
       const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
 
       if (SpeechRecognition) {
         const rec = new SpeechRecognition();

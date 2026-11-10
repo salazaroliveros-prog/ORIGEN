@@ -1,4 +1,4 @@
-import { OfflineQueueItem } from './types';
+import { OfflineQueueItem, OfflineQueuePayload } from './types';
 
 const PREFIX = 'constructerp_';
 const QUEUE_KEY = `${PREFIX}offline_queue`;
@@ -23,12 +23,25 @@ export function loadOfflineData<T>(key: string, fallback: T): T {
 }
 
 export function getOfflineQueue(): OfflineQueueItem[] {
-  return loadOfflineData<OfflineQueueItem[]>('offline_queue', []);
+  const queue = loadOfflineData<OfflineQueueItem[]>('offline_queue', []);
+  // `localStorage` puede contener datos de versiones anteriores con
+  // formas distintas a `OfflineQueueItem` (p. ej. entradas sin
+  // `payload`). Se descartan las que no cumplen el contrato en lugar
+  // de propagarlas a los consumidores y romper en runtime.
+  return queue.filter(
+    (item) =>
+      item &&
+      typeof item.id === 'string' &&
+      typeof item.type === 'string' &&
+      typeof item.description === 'string' &&
+      item.payload !== undefined &&
+      item.payload !== null
+  );
 }
 
 export function addOfflineAction(
   type: 'attendance' | 'progress' | 'fieldVisit',
-  payload: any,
+  payload: OfflineQueuePayload,
   description: string
 ): OfflineQueueItem {
   const queue = getOfflineQueue();
@@ -88,7 +101,9 @@ export function registerServiceWorker(): void {
       navigator.serviceWorker
         .register('/sw.js')
         .then((reg) => {
-          console.log('[ConstructERP SW] Service Worker registrado exitosamente:', reg.scope);
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('[ConstructERP SW] Service Worker registrado:', reg.scope);
+          }
         })
         .catch((err) => {
           console.warn('[ConstructERP SW] Registro de Service Worker omitido:', err);

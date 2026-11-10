@@ -51,13 +51,14 @@ interface SafetyAlert {
 }
 
 const mockFirebaseConfig: FirebaseConfigResponse = {
-  apiKey: 'AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI',
-  authDomain: 'origen-erp-guatemala.firebaseapp.com',
-  projectId: 'origen-erp-guatemala',
-  storageBucket: 'origen-erp-guatemala.firebasestorage.app',
-  messagingSenderId: '893831571998',
-  appId: '1:893831571998:web:4e38903eeb0dff05011c0f',
-  measurementId: 'G-EBE081ELJT',
+  // Valores ficticios con el formato real de Firebase; no son credenciales.
+  apiKey: 'AIzaSyTEST00000000000000000000000000000000',
+  authDomain: 'test-project.firebaseapp.com',
+  projectId: 'test-project',
+  storageBucket: 'test-project.firebasestorage.app',
+  messagingSenderId: '000000000000',
+  appId: '1:000000000000:web:0000000000000000000000',
+  measurementId: 'G-TEST000000',
 };
 
 const mockGeminiResponses: GeminiResponse[] = [

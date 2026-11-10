@@ -23,13 +23,20 @@ import {
   getOfflineQueue,
   processOfflineQueue,
 } from '@/lib/offlineStorage';
-import type { Project, ExpenseRecord, AttendanceRecord, Employee, QuoteRecord } from '@/lib/types';
+import type {
+  Project,
+  ExpenseRecord,
+  AttendanceRecord,
+  Employee,
+  QuoteRecord,
+  CompanyRole,
+} from '@/lib/types';
 import { toast } from 'react-hot-toast';
 
 interface CRUDDemoProps {
   companyId: string;
   userId: string;
-  role: string;
+  role: CompanyRole;
 }
 
 export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
@@ -50,7 +57,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
     addEmployee,
     addQuote,
     updateQuoteStatus,
-  } = useProjectData(companyId, userId, role as any);
+  } = useProjectData(companyId, userId, role);
 
   const [activeTab, setActiveTab] = useState<
     'proyectos' | 'gastos' | 'asistencia' | 'empleados' | 'local' | 'offline'
@@ -89,7 +96,7 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
       createdBy: userId,
     };
 
-    const success = await createProject(newProject as any);
+    const success = await createProject(newProject);
     if (success) {
       toast.success('✅ Proyecto creado en Firebase');
     }
@@ -276,7 +283,11 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
 
     addOfflineAction(
       'progress',
-      { projectId: projects[0].id, complete: Math.floor(Math.random() * 100) },
+      {
+        projectId: projects[0].id,
+        milestoneId: 'demo-milestone',
+        progressPercent: Math.floor(Math.random() * 100),
+      },
       `Actualizar progreso (offline)`
     );
 
@@ -286,7 +297,9 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
 
   const handleProcessQueue = useCallback(async () => {
     const result = await processOfflineQueue(async (item) => {
-      console.log('Sincronizando:', item);
+      if (process.env.NODE_ENV === 'development') {
+        console.debug('Sincronizando:', item);
+      }
       toast.success(`🔄 Procesando: ${item.description}`);
       return true;
     });

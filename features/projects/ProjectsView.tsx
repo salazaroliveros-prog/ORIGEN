@@ -112,7 +112,10 @@ export function ProjectsView({
     });
   };
 
-  const handlePhotoUploaded = (photoUrl: string, metadata: any) => {
+  const handlePhotoUploaded = (
+    photoUrl: string,
+    metadata: { filename: string; uploadedAt: string; size: number }
+  ) => {
     // Aquí podrías guardar la referencia de la foto en el proyecto
     // Por ahora solo mostramos un toast de éxito
     toast.success(`Foto guardada para ${selectedProjectForPhotos?.name}`);

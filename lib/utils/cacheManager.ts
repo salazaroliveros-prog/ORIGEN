@@ -10,7 +10,7 @@ interface CacheEntry<T> {
 }
 
 class QueryCache {
-  private cache = new Map<string, CacheEntry<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
 
   /**
    * Set cache entry with TTL (default 5 minutes)
@@ -74,7 +74,7 @@ export const queryCache = new QueryCache();
 /**
  * Create cache key from query parameters
  */
-export function createCacheKey(collection: string, filters: Record<string, any>): string {
+export function createCacheKey(collection: string, filters: Record<string, unknown>): string {
   const filterStr = JSON.stringify(filters);
   return `${collection}:${Buffer.from(filterStr).toString('base64')}`;
 }
@@ -84,7 +84,7 @@ export function createCacheKey(collection: string, filters: Record<string, any>)
  * Prevents duplicate simultaneous requests
  */
 class QueryDeduplicator {
-  private pending = new Map<string, Promise<any>>();
+  private pending = new Map<string, Promise<unknown>>();
 
   /**
    * Execute query with deduplication
@@ -93,7 +93,7 @@ class QueryDeduplicator {
   async execute<T>(key: string, queryFn: () => Promise<T>): Promise<T> {
     // Check if query is already in progress
     if (this.pending.has(key)) {
-      return this.pending.get(key)!;
+      return this.pending.get(key)! as Promise<T>;
     }
 
     // Create new query promise

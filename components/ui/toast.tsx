@@ -44,10 +44,18 @@ export const useToast = () => {
 
 // Export toast methods for backward compatibility
 export const toast = {
-  success: (message: string) => console.log(`[Toast Success] ${message}`),
-  error: (message: string) => console.log(`[Toast Error] ${message}`),
-  info: (message: string) => console.log(`[Toast Info] ${message}`),
-  warning: (message: string) => console.log(`[Toast Warning] ${message}`),
+  success: (message: string) => {
+    if (process.env.NODE_ENV === 'development') console.debug(`[Toast Success] ${message}`);
+  },
+  error: (message: string) => {
+    if (process.env.NODE_ENV === 'development') console.error(`[Toast Error] ${message}`);
+  },
+  info: (message: string) => {
+    if (process.env.NODE_ENV === 'development') console.debug(`[Toast Info] ${message}`);
+  },
+  warning: (message: string) => {
+    if (process.env.NODE_ENV === 'development') console.warn(`[Toast Warning] ${message}`);
+  },
 };
 
 export default Toast;

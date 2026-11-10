@@ -31,18 +31,22 @@ export function useRenderTime(componentName: string): void {
 /**
  * Hook to track when a component re-renders
  */
-export function useWhyDidYouUpdate(name: string, props: any): void {
-  const previousProps = useRef<any>(undefined);
+export function useWhyDidYouUpdate(
+  name: string,
+  props: Record<string, unknown>
+): void {
+  const previousProps = useRef<Record<string, unknown> | undefined>(undefined);
 
   useEffect(() => {
-    if (previousProps.current) {
-      const allKeys = Object.keys({ ...previousProps.current, ...props });
-      const changedProps: Record<string, { from: any; to: any }> = {};
+    const previous = previousProps.current;
+    if (previous) {
+      const allKeys = Object.keys({ ...previous, ...props });
+      const changedProps: Record<string, { from: unknown; to: unknown }> = {};
 
       allKeys.forEach((key) => {
-        if (previousProps.current[key] !== props[key]) {
+        if (previous[key] !== props[key]) {
           changedProps[key] = {
-            from: previousProps.current[key],
+            from: previous[key],
             to: props[key],
           };
         }
@@ -60,9 +64,9 @@ export function useWhyDidYouUpdate(name: string, props: any): void {
 /**
  * Hook to measure function execution time
  */
-export function useMeasure<T extends (...args: any[]) => any>(fn: T, name: string): T {
+export function useMeasure<T extends (...args: never[]) => unknown>(fn: T, name: string): T {
   return useCallback(
-    (...args: any[]) => {
+    (...args: never[]) => {
       const start = performance.now();
       const result = fn(...args);
       const end = performance.now();
@@ -80,11 +84,23 @@ export function useMeasure<T extends (...args: any[]) => any>(fn: T, name: strin
 /**
  * Hook to track memory usage (rough estimate)
  */
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+function getPerformanceMemory(): PerformanceMemory | undefined {
+  const nav = performance as unknown as { memory?: PerformanceMemory };
+  return nav.memory;
+}
+
 export function useMemoryWarning(threshold: number = 50): void {
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && (performance as any).memory) {
+    const memoryInfo = getPerformanceMemory();
+    if (process.env.NODE_ENV === 'development' && memoryInfo) {
       const checkMemory = () => {
-        const memory = (performance as any).memory;
+        const memory = getPerformanceMemory();
+        if (!memory) return;
         const usedMB = Math.round(memory.usedJSHeapSize / 1048576);
         const limitMB = Math.round(memory.jsHeapSizeLimit / 1048576);
         const percent = Math.round((usedMB / limitMB) * 100);

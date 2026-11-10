@@ -20,6 +20,7 @@ import {
   calculateTotalUnitCost,
   validateAPUItem,
   convertUSDtoGTQ,
+  type BudgetSummary,
 } from '@/lib/utils/calculations';
 import { Plus, Pencil, Trash2, AlertCircle, Loader, DollarSign, TrendingUp } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
@@ -45,7 +46,7 @@ export function APUItemsList({
   onUpdateBudget,
 }: {
   projectId: string;
-  onUpdateBudget?: (summary: any) => void;
+  onUpdateBudget?: (summary: BudgetSummary) => void;
 }) {
   // State
   const [items, setItems] = useState<APUItem[]>([]);

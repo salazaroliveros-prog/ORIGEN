@@ -218,21 +218,21 @@ export function ResponsiveModal({
 }
 
 // FEATURE 5.1: Responsive Table/Card toggle
-interface ResponsiveTableProps {
+interface ResponsiveTableProps<TItem extends { id?: string | number }> {
   columns: { key: string; label: string; align?: 'left' | 'center' | 'right' }[];
-  data: any[];
-  renderCard?: (item: any) => React.ReactNode;
-  renderRow?: (item: any) => React.ReactNode;
-  onRowClick?: (item: any) => void;
+  data: TItem[];
+  renderCard?: (item: TItem) => React.ReactNode;
+  renderRow?: (item: TItem) => React.ReactNode;
+  onRowClick?: (item: TItem) => void;
 }
 
-export function ResponsiveTable({
+export function ResponsiveTable<TItem extends { id?: string | number }>({
   columns,
   data,
   renderCard,
   renderRow,
   onRowClick,
-}: ResponsiveTableProps) {
+}: ResponsiveTableProps<TItem>) {
   const { isMobile } = useMobileView();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -275,7 +275,9 @@ export function ResponsiveTable({
                 ? renderRow(item)
                 : columns.map((col) => (
                     <td key={col.key} className={`px-4 py-3 text-${col.align || 'left'}`}>
-                      {item[col.key]}
+                      {String(
+                        (item as Record<string, unknown>)[col.key] ?? ''
+                      )}
                     </td>
                   ))}
             </tr>

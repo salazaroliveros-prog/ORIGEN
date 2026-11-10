@@ -418,7 +418,7 @@ export async function exportProjectAccountingWorkbook({
     expensesHeaders,
   ];
 
-  filteredExpenses.forEach((exp: any, index) => {
+  filteredExpenses.forEach((exp: ExpenseRecord, index) => {
     const subtotal = Math.round((exp.amount / 1.12) * 100) / 100;
     const iva = Math.round((exp.amount - subtotal) * 100) / 100;
     const usd =
@@ -426,7 +426,10 @@ export async function exportProjectAccountingWorkbook({
     const approvalStatus = exp.approvalStatus || 'Sin estado registrado';
     const approvedBy = exp.approvedBy || '';
     const approvedAt = exp.approvedAt || '';
-    const auditNotes = exp.auditObservations || '';
+    const auditNotes = exp.auditTrail
+      ?.map((entry) => entry.note)
+      .filter((note): note is string => Boolean(note))
+      .join('; ') || '';
 
     expensesRows.push([
       index + 1,
