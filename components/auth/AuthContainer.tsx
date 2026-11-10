@@ -56,16 +56,27 @@ export function AuthContainer(): React.ReactElement {
     e.preventDefault();
     setErrors({});
 
+    // Check if rate-limited
+    if (isLocked) {
+      setShowRateLimit(true);
+      return;
+    }
+
     if (!validateForm()) {
+      // Increment failed attempts counter
+      setFailedAttempts((prev) => prev + 1);
       return;
     }
 
     try {
       setIsLoading(true);
       await signIn(email.trim(), password);
+      // Reset failed attempts on success
+      setFailedAttempts(0);
       // El hook useAuthSession manejará el redireccionamiento vía auth state change
     } catch {
-      // El error ya se muestra vía toast en el hook
+      // Increment failed attempts on error
+      setFailedAttempts((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +121,11 @@ export function AuthContainer(): React.ReactElement {
 
   const minutesLeft = getMinutesLeft();
   const isLocked = minutesLeft > 0;
+
+  // Rate limit state: 5 attempts per 30 minutes
+  const rateLimitStatus = isLocked
+    ? `Demasiados intentos. Inténtalo de nuevo en ${minutesLeft} min.`
+    : 'Listo para iniciar sesión';
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
