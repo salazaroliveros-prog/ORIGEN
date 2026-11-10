@@ -60,6 +60,9 @@ export function LoginForm({ onAuthenticated, onRegister, className }: LoginFormP
       await signIn(email.trim(), password);
       onAuthenticated();
     } catch {
+      // Guardar tiempo de bloqueo (30 min)
+      const lockExpiry = Date.now() + 30 * 60 * 1000;
+      localStorage.setItem('loginLockTime', lockExpiry.toString());
       setError('Correo o contraseña incorrectos. Inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
