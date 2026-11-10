@@ -389,7 +389,7 @@ export default function SignUpPage() {
         </Card>
       </div>
 
-      <p className="mt-6 text-center text-xs text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-400">
         © 2024 ORIGEN ERP. Todos los derechos reservados.
       </p>
     </div>

@@ -619,7 +619,7 @@ export function GanttSchedule({
             placeholder="Buscar por tarea, fase o responsable…"
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-slate-800/80 px-3 py-1.5 text-xs text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400 sm:w-64"
+            className="w-full rounded-xl border border-white/10 bg-slate-800/80 px-3 py-1.5 text-xs text-white outline-none transition placeholder:text-slate-400 focus:border-sky-400 sm:w-64"
           />
 
           <div className="flex gap-1">

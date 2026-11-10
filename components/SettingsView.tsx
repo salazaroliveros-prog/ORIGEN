@@ -381,10 +381,10 @@ export function SettingsView() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm text-slate-600">GTQ a USD</p>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-3xl font-bold text-slate-900 mb-2">
               1 GTQ = {exchangeRates.gtqToUsd} USD
             </p>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-sm text-slate-400">
               Actualizado: {new Date(exchangeRates.lastUpdate).toLocaleString()}
             </p>
           </div>
