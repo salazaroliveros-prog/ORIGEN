@@ -160,6 +160,14 @@ export function ProjectsList() {
 
       {/* Sort Controls - RESPONSIVE OPTIMIZED */}
       <div className="mb-6 flex flex-wrap gap-2">
+        <span>Ordenar por</span>
+        {sortBy && (
+          <>
+            <ChevronDown className="h-4 w-4" />
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{sortBy}</span>
+          </>
+        )}
+      </div>
         <button
           onClick={() => handleSort('date')}
           className={`flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold transition duration-200 sm:gap-2 sm:px-3 sm:text-sm ${
