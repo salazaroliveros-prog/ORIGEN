@@ -19,6 +19,9 @@ import {
   getDocs,
   writeBatch,
   Unsubscribe,
+  type DocumentData,
+  type QueryDocumentSnapshot,
+  type QuerySnapshot,
 } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
@@ -48,10 +51,28 @@ import { validateProjectForm } from './validation/project.schema';
 
 const firebaseConfig = getFirebaseConfig();
 
-if (!hasFirebaseRuntimeConfig()) {
-  throw new Error(
-    'Firebase configuration is incomplete. Check the public Firebase environment variables.'
+// `throw` no se hace en tiempo de evaluación del módulo: este archivo
+// también se importa desde rutas de servidor (`app/api/upload-project-photo`)
+// y Next.js lo evalúa durante el build (colección de datos de página) sin
+// variables de entorno en el entorno de CI. Lanzar aquí rompe el build.
+// En su lugar se registra el problema y la inicialización se omite hasta
+// que haya configuración válida (ver `initializeFirebase`).
+const firebaseConfigured = hasFirebaseRuntimeConfig();
+
+if (!firebaseConfigured) {
+  console.error(
+    '[firebaseService] Firebase configuration is incomplete. ' +
+      'Check the public Firebase environment variables.'
   );
+}
+
+function initializeFirebase() {
+  if (!firebaseConfigured) {
+    throw new Error(
+      'Firebase configuration is incomplete. Check the public Firebase environment variables.'
+    );
+  }
+  return initializeApp(appConfig);
 }
 
 const appConfig = {
@@ -65,7 +86,64 @@ const appConfig = {
 };
 
 const hasExistingFirebaseApp = getApps().length > 0;
-export const app = hasExistingFirebaseApp ? getApps()[0] : initializeApp(appConfig);
+// Sin configuración válida no se inicializa la app: los consumidores
+// deben comprobar `firebaseConfigured` antes de usar `app`/`db`/`auth`.
+// Cuando no hay configuración, `app` queda en `null` y cualquier uso
+// posterior lanza el error de configuración (ver `initializeFirebase`).
+export const app: ReturnType<typeof initializeApp> | null = hasExistingFirebaseApp
+  ? getApps()[0]
+  : firebaseConfigured
+    ? initializeFirebase()
+    : null;
+
+function getAppOrThrow(): ReturnType<typeof initializeApp> {
+  if (!app) {
+    // Lanza si no hay configuración válida.
+    initializeFirebase();
+  }
+  return app as ReturnType<typeof initializeApp>;
+}
+
+/**
+ * Devuelve la instancia de Auth o lanza si no hay configuración
+ * válida. Los consumidores de `auth`/`db`/`storage` deben usar esta
+ * función en lugar de acceder a los valores exportados directamente,
+ * ya que estos pueden ser `null` cuando falta la configuración.
+ */
+export function getAuthOrThrow(): NonNullable<typeof auth> {
+  if (!auth) {
+    throw new Error(
+      'Firebase configuration is incomplete. Check the public Firebase environment variables.'
+    );
+  }
+  return auth;
+}
+
+/**
+ * Devuelve la instancia de Firestore o lanza si no hay configuración
+ * válida. Ver `getAuthOrThrow`.
+ */
+export function getDbOrThrow(): NonNullable<typeof db> {
+  if (!db) {
+    throw new Error(
+      'Firebase configuration is incomplete. Check the public Firebase environment variables.'
+    );
+  }
+  return db;
+}
+
+/**
+ * Devuelve la instancia de Storage o lanza si no hay configuración
+ * válida. Ver `getAuthOrThrow`.
+ */
+export function getStorageOrThrow(): NonNullable<typeof storage> {
+  if (!storage) {
+    throw new Error(
+      'Firebase configuration is incomplete. Check the public Firebase environment variables.'
+    );
+  }
+  return storage;
+}
 const isNewFirebaseApp = !hasExistingFirebaseApp;
 const useFirebaseEmulators =
   process.env.NODE_ENV === 'development' &&
@@ -75,10 +153,13 @@ const firebaseEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || '
 // Conexión directa a Firebase/Firestore sin capa intermedia de verificación de aplicaciones.
 
 const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
-export const db = getFirestore(app, firestoreDatabaseId || '(default)');
-export const auth = getAuth(app);
+// Sin configuración válida (`app === null`) no se crean `db`/`auth`:
+// los deja en `null` y cualquier uso posterior lanza el error de
+// configuración al intentar acceder a ellos.
+export const db = app ? getFirestore(app, firestoreDatabaseId || '(default)') : null;
+export const auth = app ? getAuth(app) : null;
 
-if (useFirebaseEmulators && isNewFirebaseApp) {
+if (useFirebaseEmulators && isNewFirebaseApp && auth && db) {
   connectAuthEmulator(auth, `http://${firebaseEmulatorHost}:9099`, { disableWarnings: true });
   connectFirestoreEmulator(db, firebaseEmulatorHost, 8080);
 }
@@ -98,7 +179,7 @@ if (!useFirebaseEmulators && typeof window !== 'undefined' && firebaseConfig.app
         process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN;
     }
 
-    initializeAppCheck(app, {
+    initializeAppCheck(getAppOrThrow(), {
       provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
       isTokenAutoRefreshEnabled: true,
     });
@@ -109,13 +190,14 @@ if (!useFirebaseEmulators && typeof window !== 'undefined' && firebaseConfig.app
 }
 
 // Initialize Firebase Storage
-export const storage = getStorage(app);
+export const storage = app ? getStorage(app) : null;
 
-if (useFirebaseEmulators && isNewFirebaseApp) {
+if (useFirebaseEmulators && isNewFirebaseApp && storage) {
   connectStorageEmulator(storage, firebaseEmulatorHost, 9199);
 }
 
 export async function testConnection(): Promise<boolean> {
+  if (!auth || !db) return false;
   const user = auth.currentUser;
   if (!user) {
     return false;
@@ -172,16 +254,17 @@ export function handleFirestoreError(
     return new Error(errMsg);
   }
 
+  const currentUser = auth?.currentUser;
   const errInfo: FirestoreErrorInfo = {
     error: errMsg,
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
+      userId: currentUser?.uid,
+      email: currentUser?.email,
+      emailVerified: currentUser?.emailVerified,
+      isAnonymous: currentUser?.isAnonymous,
+      tenantId: currentUser?.tenantId,
       providerInfo:
-        auth.currentUser?.providerData?.map((provider) => ({
+        currentUser?.providerData?.map((provider) => ({
           providerId: provider.providerId,
           email: provider.email,
         })) || [],
@@ -303,14 +386,16 @@ export function subscribeProjects(
     const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
-      (snapshot) => {
+      (snapshot: QuerySnapshot<DocumentData>) => {
         notifySyncStart();
         const list: Project[] = [];
-        snapshot.forEach((docSnap) => list.push(docSnap.data() as Project));
+        snapshot.forEach((docSnap: QueryDocumentSnapshot<DocumentData>) =>
+          list.push(docSnap.data() as Project)
+        );
         callback(list);
         notifySyncEnd();
       },
-      (error) => {
+      (error: Error) => {
         notifySyncEnd();
         handleFirestoreError(error, OperationType.LIST, path);
       }
@@ -401,12 +486,14 @@ export function subscribeFieldVisits(
     const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
-      (snapshot) => {
+      (snapshot: QuerySnapshot<DocumentData>) => {
         const list: FieldVisit[] = [];
-        snapshot.forEach((docSnap) => list.push(docSnap.data() as FieldVisit));
+        snapshot.forEach((docSnap: QueryDocumentSnapshot<DocumentData>) =>
+          list.push(docSnap.data() as FieldVisit)
+        );
         callback(list);
       },
-      (error) => {
+      (error: Error) => {
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
@@ -501,12 +588,14 @@ export function subscribeExpenses(
     const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
-      (snapshot) => {
+      (snapshot: QuerySnapshot<DocumentData>) => {
         const list: ExpenseRecord[] = [];
-        snapshot.forEach((docSnap) => list.push(docSnap.data() as ExpenseRecord));
+        snapshot.forEach((docSnap: QueryDocumentSnapshot<DocumentData>) =>
+          list.push(docSnap.data() as ExpenseRecord)
+        );
         callback(list);
       },
-      (error) => {
+      (error: Error) => {
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
@@ -561,12 +650,14 @@ export function subscribeAttendance(
     const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
-      (snapshot) => {
+      (snapshot: QuerySnapshot<DocumentData>) => {
         const list: AttendanceRecord[] = [];
-        snapshot.forEach((docSnap) => list.push(docSnap.data() as AttendanceRecord));
+        snapshot.forEach((docSnap: QueryDocumentSnapshot<DocumentData>) =>
+          list.push(docSnap.data() as AttendanceRecord)
+        );
         callback(list);
       },
-      (error) => {
+      (error: Error) => {
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
@@ -623,7 +714,9 @@ async function createMissingEmployeeDirectoryEntries(
   const existing = await getDocs(
     query(collection(db, 'employeeDirectory'), where('companyId', '==', companyId))
   );
-  const existingIds = new Set(existing.docs.map((item) => item.id));
+  const existingIds = new Set(
+    existing.docs.map((item: QueryDocumentSnapshot<DocumentData>) => item.id)
+  );
   const missing = employees.filter((employee) => !existingIds.has(employee.id));
 
   for (let offset = 0; offset < missing.length; offset += 450) {
@@ -650,15 +743,17 @@ export function subscribeEmployees(
     const q = query(collection(db, path), where('companyId', '==', companyId));
     return onSnapshot(
       q,
-      (snapshot) => {
+      (snapshot: QuerySnapshot<DocumentData>) => {
         const list: Employee[] = [];
-        snapshot.forEach((docSnap) => list.push(docSnap.data() as Employee));
+        snapshot.forEach((docSnap: QueryDocumentSnapshot<DocumentData>) =>
+          list.push(docSnap.data() as Employee)
+        );
         callback(list);
         void createMissingEmployeeDirectoryEntries(list, companyId).catch((error: unknown) => {
           handleFirestoreError(error, OperationType.WRITE, `employeeDirectory/${companyId}`);
         });
       },
-      (error) => {
+      (error: Error) => {
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
@@ -677,8 +772,13 @@ export function subscribeEmployeeDirectory(
   try {
     return onSnapshot(
       query(collection(db, path), where('companyId', '==', companyId)),
-      (snapshot) => callback(snapshot.docs.map((item) => item.data() as EmployeeDirectoryEntry)),
-      (error) => handleFirestoreError(error, OperationType.LIST, path)
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(
+          snapshot.docs.map(
+            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as EmployeeDirectoryEntry
+          )
+        ),
+      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
     notifySyncEnd();
@@ -717,14 +817,14 @@ export function subscribeCompanySettings(
     const docRef = doc(db, 'companySettings', companyId);
     return onSnapshot(
       docRef,
-      (docSnap) => {
+      (docSnap: QueryDocumentSnapshot<DocumentData>) => {
         if (docSnap.exists()) {
           callback(docSnap.data() as CompanySettings);
         } else {
           callback(null);
         }
       },
-      (error) => {
+      (error: Error) => {
         handleFirestoreError(error, OperationType.GET, path);
       }
     );
@@ -743,8 +843,13 @@ export function subscribeQuotes(
   try {
     return onSnapshot(
       query(collection(db, path), where('companyId', '==', companyId)),
-      (snapshot) => callback(snapshot.docs.map((item) => item.data() as QuoteRecord)),
-      (error) => handleFirestoreError(error, OperationType.LIST, path)
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(
+          snapshot.docs.map(
+            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as QuoteRecord
+          )
+        ),
+      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
     notifySyncEnd();
@@ -761,8 +866,13 @@ export function subscribeAPUItems(
   try {
     return onSnapshot(
       query(collection(db, path), where('companyId', '==', companyId)),
-      (snapshot) => callback(snapshot.docs.map((item) => item.data() as APUItem)),
-      (error) => handleFirestoreError(error, OperationType.LIST, path)
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(
+          snapshot.docs.map(
+            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as APUItem
+          )
+        ),
+      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
     notifySyncEnd();
@@ -921,8 +1031,13 @@ export function subscribeMachinery(
   try {
     return onSnapshot(
       query(collection(db, path), where('companyId', '==', companyId)),
-      (snapshot) => callback(snapshot.docs.map((item) => item.data() as Machinery)),
-      (error) => handleFirestoreError(error, OperationType.LIST, path)
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(
+          snapshot.docs.map(
+            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as Machinery
+          )
+        ),
+      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
     notifySyncEnd();
@@ -997,8 +1112,13 @@ export function subscribeMachineryLogs(
   try {
     return onSnapshot(
       query(collection(db, path), where('companyId', '==', companyId)),
-      (snapshot) => callback(snapshot.docs.map((item) => item.data() as MachineryLog)),
-      (error) => handleFirestoreError(error, OperationType.LIST, path)
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(
+          snapshot.docs.map(
+            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as MachineryLog
+          )
+        ),
+      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
     );
   } catch (error) {
     notifySyncEnd();

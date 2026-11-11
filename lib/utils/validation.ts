@@ -79,7 +79,7 @@ export const validationSchemas = {
  */
 export function validateData<T>(
   schema: z.ZodSchema,
-  data: any
+  data: unknown
 ): { valid: boolean; errors: Record<string, string> } {
   const result = schema.safeParse(data);
 
@@ -160,7 +160,7 @@ export function sanitizeInput(input: string, type: 'text' | 'number' | 'email' =
 /**
  * Safe JSON parsing
  */
-export function safeJSONParse<T = any>(json: string, fallback: T): T {
+export function safeJSONParse<T = unknown>(json: string, fallback: T): T {
   try {
     return JSON.parse(json);
   } catch (error) {
@@ -173,7 +173,7 @@ export function safeJSONParse<T = any>(json: string, fallback: T): T {
  * Validate and normalize currency amount
  */
 export function validateCurrencyAmount(
-  amount: any,
+  amount: unknown,
   currency: 'GTQ' | 'USD' = 'GTQ'
 ): {
   valid: boolean;

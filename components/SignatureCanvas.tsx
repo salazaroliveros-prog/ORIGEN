@@ -1,6 +1,6 @@
 'use client';
 
-import { auth, saveFieldVisitToFirestore } from '@/lib/firebaseService';
+import { getAuthOrThrow, saveFieldVisitToFirestore } from '@/lib/firebaseService';
 import { FieldVisit } from '@/lib/types';
 import {
   AlertCircle,
@@ -386,7 +386,7 @@ export function SignatureCanvas({
 
       // Persist directly to Firestore if autoSaveToFirestore is enabled and we have an authorized user or visit
       if (autoSaveToFirestore && updatedVisit) {
-        const userId = auth.currentUser?.uid;
+        const userId = getAuthOrThrow().currentUser?.uid;
         const workspaceId = companyId ?? updatedVisit.companyId;
         if (!userId || !workspaceId) {
           setValidationError(

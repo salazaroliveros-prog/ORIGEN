@@ -163,7 +163,7 @@ export function SyncLogPanel({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por colección, ruta o tipo…"
-              className="w-full rounded-xl border border-slate-700 bg-slate-900 py-1.5 pl-9 pr-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full rounded-xl border border-slate-700 bg-slate-900 py-1.5 pl-9 pr-3 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
 

@@ -255,6 +255,6 @@ if (typeof window !== 'undefined' && !('ClipboardItem' in window)) {
   };
 }
 
-if (typeof window !== 'undefined') {
-  console.log('Polyfills cargados correctamente para compatibilidad cross-browser');
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  console.debug('Polyfills cargados correctamente para compatibilidad cross-browser');
 }

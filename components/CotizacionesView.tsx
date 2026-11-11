@@ -785,13 +785,17 @@ export function CotizacionesView({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por cliente, NIT o código…"
-              className="w-full rounded-xl border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full rounded-xl border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) =>
+              setStatusFilter(
+                e.target.value as 'todos' | 'Borrador' | 'Enviada' | 'Aceptada' | 'Rechazada'
+              )
+            }
             className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 focus:outline-none"
           >
             <option value="todos">Todos los Estados</option>

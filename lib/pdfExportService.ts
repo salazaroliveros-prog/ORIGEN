@@ -958,7 +958,7 @@ export async function exportConstructionAuditPdf(
   });
   y += 5;
 
-  const catCols = [
+  const catCols: Array<{ title: string; width: number; align: 'left' | 'center' | 'right' }> = [
     { title: 'Renglón / Categoría de Insumo', width: 95, align: 'left' },
     { title: 'No. Comprobantes', width: 40, align: 'center' },
     { title: 'Monto Ejecutado (GTQ)', width: 68, align: 'right' },
@@ -980,7 +980,7 @@ export async function exportConstructionAuditPdf(
       fontSize: 7,
       fontStyle: 'bold',
       color: [255, 255, 255],
-      align: col.align as any,
+      align: col.align,
     });
     curCatX += col.width;
   });
@@ -1103,7 +1103,7 @@ export async function exportConstructionAuditPdf(
   );
   y += 5;
 
-  const expCols = [
+  const expCols: Array<{ title: string; width: number; align: 'left' | 'center' | 'right' }> = [
     { title: 'Fecha', width: 22, align: 'left' },
     { title: 'Categoría', width: 38, align: 'left' },
     { title: 'No. Factura / DTE', width: 30, align: 'left' },
@@ -1130,7 +1130,7 @@ export async function exportConstructionAuditPdf(
         fontSize: 6.5,
         fontStyle: 'bold',
         color: [255, 255, 255],
-        align: col.align as any,
+        align: col.align,
       });
       hX += col.width;
     });

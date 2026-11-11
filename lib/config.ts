@@ -36,19 +36,17 @@ export function hasFirebaseRuntimeConfig(): boolean {
   const hasConfig = Boolean(config.projectId && config.apiKey && config.appId && config.authDomain);
 
   if (!hasConfig) {
-    console.error('Firebase configuration incomplete:', {
+    // No se registran valores de configuración (ni parciales) en logs:
+    // podrían filtrarse a servicios de telemetría. Solo se indica que
+    // falta la configuración.
+    console.error(
+      '[config] Firebase configuration incomplete. ' +
+        'Check the public Firebase environment variables.'
+    );
+  } else if (process.env.NODE_ENV === 'development') {
+    console.debug('[config] Firebase configuration loaded.', {
       projectId: config.projectId,
-      apiKey: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'missing',
-      appId: config.appId,
       authDomain: config.authDomain,
-      storageBucket: config.storageBucket,
-      messagingSenderId: config.messagingSenderId,
-    });
-  } else {
-    console.log('Firebase configuration loaded successfully:', {
-      projectId: config.projectId,
-      authDomain: config.authDomain,
-      appId: config.appId,
     });
   }
 

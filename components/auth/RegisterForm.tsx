@@ -68,6 +68,9 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
       await register(email.trim(), password);
       onAuthenticated();
     } catch {
+      // Guardar tiempo de bloqueo (30 min)
+      const lockExpiry = Date.now() + 30 * 60 * 1000;
+      localStorage.setItem('loginLockTime', lockExpiry.toString());
       setError('No se pudo crear la cuenta. Inténtalo con otro correo.');
     } finally {
       setIsLoading(false);

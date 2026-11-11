@@ -326,7 +326,7 @@ export function D3BudgetUtilizationChart({
       const activeAngle = startAngle + totalAngleSpan * (currentProgressRatio / 1.2);
 
       const backgroundArc = d3
-        .arc<any>()
+        .arc<Record<string, unknown>>()
         .innerRadius(radius - 24)
         .outerRadius(radius)
         .startAngle(startAngle)
@@ -334,7 +334,7 @@ export function D3BudgetUtilizationChart({
         .cornerRadius(8);
 
       const progressArc = d3
-        .arc<any>()
+        .arc<Record<string, unknown>>()
         .innerRadius(radius - 24)
         .outerRadius(radius)
         .startAngle(startAngle)

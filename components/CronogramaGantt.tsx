@@ -520,7 +520,7 @@ export function CronogramaGantt({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar tarea o fase…"
-                  className="rounded-xl border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="rounded-xl border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
 
@@ -924,14 +924,29 @@ export function CronogramaGantt({
   );
 }
 
+interface SCurveDataPoint {
+  monthKey: string;
+  label: string;
+  date: Date;
+  avancePlanificado: number;
+  avanceReal: number | null;
+}
+
 /**
  * Custom Tooltip for S-Curve Chart
  */
-function CustomSCurveTooltip({ active, payload }: any) {
+function CustomSCurveTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: SCurveDataPoint }>;
+}) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    const hasReal = data.avanceReal !== null;
-    const gap = hasReal ? data.avanceReal - data.avancePlanificado : null;
+    const avanceReal = data.avanceReal;
+    const hasReal = avanceReal !== null;
+    const gap = hasReal ? avanceReal - data.avancePlanificado : null;
 
     return (
       <div className="min-w-[200px] space-y-1.5 rounded-xl border border-slate-700 bg-slate-950 p-3.5 font-sans text-xs shadow-2xl">
@@ -946,7 +961,7 @@ function CustomSCurveTooltip({ active, payload }: any) {
           {hasReal && (
             <div className="flex justify-between font-bold text-emerald-400">
               <span>Avance Real Ejecutado:</span>
-              <span>{data.avanceReal}%</span>
+              <span>{avanceReal}%</span>
             </div>
           )}
           {gap !== null && (

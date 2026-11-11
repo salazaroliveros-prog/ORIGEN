@@ -5,12 +5,14 @@
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
+type LogData = unknown;
+
 interface LogEntry {
   level: LogLevel;
   timestamp: string;
   module: string;
   message: string;
-  data?: any;
+  data?: LogData;
   error?: Error;
 }
 
@@ -35,7 +37,7 @@ class Logger {
     return this.getLevelPriority(level) >= this.getLevelPriority(this.minLevel);
   }
 
-  private createEntry(level: LogLevel, module: string, message: string, data?: any): LogEntry {
+  private createEntry(level: LogLevel, module: string, message: string, data?: LogData): LogEntry {
     return {
       level,
       timestamp: new Date().toISOString(),
@@ -81,25 +83,25 @@ class Logger {
     }
   }
 
-  debug(module: string, message: string, data?: any): void {
+  debug(module: string, message: string, data?: LogData): void {
     if (this.shouldLog('debug')) {
       this.output(this.createEntry('debug', module, message, data));
     }
   }
 
-  info(module: string, message: string, data?: any): void {
+  info(module: string, message: string, data?: LogData): void {
     if (this.shouldLog('info')) {
       this.output(this.createEntry('info', module, message, data));
     }
   }
 
-  warn(module: string, message: string, data?: any): void {
+  warn(module: string, message: string, data?: LogData): void {
     if (this.shouldLog('warn')) {
       this.output(this.createEntry('warn', module, message, data));
     }
   }
 
-  error(module: string, message: string, error?: Error | any, data?: any): void {
+  error(module: string, message: string, error?: unknown, data?: LogData): void {
     if (this.shouldLog('error')) {
       const entry = this.createEntry('error', module, message, data);
       if (error instanceof Error) {
@@ -148,10 +150,10 @@ export const logger = new Logger((process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel)
  */
 export function createLogger(moduleName: string) {
   return {
-    debug: (message: string, data?: any) => logger.debug(moduleName, message, data),
-    info: (message: string, data?: any) => logger.info(moduleName, message, data),
-    warn: (message: string, data?: any) => logger.warn(moduleName, message, data),
-    error: (message: string, error?: Error | any, data?: any) =>
+    debug: (message: string, data?: LogData) => logger.debug(moduleName, message, data),
+    info: (message: string, data?: LogData) => logger.info(moduleName, message, data),
+    warn: (message: string, data?: LogData) => logger.warn(moduleName, message, data),
+    error: (message: string, error?: unknown, data?: LogData) =>
       logger.error(moduleName, message, error, data),
   };
 }

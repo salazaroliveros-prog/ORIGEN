@@ -1,7 +1,20 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import type { CompanyRole } from '@/lib/types';
+import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
+import type {
+  CompanyRole,
+  Project,
+  FieldVisit,
+  ExpenseRecord,
+  AttendanceRecord,
+  Employee,
+  EmployeeDirectoryEntry,
+  QuoteRecord,
+  APUItem,
+  Machinery,
+  MachineryLog,
+  CompanySettings,
+} from '@/lib/types';
 import {
   subscribeProjects,
   subscribeFieldVisits,
@@ -29,18 +42,18 @@ interface UseProjectSubscriptionsParams {
   companyId: string;
   currentUserId: string;
   role: CompanyRole | undefined;
-  setProjects: (projects: any[]) => void;
-  setFieldVisits: (visits: any[]) => void;
-  setExpenses: (expenses: any[]) => void;
-  setAttendance: (attendance: any[]) => void;
-  setEmployees: (employees: any[]) => void;
-  setQuotes: (quotes: any[]) => void;
-  setApuItems: (items: any[]) => void;
-  setApuItemsLoading: (loading: boolean) => void;
-  setMachinery: (machinery: any[]) => void;
-  setMachineryLogs: (logs: any[]) => void;
-  setCompany: (company: any) => void;
-  setLoading: (loading: boolean) => void;
+  setProjects: Dispatch<SetStateAction<Project[]>>;
+  setFieldVisits: Dispatch<SetStateAction<FieldVisit[]>>;
+  setExpenses: Dispatch<SetStateAction<ExpenseRecord[]>>;
+  setAttendance: Dispatch<SetStateAction<AttendanceRecord[]>>;
+  setEmployees: Dispatch<SetStateAction<Array<Employee | EmployeeDirectoryEntry>>>;
+  setQuotes: Dispatch<SetStateAction<QuoteRecord[]>>;
+  setApuItems: Dispatch<SetStateAction<APUItem[]>>;
+  setApuItemsLoading: Dispatch<SetStateAction<boolean>>;
+  setMachinery: Dispatch<SetStateAction<Machinery[]>>;
+  setMachineryLogs: Dispatch<SetStateAction<MachineryLog[]>>;
+  setCompany: Dispatch<SetStateAction<CompanySettings | null>>;
+  setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 export function useProjectSubscriptions({

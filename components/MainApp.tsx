@@ -3,7 +3,6 @@
 import { LogoUpload } from '@/components/LogoUpload';
 import { Navbar } from '@/components/Navbar';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
-import { AuthContainer } from '@/components/auth/AuthContainer';
 import { MobileHeader, PageHeader } from '@/components/PageHeader';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
 import { Button } from '@/components/ui/Button';
@@ -355,9 +354,9 @@ export default function MainApp() {
     }
   };
 
-  // Si no hay usuario autenticado, mostrar el contenedor de login/registro
+  // Si no hay usuario autenticado, la página raíz redirige a /login (ver app/page.tsx)
   if (!currentUser) {
-    return <AuthContainer />;
+    return null;
   }
 
   return (

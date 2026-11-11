@@ -28,6 +28,8 @@ import {
   CompanySettings,
   SpeechRecognitionEvent,
   SpeechRecognitionErrorEvent,
+  SpeechRecognitionInstance,
+  SpeechRecognitionConstructor,
 } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -153,15 +155,19 @@ export function SmartBitacoraManager({
   const [showSignModal, setShowSignModal] = useState<boolean>(false);
 
   // Speech Recognition ref
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   const activeProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
 
   // Initialize Web Speech API if supported in browser
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const speechWindow = window as unknown as {
+        SpeechRecognition?: SpeechRecognitionConstructor;
+        webkitSpeechRecognition?: SpeechRecognitionConstructor;
+      };
       const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
 
       if (SpeechRecognition) {
         const rec = new SpeechRecognition();
@@ -419,7 +425,7 @@ export function SmartBitacoraManager({
                 value={voiceNotes}
                 onChange={(e) => setVoiceNotes(e.target.value)}
                 placeholder="Presione el botón de micrófono para hablar o escriba directamente la nota de campo del capataz aquí…"
-                className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 font-medium leading-relaxed text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 font-medium leading-relaxed text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 

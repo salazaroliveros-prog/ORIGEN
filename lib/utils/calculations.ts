@@ -111,16 +111,20 @@ export function validateAPUItem(item: Partial<APUItem>): APUItem {
  * dimensión distinta: presupuesto planificado del proyecto (project.budgetTotal)
  * vs total de partidas APU. No confundir ambos campos `variance`.
  */
-export function calculateBudgetSummary(
-  apuItems: APUItem[],
-  totalSpent: number
-): {
+export interface BudgetSummary {
   budgetTotal: number;
   spentTotal: number;
   remaining: number;
-  utilization: number; // percentage 0-100
-  variance: number; // spentTotal - budgetAPU (positive = over budget vs APU)
-} {
+  /** Porcentaje de presupuesto APU consumido (0-100). */
+  utilization: number;
+  /** spentTotal - budgetAPU (positivo = sobre presupuesto vs APU). */
+  variance: number;
+}
+
+export function calculateBudgetSummary(
+  apuItems: APUItem[],
+  totalSpent: number
+): BudgetSummary {
   if (!Array.isArray(apuItems)) throw new Error('APU items must be an array');
   if (!Number.isFinite(totalSpent) || totalSpent < 0) {
     throw new Error('Total spent must be a non-negative number');

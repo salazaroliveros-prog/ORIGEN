@@ -1116,7 +1116,26 @@ export function DashboardView({
 }
 
 // Tooltips
-function CustomProgressTooltip({ active, payload }: any) {
+interface ProgressChartDataPoint {
+  id: string;
+  name: string;
+  fullName: string;
+  code: string;
+  avanceFisico: number;
+  ejecucionFinanciera: number;
+  presupuesto: number;
+  gastoReal: number;
+  descalce: number;
+  isAlert: boolean;
+}
+
+function CustomProgressTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: ProgressChartDataPoint }>;
+}) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -1152,7 +1171,26 @@ function CustomProgressTooltip({ active, payload }: any) {
   return null;
 }
 
-function CustomStackedTooltip({ active, payload }: any) {
+interface StackedChartDataPoint {
+  id: string;
+  name: string;
+  fullName: string;
+  presupuestoAsignado: number;
+  gastoReal: number;
+  saldoDisponible: number;
+  sobrecostoExcedido: number;
+  totalGasto: number;
+  percentExecuted: number;
+  isOverbudget: boolean;
+}
+
+function CustomStackedTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: StackedChartDataPoint }>;
+}) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (

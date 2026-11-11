@@ -145,7 +145,7 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
   // Columns (Widths in mm total = 273mm):
   // Colaborador/Puesto (40), DPI/IGSS (36), Días (10), Sueldo Base (22), Hrs Extra (18), Afecto IGSS (22),
   // Bono Dto 37 (20), IGSS Lab 4.83% (20), Prov. Bono 14 (20), Prov. Aguinaldo (20), Líquido (23), IGSS Pat 12.67% (22)
-  const cols = [
+  const cols: Array<{ title: string; width: number; align: 'left' | 'center' | 'right' }> = [
     { title: 'Colaborador / Puesto', width: 40, align: 'left' },
     { title: 'DPI / No. IGSS', width: 36, align: 'left' },
     { title: 'Días', width: 10, align: 'center' },
@@ -177,7 +177,7 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
       fontSize: 7,
       fontStyle: 'bold',
       color: [255, 255, 255],
-      align: col.align as any,
+      align: col.align,
     });
     curX += col.width;
   });
@@ -206,7 +206,7 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
           fontSize: 7,
           fontStyle: 'bold',
           color: [255, 255, 255],
-          align: col.align as any,
+          align: col.align,
         });
         headerX += col.width;
       });

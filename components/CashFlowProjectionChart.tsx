@@ -514,7 +514,15 @@ export function CashFlowProjectionChart({
 /**
  * Custom Rich Tooltip for Cash Flow Area Chart
  */
-function CustomCashFlowTooltip({ active, payload, label }: any) {
+function CustomCashFlowTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: CashFlowMonth }>;
+  label?: string;
+}) {
   if (active && payload && payload.length) {
     const data: CashFlowMonth = payload[0].payload;
     const isPositive = data.flujoNeto >= 0;

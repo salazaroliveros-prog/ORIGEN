@@ -10,6 +10,9 @@ import {
   Timestamp,
   where,
   writeBatch,
+  type DocumentData,
+  type QueryDocumentSnapshot,
+  type QuerySnapshot,
   type Unsubscribe,
 } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
@@ -34,8 +37,13 @@ export function subscribeCompanyMembers(
   try {
     return onSnapshot(
       collection(db, 'companies', companyId, 'members'),
-      (snapshot) => callback(snapshot.docs.map((item) => item.data() as CompanyMembership)),
-      (error) => onError?.(handleFirestoreError(error, OperationType.LIST, path).message)
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(
+          snapshot.docs.map(
+            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as CompanyMembership
+          )
+        ),
+      (error: Error) => onError?.(handleFirestoreError(error, OperationType.LIST, path).message)
     );
   } catch (error) {
     notifySyncEnd();
@@ -57,8 +65,13 @@ export function subscribeCompanyInvitations(
         collection(db, 'companies', companyId, 'invitations'),
         where('status', '==', 'pending')
       ),
-      (snapshot) => callback(snapshot.docs.map((item) => item.data() as CompanyInvitation)),
-      (error) => onError?.(handleFirestoreError(error, OperationType.LIST, path).message)
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(
+          snapshot.docs.map(
+            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as CompanyInvitation
+          )
+        ),
+      (error: Error) => onError?.(handleFirestoreError(error, OperationType.LIST, path).message)
     );
   } catch (error) {
     notifySyncEnd();

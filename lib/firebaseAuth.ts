@@ -1,4 +1,4 @@
-import { auth } from './firebaseService';
+import { getAuthOrThrow } from './firebaseService';
 import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
@@ -32,7 +32,7 @@ export interface AuthErrorInfo {
 }
 
 async function ensurePersistentSession(): Promise<void> {
-  await setPersistence(auth, browserLocalPersistence);
+  await setPersistence(getAuthOrThrow(), browserLocalPersistence);
 }
 
 /**
@@ -79,7 +79,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
   await ensurePersistentSession();
 
   try {
-    const result = await signInWithEmailAndPassword(auth, email.trim(), password);
+    const result = await signInWithEmailAndPassword(getAuthOrThrow(), email.trim(), password);
     return result.user;
   } catch (error) {
     const message = getAuthErrorMessage(error);
@@ -108,7 +108,7 @@ export async function createEmailAccount(
   await ensurePersistentSession();
 
   try {
-    const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+    const result = await createUserWithEmailAndPassword(getAuthOrThrow(), email.trim(), password);
     try {
       const redirectUrl = `${window.location.origin}/?verified=true`;
       await sendEmailVerification(result.user, {
@@ -132,22 +132,22 @@ export async function resetEmailPassword(email: string): Promise<void> {
   if (!isValidEmail(email.trim())) {
     throw new Error('Escribe un correo electrónico válido.');
   }
-  await sendPasswordResetEmail(auth, email.trim());
+  await sendPasswordResetEmail(getAuthOrThrow(), email.trim());
 }
 
 export function signOutUser(): Promise<void> {
-  return signOut(auth);
+  return signOut(getAuthOrThrow());
 }
 
 export function subscribeToAuthState(
   onUser: (user: User | null) => void,
   onError: (error: Error) => void
 ): Unsubscribe {
-  return onAuthStateChanged(auth, onUser, onError);
+  return onAuthStateChanged(getAuthOrThrow(), onUser, onError);
 }
 
 export function getCurrentAuth(): Auth {
-  return auth;
+  return getAuthOrThrow();
 }
 
 export function isPrimaryAdministrator(email: string | null | undefined): boolean {
@@ -157,7 +157,7 @@ export function isPrimaryAdministrator(email: string | null | undefined): boolea
 }
 
 export async function authorizeGmailSend(): Promise<{ accessToken: string; expiresAt: number }> {
-  const user = auth.currentUser;
+  const user = getAuthOrThrow().currentUser;
   if (!user) throw new Error('Inicia sesión antes de autorizar el envío de correo.');
 
   const provider = new GoogleAuthProvider();
