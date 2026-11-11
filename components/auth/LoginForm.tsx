@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Sun, Moon, ArrowRight, Google } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Sun, Moon, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -18,13 +18,13 @@ import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { signInWithPopup } from 'firebase/auth';
 import { GoogleAuthProvider } from 'firebase/auth';
 import { getAuthOrThrow } from '@/lib/firebaseService';
-import { getAuthErrorMessage } from '@/lib/authErrors';
+import { getAuthErrorMessageForMethod } from '@/lib/authErrors';
 import { validateLoginForm, LoginFormValues } from '@/lib/validation/auth.schema';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-};
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+} as const;
 
 export function LoginForm({ className }: { className?: string }) {
   const { signIn, status } = useAuthSession();
@@ -80,7 +80,7 @@ export function LoginForm({ className }: { className?: string }) {
       else localStorage.removeItem('constructerp_remember_email');
       await signIn(email.trim(), password);
     } catch (error) {
-      const message = getAuthErrorMessage(error);
+      const message = getAuthErrorMessageForMethod(error);
       setGeneralError(message);
       toast.error(message);
     } finally {
@@ -96,7 +96,7 @@ export function LoginForm({ className }: { className?: string }) {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
     } catch (error) {
-      const message = getAuthErrorMessage(error, 'google');
+      const message = getAuthErrorMessageForMethod(error, 'google');
       setGeneralError(message);
       toast.error(message);
     } finally {
@@ -235,7 +235,7 @@ export function LoginForm({ className }: { className?: string }) {
             <span className="relative flex -mx-3 items-center rounded-full bg-slate-950 px-3 text-xs text-slate-500">o continúa con</span>
           </div>
 
-          <Button type="button" variant="outline" size="lg" onClick={handleGoogleLogin} disabled={isAuthenticating} className="w-full" leftIcon={<Google className="h-4 w-4" />}>
+          <Button type="button" variant="outline" size="lg" onClick={handleGoogleLogin} disabled={isAuthenticating} className="w-full" leftIcon={<svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path d="M5.84 14.09c-.22-.66-.36-1.39-.36-2.19 0-.78.15-1.53.4-2.25H2.18v2.84c0 .81.17 1.56.45 2.19.47.99 1.45 1.69 2.67 1.98V19.6c-1.8-.39-3.04-1.57-3.48-3.48z" /><path d="M12 5.39c1.61 0 3.04.4 4.21 1.15l3.58-2.77C17.46 2.12 14.76 1 12 1 7.7 1 3.99 3.47 2.18 6.81l3.57 2.77c.76-.61 1.71-.98 2.72-.98.78 0 1.53.19 2.21.56V5.39z" /><path d="M12 1.5c-3.31 0-6.35 1.3-8.49 3.47l3.57 2.77c.97-.78 2.23-1.22 3.7-1.22.97 0 1.88.26 2.67.72V1.5z" /></svg>}>
             Continuar con Google
           </Button>
 

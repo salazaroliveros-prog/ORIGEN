@@ -16,7 +16,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useProjectData } from '@/lib/hooks/useProjectData';
 import { usePagination } from '@/lib/hooks/usePagination';
-import { Plus, Trash2, Pencil, ChevronLeft, ChevronRight, Loader, ArrowUpDown } from 'lucide-react';
+import { Plus, Trash2, Pencil, ChevronLeft, ChevronRight, ChevronDown, Loader, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from '@/components/ui/toast';
 import { Modal } from '@/components/ui/Modal';
@@ -167,7 +167,6 @@ export function ProjectsList() {
             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{sortBy}</span>
           </>
         )}
-      </div>
         <button
           onClick={() => handleSort('date')}
           className={`flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold transition duration-200 sm:gap-2 sm:px-3 sm:text-sm ${
