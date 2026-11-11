@@ -43,6 +43,7 @@ import {
   deleteAPUItemFromFirestore,
   saveQuoteToFirestore,
   updateQuoteStatusInFirestore,
+  deleteQuoteFromFirestore,
   subscribeMachinery,
   saveMachineryToFirestore,
   updateMachineryStatusInFirestore,
@@ -357,7 +358,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       setLoading(true);
       try {
         log.info('Creating project', { companyId });
-        const projectId = `proj-${Date.now()}`;
+        const projectId = `proj-${crypto.randomUUID()}`;
         const project: Project = {
           ...validation.data,
           id: projectId,
@@ -942,6 +943,45 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     [companyId, currentUserId, quotes]
   );
 
+  const deleteQuote = useCallback(
+    async (quoteId: string) => {
+      if (!companyId || !currentUserId) {
+        log.warn('Quote deletion attempted without auth');
+        toast.error('Inicia sesión para eliminar cotizaciones.');
+        return false;
+      }
+
+      const quote = quotes.find((item) => item.id === quoteId);
+      if (!quote) {
+        log.warn('Quote not found for deletion', { quoteId });
+        toast.error('No se encontró la cotización.');
+        return false;
+      }
+
+      if (!window.confirm('¿Eliminar esta cotización?')) return false;
+
+      try {
+        log.info('Deleting quote', { quoteId });
+        const deleted = await deleteQuoteFromFirestore(quoteId);
+        if (deleted) {
+          log.info('Quote deleted successfully', { quoteId });
+          toast.success('Cotización eliminada correctamente.');
+          const cacheKey = createCacheKey('quotes', { companyId });
+          queryCache.clear(cacheKey);
+        } else {
+          log.error('Quote deletion failed', { quoteId });
+          toast.error('No se pudo eliminar la cotización.');
+        }
+        return deleted;
+      } catch (err) {
+        log.error('Quote deletion error', err as Error, { quoteId });
+        toast.error('Error al eliminar la cotización.');
+        return false;
+      }
+    },
+    [companyId, currentUserId, quotes]
+  );
+
   // ========== MACHINERY MANAGEMENT ==========
   const addMachinery = useCallback(
     async (item: Machinery) => {
@@ -1117,6 +1157,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     addEmployee,
     addQuote,
     updateQuoteStatus,
+    deleteQuote,
     saveAPUItems,
     deleteAPUItem,
     addMachinery,

@@ -246,7 +246,7 @@ export function ExpensesManager({
     }
 
     const ex: ExpenseRecord = {
-      id: `ex-${Date.now()}`,
+      id: `ex-${crypto.randomUUID()}`,
       projectId: activeProject.id,
       date: new Date().toISOString().split('T')[0],
       category,

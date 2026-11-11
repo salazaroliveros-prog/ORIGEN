@@ -280,7 +280,7 @@ export function StaffAndAttendance({
     }
 
     const newRecord: AttendanceRecord = {
-      id: `att-${Date.now()}`,
+      id: `att-${crypto.randomUUID()}`,
       projectId: selectedProjectId,
       date: attendanceDate,
       employeeId: emp.id,
@@ -330,7 +330,7 @@ export function StaffAndAttendance({
     }
 
     const candidate = {
-      id: `emp-${Date.now()}`,
+      id: `emp-${crypto.randomUUID()}`,
       name: name.trim(),
       role,
       dailyRateGTQ: Number(rate) || 0,

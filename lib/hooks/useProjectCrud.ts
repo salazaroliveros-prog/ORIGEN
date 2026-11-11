@@ -43,7 +43,7 @@ export function useProjectCrud({
 
       try {
         log.info('Creating project', { companyId });
-        const projectId = `proj-${Date.now()}`;
+        const projectId = `proj-${crypto.randomUUID()}`;
         const project: Project = {
           ...validation.data,
           id: projectId,

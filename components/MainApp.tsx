@@ -574,6 +574,7 @@ export default function MainApp() {
                   onSelectProject={handleSelectProject}
                   onSaveQuote={data.addQuote}
                   onUpdateQuoteStatus={data.updateQuoteStatus}
+                  onDeleteQuote={data.deleteQuote}
                 />
               )}
               {activeTab === 'planillas' && permissions.canViewFullPersonnel && (

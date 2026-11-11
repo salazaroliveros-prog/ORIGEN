@@ -1023,6 +1023,18 @@ export async function updateQuoteStatusInFirestore(
   return saveQuoteToFirestore({ ...quote, status }, companyId, userId);
 }
 
+export async function deleteQuoteFromFirestore(quoteId: string): Promise<boolean> {
+  const path = `quotes/${quoteId}`;
+  try {
+    await deleteDoc(doc(db, 'quotes', quoteId));
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.DELETE, path);
+    return false;
+  }
+}
+
 export function subscribeMachinery(
   companyId: string,
   callback: (machinery: Machinery[]) => void

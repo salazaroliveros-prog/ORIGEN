@@ -44,6 +44,7 @@ interface CotizacionesViewProps {
   onSelectProject: (projectId: string) => void;
   onSaveQuote: (quote: QuoteRecord) => Promise<boolean>;
   onUpdateQuoteStatus: (quoteId: string, status: QuoteRecord['status']) => Promise<boolean>;
+  onDeleteQuote?: (quoteId: string) => Promise<boolean>;
 }
 
 interface QuoteTemplate {
@@ -312,6 +313,7 @@ export function CotizacionesView({
   onSelectProject,
   onSaveQuote,
   onUpdateQuoteStatus,
+  onDeleteQuote,
 }: CotizacionesViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<
@@ -320,6 +322,7 @@ export function CotizacionesView({
 
   // Modal State for New/Edit Quote
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletingQuoteId, setDeletingQuoteId] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [editorProjectId, setEditorProjectId] = useState('');
   const selectedProjectId = projects.some((project) => project.id === activeProjectId)
@@ -435,23 +438,10 @@ export function CotizacionesView({
 
   // Add Item to Current Quote
   const handleAddItem = () => {
-    // Fallback para E2E: leer del DOM cuando React 19 no actualiza estado controlado
-    const desc =
-      newItemDesc.trim() ||
-      (document.querySelector('input[name="newItemDesc"]') as HTMLInputElement)?.value.trim() ||
-      '';
-    const qtyStr =
-      newItemQty ||
-      (document.querySelector('input[name="newItemQty"]') as HTMLInputElement)?.value ||
-      '1';
-    const priceStr =
-      newItemPrice ||
-      (document.querySelector('input[name="newItemPrice"]') as HTMLInputElement)?.value ||
-      '0';
-    const unit =
-      newItemUnit.trim() ||
-      (document.querySelector('select[name="newItemUnit"]') as HTMLSelectElement)?.value ||
-      'Global';
+    const desc = newItemDesc.trim();
+    const qtyStr = newItemQty || '1';
+    const priceStr = newItemPrice || '0';
+    const unit = newItemUnit.trim() || 'Global';
 
     if (!desc) {
       toast.error('Ingrese la descripción del renglón');
@@ -537,11 +527,7 @@ export function CotizacionesView({
 
   // Save new quote
   const handleSaveQuote = async (status: 'Borrador' | 'Enviada' = 'Enviada') => {
-    // Fallback para E2E: leer del DOM cuando React 19 no actualiza estado controlado
-    const clientNameVal =
-      clientName.trim() ||
-      (document.querySelector('input[name="clientName"]') as HTMLInputElement)?.value.trim() ||
-      '';
+    const clientNameVal = clientName.trim();
     if (!clientNameVal) {
       toast.error('Ingrese el nombre del cliente o empresa');
       return;
@@ -658,6 +644,27 @@ export function CotizacionesView({
   ) => {
     if (await onUpdateQuoteStatus(quoteId, newStatus)) {
       toast.success(`Estado actualizado a: ${newStatus}`);
+    }
+  };
+
+  // Delete quote directly from card
+  const handleDeleteQuote = async (quoteId: string) => {
+    if (!onDeleteQuote) return;
+    setDeletingQuoteId(quoteId);
+    if (!window.confirm('¿Eliminar esta cotización? Esta acción no se puede deshacer.')) {
+      setDeletingQuoteId(null);
+      return;
+    }
+    try {
+      if (await onDeleteQuote(quoteId)) {
+        toast.success('Cotización eliminada correctamente.');
+      } else {
+        toast.error('No se pudo eliminar la cotización.');
+      }
+    } catch {
+      toast.error('Error al eliminar la cotización.');
+    } finally {
+      setDeletingQuoteId(null);
     }
   };
 
@@ -932,6 +939,18 @@ export function CotizacionesView({
                       aria-label={`Marcar cotización ${q.id} como aceptada`}
                     >
                       <Check className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
+                  {canWrite && onDeleteQuote && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteQuote(q.id)}
+                      disabled={deletingQuoteId === q.id}
+                      className="cursor-pointer rounded-xl p-2 text-rose-400 transition hover:bg-rose-500/20 hover:text-rose-300"
+                      title={`Eliminar cotización ${q.id}`}
+                      aria-label={`Eliminar cotización ${q.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                   )}
                 </div>
