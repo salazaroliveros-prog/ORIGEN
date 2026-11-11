@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=18.0.0 <24.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
@@ -45,7 +45,6 @@
     "exceljs": "^4.4.0",
     "firebase": "12.19.0",
     "firebase-admin": "14.5.0",
-    "gemini": "^7.5.2",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lightningcss": "1.33.0",
