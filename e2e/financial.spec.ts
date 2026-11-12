@@ -21,7 +21,7 @@ test.describe('Sección Gastos & Facturas', () => {
     const loginVisible = await loginButton.isVisible({ timeout: 3000 }).catch(() => false);
     if (loginVisible) {
       await page.getByLabel('Correo electrónico').fill(ADMIN_EMAIL);
-      await page.locator('#password').fill(ADMIN_PASSWORD);
+      await page.getByLabel('Contraseña', { exact: true }).fill(ADMIN_PASSWORD);
       await loginButton.click();
       await page.waitForTimeout(4000);
     }
