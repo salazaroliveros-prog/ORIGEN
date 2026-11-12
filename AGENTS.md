@@ -1,57 +1,26 @@
 # AGENTS.md
 
-## Project overview
-This repository is a Next.js + TypeScript ERP for construction and project management in Guatemala. The app combines a React frontend, Firebase-based backend services, and a substantial business-logic layer under `lib/`.
+Next.js 15 (App Router) + strict TypeScript + React 19 ERP for construction/project management (Guatemala). Firebase (Auth/Firestore/Storage, client + `firebase-admin`) backend; business logic lives in `lib/`, UI in `app/` and `components/`.
 
-Primary project references:
-- [README.md](README.md)
-- [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)
-- [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)
-- [PROJECT_COMPLETION_SUMMARY.md](PROJECT_COMPLETION_SUMMARY.md)
-
-## Working conventions
-- Prefer targeted, minimal changes over broad refactors.
-- Keep business logic in `lib/` and UI composition in `components/` and `app/`.
-- Follow the existing TypeScript patterns and use typed helpers rather than ad hoc `any` values.
-- When fixing bugs, validate the relevant behavior with the smallest reproducible test or check rather than running the entire suite unnecessarily.
-- Update docs only when the change materially alters behavior, usage, or setup.
-
-## Key directories
-- `app/` — Next.js app-router pages and route-level UI
-- `components/` — reusable screens and UI building blocks
-- `lib/` — data, calculations, Firebase integration, validation, and domain logic
-- `features/` — feature-specific modules and patterns
-- `scripts/` — build and maintenance utilities
-- `e2e/` and `playwright.config.ts` — end-to-end coverage
-- `docs/` — supporting project documentation
+## Layout & boundaries
+- `app/` — routes/UI (`app/api/**` route handlers). `components/` — shared UI. `lib/` — domain logic, calculations, Firebase/data access, validation, hooks (`lib/utils`, `lib/hooks`, etc.). `features/` — feature modules.
+- `e2e/` + `playwright.config.ts` — Playwright E2E (global setup `e2e/global-setup.ts`). `scripts/` — dev/build/seed/maintenance (see quirks). `docs/` and many root `*_SUMMARY|*_REPORT|*_GUIDE.md` files are reference/summaries, not source of truth for behavior.
 
 ## Commands
-Use the project scripts in `package.json`:
+- Install: `npm install` (CI uses `npm ci --no-audit --no-fund`, Node 24).
+- Dev: `npm run dev` (runs `scripts/dev.mjs` → `next dev`, defaults `-p 3000 -H 0.0.0.0`; emulated: `npm run dev:emulated`; Firebase emulators: `npm run emulators`).
+- Build/start: `npm run build` (`scripts/build.mjs`, sets `NODE_ENV=production` and `--max-old-space-size=1024`, `output: 'standalone'`); prod server: `npm run start` (`node .next/standalone/server.js`).
+- Lint/format/typecheck: `npm run lint` (`eslint .`), `npm run lint:fix`, `npm run format` / `format:check`, `npm run type-check` (`tsc --noEmit`).
+- Tests (Vitest, jsdom): `npm run test` / `test:watch` / `test:coverage`. Focused: `npm run test -- <pattern|path>` (e.g. `npm run test -- calculations`, `npm run test -- crud.integration`, `npm run test -- lib/utils/foo.test.ts`).
+- Firestore emulator tests: `npm run test:firebase` (excluded from default `vitest` run; runs `lib/firestore-emulator.test.ts` via `firebase emulators:exec`).
+- E2E (Playwright): `npm run test:e2e` / `test:e2e:ui` / `test:e2e:headed` (base `http://localhost:3000` or `E2E_BASE_URL`; projects chromium/firefox/webkit/mobile).
 
-- Install dependencies: `npm install`
-- Start dev server: `npm run dev`
-- Run unit tests: `npm run test`
-- Watch tests: `npm run test:watch`
-- Type-check: `npm run type-check`
-- Build: `npm run build`
-- Lint: `npm run lint`
-- Format: `npm run format`
-- E2E: `npm run test:e2e`
+## Toolchain & quirks
+- Path alias `@/*` → repo root (tsconfig/vitest). Vitest includes `lib/**/*.test.ts(x)` and `app/api/**/*.test.ts`; setup `vitest.setup.ts`.
+- `scripts/dev.mjs` auto-heals `/app` symlinks and copies `package.json` into `/app` (cloud/runtime artifact) — preserve this behavior. Build script constrains Node heap.
+- Env: copy `.env.example` → `.env.local`. Client vars `NEXT_PUBLIC_FIREBASE_*` (+ optional App Check/VAPID/emulator flags); server-only `GEMINI_API_KEY`, `PRIMARY_ADMIN_EMAIL`, `ALLOWED_ORIGINS`. Never commit real secrets.
+- CI (`.github/workflows/ci.yml`, push/PR to `main`): `lint` → `test` → `build` (build requires `NEXT_PUBLIC_FIREBASE_*` secrets); no `type-check` step in CI.
 
-## Quality bar
-- Prefer tests for logic changes, especially in `lib/**/*.test.ts` and `*.integration.test.ts` files.
-- Keep the fix aligned with the current architecture; do not add framework or state-management patterns unless they are already used in the repo.
-- Before claiming completion, confirm the relevant verification command ran successfully and report the exact result.
-
-## Project-specific notes
-- This repo includes a large amount of generated or summary documentation; use those files as references, not as a source of truth for implementation details.
-- The app uses Firebase and Next.js; be careful with environment configuration and server/client boundaries when changing auth or data-access code.
-- The project has extensive validation and QA documentation; if a change affects user workflows, cross-check the relevant docs before finalizing.
-
-## Recommended workflow for AI agents
-1. Read the relevant feature area and existing tests before making changes.
-2. Implement the smallest fix that matches the current architecture.
-3. Run the closest relevant validation command.
-4. Summarize the outcome with concrete evidence from the command output.
-
-If this repo grows more specialized, split this guidance into task-specific instructions or skills for frontend work, QA, Firebase logic, or release validation.
+## Conventions
+- Prefer minimal, architecture-aligned fixes: keep domain/calculation logic in `lib/` (typed helpers over `any`); respect Next.js server/client boundaries for Firebase/auth/data access.
+- For logic changes prefer/add focused tests near existing ones (`lib/**/*.test.ts`, `*.integration.test.ts`); validate with the smallest relevant command (single test/file) rather than full suite when possible. Report exact verification run and result.
