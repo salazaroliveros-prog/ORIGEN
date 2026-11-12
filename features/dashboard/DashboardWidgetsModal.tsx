@@ -4,6 +4,7 @@ import React from 'react';
 import { X, RotateCcw, SlidersHorizontal, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { FocusTrap } from '@/components/a11y/FocusTrap';
 import type { WidgetMetadata, WidgetId } from './types';
 import { WIDGET_CATALOG, HIGH_PRIORITY_WIDGETS, DEFAULT_VISIBLE_WIDGETS } from './widgetCatalog';
 
@@ -42,7 +43,8 @@ export function DashboardWidgetsModal({
 
   return (
     <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md duration-200" role="dialog" aria-modal="true" aria-labelledby="widget-modal-title">
-      <Card variant="elevated" className="flex max-h-[90vh] w-full max-w-2xl flex-col space-y-6 overflow-hidden border-slate-800 bg-slate-900 shadow-2xl">
+      <FocusTrap isActive={isOpen} onEscape={onClose}>
+        <Card variant="elevated" className="flex max-h-[90vh] w-full max-w-2xl flex-col space-y-6 overflow-hidden border-slate-800 bg-slate-900 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
           <div className="flex items-center gap-3">
             <span className="rounded-2xl border border-amber-500/30 bg-amber-500/20 p-2.5 text-amber-400" aria-hidden="true">
@@ -141,6 +143,7 @@ export function DashboardWidgetsModal({
           <Button variant="primary" size="md" onClick={onClose}>Guardar Preferencias</Button>
         </div>
       </Card>
+      </FocusTrap>
     </div>
   );
 }

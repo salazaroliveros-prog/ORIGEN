@@ -2,6 +2,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError, readJsonBody, isNonEmptyString, MAX_TEXT_LENGTH } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
+import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
   try {
@@ -156,6 +157,6 @@ Genera el acta/bitacora estructurada diaria.`;
     }));
   } catch (error: unknown) {
     console.error('Error generating Smart Bitácora with Gemini:', error);
-    return applySecurityHeaders(jsonError('No se pudo generar la Bitácora con Gemini IA.', 500));
+    return applySecurityHeaders(createErrorResponse(new ExternalServiceError('No se pudo generar la Bitácora con Gemini IA.', 'Gemini')));
   }
 }

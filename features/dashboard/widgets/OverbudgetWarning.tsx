@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import type { DashboardTotals } from '../types';
 
@@ -8,7 +8,7 @@ interface OverbudgetWarningProps {
   totals: DashboardTotals;
 }
 
-export function OverbudgetWarning({ totals }: OverbudgetWarningProps) {
+const OverbudgetWarningComponent = memo(function OverbudgetWarningComponent({ totals }: OverbudgetWarningProps) {
   if (totals.overbudgetCount === 0) return null;
 
   return (
@@ -34,4 +34,7 @@ export function OverbudgetWarning({ totals }: OverbudgetWarningProps) {
       </span>
     </div>
   );
-}
+});
+
+export const OverbudgetWarning = memo(OverbudgetWarningComponent);
+OverbudgetWarning.displayName = 'OverbudgetWarning';

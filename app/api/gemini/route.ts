@@ -14,6 +14,7 @@ import {
   MAX_TEXT_LENGTH,
 } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
+import { RateLimitError, ValidationError, ExternalServiceError, formatErrorResponse, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
   try {
@@ -627,9 +628,9 @@ Consulta del usuario: "${userMessage}"`;
       }));
     }
 
-    return jsonError('Acción no reconocida.', 400);
+    return applySecurityHeaders(createErrorResponse(new ValidationError('Acción no reconocida.')));
   } catch (error: unknown) {
     console.error('Error in /api/gemini route:', error);
-    return applySecurityHeaders(jsonError('No fue posible procesar la solicitud de IA. Intente nuevamente.', 500));
+    return applySecurityHeaders(createErrorResponse(new ExternalServiceError('No fue posible procesar la solicitud de IA. Intente nuevamente.', 'Gemini')));
   }
 }

@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError, readJsonBody, isDataUrlImage } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
+import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
@@ -71,19 +72,19 @@ export async function POST(req: NextRequest) {
     const text = response.text || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return applySecurityHeaders(jsonError('No se pudo interpretar la factura. Intente con una imagen más clara.', 422));
+      return applySecurityHeaders(createErrorResponse(new ValidationError('No se pudo interpretar la factura. Intente con una imagen más clara.')));
     }
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(jsonMatch[0]);
     } catch {
-      return applySecurityHeaders(jsonError('No se pudo interpretar la factura. Intente con una imagen más clara.', 422));
+      return applySecurityHeaders(createErrorResponse(new ValidationError('No se pudo interpretar la factura. Intente con una imagen más clara.')));
     }
 
     return applySecurityHeaders(NextResponse.json({ success: true, data: parsed }));
   } catch (error: unknown) {
     console.error('Gemini receipt analysis error:', error);
-    return applySecurityHeaders(jsonError('No se pudo analizar la factura en este momento.', 500));
+    return applySecurityHeaders(createErrorResponse(new ExternalServiceError('No se pudo analizar la factura en este momento.', 'Gemini')));
   }
 }

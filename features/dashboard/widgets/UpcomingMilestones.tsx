@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Clock } from 'lucide-react';
 import type { Project, Milestone, UpcomingMilestone } from '../types';
 
@@ -10,7 +10,42 @@ interface UpcomingMilestonesProps {
   onSelectProject: (projectId: string) => void;
 }
 
-export function UpcomingMilestones({ projects, milestones, onSelectProject }: UpcomingMilestonesProps) {
+const MilestoneCard = memo(function MilestoneCard({ milestone, isUrgent, onSelect }: { milestone: UpcomingMilestone; isUrgent: boolean; onSelect: () => void }) {
+  return (
+    <div
+      onClick={onSelect}
+      className="group cursor-pointer rounded-2xl border border-slate-800 bg-slate-800/60 p-4 transition hover:border-amber-500/50 hover:bg-slate-800"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <span className="font-mono text-[10px] font-bold uppercase text-amber-400">{milestone.projectCode} • {milestone.phase}</span>
+          <h4 className="mt-0.5 text-xs font-extrabold text-white transition group-hover:text-amber-300">{milestone.title}</h4>
+          <p className="mt-1 line-clamp-1 text-[11px] text-slate-400">{milestone.projectName}</p>
+        </div>
+        <span
+          className={`shrink-0 rounded-lg px-2 py-1 font-mono text-[10px] font-extrabold ${
+            isUrgent
+              ? 'border border-rose-700 bg-rose-950 text-rose-300'
+              : 'border border-amber-700/60 bg-amber-950/60 text-amber-300'
+          }`}
+        >
+          {milestone.diffDays === 0
+            ? 'Vence hoy'
+            : milestone.diffDays > 0
+              ? `Vence en ${milestone.diffDays}d`
+              : `Vencido (${Math.abs(milestone.diffDays)}d)`}
+        </span>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between border-t border-slate-700/50 pt-2 font-mono text-[11px] text-slate-300">
+        <span>Fecha límite: {milestone.targetDate}</span>
+        <span className="font-bold text-emerald-400">{milestone.progress}% avance</span>
+      </div>
+    </div>
+  );
+});
+
+const UpcomingMilestonesComponent = memo(function UpcomingMilestonesComponent({ projects, milestones, onSelectProject }: UpcomingMilestonesProps) {
   const upcoming = useMemo(() => {
     const allMilestones =
       milestones.length > 0
@@ -73,41 +108,19 @@ export function UpcomingMilestones({ projects, milestones, onSelectProject }: Up
           {upcoming.map((m) => {
             const isUrgent = m.diffDays <= 3;
             return (
-              <div
+              <MilestoneCard
                 key={m.id}
-                onClick={() => onSelectProject(m.projectId)}
-                className="group cursor-pointer rounded-2xl border border-slate-800 bg-slate-800/60 p-4 transition hover:border-amber-500/50 hover:bg-slate-800"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="font-mono text-[10px] font-bold uppercase text-amber-400">{m.projectCode} • {m.phase}</span>
-                    <h4 className="mt-0.5 text-xs font-extrabold text-white transition group-hover:text-amber-300">{m.title}</h4>
-                    <p className="mt-1 line-clamp-1 text-[11px] text-slate-400">{m.projectName}</p>
-                  </div>
-                  <span
-                    className={`shrink-0 rounded-lg px-2 py-1 font-mono text-[10px] font-extrabold ${
-                      isUrgent
-                        ? 'border border-rose-700 bg-rose-950 text-rose-300'
-                        : 'border border-amber-700/60 bg-amber-950/60 text-amber-300'
-                    }`}
-                  >
-                    {m.diffDays === 0
-                      ? 'Vence hoy'
-                      : m.diffDays > 0
-                        ? `Vence en ${m.diffDays}d`
-                        : `Vencido (${Math.abs(m.diffDays)}d)`}
-                  </span>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between border-t border-slate-700/50 pt-2 font-mono text-[11px] text-slate-300">
-                  <span>Fecha límite: {m.targetDate}</span>
-                  <span className="font-bold text-emerald-400">{m.progress}% avance</span>
-                </div>
-              </div>
+                milestone={m}
+                isUrgent={isUrgent}
+                onSelect={() => onSelectProject(m.projectId)}
+              />
             );
           })}
         </div>
       )}
     </div>
   );
-}
+});
+
+export const UpcomingMilestones = memo(UpcomingMilestonesComponent);
+UpcomingMilestones.displayName = 'UpcomingMilestones';

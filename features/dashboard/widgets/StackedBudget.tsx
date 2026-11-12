@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Layers, EyeOff } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -22,7 +22,7 @@ interface StackedBudgetProps {
   onToggle: () => void;
 }
 
-function CustomStackedTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: StackedChartDataPoint }> }) {
+const CustomStackedTooltip = memo(function CustomStackedTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: StackedChartDataPoint }> }) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -56,9 +56,9 @@ function CustomStackedTooltip({ active, payload }: { active?: boolean; payload?:
     );
   }
   return null;
-}
+});
 
-export function StackedBudget({ data, visible, onToggle }: StackedBudgetProps) {
+const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visible, onToggle }: StackedBudgetProps) {
   if (!visible) return null;
 
   return (
@@ -137,4 +137,7 @@ export function StackedBudget({ data, visible, onToggle }: StackedBudgetProps) {
       </div>
     </Card>
   );
-}
+});
+
+export const StackedBudget = memo(StackedBudgetComponent);
+StackedBudget.displayName = 'StackedBudget';

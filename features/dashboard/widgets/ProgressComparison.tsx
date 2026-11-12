@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { BarChart3, EyeOff } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -24,7 +24,7 @@ interface ProgressComparisonProps {
   onToggle: () => void;
 }
 
-function CustomProgressTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: ProgressChartDataPoint }> }) {
+const CustomProgressTooltip = memo(function CustomProgressTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: ProgressChartDataPoint }> }) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -63,9 +63,9 @@ function CustomProgressTooltip({ active, payload }: { active?: boolean; payload?
     );
   }
   return null;
-}
+});
 
-export function ProgressComparison({ data, visible, onToggle }: ProgressComparisonProps) {
+const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ data, visible, onToggle }: ProgressComparisonProps) {
   if (!visible) return null;
 
   return (
@@ -159,4 +159,7 @@ export function ProgressComparison({ data, visible, onToggle }: ProgressComparis
       </div>
     </Card>
   );
-}
+});
+
+export const ProgressComparison = memo(ProgressComparisonComponent);
+ProgressComparison.displayName = 'ProgressComparison';
