@@ -1,6 +1,12 @@
 {
   "version": 2,
   "skills": {
+    "codebase-design": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/codebase-design/SKILL.md",
+      "computedHash": "d40f025dc1b0f2020663260f38f2bcb8d6ed3523afb11e5fda624b01238677e8"
+    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
