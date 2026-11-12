@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
+import { ensureAuthenticated } from './testCredentials';
 
 /**
  * navigation.spec.ts — Navegación real entre secciones del ERP ORIGEN
@@ -13,23 +13,7 @@ import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
 test.describe('Navegación principal', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForTimeout(3000);
-
-    // Login manual si aparece el formulario de autenticación
-    const loginButton = page.getByRole('button', { name: 'Iniciar Sesión' });
-    const loginVisible = await loginButton.isVisible({ timeout: 3000 }).catch(() => false);
-    if (loginVisible) {
-      await page.getByLabel('Correo electrónico').fill(ADMIN_EMAIL);
-      await page.locator('#password').fill(ADMIN_PASSWORD);
-      await loginButton.click();
-      await page.waitForTimeout(4000);
-    }
-
-    // Esperar a que el Tablero esté visible (autenticación completa)
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
-      timeout: 30_000,
-    });
+    await ensureAuthenticated(page);
   });
 
   test('todos los botones de navegación base están visibles en la barra lateral', async ({

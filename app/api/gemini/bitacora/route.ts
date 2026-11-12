@@ -1,17 +1,28 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError, readJsonBody, isNonEmptyString, MAX_TEXT_LENGTH } from '@/lib/api';
+import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
+import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitMiddleware = createRateLimitMiddleware({
+      windowMs: 60 * 1000,
+      maxRequests: 10,
+      keyPrefix: 'gemini-bitacora',
+    });
+    const rateLimitResponse = await rateLimitMiddleware(req);
+    if (rateLimitResponse) return applySecurityHeaders(rateLimitResponse);
+
     const body = await readJsonBody(req);
     if (!body) {
-      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
+      return applySecurityHeaders(jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400));
     }
 
     const voiceNotes = body.voiceNotes;
     if (!isNonEmptyString(voiceNotes, MAX_TEXT_LENGTH)) {
-      return jsonError('El texto de nota de voz del capataz es requerido.', 400);
+      return applySecurityHeaders(jsonError('El texto de nota de voz del capataz es requerido.', 400));
     }
 
     const projectName = typeof body.projectName === 'string' ? body.projectName.slice(0, 120) : '';
@@ -23,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return jsonError('El servicio de IA no está configurado.', 503);
+      return applySecurityHeaders(jsonError('El servicio de IA no está configurado.', 503));
     }
 
     const ai = new GoogleGenAI({
@@ -135,7 +146,7 @@ Genera el acta/bitacora estructurada diaria.`;
     const responseText = response.text || '';
     const parsedData = JSON.parse(responseText);
 
-    return NextResponse.json({
+    return applySecurityHeaders(NextResponse.json({
       success: true,
       bitacora: {
         ...parsedData,
@@ -143,9 +154,9 @@ Genera el acta/bitacora estructurada diaria.`;
         folioNumber: parsedData.folioNumber || `BIT-2026-${folioRandom}`,
         createdAt: new Date().toISOString(),
       },
-    });
+    }));
   } catch (error: unknown) {
     console.error('Error generating Smart Bitácora with Gemini:', error);
-    return jsonError('No se pudo generar la Bitácora con Gemini IA.', 500);
+    return applySecurityHeaders(createErrorResponse(new ExternalServiceError('No se pudo generar la Bitácora con Gemini IA.', 'Gemini')));
   }
 }

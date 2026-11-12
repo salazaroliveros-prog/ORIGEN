@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { NextRequest } from 'next/server';
 
-vi.mock('@/lib/security', () => ({
-  rateLimitMiddleware: vi.fn(() => null),
-  getClientIp: vi.fn(() => '127.0.0.1'),
+// Mock the rate limiting middleware
+const mockRateLimitMiddleware = vi.fn(() => Promise.resolve(null));
+vi.mock('@/lib/apiMiddleware', () => ({
+  createRateLimitMiddleware: vi.fn(() => mockRateLimitMiddleware),
+  applySecurityHeaders: vi.fn((res) => res),
 }));
 
 vi.mock('@google/genai', () => ({
@@ -22,13 +24,13 @@ vi.mock('@/lib/guatemalaMarketData', () => ({
 }));
 
 import { POST } from './gemini/route';
-import { rateLimitMiddleware, getClientIp } from '@/lib/security';
+import { createRateLimitMiddleware } from '@/lib/apiMiddleware';
 
 describe('app/api/gemini', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(rateLimitMiddleware).mockReturnValue(null);
-    vi.mocked(getClientIp).mockReturnValue('127.0.0.1');
+    mockRateLimitMiddleware.mockResolvedValue(null);
+    vi.mocked(createRateLimitMiddleware).mockReturnValue(mockRateLimitMiddleware);
   });
 
   afterEach(() => {
@@ -37,7 +39,7 @@ describe('app/api/gemini', () => {
 
   it('should return 429 when rate limited', async () => {
     const rateLimitResponse = new Response('Too many', { status: 429 }) as any;
-    vi.mocked(rateLimitMiddleware).mockReturnValue(rateLimitResponse);
+    mockRateLimitMiddleware.mockResolvedValue(rateLimitResponse);
 
     const req = new Request('http://localhost/api/gemini', {
       method: 'POST',
