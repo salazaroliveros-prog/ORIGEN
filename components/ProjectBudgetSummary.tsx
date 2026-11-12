@@ -21,6 +21,7 @@ import {
 } from '@/lib/domain/budgetAnalysis';
 import { calculateExecutionTimeline } from '@/lib/domain/executionTimeline';
 import type { TimelineStatus } from '@/lib/domain/executionTimeline';
+import { BUDGET_CRITICAL_USAGE_PERCENT } from '@/lib/domain/projectFinance';
 import type { APUItem, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
 
 interface ProjectBudgetSummaryProps {
@@ -213,7 +214,7 @@ export function ProjectBudgetSummary({
             tone={
               coverage.budgetUsagePercent >= 100
                 ? 'text-rose-300'
-                : coverage.budgetUsagePercent >= 80
+                : coverage.budgetUsagePercent >= BUDGET_CRITICAL_USAGE_PERCENT
                   ? 'text-amber-300'
                   : 'text-emerald-300'
             }

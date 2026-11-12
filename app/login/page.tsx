@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { LoginForm } from '@/components/auth/LoginForm';
@@ -15,11 +15,7 @@ import { LoginBrandingHeader } from '@/components/auth/LoginBranding';
 export default function LoginPage() {
   const router = useRouter();
   const { currentUser, status } = useAuthSession();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = typeof window !== 'undefined';
 
   // Redireccionar si ya hay sesión activa
   useEffect(() => {

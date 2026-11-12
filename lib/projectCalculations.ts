@@ -3,6 +3,7 @@
  * Calcula progreso, gasto total y métricas derivadas
  */
 
+import { summarizeProjectFinance } from './domain/projectFinance';
 import type { Project, ScheduleTask, Milestone, ExpenseRecord } from './types';
 
 /**
@@ -63,15 +64,17 @@ export function calculateProjectSpentById(expenses: ExpenseRecord[], projectId: 
  * Determina si un proyecto está sobre presupuesto
  */
 export function isProjectOverBudget(project: Project, spentTotal: number): boolean {
-  return spentTotal > project.budgetTotal;
+  return spentTotal > (project.budgetTotal || 0);
 }
 
 /**
  * Calcula el porcentaje de presupuesto ejercido
  */
 export function calculateBudgetUtilizationPercent(project: Project, spentTotal: number): number {
-  if (project.budgetTotal <= 0) return 0;
-  return Math.round((spentTotal / project.budgetTotal) * 100);
+  if ((project.budgetTotal || 0) <= 0) return 0;
+  return Math.round(
+    summarizeProjectFinance({ budgetTotal: project.budgetTotal, spentTotal }).budgetUsagePercent
+  );
 }
 
 /**

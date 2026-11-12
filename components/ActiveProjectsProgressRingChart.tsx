@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Project, CompanySettings } from '@/lib/types';
 import { formatGTQ, formatUSD } from '@/lib/data';
 import {
   Activity,
-  Layers,
   CheckCircle2,
-  AlertCircle,
   PieChart as PieChartIcon,
-  ArrowRight,
 } from 'lucide-react';
 
 interface ActiveProjectsProgressRingChartProps {

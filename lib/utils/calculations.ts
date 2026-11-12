@@ -3,7 +3,7 @@
  * Centralized business logic with comprehensive validation
  */
 
-import { APUItem, QuoteRecord, AttendanceRecord, Employee } from '@/lib/types';
+import { APUItem, Employee } from '@/lib/types';
 
 // ============================================================================
 // APU & BUDGET CALCULATIONS

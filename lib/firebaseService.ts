@@ -48,6 +48,8 @@ import {
   validateMachinery,
 } from './validation/entity.schemas';
 import { validateProjectForm } from './validation/project.schema';
+import { normalizeAPUItem } from './domain/apu';
+import { buildMachineryUseRecord } from './domain/machinery';
 
 const firebaseConfig = getFirebaseConfig();
 
@@ -421,7 +423,7 @@ export async function deleteAttendanceFromFirestore(attendanceId: string): Promi
 
 export async function deleteEmployeeFromFirestore(
   employeeId: string,
-  companyId: string
+  _companyId: string
 ): Promise<boolean> {
   const path = `employees/${employeeId}`;
   try {
@@ -439,7 +441,7 @@ export async function deleteEmployeeFromFirestore(
 
 export async function deleteMachineryFromFirestore(
   machineryId: string,
-  companyId: string
+  _companyId: string
 ): Promise<boolean> {
   const path = `machinery/${machineryId}`;
   try {
@@ -891,8 +893,10 @@ export async function saveAPUItemsToFirestore(
     throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
   }
 
+  const normalizedItems = items.map((item) => normalizeAPUItem(item));
+
   // Validar cada item con Zod
-  for (const item of items) {
+  for (const item of normalizedItems) {
     const validation = validateAPUItem(item);
     if (!validation.success) {
       console.error('APU Item validation failed:', validation.error);
@@ -905,7 +909,7 @@ export async function saveAPUItemsToFirestore(
   const path = 'apuItems';
   try {
     const batch = writeBatch(db);
-    for (const item of items) {
+    for (const item of normalizedItems) {
       batch.set(
         doc(db, path, item.id),
         { ...item, companyId, projectId, createdBy: item.createdBy ?? userId, updatedBy: userId },
@@ -931,7 +935,9 @@ export async function saveAPUItemsToFirestoreServer(
     throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
   }
 
-  for (const item of items) {
+  const normalizedItems = items.map((item) => normalizeAPUItem(item));
+
+  for (const item of normalizedItems) {
     const validation = validateAPUItem(item);
     if (!validation.success) {
       throw new Error(
@@ -943,7 +949,7 @@ export async function saveAPUItemsToFirestoreServer(
   const path = 'apuItems';
   try {
     const batch = writeBatch(db);
-    for (const item of items) {
+    for (const item of normalizedItems) {
       batch.set(
         doc(db, path, item.id),
         { ...item, companyId, projectId, createdBy: item.createdBy ?? userId, updatedBy: userId },
@@ -1149,41 +1155,46 @@ export async function recordMachineryUse(
   try {
     const batch = writeBatch(db);
     const nextHorometer = machinery.currentHorometer + log.hoursWorked;
-    const expenseId = `machine-${log.id}`;
+    const normalized = buildMachineryUseRecord(
+      {
+        machineryId: log.machineryId,
+        machineryName: log.machineryName || machinery.name,
+        projectId: log.projectId,
+        date: log.date,
+        nextHorometer,
+        operatorName: log.operatorName,
+        fuelGallons: log.fuelGallons,
+      },
+      machinery,
+      log.id
+    );
+
     const expense: ExpenseRecord = {
-      id: expenseId,
-      projectId: log.projectId,
-      date: log.date,
-      category: 'Maquinaria y Combustible',
-      description: `${log.machineryName}: ${log.hoursWorked} horas de operación`,
-      supplier: machinery.name,
-      nitSupplier: 'CF',
-      facturaNumber: `FAC-${log.id}`,
+      ...normalized.expense,
+      description: `${log.machineryName || machinery.name}: ${log.hoursWorked} horas de operación`,
       amount: log.costGTQ,
-      currency: 'GTQ',
-      paymentMethod: 'Pendiente',
-      approvalStatus: 'Pendiente',
-      machineryLogId: log.id,
+    };
+    const normalizedLog: MachineryLog = {
+      ...normalized.log,
+      ...log,
+      expenseId: normalized.expense.id,
     };
 
     batch.set(doc(db, 'machineryLogs', log.id), {
-      ...log,
+      ...normalizedLog,
       companyId,
       createdBy: userId,
-      expenseId,
     });
     batch.set(
       doc(db, 'machinery', machinery.id),
       {
         ...machinery,
         companyId,
-        currentHorometer: nextHorometer,
-        currentProjectId: log.projectId,
-        status: 'En Obra',
+        ...normalized.machineryUpdate,
       },
       { merge: true }
     );
-    batch.set(doc(db, 'expenses', expenseId), {
+    batch.set(doc(db, 'expenses', expense.id), {
       ...expense,
       companyId,
       authorId: userId,

@@ -586,7 +586,8 @@ describe('ORIGEN ERP - CRUD System Integration Tests', () => {
       ];
 
       // Update related project without affecting expense
-      const projectUpdate = { budgetTotal: 100000 };
+      const _projectUpdate = { budgetTotal: 100000 };
+      void _projectUpdate;
       expect(expenses[0].projectId).toBe('proj-1');
     });
   });

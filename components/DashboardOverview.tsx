@@ -17,7 +17,11 @@ import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useProjectData } from '@/lib/hooks/useProjectData';
-import { calculateBudgetSummary } from '@/lib/utils/calculations';
+import {
+  BUDGET_CRITICAL_USAGE_PERCENT,
+  BUDGET_WARNING_USAGE_PERCENT,
+  summarizeProjectFinance,
+} from '@/lib/domain/projectFinance';
 import {
   LineChart,
   Line,
@@ -29,12 +33,9 @@ import {
   Tooltip,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
 } from 'recharts';
 import { COLORS } from '@/lib/design/constants';
-import { Building2, DollarSign, TrendingUp, Users, AlertCircle, Loader, Plus } from 'lucide-react';
+import { Building2, DollarSign, TrendingUp, Users, Plus } from 'lucide-react';
 
 interface KPICard {
   title: string;
@@ -47,7 +48,7 @@ interface KPICard {
 }
 
 export function DashboardOverview() {
-  const { projects, expenses, loading } = useProjectData();
+  const { projects, loading } = useProjectData();
   const [chartData, setChartData] = useState<any[]>([]);
 
   // FEATURE 2.1.2: KPI Memoization with proper dependencies
@@ -71,7 +72,7 @@ export function DashboardOverview() {
 
     const utilizations = projects
       .filter((p) => p.budgetTotal > 0)
-      .map((p) => (p.spentTotal / p.budgetTotal) * 100);
+      .map((p) => summarizeProjectFinance(p).budgetUsagePercent);
     const averageUtilization =
       utilizations.length > 0
         ? Math.round(utilizations.reduce((a, b) => a + b) / utilizations.length)
@@ -126,7 +127,12 @@ export function DashboardOverview() {
   const kpiCards: KPICard[] = useMemo(() => {
     const budgetUtilization =
       budgetMetrics.totalBudget > 0
-        ? Math.round((budgetMetrics.totalSpent / budgetMetrics.totalBudget) * 100)
+        ? Math.round(
+            summarizeProjectFinance({
+              budgetTotal: budgetMetrics.totalBudget,
+              spentTotal: budgetMetrics.totalSpent,
+            }).budgetUsagePercent
+          )
         : 0;
 
     return [
@@ -143,7 +149,7 @@ export function DashboardOverview() {
         title: 'Gastos',
         value: `Q${budgetMetrics.totalSpent.toLocaleString()}`,
         change: `${budgetUtilization}% utilizado`,
-        changeType: budgetUtilization > 80 ? 'negative' : 'positive',
+        changeType: budgetUtilization > BUDGET_CRITICAL_USAGE_PERCENT ? 'negative' : 'positive',
         icon: <TrendingUp className="h-6 w-6" aria-hidden="true" />,
         color: COLORS.kpi.expense.bg,
         textColor: COLORS.kpi.expense.text,
@@ -364,14 +370,13 @@ export function DashboardOverview() {
         <div className="space-y-4">
           {projects
             .sort((a, b) => {
-              const aUtil = a.budgetTotal > 0 ? (a.spentTotal / a.budgetTotal) * 100 : 0;
-              const bUtil = b.budgetTotal > 0 ? (b.spentTotal / b.budgetTotal) * 100 : 0;
+              const aUtil = summarizeProjectFinance(a).budgetUsagePercent;
+              const bUtil = summarizeProjectFinance(b).budgetUsagePercent;
               return bUtil - aUtil;
             })
             .slice(0, 5)
             .map((project) => {
-              const utilization =
-                project.budgetTotal > 0 ? (project.spentTotal / project.budgetTotal) * 100 : 0;
+              const utilization = summarizeProjectFinance(project).budgetUsagePercent;
 
               return (
                 <div
@@ -389,9 +394,9 @@ export function DashboardOverview() {
                     <div className="h-3 w-40 overflow-hidden rounded-full bg-slate-200">
                       <div
                         className={`h-full transition ${
-                          utilization > 80
+                          utilization > BUDGET_CRITICAL_USAGE_PERCENT
                             ? 'bg-red-500'
-                            : utilization > 50
+                            : utilization > BUDGET_WARNING_USAGE_PERCENT
                               ? 'bg-yellow-500'
                               : 'bg-green-500'
                         }`}

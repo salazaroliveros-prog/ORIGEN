@@ -56,7 +56,7 @@ if (typeof structuredClone === 'undefined') {
 if (typeof window !== 'undefined' && !('requestIdleCallback' in window)) {
   (window as any).requestIdleCallback = function (
     callback: IdleRequestCallback,
-    options?: IdleRequestOptions
+    _options?: IdleRequestOptions
   ): number {
     const start = Date.now();
     return window.setTimeout(() => {

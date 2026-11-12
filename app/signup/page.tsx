@@ -8,13 +8,13 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, Loader, Eye, EyeOff, Check } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createEmailAccount } from '@/lib/firebaseAuth';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { validateRegisterForm, RegisterFormValues } from '@/lib/validation/auth.schema';
+import { validateRegisterForm } from '@/lib/validation/auth.schema';
 
 interface SignUpFormData {
   fullName: string;
@@ -73,11 +73,6 @@ export default function SignUpPage() {
   };
 
   const passwordStrength = calculatePasswordStrength(formData.password);
-
-  const validateEmailFormat = (email: string): boolean => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
 
   const validateForm = (): boolean => {
     const validation = validateRegisterForm({

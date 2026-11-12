@@ -17,8 +17,6 @@ import {
   ScheduleTask,
   AIGeneratedAPUItem,
   AIGeneratedMaterial,
-  AIGeneratedLabor,
-  AIGeneratedEquipment,
   AuditData,
   AuditAlert,
 } from '@/lib/types';
@@ -38,7 +36,7 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react';
-import { calculateTotalUnitCost, calculateLineTotal } from '@/lib/utils/calculations';
+import { normalizeAPUItem } from '@/lib/domain/apu';
 import { toast } from 'react-hot-toast';
 
 interface BudgetAndAPUProps {
@@ -106,7 +104,7 @@ export function BudgetAndAPU({
   const [auditResult, setAuditResult] = useState<AuditData | null>(null);
 
   // Market Catalogue Filter State
-  const [marketCategoryFilter, setMarketCategoryFilter] = useState<string>('todos');
+  const [marketCategoryFilter] = useState<string>('todos');
   const [marketSearchQuery, setMarketSearchQuery] = useState('');
 
   const currentDeptInfo =
@@ -131,15 +129,13 @@ export function BudgetAndAPU({
         selectedDept,
         appliedDept
       );
-      return {
+      return normalizeAPUItem({
         ...item,
         materialUnitCostGTQ: adjusted.materialUnitCostGTQ,
         laborUnitCostGTQ: adjusted.laborUnitCostGTQ,
         equipmentUnitCostGTQ: adjusted.equipmentUnitCostGTQ,
-        totalUnitCostGTQ: adjusted.totalUnitCostGTQ,
-        totalPriceGTQ: Math.round(adjusted.totalUnitCostGTQ * item.quantity * 100) / 100,
         department: selectedDept,
-      };
+      });
     });
 
     if (!(await onUpdateBudgetItems(updated))) return;
@@ -171,10 +167,9 @@ export function BudgetAndAPU({
     const m = Number(domMat);
     const l = Number(domLab);
     const eq = Number(domEq);
-    const totalUnit = calculateTotalUnitCost(m, l, eq);
     const q = Number(domQty);
 
-    const newItem: APUItem = {
+    const newItem = normalizeAPUItem({
       id: `apu-${globalThis.crypto.randomUUID()}`,
       projectId: activeProjectId,
       code: domCode,
@@ -184,10 +179,8 @@ export function BudgetAndAPU({
       materialUnitCostGTQ: m,
       laborUnitCostGTQ: l,
       equipmentUnitCostGTQ: eq,
-      totalUnitCostGTQ: totalUnit,
-      totalPriceGTQ: calculateLineTotal(totalUnit, q),
       department: appliedDept,
-    };
+    });
 
     if (!(await onAddBudgetItem(newItem))) return;
     setIsManualModalOpen(false);
@@ -284,7 +277,7 @@ export function BudgetAndAPU({
       toast.error(`La cantidad (${quantity}) parece excesiva. Verifica antes de aprobar.`);
     }
 
-    const newItem: APUItem = {
+    const newItem = normalizeAPUItem({
       id: `apu-${globalThis.crypto.randomUUID()}`,
       projectId: activeProjectId,
       code: aiResult.code || '03.99',
@@ -294,8 +287,6 @@ export function BudgetAndAPU({
       materialUnitCostGTQ: materialCost,
       laborUnitCostGTQ: laborCost,
       equipmentUnitCostGTQ: equipmentCost,
-      totalUnitCostGTQ: totalUnitCost,
-      totalPriceGTQ: Number(aiResult.totalPriceGTQ) || 0,
       department: selectedDept,
       breakdown: {
         materials: aiResult.materialsBreakdown,
@@ -308,7 +299,7 @@ export function BudgetAndAPU({
         source: aiSource || 'ai-studio',
         validated: tolerancePercent <= 10, // Marcar como validado si la discrepancia es <= 10%
       },
-    };
+    });
 
     if (!(await onAddBudgetItem(newItem))) return;
     setIsAiStudioOpen(false);

@@ -10,7 +10,7 @@ import {
   saveAPUItemsToFirestore,
   deleteAPUItemFromFirestore,
 } from '@/lib/firebaseService';
-import { validateAPUItem } from '@/lib/utils/calculations';
+import { normalizeAPUItems } from '@/lib/domain/apu';
 import { createLogger } from '@/lib/utils/logger';
 import { createCacheKey, queryCache } from '@/lib/utils/cacheManager';
 import { toast } from 'react-hot-toast';
@@ -31,7 +31,7 @@ export function useAPUManagement({
   apuItems,
 }: UseAPUManagementParams) {
   const saveAPUItems = useCallback(
-    async (items: APUItem[], projectId: string) => {
+    async (_items: APUItem[], _projectId: string) => {
       toast.error('Inicia sesión en una empresa para guardar el presupuesto APU.');
       return false;
     },
@@ -47,16 +47,7 @@ export function useAPUManagement({
       }
 
       try {
-        const validatedItems = items.map((item) => {
-          try {
-            return validateAPUItem(item);
-          } catch (err) {
-            log.error('APU item validation failed', err as Error, {
-              itemCode: item.code,
-            });
-            throw err;
-          }
-        });
+        const validatedItems = normalizeAPUItems(items);
 
         log.info('Saving APU items', { projectId, count: validatedItems.length });
         const saved = await saveAPUItemsToFirestore(
@@ -86,7 +77,7 @@ export function useAPUManagement({
   );
 
   const deleteAPUItem = useCallback(
-    async (itemId: string) => {
+    async (_itemId: string) => {
       toast.error('Inicia sesión en una empresa para eliminar partidas APU.');
       return false;
     },

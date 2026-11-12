@@ -75,12 +75,10 @@ class Logger {
     }
   }
 
-  private sendToErrorTracking(entry: LogEntry): void {
+  private sendToErrorTracking(_entry: LogEntry): void {
     // Placeholder for error tracking integration (e.g., Sentry)
-    // Example: Sentry.captureMessage(entry.message, 'error');
-    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-      // Send to Sentry or other service
-    }
+    // Example: Sentry.captureMessage(_entry.message, 'error');
+    void _entry;
   }
 
   debug(module: string, message: string, data?: LogData): void {

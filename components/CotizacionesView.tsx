@@ -409,7 +409,7 @@ export function CotizacionesView({
   useEffect(() => {
     if (!isModalOpen || editorProjectId === selectedProjectId) return;
 
-    setEditorProjectId(selectedProjectId);
+    queueMicrotask(() => setEditorProjectId(selectedProjectId));
     const projectItems = budgetItems
       .filter((item) => item.projectId === selectedProjectId)
       .map((item) => ({

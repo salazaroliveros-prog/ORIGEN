@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { ClientOnlyApp } from '@/components/ClientOnlyApp';
@@ -16,11 +16,7 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 export default function Page() {
   const router = useRouter();
   const { currentUser, status } = useAuthSession();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = typeof window !== 'undefined';
 
   // Redireccionar a /login cuando no haya sesión activa y no se esté cargando
   useEffect(() => {

@@ -13,6 +13,7 @@ describe('summarizeProjectFinance', () => {
     expect(summary.projectMarginPercent).toBe(60);
     expect(summary.expectedMarginPercent).toBe(20);
     expect(summary.isCritical).toBe(false);
+    expect(summary.isWarning).toBe(false);
   });
 
   it('treats a healthy project as non-critical', () => {
@@ -24,6 +25,7 @@ describe('summarizeProjectFinance', () => {
 
     expect(summary.budgetUsagePercent).toBe(60);
     expect(summary.isCritical).toBe(false);
+    expect(summary.isWarning).toBe(true);
   });
 
   it('defaults the expected margin to 15%', () => {
@@ -33,6 +35,7 @@ describe('summarizeProjectFinance', () => {
       expectedProfitMarginPercent: null,
     });
     expect(summary.expectedMarginPercent).toBe(15);
+    expect(summary.isWarning).toBe(false);
   });
 
   it('handles a zero budget without dividing by zero', () => {
@@ -44,6 +47,8 @@ describe('summarizeProjectFinance', () => {
 
     expect(summary.budgetUsagePercent).toBe(0);
     expect(summary.projectMarginPercent).toBe(100);
+    expect(summary.isCritical).toBe(false);
+    expect(summary.isWarning).toBe(false);
   });
 
   it('is critical when spending reaches the margin threshold', () => {
@@ -53,5 +58,6 @@ describe('summarizeProjectFinance', () => {
       expectedProfitMarginPercent: 15,
     });
     expect(summary.isCritical).toBe(true);
+    expect(summary.isWarning).toBe(false);
   });
 });

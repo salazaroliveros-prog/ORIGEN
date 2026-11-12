@@ -3,7 +3,7 @@
  * Tests all business logic: APU, Budget, Payroll, Currency, etc.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   calculateTotalUnitCost,
   calculateLineTotal,

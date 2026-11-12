@@ -31,15 +31,27 @@ vi.mock('../utils/cacheManager', () => ({
   createCacheKey: vi.fn((prefix: string, params: any) => `${prefix}:${JSON.stringify(params)}`),
 }));
 
-vi.mock('../utils/calculations', () => ({
-  validateAPUItem: vi.fn((item: any) => item),
-}));
-
 import { useAPUManagement } from './useAPUManagement';
 import { saveAPUItemsToFirestore, deleteAPUItemFromFirestore } from '../firebaseService';
 
 const mockCompanyId = 'company-1';
 const mockUserId = 'user-1';
+
+const validApuItem = {
+  id: 'apu-1',
+  code: 'CONC-001',
+  description: 'Concreto',
+  unit: 'm³',
+  quantity: 50,
+  materialUnitCostGTQ: 500,
+  laborUnitCostGTQ: 300,
+  equipmentUnitCostGTQ: 100,
+  totalUnitCostGTQ: 900,
+  totalPriceGTQ: 45000,
+  projectId: 'proj-1',
+  companyId: 'company-1',
+  createdBy: 'user-1',
+};
 
 function renderUseAPUManagement(
   companyId: string = mockCompanyId,
@@ -91,30 +103,17 @@ describe('useAPUManagement', () => {
       );
       vi.mocked(saveAPUItemsToFirestore).mockResolvedValueOnce(true);
 
-      const items = [
-        {
-          id: 'apu-1',
-          code: 'CONC-001',
-          description: 'Concreto',
-          unit: 'm³',
-          quantity: 50,
-          materialUnitCostGTQ: 500,
-          laborUnitCostGTQ: 300,
-          equipmentUnitCostGTQ: 100,
-          totalUnitCostGTQ: 900,
-          totalPriceGTQ: 45000,
-          projectId: 'proj-1',
-          companyId: 'company-1',
-          createdBy: 'user-1',
-        },
-      ];
-
       const success = await act(async () => {
-        return await result.current.saveAPUItems(items, 'proj-1');
+        return await result.current.saveAPUItems([validApuItem as any], 'proj-1');
       });
 
       expect(success).toBe(true);
-      expect(saveAPUItemsToFirestore).toHaveBeenCalledWith(items, 'proj-1', 'company-1', 'user-1');
+      expect(saveAPUItemsToFirestore).toHaveBeenCalledWith(
+        [expect.objectContaining({ code: 'CONC-001', totalUnitCostGTQ: 900, totalPriceGTQ: 45000 })],
+        'proj-1',
+        'company-1',
+        'user-1'
+      );
     });
 
     it('should return false when project is invalid', async () => {
@@ -140,7 +139,7 @@ describe('useAPUManagement', () => {
       vi.mocked(saveAPUItemsToFirestore).mockResolvedValueOnce(false);
 
       const success = await act(async () => {
-        return await result.current.saveAPUItems([{ id: 'apu-1' } as any], 'proj-1');
+        return await result.current.saveAPUItems([validApuItem as any], 'proj-1');
       });
 
       expect(success).toBe(false);

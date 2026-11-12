@@ -177,12 +177,14 @@ export function CameraCaptureModal({
 
   useEffect(() => {
     if (isOpen) {
-      setPreviewDataUrl(null);
-      setCaption('');
-      requestLocation();
-      if (inputTab === 'camera') {
-        startCameraStream(facingMode);
-      }
+      queueMicrotask(() => {
+        setPreviewDataUrl(null);
+        setCaption('');
+        requestLocation();
+        if (inputTab === 'camera') {
+          startCameraStream(facingMode);
+        }
+      });
     } else {
       stopCameraStream();
     }

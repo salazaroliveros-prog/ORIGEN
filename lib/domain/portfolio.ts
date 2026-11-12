@@ -1,6 +1,7 @@
 import type { APUItem, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
 import { calculateBudgetCoverage } from './budgetAnalysis';
 import { calculateExecutionTimeline, type TimelineStatus } from './executionTimeline';
+import { BUDGET_CRITICAL_USAGE_PERCENT } from './projectFinance';
 
 export interface ProjectPortfolioRow {
   projectId: string;
@@ -132,8 +133,8 @@ export function aggregatePortfolio(
       }
       if (coverage.budgetUsagePercent >= 100) {
         alerts.push('Gasto ejecutado supera el presupuesto');
-      } else if (coverage.budgetUsagePercent >= 80) {
-        alerts.push('Consumo de presupuesto mayor al 80%');
+      } else if (coverage.budgetUsagePercent >= BUDGET_CRITICAL_USAGE_PERCENT) {
+        alerts.push(`Consumo de presupuesto mayor al ${BUDGET_CRITICAL_USAGE_PERCENT}%`);
       }
       if (apuTotalGTQ <= 0) {
         alerts.push('Proyecto sin partidas APU registradas');

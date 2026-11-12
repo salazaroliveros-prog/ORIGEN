@@ -1,14 +1,13 @@
 import { OfflineQueueItem, OfflineQueuePayload } from './types';
 
 const PREFIX = 'constructerp_';
-const QUEUE_KEY = `${PREFIX}offline_queue`;
 
 export function saveOfflineData<T>(key: string, data: T): void {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(`${PREFIX}${key}`, JSON.stringify(data));
-  } catch (e) {
-    console.error('Error saving offline data:', e);
+  } catch {
+    console.error('Error saving offline data');
   }
 }
 
@@ -17,7 +16,7 @@ export function loadOfflineData<T>(key: string, fallback: T): T {
   try {
     const item = localStorage.getItem(`${PREFIX}${key}`);
     return item ? JSON.parse(item) : fallback;
-  } catch (e) {
+  } catch {
     return fallback;
   }
 }

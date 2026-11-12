@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError, readJsonBody, isNonEmptyString, MAX_TEXT_LENGTH } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
-import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
+import { ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
   try {

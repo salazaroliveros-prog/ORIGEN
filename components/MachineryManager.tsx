@@ -4,6 +4,10 @@ import { formatGTQ, formatUSD } from '@/lib/data';
 import { CompanySettings, Machinery, MachineryLog, Project } from '@/lib/types';
 import { validateMachinery } from '@/lib/validation/entity.schemas';
 import {
+  calculateMachineryHoursWorked,
+  calculateMachineryOperationCost,
+} from '@/lib/domain/machinery';
+import {
   CheckCircle2,
   ClipboardList,
   Fuel,
@@ -63,11 +67,22 @@ export function MachineryManager({
   const [isRecording, setIsRecording] = useState(false);
   const selectedMachine = machinery.find((item) => item.id === selectedMachineryId);
   const enteredHorometer = Number(newHorometer);
-  const hoursWorked = selectedMachine ? enteredHorometer - selectedMachine.currentHorometer : 0;
-  const operationCost =
-    selectedMachine && hoursWorked > 0
-      ? Math.round(hoursWorked * selectedMachine.hourlyRateGTQ * 100) / 100
-      : 0;
+  const hoursWorked = (() => {
+    if (!selectedMachine || !Number.isFinite(enteredHorometer)) return 0;
+    try {
+      return calculateMachineryHoursWorked(selectedMachine.currentHorometer, enteredHorometer);
+    } catch {
+      return 0;
+    }
+  })();
+  const operationCost = (() => {
+    if (!selectedMachine || hoursWorked <= 0) return 0;
+    try {
+      return calculateMachineryOperationCost(hoursWorked, selectedMachine.hourlyRateGTQ);
+    } catch {
+      return 0;
+    }
+  })();
 
   // Sistema de mantenimiento preventivo
   const MAINTENANCE_THRESHOLD_HOURS = 250; // Umbral: 250 horas de uso

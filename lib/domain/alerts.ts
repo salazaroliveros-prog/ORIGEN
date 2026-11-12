@@ -1,4 +1,9 @@
 import type { Project } from '@/lib/types';
+import {
+  BUDGET_CRITICAL_USAGE_PERCENT,
+  BUDGET_WARNING_USAGE_PERCENT,
+  summarizeProjectFinance,
+} from './projectFinance';
 
 export type BudgetAlert = {
   projectId: string;
@@ -9,8 +14,8 @@ export type BudgetAlert = {
   message: string;
 };
 
-export const BUDGET_WARNING_THRESHOLD = 60;
-export const BUDGET_CRITICAL_THRESHOLD = 80;
+export const BUDGET_WARNING_THRESHOLD = BUDGET_WARNING_USAGE_PERCENT;
+export const BUDGET_CRITICAL_THRESHOLD = BUDGET_CRITICAL_USAGE_PERCENT;
 
 export function evaluateBudgetAlert(
   project: Pick<
@@ -18,31 +23,19 @@ export function evaluateBudgetAlert(
     'id' | 'name' | 'budgetTotal' | 'spentTotal' | 'expectedProfitMarginPercent'
   >
 ): BudgetAlert | null {
-  const budgetTotal = project.budgetTotal || 0;
-  const spentTotal = project.spentTotal || 0;
-  const expectedMarginPercent = project.expectedProfitMarginPercent ?? 15;
+  const summary = summarizeProjectFinance(project);
+  if (!summary.isCritical && !summary.isWarning) return null;
 
-  if (!budgetTotal || budgetTotal <= 0) return null;
-
-  const budgetUsagePercent = (spentTotal / budgetTotal) * 100;
-  const projectMarginPercent = ((budgetTotal - spentTotal) / budgetTotal) * 100;
-  const marginThreshold = 100 - expectedMarginPercent;
-  const isCritical =
-    budgetUsagePercent >= BUDGET_CRITICAL_THRESHOLD ||
-    spentTotal >= (budgetTotal * marginThreshold) / 100;
-
-  if (!isCritical && budgetUsagePercent < BUDGET_WARNING_THRESHOLD) return null;
-
-  const severity = isCritical ? 'critical' : 'warning';
-  const message = isCritical
-    ? `El proyecto "${project.name}" ha superado el umbral crítico de gasto: ${budgetUsagePercent.toFixed(1)}% del presupuesto y margen restante ${projectMarginPercent.toFixed(1)}%.`
-    : `El proyecto "${project.name}" está en nivel de advertencia: ${budgetUsagePercent.toFixed(1)}% del presupuesto ejecutado.`;
+  const severity = summary.isCritical ? 'critical' : 'warning';
+  const message = summary.isCritical
+    ? `El proyecto "${project.name}" ha superado el umbral crítico de gasto: ${summary.budgetUsagePercent.toFixed(1)}% del presupuesto y margen restante ${summary.projectMarginPercent.toFixed(1)}%.`
+    : `El proyecto "${project.name}" está en nivel de advertencia: ${summary.budgetUsagePercent.toFixed(1)}% del presupuesto ejecutado.`;
 
   return {
     projectId: project.id,
     projectName: project.name,
-    budgetUsagePercent,
-    projectMarginPercent,
+    budgetUsagePercent: summary.budgetUsagePercent,
+    projectMarginPercent: summary.projectMarginPercent,
     severity,
     message,
   };

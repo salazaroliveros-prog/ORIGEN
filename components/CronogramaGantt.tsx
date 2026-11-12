@@ -1,27 +1,16 @@
 'use client';
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  Calendar,
   Clock,
   CheckCircle2,
-  AlertTriangle,
-  Target,
-  Layers,
   Building2,
   TrendingUp,
   Sliders,
-  Filter,
   Search,
-  ChevronRight,
-  Sparkles,
-  Printer,
-  ShieldAlert,
-  ArrowRight,
   Flame,
   Award,
   CalendarDays,
-  Info,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -37,7 +26,6 @@ import {
 } from 'recharts';
 import * as d3 from 'd3';
 import { Project, ScheduleTask, Milestone, CompanySettings } from '@/lib/types';
-import { formatGTQ } from '@/lib/data';
 import { Card } from '@/components/ui/Card';
 
 interface CronogramaGanttProps {
@@ -54,7 +42,7 @@ export function CronogramaGantt({
   tasks = [],
   milestones = [],
   activeProjectId: initialActiveProjectId,
-  company,
+  company: _company,
   onUpdateTaskProgress,
 }: CronogramaGanttProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(
@@ -128,8 +116,8 @@ export function CronogramaGantt({
   }, [projectTasks, onlyCriticalPath, phaseFilter, searchQuery]);
 
   // Compute Planned Progress vs Real Progress for each task
+  const [todayMs] = useState(() => Date.now());
   const enrichedTasks = useMemo(() => {
-    const todayMs = Date.now();
 
     return filteredTasks.map((t) => {
       const startMs = new Date(t.startDate).getTime();

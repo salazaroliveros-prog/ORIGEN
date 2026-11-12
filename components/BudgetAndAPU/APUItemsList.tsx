@@ -13,18 +13,12 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { usePagination } from '@/lib/hooks/usePagination';
-import {
-  calculateBudgetSummary,
-  calculateTotalUnitCost,
-  validateAPUItem,
-  convertUSDtoGTQ,
-  type BudgetSummary,
-} from '@/lib/utils/calculations';
-import { Plus, Pencil, Trash2, AlertCircle, Loader, DollarSign, TrendingUp } from 'lucide-react';
+import { calculateBudgetSummary, type BudgetSummary } from '@/lib/utils/calculations';
+import { normalizeAPUItem } from '@/lib/domain/apu';
+import { Plus, Pencil, Trash2, Loader } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
-import Link from 'next/link';
 import type { APUItem } from '@/lib/types';
 
 interface FormData {
@@ -54,7 +48,7 @@ export function APUItemsList({
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalExpenses] = useState(0);
 
   // Currency state - FEATURE 3.4: Currency Selector
   const [currency, setCurrency] = useState<'GTQ' | 'USD'>('GTQ');
@@ -209,7 +203,7 @@ export function APUItemsList({
     }
 
     try {
-      const newItem: APUItem = {
+      const newItem = normalizeAPUItem({
         id: editingId || `apu-${Date.now()}`,
         code: formData.code,
         description: formData.description,
@@ -218,19 +212,12 @@ export function APUItemsList({
         materialUnitCostGTQ: parseFloat(formData.materialUnitCostGTQ),
         laborUnitCostGTQ: parseFloat(formData.laborUnitCostGTQ),
         equipmentUnitCostGTQ: parseFloat(formData.equipmentUnitCostGTQ),
-        totalUnitCostGTQ: calculateTotalUnitCost(
-          parseFloat(formData.materialUnitCostGTQ),
-          parseFloat(formData.laborUnitCostGTQ),
-          parseFloat(formData.equipmentUnitCostGTQ)
-        ),
-        totalPriceGTQ: 0, // Will be calculated
         projectId,
         companyId: 'test-company',
         createdBy: 'user-test',
-      };
+      });
 
-      // Validate
-      const validated = validateAPUItem(newItem);
+      const validated = newItem;
 
       if (editingId) {
         setItems((prev) => prev.map((item) => (item.id === editingId ? validated : item)));
@@ -281,12 +268,6 @@ export function APUItemsList({
     });
     setEditingId(item.id);
     setShowForm(true);
-  };
-
-  // FEATURE 3.4: Convert amount to GTQ if USD
-  const convertToGTQ = (amount: number): number => {
-    if (currency === 'GTQ') return amount;
-    return convertUSDtoGTQ(amount, exchangeRate);
   };
 
   if (loading) {

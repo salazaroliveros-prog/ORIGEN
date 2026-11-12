@@ -119,10 +119,11 @@ describe('lib/utils/cacheManager', () => {
     });
 
     it('should clear pending queries', async () => {
-      let resolveValue: (v: string) => void = () => {};
+      let _resolveValue: (v: string) => void = () => {};
       const promise = new Promise<string>((resolve) => {
-        resolveValue = resolve;
+        _resolveValue = resolve;
       });
+      void _resolveValue;
       queryDeduplicator.execute('pending-key', () => promise);
       expect(queryDeduplicator.getPendingCount()).toBe(1);
       queryDeduplicator.clearPending();

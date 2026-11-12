@@ -14,7 +14,7 @@ import {
   MAX_TEXT_LENGTH,
 } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
-import { RateLimitError, ValidationError, ExternalServiceError, formatErrorResponse, createErrorResponse } from '@/lib/errors';
+import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
   try {

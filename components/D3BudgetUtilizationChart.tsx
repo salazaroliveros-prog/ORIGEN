@@ -2,6 +2,7 @@
 
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { CompanySettings, Project } from '@/lib/types';
+import { summarizeProjectFinance } from '@/lib/domain/projectFinance';
 import * as d3 from 'd3';
 import { BarChart2, PieChart as PieChartIcon, TrendingUp } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -49,7 +50,11 @@ export function D3BudgetUtilizationChart({
 
   const totalBudget = projects.reduce((sum, p) => sum + p.budgetTotal, 0);
   const totalSpent = projects.reduce((sum, p) => sum + p.spentTotal, 0);
-  const globalPct = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+  const globalSummary = summarizeProjectFinance({
+    budgetTotal: totalBudget,
+    spentTotal: totalSpent,
+  });
+  const globalPct = globalSummary.budgetUsagePercent;
   const remainingBudget = Math.max(0, totalBudget - totalSpent);
 
   // ResizeObserver for responsive SVG dimensions
@@ -211,7 +216,8 @@ export function D3BudgetUtilizationChart({
         const isOverBudget = proj.spentTotal > proj.budgetTotal;
         const budgetWidth = xScale(proj.budgetTotal);
         const spentWidth = xScale(proj.spentTotal);
-        const utilPct = proj.budgetTotal > 0 ? (proj.spentTotal / proj.budgetTotal) * 100 : 0;
+        const projectSummary = summarizeProjectFinance(proj);
+        const utilPct = projectSummary.budgetUsagePercent;
 
         const rowG = g
           .append('g')
@@ -348,7 +354,11 @@ export function D3BudgetUtilizationChart({
         .attr('stroke-width', 1);
 
       // Determine color based on threshold
-      const gaugeColor = globalPct > 100 ? '#f43f5e' : globalPct >= 85 ? '#fbbf24' : '#38bdf8';
+      const gaugeColor = globalSummary.isCritical
+        ? '#f43f5e'
+        : globalSummary.isWarning
+          ? '#fbbf24'
+          : '#38bdf8';
 
       // Gradient for active gauge
       const defs = svg.append('defs');
@@ -410,9 +420,11 @@ export function D3BudgetUtilizationChart({
         .text(
           globalPct > 100
             ? '⚠ ALERTA DE SOBRECOSTO'
-            : globalPct >= 85
+            : globalSummary.isCritical
               ? 'EN REVISIÓN PREVENTIVA'
-              : '✓ DENTRO DE MARGEN PROGRAMADO'
+              : globalSummary.isWarning
+                ? 'EN SEGUIMIENTO DE CONSUMO'
+                : '✓ DENTRO DE MARGEN PROGRAMADO'
         );
     }
   }, [

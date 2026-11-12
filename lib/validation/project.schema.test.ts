@@ -34,7 +34,8 @@ describe('validateProjectForm', () => {
   });
 
   it('keeps an unconfigured profit margin unset', () => {
-    const { expectedProfitMarginPercent: _margin, ...projectWithoutMargin } = validProject;
+    const { expectedProfitMarginPercent: _omitMargin, ...projectWithoutMargin } = validProject;
+    void _omitMargin;
     const result = validateProjectForm(projectWithoutMargin);
 
     expect(result.success).toBe(true);

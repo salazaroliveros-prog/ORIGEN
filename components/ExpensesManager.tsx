@@ -592,7 +592,6 @@ export function ExpensesManager({
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {filteredExpenses.map((ex) => {
                     const isApproved = ex.approvalStatus === 'Aprobado';
-                    const isPending = ex.approvalStatus === 'Pendiente' || !ex.approvalStatus;
                     const isRejected = ex.approvalStatus === 'Rechazado';
 
                     // Check if this expense belongs to an APU item that is over budget

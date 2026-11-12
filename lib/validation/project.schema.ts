@@ -4,7 +4,6 @@
  */
 
 import { z } from 'zod';
-import type { Project } from '@/lib/types';
 
 /**
  * Esquema estricto para datos nuevos de proyectos

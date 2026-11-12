@@ -69,10 +69,9 @@ class ChunkErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryStat
 }
 
 export function ClientOnlyApp() {
-  const [mounted, setMounted] = useState(false);
+  const [mounted] = useState(() => typeof window !== 'undefined');
 
   useEffect(() => {
-    setMounted(true);
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch((err) => {
         console.warn('[PWA] Service Worker registration failed:', err);

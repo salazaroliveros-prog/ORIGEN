@@ -8,6 +8,7 @@ import { BudgetAndAPU } from '@/components/BudgetAndAPU';
 import { ProjectBudgetSummary } from '@/components/ProjectBudgetSummary';
 import { formatGTQ } from '@/lib/data';
 import { aggregatePortfolio } from '@/lib/domain/portfolio';
+import { BUDGET_CRITICAL_USAGE_PERCENT } from '@/lib/domain/projectFinance';
 import type { APUItem, CompanySettings, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
 
 interface BudgetViewProps {
@@ -88,7 +89,11 @@ export function BudgetView({
           label="Gastos Ejecutados"
           value={formatGTQ(portfolio.spentTotalGTQ)}
           hint={`${portfolio.budgetUsagePercent}% del presupuesto`}
-          tone={portfolio.budgetUsagePercent >= 80 ? 'text-amber-400' : 'text-white'}
+          tone={
+            portfolio.budgetUsagePercent >= BUDGET_CRITICAL_USAGE_PERCENT
+              ? 'text-amber-400'
+              : 'text-white'
+          }
         />
         <KpiCard
           label="Saldo Disponible"

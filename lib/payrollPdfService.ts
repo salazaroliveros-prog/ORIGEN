@@ -1,4 +1,4 @@
-import { EmployeePayrollCalculation, STATUTORY_RATES } from './guatemalanPayroll';
+import { EmployeePayrollCalculation } from './guatemalanPayroll';
 import { CompanySettings } from './types';
 import { formatGTQ } from './data';
 

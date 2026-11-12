@@ -77,7 +77,7 @@ export const validationSchemas = {
  * Validates data against schema and returns errors
  * FIXED: Added null check for result.error
  */
-export function validateData<T>(
+export function validateData(
   schema: z.ZodSchema,
   data: unknown
 ): { valid: boolean; errors: Record<string, string> } {
@@ -174,7 +174,7 @@ export function safeJSONParse<T = unknown>(json: string, fallback: T): T {
  */
 export function validateCurrencyAmount(
   amount: unknown,
-  currency: 'GTQ' | 'USD' = 'GTQ'
+  _currency: 'GTQ' | 'USD' = 'GTQ'
 ): {
   valid: boolean;
   amount?: number;

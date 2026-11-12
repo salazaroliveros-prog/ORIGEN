@@ -3,7 +3,7 @@
  * Complete workflow validation for ORIGEN ERP
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   calculatePayroll,
   calculateBudgetSummary,
@@ -24,7 +24,6 @@ import type { APUItem, ExpenseRecord, Employee, EmployeeRole, Project } from '..
 describe('E2E Workflow 1: Project Creation to Completion', () => {
   let testProject: Project;
   let testAPUItems: APUItem[];
-  let testExpenses: ExpenseRecord[];
 
   beforeEach(() => {
     // Mock project data
@@ -76,7 +75,6 @@ describe('E2E Workflow 1: Project Creation to Completion', () => {
       },
     ];
 
-    testExpenses = [];
   });
 
   it('should validate project budget is greater than zero', () => {

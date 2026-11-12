@@ -1,9 +1,13 @@
 import type { Project } from '@/lib/types';
 
+export const BUDGET_WARNING_USAGE_PERCENT = 60;
+export const BUDGET_CRITICAL_USAGE_PERCENT = 80;
+
 export type ProjectFinancialSummary = {
   budgetUsagePercent: number;
   projectMarginPercent: number;
   isCritical: boolean;
+  isWarning: boolean;
   expectedMarginPercent: number;
 };
 
@@ -19,12 +23,17 @@ export function summarizeProjectFinance(
     budgetTotal > 0 ? ((budgetTotal - spentTotal) / budgetTotal) * 100 : 100;
   const marginThreshold = 100 - expectedMarginPercent;
   const isCritical =
-    budgetUsagePercent >= 80 || spentTotal >= (budgetTotal * marginThreshold) / 100;
+    budgetTotal > 0 &&
+    (budgetUsagePercent >= BUDGET_CRITICAL_USAGE_PERCENT ||
+      spentTotal >= (budgetTotal * marginThreshold) / 100);
+  const isWarning =
+    budgetTotal > 0 && !isCritical && budgetUsagePercent >= BUDGET_WARNING_USAGE_PERCENT;
 
   return {
     budgetUsagePercent,
     projectMarginPercent,
     isCritical,
+    isWarning,
     expectedMarginPercent,
   };
 }

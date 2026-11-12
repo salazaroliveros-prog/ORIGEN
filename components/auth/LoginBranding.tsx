@@ -19,6 +19,7 @@ export function Logo({ className = '', ...props }: { className?: string; [key: s
   const logoUrl = branding?.logoUrl || '/assets/branding/web-banner-logo.png';
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={logoUrl}
       alt="ConstructERP Guatemala"

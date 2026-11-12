@@ -42,14 +42,14 @@ export function CanvasSignature({
   const [hasDrawn, setHasDrawn] = useState(false);
   const [strokeHistory, setStrokeHistory] = useState<ImageData[]>([]);
   const [penColor, setPenColor] = useState<string>('#0f172a');
-  const [penWidth, setPenWidth] = useState<number>(2.5);
+  const [penWidth] = useState<number>(2.5);
 
   // Metadata
   const [signerName, setSignerName] = useState(defaultSignerName);
   const [signerDpi, setSignerDpi] = useState(defaultSignerDpi);
-  const [signerRole, setSignerRole] = useState(defaultSignerRole);
+  const [signerRole] = useState(defaultSignerRole);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | undefined>(undefined);
-  const [gpsStatus, setGpsStatus] = useState<'loading' | 'success' | 'fallback'>('loading');
+  const [, setGpsStatus] = useState<'loading' | 'success' | 'fallback'>('loading');
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Initialize canvas with high-DPI scaling
@@ -125,8 +125,10 @@ export function CanvasSignature({
         { timeout: 6000, enableHighAccuracy: true }
       );
     } else {
-      setGpsCoords({ lat: 14.6133, lng: -90.4875 });
-      setGpsStatus('fallback');
+      queueMicrotask(() => {
+        setGpsCoords({ lat: 14.6133, lng: -90.4875 });
+        setGpsStatus('fallback');
+      });
     }
 
     return () => clearTimeout(timer);
