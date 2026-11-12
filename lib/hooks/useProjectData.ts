@@ -271,11 +271,12 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     };
   }, [companyId, currentUserId, role]);
 
-  // ========== AUTO-CALCULATION: PROJECT SPENT ==========
-  useEffect(() => {
-    if (projects.length === 0) return;
+  // ========== DERIVED STATE: PROJECTS WITH CALCULATIONS ==========
+  const projectsWithCalculations = useMemo(() => {
+    if (projects.length === 0) return projects;
 
-    const updatedProjects = projects.map((project) => {
+    // Calculate spent total for each project
+    const withSpent = projects.map((project) => {
       const calculatedSpent = calculateProjectSpentById(expenses, project.id);
 
       if (calculatedSpent !== project.spentTotal) {
@@ -293,20 +294,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       return project;
     });
 
-    const hasChanges = updatedProjects.some(
-      (updated, index) => updated.spentTotal !== projects[index].spentTotal
-    );
-
-    if (hasChanges) {
-      setProjects(updatedProjects);
-    }
-  }, [expenses, projects]);
-
-  // ========== AUTO-CALCULATION: PROJECT PROGRESS ==========
-  useEffect(() => {
-    if (projects.length === 0) return;
-
-    const updatedProjects = projects.map((project) => {
+    // Calculate progress for each project
+    const withProgress = withSpent.map((project) => {
       const calculatedProgress = resolveProjectProgress(
         project.scheduleTasks,
         project.scheduleMilestones,
@@ -328,14 +317,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       return project;
     });
 
-    const hasChanges = updatedProjects.some(
-      (updated, index) => updated.progressPercent !== projects[index].progressPercent
-    );
-
-    if (hasChanges) {
-      setProjects(updatedProjects);
-    }
-  }, [projects]);
+    return withProgress;
+  }, [projects, expenses]);
 
   // ========== PROJECT CREATION ==========
   const createProject = useCallback(
@@ -1132,7 +1115,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
   );
 
   return {
-    projects,
+    projects: projectsWithCalculations,
     fieldVisits,
     expenses,
     attendance,
