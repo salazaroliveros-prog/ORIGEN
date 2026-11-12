@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
+import { ensureAuthenticated } from './testCredentials';
 
 /**
  * financial.spec.ts — Flujos de gastos y facturas en ORIGEN ERP
@@ -13,18 +13,7 @@ import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
 
 test.describe('Sección Gastos & Facturas', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForTimeout(3000);
-
-    // Login manual si aparece el formulario de autenticación
-    const loginButton = page.getByRole('button', { name: 'Iniciar Sesión' });
-    const loginVisible = await loginButton.isVisible({ timeout: 3000 }).catch(() => false);
-    if (loginVisible) {
-      await page.getByLabel('Correo electrónico').fill(ADMIN_EMAIL);
-      await page.getByLabel('Contraseña', { exact: true }).fill(ADMIN_PASSWORD);
-      await loginButton.click();
-      await page.waitForTimeout(4000);
-    }
+    await ensureAuthenticated(page);
 
     // Navegar a la sección de gastos
     await page.getByRole('button', { name: 'Gastos & Facturas' }).first().click();
