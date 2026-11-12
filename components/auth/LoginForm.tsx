@@ -1,19 +1,18 @@
 /**
- * ORIGEN ERP - Login Form (rediseño moderno ERP 2025-2026)
- * Glassmorphism, validación en tiempo real, Google Auth, "Recordarme",
- * toggle claro/oscuro y animaciones con framer-motion.
+ * ORIGEN ERP - Login Form
+ * Formulario de acceso limpio: email/contraseña, Google Auth, "Recordarme",
+ * validación en tiempo real y recuperación de contraseña.
  */
 
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Sun, Moon, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Badge } from '@/components/ui/Badge';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { signInWithPopup } from 'firebase/auth';
 import { GoogleAuthProvider } from 'firebase/auth';
@@ -28,7 +27,6 @@ const fadeInUp = {
 
 export function LoginForm({ className }: { className?: string }) {
   const { signIn, status } = useAuthSession();
-  const [theme, setThemeLocal] = useState<'dark' | 'light'>('dark');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,8 +40,6 @@ export function LoginForm({ className }: { className?: string }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const saved = localStorage.getItem('constructerp_theme') as 'dark' | 'light' | null;
-    if (saved === 'light' || saved === 'dark') setThemeLocal(saved);
     const remembered = localStorage.getItem('constructerp_remember_email');
     if (remembered) setEmail(remembered);
   }, []);
@@ -123,27 +119,8 @@ export function LoginForm({ className }: { className?: string }) {
     }
   };
 
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setThemeLocal(next);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('constructerp_theme', next);
-      const root = document.documentElement;
-      if (next === 'light') {
-        root.classList.add('theme-light'); root.classList.remove('dark'); root.setAttribute('data-theme', 'light');
-      } else {
-        root.classList.remove('theme-light'); root.classList.add('dark'); root.setAttribute('data-theme', 'dark');
-      }
-    }
-  };
-
   return (
     <motion.div initial="hidden" animate="visible" variants={fadeInUp} className={`${className} mx-auto w-full max-w-md`}>
-      <div className="mb-8 flex flex-col items-start gap-3">
-        <Badge variant="success" size="sm">Sin auto-login · Credenciales propias</Badge>
-        <Badge variant="secondary" size="sm">Sesiones cifradas · Firebase Auth</Badge>
-      </div>
-
       {generalError && (
         <div className="mb-6 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
           <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -223,7 +200,7 @@ export function LoginForm({ className }: { className?: string }) {
         </Button>
 
         <div className="mt-6 border-t border-white/10 pt-6">
-          <p className="mb-4 text-sm text-slate-400">
+          <p className="mb-4 text-sm text-slate-400 text-center">
             ¿No tienes una cuenta?{' '}
             <Link href="/signup" className="font-medium text-brand-secondary underline underline-offset-4 hover:text-brand-secondary-hover transition-colors">
               Regístrate ahora
@@ -239,23 +216,13 @@ export function LoginForm({ className }: { className?: string }) {
             Continuar con Google
           </Button>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-6 text-center">
             <button type="button" onClick={handleForgotPassword} disabled={!email.trim() || isAuthenticating} className="text-sm text-brand-secondary hover:text-brand-secondary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               ¿Olvidaste tu contraseña?
             </button>
-            <button type="button" onClick={toggleTheme} className="text-sm text-slate-400 hover:text-slate-200 transition-colors" aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
-              {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </button>
           </div>
-
-          <p className="mt-4 text-center text-xs text-slate-500">🔒 Tus datos están protegidos. Se bloquearán los intentos tras 5 fallos.</p>
         </div>
       </form>
-
-      <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-500">
-        <span className="h-3 w-3 rounded-full bg-emerald-500" />
-        <span>Sesión lista</span>
-      </div>
     </motion.div>
   );
 }

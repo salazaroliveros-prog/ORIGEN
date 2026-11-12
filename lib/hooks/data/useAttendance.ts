@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AttendanceRecord, CompanyRole } from '@/lib/types';
 import {
   subscribeAttendance,
@@ -42,7 +42,6 @@ export function useAttendance({ companyId, currentUserId, role, projectIds = [] 
     if (!companyId || !currentUserId || !role) {
       if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing attendance');
-      setAttendance([]);
       setAllAttendance([]);
       setLoading(false);
       hasInitializedRef.current = false;
@@ -51,7 +50,6 @@ export function useAttendance({ companyId, currentUserId, role, projectIds = [] 
     }
 
     if (!canReadAttendance(role)) {
-      setAttendance([]);
       setAllAttendance([]);
       return;
     }
@@ -78,13 +76,13 @@ export function useAttendance({ companyId, currentUserId, role, projectIds = [] 
     };
   }, [companyId, currentUserId, role]);
 
-  useEffect(() => {
+  // Filter attendance by projectIds - use useMemo instead of useEffect to avoid cascading updates
+  const filteredAttendance = useMemo(() => {
     if (projectIds.length === 0) {
-      setAttendance(allAttendance);
-    } else {
-      const projectIdSet = new Set(projectIds);
-      setAttendance(allAttendance.filter((a) => projectIdSet.has(a.projectId)));
+      return allAttendance;
     }
+    const projectIdSet = new Set(projectIds);
+    return allAttendance.filter((a) => projectIdSet.has(a.projectId));
   }, [allAttendance, projectIds]);
 
   const addAttendance = useCallback(
@@ -162,7 +160,7 @@ export function useAttendance({ companyId, currentUserId, role, projectIds = [] 
   );
 
   return {
-    attendance,
+    attendance: filteredAttendance,
     allAttendance,
     loading,
     addAttendance,

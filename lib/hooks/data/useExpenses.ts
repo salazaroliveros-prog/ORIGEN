@@ -50,11 +50,19 @@ export function useExpenses({ companyId, currentUserId, projectIds = [] }: UseEx
     return map;
   }, [allExpenses]);
 
+  // Filter expenses by projectIds - use useMemo instead of useEffect to avoid cascading updates
+  const filteredExpenses = useMemo(() => {
+    if (projectIds.length === 0) {
+      return allExpenses;
+    }
+    const projectIdSet = new Set(projectIds);
+    return allExpenses.filter((e) => projectIdSet.has(e.projectId));
+  }, [allExpenses, projectIds]);
+
   useEffect(() => {
     if (!companyId || !currentUserId) {
       if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing expenses');
-      setExpenses([]);
       setAllExpenses([]);
       setLoading(false);
       hasInitializedRef.current = false;
@@ -83,16 +91,6 @@ export function useExpenses({ companyId, currentUserId, projectIds = [] }: UseEx
       unsubExpenses();
     };
   }, [companyId, currentUserId]);
-
-  // Filter expenses by projectIds
-  useEffect(() => {
-    if (projectIds.length === 0) {
-      setExpenses(allExpenses);
-    } else {
-      const projectIdSet = new Set(projectIds);
-      setExpenses(allExpenses.filter((e) => projectIdSet.has(e.projectId)));
-    }
-  }, [allExpenses, projectIds]);
 
   const addExpense = useCallback(
     async (expense: ExpenseRecord) => {
@@ -192,7 +190,7 @@ export function useExpenses({ companyId, currentUserId, projectIds = [] }: UseEx
   );
 
   return {
-    expenses,
+    expenses: filteredExpenses,
     allExpenses,
     loading,
     projectExpenses,

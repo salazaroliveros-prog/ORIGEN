@@ -48,6 +48,23 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
     [projects]
   );
 
+  // Derived state: calculate spent total and progress for each project
+  const projectsWithCalculations = useMemo(() => {
+    return projects.map((project) => {
+      const calculatedSpent = calculateProjectSpentById([], project.id);
+      const calculatedProgress = resolveProjectProgress(
+        project.scheduleTasks,
+        project.scheduleMilestones,
+        project.progressPercent
+      );
+      return {
+        ...project,
+        spentTotal: calculatedSpent !== project.spentTotal ? calculatedSpent : project.spentTotal,
+        progressPercent: calculatedProgress !== project.progressPercent ? calculatedProgress : project.progressPercent,
+      };
+    });
+  }, [projects]);
+
   // Subscribe to projects
   useEffect(() => {
     if (!companyId || !currentUserId) {
@@ -81,49 +98,6 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
       unsubProjects();
     };
   }, [companyId, currentUserId]);
-
-  // Auto-calculate spent total
-  useEffect(() => {
-    if (projects.length === 0) return;
-
-    const updatedProjects = projects.map((project) => {
-      const calculatedSpent = calculateProjectSpentById([], project.id);
-      return calculatedSpent !== project.spentTotal ? { ...project, spentTotal: calculatedSpent } : project;
-    });
-
-    const hasChanges = updatedProjects.some(
-      (updated, index) => updated.spentTotal !== projects[index].spentTotal
-    );
-
-    if (hasChanges) {
-      setProjects(updatedProjects);
-    }
-  }, [projects]);
-
-  // Auto-calculate progress
-  useEffect(() => {
-    if (projects.length === 0) return;
-
-    const updatedProjects = projects.map((project) => {
-      const calculatedProgress = resolveProjectProgress(
-        project.scheduleTasks,
-        project.scheduleMilestones,
-        project.progressPercent
-      );
-
-      return calculatedProgress !== project.progressPercent
-        ? { ...project, progressPercent: calculatedProgress }
-        : project;
-    });
-
-    const hasChanges = updatedProjects.some(
-      (updated, index) => updated.progressPercent !== projects[index].progressPercent
-    );
-
-    if (hasChanges) {
-      setProjects(updatedProjects);
-    }
-  }, [projects]);
 
   const createProject = useCallback(
     async (data: ProjectFormValues, onCreated?: (projectId: string) => void) => {
@@ -355,9 +329,9 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
   );
 
   return {
-    projects,
+    projects: projectsWithCalculations,
     loading,
-    activeProjects,
+    activeProjects: projectsWithCalculations.filter((project) => project.status !== 'Archivado'),
     createProject,
     updateProject,
     archiveProject,

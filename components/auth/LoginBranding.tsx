@@ -38,7 +38,7 @@ export function BrandName({ className = '' }: { className?: string }) {
 }
 
 /**
- * Encabezado de marca mostrado sobre el formulario (mobile y desktop)
+ * Encabezado de marca mostrado sobre el formulario
  */
 export function LoginBrandingHeader({ className = '' }: { className?: string }) {
   return (
@@ -51,7 +51,7 @@ export function LoginBrandingHeader({ className = '' }: { className?: string }) 
           ConstructERP <span className="text-brand-secondary">Guatemala</span>
         </h2>
         <p className="text-sm text-slate-400">
-          Inicia sesión para acceder a tu panel de control de obras y finanzas.
+          Inicia sesión para acceder a tu panel de control.
         </p>
       </div>
     </div>
