@@ -13,14 +13,18 @@ import {
   MAX_DESCRIPTION_LENGTH,
   MAX_TEXT_LENGTH,
 } from '@/lib/api';
-import { rateLimitMiddleware, getClientIp } from '@/lib/security';
+import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
 
 export async function POST(req: NextRequest) {
   try {
     // Rate limiting
-    const clientIp = getClientIp(req);
-    const rateLimitResponse = rateLimitMiddleware(`gemini:${clientIp}`);
-    if (rateLimitResponse) return rateLimitResponse;
+    const rateLimitMiddleware = createRateLimitMiddleware({
+      windowMs: 60 * 1000,
+      maxRequests: 30,
+      keyPrefix: 'gemini',
+    });
+    const rateLimitResponse = await rateLimitMiddleware(req);
+    if (rateLimitResponse) return applySecurityHeaders(rateLimitResponse);
 
     // Validate origin for security
     const origin = req.headers.get('origin');
@@ -29,12 +33,12 @@ export async function POST(req: NextRequest) {
       'https://origen-one-kohl.vercel.app',
     ];
     if (origin && !allowedOrigins.includes(origin)) {
-      return jsonError('Origen no autorizado.', 403);
+      return applySecurityHeaders(jsonError('Origen no autorizado.', 403));
     }
 
     const body = await readJsonBody(req);
     if (!body) {
-      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
+      return applySecurityHeaders(jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400));
     }
 
     const action = body.action;
@@ -66,7 +70,7 @@ export async function POST(req: NextRequest) {
     ]);
 
     if (typeof action !== 'string' || !validActions.has(action)) {
-      return jsonError('Acción no reconocida.', 400);
+return applySecurityHeaders(jsonError('Acción no reconocida.', 400));
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -139,7 +143,7 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
 
           if (response.text) {
             const parsed = JSON.parse(response.text);
-            return NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' });
+            return applySecurityHeaders(NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' }));
           }
         } catch (apiError: unknown) {
           console.warn('Gemini API call failed, falling back to algorithmic estimator:', apiError);
@@ -226,7 +230,7 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
       const totalUnitCost = Math.round((baseMat + baseLab + baseEq) * 100) / 100;
       const q = Number(quantity) || 1;
 
-      return NextResponse.json({
+      return applySecurityHeaders(NextResponse.json({
         success: true,
         source: 'guatemala-market-engine',
         data: {
@@ -265,7 +269,7 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
           regionalAdjustmentNote: `Costos calculados para ${department} aplicando factor de flete ${deptInfo.freightFactor} y mano de obra ${deptInfo.laborFactor}. ${deptInfo.logisticsNotes}`,
           technicalNorm: norm,
         },
-      });
+      }));
     }
 
     // 2. AUDIT BUDGET
@@ -316,7 +320,7 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
 
           if (response.text) {
             const parsed = JSON.parse(response.text);
-            return NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' });
+            return applySecurityHeaders(NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' }));
           }
         } catch (apiError: unknown) {
           console.warn('Gemini Audit call failed, using fallback audit:', apiError);
@@ -357,7 +361,7 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
         });
       }
 
-      return NextResponse.json({
+      return applySecurityHeaders(NextResponse.json({
         success: true,
         source: 'guatemala-market-engine',
         data: {
@@ -372,12 +376,12 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
           ],
           regionalConsiderations: deptInfo.logisticsNotes,
         },
-      });
+      }));
     }
 
     // 3. MARKET UPDATE INSIGHTS
     if (action === 'market_update') {
-      return NextResponse.json({
+      return applySecurityHeaders(NextResponse.json({
         success: true,
         data: {
           department,
@@ -391,7 +395,7 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
             minimumWageCircunscripcion2: 'Q3,500.00 / mes (Departamentos)',
           },
         },
-      });
+      }));
     }
 
     // 4. ANALYZE SITE LOGBOOK (BITÁCORA DE OBRA CON FOTOS)
@@ -486,12 +490,12 @@ INSTRUCCIONES DE AUDITORÍA:
             },
           });
 
-          return NextResponse.json({
+          return applySecurityHeaders(NextResponse.json({
             success: true,
             reply: response.text || 'Bitácora analizada exitosamente.',
             source: 'gemini-ai',
             meta: { visitId, date, foremanName },
-          });
+          }));
         } catch (visionError: unknown) {
           console.warn(
             'Gemini Vision API error, falling back to contextual logbook auditor:',
@@ -576,12 +580,12 @@ INSTRUCCIONES DE AUDITORÍA:
 2. Verificar que las compras de insumos cuadren con las remisiones de bodega y facturas FEL de proveedores locales.`;
       }
 
-      return NextResponse.json({
+      return applySecurityHeaders(NextResponse.json({
         success: true,
         reply: fallbackReply,
         source: 'guatemala-logbook-auditor',
         meta: { visitId, date, foremanName },
-      });
+      }));
     }
 
     // 5. CHAT
@@ -605,27 +609,27 @@ Consulta del usuario: "${userMessage}"`;
             contents: chatPrompt,
           });
 
-          return NextResponse.json({
+          return applySecurityHeaders(NextResponse.json({
             success: true,
             reply: response.text || 'Consulta procesada exitosamente.',
             source: 'gemini-ai',
-          });
+          }));
         } catch (chatError: unknown) {
           console.warn('Gemini chat error:', chatError);
         }
       }
 
       // Fallback response
-      return NextResponse.json({
+      return applySecurityHeaders(NextResponse.json({
         success: true,
         reply: `ConstructERP Asistente (Mercado Guatemala): Para proyectos ubicados en ${department}, considere que el factor regional es ${deptInfo.overallFactor}x debido a la distancia de ${deptInfo.distanceKmFromCapital} km desde los centros de distribución. Las normas AGIES y COGUANOR recomiendan verificar dosificaciones de concreto y resistencia sísmica en la zona.`,
         source: 'guatemala-knowledge-engine',
-      });
+      }));
     }
 
     return jsonError('Acción no reconocida.', 400);
   } catch (error: unknown) {
     console.error('Error in /api/gemini route:', error);
-    return jsonError('No fue posible procesar la solicitud de IA. Intente nuevamente.', 500);
+    return applySecurityHeaders(jsonError('No fue posible procesar la solicitud de IA. Intente nuevamente.', 500));
   }
 }

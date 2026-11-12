@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
-import MainApp from './MainApp';
+import { MainApp } from '@/components/main-app';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
