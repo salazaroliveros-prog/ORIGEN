@@ -136,7 +136,7 @@ export interface CompanyInvitation {
  * Valores de estado de proyecto
  */
 export type ProjectStatus =
-  'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado';
+  'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado' | 'Cerrado';
 
 /**
  * Interface for a project in the ORIGEN system
@@ -203,6 +203,14 @@ export interface Project {
   clientEmail?: string;
   /** Dirección del cliente (opcional) */
   clientAddress?: string;
+  /** Fecha de cierre del proyecto (opcional) */
+  closedAt?: string | null;
+  /** Usuario que cerró el proyecto (opcional) */
+  closedBy?: string;
+  /** Balance financiero final al cierre (opcional) */
+  finalBalanceGTQ?: number;
+  /** Observaciones de cierre (opcional) */
+  closureNotes?: string;
 }
 
 export interface FieldPhoto {

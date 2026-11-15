@@ -99,7 +99,7 @@ service cloud.firestore {
         data.spentTotal is number && data.spentTotal >= 0 &&
         (!data.keys().hasAny(['progressPercent']) ||
           (data.progressPercent is number && data.progressPercent >= 0 && data.progressPercent <= 100)) &&
-        data.status in ['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado'] &&
+        data.status in ['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'] &&
         data.companyId is string &&
         data.ownerId is string && data.ownerId.size() <= 128;
     }

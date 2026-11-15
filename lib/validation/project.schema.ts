@@ -52,9 +52,9 @@ export const ProjectFormSchema = z
       .default(0),
     startDate: z.string().date('La fecha de inicio debe ser válida (YYYY-MM-DD)'),
     endDate: z.string().date('La fecha de finalización debe ser válida (YYYY-MM-DD)'),
-    status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado'], {
+    status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'], {
       message:
-        'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido o Archivado',
+        'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido, Archivado o Cerrado',
     }),
     lat: z
       .number()
@@ -95,7 +95,7 @@ export const ProjectLegacySchema = z
     startDate: z.string().default(new Date().toISOString().split('T')[0]),
     endDate: z.string().default(new Date().toISOString().split('T')[0]),
     status: z
-      .enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado'])
+      .enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'])
       .default('Planificación'),
     lat: z.number().default(14.6133),
     lng: z.number().default(-90.4875),
@@ -120,7 +120,7 @@ export interface ProjectFormProject {
   progressPercent: number;
   startDate: string;
   endDate: string;
-  status: 'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado';
+  status: 'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado' | 'Cerrado';
   lat: number;
   lng: number;
   expectedProfitMarginPercent?: number | null;
