@@ -31,6 +31,9 @@
     "pwa:generate-sw": "node scripts/generate-service-worker.js",
     "images:optimize": "node scripts/optimize-images.js",
     "deps:check": "node scripts/check-dependencies.js",
+    "setup:complete": "node scripts/setup-complete.mjs",
+    "setup:quick": "node scripts/setup-quick.mjs",
+    "setup:auto": "node scripts/setup-auto.mjs",
     "prepare": "node -e \"console.log('skipping husky install')\""
   },
   "dependencies": {

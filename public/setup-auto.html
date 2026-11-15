@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORIGEN ERP - Configuración Automática</title>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 700px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 { color: #333; margin-bottom: 20px; font-size: 24px; }
+    p { color: #666; margin-bottom: 20px; line-height: 1.6; }
+    .step {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      background: #f8f9fa;
+    }
+    .step h3 { color: #667eea; margin-bottom: 10px; font-size: 18px; }
+    .step p { margin-bottom: 10px; color: #666; }
+    .token-box {
+      background: #fff;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 15px 0;
+      font-family: monospace;
+      font-size: 14px;
+      word-break: break-all;
+      color: #333;
+      overflow-x: auto;
+    }
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .btn:hover { background: #5568d3; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-success { background: #28a745; }
+    .btn-success:hover { background: #218838; }
+    .status { margin-top: 10px; font-size: 14px; }
+    .success { color: #28a745; font-weight: bold; }
+    .error { color: #dc3545; font-weight: bold; }
+    .warning { color: #ffc107; font-weight: bold; }
+    .credentials {
+      background: #e8f5e9;
+      border: 1px solid #4caf50;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .credentials h3 { color: #2e7d32; margin-bottom: 10px; }
+    .cred-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #c8e6c9;
+    }
+    .cred-item:last-child { border-bottom: none; }
+    .cred-key { font-weight: bold; color: #1b5e20; }
+    .cred-value { color: #1b5e20; font-family: monospace; }
+    .env-box {
+      background: #f1f8e9;
+      border: 1px solid #8bc34a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 15px;
+      font-family: monospace;
+      font-size: 13px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 ORIGEN ERP - Configuración Automática</h1>
+    <p>Esta página configura automáticamente tu sistema ORIGEN ERP: crea el usuario administrador en Firebase Authentication y configura todo para que puedas iniciar sesión inmediatamente.</p>
+
+    <div class="step">
+      <h3>Paso 1: Credenciales de Administrador</h3>
+      <p>Se creará automáticamente el usuario administrador con las siguientes credenciales:</p>
+      <div class="credentials">
+        <div class="cred-item"><span class="cred-key">Email:</span><span class="cred-value">salazaroliveros@gmail.com</span></div>
+        <div class="cred-item"><span class="cred-key">Contraseña:</span><span class="cred-value">AngelDarioJose.2026</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Paso 2: Generar Token de App Check</h3>
+      <p>Firebase App Check está habilitado y requiere un token de depuración. Este botón lo genera automáticamente:</p>
+      <button class="btn" id="generateTokenBtn">Generar Token de App Check</button>
+      <div id="appCheckTokenBox" class="token-box" style="display:none;"></div>
+      <div id="appCheckStatus" class="status"></div>
+    </div>
+
+    <div class="step">
+      <h3>Paso 3: Crear Usuario en Firebase</h3>
+      <p>Una vez tengas el token de App Check, este botón creará el usuario automáticamente:</p>
+      <button class="btn btn-success" id="createUserBtn" disabled="disabled">Crear Usuario Administrador</button>
+      <div id="createStatus" class="status"></div>
+    </div>
+
+    <div class="step">
+      <h3>Paso 4: Configurar .env.local</h3>
+      <p>El siguiente bloque se agregará automáticamente a tu archivo <code>.env.local</code>:</p>
+      <div class="env-box" id="envContent"></div>
+    </div>
+
+    <div class="credentials" style="border-color: #ff9800;">
+      <h3 style="color: #e65100;">🎉 Credenciales Finales</h3>
+      <div class="cred-item"><span class="cred-key">URL de la aplicación:</span><span class="cred-value">http://localhost:3000</span></div>
+      <div class="cred-item"><span class="cred-key">Página de login:</span><span class="cred-value">http://localhost:3000/login</span></div>
+      <div class="cred-item"><span class="cred-key">Email administrador:</span><span class="cred-value">salazaroliveros@gmail.com</span></div>
+      <div class="cred-item"><span class="cred-key">Contraseña:</span><span class="cred-value">AngelDarioJose.2026</span></div>
+    </div>
+  </div>
+
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI",
+      authDomain: "origen-erp-guatemala.firebaseapp.com",
+      projectId: "origen-erp-guatemala",
+      storageBucket: "origen-erp-guatemala.firebasestorage.app",
+      messagingSenderId: "893831571998",
+      appId: "1:893831571998:web:4e38903eeb0dff05011c0f",
+      measurementId: "G-EBE081ELJT"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    const generateTokenBtn = document.getElementById('generateTokenBtn');
+    const createUserBtn = document.getElementById('createUserBtn');
+    const appCheckTokenBox = document.getElementById('appCheckTokenBox');
+    const appCheckStatus = document.getElementById('appCheckStatus');
+    const createStatus = document.getElementById('createStatus');
+    const envContent = document.getElementById('envContent');
+
+    let debugToken = null;
+
+    // Generar token de App Check
+    generateTokenBtn.addEventListener('click', async () => {
+      generateTokenBtn.disabled = true;
+      generateTokenBtn.textContent = 'Generando...';
+      appCheckStatus.textContent = '';
+      appCheckStatus.className = 'status';
+      appCheckTokenBox.style.display = 'none';
+
+      try {
+        const appCheck = firebase.appCheck();
+        
+        // Activar App Check con DebugProvider
+        try {
+          appCheck.activate(firebase.appCheck.DebugProvider, { isTokenAutoRefreshEnabled: true });
+        } catch (e) {
+          console.log('DebugProvider no disponible, intentando activar normal');
+          appCheck.activate();
+        }
+        
+        const token = await appCheck.getToken(true);
+        debugToken = token;
+        
+        appCheckTokenBox.textContent = token;
+        appCheckTokenBox.style.display = 'block';
+        appCheckStatus.textContent = '✅ Token de App Check generado exitosamente';
+        appCheckStatus.className = 'status success';
+        createUserBtn.disabled = false;
+        generateTokenBtn.textContent = 'Token Generado ✓';
+        
+      } catch (error) {
+        appCheckStatus.textContent = '❌ Error: ' + error.message;
+        appCheckStatus.className = 'status error';
+        generateTokenBtn.disabled = false;
+        generateTokenBtn.textContent = 'Generar Token de App Check';
+      }
+    });
+
+    // Crear usuario en Firebase Auth
+    createUserBtn.addEventListener('click', async () => {
+      createUserBtn.disabled = true;
+      createUserBtn.textContent = 'Creando...';
+      createStatus.textContent = '';
+      createStatus.className = 'status';
+
+      try {
+        const auth = firebase.auth();
+        
+        // Crear el usuario
+        const userCredential = await auth.createUserWithEmailAndPassword(
+          'salazaroliveros@gmail.com',
+          'AngelDarioJose.2026'
+        );
+        
+        const user = userCredential.user;
+        console.log('Usuario creado:', user);
+        
+        // Verificar el correo automáticamente (opcional)
+        try {
+          await user.sendEmailVerification();
+          console.log('Correo de verificación enviado');
+        } catch (e) {
+          console.log('No se pudo enviar correo de verificación:', e.message);
+        }
+        
+        createStatus.textContent = '✅ Usuario creado exitosamente en Firebase Authentication';
+        createStatus.className = 'status success';
+        
+        // Mostrar contenido para .env.local
+        const envContent = `NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN=${token}\nPRIMARY_ADMIN_EMAIL=salazaroliveros@gmail.com`;
+        document.getElementById('envContent').textContent = envContent;
+        
+      } catch (error) {
+        console.error('Error creando usuario:', error);
+        
+        if (error.code === 'auth/email-already-in-use') {
+          createStatus.textContent = '⚠️ El usuario ya existe. Intentando iniciar sesión...';
+          createStatus.className = 'status warning';
+          
+          try {
+            await auth.signInWithEmailAndPassword('salazaroliveros@gmail.com', 'AngelDarioJose.2026');
+            createStatus.textContent = '✅ Usuario ya existía, sesión iniciada correctamente';
+            createStatus.className = 'status success';
+            
+            const envContent = `NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN=${token}\nPRIMARY_ADMIN_EMAIL=salazaroliveros@gmail.com`;
+            document.getElementById('envContent').textContent = envContent;
+            
+          } catch (signInError) {
+            createStatus.textContent = '❌ Error: ' + signInError.message;
+            createStatus.className = 'status error';
+            createUserBtn.disabled = false;
+            createUserBtn.textContent = 'Crear Usuario Administrador';
+          }
+        } else if (error.code === 'auth/invalid-api-key') {
+          createStatus.textContent = '❌ API Key de Firebase inválida';
+          createStatus.className = 'status error';
+          createUserBtn.disabled = false;
+          createUserBtn.textContent = 'Crear Usuario Administrador';
+        } else if (error.code === 'auth/app-check-token-invalid') {
+          createStatus.textContent = '❌ Token de App Check inválido. Genera uno nuevo.';
+          createStatus.className = 'status error';
+          createUserBtn.disabled = false;
+          createUserBtn.textContent = 'Crear Usuario Administrador';
+        } else {
+          createStatus.textContent = '❌ Error: ' + error.message;
+          createStatus.className = 'status error';
+          createUserBtn.disabled = false;
+          createUserBtn.textContent = 'Crear Usuario Administrador';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
