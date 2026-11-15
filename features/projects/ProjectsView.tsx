@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TouchTarget } from '@/components/ui/TouchTarget';
+import { Pagination } from '@/components/ui/Pagination';
 import { ProjectPhotoDropzone } from '@/components/ProjectPhotoDropzone';
 import { toast } from 'react-hot-toast';
 import type { APUItem, CompanySettings, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
@@ -60,10 +61,18 @@ export function ProjectsView({
   const [showArchived, setShowArchived] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedProjectForPhotos, setSelectedProjectForPhotos] = useState<Project | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const visibleProjects = useMemo(
     () => projects.filter((project) => (project.status === 'Archivado') === showArchived),
     [projects, showArchived]
   );
+
+  const paginatedProjects = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return visibleProjects.slice(start, start + pageSize);
+  }, [visibleProjects, currentPage, pageSize]);
   const projectSpentById = useMemo(
     () =>
       expenses.reduce((totals, expense) => {
@@ -244,7 +253,7 @@ export function ProjectsView({
             </div>
           </div>
           <ul className="space-y-3">
-            {visibleProjects.map((p) => {
+            {paginatedProjects.map((p) => {
               return (
                 <div key={p.id} className="glass-l1">
                   <li className="glass-l1 flex flex-col justify-between gap-3 rounded-xl border border-white/10 p-4 duration-200 hover:bg-white/[0.05] lg:flex-row lg:items-center">
@@ -376,6 +385,16 @@ export function ProjectsView({
               </li>
             )}
           </ul>
+          {visibleProjects.length > 0 && (
+            <Pagination
+              totalItems={visibleProjects.length}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              ariaLabel="Paginación de proyectos"
+              onPageSizeChange={setPageSize}
+            />
+          )}
         </Card>
       </div>
 

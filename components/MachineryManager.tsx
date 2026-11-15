@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
+import { Input } from '@/components/ui/Input';
 
 interface MachineryManagerProps {
   machinery: Machinery[];
@@ -509,52 +510,43 @@ export function MachineryManager({
               ))}
             </select>
           </label>
-          <label className="text-xs font-semibold text-slate-700">
-            Horómetro final
-            <input
-              type="number"
-              min={selectedMachine?.currentHorometer ?? 0}
-              step="0.1"
-              value={newHorometer}
-              onChange={(event) => setNewHorometer(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
-              required
-            />
-          </label>
-          <label className="text-xs font-semibold text-slate-700">
-            Operador
-            <input
-              value={operatorName}
-              onChange={(event) => setOperatorName(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
-              required
-            />
-          </label>
-          <label className="text-xs font-semibold text-slate-700">
-            Fecha
-            <input
-              type="date"
-              value={operationDate}
-              onChange={(event) => setOperationDate(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
-              required
-            />
-          </label>
-          <label className="text-xs font-semibold text-slate-700">
-            Combustible (galones)
-            <span className="relative mt-1 block">
-              <Fuel className="absolute left-3 top-2.5 h-4 w-4 text-slate-600" aria-hidden="true" />
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={fuelGallons}
-                onChange={(event) => setFuelGallons(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pl-9 pr-3 text-sm"
-                required
-              />
-            </span>
-          </label>
+          <Input
+            label="Horómetro final"
+            type="number"
+            min={selectedMachine?.currentHorometer ?? 0}
+            step="0.1"
+            value={newHorometer}
+            onChange={(event) => setNewHorometer(event.target.value)}
+            formTheme="light"
+            required
+          />
+          <Input
+            label="Operador"
+            value={operatorName}
+            onChange={(event) => setOperatorName(event.target.value)}
+            formTheme="light"
+            required
+          />
+          <Input
+            label="Fecha"
+            type="date"
+            value={operationDate}
+            onChange={(event) => setOperationDate(event.target.value)}
+            formTheme="light"
+            required
+          />
+          <Input
+            label="Combustible (galones)"
+            type="number"
+            min="0"
+            step="0.1"
+            value={fuelGallons}
+            onChange={(event) => setFuelGallons(event.target.value)}
+            leftIcon={<Fuel className="h-4 w-4 text-slate-600" aria-hidden="true" />}
+            formTheme="light"
+            className="pl-9"
+            required
+          />
           <div className="flex items-center text-sm text-slate-600">
             <Wrench className="mr-2 h-4 w-4 text-amber-600" aria-hidden="true" />
             {hoursWorked > 0
@@ -647,55 +639,40 @@ export function MachineryManager({
               className="min-h-0 space-y-3 overflow-y-auto overscroll-contain p-4 text-slate-900 sm:p-5"
             >
               <div>
-                <label
-                  htmlFor="machinery-name"
-                  className="mb-1 block text-xs font-semibold text-slate-700"
-                >
-                  Nombre / Equipo
-                </label>
-                <input
-                  id="machinery-name"
+                <Input
+                  label="Nombre / Equipo"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ej. Excavadora CAT 320"
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                  errorText={formErrors.name}
+                  formTheme="light"
                   required
                 />
                 {formErrors.name && <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>}
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="machinery-model"
-                    className="mb-1 block text-xs font-semibold text-slate-700"
-                  >
-                    Modelo / Año
-                  </label>
-                  <input
-                    id="machinery-model"
+                  <Input
+                    label="Modelo / Año"
                     type="text"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    errorText={formErrors.model}
+                    formTheme="light"
                   />
                   {formErrors.model && (
                     <p className="mt-1 text-sm text-red-500">{formErrors.model}</p>
                   )}
                 </div>
                 <div>
-                  <label
-                    htmlFor="machinery-plate"
-                    className="mb-1 block text-xs font-semibold text-slate-700"
-                  >
-                    Código / Placa
-                  </label>
-                  <input
-                    id="machinery-plate"
+                  <Input
+                    label="Código / Placa"
                     type="text"
                     value={plate}
                     onChange={(e) => setPlate(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    errorText={formErrors.plateOrCode}
+                    formTheme="light"
                   />
                   {formErrors.plateOrCode && (
                     <p className="mt-1 text-sm text-red-500">{formErrors.plateOrCode}</p>
@@ -703,20 +680,15 @@ export function MachineryManager({
                 </div>
               </div>
               <div>
-                <label
-                  htmlFor="machinery-hourly-rate"
-                  className="mb-1 block text-xs font-semibold text-slate-700"
-                >
-                  Tarifa por Hora (GTQ)
-                </label>
-                <input
-                  id="machinery-hourly-rate"
+                <Input
+                  label="Tarifa por Hora (GTQ)"
                   type="number"
                   min="0"
                   step="0.01"
                   value={rate}
                   onChange={(e) => setRate(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                  errorText={formErrors.hourlyRateGTQ}
+                  formTheme="light"
                   required
                 />
                 {formErrors.hourlyRateGTQ && (
@@ -724,20 +696,14 @@ export function MachineryManager({
                 )}
               </div>
               <div>
-                <label
-                  htmlFor="machinery-initial-horometer"
-                  className="mb-1 block text-xs font-semibold text-slate-700"
-                >
-                  Horómetro actual
-                </label>
-                <input
-                  id="machinery-initial-horometer"
+                <Input
+                  label="Horómetro actual"
                   type="number"
                   min="0"
                   step="0.1"
                   value={initialHorometer}
                   onChange={(e) => setInitialHorometer(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                  formTheme="light"
                   required
                 />
               </div>

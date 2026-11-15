@@ -36,6 +36,7 @@ import {
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { Input } from '@/components/ui/Input';
 
 interface ExpensesManagerProps {
   expenses: ExpenseRecord[];
@@ -924,14 +925,11 @@ export function ExpensesManager({
 
               {/* PM Name */}
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-300">
-                  Nombre del Project Manager / Auditor
-                </label>
-                <input
+                <Input
+                  label="Nombre del Project Manager / Auditor"
                   type="text"
                   value={pmName}
                   onChange={(e) => setPmName(e.target.value)}
-                  className="focus:ring-brand-400 focus:border-brand-400 w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white focus:ring-2"
                   required
                 />
               </div>
@@ -1159,30 +1157,26 @@ export function ExpensesManager({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
-                    Proveedor
-                  </label>
-                  <input
+                  <Input
+                    label="Proveedor"
                     type="text"
                     value={supplier}
                     onChange={(e) => setSupplier(e.target.value)}
                     placeholder="Ej. Discosa S.A."
                     aria-label="Proveedor"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    formTheme="light"
                     required
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
-                    NIT Proveedor
-                  </label>
-                  <input
+                  <Input
+                    label="NIT Proveedor"
                     type="text"
                     value={nit}
                     onChange={(e) => setNit(e.target.value)}
                     placeholder="Ej. 1294821-9"
                     aria-label="NIT Proveedor"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    formTheme="light"
                     required
                   />
                 </div>
@@ -1190,24 +1184,20 @@ export function ExpensesManager({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
-                    No. Factura FEL
-                  </label>
-                  <input
+                  <Input
+                    label="No. Factura FEL"
                     type="text"
                     value={factura}
                     onChange={(e) => setFactura(e.target.value)}
                     placeholder="Ej. A-49201"
                     aria-label="No. Factura FEL"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    formTheme="light"
                     required
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-300">
-                    Monto ({currency})
-                  </label>
-                  <input
+                  <Input
+                    label={`Monto (${currency})`}
                     type="number"
                     value={amount}
                     min="0.01"
@@ -1230,7 +1220,8 @@ export function ExpensesManager({
                     }}
                     placeholder="0.00"
                     aria-label={`Monto (${currency})`}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-bold"
+                    formTheme="light"
+                    className="font-bold"
                     required
                   />
                   {currency === 'USD' && (
@@ -1243,16 +1234,14 @@ export function ExpensesManager({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-300">
-                  Descripción del Insumo / Gasto
-                </label>
-                <input
+                <Input
+                  label="Descripción del Insumo / Gasto"
                   type="text"
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   placeholder="Ej. Compra de 250 bolsas de Cemento Progreso"
                   aria-label="Descripción del Insumo / Gasto"
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                  formTheme="light"
                   required
                 />
               </div>

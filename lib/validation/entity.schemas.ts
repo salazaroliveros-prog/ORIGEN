@@ -180,10 +180,10 @@ export const APUItemSchema = z
       const calculatedTotal =
         item.materialUnitCostGTQ + item.laborUnitCostGTQ + item.equipmentUnitCostGTQ;
       const tolerance = Math.abs(calculatedTotal - item.totalUnitCostGTQ);
-      return tolerance <= item.totalUnitCostGTQ * 0.1; // Permitir 10% de tolerancia
+      return tolerance <= item.totalUnitCostGTQ * 0.02; // Permitir 2% de tolerancia (estándar construcción)
     },
     {
-      message: 'La suma de componentes debe ser consistente con el costo total (±10% tolerancia)',
+      message: 'La suma de componentes (material + mano de obra + equipo) debe coincidir con el costo total unitario (±2% tolerancia)',
       path: ['totalUnitCostGTQ'],
     }
   );

@@ -23,6 +23,7 @@ import {
 import { toast } from '@/components/ui/toast';
 import { COLORS } from '@/lib/design/constants';
 import { Alert } from '@/components/ui/Alert';
+import { Input } from '@/components/ui/Input';
 
 interface AttendanceRecord {
   id: string;
@@ -465,12 +466,14 @@ export function PersonnelView({ projectId }: { projectId: string }) {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">Fecha *</label>
-                <input
+                <Input
+                  label="Fecha *"
                   type="date"
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
-                  className={`w-full rounded-lg border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errorText={formErrors.date ? 'Fecha inválida' : undefined}
+                  formTheme="light"
+                  className={`w-full ${
                     formErrors.date
                       ? 'border-red-500 bg-red-50'
                       : formDate

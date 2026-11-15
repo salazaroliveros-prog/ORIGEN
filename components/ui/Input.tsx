@@ -10,6 +10,8 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, '
   label?: string;
   helperText?: string;
   errorText?: string;
+  /** Tema de colores: 'dark' (fondo oscuro, default) o 'light' (fondo claro) */
+  formTheme?: 'dark' | 'light';
 }
 
 export function Input({
@@ -22,22 +24,30 @@ export function Input({
   errorText,
   className = '',
   disabled,
+  formTheme = 'dark',
   ...props
 }: InputProps) {
   const isError = variant === 'error' || !!errorText;
   const isSuccess = variant === 'success';
   const isDisabled = variant === 'disabled' || disabled;
+  const isLight = formTheme === 'light';
 
   const baseStyles =
-    'w-full rounded-lg py-3 px-4 text-sm text-white transition-all duration-[200ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:border-brand-400 focus-visible:ring-brand-400/30 disabled:cursor-not-allowed';
+    'w-full rounded-lg py-3 px-4 text-sm transition-all duration-[200ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/30 disabled:cursor-not-allowed';
 
   const variantStyles = {
-    default: 'border border-neutral-600 bg-white/[0.03]',
-    error:
-      'border border-danger-500/50 bg-danger/5 focus-visible:ring-danger-500/30 focus-visible:border-danger-500',
-    success:
-      'border border-success-500/50 bg-success/5 focus-visible:ring-success-500/30 focus-visible:border-success-500',
-    disabled: 'bg-neutral-900/20 text-neutral-500 cursor-not-allowed border border-neutral-700/30',
+    default: isLight
+      ? 'border border-slate-300 bg-slate-50 text-slate-900 focus-visible:border-brand-400'
+      : 'border border-neutral-600 bg-white/[0.03] text-white focus-visible:border-brand-400',
+    error: isLight
+      ? 'border border-red-500/50 bg-red-50 text-slate-900 focus-visible:ring-red-500/30 focus-visible:border-red-500'
+      : 'border border-danger-500/50 bg-danger/5 focus-visible:ring-danger-500/30 focus-visible:border-danger-500',
+    success: isLight
+      ? 'border border-emerald-500/50 bg-emerald-50 text-slate-900 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500'
+      : 'border border-success-500/50 bg-success/5 focus-visible:ring-success-500/30 focus-visible:border-success-500',
+    disabled: isLight
+      ? 'bg-slate-100 text-slate-500 cursor-not-allowed border border-slate-200/30'
+      : 'bg-neutral-900/20 text-neutral-500 cursor-not-allowed border border-neutral-700/30',
   };
 
   const sizeStyles = {
@@ -46,21 +56,25 @@ export function Input({
     lg: 'py-3.5 px-4 text-base',
   };
 
+  const labelStyles = isLight
+    ? 'text-xs font-semibold uppercase tracking-wider text-slate-700'
+    : 'text-xs font-semibold uppercase tracking-wider text-slate-300';
+
+  const helperStyles = isLight ? 'text-xs text-slate-500' : 'text-xs text-slate-400';
+
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+        <label className={labelStyles}>
           {label}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">{leftIcon}</div>
+          <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>{leftIcon}</div>
         )}
         {rightIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
-            {rightIcon}
-          </div>
+          <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>{rightIcon}</div>
         )}
         <input
           className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[inputSize]} ${className}`}
@@ -69,7 +83,7 @@ export function Input({
         />
       </div>
       {errorText && <p className="text-danger text-danger text-xs">{errorText}</p>}
-      {helperText && !errorText && <p className="text-xs text-slate-400">{helperText}</p>}
+      {helperText && !errorText && <p className={helperStyles}>{helperText}</p>}
     </div>
   );
 }
