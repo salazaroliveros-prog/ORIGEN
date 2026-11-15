@@ -126,7 +126,7 @@ function CalendarView({
 
       <div className="mb-4 grid grid-cols-7 gap-1">
         {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'].map((day) => (
-          <div key={day} className="py-2 text-center text-xs font-semibold text-slate-600">
+          <div key={day} className="py-2 text-center text-xs font-semibold text-slate-400">
             {day}
           </div>
         ))}
@@ -331,7 +331,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="flex items-center justify-center gap-2 text-slate-600">
+        <div className="flex items-center justify-center gap-2 text-slate-400">
           <Loader className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>Cargando personal...</span>
         </div>
@@ -344,7 +344,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Personal & Asistencia</h1>
-          <p className="mt-1 text-sm text-slate-600">Total empleados: {employees.length}</p>
+          <p className="mt-1 text-sm text-slate-400">Total empleados: {employees.length}</p>
         </div>
 
         <div className="flex gap-2">
@@ -389,7 +389,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
             Asistencia - {new Date(selectedDate).toLocaleDateString('es-ES')}
           </h3>
           {selectedDateAttendance.length === 0 ? (
-            <p className="text-sm text-slate-600">Sin registros de asistencia</p>
+            <p className="text-sm text-slate-400">Sin registros de asistencia</p>
           ) : (
             <div className="space-y-2">
               {selectedDateAttendance.map((att) => {
@@ -406,7 +406,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="font-semibold text-slate-900">{employee?.name}</p>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-slate-400">
                           {att.clockIn} - {att.clockOut} ({att.hoursWorked}h)
                         </p>
                       </div>
@@ -491,7 +491,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                     className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="HH"
                   />
-                  <span className="flex items-center font-semibold text-slate-600">:</span>
+                  <span className="flex items-center font-semibold text-slate-400">:</span>
                   <input
                     type="text"
                     value={clockInTime.minutes}
@@ -514,7 +514,7 @@ export function PersonnelView({ projectId }: { projectId: string }) {
                     className="w-16 rounded-lg border border-slate-300 px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="HH"
                   />
-                  <span className="flex items-center font-semibold text-slate-600">:</span>
+                  <span className="flex items-center font-semibold text-slate-400">:</span>
                   <input
                     type="text"
                     value={clockOutTime.minutes}

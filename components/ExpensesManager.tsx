@@ -147,10 +147,10 @@ export function ExpensesManager({
       <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-800">
-            <FolderOpen className="h-6 w-6 text-slate-400" aria-hidden="true" />
+            <FolderOpen className="h-6 w-6 text-slate-300" aria-hidden="true" />
           </div>
           <h2 className="text-lg font-medium text-slate-100">Sin proyectos disponibles</h2>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-slate-300">
             Crea un proyecto primero para registrar gastos y facturas.
           </p>
           {onNavigateToProjects && (
@@ -504,7 +504,7 @@ export function ExpensesManager({
               <Camera className="h-3 w-3 text-amber-600" /> Captura Cámara & OCR
             </span>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-300">
             Control de egresos para {activeProject.name} con validación presupuestaria APU y pista
             de auditoría inalterable.
           </p>
@@ -518,7 +518,7 @@ export function ExpensesManager({
               className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'facturas'
                   ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-300 hover:text-slate-900'
               }`}
             >
               <Receipt className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
@@ -529,7 +529,7 @@ export function ExpensesManager({
               className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'histograma'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-300 hover:text-slate-900'
               }`}
             >
               <BarChart3 className="h-3.5 w-3.5" />
@@ -538,7 +538,7 @@ export function ExpensesManager({
           </div>
 
           {!canWrite || !onAddExpense ? (
-            <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">
+            <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-xs font-bold text-slate-300">
               <Lock className="h-3.5 w-3.5" aria-hidden="true" /> Solo lectura
             </span>
           ) : (
@@ -571,13 +571,13 @@ export function ExpensesManager({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
               <div>
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-300">
                   Total Ejecutado Aprobado
                 </span>
                 <p className="mt-0.5 text-lg font-bold text-emerald-600">
                   {formatMoney(approvedTotal)}
                 </p>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-slate-300">
                   {approvedCount} facturas validadas por PM
                 </span>
               </div>
@@ -588,11 +588,11 @@ export function ExpensesManager({
 
             <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
               <div>
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-300">
                   Pendientes de Revisión PM
                 </span>
                 <p className="mt-0.5 text-lg font-bold text-amber-600">{pendingCount} gastos</p>
-                <span className="text-[11px] text-slate-400">Paso 1: Registrados en campo</span>
+                <span className="text-[11px] text-slate-300">Paso 1: Registrados en campo</span>
               </div>
               <div className="rounded-xl bg-amber-50 p-3 text-amber-600">
                 <Clock className="h-6 w-6" aria-hidden="true" />
@@ -601,7 +601,7 @@ export function ExpensesManager({
 
             <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
               <div>
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-300">
                   Control Presupuestario APU
                 </span>
                 <p className="mt-0.5 text-lg font-bold text-slate-900">Visto Bueno PM</p>
@@ -623,7 +623,7 @@ export function ExpensesManager({
                 className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'todos'
                     ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-slate-300 hover:text-slate-900'
                 }`}
               >
                 Todos ({projectExpenses.length})
@@ -633,7 +633,7 @@ export function ExpensesManager({
                 className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'pendientes'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-slate-300 hover:text-slate-900'
                 }`}
               >
                 <Clock className="h-3.5 w-3.5" aria-hidden="true" />
@@ -644,7 +644,7 @@ export function ExpensesManager({
                 className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'aprobados'
                     ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-slate-300 hover:text-slate-900'
                 }`}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
@@ -652,7 +652,7 @@ export function ExpensesManager({
               </button>
             </div>
 
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-300">
               Mostrando {filteredExpenses.length} de {projectExpenses.length} gastos
             </span>
           </div>
@@ -661,7 +661,7 @@ export function ExpensesManager({
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-500">
+                <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-300">
                   <tr>
                     <th className="p-3.5">Factura / Fecha</th>
                     <th className="p-3.5">Categoría / Renglón APU</th>
@@ -673,7 +673,7 @@ export function ExpensesManager({
                     <th className="p-3.5 text-center">Acciones PM</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 text-slate-300">
                   {filteredExpenses.map((ex) => {
                     const isApproved = ex.approvalStatus === 'Aprobado';
                     const isRejected = ex.approvalStatus === 'Rechazado';
@@ -697,7 +697,7 @@ export function ExpensesManager({
                           <span className="font-bold text-slate-900">
                             {ex.facturaNumber || 'Interno'}
                           </span>
-                          <p className="text-[10px] text-slate-500">{ex.date}</p>
+                          <p className="text-[10px] text-slate-300">{ex.date}</p>
                         </td>
 
                         <td className="space-y-1 p-3.5">
@@ -709,7 +709,7 @@ export function ExpensesManager({
                               className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-bold ${
                                 apuOverrun
                                   ? 'border border-rose-200 bg-rose-100 text-rose-800'
-                                  : 'bg-slate-100 text-slate-700'
+                                  : 'bg-slate-100 text-slate-300'
                               }`}
                               title={assignedApu.description}
                             >
@@ -721,7 +721,7 @@ export function ExpensesManager({
 
                         <td className="p-3.5">
                           <span className="font-semibold text-slate-900">{ex.supplier}</span>
-                          <p className="text-[10px] text-slate-500">NIT: {ex.nitSupplier || '—'}</p>
+                          <p className="text-[10px] text-slate-300">NIT: {ex.nitSupplier || '—'}</p>
                         </td>
 
                         <td className="max-w-xs p-3.5">{ex.description}</td>
@@ -768,7 +768,7 @@ export function ExpensesManager({
                               <span>Foto</span>
                             </button>
                           ) : (
-                            <span className="text-[11px] text-slate-400">Sin comprobante</span>
+                            <span className="text-[11px] text-slate-300">Sin comprobante</span>
                           )}
                         </td>
 
@@ -781,7 +781,7 @@ export function ExpensesManager({
                                 2)
                               </span>
                               {ex.approvedBy && (
-                                <p className="max-w-[120px] truncate text-[9px] text-slate-400">
+                                <p className="max-w-[120px] truncate text-[9px] text-slate-300">
                                   {ex.approvedBy}
                                 </p>
                               )}
@@ -813,7 +813,7 @@ export function ExpensesManager({
                                 }}
                                 className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11px] font-bold shadow-xs transition ${
                                   isApproved
-                                    ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                    ? 'bg-slate-100 text-slate-300 hover:bg-slate-200'
                                     : 'bg-emerald-600 text-white hover:bg-emerald-500'
                                 }`}
                                 title={
@@ -829,7 +829,7 @@ export function ExpensesManager({
                             <button
                               type="button"
                               onClick={() => setViewingAuditExpense(ex)}
-                              className="rounded-lg p-1.5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600"
+                              className="rounded-lg p-1.5 text-slate-300 transition hover:bg-blue-50 hover:text-blue-600"
                               title="Ver Pista de Auditoría Completa"
                             >
                               <FileSearch className="h-4 w-4" aria-hidden="true" />
@@ -857,7 +857,7 @@ export function ExpensesManager({
               </div>
               <button
                 onClick={() => setApprovalModalExpense(null)}
-                className="rounded-lg p-1 text-slate-400 transition hover:text-white"
+                className="rounded-lg p-1 text-slate-300 transition hover:text-white"
               >
                 ✕
               </button>
@@ -869,12 +869,12 @@ export function ExpensesManager({
                   <span>Factura: {approvalModalExpense.facturaNumber}</span>
                   <span className="text-blue-600">{formatMoney(approvalModalExpense.amount)}</span>
                 </div>
-                <p className="text-slate-600">{approvalModalExpense.description}</p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-slate-300">{approvalModalExpense.description}</p>
+                <p className="text-[11px] text-slate-300">
                   Proveedor: {approvalModalExpense.supplier}
                 </p>
                 {approvalModalExpense.assignedApuId && (
-                  <p className="border-t border-slate-200 pt-1 font-mono text-[11px] text-slate-700">
+                  <p className="border-t border-slate-200 pt-1 font-mono text-[11px] text-slate-300">
                     Renglón Asignado: {approvalModalExpense.assignedApuId}
                   </p>
                 )}
@@ -882,7 +882,7 @@ export function ExpensesManager({
 
               {/* Approval Decision Selection */}
               <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-300">
                   Decisión del Project Manager (Paso 2)
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -892,7 +892,7 @@ export function ExpensesManager({
                     className={`flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       approvalDecision === 'Aprobado'
                         ? 'bg-emerald-600 text-white shadow-sm'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        : 'bg-slate-100 text-slate-300 hover:bg-slate-200'
                     }`}
                   >
                     <Check className="h-3.5 w-3.5" /> Aprobar
@@ -903,7 +903,7 @@ export function ExpensesManager({
                     className={`flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       approvalDecision === 'Pendiente'
                         ? 'bg-amber-500 text-slate-950 shadow-sm'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        : 'bg-slate-100 text-slate-300 hover:bg-slate-200'
                     }`}
                   >
                     <Clock className="h-3.5 w-3.5" /> Pendiente
@@ -914,7 +914,7 @@ export function ExpensesManager({
                     className={`flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       approvalDecision === 'Rechazado'
                         ? 'bg-rose-600 text-white shadow-sm'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        : 'bg-slate-100 text-slate-300 hover:bg-slate-200'
                     }`}
                   >
                     <Ban className="h-3.5 w-3.5" /> Rechazar
@@ -924,21 +924,21 @@ export function ExpensesManager({
 
               {/* PM Name */}
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-700">
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-300">
                   Nombre del Project Manager / Auditor
                 </label>
                 <input
                   type="text"
                   value={pmName}
                   onChange={(e) => setPmName(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs focus:bg-white"
+                  className="focus:ring-brand-400 focus:border-brand-400 w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white focus:ring-2"
                   required
                 />
               </div>
 
               {/* Note / Audit Observation */}
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-700">
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-300">
                   Observación para Pista de Auditoría
                 </label>
                 <textarea
@@ -946,7 +946,7 @@ export function ExpensesManager({
                   onChange={(e) => setApprovalNote(e.target.value)}
                   placeholder="Ej. Verificado físicamente contra entrega en obra y renglón APU correspondiente."
                   rows={3}
-                  className="w-full resize-none rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs focus:bg-white"
+                  className="focus:ring-brand-400 w-full resize-none rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-xs text-white focus:ring-2"
                 />
               </div>
 
@@ -954,7 +954,7 @@ export function ExpensesManager({
                 <button
                   type="button"
                   onClick={() => setApprovalModalExpense(null)}
-                  className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+                  className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
@@ -980,7 +980,7 @@ export function ExpensesManager({
                 <History className="h-5 w-5 text-blue-400" aria-hidden="true" />
                 <div>
                   <h3 className="text-sm font-bold sm:text-base">Pista de Auditoría del Gasto</h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-300">
                     Factura {viewingAuditExpense.facturaNumber} •{' '}
                     {formatMoney(viewingAuditExpense.amount)}
                   </p>
@@ -988,7 +988,7 @@ export function ExpensesManager({
               </div>
               <button
                 onClick={() => setViewingAuditExpense(null)}
-                className="rounded-lg p-1 text-slate-400 transition hover:text-white"
+                className="rounded-lg p-1 text-slate-300 transition hover:text-white"
               >
                 ✕
               </button>
@@ -1039,16 +1039,16 @@ export function ExpensesManager({
                             {entry.action === 'RECHAZADO' && 'Rechazado por Project Manager'}
                             {entry.action === 'REVERTIDO' && 'Revertido a Pendiente'}
                           </span>
-                          <span className="font-mono text-[10px] text-slate-400">
+                          <span className="font-mono text-[10px] text-slate-300">
                             {entry.timestamp}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-600">
+                        <p className="text-[11px] text-slate-300">
                           Por: <strong className="text-slate-800">{entry.user}</strong> (
                           {entry.role})
                         </p>
                         {entry.note && (
-                          <p className="rounded-lg border border-slate-200 bg-white p-2 text-[11px] italic text-slate-500">
+                          <p className="rounded-lg border border-slate-200 bg-white p-2 text-[11px] italic text-slate-300">
                             &quot;{entry.note}&quot;
                           </p>
                         )}
@@ -1056,7 +1056,7 @@ export function ExpensesManager({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs italic text-slate-400">
+                  <p className="text-xs italic text-slate-300">
                     No hay registros de auditoría anteriores.
                   </p>
                 )}
@@ -1066,7 +1066,7 @@ export function ExpensesManager({
                 <button
                   type="button"
                   onClick={() => setViewingAuditExpense(null)}
-                  className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+                  className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-200"
                 >
                   Cerrar
                 </button>
@@ -1087,7 +1087,7 @@ export function ExpensesManager({
               </div>
               <button
                 onClick={() => setIsOpenModal(false)}
-                className="rounded-lg p-1 text-slate-400 transition hover:text-white"
+                className="rounded-lg p-1 text-slate-300 transition hover:text-white"
               >
                 ✕
               </button>
@@ -1095,7 +1095,7 @@ export function ExpensesManager({
 
             <form onSubmit={handleCreate} className="flex-1 space-y-3 overflow-y-auto p-5">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
                   Categoría de Gasto
                 </label>
                 <select
@@ -1118,7 +1118,7 @@ export function ExpensesManager({
 
               {/* APU Budget Item Selection */}
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
                   Renglón de Presupuesto APU Asignado
                 </label>
                 <select
@@ -1159,7 +1159,7 @@ export function ExpensesManager({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     Proveedor
                   </label>
                   <input
@@ -1173,7 +1173,7 @@ export function ExpensesManager({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     NIT Proveedor
                   </label>
                   <input
@@ -1190,7 +1190,7 @@ export function ExpensesManager({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     No. Factura FEL
                   </label>
                   <input
@@ -1204,7 +1204,7 @@ export function ExpensesManager({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  <label className="mb-1 block text-xs font-semibold text-slate-300">
                     Monto ({currency})
                   </label>
                   <input
@@ -1234,7 +1234,7 @@ export function ExpensesManager({
                     required
                   />
                   {currency === 'USD' && (
-                    <p className="mt-1 text-[11px] text-slate-500">
+                    <p className="mt-1 text-[11px] text-slate-300">
                       Se convertirá a GTQ con el tipo de cambio configurado (
                       {company?.exchangeRate || 'sin configurar'} GTQ por USD).
                     </p>
@@ -1243,7 +1243,7 @@ export function ExpensesManager({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
                   Descripción del Insumo / Gasto
                 </label>
                 <input
@@ -1266,7 +1266,7 @@ export function ExpensesManager({
                       Comprobante Físico / Factura
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-400">Cámara del dispositivo</span>
+                  <span className="text-[10px] text-slate-300">Cámara del dispositivo</span>
                 </div>
 
                 {isAnalyzing && (
@@ -1293,7 +1293,7 @@ export function ExpensesManager({
                         <p className="flex items-center gap-1 font-bold text-slate-900">
                           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Recibo Escaneado
                         </p>
-                        <p className="text-[10px] text-slate-400">{newReceiptDate}</p>
+                        <p className="text-[10px] text-slate-300">{newReceiptDate}</p>
                       </div>
                     </div>
 
@@ -1304,7 +1304,7 @@ export function ExpensesManager({
                           setCameraTargetExpenseId(null);
                           setIsCameraOpen(true);
                         }}
-                        className="rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
+                        className="rounded-lg p-1.5 text-slate-300 transition hover:bg-slate-50 hover:text-blue-600"
                         title="Tomar foto de nuevo"
                       >
                         <RotateCw className="h-4 w-4" aria-hidden="true" />
@@ -1316,7 +1316,7 @@ export function ExpensesManager({
                           setNewReceiptDate(null);
                           setNewReceiptCoords(null);
                         }}
-                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                        className="rounded-lg p-1.5 text-slate-300 transition hover:bg-rose-50 hover:text-rose-600"
                         title="Quitar comprobante"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -1336,7 +1336,7 @@ export function ExpensesManager({
                       <Camera className="h-4 w-4 text-amber-600" aria-hidden="true" />
                       Tomar Foto del Recibo con Cámara
                     </button>
-                    <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+                    <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-300 transition hover:bg-slate-100">
                       <Upload className="h-3.5 w-3.5" aria-hidden="true" />
                       Subir Archivo
                       <input
@@ -1375,7 +1375,7 @@ export function ExpensesManager({
                 <button
                   type="button"
                   onClick={() => setIsOpenModal(false)}
-                  className="rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-700 hover:bg-slate-200"
+                  className="rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-300 hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
@@ -1418,7 +1418,7 @@ export function ExpensesManager({
                     Factura FEL {viewingReceiptExpense.facturaNumber} •{' '}
                     {viewingReceiptExpense.supplier}
                   </h4>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[10px] text-slate-300">
                     NIT: {viewingReceiptExpense.nitSupplier}
                   </p>
                 </div>
@@ -1431,14 +1431,14 @@ export function ExpensesManager({
                       `Recibo-${viewingReceiptExpense.facturaNumber}.jpg`
                     )
                   }
-                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                  className="rounded-lg p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
                   title="Descargar imagen"
                 >
                   <Download className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => setViewingReceiptExpense(null)}
-                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                  className="rounded-lg p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1461,12 +1461,12 @@ export function ExpensesManager({
                 <span className="font-semibold text-white">
                   {viewingReceiptExpense.description}
                 </span>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-300">
                   Total: {formatMoney(viewingReceiptExpense.amount)} •{' '}
                   {viewingReceiptExpense.category}
                 </p>
               </div>
-              <div className="text-right text-[11px] text-slate-400">
+              <div className="text-right text-[11px] text-slate-300">
                 {viewingReceiptExpense.receiptCoords && (
                   <p className="font-mono text-sky-400">
                     GPS: {viewingReceiptExpense.receiptCoords.lat.toFixed(4)}°N,{' '}

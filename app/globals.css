@@ -29,16 +29,16 @@
   --surface-elevated: rgba(255, 255, 255, 0.08);
   --surface-subtle: rgba(255, 255, 255, 0.05);
   --surface-overlay: rgba(255, 255, 255, 0.12);
-  --surface-input: rgba(255, 255, 255, 0.03);
+  --surface-input: rgba(255, 255, 255, 0.08);
 
-  /* ---------- Texto ---------- */
+  /* ---------- Texto - Alto contraste para modo oscuro (WCAG 2.1 AA) ---------- */
   --text-primary: #f8fafc;
-  --text-secondary: rgba(248, 250, 252, 0.7);
-  --text-muted: rgba(248, 250, 252, 0.45);
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
 
   /* ---------- Bordes ---------- */
   --border-strong: rgba(255, 255, 255, 0.2);
-  --border-weak: rgba(255, 255, 255, 0.1);
+  --border-weak: rgba(255, 255, 255, 0.2);
   --border-focus: rgba(56, 189, 248, 0.5);
 
   /* ---------- Sombras ---------- */

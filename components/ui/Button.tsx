@@ -25,12 +25,17 @@ export function Button({
     'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-[200ms] ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-50 disabled:pointer-events-none touch-manipulation select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400';
 
   const variants = {
-    primary: 'bg-brand-400 text-neutral-900 hover:bg-brand-500 active:bg-brand-600 shadow-glow active:shadow-none',
-    secondary: 'bg-neutral-800/50 text-neutral-50 hover:bg-neutral-800/70 border border-neutral-700/50',
-    ghost: 'text-neutral-400 hover:bg-neutral-800/30 hover:text-neutral-50 active:bg-neutral-800/40',
-    danger: 'bg-danger/20 text-danger-300 hover:bg-danger/30 hover:text-danger-100 border border-danger/30',
-    outline: 'border border-neutral-600 text-neutral-300 hover:border-secondary-400 hover:bg-white/[0.04]',
-    glass: 'bg-white/[0.05] border border-white/12 backdrop-blur-md text-neutral-900 hover:bg-white/[0.1] hover:border-brand-400/50 shadow-glass-md active:shadow-none',
+    primary:
+      'bg-brand-400 text-neutral-900 hover:bg-brand-500 active:bg-brand-600 shadow-glow active:shadow-none',
+    secondary:
+      'bg-neutral-800/50 text-neutral-50 hover:bg-neutral-800/70 border border-neutral-700/50',
+    ghost: 'text-neutral-300 hover:bg-neutral-800/30 hover:text-slate-50',
+    danger:
+      'bg-danger/20 text-danger-400 hover:bg-danger/30 hover:text-danger-200 border border-danger/30',
+    outline:
+      'border border-neutral-500 text-neutral-300 hover:border-secondary-400 hover:bg-white/[0.04]',
+    glass:
+      'bg-white/[0.05] border border-white/12 backdrop-blur-md text-neutral-900 hover:bg-white/[0.1] hover:border-brand-400/50 shadow-glass-md active:shadow-none',
   };
 
   const sizes = {

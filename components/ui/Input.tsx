@@ -33,8 +33,10 @@ export function Input({
 
   const variantStyles = {
     default: 'border border-neutral-600 bg-white/[0.03]',
-    error: 'border border-danger-500/50 bg-danger/5 focus-visible:ring-danger-500/30 focus-visible:border-danger-500',
-    success: 'border border-success-500/50 bg-success/5 focus-visible:ring-success-500/30 focus-visible:border-success-500',
+    error:
+      'border border-danger-500/50 bg-danger/5 focus-visible:ring-danger-500/30 focus-visible:border-danger-500',
+    success:
+      'border border-success-500/50 bg-success/5 focus-visible:ring-success-500/30 focus-visible:border-success-500',
     disabled: 'bg-neutral-900/20 text-neutral-500 cursor-not-allowed border border-neutral-700/30',
   };
 
@@ -47,17 +49,13 @@ export function Input({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label
-          className="text-xs font-semibold text-slate-400 uppercase tracking-wider"
-        >
+        <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
           {label}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-            {leftIcon}
-          </div>
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">{leftIcon}</div>
         )}
         {rightIcon && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
@@ -70,12 +68,8 @@ export function Input({
           {...props}
         />
       </div>
-      {errorText && (
-        <p className="text-xs text-danger text-danger">{errorText}</p>
-      )}
-      {helperText && !errorText && (
-        <p className="text-xs text-slate-500">{helperText}</p>
-      )}
+      {errorText && <p className="text-danger text-danger text-xs">{errorText}</p>}
+      {helperText && !errorText && <p className="text-xs text-slate-400">{helperText}</p>}
     </div>
   );
 }

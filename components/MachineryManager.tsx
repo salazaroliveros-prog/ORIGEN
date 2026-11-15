@@ -277,7 +277,7 @@ export function MachineryManager({
           <h2 className="text-lg font-bold text-slate-900">
             Control de Maquinaria & Equipo Pesado
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             Horómetros, rendimiento y costos de maquinaria en proyectos de Guatemala.
           </p>
         </div>
@@ -390,11 +390,11 @@ export function MachineryManager({
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-900">{mach.name}</h3>
-                <p className="text-xs text-slate-500">Modelo: {mach.model}</p>
+                <p className="text-xs text-slate-600">Modelo: {mach.model}</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
-                  <span className="text-slate-500">
+                  <span className="text-slate-600">
                     <Gauge className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                     Horómetro: {mach.currentHorometer}
                   </span>
@@ -403,7 +403,7 @@ export function MachineryManager({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">
+                  <span className="text-slate-600">
                     <Clock className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                     Desde último servicio: {maintenance.hoursSinceService}h
                   </span>
@@ -453,7 +453,7 @@ export function MachineryManager({
           );
         })}
         {machinery.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500 md:col-span-2 lg:col-span-4">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600 md:col-span-2 lg:col-span-4">
             Aún no hay maquinaria registrada en este espacio de empresa.
           </div>
         )}
@@ -464,7 +464,7 @@ export function MachineryManager({
           <ClipboardList className="h-5 w-5 text-blue-700" aria-hidden="true" />
           <div>
             <h3 className="font-bold text-slate-900">Registrar uso de maquinaria</h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Actualiza el horómetro y registra el costo como gasto pendiente del proyecto.
             </p>
           </div>
@@ -543,7 +543,7 @@ export function MachineryManager({
           <label className="text-xs font-semibold text-slate-700">
             Combustible (galones)
             <span className="relative mt-1 block">
-              <Fuel className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" aria-hidden="true" />
+              <Fuel className="absolute left-3 top-2.5 h-4 w-4 text-slate-600" aria-hidden="true" />
               <input
                 type="number"
                 min="0"
@@ -574,7 +574,7 @@ export function MachineryManager({
           >
             {isRecording ? 'Registrando…' : 'Registrar operación y gasto'}
           </button>
-          <p className="text-[11px] text-slate-500 sm:col-span-2 lg:col-span-4">
+          <p className="text-[11px] text-slate-600 sm:col-span-2 lg:col-span-4">
             El costo se calcula con la tarifa horaria registrada; los galones quedan en la bitácora
             y no se valorizan por separado.
           </p>
@@ -587,7 +587,7 @@ export function MachineryManager({
           recientes
         </h3>
         {machineryLogs.length === 0 ? (
-          <p className="text-sm text-slate-500">Las operaciones registradas aparecerán aquí.</p>
+          <p className="text-sm text-slate-600">Las operaciones registradas aparecerán aquí.</p>
         ) : (
           <ul className="divide-y divide-slate-100">
             {machineryLogs
@@ -603,7 +603,7 @@ export function MachineryManager({
                     <p className="font-semibold text-slate-900">
                       {log.machineryName} · {log.hoursWorked} h
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-600">
                       {projects.find((project) => project.id === log.projectId)?.name ??
                         'Proyecto no disponible'}
                       {' · '}
@@ -636,7 +636,7 @@ export function MachineryManager({
                   setIsOpenModal(false);
                   setFormErrors({});
                 }}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-600 hover:text-white"
                 aria-label="Cerrar formulario de maquinaria"
               >
                 ✕

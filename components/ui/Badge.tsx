@@ -8,11 +8,11 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles = {
-  primary: 'bg-brand-primary/15 text-brand-primary border border-brand-primary/30',
-  secondary: 'bg-brand-secondary/15 text-brand-secondary border border-brand-secondary/30',
-  success: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30',
-  warning: 'bg-orange-500/15 text-orange-200 border border-orange-500/30',
-  danger: 'bg-red-500/15 text-red-300 border border-red-500/30',
+  primary: 'bg-brand-400/20 text-brand-700 border border-brand-400/30',
+  secondary: 'bg-secondary-400/20 text-secondary-700 border border-secondary-400/30',
+  success: 'bg-emerald-500/15 text-emerald-700 border border-emerald-500/30',
+  warning: 'bg-orange-500/15 text-orange-700 border border-orange-500/30',
+  danger: 'bg-red-500/15 text-red-700 border border-red-500/30',
 };
 
 const sizeStyles = {

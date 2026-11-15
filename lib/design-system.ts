@@ -17,9 +17,9 @@ export const colors = {
     100: '#fde68a',
     200: '#fcd34d',
     300: '#fbbf24',
-    400: '#f59e0b',   // Primary - Ámbar construcción
-    500: '#d97706',   // Hover
-    600: '#b45309',   // Active
+    400: '#f59e0b', // Primary - Ámbar construcción
+    500: '#d97706', // Hover
+    600: '#b45309', // Active
     700: '#92400e',
     800: '#78350f',
     900: '#451a03',
@@ -31,7 +31,7 @@ export const colors = {
     100: '#e0f2fe',
     200: '#bae6fd',
     300: '#93c5fd',
-    400: '#38bdf8',   // Secondary - Cielo construction
+    400: '#38bdf8', // Secondary - Cielo construction
     500: '#0ea5e9',
     600: '#0284c7',
     700: '#0369a1',
@@ -40,24 +40,24 @@ export const colors = {
     glow: 'rgba(56, 189, 248, 0.3)',
     glowWeak: 'rgba(56, 189, 248, 0.1)',
   },
-  // Semantic
+  // Semantic - Colores con alto contraste para fondo oscuro (WCAG 2.1 AA)
   success: {
     base: '#10b981',
     bg: 'rgba(16, 185, 129, 0.15)',
     border: 'rgba(16, 185, 129, 0.25)',
-    text: '#10b981',
+    text: '#34d399',
   },
   warning: {
-    base: '#f59e0b',
+    base: '#fbbf24',
     bg: 'rgba(245, 158, 11, 0.15)',
     border: 'rgba(245, 158, 11, 0.25)',
-    text: '#f59e0b',
+    text: '#92400e',
   },
   danger: {
-    base: '#ef4444',
+    base: '#f87171',
     bg: 'rgba(239, 68, 68, 0.1)',
     border: 'rgba(239, 68, 68, 0.2)',
-    text: '#fca5a5',
+    text: '#f87171',
   },
   info: {
     base: '#3b82f6',
@@ -134,17 +134,17 @@ export const typography = {
    SPACING - Sistema de espaciado modular
    ============================================================ */
 export const spacing = {
-  xs: '0.25rem',   // 4px
-  sm: '0.5rem',    // 8px
-  md: '0.75rem',   // 12px
-  lg: '1rem',      // 16px
-  xl: '1.25rem',   // 20px
+  xs: '0.25rem', // 4px
+  sm: '0.5rem', // 8px
+  md: '0.75rem', // 12px
+  lg: '1rem', // 16px
+  xl: '1.25rem', // 20px
   '2xl': '1.5rem', // 24px
-  '3xl': '2rem',   // 32px
+  '3xl': '2rem', // 32px
   '4xl': '2.5rem', // 40px
-  '5xl': '3rem',   // 48px
+  '5xl': '3rem', // 48px
   '6xl': '3.5rem', // 56px
-  '7xl': '4rem',   // 64px
+  '7xl': '4rem', // 64px
 } as const;
 
 /* ============================================================
@@ -152,12 +152,12 @@ export const spacing = {
    ============================================================ */
 export const radius = {
   none: '0',
-  sm: '0.375rem',   // 6px
-  md: '0.5rem',     // 8px
-  lg: '0.75rem',    // 12px
-  xl: '1rem',       // 16px
+  sm: '0.375rem', // 6px
+  md: '0.5rem', // 8px
+  lg: '0.75rem', // 12px
+  xl: '1rem', // 16px
   '2xl': '1.25rem', // 20px
-  '3xl': '1.5rem',  // 24px
+  '3xl': '1.5rem', // 24px
   full: '9999px',
 } as const;
 
@@ -194,20 +194,20 @@ export const transitions = {
    TOUCH - Accesibilidad móvil (WCAG 2.1 AA)
    ============================================================ */
 export const touch = {
-  minSize: '48px',      // Mínimo 48px para accesibilidad táctil
+  minSize: '48px', // Mínimo 48px para accesibilidad táctil
   minSizeComfortable: '56px', // Tamaño cómodo para dedo
-  tapTarget: '44px',    // Mínimo Apple HIG
+  tapTarget: '44px', // Mínimo Apple HIG
 } as const;
 
 /* ============================================================
    BREAKPOINTS - Responsive design
    ============================================================ */
 export const breakpoints = {
-  xs: '320px',    // Móvil pequeño
-  sm: '640px',    // Móvil grande / Tablet pequeña
-  md: '768px',    // Tablet
-  lg: '1024px',   // Laptop pequeña
-  xl: '1280px',   // Desktop
+  xs: '320px', // Móvil pequeño
+  sm: '640px', // Móvil grande / Tablet pequeña
+  md: '768px', // Tablet
+  lg: '1024px', // Laptop pequeña
+  xl: '1280px', // Desktop
   '2xl': '1536px', // Desktop grande
 } as const;
 
@@ -247,32 +247,38 @@ export const animations = {
 export const variants = {
   button: {
     primary: 'bg-brand-400 text-neutral-900 hover:bg-brand-500 active:bg-brand-600 shadow-glow',
-    secondary: 'bg-neutral-800/50 text-neutral-50 hover:bg-neutral-800/70 border border-neutral-700/50',
-    ghost: 'text-neutral-400 hover:bg-neutral-800/30 hover:text-neutral-50',
-    danger: 'bg-danger/20 text-danger-300 hover:bg-danger/30 hover:text-danger-100 border border-danger/30',
-    outline: 'border border-neutral-600 text-neutral-300 hover:border-secondary-400 hover:bg-white/[0.04]',
-    glass: 'bg-white/[0.05] border border-white/12 backdrop-blur-md text-neutral-900 hover:bg-white/[0.1] shadow-glass-md',
+    secondary:
+      'bg-neutral-800/50 text-neutral-50 hover:bg-neutral-800/70 border border-neutral-700/50',
+    ghost: 'text-neutral-300 hover:bg-neutral-800/30 hover:text-slate-50',
+    danger:
+      'bg-danger/20 text-danger-400 hover:bg-danger/30 hover:text-danger-200 border border-danger/30',
+    outline:
+      'border border-neutral-500 text-neutral-300 hover:border-secondary-400 hover:bg-white/[0.04]',
+    glass:
+      'bg-white/[0.05] border border-white/12 backdrop-blur-md text-neutral-900 hover:bg-white/[0.1] hover:border-brand-400/50 shadow-glass-md',
     link: 'text-secondary-400 hover:text-secondary-300 underline-offset-4 hover:underline',
   },
   card: {
     base: 'rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-lg',
     elevated: 'rounded-xl border border-white/15 bg-white/[0.08] backdrop-blur-lg shadow-xl',
-    interactive: 'rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-lg hover:border-brand-400/50 hover:shadow-glowSoft transition-all',
+    interactive:
+      'rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-lg hover:border-brand-400/50 hover:shadow-glowSoft transition-all',
     glass: 'rounded-xl border border-white/15 bg-white/[0.08] backdrop-blur-lg shadow-xl',
   },
   input: {
     base: 'w-full rounded-lg border border-neutral-600 bg-white/[0.03] text-neutral-50 py-3 px-4 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-400 focus-visible:border-secondary-400 transition-all',
     error: 'border-danger-500/50 focus-visible:ring-danger-500 focus-visible:border-danger-500',
-    success: 'border-success-500/50 focus-visible:ring-success-500 focus-visible:border-success-500',
+    success:
+      'border-success-500/50 focus-visible:ring-success-500 focus-visible:border-success-500',
     disabled: 'bg-neutral-900/20 text-neutral-500 cursor-not-allowed',
   },
   badge: {
     default: 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-    primary: 'bg-brand-400/20 text-brand-400 border border-brand-400/30',
-    secondary: 'bg-secondary-400/20 text-secondary-400 border border-secondary-400/30',
-    success: 'bg-success/20 text-success border border-success/30',
-    warning: 'bg-warning/20 text-warning border border-warning/30',
-    danger: 'bg-danger/20 text-danger border border-danger/30',
+    primary: 'bg-brand-400/20 text-brand-500 border border-brand-400/30',
+    secondary: 'bg-secondary-400/20 text-secondary-500 border border-secondary-400/30',
+    success: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+    warning: 'bg-orange-500/15 text-orange-400 border border-orange-500/30',
+    danger: 'bg-red-500/15 text-red-400 border border-red-500/30',
     neutral: 'bg-neutral-800/50 text-neutral-300 border border-neutral-600/50',
   },
 } as const;
@@ -296,7 +302,18 @@ export const mobile = {
   rippleDuration: '600ms',
 } as const;
 
-export type DesignTokens = typeof colors & typeof typography & typeof spacing & typeof radius & typeof shadows & typeof transitions & typeof touch & typeof breakpoints & typeof zIndex & typeof animations & typeof variants & typeof mobile;
+export type DesignTokens = typeof colors &
+  typeof typography &
+  typeof spacing &
+  typeof radius &
+  typeof shadows &
+  typeof transitions &
+  typeof touch &
+  typeof breakpoints &
+  typeof zIndex &
+  typeof animations &
+  typeof variants &
+  typeof mobile;
 
 export default {
   colors,
