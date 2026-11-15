@@ -1,74 +1,80 @@
 'use client';
 
-import React, { useId } from 'react';
+import React from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
+  variant?: 'default' | 'error' | 'success' | 'disabled';
+  size?: 'sm' | 'md' | 'lg';
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  label?: string;
+  helperText?: string;
+  errorText?: string;
 }
 
 export function Input({
-  label,
-  error,
-  helperText,
+  variant = 'default',
+  size = 'md',
   leftIcon,
   rightIcon,
+  label,
+  helperText,
+  errorText,
   className = '',
-  id,
+  disabled,
   ...props
 }: InputProps) {
-  const generatedId = useId();
-  const inputId = id ?? generatedId;
-  const messageId = `${inputId}-message`;
+  const isError = variant === 'error' || !!errorText;
+  const isSuccess = variant === 'success';
+  const isDisabled = variant === 'disabled' || disabled;
+
+  const baseStyles =
+    'w-full rounded-lg py-3 px-4 text-sm text-white transition-all duration-[200ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:border-brand-400 focus-visible:ring-brand-400/30 disabled:cursor-not-allowed';
+
+  const variantStyles = {
+    default: 'border border-neutral-600 bg-white/[0.03]',
+    error: 'border border-danger-500/50 bg-danger/5 focus-visible:ring-danger-500/30 focus-visible:border-danger-500',
+    success: 'border border-success-500/50 bg-success/5 focus-visible:ring-success-500/30 focus-visible:border-success-500',
+    disabled: 'bg-neutral-900/20 text-neutral-500 cursor-not-allowed border border-neutral-700/30',
+  };
+
+  const sizeStyles = {
+    sm: 'py-2 px-3 text-xs',
+    md: 'py-3 px-4 text-sm',
+    lg: 'py-3.5 px-4 text-base',
+  };
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-1.5">
       {label && (
         <label
-          htmlFor={inputId}
-          className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400"
+          className="text-xs font-semibold text-slate-400 uppercase tracking-wider"
         >
           {label}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
-            aria-hidden="true"
-          >
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
             {leftIcon}
           </div>
         )}
         {rightIcon && (
-          <div
-            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
-            aria-hidden="true"
-          >
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
             {rightIcon}
           </div>
         )}
         <input
-          id={inputId}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error || helperText ? messageId : undefined}
-          className={`w-full rounded-lg border bg-white/[0.05] px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 transition duration-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary/60 focus:ring-offset-2 focus:ring-offset-white/[0.05] ${leftIcon ? 'pl-12' : ''} ${rightIcon ? 'pr-16' : ''} ${error ? 'border-red-500 focus:ring-red-500/50' : 'border-white/10 focus:border-white/30'} ${className} min-w-0`}
+          className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+          disabled={isDisabled}
           {...props}
         />
       </div>
-      {error ? (
-        <p id={messageId} className="text-xs text-red-400">
-          {error}
-        </p>
-      ) : (
-        helperText && (
-          <p id={messageId} className="text-xs text-slate-500">
-            {helperText}
-          </p>
-        )
+      {errorText && (
+        <p className="text-xs text-danger text-danger">{errorText}</p>
+      )}
+      {helperText && !errorText && (
+        <p className="text-xs text-slate-500">{helperText}</p>
       )}
     </div>
   );

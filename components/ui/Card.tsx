@@ -3,53 +3,112 @@
 import React from 'react';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'elevated' | 'subtle' | 'overlay' | 'glass-l1' | 'glass-l2' | 'glass-l3';
-  padding?: 'sm' | 'md' | 'lg';
+  variant?: 'base' | 'elevated' | 'interactive' | 'glass';
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   hoverable?: boolean;
-  clickable?: boolean;
 }
 
 export function Card({
-  variant = 'glass-l2',
+  variant = 'base',
   padding = 'md',
   hoverable = false,
-  clickable = false,
   className = '',
   children,
   ...props
 }: CardProps) {
-  const variants = {
-    elevated: 'bg-surface-elevated border border-border-strong shadow-glass-lg',
-    subtle: 'bg-surface-subtle border border-border-weak shadow-glass-sm',
-    overlay: 'bg-surface-overlay border border-border-strong shadow-glass-xl',
-    'glass-l1':
-      'bg-glass-l1-bg border border-glass-l1-border backdrop-blur-sm shadow-glass-sm Webkit-backdrop-filter backdrop-sm',
-    'glass-l2':
-      'bg-glass-l2-bg border border-glass-l2-border backdrop-blur-md shadow-glass-md Webkit-backdrop-filter backdrop-md',
-    'glass-l3':
-      'bg-glass-l3-bg border border-glass-l3-border backdrop-blur-lg shadow-glass-lg Webkit-backdrop-filter backdrop-lg',
-  };
-
-  const paddings = {
+  const paddingClasses = {
+    none: 'p-0',
     sm: 'p-3',
-    md: 'p-6',
-    lg: 'p-8',
+    md: 'p-4',
+    lg: 'p-6',
+    xl: 'p-8',
   };
 
-  const baseClass =
-    'rounded-xl overflow-hidden transition-all duration-[300ms] ease-[cubic-bezier(0.4,0,0,0.2,1)]';
-
-  const hoverEffects = hoverable
-    ? 'hover:transform-hover hover:transition-colors hover:bg-white/[0.05]'
-    : '';
-
-  const clickEffects = clickable ? 'active:scale-[0.95] active:transition-shadow' : '';
-
-  const motionSafe = 'motion-reduce:transition-none';
+  const variantClasses = {
+    base: 'rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-lg',
+    elevated: 'rounded-xl border border-white/15 bg-white/[0.08] backdrop-blur-lg shadow-xl',
+    interactive: 'rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-lg hover:border-brand-400/50 hover:shadow-glow-soft transition-all',
+    glass: 'rounded-xl border border-white/15 bg-white/[0.08] backdrop-blur-lg shadow-xl',
+  };
 
   return (
     <div
-      className={`${baseClass} ${variants[variant]} ${paddings[padding]} ${hoverEffects} ${clickEffects} ${motionSafe} ${className}`}
+      className={`${variantClasses[variant]} ${paddingClasses[padding]} ${hoverable ? 'transition-all duration-[200ms] hover:-translate-y-1 hover:shadow-glow' : ''} ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+export function CardHeader({ className = '', ...props }: CardHeaderProps) {
+  return (
+    <div
+      className={`flex flex-col space-y-1.5 ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  className?: string;
+}
+
+export function CardTitle({ className = '', ...props }: CardTitleProps) {
+  return (
+    <h3
+      className={`text-lg font-bold text-white tracking-tight ${className}`}
+      {...props}
+    >
+      {children}
+    </h3>
+  );
+}
+
+interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  className?: string;
+}
+
+export function CardDescription({ className = '', ...props }: CardDescriptionProps) {
+  return (
+    <p
+      className={`text-sm text-slate-400 ${className}`}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+}
+
+interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+export function CardContent({ className = '', ...props }: CardContentProps) {
+  return (
+    <div
+      className={`mt-4 space-y-2 ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+export function CardFooter({ className = '', ...props }: CardFooterProps) {
+  return (
+    <div
+      className={`mt-6 flex items-center gap-3 border-t border-white/10 pt-4 ${className}`}
       {...props}
     >
       {children}
