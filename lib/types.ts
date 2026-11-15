@@ -769,3 +769,80 @@ export interface CashFlowMonth {
   acumulado: number;
   hitosCount: number;
 }
+
+// ============================================================================
+// Factura Electrónica de Guatemala (FEL) - Ingreso Manual
+// ============================================================================
+// Datos ingresados manualmente por el usuario obtenidos del SAT
+// (Agencia Virtual del Contribuyente). No se usa ninguna API ni credenciales
+// del SAT; toda la información se captura a partir de facturas ya emitidas.
+
+export type FelInvoiceStatus = 'Borrador' | 'Emitida' | 'Anulada';
+
+export interface FelInvoiceItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unit: string; // ej. "Und", "Kg", "Glb", "Mts"
+  unitPriceGTQ: number;
+  totalPriceGTQ: number;
+  taxRate?: number; // ej. 12 para IVA
+  taxAmountGTQ?: number;
+}
+
+export interface FelInvoiceEmisor {
+  nit: string;
+  nombre: string;
+  direccion: string;
+  correo: string;
+  telefono?: string;
+  actividadEconomica?: string;
+}
+
+export interface FelInvoiceReceptor {
+  nit: string;
+  nombre: string;
+  direccion: string;
+  correo?: string;
+  telefono?: string;
+}
+
+export interface FelInvoice {
+  id: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
+  companyId?: string;
+  /** ID del proyecto (opcional en UI, requerido al persistir vía firebaseService) */
+  projectId?: string;
+  /** ID del autor (opcional en UI, requerido al persistir vía firebaseService) */
+  authorId?: string;
+
+  /** Datos del documento DTE */
+  dteNumber: string; // Número de DTE generado por SAT (ej. "FAC-001-000000001")
+  serie: string; // Serie de factura (ej. "F", "A", "B")
+  correlativo: string; // Número correlativo (ej. "000000001")
+  date: string; // Fecha de emisión YYYY-MM-DD
+  status: FelInvoiceStatus;
+
+  /** Emisor y Receptor (datos ingresados manualmente) */
+  emisor: FelInvoiceEmisor;
+  receptor: FelInvoiceReceptor;
+
+  /** Items de la factura */
+  items: FelInvoiceItem[];
+
+  /** Totales calculados */
+  subtotalGTQ: number;
+  taxAmountGTQ: number; // IVA 12%
+  totalGTQ: number;
+
+  /** Información de pago */
+  paymentMethod: 'Efectivo' | 'Cheque' | 'Transferencia BI' | 'Tarjeta' | 'Crédito';
+  paymentDate?: string;
+
+  /** Observaciones */
+  notes?: string;
+
+  /** Timestamps */
+  createdAt?: string;
+  updatedAt?: string;
+}

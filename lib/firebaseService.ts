@@ -37,6 +37,7 @@ import {
   MachineryLog,
   QuoteRecord,
   APUItem,
+  FelInvoice,
 } from './types';
 import { notifySyncStart, notifySyncEnd } from './hooks/useFirebaseSyncStatus';
 import {
@@ -59,6 +60,11 @@ import {
   buildAttendanceRecord,
   buildEmployeeRecord,
 } from './domain/ownership';
+import {
+  normalizeFelInvoiceItems,
+  calculateFelInvoiceTotals,
+  validateFelInvoice,
+} from './domain/felInvoice';
 
 const firebaseConfig = getFirebaseConfig();
 
@@ -1304,5 +1310,141 @@ export async function deleteProjectFromFirestore(
     notifySyncEnd();
     handleFirestoreError(error, OperationType.DELETE, path);
     return false;
+  }
+}
+
+/**
+ * Guarda una factura FEL en Firestore.
+ * Normaliza los ítems y calcula los totales antes de persistir.
+ */
+export async function saveFelInvoiceToFirestore(
+  invoice: FelInvoice,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `felInvoices/${invoice.id}`;
+
+  // Normalizar ítems y calcular totales antes de validar
+  const normalizedItems = normalizeFelInvoiceItems(invoice.items);
+  const totals = calculateFelInvoiceTotals(normalizedItems);
+
+  const record: FelInvoice = {
+    ...invoice,
+    ...(normalizedItems.length > 0 && { items: normalizedItems }),
+    companyId,
+    authorId: userId,
+    subtotalGTQ: totals.subtotalGTQ,
+    taxAmountGTQ: totals.taxAmountGTQ,
+    totalGTQ: totals.totalGTQ,
+    createdAt: invoice.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Validar antes de guardar
+  const validationErrors = validateFelInvoice(record);
+  if (validationErrors.length > 0) {
+    console.error('Factura FEL inválida:', validationErrors);
+    throw new Error(
+      `Datos de factura inválidos: ${validationErrors.join(', ')}`
+    );
+  }
+
+  try {
+    await setDoc(doc(db, 'felInvoices', invoice.id), stripUndefined(record), {
+      merge: true,
+    });
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+/**
+ * Actualiza una factura FEL existente.
+ */
+export async function updateFelInvoiceToFirestore(
+  invoice: FelInvoice,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `felInvoices/${invoice.id}`;
+
+  const normalizedItems = normalizeFelInvoiceItems(invoice.items);
+  const totals = calculateFelInvoiceTotals(normalizedItems);
+
+  const record: FelInvoice = {
+    ...invoice,
+    items: normalizedItems,
+    companyId,
+    authorId: invoice.authorId ?? userId,
+    subtotalGTQ: totals.subtotalGTQ,
+    taxAmountGTQ: totals.taxAmountGTQ,
+    totalGTQ: totals.totalGTQ,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const validationErrors = validateFelInvoice(record);
+  if (validationErrors.length > 0) {
+    console.error('Factura FEL inválida:', validationErrors);
+    throw new Error(
+      `Datos de factura inválidos: ${validationErrors.join(', ')}`
+    );
+  }
+
+  try {
+    await updateDoc(doc(db, 'felInvoices', invoice.id), stripUndefined(record));
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.UPDATE, path);
+    return false;
+  }
+}
+
+/**
+ * Elimina una factura FEL.
+ */
+export async function deleteFelInvoiceFromFirestore(
+  invoiceId: string
+): Promise<boolean> {
+  const path = `felInvoices/${invoiceId}`;
+  try {
+    await deleteDoc(doc(db, 'felInvoices', invoiceId));
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.DELETE, path);
+    return false;
+  }
+}
+
+/**
+ * Suscribe a las facturas FEL de una empresa.
+ */
+export function subscribeFelInvoices(
+  companyId: string,
+  callback: (invoices: FelInvoice[]) => void
+): Unsubscribe {
+  const path = 'felInvoices';
+  try {
+    return onSnapshot(
+      query(collection(db, path), where('companyId', '==', companyId)),
+      (snapshot: QuerySnapshot<DocumentData>) => {
+        const list: FelInvoice[] = [];
+        snapshot.forEach((docSnap: QueryDocumentSnapshot<DocumentData>) =>
+          list.push(docSnap.data() as FelInvoice)
+        );
+        callback(list);
+      },
+      (error: Error) => {
+        handleFirestoreError(error, OperationType.LIST, path);
+      }
+    );
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.LIST, path);
+    return () => {};
   }
 }
