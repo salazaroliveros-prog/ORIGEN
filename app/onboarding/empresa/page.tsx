@@ -125,7 +125,7 @@ export default function OnboardingEmpresaPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
       <div className="w-full max-w-2xl">
-        <Card variant="glass-l2" padding="lg" className="mx-auto w-full shadow-glass-xl">
+        <Card variant="glass" padding="lg" className="mx-auto w-full shadow-glass-xl">
           <div className="mb-8 text-center">
             <div className="mb-4 flex items-center justify-center gap-2">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 flex items-center justify-center shadow-glass">
@@ -157,7 +157,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, commercialName: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.commercialName}
+                  variant={errors.commercialName ? 'error' : 'default'}
                 />
                 {errors.commercialName && (
                   <p className="mt-1 text-xs text-red-400">{errors.commercialName}</p>
@@ -175,7 +175,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, legalName: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.legalName}
+                  variant={errors.legalName ? 'error' : 'default'}
                 />
                 {errors.legalName && (
                   <p className="mt-1 text-xs text-red-400">{errors.legalName}</p>
@@ -195,7 +195,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, nit: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.nit}
+                  variant={errors.nit ? 'error' : 'default'}
                 />
                 {errors.nit && <p className="mt-1 text-xs text-red-400">{errors.nit}</p>}
               </div>
@@ -211,7 +211,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.phone}
+                  variant={errors.phone ? 'error' : 'default'}
                 />
                 {errors.phone && <p className="mt-1 text-xs text-red-400">{errors.phone}</p>}
               </div>
@@ -229,7 +229,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.address}
+                  variant={errors.address ? 'error' : 'default'}
                 />
                 {errors.address && (
                   <p className="mt-1 text-xs text-red-400">{errors.address}</p>
@@ -247,7 +247,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.email}
+                  variant={errors.email ? 'error' : 'default'}
                 />
                 {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
               </div>
@@ -265,7 +265,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, architectName: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.architectName}
+                  variant={errors.architectName ? 'error' : 'default'}
                 />
                 {errors.architectName && (
                   <p className="mt-1 text-xs text-red-400">{errors.architectName}</p>
@@ -283,7 +283,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, architectColNumber: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.architectColNumber}
+                  variant={errors.architectColNumber ? 'error' : 'default'}
                 />
                 {errors.architectColNumber && (
                   <p className="mt-1 text-xs text-red-400">{errors.architectColNumber}</p>
@@ -304,7 +304,7 @@ export default function OnboardingEmpresaPage() {
                   onChange={(e) => setFormData({ ...formData, exchangeRate: e.target.value })}
                   disabled={loading}
                   required
-                  error={errors.exchangeRate}
+                  variant={errors.exchangeRate ? 'error' : 'default'}
                 />
                 <span className="text-xs text-slate-500">GTQ por 1 USD</span>
               </div>

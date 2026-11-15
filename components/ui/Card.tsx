@@ -6,6 +6,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'base' | 'elevated' | 'interactive' | 'glass';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   hoverable?: boolean;
+  children?: React.ReactNode;
 }
 
 export function Card({
@@ -45,7 +46,7 @@ interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export function CardHeader({ className = '', ...props }: CardHeaderProps) {
+export function CardHeader({ className = '', children, ...props }: CardHeaderProps) {
   return (
     <div
       className={`flex flex-col space-y-1.5 ${className}`}
@@ -60,10 +61,10 @@ interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
   className?: string;
 }
 
-export function CardTitle({ className = '', ...props }: CardTitleProps) {
+export function CardTitle({ className = '', children, ...props }: CardTitleProps) {
   return (
     <h3
-      className={`text-lg font-bold text-white tracking-tight ${className}`}
+      className={`text-lg font-bold text-white ${className}`}
       {...props}
     >
       {children}
@@ -75,7 +76,7 @@ interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement
   className?: string;
 }
 
-export function CardDescription({ className = '', ...props }: CardDescriptionProps) {
+export function CardDescription({ className = '', children, ...props }: CardDescriptionProps) {
   return (
     <p
       className={`text-sm text-slate-400 ${className}`}
@@ -90,7 +91,7 @@ interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export function CardContent({ className = '', ...props }: CardContentProps) {
+export function CardContent({ className = '', children, ...props }: CardContentProps) {
   return (
     <div
       className={`mt-4 space-y-2 ${className}`}
@@ -105,7 +106,7 @@ interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export function CardFooter({ className = '', ...props }: CardFooterProps) {
+export function CardFooter({ className = '', children, ...props }: CardFooterProps) {
   return (
     <div
       className={`mt-6 flex items-center gap-3 border-t border-white/10 pt-4 ${className}`}

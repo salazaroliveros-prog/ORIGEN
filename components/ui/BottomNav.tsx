@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 interface BottomNavItem {
   href: string;
@@ -26,18 +27,17 @@ export function BottomNav({ items, className = '' }: BottomNavProps) {
       {items.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
-          <Button
+          <Link
             key={item.href}
-            as="a"
             href={item.href}
-            className="bottom-nav-item flex-col gap-1 p-2 text-xs w-16 h-16"
+            className={`bottom-nav-item flex-col gap-1 p-2 text-xs w-16 h-16 ${isActive ? 'text-brand-400 bg-brand-500/10 border border-brand-500/20' : ''}`}
             aria-current={isActive ? 'page' : undefined}
           >
             {isActive && item.activeIcon ? item.activeIcon : item.icon}
             <span className={isActive ? 'text-xs font-medium' : 'text-[10px] font-medium'}>
               {item.label}
             </span>
-          </Button>
+          </Link>
         );
       })}
     </nav>

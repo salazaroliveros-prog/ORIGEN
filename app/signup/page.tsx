@@ -155,7 +155,7 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
       <div className="w-full max-w-md">
-        <Card variant="glass-l2" padding="lg" className="mx-auto w-full max-w-md shadow-glass-xl">
+        <Card variant="glass" padding="lg" className="mx-auto w-full max-w-md shadow-glass-xl">
           <div className="mb-8 text-center">
             <h1 className="mb-2 text-3xl font-bold text-white">ORIGEN ERP</h1>
             <p className="text-slate-400">Crea tu cuenta</p>
@@ -184,7 +184,7 @@ export default function SignUpPage() {
               disabled={loading}
               required
               autoComplete="name"
-              error={errors.fullName}
+              variant={errors.fullName ? 'error' : 'default'}
             />
             {errors.fullName && <p className="mt-1 text-xs text-red-400">{errors.fullName}</p>}
 
@@ -200,7 +200,7 @@ export default function SignUpPage() {
               disabled={loading}
               required
               autoComplete="email"
-              error={errors.email}
+              variant={errors.email ? 'error' : 'default'}
             />
             {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
 
@@ -216,7 +216,7 @@ export default function SignUpPage() {
               disabled={loading}
               required
               autoComplete="organization"
-              error={errors.company}
+              variant={errors.company ? 'error' : 'default'}
             />
             {errors.company && <p className="mt-1 text-xs text-red-400">{errors.company}</p>}
 
@@ -232,7 +232,7 @@ export default function SignUpPage() {
               disabled={loading}
               required
               autoComplete="tel"
-              error={errors.phone}
+              variant={errors.phone ? 'error' : 'default'}
             />
             {errors.phone && <p className="mt-1 text-xs text-red-400">{errors.phone}</p>}
 
@@ -249,7 +249,7 @@ export default function SignUpPage() {
               required
               autoComplete="new-password"
               minLength={8}
-              error={errors.password}
+              variant={errors.password ? 'error' : 'default'}
               rightIcon={
                 <button
                   type="button"
@@ -293,7 +293,7 @@ export default function SignUpPage() {
               disabled={loading}
               required
               autoComplete="new-password"
-              error={errors.confirmPassword}
+              variant={errors.confirmPassword ? 'error' : 'default'}
               rightIcon={
                 <button
                   type="button"

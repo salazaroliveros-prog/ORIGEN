@@ -108,7 +108,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <Card variant="glass-l2" padding="lg" className="shadow-glass-xl">
+      <Card variant="glass" padding="lg">
         <div className="mb-6 flex items-center gap-2">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 flex items-center justify-center shadow-glass">
             <span className="text-white font-bold">👤</span>
@@ -131,7 +131,7 @@ export default function ProfilePage() {
               onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
               disabled={loading}
               required
-              error={errors.displayName}
+              variant={errors.displayName ? 'error' : 'default'}
             />
             {errors.displayName && (
               <p className="mt-1 text-xs text-red-400">{errors.displayName}</p>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
               value={formData.phoneNumber}
               onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
               disabled={loading}
-              error={errors.phoneNumber}
+              variant={errors.phoneNumber ? 'error' : 'default'}
             />
             {errors.phoneNumber && (
               <p className="mt-1 text-xs text-red-400">{errors.phoneNumber}</p>
@@ -182,7 +182,7 @@ export default function ProfilePage() {
                   value={formData.newPassword}
                   onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
                   disabled={loading}
-                  error={errors.newPassword}
+                  variant={errors.newPassword ? 'error' : 'default'}
                 />
                 {errors.newPassword && (
                   <p className="mt-1 text-xs text-red-400">{errors.newPassword}</p>
@@ -198,7 +198,7 @@ export default function ProfilePage() {
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   disabled={loading}
-                  error={errors.confirmPassword}
+                  variant={errors.confirmPassword ? 'error' : 'default'}
                 />
                 {errors.confirmPassword && (
                   <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>

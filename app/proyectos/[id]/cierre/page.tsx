@@ -134,7 +134,7 @@ function ProjectClosureContent({ projectId }: { projectId: string }) {
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <Card variant="glass-l2" padding="lg" className="shadow-glass-xl">
+      <Card variant="glass" padding="lg">
         <div className="mb-6 flex items-center gap-2">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 flex items-center justify-center shadow-glass">
             <span className="text-white font-bold">📋</span>
@@ -203,7 +203,7 @@ function ProjectClosureContent({ projectId }: { projectId: string }) {
               onChange={(e) => setFormData({ ...formData, finalBalanceGTQ: e.target.value })}
               disabled={isLoading}
               required
-              error={errors.finalBalanceGTQ}
+              variant={errors.finalBalanceGTQ ? 'error' : 'default'}
               placeholder={remainingBalance.toString()}
             />
             <p className="mt-1 text-xs text-slate-500">

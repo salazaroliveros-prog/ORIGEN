@@ -240,7 +240,7 @@ export default function FelInvoicesListPage() {
 
       {/* Editar estado y notas */}
       {editingId && (
-        <Card variant="glass-l2" padding="md" className="shadow-glass-xl mt-6">
+        <Card variant="glass" padding="md" className="shadow-glass-xl mt-6">
           <div className="mb-4">
             <h3 className="text-sm font-bold text-white">Editar Factura FEL</h3>
             <p className="text-xs text-slate-400 mt-1">

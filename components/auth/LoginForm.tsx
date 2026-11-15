@@ -138,7 +138,7 @@ export function LoginForm({ className }: { className?: string }) {
           leftIcon={<Mail className="h-4 w-4" />}
           autoComplete={rememberMe ? 'email' : 'off'}
           autoCapitalize="none"
-          error={fieldErrors.email}
+          variant={fieldErrors.email ? 'error' : 'default'}
           disabled={isAuthenticating}
           required
         />
@@ -162,7 +162,7 @@ export function LoginForm({ className }: { className?: string }) {
               </button>
             }
             autoComplete={rememberMe ? 'current-password' : 'off'}
-            error={fieldErrors.password}
+            variant={fieldErrors.password ? 'error' : 'default'}
             disabled={isAuthenticating}
             required
           />

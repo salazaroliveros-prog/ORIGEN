@@ -82,7 +82,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
   };
 
   return (
-    <Card variant="overlay" padding="lg" className={`${className} mx-auto w-full max-w-md`}>
+    <Card variant="glass" padding="lg" className={`${className} mx-auto w-full max-w-md`}>
       <div className="mb-8 text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
           <UserPlusIcon className="h-6 w-6" aria-hidden="true" />
@@ -108,7 +108,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
           leftIcon={<Mail className="h-4 w-4" />}
           required
           autoComplete="email"
-          error={fieldErrors.email}
+          variant={fieldErrors.email ? 'error' : 'default'}
           disabled={isAuthenticating}
         />
         <Input
@@ -121,7 +121,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
           required
           autoComplete="new-password"
           minLength={8}
-          error={fieldErrors.password}
+          variant={fieldErrors.password ? 'error' : 'default'}
           disabled={isAuthenticating}
         />
         <Input
@@ -133,7 +133,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
           leftIcon={<Lock className="h-4 w-4" />}
           required
           autoComplete="new-password"
-          error={fieldErrors.confirmPassword}
+          variant={fieldErrors.confirmPassword ? 'error' : 'default'}
           disabled={isAuthenticating}
         />
         <Button

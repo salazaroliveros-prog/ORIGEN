@@ -2,9 +2,9 @@
 
 import React from 'react';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   variant?: 'default' | 'error' | 'success' | 'disabled';
-  size?: 'sm' | 'md' | 'lg';
+  inputSize?: 'sm' | 'md' | 'lg';
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   label?: string;
@@ -14,7 +14,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({
   variant = 'default',
-  size = 'md',
+  inputSize = 'md',
   leftIcon,
   rightIcon,
   label,
@@ -65,7 +65,7 @@ export function Input({
           </div>
         )}
         <input
-          className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+          className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[inputSize]} ${className}`}
           disabled={isDisabled}
           {...props}
         />

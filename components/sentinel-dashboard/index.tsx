@@ -11,11 +11,11 @@ export interface SentinelIOTDashboardProps {
 export function SentinelIOTDashboard({ className }: SentinelIOTDashboardProps) {
   return (
     <div className={`min-h-screen bg-slate-950 overflow-x-hidden ${className}`}>
-      <Card variant='glass-l2' className='my-8'>
+      <Card variant='glass' className='my-8'>
         <h2 className='text-xl font-bold text-slate-100'>Sentinel Dashboard</h2>
         <p className='text-slate-400 text-sm'>IoT Threat Intelligence</p>
       </Card>
-      <Card variant='glass-l1' className='p-6'>
+      <Card variant='glass' className='p-6'>
         <div className='grid grid-cols-2 gap-4'>
           <div>
             <p className='text-slate-400 text-sm mb-1'>Total</p>
