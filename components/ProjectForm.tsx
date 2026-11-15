@@ -172,14 +172,14 @@ export function ProjectForm({
           >
             {/* SECCIÓN: Identificación */}
             <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-900">
                 Identificación del Proyecto
               </legend>
               <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <label
                     htmlFor="project-code"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Código del Proyecto
                   </label>
@@ -205,7 +205,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-name"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Nombre del Proyecto
                   </label>
@@ -232,13 +232,13 @@ export function ProjectForm({
 
             {/* SECCIÓN: Cliente */}
             <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-900">
                 Datos del Cliente
               </legend>
               <div className="mt-3 space-y-2">
                 <label
                   htmlFor="project-client"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                 >
                   Cliente
                 </label>
@@ -265,7 +265,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-client-nit"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     NIT del Cliente
                   </label>
@@ -283,7 +283,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-client-phone"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Teléfono del Cliente
                   </label>
@@ -302,7 +302,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-client-email"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Email del Cliente
                   </label>
@@ -320,7 +320,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-client-address"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Dirección del Cliente
                   </label>
@@ -339,14 +339,14 @@ export function ProjectForm({
 
             {/* SECCIÓN: Ubicación */}
             <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-900">
                 Ubicación de la Obra
               </legend>
               <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <label
                     htmlFor="project-location"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Ubicación
                   </label>
@@ -372,7 +372,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-municipality"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Municipio
                   </label>
@@ -400,7 +400,7 @@ export function ProjectForm({
               <div className="mt-3 space-y-2">
                 <label
                   htmlFor="project-department"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                 >
                   Departamento
                 </label>
@@ -426,14 +426,14 @@ export function ProjectForm({
 
             {/* SECCIÓN: Financiero */}
             <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-900">
                 Presupuesto y Financiero
               </legend>
               <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <label
                     htmlFor="project-budget-total"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Presupuesto Total (Q)
                   </label>
@@ -459,7 +459,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-spent-total"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Gasto Ejecutado (Q)
                   </label>
@@ -470,14 +470,14 @@ export function ProjectForm({
                     aria-label="Gasto Ejecutado (Q) — calculado automáticamente desde los gastos registrados"
                     value={formData.spentTotal}
                     title="Calculado automáticamente desde los gastos registrados"
-                    className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500 transition"
+                    className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-700 transition"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label
                     htmlFor="project-progress"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Avance (%)
                   </label>
@@ -507,14 +507,14 @@ export function ProjectForm({
 
             {/* SECCIÓN: Fechas y Estado */}
             <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-900">
                 Fechas y Estado
               </legend>
               <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <label
                     htmlFor="project-start-date"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Fecha de Inicio
                   </label>
@@ -539,7 +539,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-end-date"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Fecha de Finalización
                   </label>
@@ -564,7 +564,7 @@ export function ProjectForm({
               <div className="mt-3 space-y-2">
                 <label
                   htmlFor="project-status"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                 >
                   Estado del Proyecto
                 </label>
@@ -587,14 +587,14 @@ export function ProjectForm({
 
             {/* SECCIÓN: Coordenadas GPS y Margen */}
             <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+              <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-900">
                 Coordenadas y Margen
               </legend>
               <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <label
                     htmlFor="project-latitude"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Latitud
                   </label>
@@ -611,7 +611,7 @@ export function ProjectForm({
                 <div className="space-y-2">
                   <label
                     htmlFor="project-longitude"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                   >
                     Longitud
                   </label>
@@ -628,7 +628,7 @@ export function ProjectForm({
               <div className="mt-3 space-y-2">
                 <label
                   htmlFor="project-profit-margin"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-900"
                 >
                   Margen de Utilidad Esperado (%)
                 </label>
@@ -656,7 +656,7 @@ export function ProjectForm({
               <button
                 type="button"
                 onClick={onClose}
-                className="min-h-11 rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                className="min-h-11 rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
               >
                 Cancelar
               </button>

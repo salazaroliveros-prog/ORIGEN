@@ -9,6 +9,7 @@ import type { Employee } from '@/lib/types';
 import {
   saveEmployeeToFirestore,
   deleteEmployeeFromFirestore,
+  updateEmployeeToFirestore,
 } from '@/lib/firebaseService';
 import { createLogger } from '@/lib/utils/logger';
 import { createCacheKey, queryCache } from '@/lib/utils/cacheManager';
@@ -22,13 +23,10 @@ interface UseEmployeeManagementParams {
 }
 
 export function useEmployeeManagement({ companyId, currentUserId }: UseEmployeeManagementParams) {
-  const addEmployee = useCallback(
-    async (employee: Employee) => {
-      toast.error('Inicia sesión para guardar empleados.');
-      return false;
-    },
-    []
-  );
+  const addEmployee = useCallback(async (employee: Employee) => {
+    toast.error('Inicia sesión para guardar empleados.');
+    return false;
+  }, []);
 
   const addEmployeeWithAuth = useCallback(
     async (employee: Employee) => {
@@ -55,12 +53,38 @@ export function useEmployeeManagement({ companyId, currentUserId }: UseEmployeeM
     [companyId, currentUserId]
   );
 
-  const deleteEmployee = useCallback(
-    async (employeeId: string) => {
-      toast.error('Inicia sesión en una empresa para eliminar empleados.');
-      return false;
+  const deleteEmployee = useCallback(async (employeeId: string) => {
+    toast.error('Inicia sesión en una empresa para eliminar empleados.');
+    return false;
+  }, []);
+
+  const updateEmployee = useCallback(async (employee: Partial<Employee> & { id: string }) => {
+    toast.error('Inicia sesión para actualizar empleados.');
+    return false;
+  }, []);
+
+  const updateEmployeeWithAuth = useCallback(
+    async (employee: Partial<Employee> & { id: string }) => {
+      try {
+        log.info('Updating employee', { employeeId: employee.id, employeeName: employee.name });
+        const updated = await updateEmployeeToFirestore(employee, companyId, currentUserId);
+        if (updated) {
+          log.info('Employee updated successfully', { employeeId: employee.id });
+          toast.success('Empleado actualizado correctamente.');
+          const cacheKey = createCacheKey('employees', { companyId });
+          queryCache.clear(cacheKey);
+          return true;
+        }
+        log.error('Employee update failed', { employeeId: employee.id });
+        toast.error('No se pudo actualizar el empleado.');
+        return false;
+      } catch (err) {
+        log.error('Employee update error', err as Error, { companyId });
+        toast.error('Error al actualizar el empleado.');
+        return false;
+      }
     },
-    []
+    [companyId, currentUserId]
   );
 
   const deleteEmployeeWithAuth = useCallback(
@@ -75,6 +99,7 @@ export function useEmployeeManagement({ companyId, currentUserId }: UseEmployeeM
 
   return {
     addEmployee: companyId && currentUserId ? addEmployeeWithAuth : addEmployee,
+    updateEmployee: companyId && currentUserId ? updateEmployeeWithAuth : updateEmployee,
     deleteEmployee: companyId && currentUserId ? deleteEmployeeWithAuth : deleteEmployee,
   };
 }

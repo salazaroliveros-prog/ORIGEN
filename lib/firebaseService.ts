@@ -17,6 +17,7 @@ import {
   limit,
   onSnapshot,
   getDocs,
+  getDoc,
   writeBatch,
   Unsubscribe,
   type DocumentData,
@@ -529,6 +530,48 @@ export async function saveFieldVisitToFirestore(
   }
 }
 
+export async function updateFieldVisitToFirestore(
+  visit: Partial<FieldVisit> & { id: string },
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `fieldVisits/${visit.id}`;
+  try {
+    const existing = await getDoc(doc(db, 'fieldVisits', visit.id));
+    if (!existing.exists()) {
+      console.error('Field visit not found', { visitId: visit.id });
+      return false;
+    }
+
+    const mergedVisit: FieldVisit = {
+      ...(existing.data() as FieldVisit),
+      ...visit,
+      companyId,
+      authorId: userId,
+    };
+
+    const docRef = doc(db, 'fieldVisits', visit.id);
+    await setDoc(docRef, stripUndefined(mergedVisit), { merge: true });
+    return true;
+  } catch (err) {
+    notifySyncEnd();
+    handleFirestoreError(err, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export async function deleteFieldVisitFromFirestore(visitId: string): Promise<boolean> {
+  const path = `fieldVisits/${visitId}`;
+  try {
+    await deleteDoc(doc(db, 'fieldVisits', visitId));
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.DELETE, path);
+    return false;
+  }
+}
+
 export function subscribeFieldVisits(
   companyId: string,
   callback: (visits: FieldVisit[]) => void
@@ -692,6 +735,48 @@ export async function saveAttendanceToFirestore(
   }
 }
 
+export async function updateAttendanceToFirestore(
+  record: Partial<AttendanceRecord> & { id: string },
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `attendance/${record.id}`;
+  try {
+    // Construir el registro completo con propiedad para validación
+    const existing = await getDoc(doc(db, 'attendance', record.id));
+    if (!existing.exists()) {
+      console.error('Attendance record not found', { attendanceId: record.id });
+      return false;
+    }
+
+    const mergedRecord: AttendanceRecord = {
+      ...(existing.data() as AttendanceRecord),
+      ...record,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const recordWithOwnership = buildAttendanceRecord(mergedRecord, companyId, userId);
+
+    // Validar datos antes de guardar
+    const validation = validateAttendanceRecord(recordWithOwnership);
+    if (!validation.success) {
+      console.error('Attendance update validation failed:', validation.error);
+      throw new Error(
+        `Datos de asistencia inválidos: ${validation.error.issues.map((i) => i.message).join(', ')}`
+      );
+    }
+
+    const docRef = doc(db, 'attendance', record.id);
+    await setDoc(docRef, stripUndefined(recordWithOwnership), { merge: true });
+    return true;
+  } catch (err) {
+    notifySyncEnd();
+    handleFirestoreError(err, OperationType.WRITE, path);
+    return false;
+  }
+}
+
 export function subscribeAttendance(
   companyId: string,
   callback: (records: AttendanceRecord[]) => void
@@ -750,6 +835,54 @@ export async function saveEmployeeToFirestore(
       companyId,
       name: employee.name,
       role: employee.role,
+    });
+    await batch.commit();
+    return true;
+  } catch (err) {
+    notifySyncEnd();
+    handleFirestoreError(err, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export async function updateEmployeeToFirestore(
+  employee: Partial<Employee> & { id: string },
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `employees/${employee.id}`;
+  try {
+    const existing = await getDoc(doc(db, 'employees', employee.id));
+    if (!existing.exists()) {
+      console.error('Employee not found', { employeeId: employee.id });
+      return false;
+    }
+
+    const mergedEmployee: Employee = {
+      ...(existing.data() as Employee),
+      ...employee,
+      updatedBy: userId,
+    };
+
+    const employeeWithOwnership = buildEmployeeRecord(mergedEmployee, companyId, userId);
+
+    const validation = validateEmployee(employeeWithOwnership);
+    if (!validation.success) {
+      console.error('Employee update validation failed:', validation.error);
+      throw new Error(
+        `Datos de empleado inválidos: ${validation.error.issues.map((i) => i.message).join(', ')}`
+      );
+    }
+
+    const batch = writeBatch(db);
+    batch.set(doc(db, 'employees', employee.id), stripUndefined(employeeWithOwnership), {
+      merge: true,
+    });
+    batch.set(doc(db, 'employeeDirectory', employee.id), {
+      id: employee.id,
+      companyId,
+      name: mergedEmployee.name,
+      role: mergedEmployee.role,
     });
     await batch.commit();
     return true;
@@ -1344,9 +1477,7 @@ export async function saveFelInvoiceToFirestore(
   const validationErrors = validateFelInvoice(record);
   if (validationErrors.length > 0) {
     console.error('Factura FEL inválida:', validationErrors);
-    throw new Error(
-      `Datos de factura inválidos: ${validationErrors.join(', ')}`
-    );
+    throw new Error(`Datos de factura inválidos: ${validationErrors.join(', ')}`);
   }
 
   try {
@@ -1388,9 +1519,7 @@ export async function updateFelInvoiceToFirestore(
   const validationErrors = validateFelInvoice(record);
   if (validationErrors.length > 0) {
     console.error('Factura FEL inválida:', validationErrors);
-    throw new Error(
-      `Datos de factura inválidos: ${validationErrors.join(', ')}`
-    );
+    throw new Error(`Datos de factura inválidos: ${validationErrors.join(', ')}`);
   }
 
   try {
@@ -1406,9 +1535,7 @@ export async function updateFelInvoiceToFirestore(
 /**
  * Elimina una factura FEL.
  */
-export async function deleteFelInvoiceFromFirestore(
-  invoiceId: string
-): Promise<boolean> {
+export async function deleteFelInvoiceFromFirestore(invoiceId: string): Promise<boolean> {
   const path = `felInvoices/${invoiceId}`;
   try {
     await deleteDoc(doc(db, 'felInvoices', invoiceId));

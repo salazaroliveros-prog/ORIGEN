@@ -9,6 +9,7 @@ import type { AttendanceRecord } from '@/lib/types';
 import {
   saveAttendanceToFirestore,
   deleteAttendanceFromFirestore,
+  updateAttendanceToFirestore,
 } from '@/lib/firebaseService';
 import { createLogger } from '@/lib/utils/logger';
 import { createCacheKey, queryCache } from '@/lib/utils/cacheManager';
@@ -28,13 +29,10 @@ export function useAttendanceManagement({
   currentUserId,
   attendance,
 }: UseAttendanceManagementParams) {
-  const addAttendance = useCallback(
-    async (record: AttendanceRecord) => {
-      toast.error('Usuario no autenticado');
-      return false;
-    },
-    []
-  );
+  const addAttendance = useCallback(async (record: AttendanceRecord) => {
+    toast.error('Usuario no autenticado');
+    return false;
+  }, []);
 
   const addAttendanceWithAuth = useCallback(
     async (record: AttendanceRecord) => {
@@ -66,12 +64,48 @@ export function useAttendanceManagement({
     [companyId, currentUserId]
   );
 
-  const deleteAttendance = useCallback(
-    async (attendanceId: string) => {
-      toast.error('Inicia sesión para eliminar un registro de asistencia.');
+  const deleteAttendance = useCallback(async (attendanceId: string) => {
+    toast.error('Inicia sesión para eliminar un registro de asistencia.');
+    return false;
+  }, []);
+
+  const updateAttendance = useCallback(
+    async (record: Partial<AttendanceRecord> & { id: string }) => {
+      toast.error('Usuario no autenticado');
       return false;
     },
     []
+  );
+
+  const updateAttendanceWithAuth = useCallback(
+    async (record: Partial<AttendanceRecord> & { id: string }) => {
+      if (!attendance.some((r) => r.id === record.id)) {
+        log.warn('Attendance record not found', { attendanceId: record.id });
+        toast.error('No se encontró el registro de asistencia.');
+        return false;
+      }
+
+      try {
+        log.info('Updating attendance', { attendanceId: record.id });
+        const updated = await updateAttendanceToFirestore(record, companyId, currentUserId);
+        if (updated) {
+          log.info('Attendance updated successfully', { attendanceId: record.id });
+          toast.success('Asistencia actualizada correctamente.');
+          const cacheKey = createCacheKey('attendance', { companyId });
+          queryCache.clear(cacheKey);
+          return true;
+        }
+        log.error('Attendance update failed', { attendanceId: record.id });
+        toast.error('No se pudo actualizar la asistencia.');
+        return false;
+      } catch (err) {
+        notifySyncEnd();
+        log.error('Attendance update error', err as Error, { companyId });
+        toast.error('Error al actualizar la asistencia.');
+        return false;
+      }
+    },
+    [attendance, companyId, currentUserId]
   );
 
   const deleteAttendanceWithAuth = useCallback(
@@ -108,6 +142,7 @@ export function useAttendanceManagement({
 
   return {
     addAttendance: companyId && currentUserId ? addAttendanceWithAuth : addAttendance,
+    updateAttendance: companyId && currentUserId ? updateAttendanceWithAuth : updateAttendance,
     deleteAttendance: companyId && currentUserId ? deleteAttendanceWithAuth : deleteAttendance,
   };
 }

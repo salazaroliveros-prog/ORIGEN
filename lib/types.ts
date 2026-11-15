@@ -227,6 +227,12 @@ export interface FieldVisit {
   id: string;
   /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
+  /** ID del autor (opcional en UI, requerido al persistir vía firebaseService) */
+  authorId?: string;
+  /** Usuario que hizo la última modificación del registro. */
+  updatedBy?: string;
+  /** Fecha de la última modificación del registro. */
+  updatedAt?: string;
   projectId: string;
   projectName: string;
   date: string;
@@ -244,8 +250,6 @@ export interface FieldVisit {
   geofenceDistanceMeters?: number;
   gpsTimestamp?: string;
   status: 'Autorizado' | 'Pendiente' | 'Revisión';
-  /** ID del autor (opcional en UI, requerido al persistir vía firebaseService) */
-  authorId?: string;
   photos?: FieldPhoto[];
 }
 
@@ -304,6 +308,8 @@ export interface Employee {
   ownerId?: string;
   /** ID del creador (opcional en UI, requerido al persistir vía firebaseService) */
   createdBy?: string;
+  /** Usuario que hizo la última modificación del registro. */
+  updatedBy?: string;
   role: EmployeeRole;
   dailyRateGTQ: number;
   igssAffiliated: boolean;
@@ -324,6 +330,10 @@ export interface AttendanceRecord {
   companyId?: string;
   /** ID del autor (opcional en UI, requerido al persistir vía firebaseService) */
   authorId?: string;
+  /** Usuario que hizo la última modificación del registro. */
+  updatedBy?: string;
+  /** Fecha de la última modificación del registro. */
+  updatedAt?: string;
   projectName?: string;
   date: string;
   employeeId: string;
