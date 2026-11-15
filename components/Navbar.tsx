@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useState } from 'react';
 import {
   Building2,
@@ -572,6 +573,14 @@ export function Navbar({
                       : 'Sesión no iniciada')}
               </span>
             </div>
+
+            {/* Perfil de Usuario */}
+            {currentUser ? (
+              <Link href="/perfil" className="rounded-lg p-2.5 text-slate-400 hover:bg-white/10 hover:text-white transition-colors" title="Perfil de Usuario">
+                <span className="sr-only">Perfil de Usuario</span>
+                <Settings className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            ) : null}
 
             {/* Auth / Logout Button */}
             {currentUser ? (

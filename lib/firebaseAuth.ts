@@ -15,6 +15,8 @@ import {
   type Unsubscribe,
   type User,
   type Auth,
+  updateProfile,
+  updatePassword,
 } from 'firebase/auth';
 
 import { getAuthErrorMessage } from '@/lib/authErrors';
@@ -175,4 +177,18 @@ export async function authorizeGmailSend(): Promise<{ accessToken: string; expir
   }
 
   return { accessToken: credential.accessToken, expiresAt: Date.now() + 55 * 60 * 1000 };
+}
+
+export async function updateProfileData(
+  updates: { displayName?: string; phoneNumber?: string }
+): Promise<void> {
+  const user = getAuthOrThrow().currentUser;
+  if (!user) throw new Error('No hay sesión activa');
+  await updateProfile(user, updates);
+}
+
+export async function updateUserPassword(newPassword: string): Promise<void> {
+  const user = getAuthOrThrow().currentUser;
+  if (!user) throw new Error('No hay sesión activa');
+  await updatePassword(user, newPassword);
 }
