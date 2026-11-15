@@ -68,10 +68,11 @@ export function mergeProjectUpdate(
 }
 
 /**
- * Calcula el gasto total del proyecto sumando todos los gastos
+ * Calcula el gasto total del proyecto sumando solo gastos ejecutados
+ * (excluye rechazados, que no consumen presupuesto).
  */
 export function calculateProjectSpentTotal(expenses: ExpenseRecord[]): number {
-  return expenses.reduce((total, expense) => total + expense.amount, 0);
+  return sumCountableExpenses(expenses);
 }
 
 /**

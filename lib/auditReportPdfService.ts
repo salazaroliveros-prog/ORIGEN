@@ -120,7 +120,7 @@ export async function exportConstructionAuditPdf(
 
   // Project visits audit metrics
   const projectVisits = fieldVisits.filter((v) => v.projectId === project.id);
-  const visitsWithGps = projectVisits.filter((v) => v.gpsCoords || v.latitude).length;
+  const visitsWithGps = projectVisits.filter((v) => v.gpsCoords).length;
   const visitsWithSignatures = projectVisits.filter((v) => v.signatureDataUrl).length;
 
   const now = new Date();

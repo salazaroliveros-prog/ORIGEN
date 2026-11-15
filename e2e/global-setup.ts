@@ -1,4 +1,4 @@
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 
 /**
  * Primer acceso: en un emulador recién arrancado la empresa y la membresía del
@@ -22,9 +22,11 @@ async function warmUpSession(baseURL: string): Promise<void> {
     // La app monta primero el shell "Cargando…": hay que esperar a que aparezca
     // la sesión activa o el formulario de acceso.
     const deadline = Date.now() + 120_000;
+    let loggedIn = false;
     while (Date.now() < deadline) {
       if (await dashboard.isVisible().catch(() => false)) {
-        return;
+        loggedIn = true;
+        break;
       }
       if (await emailField.isVisible().catch(() => false)) {
         break;
@@ -32,14 +34,26 @@ async function warmUpSession(baseURL: string): Promise<void> {
       await page.waitForTimeout(1_000);
     }
 
-    if (!(await emailField.isVisible().catch(() => false))) {
-      throw new Error('La app no mostró ni la sesión activa ni el formulario de acceso.');
+    if (!loggedIn) {
+      if (!(await emailField.isVisible().catch(() => false))) {
+        throw new Error('La app no mostró ni la sesión activa ni el formulario de acceso.');
+      }
+
+      await emailField.fill(email);
+      await page.getByLabel('Contraseña', { exact: true }).fill(password);
+      await page.getByRole('button', { name: /Iniciar Sesión/i }).click();
+      await dashboard.waitFor({ state: 'visible', timeout: 180_000 });
     }
 
-    await emailField.fill(email);
-    await page.getByLabel('Contraseña', { exact: true }).fill(password);
-    await page.getByRole('button', { name: /Iniciar Sesión/i }).click();
-    await dashboard.waitFor({ state: 'visible', timeout: 180_000 });
+    // "Tablero" aparece antes de que la empresa/membresía estén provisionadas:
+    // el objetivo del calentamiento es terminar cuando el espacio ya está listo.
+    await page.locator('#main-content').waitFor({ state: 'attached', timeout: 180_000 });
+    await expect
+      .poll(
+        async () => (await page.locator('#main-content').getAttribute('aria-busy')) === 'false',
+        { timeout: 180_000 }
+      )
+      .toBe(true);
   } finally {
     await browser.close();
   }

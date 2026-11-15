@@ -145,7 +145,7 @@ export type ProjectStatus =
 export interface Project {
   /** Identificador único del proyecto */
   id: string;
-  /** ID de la compañía (opcional) */
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
   /** Código identificador del proyecto */
   code: string;
@@ -179,9 +179,9 @@ export interface Project {
   lat: number;
   /** Longitud de la ubicación geográfica */
   lng: number;
-  /** ID del propietario del proyecto (opcional) */
+  /** ID del propietario del proyecto (opcional en UI, requerido al persistir vía firebaseService) */
   ownerId?: string;
-  /** ID del usuario que creó el proyecto (opcional) */
+  /** ID del usuario que creó el proyecto (opcional en UI, requerido al persistir vía firebaseService) */
   createdBy?: string;
   /** Porcentaje de ganancia esperado (opcional) */
   expectedProfitMarginPercent?: number | null;
@@ -217,6 +217,7 @@ export interface FieldPhoto {
 
 export interface FieldVisit {
   id: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
   projectId: string;
   projectName: string;
@@ -228,20 +229,23 @@ export interface FieldVisit {
   signatureDataUrl?: string;
   signerDpi?: string;
   signerRole?: string;
+  /** Coordenadas GPS capturadas en campo (fuente única de verdad). */
   gpsCoords?: { lat: number; lng: number };
-  latitude?: number;
-  longitude?: number;
   accuracy?: number;
   geofenceValid?: boolean;
   geofenceDistanceMeters?: number;
   gpsTimestamp?: string;
   status: 'Autorizado' | 'Pendiente' | 'Revisión';
+  /** ID del autor (opcional en UI, requerido al persistir vía firebaseService) */
+  authorId?: string;
   photos?: FieldPhoto[];
 }
 
 export interface Machinery {
   id: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
+  /** ID del creador (opcional en UI, requerido al persistir vía firebaseService) */
   createdBy?: string;
   /** Usuario que hizo la última modificación del registro. */
   updatedBy?: string;
@@ -286,7 +290,12 @@ export interface EmployeeDirectoryEntry {
 export interface Employee {
   id: string;
   name: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
+  /** ID del propietario (opcional en UI, requerido al persistir vía firebaseService) */
+  ownerId?: string;
+  /** ID del creador (opcional en UI, requerido al persistir vía firebaseService) */
+  createdBy?: string;
   role: EmployeeRole;
   dailyRateGTQ: number;
   igssAffiliated: boolean;
@@ -303,7 +312,9 @@ export interface Employee {
 export interface AttendanceRecord {
   id: string;
   projectId: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
+  /** ID del autor (opcional en UI, requerido al persistir vía firebaseService) */
   authorId?: string;
   projectName?: string;
   date: string;
@@ -329,7 +340,9 @@ export interface AttendanceRecord {
 export interface ExpenseRecord {
   id: string;
   projectId: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
+  /** ID del autor (opcional en UI, requerido al persistir vía firebaseService) */
   authorId?: string;
   /** Usuario que hizo la última modificación del gasto. */
   updatedBy?: string;
@@ -364,12 +377,14 @@ export interface ExpenseRecord {
 
 export interface QuoteRecord {
   id: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
-  /** Usuario que creó la cotización. */
+  /** ID del proyecto (opcional en UI, requerido al persistir vía firebaseService) */
+  projectId?: string;
+  /** Usuario que creó la cotización (opcional en UI, requerido al persistir vía firebaseService) */
   createdBy?: string;
   /** Usuario que hizo la última modificación de la cotización. */
   updatedBy?: string;
-  projectId: string;
   clientName: string;
   clientNit: string;
   clientPhone?: string;
@@ -390,8 +405,11 @@ export interface QuoteRecord {
 
 export interface APUItem {
   id: string;
+  /** ID de la compañía (opcional en UI, requerido al persistir vía firebaseService) */
   companyId?: string;
+  /** ID del proyecto (opcional en UI, requerido al persistir vía firebaseService) */
   projectId?: string;
+  /** ID del creador (opcional en UI, requerido al persistir vía firebaseService) */
   createdBy?: string;
   /** Usuario que hizo la última modificación de la partida. */
   updatedBy?: string;

@@ -6,6 +6,7 @@ import {
   subscribeMachinery,
   saveMachineryToFirestore,
   updateMachineryStatusInFirestore,
+  updateMachineryInFirestore,
   subscribeMachineryLogs,
   recordMachineryUse,
   deleteMachineryFromFirestore,
@@ -30,6 +31,7 @@ export interface UseMachineryReturn {
   addMachinery: (item: Machinery) => Promise<boolean>;
   addMachineryLog: (log_: MachineryLog) => Promise<boolean>;
   setMachineryStatus: (machineryId: string, status: Machinery['status']) => Promise<boolean>;
+  updateMachinery: (machineryId: string, data: Partial<Machinery>) => Promise<boolean>;
   deleteMachinery: (machineryId: string) => Promise<boolean>;
 }
 
@@ -196,6 +198,37 @@ export function useMachinery({
     [companyId, currentUserId, machinery]
   );
 
+  const updateMachinery = useCallback(
+    async (machineryId: string, data: Partial<Machinery>) => {
+      if (!companyId || !currentUserId) {
+        toast.error('Inicia sesión en una empresa para actualizar maquinaria.');
+        return false;
+      }
+      const equipment = machinery.find((item) => item.id === machineryId);
+      if (!equipment) {
+        toast.error('No se encontró la maquinaria seleccionada.');
+        return false;
+      }
+      try {
+        log.info('Updating machinery', { machineryId, fields: Object.keys(data) });
+        const saved = await updateMachineryInFirestore(equipment, data, companyId, currentUserId);
+        if (!saved) {
+          toast.error('No se pudo actualizar la maquinaria.');
+          return false;
+        }
+        log.info('Machinery updated successfully', { machineryId });
+        const cacheKey = createCacheKey('machinery', { companyId });
+        queryCache.clear(cacheKey);
+        return true;
+      } catch (err) {
+        log.error('Machinery update error', err as Error, { machineryId });
+        toast.error('Error al actualizar la maquinaria.');
+        return false;
+      }
+    },
+    [companyId, currentUserId, machinery]
+  );
+
   const deleteMachinery = useCallback(
     async (machineryId: string) => {
       if (!companyId || !currentUserId) {
@@ -227,6 +260,7 @@ export function useMachinery({
     addMachinery,
     addMachineryLog,
     setMachineryStatus,
+    updateMachinery,
     deleteMachinery,
   };
 }

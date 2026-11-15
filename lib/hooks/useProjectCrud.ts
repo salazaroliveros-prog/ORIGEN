@@ -7,6 +7,7 @@ import { validateProjectForm, type ProjectFormValues } from '@/lib/validation/pr
 import { createLogger } from '@/lib/utils/logger';
 import { createCacheKey, queryCache } from '@/lib/utils/cacheManager';
 import { notifySyncEnd } from './useFirebaseSyncStatus';
+import { mergeProjectUpdate } from '@/lib/projectCalculations';
 import { toast } from 'react-hot-toast';
 
 const log = createLogger('useProjectCrud');
@@ -17,11 +18,7 @@ interface UseProjectCrudParams {
   projects: Project[];
 }
 
-export function useProjectCrud({
-  companyId,
-  currentUserId,
-  projects,
-}: UseProjectCrudParams) {
+export function useProjectCrud({ companyId, currentUserId, projects }: UseProjectCrudParams) {
   const createProject = useCallback(
     async (_data: ProjectFormValues, _onCreated?: (projectId: string) => void) => {
       toast.error('Usuario no autenticado');
@@ -94,13 +91,12 @@ export function useProjectCrud({
 
       try {
         log.info('Updating project', { projectId, companyId });
-        const updated: Project = {
-          ...existing,
-          ...data,
-          id: projectId,
+        // mergeProjectUpdate conserva spentTotal (derivado de gastos) y recalcula
+        // progressPercent desde el cronograma, evitando sobrescribirlos desde el formulario.
+        const updated = mergeProjectUpdate(existing, data, {
           companyId,
           ownerId: currentUserId,
-        };
+        });
 
         const success = await saveProjectToFirestore(updated, companyId, currentUserId);
         if (success) {
@@ -123,13 +119,10 @@ export function useProjectCrud({
     },
     [companyId, currentUserId, projects]
   );
-  const archiveProject = useCallback(
-    async (_projectId: string) => {
-      toast.error('Usuario no autenticado');
-      return false;
-    },
-    []
-  );
+  const archiveProject = useCallback(async (_projectId: string) => {
+    toast.error('Usuario no autenticado');
+    return false;
+  }, []);
 
   const archiveProjectWithAuth = useCallback(
     async (projectId: string) => {
@@ -173,20 +166,19 @@ export function useProjectCrud({
       } catch (err) {
         notifySyncEnd();
         log.error('Project archival error', err as Error, { projectId });
-        toast.error('Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.');
+        toast.error(
+          'Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.'
+        );
         return false;
       }
     },
     [companyId, currentUserId, projects]
   );
 
-  const restoreProject = useCallback(
-    async (_projectId: string) => {
-      toast.error('Usuario no autenticado');
-      return false;
-    },
-    []
-  );
+  const restoreProject = useCallback(async (_projectId: string) => {
+    toast.error('Usuario no autenticado');
+    return false;
+  }, []);
 
   const restoreProjectWithAuth = useCallback(
     async (projectId: string) => {

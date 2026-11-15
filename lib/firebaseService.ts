@@ -157,10 +157,20 @@ export function getStorageOrThrow(): NonNullable<typeof storage> {
 }
 
 const isNewFirebaseApp = !hasExistingFirebaseApp;
-const useFirebaseEmulators =
-  process.env.NODE_ENV === 'development' &&
-  process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true';
+// El modo emulador se decide SOLO por la variable pública, igual que
+// `apiAuth.ts` y `storageRest.ts`. Antes exigía además `NODE_ENV=development`,
+// lo que hacía imposible validar un build de producción contra los emuladores
+// (el cliente se conectaba a Google con el projectId demo y el login fallaba).
+// Si por error se activa en un despliegue real, la app apunta a 127.0.0.1 y
+// falla de forma visible: no hay riesgo de escribir datos en otro proyecto.
+const useFirebaseEmulators = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true';
 const firebaseEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || '127.0.0.1';
+
+if (useFirebaseEmulators && process.env.NODE_ENV === 'production') {
+  console.warn(
+    '[firebase] NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true en un build de producción: la app usará los emuladores locales.'
+  );
+}
 
 // Conexión directa a Firebase/Firestore sin capa intermedia de verificación de aplicaciones.
 
@@ -1147,6 +1157,54 @@ export async function updateMachineryStatusInFirestore(
       ...(status === 'Disponible' ? { currentProjectId: deleteField() } : {}),
       companyId,
     });
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.UPDATE, path);
+    return false;
+  }
+}
+
+/**
+ * Actualiza campos editables de maquinaria (nombre, modelo, placa, tarifa, etc.).
+ * No permite cambiar id, companyId, createdBy ni status (usa updateMachineryStatusInFirestore para eso).
+ */
+export async function updateMachineryInFirestore(
+  machinery: Machinery,
+  data: Partial<Pick<Machinery, 'name' | 'model' | 'plateOrCode' | 'hourlyRateGTQ'>>,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `machinery/${machinery.id}`;
+
+  // Construir objeto completo para validación (usar valores existentes para campos no enviados)
+  const record: Machinery = {
+    ...machinery,
+    ...data,
+    id: machinery.id,
+    companyId,
+    createdBy: machinery.createdBy ?? userId,
+    updatedBy: userId,
+  };
+
+  const validation = validateMachinery(record);
+  if (!validation.success) {
+    console.error('Machinery update validation failed:', validation.error);
+    throw new Error(
+      `Datos de maquinaria inválidos: ${validation.error.issues.map((issue) => issue.message).join(', ')}`
+    );
+  }
+
+  // Solo enviar los campos que el usuario realmente quiere cambiar (excluir protegidos: status, currentProjectId, currentHorometer)
+  const updateFields: Partial<Machinery> = {};
+  if (data.name !== undefined) updateFields.name = data.name;
+  if (data.model !== undefined) updateFields.model = data.model;
+  if (data.plateOrCode !== undefined) updateFields.plateOrCode = data.plateOrCode;
+  if (data.hourlyRateGTQ !== undefined) updateFields.hourlyRateGTQ = data.hourlyRateGTQ;
+  updateFields.updatedBy = userId;
+
+  try {
+    await updateDoc(doc(db, 'machinery', machinery.id), stripUndefined(updateFields));
     return true;
   } catch (error) {
     notifySyncEnd();

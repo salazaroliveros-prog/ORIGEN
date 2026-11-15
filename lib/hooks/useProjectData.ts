@@ -73,7 +73,7 @@ import { notifySyncEnd } from './useFirebaseSyncStatus';
 import { createLogger } from '@/lib/utils/logger';
 import { queryCache, createCacheKey } from '@/lib/utils/cacheManager';
 import { validateAPUItem, calculateBudgetSummary } from '@/lib/utils/calculations';
-import { validateData, validationSchemas } from '@/lib/utils/validation';
+import { mergeProjectUpdate } from '@/lib/projectCalculations';
 
 // Create module logger
 const log = createLogger('useProjectData');
@@ -397,13 +397,12 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         }
 
         log.info('Updating project', { projectId, companyId });
-        const updated: Project = {
-          ...existing,
-          ...data,
-          id: projectId,
+        // mergeProjectUpdate conserva spentTotal (derivado de gastos) y recalcula
+        // progressPercent desde el cronograma, evitando sobrescribirlos desde el formulario.
+        const updated = mergeProjectUpdate(existing, data, {
           companyId,
           ownerId: currentUserId,
-        };
+        });
 
         const success = await saveProjectToFirestore(updated, companyId, currentUserId);
         if (success) {

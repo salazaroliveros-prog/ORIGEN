@@ -133,10 +133,13 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
 
   test('UI-002: Botón Proyectos y Firmas abre sección', async ({ page }) => {
     await openTab(page, PROYECTOS_TAB);
+    // La lista vacía muestra el estado "No hay proyectos activos" y, a la vez,
+    // el botón para crear el primero: `.first()` evita el fallo de modo estricto.
     await expect(
       page
         .getByRole('button', { name: 'Nuevo Proyecto' })
         .or(page.getByText(/No hay proyectos activos/i))
+        .first()
     ).toBeVisible({ timeout: 20_000 });
   });
 

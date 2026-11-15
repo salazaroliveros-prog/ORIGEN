@@ -20,12 +20,27 @@ vi.mock('./useFirebaseSyncStatus', () => ({
 }));
 
 // Mock de project.schema
-const mockValidateProjectForm = vi.hoisted(() => vi.fn((data: any) => ({ success: true, data, error: null })));
-const mockGetDefaultProjectValues = vi.hoisted(() => vi.fn(() => ({
-  code: '', name: '', client: '', location: '', municipality: '', department: '',
-  budgetTotal: 0, spentTotal: 0, progressPercent: 0, startDate: '', endDate: '',
-  status: 'Planificación', lat: 0, lng: 0,
-})));
+const mockValidateProjectForm = vi.hoisted(() =>
+  vi.fn((data: any) => ({ success: true, data, error: null }))
+);
+const mockGetDefaultProjectValues = vi.hoisted(() =>
+  vi.fn(() => ({
+    code: '',
+    name: '',
+    client: '',
+    location: '',
+    municipality: '',
+    department: '',
+    budgetTotal: 0,
+    spentTotal: 0,
+    progressPercent: 0,
+    startDate: '',
+    endDate: '',
+    status: 'Planificación',
+    lat: 0,
+    lng: 0,
+  }))
+);
 vi.mock('../validation/project.schema', () => ({
   validateProjectForm: mockValidateProjectForm,
   getDefaultProjectValues: mockGetDefaultProjectValues,
@@ -45,6 +60,15 @@ vi.mock('../projectCalculations', () => ({
   updateProjectWithCalculatedMetrics: vi.fn((p: any) => p),
   calculateProjectSpentById: vi.fn((expenses: any[], projectId: string) => 0),
   resolveProjectProgress: vi.fn((tasks: any, milestones: any, progress: number) => progress),
+  mergeProjectUpdate: vi.fn((existing: any, data: any, context: any) => ({
+    ...existing,
+    ...data,
+    id: existing.id,
+    companyId: context.companyId,
+    ownerId: context.ownerId,
+    spentTotal: existing.spentTotal,
+    progressPercent: existing.progressPercent ?? 0,
+  })),
 }));
 
 // Mock de logger
@@ -89,14 +113,30 @@ vi.mock('../utils/validation', () => ({
 import { useProjectData } from './useProjectData';
 import { useProjectCrud } from './useProjectCrud';
 import {
-  subscribeProjects, subscribeExpenses, subscribeQuotes, subscribeAPUItems,
-  subscribeAttendance, subscribeEmployees, subscribeMachinery,
-  saveProjectToFirestore, saveExpenseToFirestore, deleteExpenseFromFirestore,
-  updateExpenseToFirestore, saveAttendanceToFirestore, deleteAttendanceFromFirestore,
-  saveEmployeeToFirestore, deleteEmployeeFromFirestore, saveQuoteToFirestore,
-  updateQuoteStatusInFirestore, deleteQuoteFromFirestore, saveAPUItemsToFirestore,
-  deleteAPUItemFromFirestore, saveMachineryToFirestore, deleteMachineryFromFirestore,
-  updateMachineryStatusInFirestore, recordMachineryUse,
+  subscribeProjects,
+  subscribeExpenses,
+  subscribeQuotes,
+  subscribeAPUItems,
+  subscribeAttendance,
+  subscribeEmployees,
+  subscribeMachinery,
+  saveProjectToFirestore,
+  saveExpenseToFirestore,
+  deleteExpenseFromFirestore,
+  updateExpenseToFirestore,
+  saveAttendanceToFirestore,
+  deleteAttendanceFromFirestore,
+  saveEmployeeToFirestore,
+  deleteEmployeeFromFirestore,
+  saveQuoteToFirestore,
+  updateQuoteStatusInFirestore,
+  deleteQuoteFromFirestore,
+  saveAPUItemsToFirestore,
+  deleteAPUItemFromFirestore,
+  saveMachineryToFirestore,
+  deleteMachineryFromFirestore,
+  updateMachineryStatusInFirestore,
+  recordMachineryUse,
 } from '../firebaseService';
 import { invokeSubscribeCallback } from '../__mocks__/firebaseService';
 
@@ -104,11 +144,19 @@ const mockCompanyId = 'company-1';
 const mockUserId = 'user-1';
 const mockRole = 'owner';
 
-function renderUseProjectData(companyId: string = mockCompanyId, userId: string = mockUserId, role: string = mockRole) {
+function renderUseProjectData(
+  companyId: string = mockCompanyId,
+  userId: string = mockUserId,
+  role: string = mockRole
+) {
   return renderHook(() => useProjectData(companyId, userId, role as any));
 }
 
-function renderUseProjectCrud(companyId: string = mockCompanyId, userId: string = mockUserId, projects: any[] = []) {
+function renderUseProjectCrud(
+  companyId: string = mockCompanyId,
+  userId: string = mockUserId,
+  projects: any[] = []
+) {
   return renderHook(() => useProjectCrud({ companyId, currentUserId: userId, projects }));
 }
 
@@ -179,11 +227,20 @@ describe('useProjectData - Project CRUD', () => {
     // createProject primero
     await act(async () => {
       await result.current.createProject({
-        code: 'PRY-001', name: 'Casa Test', client: 'Cliente',
-        location: 'Zona 10', municipality: 'Guatemala', department: 'Guatemala',
-        budgetTotal: 500000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Planificación',
-        lat: 14.6349, lng: -90.5069,
+        code: 'PRY-001',
+        name: 'Casa Test',
+        client: 'Cliente',
+        location: 'Zona 10',
+        municipality: 'Guatemala',
+        department: 'Guatemala',
+        budgetTotal: 500000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Planificación',
+        lat: 14.6349,
+        lng: -90.5069,
       });
     });
 
@@ -197,11 +254,20 @@ describe('useProjectData - Project CRUD', () => {
     const { result } = renderUseProjectData();
     await act(async () => {
       await result.current.createProject({
-        code: 'PRY-001', name: 'Casa Test', client: 'Cliente',
-        location: 'Zona 10', municipality: 'Guatemala', department: 'Guatemala',
-        budgetTotal: 500000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Planificación',
-        lat: 14.6349, lng: -90.5069,
+        code: 'PRY-001',
+        name: 'Casa Test',
+        client: 'Cliente',
+        location: 'Zona 10',
+        municipality: 'Guatemala',
+        department: 'Guatemala',
+        budgetTotal: 500000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Planificación',
+        lat: 14.6349,
+        lng: -90.5069,
       });
     });
     expect(mockToast.success).toHaveBeenCalledWith('Proyecto creado correctamente');
@@ -211,11 +277,20 @@ describe('useProjectData - Project CRUD', () => {
     const { result } = renderUseProjectData();
     await act(async () => {
       await result.current.createProject({
-        code: 'PRY-001', name: 'Casa Test', client: 'Cliente',
-        location: 'Zona 10', municipality: 'Guatemala', department: 'Guatemala',
-        budgetTotal: 500000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Planificación',
-        lat: 14.6349, lng: -90.5069,
+        code: 'PRY-001',
+        name: 'Casa Test',
+        client: 'Cliente',
+        location: 'Zona 10',
+        municipality: 'Guatemala',
+        department: 'Guatemala',
+        budgetTotal: 500000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Planificación',
+        lat: 14.6349,
+        lng: -90.5069,
       });
     });
     expect(saveProjectToFirestore).toHaveBeenCalled();
@@ -288,10 +363,16 @@ describe('useProjectData - Expense CRUD', () => {
 
     await act(async () => {
       const success = await result.current.addExpense({
-        id: 'exp-1', projectId: 'proj-1', date: '2024-01-15',
+        id: 'exp-1',
+        projectId: 'proj-1',
+        date: '2024-01-15',
         category: 'Materiales (Cementos, Hierro)',
-        description: 'Test', supplier: 'Test', nitSupplier: '123',
-        facturaNumber: 'F001', amount: 100, currency: 'GTQ',
+        description: 'Test',
+        supplier: 'Test',
+        nitSupplier: '123',
+        facturaNumber: 'F001',
+        amount: 100,
+        currency: 'GTQ',
         paymentMethod: 'Efectivo',
       } as any);
       expect(success).toBe(false);
@@ -328,9 +409,14 @@ describe('useProjectData - Attendance CRUD', () => {
     // Primero agregar uno
     await act(async () => {
       await result.current.addAttendance({
-        id: 'att-1', projectId: 'proj-1', date: '2024-01-15',
-        employeeId: 'emp-1', employeeName: 'Juan Pérez',
-        status: 'Presente', overtimeHours: 0, gpsVerified: true,
+        id: 'att-1',
+        projectId: 'proj-1',
+        date: '2024-01-15',
+        employeeId: 'emp-1',
+        employeeName: 'Juan Pérez',
+        status: 'Presente',
+        overtimeHours: 0,
+        gpsVerified: true,
       } as any);
     });
 
@@ -395,7 +481,9 @@ describe('useProjectData - Quote CRUD', () => {
   it('should update quote status successfully', async () => {
     const { result } = renderUseProjectData();
     act(() => {
-      invokeSubscribeCallback('quotes:company-1', [{ id: 'quote-1', status: 'Borrador', companyId: 'company-1' } as any]);
+      invokeSubscribeCallback('quotes:company-1', [
+        { id: 'quote-1', status: 'Borrador', companyId: 'company-1' } as any,
+      ]);
     });
     await act(async () => {
       const success = await result.current.updateQuoteStatus('quote-1', 'Aceptada');
@@ -409,7 +497,9 @@ describe('useProjectData - Quote CRUD', () => {
     const { result } = renderUseProjectData();
     window.confirm = vi.fn(() => true);
     act(() => {
-      invokeSubscribeCallback('quotes:company-1', [{ id: 'quote-1', status: 'Borrador', companyId: 'company-1' } as any]);
+      invokeSubscribeCallback('quotes:company-1', [
+        { id: 'quote-1', status: 'Borrador', companyId: 'company-1' } as any,
+      ]);
     });
 
     await act(async () => {
@@ -426,19 +516,32 @@ describe('useProjectData - APU CRUD', () => {
   it('should save APU items successfully', async () => {
     const { result } = renderUseProjectData();
     act(() => {
-      invokeSubscribeCallback('projects:company-1', [{ id: 'proj-1', companyId: 'company-1' } as any]);
+      invokeSubscribeCallback('projects:company-1', [
+        { id: 'proj-1', companyId: 'company-1' } as any,
+      ]);
     });
 
     await act(async () => {
-      const success = await result.current.saveAPUItems([
-        {
-          id: 'apu-1', code: 'CONC-001', description: 'Concreto',
-          unit: 'm³', quantity: 50, materialUnitCostGTQ: 500,
-          laborUnitCostGTQ: 300, equipmentUnitCostGTQ: 100,
-          totalUnitCostGTQ: 900, totalPriceGTQ: 45000,
-          projectId: 'proj-1', companyId: 'company-1', createdBy: 'user-1',
-        },
-      ], 'proj-1');
+      const success = await result.current.saveAPUItems(
+        [
+          {
+            id: 'apu-1',
+            code: 'CONC-001',
+            description: 'Concreto',
+            unit: 'm³',
+            quantity: 50,
+            materialUnitCostGTQ: 500,
+            laborUnitCostGTQ: 300,
+            equipmentUnitCostGTQ: 100,
+            totalUnitCostGTQ: 900,
+            totalPriceGTQ: 45000,
+            projectId: 'proj-1',
+            companyId: 'company-1',
+            createdBy: 'user-1',
+          },
+        ],
+        'proj-1'
+      );
       expect(success).toBe(true);
     });
 
@@ -448,8 +551,12 @@ describe('useProjectData - APU CRUD', () => {
   it('should delete APU item successfully', async () => {
     const { result } = renderUseProjectData();
     act(() => {
-      invokeSubscribeCallback('projects:company-1', [{ id: 'proj-1', companyId: 'company-1' } as any]);
-      invokeSubscribeCallback('apuItems:company-1', [{ id: 'apu-1', companyId: 'company-1' } as any]);
+      invokeSubscribeCallback('projects:company-1', [
+        { id: 'proj-1', companyId: 'company-1' } as any,
+      ]);
+      invokeSubscribeCallback('apuItems:company-1', [
+        { id: 'apu-1', companyId: 'company-1' } as any,
+      ]);
     });
 
     await act(async () => {
@@ -484,7 +591,9 @@ describe('useProjectData - Machinery CRUD', () => {
   it('should add machinery log successfully', async () => {
     const { result } = renderUseProjectData();
     act(() => {
-      invokeSubscribeCallback('machinery:company-1', [{ id: 'mach-1', name: 'Excavadora', status: 'Disponible' } as any]);
+      invokeSubscribeCallback('machinery:company-1', [
+        { id: 'mach-1', name: 'Excavadora', status: 'Disponible' } as any,
+      ]);
     });
 
     await act(async () => {
@@ -508,7 +617,9 @@ describe('useProjectData - Machinery CRUD', () => {
   it('should set machinery status successfully', async () => {
     const { result } = renderUseProjectData();
     act(() => {
-      invokeSubscribeCallback('machinery:company-1', [{ id: 'mach-1', name: 'Excavadora', status: 'Disponible' } as any]);
+      invokeSubscribeCallback('machinery:company-1', [
+        { id: 'mach-1', name: 'Excavadora', status: 'Disponible' } as any,
+      ]);
     });
 
     await act(async () => {
@@ -531,11 +642,20 @@ describe('useProjectCrud', () => {
 
     await act(async () => {
       const success = await result.current.createProject({
-        code: 'PRY-001', name: 'Casa Test', client: 'Cliente',
-        location: 'Zona 10', municipality: 'Guatemala', department: 'Guatemala',
-        budgetTotal: 500000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Planificación',
-        lat: 14.6349, lng: -90.5069,
+        code: 'PRY-001',
+        name: 'Casa Test',
+        client: 'Cliente',
+        location: 'Zona 10',
+        municipality: 'Guatemala',
+        department: 'Guatemala',
+        budgetTotal: 500000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Planificación',
+        lat: 14.6349,
+        lng: -90.5069,
       } as any);
       expect(success).toBe(true);
     });
@@ -549,11 +669,20 @@ describe('useProjectCrud', () => {
 
     await act(async () => {
       const success = await result.current.createProject({
-        code: 'PRY-001', name: 'Test', client: 'Test',
-        location: 'Test', municipality: 'Test', department: 'Test',
-        budgetTotal: 0, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Planificación',
-        lat: 0, lng: 0,
+        code: 'PRY-001',
+        name: 'Test',
+        client: 'Test',
+        location: 'Test',
+        municipality: 'Test',
+        department: 'Test',
+        budgetTotal: 0,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Planificación',
+        lat: 0,
+        lng: 0,
       } as any);
       expect(success).toBe(false);
     });
@@ -562,11 +691,22 @@ describe('useProjectCrud', () => {
 
   it('should update project with auth', async () => {
     const { result } = renderUseProjectCrud(mockCompanyId, mockUserId, [
-      { id: 'proj-1', code: 'PRY-001', name: 'Old Name', client: 'Old Client',
-        location: 'Test', municipality: 'Test', department: 'Test',
-        budgetTotal: 100000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Planificación',
-        lat: 0, lng: 0,
+      {
+        id: 'proj-1',
+        code: 'PRY-001',
+        name: 'Old Name',
+        client: 'Old Client',
+        location: 'Test',
+        municipality: 'Test',
+        department: 'Test',
+        budgetTotal: 100000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Planificación',
+        lat: 0,
+        lng: 0,
       } as any,
     ]);
 
@@ -581,11 +721,22 @@ describe('useProjectCrud', () => {
 
   it('should archive project with auth', async () => {
     const { result } = renderUseProjectCrud(mockCompanyId, mockUserId, [
-      { id: 'proj-1', code: 'PRY-001', name: 'Test', client: 'Test',
-        location: 'Test', municipality: 'Test', department: 'Test',
-        budgetTotal: 100000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Planificación',
-        lat: 0, lng: 0,
+      {
+        id: 'proj-1',
+        code: 'PRY-001',
+        name: 'Test',
+        client: 'Test',
+        location: 'Test',
+        municipality: 'Test',
+        department: 'Test',
+        budgetTotal: 100000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Planificación',
+        lat: 0,
+        lng: 0,
       } as any,
     ]);
 
@@ -595,16 +746,30 @@ describe('useProjectCrud', () => {
     });
 
     expect(saveProjectToFirestore).toHaveBeenCalled();
-    expect(mockToast.success).toHaveBeenCalledWith('Proyecto archivado. Su historial y registros relacionados se conservaron.');
+    expect(mockToast.success).toHaveBeenCalledWith(
+      'Proyecto archivado. Su historial y registros relacionados se conservaron.'
+    );
   });
 
   it('should restore archived project with auth', async () => {
     const { result } = renderUseProjectCrud(mockCompanyId, mockUserId, [
-      { id: 'proj-1', code: 'PRY-001', name: 'Test', client: 'Test',
-        location: 'Test', municipality: 'Test', department: 'Test',
-        budgetTotal: 100000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Archivado',
-        lat: 0, lng: 0, archivedFromStatus: 'Planificación',
+      {
+        id: 'proj-1',
+        code: 'PRY-001',
+        name: 'Test',
+        client: 'Test',
+        location: 'Test',
+        municipality: 'Test',
+        department: 'Test',
+        budgetTotal: 100000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Archivado',
+        lat: 0,
+        lng: 0,
+        archivedFromStatus: 'Planificación',
       } as any,
     ]);
 
@@ -619,11 +784,22 @@ describe('useProjectCrud', () => {
 
   it('should not archive already archived project', async () => {
     const { result } = renderUseProjectCrud(mockCompanyId, mockUserId, [
-      { id: 'proj-1', code: 'PRY-001', name: 'Test', client: 'Test',
-        location: 'Test', municipality: 'Test', department: 'Test',
-        budgetTotal: 100000, spentTotal: 0, progressPercent: 0,
-        startDate: '2024-01-01', endDate: '2024-12-31', status: 'Archivado',
-        lat: 0, lng: 0,
+      {
+        id: 'proj-1',
+        code: 'PRY-001',
+        name: 'Test',
+        client: 'Test',
+        location: 'Test',
+        municipality: 'Test',
+        department: 'Test',
+        budgetTotal: 100000,
+        spentTotal: 0,
+        progressPercent: 0,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+        status: 'Archivado',
+        lat: 0,
+        lng: 0,
       } as any,
     ]);
 

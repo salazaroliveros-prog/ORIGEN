@@ -22,6 +22,10 @@ const PROJECT_CODE = `GTO-${RUN_ID}`;
 
 test.describe.serial('Sección Gastos & Facturas', () => {
   test.beforeAll(async ({ browser }) => {
+    // El hook crea un proyecto completo (login + formulario + espera de la
+    // suscripción) y arranca en frío sobre el emulador: 60 s no alcanzan.
+    test.setTimeout(180_000);
+
     // Se crea el proyecto en un contexto propio: `beforeEach` trabaja con un
     // contexto nuevo por prueba y no debe arrastrar el formulario abierto.
     const context = await browser.newContext();

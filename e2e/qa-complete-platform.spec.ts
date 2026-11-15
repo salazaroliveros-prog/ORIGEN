@@ -578,9 +578,11 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
     if (equipoVisible) {
       await equipoTab.click();
       await page.waitForTimeout(1500);
-      await expect(page.getByText(/Empleado|Equipo|Miembro|Personal/i).first()).toBeVisible({
-        timeout: 15_000,
-      });
+      // El título de la sección se repite en el encabezado móvil (oculto en
+      // escritorio): se comprueba el `h1` dentro del panel de contenido.
+      await expect(
+        page.locator('#main-content').getByRole('heading', { name: /Equipo de la empresa/i })
+      ).toBeVisible({ timeout: 15_000 });
     }
   });
 

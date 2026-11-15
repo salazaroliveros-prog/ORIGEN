@@ -86,8 +86,9 @@ export function ProjectsView({
     () =>
       quotes.reduce((totals, quote) => {
         if (quote.status === 'Rechazada') return totals;
-        const current = totals.get(quote.projectId) ?? { count: 0, totalGTQ: 0 };
-        totals.set(quote.projectId, {
+        const qProjectId = quote.projectId ?? '';
+        const current = totals.get(qProjectId) ?? { count: 0, totalGTQ: 0 };
+        totals.set(qProjectId, {
           count: current.count + 1,
           totalGTQ: current.totalGTQ + quote.totalGTQ,
         });
@@ -171,7 +172,7 @@ export function ProjectsView({
 
   if (loading) {
     return (
-      <div className="transition-container" style={{ transition: "fade" }}>
+      <div className="transition-container" style={{ transition: 'fade' }}>
         <div className="responsive-container safe-area-top safe-area-bottom flex min-h-full items-center justify-center">
           <div className="space-y-4 text-center">
             <Skeleton height="48px" width="160px" className="mx-auto" aria-hidden="true" />
@@ -245,7 +246,7 @@ export function ProjectsView({
           <ul className="space-y-3">
             {visibleProjects.map((p) => {
               return (
-                <div key={p.id} className="glass-l1" >
+                <div key={p.id} className="glass-l1">
                   <li className="glass-l1 flex flex-col justify-between gap-3 rounded-xl border border-white/10 p-4 duration-200 hover:bg-white/[0.05] lg:flex-row lg:items-center">
                     <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
                       <div className="flex items-center gap-3">

@@ -213,8 +213,6 @@ export function ProjectsAndVisits({
       signerDpi: signedData ? signedData.signerDpi : '2489 10293 0101',
       signerRole: signedData ? signedData.signerRole : 'Capataz General de Obra',
       gpsCoords: { lat: finalLat, lng: finalLng },
-      latitude: finalLat,
-      longitude: finalLng,
       accuracy: finalAccuracy,
       geofenceValid: finalGeofenceValid,
       geofenceDistanceMeters: finalGeofenceDist,
@@ -536,9 +534,8 @@ export function ProjectsAndVisits({
                           className="h-3.5 w-3.5 shrink-0 text-emerald-400"
                           aria-hidden="true"
                         />
-                        GPS:{' '}
-                        {(visit.latitude ?? visit.gpsCoords?.lat ?? activeProject.lat).toFixed(6)}°,{' '}
-                        {(visit.longitude ?? visit.gpsCoords?.lng ?? activeProject.lng).toFixed(6)}°
+                        GPS: {(visit.gpsCoords?.lat ?? activeProject.lat).toFixed(6)}°,{' '}
+                        {(visit.gpsCoords?.lng ?? activeProject.lng).toFixed(6)}°
                         <span className="text-[10px] text-slate-400">
                           (±{visit.accuracy ?? 10}m)
                         </span>
@@ -579,7 +576,7 @@ export function ProjectsAndVisits({
                             <div
                               key={photo.id}
                               onClick={() => setLightboxPhoto(photo)}
-                              className="aspect-[4/3] shadow-2xs group relative cursor-pointer overflow-hidden rounded-lg border border-slate-200"
+                              className="group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-lg border border-slate-200 shadow-2xs"
                             >
                               <Image
                                 src={photo.url}
@@ -638,19 +635,13 @@ export function ProjectsAndVisits({
                         <div className="flex items-center justify-between">
                           <span className="font-sans text-slate-400">Latitud:</span>
                           <span className="font-bold text-emerald-400">
-                            {(visit.latitude ?? visit.gpsCoords?.lat ?? activeProject.lat).toFixed(
-                              6
-                            )}
-                            °
+                            {(visit.gpsCoords?.lat ?? activeProject.lat).toFixed(6)}°
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="font-sans text-slate-400">Longitud:</span>
                           <span className="font-bold text-emerald-400">
-                            {(visit.longitude ?? visit.gpsCoords?.lng ?? activeProject.lng).toFixed(
-                              6
-                            )}
-                            °
+                            {(visit.gpsCoords?.lng ?? activeProject.lng).toFixed(6)}°
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
@@ -672,7 +663,7 @@ export function ProjectsAndVisits({
                             : 'Sincronizado'}
                         </span>
                         <a
-                          href={`https://www.google.com/maps?q=${visit.latitude ?? visit.gpsCoords?.lat ?? activeProject.lat},${visit.longitude ?? visit.gpsCoords?.lng ?? activeProject.lng}`}
+                          href={`https://www.google.com/maps?q=${visit.gpsCoords?.lat ?? activeProject.lat},${visit.gpsCoords?.lng ?? activeProject.lng}`}
                           target="_blank"
                           rel="noreferrer"
                           className="inline-flex items-center gap-1 font-bold text-sky-400 hover:text-sky-300 hover:underline"
@@ -702,7 +693,7 @@ export function ProjectsAndVisits({
                       <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-2">
                         {visit.signatureDataUrl ? (
                           <div className="flex items-center gap-2">
-                            <div className="shadow-2xs flex h-11 w-28 items-center justify-center rounded-lg border border-slate-300 bg-white p-1">
+                            <div className="flex h-11 w-28 items-center justify-center rounded-lg border border-slate-300 bg-white p-1 shadow-2xs">
                               <Image
                                 src={visit.signatureDataUrl}
                                 alt="Firma Digital"
@@ -730,7 +721,7 @@ export function ProjectsAndVisits({
                               setSigningVisitId(visit.id);
                               setIsSignaturePadOpen(true);
                             }}
-                            className="shadow-2xs inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-700"
+                            className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:bg-blue-700"
                           >
                             <PenTool className="h-3.5 w-3.5" /> Firmar con SignaturePad
                           </button>
@@ -957,7 +948,7 @@ export function ProjectsAndVisits({
                     type="button"
                     onClick={() => handleAcquireExactGps(activeProject.lat, activeProject.lng)}
                     disabled={isCapturingGps}
-                    className="shadow-xs inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:opacity-50"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-200 shadow-xs transition hover:bg-slate-700 disabled:opacity-50"
                   >
                     <Radio
                       className={`h-3 w-3 text-emerald-400 ${isCapturingGps ? 'animate-spin' : ''}`}
@@ -1139,7 +1130,7 @@ export function ProjectsAndVisits({
                     setSigningVisitId(null);
                     setIsSignaturePadOpen(true);
                   }}
-                  className={`shadow-xs inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
+                  className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold shadow-xs transition ${
                     signedData
                       ? 'bg-emerald-600 text-white hover:bg-emerald-500'
                       : 'bg-blue-600 text-white hover:bg-blue-500'
