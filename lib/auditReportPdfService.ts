@@ -141,21 +141,27 @@ export async function exportConstructionAuditPdf(
   doc.rect(margin, y + 23, usableWidth, 1.2, 'F');
 
   // Left Title
+  // Solo datos reales: un reporte de auditoría no puede imprimir una razón
+  // social, NIT ni dirección inventados.
   const compName =
     company?.legalName ||
     company?.commercialName ||
     company?.companyName ||
-    'ConstructERP Guatemala, S.A.';
+    'Empresa (sin nombre configurado)';
   addText(compName.toUpperCase(), margin + 4, y + 6.5, {
     fontSize: 11,
     fontStyle: 'bold',
     color: [255, 255, 255],
   });
 
-  const nitStr = company?.nit ? `NIT: ${company.nit}` : 'NIT: 1049281-2';
-  const phoneStr = company?.phone ? ` • Tel: ${company.phone}` : '';
-  const dirStr = company?.address ? ` • ${company.address}` : ' • Guatemala, C.A.';
-  addText(`${nitStr}${phoneStr}${dirStr}`, margin + 4, y + 11.5, {
+  const identityLine = [
+    company?.nit ? `NIT: ${company.nit}` : '',
+    company?.phone ? `Tel: ${company.phone}` : '',
+    company?.address ?? '',
+  ]
+    .filter(Boolean)
+    .join(' • ');
+  addText(identityLine || 'Datos fiscales de la empresa no configurados', margin + 4, y + 11.5, {
     fontSize: 7.5,
     color: [203, 213, 225],
   });

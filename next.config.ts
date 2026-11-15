@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    // El explorador de segmentos de Next DevTools provoca errores 500 en el
+    // servidor de desarrollo durante corridas largas ("Could not find the
+    // module ... segment-explorer-node.js"). No aporta nada a la app.
+    devtoolSegmentExplorer: false,
   },
   images: {
     remotePatterns: [

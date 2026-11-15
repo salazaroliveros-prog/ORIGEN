@@ -288,7 +288,7 @@ export function MachineryManager({
             setFormErrors({});
           }}
           disabled={!canWrite}
-          title={!canWrite ? 'Inicia sesión con un rol que pueda gestionar maquinaria' : undefined}
+          title={!canWrite ? 'Tu rol no permite gestionar maquinaria' : undefined}
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus className="h-4 w-4" aria-hidden="true" /> Registrar Maquinaria

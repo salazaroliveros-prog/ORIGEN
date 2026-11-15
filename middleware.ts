@@ -106,8 +106,12 @@ export function middleware(request: NextRequest) {
   // Content Security Policy
   const csp = buildContentSecurityPolicy(process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true');
 
+  const isEmulator = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true';
   response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Content-Type-Options', 'nosniff');
+  if (isEmulator) {
+    response.headers.set('X-Firebase-Emulator-Mode', 'true');
+  }
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self)');

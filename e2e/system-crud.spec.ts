@@ -44,7 +44,12 @@ test.describe('CRUD completo de módulos ERP', () => {
 
     await test.step('proyectos: crear, leer, actualizar, archivar y restaurar', async () => {
       await page.getByRole('button', { name: 'Proyectos & Firmas' }).click();
-      await page.getByRole('button', { name: 'Nuevo Proyecto' }).click();
+      // ProjectsView renderiza el botón 'Nuevo Proyecto' en el header una vez cargada.
+      // Puede estar el botón 'Nuevo Proyecto' o 'Crear su primer proyecto' si está vacío.
+      await page
+        .getByRole('button', { name: /Nuevo Proyecto|Crear su primer proyecto/ })
+        .first()
+        .click();
 
       const projectDialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
       await projectDialog.getByLabel('Código del Proyecto').fill(projectCode);

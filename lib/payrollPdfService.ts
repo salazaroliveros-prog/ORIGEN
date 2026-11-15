@@ -70,14 +70,29 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
   doc.setFillColor(15, 23, 42); // slate-900
   doc.rect(margin, y, usableWidth, 22, 'F');
 
-  addText(company.commercialName || 'ConstructERP Guatemala, S.A.', margin + 4, y + 6, {
+  // Identidad de la empresa: solo datos reales. Un reporte oficial de planilla
+  // no puede llevar razón social, NIT ni número patronal inventados.
+  const companyName =
+    company.commercialName?.trim() ||
+    company.legalName?.trim() ||
+    company.companyName?.trim() ||
+    '';
+
+  addText(companyName || 'Empresa (sin nombre configurado)', margin + 4, y + 6, {
     fontSize: 12,
     fontStyle: 'bold',
     color: [255, 255, 255],
   });
 
+  const identityParts = [
+    company.nit?.trim() ? `NIT: ${company.nit.trim()}` : null,
+    company.address?.trim() || null,
+  ].filter((part): part is string => Boolean(part));
+
   addText(
-    `NIT: ${company.nit || '1049281-2'} • No. Patronal IGSS: 08-94102-3 • ${company.address || 'Guatemala, C.A.'}`,
+    identityParts.length > 0
+      ? identityParts.join(' • ')
+      : 'Datos fiscales de la empresa no configurados',
     margin + 4,
     y + 11,
     {

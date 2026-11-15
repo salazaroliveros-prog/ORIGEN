@@ -113,6 +113,10 @@ async function registerMachinery(page: Page, name: string, plate: string) {
 }
 
 test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () => {
+  // Varias pruebas crean proyectos/maquinaria por la UI (varios viajes a
+  // Firestore) y en modo dev cada paso puede tardar decenas de segundos.
+  test.describe.configure({ timeout: 180_000 });
+
   test.beforeEach(async ({ page }) => {
     await ensureAuthenticated(page);
   });
