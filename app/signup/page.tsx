@@ -141,7 +141,7 @@ export default function SignUpPage() {
       setErrors({});
 
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/onboarding/empresa');
       }, 1500);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error de registro';
