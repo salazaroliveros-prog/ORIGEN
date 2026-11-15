@@ -33,6 +33,7 @@ import {
 } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { authFetch } from '@/lib/apiClient';
 import { CanvasSignature } from '@/components/CanvasSignature';
 import type { SignatureResult } from '@/components/SignaturePad';
 import Image from 'next/image';
@@ -234,7 +235,7 @@ export function SmartBitacoraManager({
     setErrorMessage(null);
 
     try {
-      const res = await fetch('/api/gemini/bitacora', {
+      const res = await authFetch('/api/gemini/bitacora', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

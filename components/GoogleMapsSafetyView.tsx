@@ -1,6 +1,7 @@
 'use client';
 
 import { formatGTQ, formatUSD } from '@/lib/data';
+import { authFetch } from '@/lib/apiClient';
 import { Project } from '@/lib/types';
 import {
   CheckCircle2,
@@ -55,7 +56,7 @@ export function GoogleMapsSafetyView({
   const fetchWeatherAlerts = async () => {
     setIsLoadingWeather(true);
     try {
-      const res = await fetch('/api/weather/safety-alerts');
+      const res = await authFetch('/api/weather/safety-alerts');
       const data = await res.json();
       if (data && data.alerts) {
         setAlerts(data.alerts);
@@ -119,7 +120,7 @@ export function GoogleMapsSafetyView({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column: Interactive Map View */}
         <div className="space-y-4 lg:col-span-2">
-          <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
             {/* Map Top Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 p-3.5">
               <div className="flex items-center gap-2">
@@ -239,7 +240,7 @@ export function GoogleMapsSafetyView({
 
         {/* Right Column: Construction Sites Pin Selector */}
         <div className="space-y-4">
-          <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
             <div className="mb-3 flex items-center justify-between">
               <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
                 <Navigation className="h-4 w-4 text-blue-600" aria-hidden="true" />
@@ -260,7 +261,7 @@ export function GoogleMapsSafetyView({
                     }}
                     className={`cursor-pointer rounded-xl border p-3 text-xs transition ${
                       isSelected
-                        ? 'shadow-xs border-blue-600 bg-blue-50/60'
+                        ? 'border-blue-600 bg-blue-50/60 shadow-xs'
                         : 'border-slate-200 bg-white hover:bg-slate-50'
                     }`}
                   >
@@ -301,7 +302,7 @@ export function GoogleMapsSafetyView({
       </div>
 
       {/* Weather Alerts & Safety Monitoring Section */}
-      <div className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
         <div className="flex flex-col items-start justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
           <div>
             <div className="flex items-center gap-2">

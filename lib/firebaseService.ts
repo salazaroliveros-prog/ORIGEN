@@ -48,14 +48,23 @@ import {
   validateMachinery,
 } from './validation/entity.schemas';
 import { validateProjectForm } from './validation/project.schema';
-import { normalizeAPUItem } from './domain/apu';
-import { buildMachineryUseRecord } from './domain/machinery';
+import { stripUndefined } from './utils/firestorePayload';
+import {
+  buildMachineryRecord,
+  resolveMachineryUse,
+  MACHINERY_DELETION_BLOCKED_MESSAGE,
+} from './domain/machinery';
+import {
+  buildAPUItemRecords,
+  buildAttendanceRecord,
+  buildEmployeeRecord,
+} from './domain/ownership';
 
 const firebaseConfig = getFirebaseConfig();
 
 // `throw` no se hace en tiempo de evaluación del módulo: este archivo
-// también se importa desde rutas de servidor (`app/api/upload-project-photo`)
-// y Next.js lo evalúa durante el build (colección de datos de página) sin
+// también se importa desde rutas de servidor (vía `lib/apiMiddleware`) y
+// Next.js lo evalúa durante el build (colección de datos de página) sin
 // variables de entorno en el entorno de CI. Lanzar aquí rompe el build.
 // En su lugar se registra el problema y la inicialización se omite hasta
 // que haya configuración válida (ver `initializeFirebase`).
@@ -146,6 +155,7 @@ export function getStorageOrThrow(): NonNullable<typeof storage> {
   }
   return storage;
 }
+
 const isNewFirebaseApp = !hasExistingFirebaseApp;
 const useFirebaseEmulators =
   process.env.NODE_ENV === 'development' &&
@@ -319,12 +329,12 @@ export async function saveProjectToFirestore(project: Project, companyId: string
     const docRef = doc(db, 'projects', project.id);
     await setDoc(
       docRef,
-      {
+      stripUndefined({
         ...project,
         companyId,
         ownerId: userId,
         createdBy: project.createdBy ?? userId,
-      },
+      }),
       { merge: true }
     );
     notifySyncEnd();
@@ -363,12 +373,12 @@ export async function saveProjectScheduleToFirestore(
   try {
     await setDoc(
       doc(db, 'projects', projectId),
-      {
+      stripUndefined({
         ...schedule,
         companyId,
         ownerId: userId,
         updatedBy: userId,
-      },
+      }),
       { merge: true }
     );
     return true;
@@ -441,14 +451,38 @@ export async function deleteEmployeeFromFirestore(
 
 export async function deleteMachineryFromFirestore(
   machineryId: string,
-  _companyId: string
+  companyId: string
 ): Promise<boolean> {
   const path = `machinery/${machineryId}`;
   try {
+    // Un equipo con operaciones registradas no se borra: sus bitácoras y gastos
+    // quedarían huérfanos y el costo de obra perdería trazabilidad.
+    //
+    // La consulta filtra por `companyId` además de por `machineryId`:
+    //  1. `firestore.rules` solo permite listar `machineryLogs` cuando puede
+    //     probar la pertenencia a la empresa (`resource.data.companyId`), y eso
+    //     exige un filtro por ese campo en la consulta.
+    //  2. Sin ese filtro la consulta recorrería las bitácoras de todas las
+    //     empresas (filtrado en el cliente, no en el servidor).
+    const logsSnap = await getDocs(
+      query(
+        collection(db, 'machineryLogs'),
+        where('companyId', '==', companyId),
+        where('machineryId', '==', machineryId),
+        limit(1)
+      )
+    );
+    if (!logsSnap.empty) {
+      throw new Error(MACHINERY_DELETION_BLOCKED_MESSAGE);
+    }
     await deleteDoc(doc(db, 'machinery', machineryId));
     return true;
   } catch (error) {
     notifySyncEnd();
+    // El motivo de negocio se propaga para que la UI lo muestre tal cual.
+    if (error instanceof Error && error.message === MACHINERY_DELETION_BLOCKED_MESSAGE) {
+      throw error;
+    }
     handleFirestoreError(error, OperationType.DELETE, path);
     return false;
   }
@@ -464,11 +498,11 @@ export async function saveFieldVisitToFirestore(
     const docRef = doc(db, 'fieldVisits', visit.id);
     await setDoc(
       docRef,
-      {
+      stripUndefined({
         ...visit,
         companyId,
         authorId: userId,
-      },
+      }),
       { merge: true }
     );
     return true;
@@ -525,7 +559,7 @@ export async function saveExpenseToFirestore(
 
   try {
     const docRef = doc(db, 'expenses', expense.id);
-    await setDoc(docRef, validation.data, { merge: true });
+    await setDoc(docRef, stripUndefined(validation.data), { merge: true });
     return true;
   } catch (err) {
     notifySyncEnd();
@@ -568,11 +602,14 @@ export async function updateExpenseToFirestore(
 
   try {
     const docRef = doc(db, 'expenses', expense.id);
-    await updateDoc(docRef, {
-      ...validation.data,
-      updatedBy: userId,
-      updatedAt: new Date().toISOString(),
-    });
+    await updateDoc(
+      docRef,
+      stripUndefined({
+        ...validation.data,
+        updatedBy: userId,
+        updatedAt: new Date().toISOString(),
+      })
+    );
     return true;
   } catch (err) {
     notifySyncEnd();
@@ -615,8 +652,12 @@ export async function saveAttendanceToFirestore(
 ) {
   const path = `attendance/${record.id}`;
 
+  // El contexto de persistencia se agrega antes de validar: `companyId` y
+  // `authorId` son obligatorios en el schema y los aporta el servidor.
+  const recordWithOwnership = buildAttendanceRecord(record, companyId, userId);
+
   // Validar datos antes de guardar
-  const validation = validateAttendanceRecord(record);
+  const validation = validateAttendanceRecord(recordWithOwnership);
   if (!validation.success) {
     console.error('Attendance validation failed:', validation.error);
     throw new Error(
@@ -626,15 +667,7 @@ export async function saveAttendanceToFirestore(
 
   try {
     const docRef = doc(db, 'attendance', record.id);
-    await setDoc(
-      docRef,
-      {
-        ...record,
-        companyId,
-        authorId: userId,
-      },
-      { merge: true }
-    );
+    await setDoc(docRef, stripUndefined(recordWithOwnership), { merge: true });
     return true;
   } catch (err) {
     notifySyncEnd();
@@ -677,8 +710,13 @@ export async function saveEmployeeToFirestore(
 ): Promise<boolean> {
   const path = `employees/${employee.id}`;
 
+  // El contexto de persistencia se agrega antes de validar: `companyId`,
+  // `ownerId` y `createdBy` los aporta el servidor y las reglas exigen que
+  // `ownerId` coincida con `companyId`.
+  const employeeWithOwnership = buildEmployeeRecord(employee, companyId, userId);
+
   // Validar datos antes de guardar
-  const validation = validateEmployee(employee);
+  const validation = validateEmployee(employeeWithOwnership);
   if (!validation.success) {
     console.error('Employee validation failed:', validation.error);
     throw new Error(
@@ -688,11 +726,9 @@ export async function saveEmployeeToFirestore(
 
   try {
     const batch = writeBatch(db);
-    batch.set(
-      doc(db, 'employees', employee.id),
-      { ...employee, companyId, ownerId: companyId, createdBy: userId },
-      { merge: true }
-    );
+    batch.set(doc(db, 'employees', employee.id), stripUndefined(employeeWithOwnership), {
+      merge: true,
+    });
     batch.set(doc(db, 'employeeDirectory', employee.id), {
       id: employee.id,
       companyId,
@@ -795,11 +831,11 @@ export async function saveCompanySettingsToFirestore(settings: CompanySettings, 
     const docRef = doc(db, 'companySettings', companyId);
     await setDoc(
       docRef,
-      {
+      stripUndefined({
         ...settings,
         companyId,
         ownerId: companyId,
-      },
+      }),
       { merge: true }
     );
     return true;
@@ -870,9 +906,7 @@ export function subscribeAPUItems(
       query(collection(db, path), where('companyId', '==', companyId)),
       (snapshot: QuerySnapshot<DocumentData>) =>
         callback(
-          snapshot.docs.map(
-            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as APUItem
-          )
+          snapshot.docs.map((item: QueryDocumentSnapshot<DocumentData>) => item.data() as APUItem)
         ),
       (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
     );
@@ -883,6 +917,16 @@ export function subscribeAPUItems(
   }
 }
 
+/**
+ * Construye el registro APU completo que se persiste en Firestore.
+ *
+ * `companyId`, `projectId` y `createdBy` los agrega el servidor y son
+ * obligatorios en `APUItemSchema`, por lo que el registro debe quedar
+ * completo **antes** de validar: validar el borrador (sin esos campos)
+ * hace fallar siempre la validación.
+ *
+ * @see lib/domain/ownership.ts
+ */
 export async function saveAPUItemsToFirestore(
   items: APUItem[],
   projectId: string,
@@ -893,15 +937,15 @@ export async function saveAPUItemsToFirestore(
     throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
   }
 
-  const normalizedItems = items.map((item) => normalizeAPUItem(item));
+  const records = buildAPUItemRecords(items, projectId, companyId, userId);
 
   // Validar cada item con Zod
-  for (const item of normalizedItems) {
-    const validation = validateAPUItem(item);
+  for (const record of records) {
+    const validation = validateAPUItem(record);
     if (!validation.success) {
       console.error('APU Item validation failed:', validation.error);
       throw new Error(
-        `Datos de partida APU inválidos (${item.code}): ${validation.error.issues.map((i) => i.message).join(', ')}`
+        `Datos de partida APU inválidos (${record.code}): ${validation.error.issues.map((i) => i.message).join(', ')}`
       );
     }
   }
@@ -909,12 +953,8 @@ export async function saveAPUItemsToFirestore(
   const path = 'apuItems';
   try {
     const batch = writeBatch(db);
-    for (const item of normalizedItems) {
-      batch.set(
-        doc(db, path, item.id),
-        { ...item, companyId, projectId, createdBy: item.createdBy ?? userId, updatedBy: userId },
-        { merge: true }
-      );
+    for (const record of records) {
+      batch.set(doc(db, path, record.id), stripUndefined(record), { merge: true });
     }
     await batch.commit();
     return true;
@@ -935,13 +975,14 @@ export async function saveAPUItemsToFirestoreServer(
     throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
   }
 
-  const normalizedItems = items.map((item) => normalizeAPUItem(item));
+  const records = buildAPUItemRecords(items, projectId, companyId, userId);
 
-  for (const item of normalizedItems) {
-    const validation = validateAPUItem(item);
+  for (const record of records) {
+    const validation = validateAPUItem(record);
     if (!validation.success) {
+      console.error('APU Item validation failed:', validation.error);
       throw new Error(
-        `Datos de partida APU inválidos (${item.code}): ${validation.error.issues.map((i) => i.message).join(', ')}`
+        `Datos de partida APU inválidos (${record.code}): ${validation.error.issues.map((i) => i.message).join(', ')}`
       );
     }
   }
@@ -949,12 +990,8 @@ export async function saveAPUItemsToFirestoreServer(
   const path = 'apuItems';
   try {
     const batch = writeBatch(db);
-    for (const item of normalizedItems) {
-      batch.set(
-        doc(db, path, item.id),
-        { ...item, companyId, projectId, createdBy: item.createdBy ?? userId, updatedBy: userId },
-        { merge: true }
-      );
+    for (const record of records) {
+      batch.set(doc(db, path, record.id), stripUndefined(record), { merge: true });
     }
     await batch.commit();
     return true;
@@ -1011,7 +1048,7 @@ export async function saveQuoteToFirestore(
   }
 
   try {
-    await setDoc(doc(db, 'quotes', quote.id), quoteWithMeta, { merge: true });
+    await setDoc(doc(db, 'quotes', quote.id), stripUndefined(quoteWithMeta), { merge: true });
     return true;
   } catch (error) {
     notifySyncEnd();
@@ -1051,9 +1088,7 @@ export function subscribeMachinery(
       query(collection(db, path), where('companyId', '==', companyId)),
       (snapshot: QuerySnapshot<DocumentData>) =>
         callback(
-          snapshot.docs.map(
-            (item: QueryDocumentSnapshot<DocumentData>) => item.data() as Machinery
-          )
+          snapshot.docs.map((item: QueryDocumentSnapshot<DocumentData>) => item.data() as Machinery)
         ),
       (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
     );
@@ -1070,7 +1105,9 @@ export async function saveMachineryToFirestore(
   userId: string
 ): Promise<boolean> {
   const path = `machinery/${machinery.id}`;
-  const validation = validateMachinery(machinery);
+  // El formulario no conoce la empresa: se completa aquí, antes de validar.
+  const record = buildMachineryRecord(machinery, companyId, userId);
+  const validation = validateMachinery(record);
   if (!validation.success) {
     console.error('Machinery validation failed:', validation.error);
     throw new Error(
@@ -1079,11 +1116,7 @@ export async function saveMachineryToFirestore(
   }
 
   try {
-    await setDoc(
-      doc(db, 'machinery', machinery.id),
-      { ...machinery, companyId, createdBy: machinery.createdBy ?? userId },
-      { merge: true }
-    );
+    await setDoc(doc(db, 'machinery', machinery.id), stripUndefined(record), { merge: true });
     return true;
   } catch (error) {
     notifySyncEnd();
@@ -1099,7 +1132,7 @@ export async function updateMachineryStatusInFirestore(
   userId: string
 ): Promise<boolean> {
   const path = `machinery/${machinery.id}`;
-  const validation = validateMachinery({ ...machinery, status });
+  const validation = validateMachinery({ ...machinery, status, companyId });
   if (!validation.success) {
     console.error('Machinery status validation failed:', validation.error);
     throw new Error(
@@ -1154,29 +1187,13 @@ export async function recordMachineryUse(
   const logPath = `machineryLogs/${log.id}`;
   try {
     const batch = writeBatch(db);
-    const nextHorometer = machinery.currentHorometer + log.hoursWorked;
-    const normalized = buildMachineryUseRecord(
-      {
-        machineryId: log.machineryId,
-        machineryName: log.machineryName || machinery.name,
-        projectId: log.projectId,
-        date: log.date,
-        nextHorometer,
-        operatorName: log.operatorName,
-        fuelGallons: log.fuelGallons,
-      },
-      machinery,
-      log.id
-    );
+    // Horas y monto se recalculan contra la tarifa real del equipo.
+    const normalized = resolveMachineryUse(log, machinery);
 
-    const expense: ExpenseRecord = {
-      ...normalized.expense,
-      description: `${log.machineryName || machinery.name}: ${log.hoursWorked} horas de operación`,
-      amount: log.costGTQ,
-    };
+    const expense: ExpenseRecord = normalized.expense;
     const normalizedLog: MachineryLog = {
-      ...normalized.log,
       ...log,
+      ...normalized.log,
       expenseId: normalized.expense.id,
     };
 

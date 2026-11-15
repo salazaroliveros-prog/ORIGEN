@@ -11,10 +11,15 @@ test.describe('Autenticación', () => {
   });
 
   test('la página carga con título que contiene ORIGEN o ConstructERP', async ({ page }) => {
+    // Next.js inyecta el `<title>` de `metadata` en un fragmento de la
+    // respuesta que puede llegar después de `domcontentloaded`: hay que
+    // esperarlo explícitamente.
+    await page.waitForFunction(() => document.title.trim().length > 0, undefined, {
+      timeout: 30_000,
+    });
+
     const title = await page.title();
-    // El título puede contener 'ORIGEN' o el nombre de la app
-    const titleOk = /ORIGEN|ConstructERP|ERP|Guatemala/i.test(title) || title.length > 0;
-    expect(titleOk).toBe(true);
+    expect(title).toMatch(/ORIGEN|ConstructERP|ERP|Guatemala/i);
   });
 
   test('el correo del administrador autenticado es visible en pantalla', async ({ page }) => {
@@ -28,9 +33,7 @@ test.describe('Autenticación', () => {
     });
   });
 
-  test('la sesión autenticada no muestra el formulario de inicio de sesión', async ({
-    page,
-  }) => {
+  test('la sesión autenticada no muestra el formulario de inicio de sesión', async ({ page }) => {
     const emailInput = page.getByLabel('Correo electrónico');
     const isVisible = await emailInput.isVisible().catch(() => false);
     expect(isVisible).toBe(false);

@@ -1,6 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
+import type { User } from 'firebase/auth';
+import type { AuthSessionStatus } from '@/lib/firebaseAuth';
+import type { CompanyWorkspaceOption, Project } from '@/lib/types';
 import { LogoUpload } from '@/components/LogoUpload';
 import { Navbar } from '@/components/Navbar';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
@@ -21,6 +24,7 @@ import toast from 'react-hot-toast';
 import {
   canManagePersonnel,
   canReadEmployeeDirectory,
+  canReadExpenses,
   canReadFullPersonnel,
 } from '@/lib/permissions';
 
@@ -119,6 +123,18 @@ export function MainAppHeader({
   permissions,
   handleUpdateCompany,
   handleSaveExchangeRate,
+  currentUser,
+  authStatus,
+  isSigningOut,
+  onSignOut,
+  projects,
+  activeProjectId,
+  onSelectProject,
+  onSelectTab,
+  onOpenAiAssistant,
+  workspaces,
+  activeWorkspaceId,
+  onSelectWorkspace,
 }: {
   company: CompanySettings;
   activeTab: TabKey;
@@ -131,6 +147,18 @@ export function MainAppHeader({
   permissions: ReturnType<typeof usePermissions>;
   handleUpdateCompany: (updates: Partial<CompanySettings>) => Promise<boolean>;
   handleSaveExchangeRate: () => Promise<void>;
+  currentUser: User | null;
+  authStatus: AuthSessionStatus;
+  isSigningOut: boolean;
+  onSignOut: () => Promise<boolean>;
+  projects: Project[];
+  activeProjectId: string;
+  onSelectProject: (projectId: string) => void;
+  onSelectTab: (tab: string) => void;
+  onOpenAiAssistant: () => void;
+  workspaces: CompanyWorkspaceOption[];
+  activeWorkspaceId: string;
+  onSelectWorkspace: (companyId: string) => void;
 }) {
   const tabConfig = TAB_CONFIG[activeTab];
 
@@ -146,23 +174,24 @@ export function MainAppHeader({
 
       <Navbar
         company={company}
-        projects={[]}
-        workspaces={[]}
-        activeWorkspaceId=""
-        onSelectWorkspace={() => {}}
-        activeProjectId=""
-        onSelectProject={() => {}}
+        projects={projects}
+        workspaces={workspaces}
+        activeWorkspaceId={activeWorkspaceId}
+        onSelectWorkspace={onSelectWorkspace}
+        activeProjectId={activeProjectId}
+        onSelectProject={onSelectProject}
         activeTab={activeTab}
-        onSelectTab={() => {}}
-        onOpenAiAssistant={() => {}}
+        onSelectTab={onSelectTab}
+        onOpenAiAssistant={onOpenAiAssistant}
         onOpenBranding={() => setBrandingOpen(true)}
-        currentUser={null}
-        authStatus="authenticated"
-        isSigningOut={false}
-        onSignOut={async () => false}
+        currentUser={currentUser}
+        authStatus={authStatus}
+        isSigningOut={isSigningOut}
+        onSignOut={onSignOut}
         canManageCompany={permissions.canManageCompany}
         canViewPersonnel={permissions.canViewPersonnel}
         canViewPayroll={permissions.canViewFullPersonnel}
+        canViewExpenses={permissions.canViewExpenses}
         isMobileSidebarOpen={isMobileSidebarOpen}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen((isOpen) => !isOpen)}
       />
@@ -281,16 +310,24 @@ export function MainAppHeader({
 }
 
 function usePermissions(role?: string) {
-  return useMemo(() => ({
-    canManageProjects: ['owner', 'admin', 'project_manager'].includes(role ?? ''),
-    canManageQuotes: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-    canManageBudget: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-    canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
-    canManageExpenses: ['owner', 'admin', 'finance'].includes(role ?? ''),
-    canManageEmployees: canManagePersonnel(role as any),
-    canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
-    canViewPersonnel: canReadEmployeeDirectory(role as any),
-    canViewFullPersonnel: canReadFullPersonnel(role as any),
-    canManageCompany: ['owner', 'admin'].includes(role ?? ''),
-  }), [role]);
+  return useMemo(
+    () => ({
+      canManageProjects: ['owner', 'admin', 'project_manager'].includes(role ?? ''),
+      canManageQuotes: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
+      canManageBudget: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
+      canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
+        role ?? ''
+      ),
+      canManageExpenses: ['owner', 'admin', 'finance'].includes(role ?? ''),
+      canViewExpenses: canReadExpenses(role as any),
+      canManageEmployees: canManagePersonnel(role as any),
+      canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
+        role ?? ''
+      ),
+      canViewPersonnel: canReadEmployeeDirectory(role as any),
+      canViewFullPersonnel: canReadFullPersonnel(role as any),
+      canManageCompany: ['owner', 'admin'].includes(role ?? ''),
+    }),
+    [role]
+  );
 }

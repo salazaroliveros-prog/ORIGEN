@@ -13,19 +13,45 @@ vi.mock('@google/genai', () => ({
   })),
 }));
 
+vi.mock('@/lib/apiAuth', () => ({
+  requireApiUser: vi.fn(),
+}));
+
 import type { NextRequest } from 'next/server';
 import { POST, GET } from './safety-alerts/route';
-import { rateLimitMiddleware, getClientIp } from '@/lib/security';
+import { rateLimitMiddleware } from '@/lib/security';
+import { requireApiUser } from '@/lib/apiAuth';
+
+const AUTH_OK = {
+  ok: true as const,
+  idToken: 'id-token',
+  user: { uid: 'uid-1', email: 'user@origen.gt', emailVerified: true, displayName: null },
+};
 
 describe('app/api/weather/safety-alerts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(requireApiUser).mockResolvedValue(AUTH_OK);
     vi.mocked(rateLimitMiddleware).mockReturnValue(null);
-    vi.mocked(getClientIp).mockReturnValue('127.0.0.1');
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('should return 401 without an authenticated session', async () => {
+    vi.mocked(requireApiUser).mockResolvedValue({
+      ok: false,
+      status: 401,
+      message: 'Debes iniciar sesión para usar este servicio.',
+    });
+
+    const req = new Request(
+      'http://localhost/api/weather/safety-alerts?lat=14.6349&lng=-90.5069'
+    ) as unknown as NextRequest;
+    const res = await GET(req);
+    expect(res.status).toBe(401);
+    expect(rateLimitMiddleware).not.toHaveBeenCalled();
   });
 
   describe('GET', () => {
@@ -38,7 +64,9 @@ describe('app/api/weather/safety-alerts', () => {
     });
 
     it('should return 400 for missing coordinates', async () => {
-      const req = new Request('http://localhost/api/weather/safety-alerts?projectName=Test') as unknown as NextRequest;
+      const req = new Request(
+        'http://localhost/api/weather/safety-alerts?projectName=Test'
+      ) as unknown as NextRequest;
       const res = await GET(req);
       expect(res.status).toBe(400);
     });
@@ -96,7 +124,12 @@ describe('app/api/weather/safety-alerts', () => {
     it('should return 200 for valid request', async () => {
       const req = new Request('http://localhost/api/weather/safety-alerts', {
         method: 'POST',
-        body: JSON.stringify({ lat: 14.6349, lng: -90.5069, projectName: 'Test', municipality: 'Guatemala' }),
+        body: JSON.stringify({
+          lat: 14.6349,
+          lng: -90.5069,
+          projectName: 'Test',
+          municipality: 'Guatemala',
+        }),
       }) as unknown as NextRequest;
       const res = await POST(req);
       expect(res.status).toBe(200);
@@ -107,7 +140,12 @@ describe('app/api/weather/safety-alerts', () => {
     it('should return fallback when API call fails', async () => {
       const req = new Request('http://localhost/api/weather/safety-alerts', {
         method: 'POST',
-        body: JSON.stringify({ lat: 14.6349, lng: -90.5069, projectName: 'Test', municipality: 'Guatemala' }),
+        body: JSON.stringify({
+          lat: 14.6349,
+          lng: -90.5069,
+          projectName: 'Test',
+          municipality: 'Guatemala',
+        }),
       }) as unknown as NextRequest;
       const res = await POST(req);
       expect(res.status).toBe(200);

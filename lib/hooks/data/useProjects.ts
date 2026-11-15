@@ -7,10 +7,14 @@ import {
   saveProjectToFirestore,
   saveProjectScheduleToFirestore,
 } from '@/lib/firebaseService';
-import { validateProjectForm, getDefaultProjectValues, type ProjectFormValues } from '@/lib/validation/project.schema';
+import {
+  validateProjectForm,
+  getDefaultProjectValues,
+  type ProjectFormValues,
+} from '@/lib/validation/project.schema';
 import { toast } from 'react-hot-toast';
 import { notifySyncEnd } from '../useFirebaseSyncStatus';
-import { calculateProjectSpentById, resolveProjectProgress } from '@/lib/projectCalculations';
+import { mergeProjectUpdate } from '@/lib/projectCalculations';
 import { createLogger } from '@/lib/utils/logger';
 import { queryCache, createCacheKey } from '@/lib/utils/cacheManager';
 
@@ -25,13 +29,18 @@ export interface UseProjectsReturn {
   projects: Project[];
   loading: boolean;
   activeProjects: Project[];
-  createProject: (data: ProjectFormValues, onCreated?: (projectId: string) => void) => Promise<boolean>;
+  createProject: (
+    data: ProjectFormValues,
+    onCreated?: (projectId: string) => void
+  ) => Promise<boolean>;
   updateProject: (projectId: string, data: Partial<ProjectFormValues>) => Promise<boolean>;
   archiveProject: (projectId: string) => Promise<boolean>;
   restoreProject: (projectId: string) => Promise<boolean>;
   updateProjectSchedule: (
     projectId: string,
-    schedule: Partial<Pick<Project, 'scheduleTasks' | 'scheduleMilestones' | 'taskReminders' | 'progressPercent'>>
+    schedule: Partial<
+      Pick<Project, 'scheduleTasks' | 'scheduleMilestones' | 'taskReminders' | 'progressPercent'>
+    >
   ) => Promise<void>;
   getDefaultValues: () => ProjectFormValues;
   validateForm: (data: unknown) => ReturnType<typeof validateProjectForm>;
@@ -48,22 +57,9 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
     [projects]
   );
 
-  // Derived state: calculate spent total and progress for each project
-  const projectsWithCalculations = useMemo(() => {
-    return projects.map((project) => {
-      const calculatedSpent = calculateProjectSpentById([], project.id);
-      const calculatedProgress = resolveProjectProgress(
-        project.scheduleTasks,
-        project.scheduleMilestones,
-        project.progressPercent
-      );
-      return {
-        ...project,
-        spentTotal: calculatedSpent !== project.spentTotal ? calculatedSpent : project.spentTotal,
-        progressPercent: calculatedProgress !== project.progressPercent ? calculatedProgress : project.progressPercent,
-      };
-    });
-  }, [projects]);
+  // NOTE: `spentTotal` y `progressPercent` son datos DERIVADOS. No se calculan aquí
+  // porque este hook no tiene acceso a los gastos; `useProjectData` los deriva a
+  // partir de la colección de gastos y del cronograma (ver deriveProjectsFinancials).
 
   // Subscribe to projects
   useEffect(() => {
@@ -109,7 +105,9 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
 
       const validation = validateProjectForm(data);
       if (!validation.success) {
-        log.warn('Project validation failed', { errors: validation.error.issues.map((i) => i.message) });
+        log.warn('Project validation failed', {
+          errors: validation.error.issues.map((i) => i.message),
+        });
         toast.error('Datos inválidos: ' + validation.error.issues.map((i) => i.message).join(', '));
         return false;
       }
@@ -169,13 +167,12 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
         }
 
         log.info('Updating project', { projectId, companyId });
-        const updated: Project = {
-          ...existing,
-          ...data,
-          id: projectId,
+        // `mergeProjectUpdate` ignora `spentTotal` del formulario (es derivado de
+        // los gastos) y recalcula `progressPercent` desde el cronograma.
+        const updated = mergeProjectUpdate(existing, data, {
           companyId,
           ownerId: currentUserId,
-        };
+        });
 
         const success = await saveProjectToFirestore(updated, companyId, currentUserId);
         if (success) {
@@ -250,7 +247,9 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
       } catch (err) {
         notifySyncEnd();
         log.error('Project archival error', err as Error, { projectId });
-        toast.error('Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.');
+        toast.error(
+          'Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.'
+        );
         return false;
       } finally {
         setLoading(false);
@@ -313,14 +312,21 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
   const updateProjectSchedule = useCallback(
     async (
       projectId: string,
-      schedule: Partial<Pick<Project, 'scheduleTasks' | 'scheduleMilestones' | 'taskReminders' | 'progressPercent'>>
+      schedule: Partial<
+        Pick<Project, 'scheduleTasks' | 'scheduleMilestones' | 'taskReminders' | 'progressPercent'>
+      >
     ) => {
       if (!currentUserId || !companyId) {
         toast.error('Inicia sesión para guardar los cambios del cronograma.');
         return;
       }
 
-      const saved = await saveProjectScheduleToFirestore(projectId, schedule, companyId, currentUserId);
+      const saved = await saveProjectScheduleToFirestore(
+        projectId,
+        schedule,
+        companyId,
+        currentUserId
+      );
       if (!saved) {
         toast.error('No se pudieron guardar los cambios del cronograma.');
       }
@@ -329,9 +335,9 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
   );
 
   return {
-    projects: projectsWithCalculations,
+    projects,
     loading,
-    activeProjects: projectsWithCalculations.filter((project) => project.status !== 'Archivado'),
+    activeProjects,
     createProject,
     updateProject,
     archiveProject,

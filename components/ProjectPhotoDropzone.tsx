@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, Image as ImageIcon, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { authFetch } from '@/lib/apiClient';
 
 interface ProjectPhotoDropzoneProps {
   projectId: string;
@@ -54,20 +55,20 @@ export function ProjectPhotoDropzone({
             continue;
           }
 
-          // Subir a Firebase Storage
+          // Subir a Firebase Storage (la ruta API exige sesión y aplica reglas)
           const formData = new FormData();
           formData.append('file', file);
           formData.append('projectId', projectId);
           formData.append('projectCode', projectCode);
 
-          const response = await fetch('/api/upload-project-photo', {
+          const response = await authFetch('/api/upload-project-photo', {
             method: 'POST',
             body: formData,
           });
 
           if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Error al subir la foto');
+            const error = await response.json().catch(() => null);
+            throw new Error((error && (error.error || error.message)) || 'Error al subir la foto');
           }
 
           const data = await response.json();

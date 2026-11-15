@@ -11,13 +11,12 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: 'cover',
   themeColor: '#0f172a',
-  colorScheme: 'dark',
+  // colorScheme removed - let Tailwind darkMode: 'class' strategy handle it
+  // This prevents hydration mismatch between metadata and Tailwind class-based dark mode
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://origen-one-kohl.vercel.app'
-  ),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://origen-one-kohl.vercel.app'),
   title: 'ConstructERP Guatemala - Control de Obras y Firma Digital',
   description:
     'ERP integral para arquitectos y constructoras en Guatemala: control de obras, presupuestos APU, planillas IGSS, firma digital de capataces y gestión de maquinaria.',
@@ -104,7 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)"
         />
       </head>
-      <body className="h-full min-h-screen overflow-x-hidden bg-bg-ambient text-slate-100 antialiased selection:bg-brand-primary selection:text-slate-950">
+      <body className="mx-auto h-full min-h-screen max-w-7xl overflow-x-hidden bg-bg-ambient text-slate-100 antialiased selection:bg-brand-primary selection:text-slate-950">
         <Toaster
           position="bottom-right"
           toastOptions={{

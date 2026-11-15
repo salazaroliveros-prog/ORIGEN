@@ -71,6 +71,20 @@ describe('calculateScheduleProgress', () => {
   it('returns zero with no schedule data', () => {
     expect(calculateScheduleProgress([], [])).toBe(0);
   });
+
+  it('treats legacy completed items with progress 0 as 100%', () => {
+    const tasks = [
+      task({ id: 'a', progress: 0, completed: true, weightPercent: 50 }),
+      task({ id: 'b', progress: 0, completed: false, weightPercent: 50 }),
+    ];
+    expect(calculateScheduleProgress(tasks, [])).toBe(50);
+
+    const milestones = [
+      milestone({ id: 'm1', progress: 0, completed: true }),
+      milestone({ id: 'm2', progress: 0, completed: false }),
+    ];
+    expect(calculateScheduleProgress([], milestones)).toBe(50);
+  });
 });
 
 describe('calculateExecutionTimeline', () => {

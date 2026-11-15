@@ -1,7 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError } from '@/lib/api';
-import { rateLimitMiddleware, getClientIp } from '@/lib/security';
+import { requireApiUser } from '@/lib/apiAuth';
+import { rateLimitMiddleware } from '@/lib/security';
 
 interface WeatherPayload {
   temperatureC: number;
@@ -117,6 +118,13 @@ function extractParams(input: Record<string, unknown>) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireApiUser(req);
+    if (!auth.ok) return jsonError(auth.message, auth.status);
+
+    // El POST también consulta a Gemini: antes no tenía ningún límite de cuota.
+    const rateLimitResponse = rateLimitMiddleware(`weather:${auth.user.uid}`);
+    if (rateLimitResponse) return rateLimitResponse;
+
     let body: unknown;
     try {
       body = await req.json();
@@ -148,9 +156,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  // Rate limiting
-  const clientIp = getClientIp(req);
-  const rateLimitResponse = rateLimitMiddleware(`weather:${clientIp}`);
+  const auth = await requireApiUser(req);
+  if (!auth.ok) return jsonError(auth.message, auth.status);
+
+  // Rate limiting por usuario: la consulta puede invocar a Gemini.
+  const rateLimitResponse = rateLimitMiddleware(`weather:${auth.user.uid}`);
   if (rateLimitResponse) return rateLimitResponse;
 
   const { searchParams } = new URL(req.url);

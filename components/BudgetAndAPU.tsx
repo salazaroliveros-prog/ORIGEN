@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { authFetch } from '@/lib/apiClient';
 import { formatGTQ, formatUSD } from '@/lib/data';
 import {
   adjustApuDirectCostsForDepartment,
@@ -198,7 +199,7 @@ export function BudgetAndAPU({
     setAiSource(null);
 
     try {
-      const res = await fetch('/api/gemini', {
+      const res = await authFetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -314,7 +315,7 @@ export function BudgetAndAPU({
     setAuditResult(null);
 
     try {
-      const res = await fetch('/api/gemini', {
+      const res = await authFetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -349,7 +350,7 @@ export function BudgetAndAPU({
   return (
     <div className="space-y-6">
       {/* Top Header & Regional Market Bar */}
-      <div className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div>
             <div className="flex items-center gap-2">
@@ -441,7 +442,7 @@ export function BudgetAndAPU({
               <button
                 onClick={handleRecalculateBudgetForDepartment}
                 disabled={!canWrite}
-                className="shadow-xs inline-flex animate-pulse cursor-pointer items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-amber-600"
+                className="inline-flex animate-pulse cursor-pointer items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-amber-600"
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                 Actualizar Costos a {selectedDept}
@@ -467,7 +468,7 @@ export function BudgetAndAPU({
 
       {/* RECALCULATION SUCCESS TOAST */}
       {recalcToast && (
-        <div className="animate-in fade-in shadow-xs flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
+        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-xs">
           <div className="flex items-center gap-2.5">
             <Check className="h-5 w-5 text-emerald-600" aria-hidden="true" />
             <p className="text-xs font-bold">{recalcToast}</p>
@@ -483,7 +484,7 @@ export function BudgetAndAPU({
 
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <p className="text-xs font-semibold uppercase text-slate-500">
             Costo Total Presupuestado
           </p>
@@ -491,7 +492,7 @@ export function BudgetAndAPU({
           <p className="mt-0.5 text-[11px] text-slate-400">Suma de costos directos de obra</p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <p className="text-xs font-semibold uppercase text-slate-500">Renglones Activos</p>
           <h3 className="mt-1 text-2xl font-bold text-blue-600">{budgetItems.length} Partidas</h3>
           <p className="mt-0.5 text-[11px] text-slate-400">
@@ -501,7 +502,7 @@ export function BudgetAndAPU({
           </p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <p className="text-xs font-semibold uppercase text-slate-500">
             Ubicación y Factor Activo
           </p>
@@ -511,7 +512,7 @@ export function BudgetAndAPU({
           </p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <p className="text-xs font-semibold uppercase text-slate-500">Normativa Técnica</p>
           <h3 className="mt-1 text-lg font-bold text-slate-900">AGIES / COGUANOR</h3>
           <p className="mt-0.5 text-[11px] font-medium text-blue-600">
@@ -521,7 +522,7 @@ export function BudgetAndAPU({
       </div>
 
       {/* APU ITEMS TABLE */}
-      <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-blue-600" aria-hidden="true" />

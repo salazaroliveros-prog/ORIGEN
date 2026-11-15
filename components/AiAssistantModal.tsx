@@ -1,6 +1,7 @@
 'use client';
 
 import { GUATEMALA_DEPARTMENTS_INDEX } from '@/lib/guatemalaMarketData';
+import { authFetch } from '@/lib/apiClient';
 import { APUItem, FieldVisit, Project } from '@/lib/types';
 import Image from 'next/image';
 import {
@@ -182,7 +183,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
       SAMPLE_LOGBOOKS.find((s) => s.visitId === selectedVisitId);
 
     try {
-      const res = await fetch('/api/gemini', {
+      const res = await authFetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -247,7 +248,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
     setIsChatLoading(true);
 
     try {
-      const res = await fetch('/api/gemini', {
+      const res = await authFetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -437,7 +438,7 @@ Estoy contextualizado para su proyecto "${activeProject?.name || 'Obra'}" en ${d
                 </div>
 
                 {/* Image Container with Preview or Placeholder */}
-                <div className="sm:aspect-[4/3] group relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-inner">
+                <div className="group relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-inner sm:aspect-[4/3]">
                   {uploadedImage ? (
                     <>
                       <Image

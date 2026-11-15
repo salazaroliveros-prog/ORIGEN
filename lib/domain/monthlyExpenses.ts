@@ -1,4 +1,5 @@
 import type { ExpenseRecord } from '../types';
+import { isCountableExpense } from '../projectCalculations';
 
 export type MonthlyExpenseRange = '6m' | '12m' | 'all';
 
@@ -24,7 +25,9 @@ export function buildMonthlyExpenseSeries(
 ): MonthlyExpensePoint[] {
   const totals = new Map<string, number>();
 
+  // Los gastos rechazados no son gasto ejecutado: no deben inflar el histograma.
   for (const expense of expenses) {
+    if (!isCountableExpense(expense)) continue;
     if (projectId !== 'all' && expense.projectId !== projectId) continue;
     const monthKey = toMonthKey(expense.date);
     if (!monthKey) continue;

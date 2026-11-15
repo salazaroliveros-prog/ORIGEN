@@ -1,37 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
+import { ensureAuthenticated } from './testCredentials';
+import { fillExpenseForm, selectActiveProject } from './projectFixture';
 
 const RUN_ID = Date.now().toString().slice(-6);
-
-async function ensureAuthenticated(page: Page) {
-  test.setTimeout(180_000);
-  await page.goto('/');
-  await page.waitForTimeout(3000);
-
-  const emailField = page.getByLabel('Correo electrónico');
-  if (!(await emailField.isVisible().catch(() => false))) return;
-
-  await emailField.fill(ADMIN_EMAIL);
-  await page.getByLabel('Contraseña', { exact: true }).fill(ADMIN_PASSWORD);
-  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
-  await page.waitForTimeout(4000);
-
-  if (
-    await page
-      .getByRole('button', { name: 'Regístrate ahora' })
-      .isVisible()
-      .catch(() => false)
-  ) {
-    await page.getByRole('button', { name: 'Regístrate ahora' }).click();
-    await page.getByLabel('Correo electrónico').fill(ADMIN_EMAIL);
-    await page.getByLabel('Contraseña', { exact: true }).fill(ADMIN_PASSWORD);
-    await page.getByLabel('Confirmar contraseña').fill(ADMIN_PASSWORD);
-    await page.getByRole('button', { name: 'Crear cuenta' }).click();
-    await page.waitForTimeout(6000);
-  }
-
-  await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
-}
 
 async function openTab(page: Page, name: RegExp) {
   await page.getByRole('button', { name }).first().click();
@@ -110,20 +81,19 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     const code = `QA-${RUN_ID}-C`;
     await createProject(page, code, `QA Gastos ${RUN_ID}`, 5);
 
+    // El formulario de gastos imputa al "proyecto activo": hay que activarlo
+    // explícitamente para que el gasto se registre en el proyecto creado.
+    await selectActiveProject(page, code);
+
     await openTab(page, /Gastos & Facturas/);
     await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
-    const projectSelect = page.getByLabel('Proyecto Asignado *');
-    const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((option) => option.includes(code));
-    if (match) await projectSelect.selectOption({ label: match });
-    else await projectSelect.selectOption({ index: 1 });
-    await page
-      .getByLabel('Descripción Detallada del Insumo o Servicio *')
-      .fill('Compra de cemento QA');
-    await page.getByLabel('Proveedor / Emisor SAT').fill('Cemento Progreso');
-    await page.getByLabel('NIT del Proveedor').fill('CF');
-    await page.getByLabel('No. Factura SAT Serie/Número').fill('FEL-QA-001');
-    await page.getByLabel('Monto del Gasto *').fill('12000');
+    await fillExpenseForm(page, {
+      description: 'Compra de cemento QA',
+      supplier: 'Cemento Progreso',
+      nit: '1294821-9',
+      invoice: 'FEL-QA-001',
+      amount: '12000',
+    });
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
@@ -204,22 +174,24 @@ test.describe('QA defectos detectados', () => {
     const code = `QA-${RUN_ID}-E`;
     await createProject(page, code, `QA Gasto Incompleto ${RUN_ID}`, 5);
 
+    await selectActiveProject(page, code);
+
     await openTab(page, /Gastos & Facturas/);
     await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
-    const projectSelect = page.getByLabel('Proyecto Asignado *');
-    const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((option) => option.includes(code));
-    if (match) await projectSelect.selectOption({ label: match });
-    else await projectSelect.selectOption({ index: 1 });
-    await page
-      .getByLabel('Descripción Detallada del Insumo o Servicio *')
-      .fill('Gasto QA sin factura');
-    await page.getByLabel('Monto del Gasto *').fill('500');
+    // Solo se rellenan descripción y monto: el proveedor falta a propósito.
+    await fillExpenseForm(page, {
+      description: 'Gasto QA sin factura',
+      amount: '500',
+    });
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
     // El error ahora debe ser específico de validación, no de sesión
     await expect(page.getByText('No se pudo guardar el gasto. Verifica tu sesión')).toHaveCount(0);
+    // El formulario sigue abierto: no se guardó nada.
+    await expect(
+      page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).first()
+    ).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -282,13 +254,20 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
   test('registra asistencia de empleado con GPS', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const staffTab = page.getByRole('button', { name: /Personal|Asistencia|Staff/i }).first();
-    if (!(await staffTab.isVisible().catch(() => false))) return;
+    const staffTab = page.getByRole('button', { name: /Personal & IGSS/ }).first();
+    await expect(staffTab).toBeVisible({ timeout: 20_000 });
     await staffTab.click();
     await page.waitForTimeout(1500);
 
-    // Verificar que el módulo de personal carga
-    await expect(page.getByText(/Empleado|Personal|Asistencia|Planilla/i).first()).toBeVisible({
+    // El módulo de personal debe mostrar su encabezado y las pestañas de
+    // asistencia y cuadrillas.
+    await expect(
+      page.getByRole('heading', { name: /Control de Personal, Cuadrillas & Asistencia/i })
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: 'Registro & Marcaje GPS' })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole('button', { name: /^Cuadrillas/ })).toBeVisible({
       timeout: 15_000,
     });
   });
@@ -296,13 +275,26 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
   test('genera reporte final del proyecto', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const reportsTab = page.getByRole('button', { name: /Reportes|Informes/i }).first();
-    if (!(await reportsTab.isVisible().catch(() => false))) return;
-    await reportsTab.click();
-    await page.waitForTimeout(1500);
+    // El botón del sidebar se llama "Reportes Finales"; el texto largo
+    // "Reportes Finales y Actas" es un `<span>` oculto para lectores de
+    // pantalla, así que no sirve como aserto visible.
+    await openTab(page, /Reportes Finales/);
 
-    await expect(page.getByText(/Reporte|Informe|Exportar|PDF/i).first()).toBeVisible({
-      timeout: 15_000,
+    // El tab renderiza `features/reports/ReportsView.tsx`.
+    await expect(page.getByRole('heading', { name: 'Reportes de obra' })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole('heading', { name: 'Resumen de obra' })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole('heading', { name: 'Borrador de acta' })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole('button', { name: 'Imprimir / Guardar PDF' })).toBeEnabled({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole('button', { name: 'Exportar gastos CSV' })).toBeEnabled({
+      timeout: 20_000,
     });
   });
 

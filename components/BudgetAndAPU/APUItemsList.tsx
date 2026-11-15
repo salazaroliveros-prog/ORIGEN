@@ -70,30 +70,12 @@ export function APUItemsList({
     itemsPerPage: 10,
   });
 
-  // Simulate data load
+  // Sin datos de demostración. Este componente no recibe los renglones reales
+  // (el módulo vivo es `components/BudgetAndAPU.tsx`); si se reactiva debe
+  // recibirlos como props/estado en lugar de inventar un presupuesto de ejemplo.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setItems([
-        {
-          id: '1',
-          code: 'CONC-001',
-          description: 'Fundaciones de Concreto',
-          unit: 'm³',
-          quantity: 50,
-          materialUnitCostGTQ: 500,
-          laborUnitCostGTQ: 300,
-          equipmentUnitCostGTQ: 100,
-          totalUnitCostGTQ: 900,
-          totalPriceGTQ: 45000,
-          projectId,
-          companyId: 'test-company',
-          createdBy: 'user-test',
-        },
-      ]);
-      setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    setItems([]);
+    setLoading(false);
   }, [projectId]);
 
   // FEATURE 3.2: Real-time budget updates with useEffect
@@ -106,6 +88,7 @@ export function APUItemsList({
           remaining: 0,
           utilization: 0,
           variance: 0,
+          isOverBudget: false,
         };
         onUpdateBudget?.(emptySummary);
         return;
@@ -127,6 +110,7 @@ export function APUItemsList({
         remaining: -totalExpenses,
         utilization: 0,
         variance: totalExpenses,
+        isOverBudget: false,
       };
     }
 

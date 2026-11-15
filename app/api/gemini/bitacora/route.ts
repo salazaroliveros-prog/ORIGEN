@@ -2,27 +2,35 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError, readJsonBody, isNonEmptyString, MAX_TEXT_LENGTH } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
+import { requireApiUser } from '@/lib/apiAuth';
 import { ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting
+    // Generación de bitácoras con IA: exige sesión y cuota por usuario.
+    const auth = await requireApiUser(req);
+    if (!auth.ok) return applySecurityHeaders(jsonError(auth.message, auth.status));
+
     const rateLimitMiddleware = createRateLimitMiddleware({
       windowMs: 60 * 1000,
       maxRequests: 10,
       keyPrefix: 'gemini-bitacora',
     });
-    const rateLimitResponse = await rateLimitMiddleware(req);
+    const rateLimitResponse = await rateLimitMiddleware(req, `gemini-bitacora:${auth.user.uid}`);
     if (rateLimitResponse) return applySecurityHeaders(rateLimitResponse);
 
     const body = await readJsonBody(req);
     if (!body) {
-      return applySecurityHeaders(jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400));
+      return applySecurityHeaders(
+        jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400)
+      );
     }
 
     const voiceNotes = body.voiceNotes;
     if (!isNonEmptyString(voiceNotes, MAX_TEXT_LENGTH)) {
-      return applySecurityHeaders(jsonError('El texto de nota de voz del capataz es requerido.', 400));
+      return applySecurityHeaders(
+        jsonError('El texto de nota de voz del capataz es requerido.', 400)
+      );
     }
 
     const projectName = typeof body.projectName === 'string' ? body.projectName.slice(0, 120) : '';
@@ -146,17 +154,23 @@ Genera el acta/bitacora estructurada diaria.`;
     const responseText = response.text || '';
     const parsedData = JSON.parse(responseText);
 
-    return applySecurityHeaders(NextResponse.json({
-      success: true,
-      bitacora: {
-        ...parsedData,
-        id: `bit-${Date.now()}`,
-        folioNumber: parsedData.folioNumber || `BIT-2026-${folioRandom}`,
-        createdAt: new Date().toISOString(),
-      },
-    }));
+    return applySecurityHeaders(
+      NextResponse.json({
+        success: true,
+        bitacora: {
+          ...parsedData,
+          id: `bit-${Date.now()}`,
+          folioNumber: parsedData.folioNumber || `BIT-2026-${folioRandom}`,
+          createdAt: new Date().toISOString(),
+        },
+      })
+    );
   } catch (error: unknown) {
     console.error('Error generating Smart Bitácora with Gemini:', error);
-    return applySecurityHeaders(createErrorResponse(new ExternalServiceError('No se pudo generar la Bitácora con Gemini IA.', 'Gemini')));
+    return applySecurityHeaders(
+      createErrorResponse(
+        new ExternalServiceError('No se pudo generar la Bitácora con Gemini IA.', 'Gemini')
+      )
+    );
   }
 }

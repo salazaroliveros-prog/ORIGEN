@@ -2,10 +2,12 @@
 
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { CompanySettings, Machinery, MachineryLog, Project } from '@/lib/types';
-import { validateMachinery } from '@/lib/validation/entity.schemas';
+import { validateMachineryDraft } from '@/lib/validation/entity.schemas';
 import {
   calculateMachineryHoursWorked,
   calculateMachineryOperationCost,
+  evaluateMachineryMaintenance,
+  MACHINERY_MAINTENANCE_INTERVAL_HOURS,
 } from '@/lib/domain/machinery';
 import {
   CheckCircle2,
@@ -84,22 +86,7 @@ export function MachineryManager({
     }
   })();
 
-  // Sistema de mantenimiento preventivo
-  const MAINTENANCE_THRESHOLD_HOURS = 250; // Umbral: 250 horas de uso
-  const MAINTENANCE_WARNING_HOURS = 200; // Advertencia: 200 horas de uso
-
-  // Calcular horas totales de uso por máquina desde los logs
-  const machineryUsageHours = useMemo(() => {
-    const usageMap = new Map<string, number>();
-
-    machineryLogs.forEach((log) => {
-      const currentHours = usageMap.get(log.machineryId) || 0;
-      usageMap.set(log.machineryId, currentHours + log.hoursWorked);
-    });
-
-    return usageMap;
-  }, [machineryLogs]);
-
+  // Sistema de mantenimiento preventivo (horómetro absoluto, no suma de bitácoras)
   // Calcular alertas de mantenimiento
   const maintenanceAlerts = useMemo(() => {
     const alerts: Array<{
@@ -112,31 +99,34 @@ export function MachineryManager({
     }> = [];
 
     machinery.forEach((mach) => {
-      const totalHours = machineryUsageHours.get(mach.id) || 0;
+      const maintenance = evaluateMachineryMaintenance({
+        currentHorometer: mach.currentHorometer,
+        lastServiceHorometer: mach.lastServiceHorometer,
+      });
 
-      if (totalHours >= MAINTENANCE_THRESHOLD_HOURS) {
+      if (maintenance.urgency === 'critical') {
         alerts.push({
           machineryId: mach.id,
           machineryName: mach.name,
-          currentHours: totalHours,
-          threshold: MAINTENANCE_THRESHOLD_HOURS,
+          currentHours: maintenance.hoursSinceService,
+          threshold: MACHINERY_MAINTENANCE_INTERVAL_HOURS,
           urgency: 'critical',
-          message: `Mantenimiento requerido inmediatamente (${totalHours}h de uso)`,
+          message: maintenance.message,
         });
-      } else if (totalHours >= MAINTENANCE_WARNING_HOURS) {
+      } else if (maintenance.urgency === 'warning') {
         alerts.push({
           machineryId: mach.id,
           machineryName: mach.name,
-          currentHours: totalHours,
-          threshold: MAINTENANCE_THRESHOLD_HOURS,
+          currentHours: maintenance.hoursSinceService,
+          threshold: MACHINERY_MAINTENANCE_INTERVAL_HOURS,
           urgency: 'warning',
-          message: `Mantenimiento recomendado pronto (${totalHours}h de uso)`,
+          message: maintenance.message,
         });
       }
     });
 
     return alerts.sort((a, b) => b.currentHours - a.currentHours);
-  }, [machinery, machineryUsageHours]);
+  }, [machinery]);
 
   useEffect(() => {
     if (!projects.some((project) => project.id === selectedProject)) {
@@ -170,7 +160,8 @@ export function MachineryManager({
       status: 'Disponible' as const,
     };
 
-    const validation = validateMachinery(candidate);
+    // Se valida el borrador: `companyId` lo aporta la sesión al persistir.
+    const validation = validateMachineryDraft(candidate);
     if (!validation.success) {
       const errs: Record<string, string> = {};
       validation.error.issues.forEach((issue) => {
@@ -281,7 +272,7 @@ export function MachineryManager({
 
   return (
     <div className="space-y-6">
-      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-bold text-slate-900">
             Control de Maquinaria & Equipo Pesado
@@ -363,14 +354,17 @@ export function MachineryManager({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {machinery.map((mach) => {
-          const totalUsageHours = machineryUsageHours.get(mach.id) || 0;
-          const needsMaintenance = totalUsageHours >= MAINTENANCE_THRESHOLD_HOURS;
-          const maintenanceWarning = totalUsageHours >= MAINTENANCE_WARNING_HOURS;
+          const maintenance = evaluateMachineryMaintenance({
+            currentHorometer: mach.currentHorometer,
+            lastServiceHorometer: mach.lastServiceHorometer,
+          });
+          const needsMaintenance = maintenance.urgency === 'critical';
+          const maintenanceWarning = maintenance.urgency === 'warning';
 
           return (
             <div
               key={mach.id}
-              className={`shadow-xs space-y-3 rounded-2xl border p-5 ${
+              className={`space-y-3 rounded-2xl border p-5 shadow-xs ${
                 needsMaintenance
                   ? 'border-red-300 bg-red-50/50'
                   : maintenanceWarning
@@ -411,7 +405,7 @@ export function MachineryManager({
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500">
                     <Clock className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
-                    Uso total: {totalUsageHours}h
+                    Desde último servicio: {maintenance.hoursSinceService}h
                   </span>
                   {needsMaintenance ? (
                     <span className="font-bold text-red-600">¡Mantenimiento!</span>
@@ -465,7 +459,7 @@ export function MachineryManager({
         )}
       </div>
 
-      <section className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5">
         <div className="flex items-center gap-2">
           <ClipboardList className="h-5 w-5 text-blue-700" aria-hidden="true" />
           <div>
@@ -587,7 +581,7 @@ export function MachineryManager({
         </form>
       </section>
 
-      <section className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5">
         <h3 className="mb-3 flex items-center gap-2 font-bold text-slate-900">
           <CheckCircle2 className="h-5 w-5 text-emerald-700" aria-hidden="true" /> Operaciones
           recientes

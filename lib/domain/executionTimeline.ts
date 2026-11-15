@@ -40,6 +40,14 @@ function addDays(date: Date, days: number): Date {
 }
 
 /**
+ * Avance efectivo de una tarea/hito.
+ * `completed: true` manda sobre `progress` porque hay datos legacy con
+ * `completed: true` y `progress: 0` (ver `GanttSchedule`).
+ */
+const effectiveProgress = (item: { progress?: number; completed?: boolean }): number =>
+  item.completed ? 100 : clampPercent(Number(item.progress ?? 0));
+
+/**
  * Progreso ponderado por peso de tarea. Si no hay pesos, promedio simple.
  */
 export function calculateScheduleProgress(tasks: ScheduleTask[], milestones: Milestone[]): number {
@@ -52,14 +60,14 @@ export function calculateScheduleProgress(tasks: ScheduleTask[], milestones: Mil
       );
       if (totalWeight > 0) {
         const weightedProgress = weighted.reduce(
-          (total, task) => total + Number(task.progress ?? 0) * Number(task.weightPercent ?? 0),
+          (total, task) => total + effectiveProgress(task) * Number(task.weightPercent ?? 0),
           0
         );
         return clampPercent(weightedProgress / totalWeight);
       }
     }
     const average =
-      tasks.reduce((total, task) => total + Number(task.progress ?? 0), 0) / tasks.length;
+      tasks.reduce((total, task) => total + effectiveProgress(task), 0) / tasks.length;
     return clampPercent(average);
   }
 
@@ -73,14 +81,14 @@ export function calculateScheduleProgress(tasks: ScheduleTask[], milestones: Mil
       if (totalWeight > 0) {
         const weightedProgress = weighted.reduce(
           (total, milestone) =>
-            total + Number(milestone.progress ?? 0) * Number(milestone.weightPercent ?? 0),
+            total + effectiveProgress(milestone) * Number(milestone.weightPercent ?? 0),
           0
         );
         return clampPercent(weightedProgress / totalWeight);
       }
     }
     const average =
-      milestones.reduce((total, milestone) => total + Number(milestone.progress ?? 0), 0) /
+      milestones.reduce((total, milestone) => total + effectiveProgress(milestone), 0) /
       milestones.length;
     return clampPercent(average);
   }

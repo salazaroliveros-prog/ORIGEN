@@ -14,17 +14,22 @@ import {
   MAX_TEXT_LENGTH,
 } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
+import { requireApiUser } from '@/lib/apiAuth';
 import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting
+    // La IA consume cuota real de Gemini: exige sesión antes de cualquier llamada.
+    const auth = await requireApiUser(req);
+    if (!auth.ok) return applySecurityHeaders(jsonError(auth.message, auth.status));
+
+    // Rate limiting por usuario (una IP rotativa no debe multiplicar la cuota).
     const rateLimitMiddleware = createRateLimitMiddleware({
       windowMs: 60 * 1000,
       maxRequests: 30,
       keyPrefix: 'gemini',
     });
-    const rateLimitResponse = await rateLimitMiddleware(req);
+    const rateLimitResponse = await rateLimitMiddleware(req, `gemini:${auth.user.uid}`);
     if (rateLimitResponse) return applySecurityHeaders(rateLimitResponse);
 
     // Validate origin for security
@@ -39,7 +44,9 @@ export async function POST(req: NextRequest) {
 
     const body = await readJsonBody(req);
     if (!body) {
-      return applySecurityHeaders(jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400));
+      return applySecurityHeaders(
+        jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400)
+      );
     }
 
     const action = body.action;
@@ -71,7 +78,7 @@ export async function POST(req: NextRequest) {
     ]);
 
     if (typeof action !== 'string' || !validActions.has(action)) {
-return applySecurityHeaders(jsonError('Acción no reconocida.', 400));
+      return applySecurityHeaders(jsonError('Acción no reconocida.', 400));
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -144,7 +151,9 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
 
           if (response.text) {
             const parsed = JSON.parse(response.text);
-            return applySecurityHeaders(NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' }));
+            return applySecurityHeaders(
+              NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' })
+            );
           }
         } catch (apiError: unknown) {
           console.warn('Gemini API call failed, falling back to algorithmic estimator:', apiError);
@@ -231,46 +240,48 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
       const totalUnitCost = Math.round((baseMat + baseLab + baseEq) * 100) / 100;
       const q = Number(quantity) || 1;
 
-      return applySecurityHeaders(NextResponse.json({
-        success: true,
-        source: 'guatemala-market-engine',
-        data: {
-          code,
-          title: description,
-          unit: suggestedUnit,
-          quantity: q,
-          materialUnitCostGTQ: Math.round(baseMat * 100) / 100,
-          laborUnitCostGTQ: Math.round(baseLab * 100) / 100,
-          equipmentUnitCostGTQ: Math.round(baseEq * 100) / 100,
-          totalUnitCostGTQ: totalUnitCost,
-          totalPriceGTQ: Math.round(totalUnitCost * q * 100) / 100,
-          materialsBreakdown: [
-            {
-              name: `Materiales principales ajustados a ${department}`,
-              quantity: 1,
-              unit: 'global',
-              unitPriceGTQ: Math.round(baseMat * 100) / 100,
-              subtotalGTQ: Math.round(baseMat * 100) / 100,
-            },
-          ],
-          laborBreakdown: [
-            {
-              role: `Mano de obra oficial + ayudante (${department})`,
-              yieldHours: 8,
-              unitPriceGTQ: Math.round(baseLab * 100) / 100,
-              subtotalGTQ: Math.round(baseLab * 100) / 100,
-            },
-          ],
-          equipmentBreakdown: [
-            {
-              name: 'Herramienta menor, equipo de protección y maquinaria',
-              subtotalGTQ: Math.round(baseEq * 100) / 100,
-            },
-          ],
-          regionalAdjustmentNote: `Costos calculados para ${department} aplicando factor de flete ${deptInfo.freightFactor} y mano de obra ${deptInfo.laborFactor}. ${deptInfo.logisticsNotes}`,
-          technicalNorm: norm,
-        },
-      }));
+      return applySecurityHeaders(
+        NextResponse.json({
+          success: true,
+          source: 'guatemala-market-engine',
+          data: {
+            code,
+            title: description,
+            unit: suggestedUnit,
+            quantity: q,
+            materialUnitCostGTQ: Math.round(baseMat * 100) / 100,
+            laborUnitCostGTQ: Math.round(baseLab * 100) / 100,
+            equipmentUnitCostGTQ: Math.round(baseEq * 100) / 100,
+            totalUnitCostGTQ: totalUnitCost,
+            totalPriceGTQ: Math.round(totalUnitCost * q * 100) / 100,
+            materialsBreakdown: [
+              {
+                name: `Materiales principales ajustados a ${department}`,
+                quantity: 1,
+                unit: 'global',
+                unitPriceGTQ: Math.round(baseMat * 100) / 100,
+                subtotalGTQ: Math.round(baseMat * 100) / 100,
+              },
+            ],
+            laborBreakdown: [
+              {
+                role: `Mano de obra oficial + ayudante (${department})`,
+                yieldHours: 8,
+                unitPriceGTQ: Math.round(baseLab * 100) / 100,
+                subtotalGTQ: Math.round(baseLab * 100) / 100,
+              },
+            ],
+            equipmentBreakdown: [
+              {
+                name: 'Herramienta menor, equipo de protección y maquinaria',
+                subtotalGTQ: Math.round(baseEq * 100) / 100,
+              },
+            ],
+            regionalAdjustmentNote: `Costos calculados para ${department} aplicando factor de flete ${deptInfo.freightFactor} y mano de obra ${deptInfo.laborFactor}. ${deptInfo.logisticsNotes}`,
+            technicalNorm: norm,
+          },
+        })
+      );
     }
 
     // 2. AUDIT BUDGET
@@ -321,7 +332,9 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
 
           if (response.text) {
             const parsed = JSON.parse(response.text);
-            return applySecurityHeaders(NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' }));
+            return applySecurityHeaders(
+              NextResponse.json({ success: true, data: parsed, source: 'gemini-ai' })
+            );
           }
         } catch (apiError: unknown) {
           console.warn('Gemini Audit call failed, using fallback audit:', apiError);
@@ -362,41 +375,45 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
         });
       }
 
-      return applySecurityHeaders(NextResponse.json({
-        success: true,
-        source: 'guatemala-market-engine',
-        data: {
-          riskLevel: alerts.length > 1 ? 'Medio' : 'Bajo',
-          estimatedVariancePercent: Math.round((deptInfo.overallFactor - 1.0) * 100 * 10) / 10,
-          summary: `Presupuesto revisado para ${department}. El costo total asciende a Q${totalBudget.toLocaleString('es-GT', { minimumFractionDigits: 2 })} con ${budgetItems.length} partidas analizadas.`,
-          alerts,
-          recommendations: [
-            `Programar pedidos de acero con 15 días de anticipación para aprovechar fletes compartidos hacia ${department}.`,
-            `Validar con laboratorio local (ej. Concretos y Suelos de Guatemala) la resistencia de los agregados de canteras locales en ${department}.`,
-            `Asegurar que los rendimientos de mano de obra incluyan el Factor de Prestaciones Sociales (FAS ~45%) según Código de Trabajo de Guatemala.`,
-          ],
-          regionalConsiderations: deptInfo.logisticsNotes,
-        },
-      }));
+      return applySecurityHeaders(
+        NextResponse.json({
+          success: true,
+          source: 'guatemala-market-engine',
+          data: {
+            riskLevel: alerts.length > 1 ? 'Medio' : 'Bajo',
+            estimatedVariancePercent: Math.round((deptInfo.overallFactor - 1.0) * 100 * 10) / 10,
+            summary: `Presupuesto revisado para ${department}. El costo total asciende a Q${totalBudget.toLocaleString('es-GT', { minimumFractionDigits: 2 })} con ${budgetItems.length} partidas analizadas.`,
+            alerts,
+            recommendations: [
+              `Programar pedidos de acero con 15 días de anticipación para aprovechar fletes compartidos hacia ${department}.`,
+              `Validar con laboratorio local (ej. Concretos y Suelos de Guatemala) la resistencia de los agregados de canteras locales en ${department}.`,
+              `Asegurar que los rendimientos de mano de obra incluyan el Factor de Prestaciones Sociales (FAS ~45%) según Código de Trabajo de Guatemala.`,
+            ],
+            regionalConsiderations: deptInfo.logisticsNotes,
+          },
+        })
+      );
     }
 
     // 3. MARKET UPDATE INSIGHTS
     if (action === 'market_update') {
-      return applySecurityHeaders(NextResponse.json({
-        success: true,
-        data: {
-          department,
-          departmentIndex: deptInfo,
-          baseCatalogue: GUATEMALA_BASE_MARKET_CATALOGUE,
-          macroIndices: {
-            inflationRateGT: '3.8% interanual (INE)',
-            cementIndex: '+2.1% en 2025/2026',
-            steelIndex: 'Estable en Q395.00/qq Grado 60',
-            minimumWageCircunscripcion1: 'Q3,750.00 / mes (Dto. 37-2001)',
-            minimumWageCircunscripcion2: 'Q3,500.00 / mes (Departamentos)',
+      return applySecurityHeaders(
+        NextResponse.json({
+          success: true,
+          data: {
+            department,
+            departmentIndex: deptInfo,
+            baseCatalogue: GUATEMALA_BASE_MARKET_CATALOGUE,
+            macroIndices: {
+              inflationRateGT: '3.8% interanual (INE)',
+              cementIndex: '+2.1% en 2025/2026',
+              steelIndex: 'Estable en Q395.00/qq Grado 60',
+              minimumWageCircunscripcion1: 'Q3,750.00 / mes (Dto. 37-2001)',
+              minimumWageCircunscripcion2: 'Q3,500.00 / mes (Departamentos)',
+            },
           },
-        },
-      }));
+        })
+      );
     }
 
     // 4. ANALYZE SITE LOGBOOK (BITÁCORA DE OBRA CON FOTOS)
@@ -491,12 +508,14 @@ INSTRUCCIONES DE AUDITORÍA:
             },
           });
 
-          return applySecurityHeaders(NextResponse.json({
-            success: true,
-            reply: response.text || 'Bitácora analizada exitosamente.',
-            source: 'gemini-ai',
-            meta: { visitId, date, foremanName },
-          }));
+          return applySecurityHeaders(
+            NextResponse.json({
+              success: true,
+              reply: response.text || 'Bitácora analizada exitosamente.',
+              source: 'gemini-ai',
+              meta: { visitId, date, foremanName },
+            })
+          );
         } catch (visionError: unknown) {
           console.warn(
             'Gemini Vision API error, falling back to contextual logbook auditor:',
@@ -581,12 +600,14 @@ INSTRUCCIONES DE AUDITORÍA:
 2. Verificar que las compras de insumos cuadren con las remisiones de bodega y facturas FEL de proveedores locales.`;
       }
 
-      return applySecurityHeaders(NextResponse.json({
-        success: true,
-        reply: fallbackReply,
-        source: 'guatemala-logbook-auditor',
-        meta: { visitId, date, foremanName },
-      }));
+      return applySecurityHeaders(
+        NextResponse.json({
+          success: true,
+          reply: fallbackReply,
+          source: 'guatemala-logbook-auditor',
+          meta: { visitId, date, foremanName },
+        })
+      );
     }
 
     // 5. CHAT
@@ -610,27 +631,38 @@ Consulta del usuario: "${userMessage}"`;
             contents: chatPrompt,
           });
 
-          return applySecurityHeaders(NextResponse.json({
-            success: true,
-            reply: response.text || 'Consulta procesada exitosamente.',
-            source: 'gemini-ai',
-          }));
+          return applySecurityHeaders(
+            NextResponse.json({
+              success: true,
+              reply: response.text || 'Consulta procesada exitosamente.',
+              source: 'gemini-ai',
+            })
+          );
         } catch (chatError: unknown) {
           console.warn('Gemini chat error:', chatError);
         }
       }
 
       // Fallback response
-      return applySecurityHeaders(NextResponse.json({
-        success: true,
-        reply: `ConstructERP Asistente (Mercado Guatemala): Para proyectos ubicados en ${department}, considere que el factor regional es ${deptInfo.overallFactor}x debido a la distancia de ${deptInfo.distanceKmFromCapital} km desde los centros de distribución. Las normas AGIES y COGUANOR recomiendan verificar dosificaciones de concreto y resistencia sísmica en la zona.`,
-        source: 'guatemala-knowledge-engine',
-      }));
+      return applySecurityHeaders(
+        NextResponse.json({
+          success: true,
+          reply: `ConstructERP Asistente (Mercado Guatemala): Para proyectos ubicados en ${department}, considere que el factor regional es ${deptInfo.overallFactor}x debido a la distancia de ${deptInfo.distanceKmFromCapital} km desde los centros de distribución. Las normas AGIES y COGUANOR recomiendan verificar dosificaciones de concreto y resistencia sísmica en la zona.`,
+          source: 'guatemala-knowledge-engine',
+        })
+      );
     }
 
     return applySecurityHeaders(createErrorResponse(new ValidationError('Acción no reconocida.')));
   } catch (error: unknown) {
     console.error('Error in /api/gemini route:', error);
-    return applySecurityHeaders(createErrorResponse(new ExternalServiceError('No fue posible procesar la solicitud de IA. Intente nuevamente.', 'Gemini')));
+    return applySecurityHeaders(
+      createErrorResponse(
+        new ExternalServiceError(
+          'No fue posible procesar la solicitud de IA. Intente nuevamente.',
+          'Gemini'
+        )
+      )
+    );
   }
 }

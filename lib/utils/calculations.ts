@@ -115,16 +115,18 @@ export interface BudgetSummary {
   budgetTotal: number;
   spentTotal: number;
   remaining: number;
-  /** Porcentaje de presupuesto APU consumido (0-100). */
+  /**
+   * Porcentaje de presupuesto APU consumido. Puede superar 100 cuando hay
+   * sobregasto: NO se capa para no ocultar el desvío real.
+   */
   utilization: number;
   /** spentTotal - budgetAPU (positivo = sobre presupuesto vs APU). */
   variance: number;
+  /** true cuando spentTotal > budgetAPU. Señal explícita de sobregasto. */
+  isOverBudget: boolean;
 }
 
-export function calculateBudgetSummary(
-  apuItems: APUItem[],
-  totalSpent: number
-): BudgetSummary {
+export function calculateBudgetSummary(apuItems: APUItem[], totalSpent: number): BudgetSummary {
   if (!Array.isArray(apuItems)) throw new Error('APU items must be an array');
   if (!Number.isFinite(totalSpent) || totalSpent < 0) {
     throw new Error('Total spent must be a non-negative number');
@@ -139,8 +141,10 @@ export function calculateBudgetSummary(
     budgetTotal: Math.round(budgetTotal * 100) / 100,
     spentTotal: Math.round(totalSpent * 100) / 100,
     remaining: Math.round(remaining * 100) / 100,
-    utilization: Math.min(utilization, 100), // Cap at 100%
+    utilization,
     variance: Math.round(variance * 100) / 100,
+    // Con presupuesto 0 no se marca sobregasto (evita falsos positivos al inicio).
+    isOverBudget: budgetTotal > 0 && variance > 0,
   };
 }
 

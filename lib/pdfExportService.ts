@@ -1,6 +1,7 @@
 import { Project, ExpenseRecord, CompanySettings, FieldVisit } from './types';
 import { formatGTQ, formatUSD } from './data';
 import { loadReportLetterheadLogo } from './pdfBranding';
+import { buildProjectAuditMetrics } from './domain/auditMetrics';
 
 export interface MonthlyHistogramItem {
   mes: string;
@@ -136,7 +137,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139); // slate-500
     doc.text(
-      'ConstructERP Guatemala • Control Presupuestario, APU & Liquidación de Obra • Verificación Electrónica SAT/FEL',
+      'ConstructERP Guatemala • Control Presupuestario, APU & Liquidación de Obra • Documento de control interno',
       margin,
       footerY
     );
@@ -645,14 +646,18 @@ export async function exportConstructionAuditPdf(
   };
 
   // 1. Calculate Core Financial & Audit Metrics
-  const totalBudget = project.budgetTotal || 0;
-  const projectExpenses = expenses.filter((e) => e.projectId === project.id);
-  const totalExpenses = projectExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const budgetBalance = totalBudget - totalExpenses;
-  const physicalProgress = Math.min(100, Math.max(0, project.progressPercent || 0));
-  const financialProgress =
-    totalBudget > 0 ? Number(((totalExpenses / totalBudget) * 100).toFixed(2)) : 0;
-  const progressDeviation = Number((physicalProgress - financialProgress).toFixed(2));
+  // Los gastos rechazados no son erogación ejecutada: el acta solo certifica los
+  // gastos que la obra reconoció (mismo criterio que presupuesto y tablero).
+  const auditMetrics = buildProjectAuditMetrics({ project, expenses });
+  const {
+    budgetTotal: totalBudget,
+    totalExpenses,
+    budgetBalance,
+    physicalProgress,
+    financialProgress,
+    progressDeviation,
+  } = auditMetrics;
+  const projectExpenses = auditMetrics.countableExpenses;
 
   // Categorical distribution
   const categories: Record<string, { total: number; count: number }> = {};
@@ -692,20 +697,25 @@ export async function exportConstructionAuditPdf(
     company?.legalName ||
     company?.commercialName ||
     company?.companyName ||
-    'ConstructERP Guatemala, S.A.';
+    'Empresa no configurada';
   addText(compName.toUpperCase(), margin + 4, y + 6, {
     fontSize: 10.5,
     fontStyle: 'bold',
     color: [255, 255, 255],
   });
 
-  const nitStr = company?.nit ? `NIT: ${company.nit}` : 'NIT: 1049281-2';
+  const nitStr = company?.nit ? `NIT: ${company.nit}` : '';
   const phoneStr = company?.phone ? ` • Tel: ${company.phone}` : '';
-  const dirStr = company?.address ? ` • ${company.address}` : ' • Guatemala, C.A.';
-  addText(`${nitStr}${phoneStr}${dirStr}`, margin + 4, y + 11, {
-    fontSize: 7.5,
-    color: [203, 213, 225],
-  });
+  const dirStr = company?.address ? ` • ${company.address}` : '';
+  addText(
+    `${nitStr}${phoneStr}${dirStr}`.trim() || 'Datos de la empresa no configurados',
+    margin + 4,
+    y + 11,
+    {
+      fontSize: 7.5,
+      color: [203, 213, 225],
+    }
+  );
 
   addText(
     'CÉDULA DE AUDITORÍA TÉCNICO-FINANCIERA DE OBRA • REPÚBLICA DE GUATEMALA',
@@ -1048,7 +1058,7 @@ export async function exportConstructionAuditPdf(
     });
 
     addText(
-      `${projectExpenses.length} comprobantes`,
+      `${projectExpenses.length} registros`,
       margin + catCols[0].width + catCols[1].width / 2,
       y + 4.5,
       {
@@ -1087,12 +1097,12 @@ export async function exportConstructionAuditPdf(
   }
 
   // -------------------------------------------------------------
-  // 5. DETALLE DE COMPROBANTES FISCALES Y GASTOS (AUDITORÍA SAT)
+  // 5. DETALLE DE GASTOS Y COMPROBANTES (CONTROL FISCAL)
   // -------------------------------------------------------------
   checkPageBreak(30);
 
   addText(
-    '2. LIBRO AUXILIAR DE COMPROBANTES FISCALES (AUDITORÍA SAT / CONTRATACIONES DEL ESTADO)',
+    '2. LIBRO AUXILIAR DE GASTOS Y COMPROBANTES (CONTROL FISCAL / CONTRATACIONES DEL ESTADO)',
     margin,
     y + 3,
     {
@@ -1142,11 +1152,16 @@ export async function exportConstructionAuditPdf(
   if (projectExpenses.length === 0) {
     doc.setFillColor(248, 250, 252);
     doc.rect(margin, y, usableWidth, 6, 'F');
-    addText('No existen registros de gastos o compras para el proyecto.', margin + 3, y + 4.2, {
-      fontSize: 7,
-      fontStyle: 'italic',
-      color: [100, 116, 139],
-    });
+    addText(
+      'No existen gastos ejecutados registrados para el proyecto (los gastos rechazados no se certifican).',
+      margin + 3,
+      y + 4.2,
+      {
+        fontSize: 7,
+        fontStyle: 'italic',
+        color: [100, 116, 139],
+      }
+    );
     y += 7;
   } else {
     projectExpenses.forEach((exp, idx) => {
@@ -1180,7 +1195,7 @@ export async function exportConstructionAuditPdf(
       eX += expCols[1].width;
 
       // No. Factura / DTE
-      addText(exp.facturaNumber || 'Sin DTE', eX + 2, y + 4.2, {
+      addText(exp.facturaNumber || (exp.machineryLogId ? 'Interno' : 'Sin DTE'), eX + 2, y + 4.2, {
         fontSize: 6.5,
         fontStyle: 'bold',
         color: [30, 58, 138],
@@ -1197,7 +1212,10 @@ export async function exportConstructionAuditPdf(
       eX += expCols[3].width;
 
       // NIT
-      addText(exp.nitSupplier || 'CF', eX + 2, y + 4.2, { fontSize: 6.5, color: [71, 85, 105] });
+      addText(exp.nitSupplier || (exp.machineryLogId ? '—' : 'CF'), eX + 2, y + 4.2, {
+        fontSize: 6.5,
+        color: [71, 85, 105],
+      });
       eX += expCols[4].width;
 
       // Forma Pago
@@ -1245,7 +1263,7 @@ export async function exportConstructionAuditPdf(
     doc.rect(margin, y, usableWidth, 7, 'D');
 
     addText(
-      `TOTAL EJECUTADO Y AUDITADO (${projectExpenses.length} COMPROBANTES)`,
+      `TOTAL EJECUTADO Y AUDITADO (${projectExpenses.length} REGISTROS)`,
       margin + 3,
       y + 4.8,
       {
@@ -1355,9 +1373,14 @@ export async function exportConstructionAuditPdf(
   doc.setDrawColor(203, 213, 225);
   doc.roundedRect(margin, y, usableWidth, 14, 1.5, 1.5, 'FD');
 
+  const rejectionNote =
+    auditMetrics.rejectedCount > 0
+      ? ` No se incluyen ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatGTQ(auditMetrics.rejectedAmount)}, por no constituir erogación ejecutada de la obra.`
+      : '';
+
   const defaultNotes =
     auditNotes?.trim() ||
-    `Se hace constar que los gastos registrados por un monto acumulado de ${formatGTQ(totalExpenses)} cuentan con comprobantes de respaldo fiscal (Facturas DTE SAT) y se corresponden con el avance físico certificado de ${physicalProgress}%. El saldo presupuestario de ${formatGTQ(budgetBalance)} se encuentra disponible para la culminación de los renglones contractuales de la obra conforme al cronograma de ejecución vigente.`;
+    `Se hace constar que los gastos ejecutados registrados ascienden a ${formatGTQ(totalExpenses)} y se corresponden con el avance físico reportado de ${physicalProgress}%. El saldo presupuestario disponible es de ${formatGTQ(budgetBalance)}.${rejectionNote} Las cifras provienen de los registros capturados en la plataforma; la verificación documental y fiscal de cada comprobante se realiza por separado y no se certifica en este documento.`;
 
   addText(defaultNotes, margin + 3, y + 4.5, {
     fontSize: 7,
@@ -1387,7 +1410,7 @@ export async function exportConstructionAuditPdf(
     }
   );
   addText(
-    'Los infrascritos profesionales declaran bajo juramento que los montos, facturas y porcentajes de avance físico detallados en la presente cédula reflejan con exactitud la situación técnica y presupuestaria de la obra a la fecha de emisión.',
+    'Los profesionales firmantes declaran que las cifras de esta cédula provienen de los registros de gasto, bitácora y avance capturados en la plataforma a la fecha de emisión. La verificación documental, fiscal y de campo de cada partida corresponde a los responsables que suscriben.',
     margin + 3,
     y + 7.5,
     {
@@ -1412,13 +1435,14 @@ export async function exportConstructionAuditPdf(
     align: 'center',
     color: [15, 23, 42],
   });
-  const resName = company?.architectName || 'Arq. Responsable Técnico';
-  const resCol = company?.architectColNumber
-    ? `Col. No. ${company.architectColNumber}`
-    : 'Colegio CIG / CA';
-  addText(`${resName} • ${resCol}`, sX + sigW / 2, y + 7.5, {
+  const resName = company?.architectName?.trim();
+  const resCol = company?.architectColNumber?.trim()
+    ? ` • Col. No. ${company.architectColNumber.trim()}`
+    : '';
+  addText(resName ? `${resName}${resCol}` : 'Nombre y firma', sX + sigW / 2, y + 7.5, {
     fontSize: 6.5,
     align: 'center',
+    fontStyle: resName ? 'normal' : 'italic',
     color: [71, 85, 105],
   });
   addText('Responsable de Ejecución y Avance Físico', sX + sigW / 2, y + 10.5, {
@@ -1436,16 +1460,20 @@ export async function exportConstructionAuditPdf(
     align: 'center',
     color: [15, 23, 42],
   });
-  const auditOfficer = auditorName?.trim() || 'Auditor Interno / Contador General';
-  const auditOfficerReg = auditorColNumber?.trim()
-    ? `Registro: ${auditorColNumber}`
-    : 'Registro SAT / CPA';
-  addText(`${auditOfficer} • ${auditOfficerReg}`, sX + sigW / 2, y + 7.5, {
-    fontSize: 6.5,
-    align: 'center',
-    color: [71, 85, 105],
-  });
-  addText('Verificación Financiera y Tributaria SAT', sX + sigW / 2, y + 10.5, {
+  const auditOfficer = auditorName?.trim();
+  const auditOfficerReg = auditorColNumber?.trim() ? ` • Registro: ${auditorColNumber.trim()}` : '';
+  addText(
+    auditOfficer ? `${auditOfficer}${auditOfficerReg}` : 'Nombre y firma',
+    sX + sigW / 2,
+    y + 7.5,
+    {
+      fontSize: 6.5,
+      align: 'center',
+      fontStyle: auditOfficer ? 'normal' : 'italic',
+      color: [71, 85, 105],
+    }
+  );
+  addText('Revisión Financiera y Documental', sX + sigW / 2, y + 10.5, {
     fontSize: 6,
     align: 'center',
     color: [100, 116, 139],
@@ -1460,9 +1488,11 @@ export async function exportConstructionAuditPdf(
     align: 'center',
     color: [15, 23, 42],
   });
-  addText(compName, sX + sigW / 2, y + 7.5, {
+  const legalRepName = company?.legalName || company?.commercialName || company?.companyName || '';
+  addText(legalRepName || 'Nombre y firma', sX + sigW / 2, y + 7.5, {
     fontSize: 6.5,
     align: 'center',
+    fontStyle: legalRepName ? 'normal' : 'italic',
     color: [71, 85, 105],
     maxWidth: sigW - 4,
   });

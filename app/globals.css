@@ -97,6 +97,9 @@
       sans-serif;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-opt-sizing: auto;
+    font-scale: 1;
     -webkit-tap-highlight-color: transparent;
   }
 

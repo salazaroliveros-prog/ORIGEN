@@ -3,6 +3,7 @@
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { exportExpensesBudgetPdf, MonthlyHistogramItem } from '@/lib/pdfExportService';
 import { buildMonthlyExpenseSeries, MonthlyExpenseRange } from '@/lib/domain/monthlyExpenses';
+import { isCountableExpense } from '@/lib/projectCalculations';
 import { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 import {
   AlertTriangle,
@@ -77,10 +78,12 @@ export function MonthlyExpensesHistogram({
 
   // Breakdown by Category for the selected project
   const categoryData = useMemo(() => {
+    // Los gastos rechazados no son gasto ejecutado (misma regla que el tablero).
+    const countableExpenses = expenses.filter(isCountableExpense);
     const targetExpenses =
       selectedProjectId === 'all'
-        ? expenses
-        : expenses.filter((e) => e.projectId === selectedProjectId);
+        ? countableExpenses
+        : countableExpenses.filter((e) => e.projectId === selectedProjectId);
 
     const categories = [
       'Materiales (Cementos, Hierro)',
@@ -105,7 +108,9 @@ export function MonthlyExpensesHistogram({
   const hasExpensesForSelectedProject = useMemo(
     () =>
       selectedProjectId === 'all' ||
-      expenses.some((expense) => expense.projectId === selectedProjectId),
+      expenses.some(
+        (expense) => expense.projectId === selectedProjectId && isCountableExpense(expense)
+      ),
     [expenses, selectedProjectId]
   );
 
@@ -270,7 +275,7 @@ export function MonthlyExpensesHistogram({
                 onClick={() => setViewMode('histogram')}
                 className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                   viewMode === 'histogram'
-                    ? 'shadow-xs bg-amber-500 text-slate-950'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -280,7 +285,7 @@ export function MonthlyExpensesHistogram({
                 onClick={() => setViewMode('category')}
                 className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                   viewMode === 'category'
-                    ? 'shadow-xs bg-amber-500 text-slate-950'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >

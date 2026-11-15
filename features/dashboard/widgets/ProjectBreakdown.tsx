@@ -13,7 +13,13 @@ interface ProjectBreakdownProps {
   onToggle: () => void;
 }
 
-const ProjectCard = memo(function ProjectCard({ project, totals }: { project: Project; totals: DashboardTotals }) {
+const ProjectCard = memo(function ProjectCard({
+  project,
+  totals,
+}: {
+  project: Project;
+  totals: DashboardTotals;
+}) {
   const spent = totals.projectSpentMap.get(project.id) || project.spentTotal || 0;
   const budget = project.budgetTotal || 0;
   const isOver = spent > budget;
@@ -21,7 +27,6 @@ const ProjectCard = memo(function ProjectCard({ project, totals }: { project: Pr
 
   return (
     <div
-      key={project.id}
       className={`rounded-2xl border p-4 transition ${
         isOver
           ? 'border-rose-800/80 bg-rose-950/20 hover:border-rose-600'
@@ -30,9 +35,13 @@ const ProjectCard = memo(function ProjectCard({ project, totals }: { project: Pr
     >
       <div className="flex items-start justify-between">
         <div>
-          <span className="font-mono text-[10px] font-bold uppercase text-amber-400">{project.code || project.id}</span>
+          <span className="font-mono text-[10px] font-bold uppercase text-amber-400">
+            {project.code || project.id}
+          </span>
           <h4 className="mt-0.5 text-sm font-extrabold text-white">{project.name}</h4>
-          <p className="text-[11px] text-slate-400">{project.client} • {project.municipality}, {project.department}</p>
+          <p className="text-[11px] text-slate-400">
+            {project.client} • {project.municipality}, {project.department}
+          </p>
         </div>
         <span
           className={`rounded-md px-2 py-0.5 font-mono text-[10px] font-extrabold ${
@@ -61,7 +70,11 @@ const ProjectCard = memo(function ProjectCard({ project, totals }: { project: Pr
       <div className="mt-3 space-y-1">
         <div className="flex justify-between text-[10px] text-slate-400">
           <span>Avance Físico: {project.progressPercent}%</span>
-          <span>{isOver ? `Sobrecosto: +${formatGTQ(spent - budget)}` : `Disponible: ${formatGTQ(budget - spent)}`}</span>
+          <span>
+            {isOver
+              ? `Sobrecosto: +${formatGTQ(spent - budget)}`
+              : `Disponible: ${formatGTQ(budget - spent)}`}
+          </span>
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
           <div
@@ -79,11 +92,20 @@ const ProjectCard = memo(function ProjectCard({ project, totals }: { project: Pr
   );
 });
 
-const ProjectBreakdownComponent = memo(function ProjectBreakdownComponent({ projects, totals, visible, onToggle }: ProjectBreakdownProps) {
+const ProjectBreakdownComponent = memo(function ProjectBreakdownComponent({
+  projects,
+  totals,
+  visible,
+  onToggle,
+}: ProjectBreakdownProps) {
   if (!visible) return null;
 
   return (
-    <Card variant="elevated" padding="sm" className="border-slate-800 bg-slate-900/90 shadow-xl group relative space-y-3">
+    <Card
+      variant="elevated"
+      padding="sm"
+      className="group relative space-y-3 border-slate-800 bg-slate-900/90 shadow-xl"
+    >
       <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
         <button
           onClick={onToggle}
@@ -94,7 +116,7 @@ const ProjectBreakdownComponent = memo(function ProjectBreakdownComponent({ proj
           <EyeOff className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
-      <div className="p-5 pt-10 space-y-3">
+      <div className="space-y-3 p-5 pt-10">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
             <Briefcase className="h-4 w-4 text-sky-400" aria-hidden="true" />
@@ -111,7 +133,9 @@ const ProjectBreakdownComponent = memo(function ProjectBreakdownComponent({ proj
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((p) => <ProjectCard project={p} totals={totals} />)}
+          {projects.map((p) => (
+            <ProjectCard key={p.id} project={p} totals={totals} />
+          ))}
         </div>
       </div>
     </Card>

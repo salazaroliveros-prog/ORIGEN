@@ -106,6 +106,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         remaining: 0,
         utilization: 0,
         variance: 0,
+        isOverBudget: false,
       };
     }
 
@@ -125,6 +126,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         remaining: 0,
         utilization: 0,
         variance: 0,
+        isOverBudget: false,
       };
     }
   }, [apuItems, expenses]);

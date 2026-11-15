@@ -49,6 +49,8 @@ interface NavbarProps {
   onSelectWorkspace?: (companyId: string) => void;
   canViewPersonnel?: boolean;
   canViewPayroll?: boolean;
+  /** Muestra el tab de Gastos & Facturas. Roles sin lectura no deben verlo. */
+  canViewExpenses?: boolean;
   isMobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
 }
@@ -115,6 +117,7 @@ export function Navbar({
   onSelectWorkspace,
   canViewPersonnel = false,
   canViewPayroll = false,
+  canViewExpenses = false,
   isMobileSidebarOpen,
   onToggleMobileSidebar,
 }: NavbarProps) {
@@ -138,6 +141,7 @@ export function Navbar({
   ].filter((tab) => {
     if (tab.id === 'personal') return canViewPersonnel;
     if (tab.id === 'planillas') return canViewPayroll;
+    if (tab.id === 'gastos') return canViewExpenses;
     return true;
   });
   const mobileQuickTabs = [
@@ -513,7 +517,10 @@ export function Navbar({
                 <div
                   role="menu"
                   aria-label="Cambiar proyecto activo"
-                  className="absolute right-0 z-50 mt-2 w-64 space-y-1 rounded-xl border border-white/15 bg-slate-900/95 p-2 shadow-2xl backdrop-blur-2xl"
+                  // Con muchas obras la lista desborda la ventana: el menú
+                  // tiene alto máximo y scroll propio para que todos los
+                  // proyectos sigan siendo alcanzables.
+                  className="absolute right-0 z-50 mt-2 max-h-[min(70vh,24rem)] w-64 space-y-1 overflow-y-auto overscroll-contain rounded-xl border border-white/15 bg-slate-900/95 p-2 shadow-2xl backdrop-blur-2xl"
                 >
                   <div className="border-b border-white/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-slate-400">
                     Cambiar Proyecto Activo

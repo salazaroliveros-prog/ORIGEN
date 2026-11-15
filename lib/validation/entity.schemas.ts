@@ -261,6 +261,17 @@ export const MachinerySchema = z.object({
 
 export type MachineryValues = z.infer<typeof MachinerySchema>;
 
+/**
+ * Borrador que produce el formulario de maquinaria.
+ *
+ * `companyId` no lo escribe el usuario: lo aporta la sesión al persistir. Si el
+ * formulario valida contra `MachinerySchema` completo, **toda** alta falla con
+ * "Company ID requerido" y el usuario solo ve un mensaje genérico.
+ */
+export const MachineryDraftSchema = MachinerySchema.omit({ companyId: true });
+
+export type MachineryDraftValues = z.infer<typeof MachineryDraftSchema>;
+
 // ============================================================================
 // Validation functions
 // ============================================================================
@@ -286,4 +297,9 @@ export function validateQuoteRecord(data: unknown) {
 
 export function validateMachinery(data: unknown) {
   return MachinerySchema.safeParse(data);
+}
+
+/** Valida lo que captura la persona en el formulario (sin companyId). */
+export function validateMachineryDraft(data: unknown) {
+  return MachineryDraftSchema.safeParse(data);
 }

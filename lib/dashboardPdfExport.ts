@@ -1,5 +1,6 @@
 import { Project, ExpenseRecord, CompanySettings } from './types';
 import { formatGTQ, formatUSD } from './data';
+import { buildPortfolioAuditMetrics } from './domain/auditMetrics';
 
 export interface DashboardPdfOptions {
   projects: Project[];
@@ -31,26 +32,11 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   };
 
   // Aggregated totals
-  const totalBudget = projects.reduce((sum, p) => sum + (p.budgetTotal || 0), 0);
-
-  // Compute actual spent
-  const projectSpentMap = new Map<string, number>();
-  projects.forEach((p) => {
-    const projExpenses = expenses.filter((e) => e.projectId === p.id);
-    const computedSpent =
-      projExpenses.length > 0 ? projExpenses.reduce((s, e) => s + e.amount, 0) : p.spentTotal;
-    projectSpentMap.set(p.id, computedSpent);
-  });
-
-  const totalSpent = projects.reduce(
-    (sum, p) => sum + (projectSpentMap.get(p.id) || p.spentTotal || 0),
-    0
-  );
-  const remainingBudget = totalBudget - totalSpent;
-  const spentPct = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
-  const overbudgetCount = projects.filter(
-    (p) => (projectSpentMap.get(p.id) || p.spentTotal) > p.budgetTotal
-  ).length;
+  // Un gasto rechazado no es gasto ejecutado: el informe ejecutivo usa el mismo
+  // criterio que el presupuesto y el tablero (dominio, no una suma local).
+  const auditMetrics = buildPortfolioAuditMetrics({ projects, expenses });
+  const { totalBudget, totalSpent, remainingBudget, spentPercent, overbudgetCount } = auditMetrics;
+  const spentPct = spentPercent;
 
   // Header Banner Background
   doc.setFillColor(15, 23, 42); // slate-900
@@ -128,6 +114,20 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
 
   y += 3 * (cardH + 4) + 6;
 
+  if (auditMetrics.rejectedCount > 0) {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.text(
+      `Nota: ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatMoney(
+        auditMetrics.rejectedAmount
+      )} no se incluyen en el gasto real acumulado.`,
+      margin,
+      y
+    );
+    y += 5;
+  }
+
   // SECTION 2: CONFIGURACIÓN DE WIDGETS ACTIVOS
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
@@ -198,16 +198,17 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   y += 7;
 
   // Table Rows
-  projects.forEach((p, idx) => {
+  auditMetrics.projects.forEach((item, idx) => {
+    const p = item.project;
     if (y > pageHeight - 35) {
       doc.addPage();
       y = margin;
     }
 
-    const spent = projectSpentMap.get(p.id) || p.spentTotal || 0;
-    const budget = p.budgetTotal || 0;
-    const isOver = spent > budget;
-    const pct = budget > 0 ? Math.round((spent / budget) * 100) : 0;
+    const spent = item.spent;
+    const budget = item.budgetTotal;
+    const isOver = item.isOverBudget;
+    const pct = item.budgetUsagePercent;
 
     doc.setFillColor(
       idx % 2 === 0 ? 248 : 255,
@@ -261,13 +262,16 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  doc.text('Ing. Residente de Obra / Director', margin, y + 4);
-  doc.text('Auditor Financiero & Control Interno', pageWidth - margin - 60, y + 4);
+  const architectName = company?.architectName?.trim();
+  doc.setFont('helvetica', architectName ? 'bold' : 'italic');
+  doc.text(architectName || 'Nombre y firma', margin, y + 4);
+  doc.setFont('helvetica', 'italic');
+  doc.text('Nombre y firma', pageWidth - margin - 60, y + 4);
 
   doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
   doc.text(
-    'Documento generado automáticamente por ConstructERP Guatemala. Cumplimiento AGIES NSE-2 & COGUANOR NGO 41007.',
+    'Documento generado automáticamente por ConstructERP Guatemala a partir de los registros capturados en la plataforma.',
     margin,
     pageHeight - 8
   );

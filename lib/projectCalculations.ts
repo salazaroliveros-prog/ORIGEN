@@ -4,29 +4,19 @@
  */
 
 import { summarizeProjectFinance } from './domain/projectFinance';
+import { calculateScheduleProgress } from './domain/executionTimeline';
 import type { Project, ScheduleTask, Milestone, ExpenseRecord } from './types';
 
 /**
- * Calcula el progreso del proyecto basado en tareas completadas
- * Si no hay tareas, usa milestones. Si no hay milestones, retorna 0.
+ * Calcula el progreso del proyecto.
+ * Usa el mismo criterio ponderado que el cronograma (`calculateScheduleProgress`):
+ * - Si las tareas tienen `weightPercent`, se pondera por peso.
+ * - Si no hay pesos, promedio simple.
+ * - `completed: true` cuenta como 100 aunque `progress` venga en 0 (datos legacy).
+ * El resultado se redondea al entero usado en la UI.
  */
 export function calculateProjectProgress(tasks?: ScheduleTask[], milestones?: Milestone[]): number {
-  // Prioridad 1: Usar tareas del cronograma
-  if (tasks && tasks.length > 0) {
-    const completedTasks = tasks.filter((task) => task.completed === true).length;
-    const totalTasks = tasks.length;
-    return Math.round((completedTasks / totalTasks) * 100);
-  }
-
-  // Prioridad 2: Usar milestones
-  if (milestones && milestones.length > 0) {
-    const completedMilestones = milestones.filter((m) => m.completed === true).length;
-    const totalMilestones = milestones.length;
-    return Math.round((completedMilestones / totalMilestones) * 100);
-  }
-
-  // Si no hay tareas ni milestones, retornar 0
-  return 0;
+  return Math.round(calculateScheduleProgress(tasks ?? [], milestones ?? []));
 }
 
 /**
@@ -45,6 +35,39 @@ export function resolveProjectProgress(
 }
 
 /**
+ * Aplica una edición de proyecto sin permitir que el formulario sobrescriba
+ * los campos derivados (`spentTotal`, `progressPercent`).
+ *
+ * - `spentTotal` se conserva del registro existente: el gasto ejecutado solo
+ *   cambia cuando cambian los gastos, nunca al editar datos del proyecto.
+ * - `progressPercent` se recalcula desde el cronograma si existe; si no, se
+ *   respeta el avance manual capturado en el formulario.
+ */
+export function mergeProjectUpdate(
+  existing: Project,
+  data: Partial<Project>,
+  context: { companyId: string; ownerId: string }
+): Project {
+  const merged: Project = {
+    ...existing,
+    ...data,
+    id: existing.id,
+    companyId: context.companyId,
+    ownerId: context.ownerId,
+    spentTotal: existing.spentTotal,
+  };
+
+  return {
+    ...merged,
+    progressPercent: resolveProjectProgress(
+      merged.scheduleTasks,
+      merged.scheduleMilestones,
+      merged.progressPercent
+    ),
+  };
+}
+
+/**
  * Calcula el gasto total del proyecto sumando todos los gastos
  */
 export function calculateProjectSpentTotal(expenses: ExpenseRecord[]): number {
@@ -58,6 +81,60 @@ export function calculateProjectSpentById(expenses: ExpenseRecord[], projectId: 
   return expenses
     .filter((expense) => expense.projectId === projectId)
     .reduce((total, expense) => total + expense.amount, 0);
+}
+
+/**
+ * Determina si un gasto cuenta como ejecutado.
+ * Un gasto rechazado en el flujo de aprobación no consume presupuesto.
+ */
+export function isCountableExpense(expense: ExpenseRecord): boolean {
+  return expense.approvalStatus !== 'Rechazado';
+}
+
+const round2 = (value: number): number => Math.round(value * 100) / 100;
+
+/**
+ * Suma de gastos ejecutados (excluye los rechazados), redondeada a centavos.
+ */
+export function sumCountableExpenses(expenses: ExpenseRecord[]): number {
+  return round2(
+    expenses.reduce(
+      (total, expense) => (isCountableExpense(expense) ? total + expense.amount : total),
+      0
+    )
+  );
+}
+
+/**
+ * Deriva los campos de proyecto que NUNCA deben persistirse desde el formulario:
+ * - `spentTotal`: suma de gastos registrados para el proyecto (fuente única de verdad).
+ * - `progressPercent`: avance real del cronograma (ponderado por peso de tarea/hito).
+ *
+ * Se aplica en la capa de datos (`useProjectData`) para que tableros, reportes y
+ * gráficas consuman siempre el mismo valor.
+ */
+export function deriveProjectsFinancials(
+  projects: Project[],
+  expenses: ExpenseRecord[]
+): Project[] {
+  const spentByProject = new Map<string, number>();
+  for (const expense of expenses) {
+    if (!isCountableExpense(expense)) continue;
+    spentByProject.set(
+      expense.projectId,
+      (spentByProject.get(expense.projectId) ?? 0) + expense.amount
+    );
+  }
+
+  return projects.map((project) => ({
+    ...project,
+    spentTotal: round2(spentByProject.get(project.id) ?? 0),
+    progressPercent: resolveProjectProgress(
+      project.scheduleTasks,
+      project.scheduleMilestones,
+      project.progressPercent
+    ),
+  }));
 }
 
 /**

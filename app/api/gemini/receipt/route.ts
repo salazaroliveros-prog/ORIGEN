@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError, readJsonBody, isDataUrlImage } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
+import { requireApiUser } from '@/lib/apiAuth';
 import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 const ALLOWED_MIME_TYPES = new Set([
@@ -16,23 +17,30 @@ const ALLOWED_MIME_TYPES = new Set([
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting
+    // La lectura de facturas usa Gemini Vision: exige sesión y cuota por usuario.
+    const auth = await requireApiUser(req);
+    if (!auth.ok) return applySecurityHeaders(jsonError(auth.message, auth.status));
+
     const rateLimitMiddleware = createRateLimitMiddleware({
       windowMs: 60 * 1000,
       maxRequests: 20,
       keyPrefix: 'gemini-receipt',
     });
-    const rateLimitResponse = await rateLimitMiddleware(req);
+    const rateLimitResponse = await rateLimitMiddleware(req, `gemini-receipt:${auth.user.uid}`);
     if (rateLimitResponse) return applySecurityHeaders(rateLimitResponse);
 
     const body = await readJsonBody(req);
     if (!body) {
-      return applySecurityHeaders(jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400));
+      return applySecurityHeaders(
+        jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400)
+      );
     }
 
     const image = body.image;
     if (!isDataUrlImage(image)) {
-      return applySecurityHeaders(jsonError('Debe adjuntar una imagen de factura o recibo válida.', 400));
+      return applySecurityHeaders(
+        jsonError('Debe adjuntar una imagen de factura o recibo válida.', 400)
+      );
     }
 
     const matches = image.match(/^data:(.+);base64,(.+)$/);
@@ -44,12 +52,16 @@ export async function POST(req: NextRequest) {
     const base64Data = matches[2];
 
     if (!ALLOWED_MIME_TYPES.has(mimeType)) {
-      return applySecurityHeaders(jsonError('Tipo de imagen no soportado. Use JPG, PNG, WEBP, GIF o HEIC.', 400));
+      return applySecurityHeaders(
+        jsonError('Tipo de imagen no soportado. Use JPG, PNG, WEBP, GIF o HEIC.', 400)
+      );
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return applySecurityHeaders(jsonError('El servicio de lectura de facturas no está configurado.', 503));
+      return applySecurityHeaders(
+        jsonError('El servicio de lectura de facturas no está configurado.', 503)
+      );
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -72,19 +84,35 @@ export async function POST(req: NextRequest) {
     const text = response.text || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return applySecurityHeaders(createErrorResponse(new ValidationError('No se pudo interpretar la factura. Intente con una imagen más clara.')));
+      return applySecurityHeaders(
+        createErrorResponse(
+          new ValidationError(
+            'No se pudo interpretar la factura. Intente con una imagen más clara.'
+          )
+        )
+      );
     }
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(jsonMatch[0]);
     } catch {
-      return applySecurityHeaders(createErrorResponse(new ValidationError('No se pudo interpretar la factura. Intente con una imagen más clara.')));
+      return applySecurityHeaders(
+        createErrorResponse(
+          new ValidationError(
+            'No se pudo interpretar la factura. Intente con una imagen más clara.'
+          )
+        )
+      );
     }
 
     return applySecurityHeaders(NextResponse.json({ success: true, data: parsed }));
   } catch (error: unknown) {
     console.error('Gemini receipt analysis error:', error);
-    return applySecurityHeaders(createErrorResponse(new ExternalServiceError('No se pudo analizar la factura en este momento.', 'Gemini')));
+    return applySecurityHeaders(
+      createErrorResponse(
+        new ExternalServiceError('No se pudo analizar la factura en este momento.', 'Gemini')
+      )
+    );
   }
 }

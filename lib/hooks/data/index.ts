@@ -1,7 +1,19 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { CompanyRole, Project, ExpenseRecord, AttendanceRecord, Employee, QuoteRecord, APUItem, Machinery, MachineryLog, FieldVisit, CompanySettings } from '@/lib/types';
+import type {
+  CompanyRole,
+  Project,
+  ExpenseRecord,
+  AttendanceRecord,
+  Employee,
+  QuoteRecord,
+  APUItem,
+  Machinery,
+  MachineryLog,
+  FieldVisit,
+  CompanySettings,
+} from '@/lib/types';
 import { useProjects, UseProjectsReturn } from './useProjects';
 import { useExpenses, UseExpensesReturn } from './useExpenses';
 import { useAttendance, UseAttendanceReturn } from './useAttendance';
@@ -12,6 +24,7 @@ import { useMachinery, UseMachineryReturn } from './useMachinery';
 import { useCompanySettings, UseCompanySettingsReturn } from './useCompanySettings';
 import { useFieldVisits, UseFieldVisitsReturn } from './useFieldVisits';
 import { calculateBudgetSummary, BudgetSummary } from '@/lib/utils/calculations';
+import { deriveProjectsFinancials, sumCountableExpenses } from '@/lib/projectCalculations';
 
 interface UseProjectDataOptions {
   companyId?: string;
@@ -49,7 +62,9 @@ interface UseProjectDataReturn {
   deleteAttendance: UseAttendanceReturn['deleteAttendance'];
 
   // Employees
-  employees: Array<Employee | { id: string; companyId: string; name: string; role: Employee['role'] }>;
+  employees: Array<
+    Employee | { id: string; companyId: string; name: string; role: Employee['role'] }
+  >;
   fullEmployees: Employee[];
   employeesLoading: boolean;
   addEmployee: UseEmployeesReturn['addEmployee'];
@@ -97,14 +112,23 @@ export function useProjectData({
   currentUserId,
   role,
 }: UseProjectDataOptions): UseProjectDataReturn {
-  const activeProjectIds = useMemo(() => {
-    // This will be populated from projects
-    return [] as string[];
-  }, []);
-
   const projectsHook = useProjects({ companyId, currentUserId });
-  const expensesHook = useExpenses({ companyId, currentUserId, projectIds: projectsHook.activeProjects.map(p => p.id) });
-  const attendanceHook = useAttendance({ companyId, currentUserId, role, projectIds: projectsHook.activeProjects.map(p => p.id) });
+
+  // `projectIds` debe ser una referencia estable: si se reconstruye en cada
+  // render, los `useMemo` de `useExpenses`/`useAttendance` se invalidan
+  // constantemente y se recalculan las listas filtradas sin necesidad.
+  const activeProjectIds = useMemo(
+    () => projectsHook.activeProjects.map((project) => project.id),
+    [projectsHook.activeProjects]
+  );
+
+  const expensesHook = useExpenses({ companyId, currentUserId, projectIds: activeProjectIds });
+  const attendanceHook = useAttendance({
+    companyId,
+    currentUserId,
+    role,
+    projectIds: activeProjectIds,
+  });
   const employeesHook = useEmployees({ companyId, currentUserId, role });
   const apuItemsHook = useAPUItems({ companyId, currentUserId, projects: projectsHook.projects });
   const quotesHook = useQuotes({ companyId, currentUserId });
@@ -112,22 +136,33 @@ export function useProjectData({
   const companySettingsHook = useCompanySettings({ companyId });
   const fieldVisitsHook = useFieldVisits({ companyId, currentUserId });
 
+  // `spentTotal` y `progressPercent` se derivan aquí (no en Firestore ni en el
+  // formulario): gasto = suma de gastos registrados, avance = cronograma.
+  const projectsWithFinancials = useMemo(
+    () => deriveProjectsFinancials(projectsHook.projects, expensesHook.allExpenses),
+    [projectsHook.projects, expensesHook.allExpenses]
+  );
+
+  const activeProjectsWithFinancials = useMemo(
+    () => projectsWithFinancials.filter((project) => project.status !== 'Archivado'),
+    [projectsWithFinancials]
+  );
+
   const budgetSummary = useMemo(() => {
-    if (apuItemsHook.apuItems.length === 0 && expensesHook.allExpenses.length === 0) {
+    const totalSpent = sumCountableExpenses(expensesHook.allExpenses);
+    if (apuItemsHook.apuItems.length === 0 && totalSpent === 0) {
       return {
         budgetTotal: 0,
         spentTotal: 0,
         remaining: 0,
         utilization: 0,
         variance: 0,
+        isOverBudget: false,
       };
     }
 
     try {
-      return calculateBudgetSummary(
-        apuItemsHook.apuItems,
-        expensesHook.allExpenses.reduce((sum, exp) => sum + exp.amount, 0)
-      );
+      return calculateBudgetSummary(apuItemsHook.apuItems, totalSpent);
     } catch {
       return {
         budgetTotal: 0,
@@ -135,14 +170,15 @@ export function useProjectData({
         remaining: 0,
         utilization: 0,
         variance: 0,
+        isOverBudget: false,
       };
     }
   }, [apuItemsHook.apuItems, expensesHook.allExpenses]);
 
   return {
     // Projects
-    projects: projectsHook.projects,
-    activeProjects: projectsHook.activeProjects,
+    projects: projectsWithFinancials,
+    activeProjects: activeProjectsWithFinancials,
     projectsLoading: projectsHook.loading,
     createProject: projectsHook.createProject,
     updateProject: projectsHook.updateProject,
@@ -209,9 +245,16 @@ export function useProjectData({
 
     // Computed
     budgetSummary,
-    loading: projectsHook.loading || expensesHook.loading || attendanceHook.loading ||
-      employeesHook.loading || apuItemsHook.loading || quotesHook.loading ||
-      machineryHook.loading || companySettingsHook.loading || fieldVisitsHook.loading,
+    loading:
+      projectsHook.loading ||
+      expensesHook.loading ||
+      attendanceHook.loading ||
+      employeesHook.loading ||
+      apuItemsHook.loading ||
+      quotesHook.loading ||
+      machineryHook.loading ||
+      companySettingsHook.loading ||
+      fieldVisitsHook.loading,
   };
 }
 

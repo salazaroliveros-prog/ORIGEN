@@ -492,7 +492,7 @@ export async function generateQuoteCommercialPdf(
 
   // Footer: Document Verification & Watermark
   addText(
-    `Documento comercial generado por ConstructERP Guatemala • Certificación AGIES / COGUANOR • Página 1 de 1`,
+    `Documento comercial generado por ConstructERP Guatemala • Página 1 de 1`,
     pageWidth / 2,
     pageHeight - 6,
     {

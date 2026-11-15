@@ -4,6 +4,7 @@ import {
   validateEmployee,
   validateExpenseRecord,
   validateMachinery,
+  validateMachineryDraft,
   validateQuoteRecord,
 } from './entity.schemas';
 
@@ -116,7 +117,24 @@ describe('entity schemas use the persisted ERP record contracts', () => {
     ).toBe(true);
   });
 
-  it('accepts machinery records created by the equipment form', () => {
+  it('accepts the machinery draft the equipment form actually submits', () => {
+    // El formulario no conoce la empresa: la aporta la sesión al persistir.
+    // Validar este borrador contra el esquema persistido bloqueaba toda alta.
+    const formDraft = {
+      id: 'machinery-e2e',
+      name: 'Excavadora de prueba',
+      model: '2025',
+      plateOrCode: 'EQ-E2E',
+      hourlyRateGTQ: 300,
+      currentHorometer: 0,
+      status: 'Disponible',
+    };
+
+    expect(validateMachineryDraft(formDraft).success).toBe(true);
+    expect(validateMachinery(formDraft).success).toBe(false);
+  });
+
+  it('accepts machinery records once the session adds companyId and createdBy', () => {
     expect(
       validateMachinery({
         id: 'machinery-e2e',
@@ -130,6 +148,26 @@ describe('entity schemas use the persisted ERP record contracts', () => {
         status: 'Disponible',
       }).success
     ).toBe(true);
+  });
+
+  it('still rejects an invalid machinery draft', () => {
+    const result = validateMachineryDraft({
+      id: 'machinery-e2e',
+      name: 'AB',
+      model: '2025',
+      plateOrCode: 'EQ-E2E',
+      hourlyRateGTQ: -1,
+      currentHorometer: -5,
+      status: 'Disponible',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const fields = result.error.issues.map((issue) => String(issue.path[0]));
+      expect(fields).toContain('name');
+      expect(fields).toContain('hourlyRateGTQ');
+      expect(fields).toContain('currentHorometer');
+    }
   });
 });
 

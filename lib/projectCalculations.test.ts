@@ -5,8 +5,12 @@ import {
   calculateProjectProgress,
   calculateProjectSpentById,
   calculateProjectSpentTotal,
+  deriveProjectsFinancials,
+  isCountableExpense,
   isProjectOverBudget,
+  mergeProjectUpdate,
   resolveProjectProgress,
+  sumCountableExpenses,
   updateProjectWithCalculatedMetrics,
 } from './projectCalculations';
 import type { ExpenseRecord, Milestone, Project, ScheduleTask } from './types';
@@ -94,6 +98,22 @@ describe('calculateProjectProgress', () => {
     expect(calculateProjectProgress(undefined, undefined)).toBe(0);
     expect(calculateProjectProgress([], [])).toBe(0);
   });
+
+  it('weights progress by weightPercent instead of counting completed tasks', () => {
+    const tasks = [
+      task({ id: 'a', progress: 100, weightPercent: 40 }),
+      task({ id: 'b', progress: 50, weightPercent: 30 }),
+      task({ id: 'c', progress: 0, weightPercent: 20 }),
+      task({ id: 'd', progress: 0, weightPercent: 10 }),
+    ];
+    // Conteo ingenuo: 1 de 4 completadas = 25%. Ponderado real = 55%.
+    expect(calculateProjectProgress(tasks)).toBe(55);
+  });
+
+  it('counts legacy completed tasks with progress 0 as 100', () => {
+    const tasks = [task({ id: 'a', completed: true }), task({ id: 'b' })];
+    expect(calculateProjectProgress(tasks)).toBe(50);
+  });
 });
 
 describe('resolveProjectProgress', () => {
@@ -146,6 +166,103 @@ describe('project spending helpers', () => {
   it('computes rounded budget utilization', () => {
     expect(calculateBudgetUtilizationPercent(project({ budgetTotal: 3000 }), 1000)).toBe(33);
     expect(calculateBudgetUtilizationPercent(project({ budgetTotal: 0 }), 1000)).toBe(0);
+  });
+});
+
+describe('sumCountableExpenses / isCountableExpense', () => {
+  it('excludes rejected expenses from the executed amount', () => {
+    const expenses = [
+      expense({ id: 'e1', amount: 1000 }),
+      expense({ id: 'e2', amount: 2500, approvalStatus: 'Aprobado' }),
+      expense({ id: 'e3', amount: 900, approvalStatus: 'Rechazado' }),
+      expense({ id: 'e4', amount: 500, approvalStatus: 'Pendiente' }),
+    ];
+    expect(isCountableExpense(expenses[2])).toBe(false);
+    expect(sumCountableExpenses(expenses)).toBe(4000);
+  });
+});
+
+describe('deriveProjectsFinancials', () => {
+  it('derives spentTotal from expenses instead of the persisted value', () => {
+    const projects = [project({ id: 'proj-1', spentTotal: 0 })];
+    const expenses = [
+      expense({ id: 'e1', projectId: 'proj-1', amount: 1000 }),
+      expense({ id: 'e2', projectId: 'proj-1', amount: 2500 }),
+      expense({ id: 'e3', projectId: 'proj-1', amount: 500 }),
+    ];
+
+    const [derived] = deriveProjectsFinancials(projects, expenses);
+
+    expect(derived.spentTotal).toBe(4000);
+    expect(projects[0].spentTotal).toBe(0); // no muta la entrada
+  });
+
+  it('ignores rejected expenses and expenses from other projects', () => {
+    const projects = [project({ id: 'proj-1' }), project({ id: 'proj-2' })];
+    const expenses = [
+      expense({ id: 'e1', projectId: 'proj-1', amount: 1000 }),
+      expense({ id: 'e2', projectId: 'proj-1', amount: 900, approvalStatus: 'Rechazado' }),
+      expense({ id: 'e3', projectId: 'proj-2', amount: 50, approvalStatus: 'Aprobado' }),
+    ];
+
+    const [p1, p2] = deriveProjectsFinancials(projects, expenses);
+
+    expect(p1.spentTotal).toBe(1000);
+    expect(p2.spentTotal).toBe(50);
+  });
+
+  it('returns zero spent for projects without expenses', () => {
+    const [derived] = deriveProjectsFinancials([project({ spentTotal: 9999 })], []);
+    expect(derived.spentTotal).toBe(0);
+  });
+
+  it('derives weighted progress from the schedule', () => {
+    const tasks = [
+      task({ id: 'a', progress: 100, weightPercent: 40 }),
+      task({ id: 'b', progress: 50, weightPercent: 30 }),
+      task({ id: 'c', progress: 0, weightPercent: 20 }),
+      task({ id: 'd', progress: 0, weightPercent: 10 }),
+    ];
+    const [derived] = deriveProjectsFinancials(
+      [project({ progressPercent: 25, scheduleTasks: tasks })],
+      []
+    );
+    expect(derived.progressPercent).toBe(55);
+  });
+
+  it('keeps the manual progress when there is no schedule', () => {
+    const [derived] = deriveProjectsFinancials([project({ progressPercent: 37 })], []);
+    expect(derived.progressPercent).toBe(37);
+  });
+});
+
+describe('mergeProjectUpdate', () => {
+  const context = { companyId: 'company-1', ownerId: 'user-1' };
+
+  it('never overwrites the persisted spentTotal with form data', () => {
+    const existing = project({ spentTotal: 4000, name: 'Original' });
+
+    const updated = mergeProjectUpdate(existing, { spentTotal: 0, name: 'Renombrado' }, context);
+
+    expect(updated.spentTotal).toBe(4000);
+    expect(updated.name).toBe('Renombrado');
+    expect(updated.companyId).toBe('company-1');
+    expect(updated.ownerId).toBe('user-1');
+  });
+
+  it('recomputes progress from the schedule and ignores the submitted value', () => {
+    const existing = project({
+      scheduleTasks: [task({ id: 'a', completed: true }), task({ id: 'b' })],
+    });
+
+    const updated = mergeProjectUpdate(existing, { progressPercent: 99 }, context);
+
+    expect(updated.progressPercent).toBe(50);
+  });
+
+  it('keeps the manual progress when the project has no schedule', () => {
+    const updated = mergeProjectUpdate(project(), { progressPercent: 42 }, context);
+    expect(updated.progressPercent).toBe(42);
   });
 });
 

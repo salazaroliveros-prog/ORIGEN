@@ -19,22 +19,58 @@ vi.mock('@google/genai', () => ({
 vi.mock('@/lib/guatemalaMarketData', () => ({
   GUATEMALA_BASE_MARKET_CATALOGUE: [],
   GUATEMALA_DEPARTMENTS_INDEX: {
-    Guatemala: { region: 'Central', freightFactor: 1.0, laborFactor: 1.0, overallFactor: 1.0, distanceKmFromCapital: 0, logisticsNotes: 'Capital' },
+    Guatemala: {
+      region: 'Central',
+      freightFactor: 1.0,
+      laborFactor: 1.0,
+      overallFactor: 1.0,
+      distanceKmFromCapital: 0,
+      logisticsNotes: 'Capital',
+    },
   },
+}));
+
+// Mock de autenticación: las rutas de IA exigen sesión.
+vi.mock('@/lib/apiAuth', () => ({
+  requireApiUser: vi.fn(),
 }));
 
 import { POST } from './gemini/route';
 import { createRateLimitMiddleware } from '@/lib/apiMiddleware';
+import { requireApiUser } from '@/lib/apiAuth';
+
+const AUTH_OK = {
+  ok: true as const,
+  idToken: 'id-token',
+  user: { uid: 'uid-1', email: 'user@origen.gt', emailVerified: true, displayName: null },
+};
 
 describe('app/api/gemini', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(requireApiUser).mockResolvedValue(AUTH_OK);
     mockRateLimitMiddleware.mockResolvedValue(null);
     vi.mocked(createRateLimitMiddleware).mockReturnValue(mockRateLimitMiddleware);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('should return 401 without an authenticated session', async () => {
+    vi.mocked(requireApiUser).mockResolvedValue({
+      ok: false,
+      status: 401,
+      message: 'Debes iniciar sesión para usar este servicio.',
+    });
+
+    const req = new Request('http://localhost/api/gemini', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'chat', message: 'Hello' }),
+    }) as unknown as NextRequest;
+    const res = await POST(req);
+    expect(res.status).toBe(401);
+    expect(mockRateLimitMiddleware).not.toHaveBeenCalled();
   });
 
   it('should return 429 when rate limited', async () => {

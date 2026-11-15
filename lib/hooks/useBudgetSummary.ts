@@ -31,6 +31,7 @@ export function useBudgetSummary(
         remaining: 0,
         utilization: 0,
         variance: 0,
+        isOverBudget: false,
       };
     }
 
@@ -50,6 +51,7 @@ export function useBudgetSummary(
         remaining: 0,
         utilization: 0,
         variance: 0,
+        isOverBudget: false,
       };
     }
   }, [apuItems, expenses]);

@@ -22,9 +22,12 @@ export function Card({
     elevated: 'bg-surface-elevated border border-border-strong shadow-glass-lg',
     subtle: 'bg-surface-subtle border border-border-weak shadow-glass-sm',
     overlay: 'bg-surface-overlay border border-border-strong shadow-glass-xl',
-    'glass-l1': 'bg-glass-l1-bg border border-glass-l1-border backdrop-blur-sm shadow-glass-sm',
-    'glass-l2': 'bg-glass-l2-bg border border-glass-l2-border backdrop-blur-md shadow-glass-md',
-    'glass-l3': 'bg-glass-l3-bg border border-glass-l3-border backdrop-blur-lg shadow-glass-lg',
+    'glass-l1':
+      'bg-glass-l1-bg border border-glass-l1-border backdrop-blur-sm shadow-glass-sm Webkit-backdrop-filter backdrop-sm',
+    'glass-l2':
+      'bg-glass-l2-bg border border-glass-l2-border backdrop-blur-md shadow-glass-md Webkit-backdrop-filter backdrop-md',
+    'glass-l3':
+      'bg-glass-l3-bg border border-glass-l3-border backdrop-blur-lg shadow-glass-lg Webkit-backdrop-filter backdrop-lg',
   };
 
   const paddings = {
@@ -33,15 +36,14 @@ export function Card({
     lg: 'p-8',
   };
 
-  const baseClass = 'rounded-xl overflow-hidden transition-all duration-[300ms] ease-[cubic-bezier(0.4,0,0,0.2,1)]';
+  const baseClass =
+    'rounded-xl overflow-hidden transition-all duration-[300ms] ease-[cubic-bezier(0.4,0,0,0.2,1)]';
 
   const hoverEffects = hoverable
     ? 'hover:transform-hover hover:transition-colors hover:bg-white/[0.05]'
     : '';
 
-  const clickEffects = clickable
-    ? 'active:scale-[0.95] active:transition-shadow'
-    : '';
+  const clickEffects = clickable ? 'active:scale-[0.95] active:transition-shadow' : '';
 
   const motionSafe = 'motion-reduce:transition-none';
 

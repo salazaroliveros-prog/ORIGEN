@@ -1,0 +1,23 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Fotos de avance de obra.
+    // - Solo usuarios autenticados (antes la regla era `allow read, write: if true`
+    //   y cualquiera podía leer/escribir el bucket).
+    // - Solo imágenes y máximo 10 MB por archivo.
+    // - No se permite sobrescribir ni borrar desde el cliente.
+    match /projects/{projectCode}/progress/{fileName} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.size > 0
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow update, delete: if false;
+    }
+
+    // Todo lo demás queda denegado por defecto.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

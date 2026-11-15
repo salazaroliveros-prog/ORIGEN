@@ -32,8 +32,11 @@ export interface UseExpensesReturn {
   deleteExpense: (expenseId: string) => Promise<boolean>;
 }
 
-export function useExpenses({ companyId, currentUserId, projectIds = [] }: UseExpensesOptions): UseExpensesReturn {
-  const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
+export function useExpenses({
+  companyId,
+  currentUserId,
+  projectIds = [],
+}: UseExpensesOptions): UseExpensesReturn {
   const [allExpenses, setAllExpenses] = useState<ExpenseRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const hasInitializedRef = useRef(false);
@@ -118,7 +121,9 @@ export function useExpenses({ companyId, currentUserId, projectIds = [] }: UseEx
         notifySyncEnd();
         log.error('Expense creation error', err as Error, { companyId });
         const detail = err instanceof Error ? err.message : '';
-        toast.error(detail ? `No se pudo guardar el gasto: ${detail}` : 'Error inesperado al guardar el gasto');
+        toast.error(
+          detail ? `No se pudo guardar el gasto: ${detail}` : 'Error inesperado al guardar el gasto'
+        );
         return false;
       }
     },

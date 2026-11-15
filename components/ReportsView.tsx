@@ -63,38 +63,12 @@ export function ReportsView({ projectId }: { projectId: string }) {
 
   const [reportType, setReportType] = useState<'summary' | 'detailed' | 'comparison'>('summary');
 
-  // Simulate data load
+  // Sin datos de demostración: un reporte financiero no puede mostrar montos
+  // inventados. Este componente está fuera del árbol vivo (el reporte real es
+  // `features/reports/ReportsView.tsx`); si se reactiva debe recibir sus datos.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const mockData: ReportData[] = [
-        {
-          date: new Date().toISOString().split('T')[0],
-          category: 'Materiales',
-          amount: 25000,
-          description: 'Compra de cemento',
-          type: 'expense',
-        },
-        {
-          date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          category: 'Mano de Obra',
-          amount: 15000,
-          description: 'Pago de jornales',
-          type: 'expense',
-        },
-        {
-          date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          category: 'Proyecto A',
-          amount: 100000,
-          description: 'Pago cliente',
-          type: 'income',
-        },
-      ];
-
-      setReportData(mockData);
-      setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    setReportData([]);
+    setLoading(false);
   }, []);
 
   // FEATURE 3.2: Save filter state to localStorage

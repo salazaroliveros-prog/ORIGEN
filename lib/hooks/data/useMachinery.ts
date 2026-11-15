@@ -11,6 +11,7 @@ import {
   deleteMachineryFromFirestore,
 } from '@/lib/firebaseService';
 import { validateMachinery } from '@/lib/validation/entity.schemas';
+import { canDeleteMachinery, MACHINERY_DELETION_BLOCKED_MESSAGE } from '@/lib/domain/machinery';
 import { toast } from 'react-hot-toast';
 import { createLogger } from '@/lib/utils/logger';
 import { queryCache, createCacheKey } from '@/lib/utils/cacheManager';
@@ -32,7 +33,10 @@ export interface UseMachineryReturn {
   deleteMachinery: (machineryId: string) => Promise<boolean>;
 }
 
-export function useMachinery({ companyId, currentUserId }: UseMachineryOptions): UseMachineryReturn {
+export function useMachinery({
+  companyId,
+  currentUserId,
+}: UseMachineryOptions): UseMachineryReturn {
   const [machinery, setMachinery] = useState<Machinery[]>([]);
   const [machineryLogs, setMachineryLogs] = useState<MachineryLog[]>([]);
   const [loading, setLoading] = useState(false);
@@ -88,7 +92,10 @@ export function useMachinery({ companyId, currentUserId }: UseMachineryOptions):
       }
 
       try {
-        log.info('Creating machinery', { machineryName: item.name, hourlyRate: item.hourlyRateGTQ });
+        log.info('Creating machinery', {
+          machineryName: item.name,
+          hourlyRate: item.hourlyRateGTQ,
+        });
         const saved = await saveMachineryToFirestore(item, companyId, currentUserId);
         if (!saved) {
           log.error('Machinery creation failed', { machineryId: item.id });
@@ -125,7 +132,10 @@ export function useMachinery({ companyId, currentUserId }: UseMachineryOptions):
       }
 
       try {
-        log.info('Creating machinery log', { machineryId: log_.machineryId, hoursWorked: log_.hoursWorked });
+        log.info('Creating machinery log', {
+          machineryId: log_.machineryId,
+          hoursWorked: log_.hoursWorked,
+        });
         const saved = await recordMachineryUse(log_, equipment, companyId, currentUserId);
         if (!saved) {
           log.error('Machinery log creation failed', { logId: log_.id });
@@ -161,7 +171,12 @@ export function useMachinery({ companyId, currentUserId }: UseMachineryOptions):
 
       try {
         log.info('Updating machinery status', { machineryId, newStatus: status });
-        const saved = await updateMachineryStatusInFirestore(equipment, status, companyId, currentUserId);
+        const saved = await updateMachineryStatusInFirestore(
+          equipment,
+          status,
+          companyId,
+          currentUserId
+        );
         if (!saved) {
           log.error('Machinery status update failed', { machineryId });
           toast.error('No se pudo actualizar el estado de la maquinaria.');
@@ -187,12 +202,22 @@ export function useMachinery({ companyId, currentUserId }: UseMachineryOptions):
         toast.error('Inicia sesión en una empresa para eliminar maquinaria.');
         return false;
       }
-      const deleted = await deleteMachineryFromFirestore(machineryId, companyId);
-      if (deleted) toast.success('Maquinaria eliminada correctamente.');
-      else toast.error('No se pudo eliminar la maquinaria.');
-      return deleted;
+      if (!canDeleteMachinery(machineryId, machineryLogs)) {
+        toast.error(MACHINERY_DELETION_BLOCKED_MESSAGE);
+        return false;
+      }
+      try {
+        const deleted = await deleteMachineryFromFirestore(machineryId, companyId);
+        if (deleted) toast.success('Maquinaria eliminada correctamente.');
+        else toast.error('No se pudo eliminar la maquinaria.');
+        return deleted;
+      } catch (err) {
+        log.error('Machinery deletion blocked', err as Error, { machineryId });
+        toast.error(err instanceof Error ? err.message : 'No se pudo eliminar la maquinaria.');
+        return false;
+      }
     },
-    [companyId, currentUserId]
+    [companyId, currentUserId, machineryLogs]
   );
 
   return {

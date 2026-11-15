@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
+import { ensureAuthenticated } from './testCredentials';
+import { fillExpenseForm, selectActiveProject } from './projectFixture';
 
 const RUN_ID = Date.now().toString().slice(-6);
 
@@ -8,39 +9,6 @@ test.setTimeout(300_000);
 /**
  * Utilidades compartidas para el flujo E2E completo del ciclo de vida del proyecto.
  */
-async function ensureAuthenticated(page: Page) {
-  await page.goto('/');
-  await page.waitForTimeout(5000);
-
-  // Verificar si ya está autenticado (botón Tablero visible)
-  const tablero = page.getByRole('button', { name: 'Tablero' });
-  if (await tablero.isVisible({ timeout: 2000 })) {
-    return;
-  }
-
-  // Si aparece el formulario de login, rellenarlo manualmente (workaround React 19)
-  const loginForm = page.locator('form').filter({ hasText: 'Iniciar Sesión' });
-  if (await loginForm.isVisible({ timeout: 2000 })) {
-    await loginForm.locator('input#email').pressSequentially(ADMIN_EMAIL);
-    await loginForm.locator('input#password').pressSequentially(ADMIN_PASSWORD);
-    await loginForm.getByRole('button', { name: 'Iniciar Sesión' }).click();
-    await page.waitForTimeout(5000);
-
-    // Diagnostic: verificar si hay error de auth
-    const errorToast = page
-      .locator('[role="alert"], .text-red-200, .text-red-400, .text-red-500')
-      .first();
-    if (await errorToast.isVisible({ timeout: 2000 })) {
-      const errorText = await errorToast.textContent();
-      console.log('AUTH ERROR:', errorText);
-    }
-    // Verificar si el formulario de login sigue visible
-    const loginStillVisible = await loginForm.isVisible({ timeout: 1000 });
-    console.log('LOGIN STILL VISIBLE:', loginStillVisible);
-  }
-
-  await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
-}
 
 async function openTab(page: Page, name: RegExp | string) {
   await page.getByRole('button', { name }).first().click();
@@ -48,96 +16,44 @@ async function openTab(page: Page, name: RegExp | string) {
 }
 
 /**
- * Escribe partidas APU directamente a Firestore vía Firebase SDK,
- * evitando el problema de React 19 componentes controlados con Playwright.
+ * Registra una partida APU manual desde la interfaz.
+ *
+ * El formulario "Nuevo Renglón APU Manual" (`components/BudgetAndAPU.tsx`)
+ * expone sus campos con `name`, no con `<label for>`: el locator correcto es
+ * `input[name="..."]`.
  */
-async function createAPUItemsViaFirebase(
+async function addManualAPUItem(
   page: Page,
-  projectId: string,
-  items: Array<{
+  item: {
     code: string;
-    description: string;
     unit: string;
-    quantity: number;
-    materialUnitCostGTQ: number;
-    laborUnitCostGTQ: number;
-    equipmentUnitCostGTQ: number;
-    totalUnitCostGTQ: number;
-    totalPriceGTQ: number;
-    department: string;
-  }>
-) {
-  // Obtener companyId del localStorage del navegador
-  const companyId = await page.evaluate(() => {
-    try {
-      for (const key of Object.keys(window.localStorage)) {
-        if (key.includes('active-workspace')) {
-          const raw = window.localStorage.getItem(key);
-          if (!raw) continue;
-          let ws: any;
-          try {
-            ws = JSON.parse(raw);
-          } catch {
-            ws = { id: raw, companyId: raw };
-          }
-          if (ws.companyId) return ws.companyId;
-          if (ws.id) return ws.id;
-        }
-      }
-      return '';
-    } catch (e) {
-      return '';
-    }
-  });
-
-  if (!companyId) throw new Error('No se pudo obtener companyId del localStorage');
-
-  const res = await page.request.post('http://localhost:3000/api/e2e-apu', {
-    data: {
-      projectId,
-      companyId,
-      items: items.map((item, i) => ({
-        ...item,
-        id: `apu-${Math.random().toString(36).slice(2)}-${i}`,
-      })),
-      userId: 'qa-admin',
-    },
-  });
-
-  if (!res.ok()) {
-    const body = await res.text();
-    throw new Error(`API error: ${res.status()} ${body}`);
+    desc: string;
+    qty: string;
+    matCost: string;
+    labCost: string;
+    eqCost: string;
   }
+): Promise<void> {
+  await page.getByRole('button', { name: 'Renglón Manual' }).click();
 
-  await page.waitForTimeout(2000);
-}
+  const modal = page
+    .locator('div.fixed.inset-0')
+    .filter({ hasText: 'Nuevo Renglón APU Manual' })
+    .first();
+  await expect(modal).toBeVisible({ timeout: 15_000 });
 
-/**
- * Obtiene el projectId de Firestore consultando por código.
- */
-async function getProjectIdByCode(page: Page, code: string): Promise<string> {
-  // Primero intentar leer de sessionStorage (guardado por saveProjectToFirestore)
-  const sessionId = await page.evaluate((c) => {
-    return sessionStorage.getItem(`origen.project.${c}`);
-  }, code);
-  if (sessionId) return sessionId;
+  await modal.locator('input[name="code"]').fill(item.code);
+  await modal.locator('input[name="unit"]').fill(item.unit);
+  await modal.locator('input[name="desc"]').fill(item.desc);
+  await modal.locator('input[name="qty"]').fill(item.qty);
+  await modal.locator('input[name="matCost"]').fill(item.matCost);
+  await modal.locator('input[name="labCost"]').fill(item.labCost);
+  await modal.locator('input[name="eqCost"]').fill(item.eqCost);
 
-  // Fallback: consultar API route
-  let lastError: string = '';
-  for (let i = 0; i < 5; i++) {
-    const res = await page.request.get(
-      `http://localhost:3000/api/e2e-project-id?code=${encodeURIComponent(code)}`
-    );
-    if (res.ok()) {
-      const data = await res.json();
-      return data.projectId;
-    }
-    lastError = await res.text();
-    await page.waitForTimeout(1000);
-  }
-  throw new Error(
-    `Proyecto no encontrado después de reintentos: ${code}. Último error: ${lastError}`
-  );
+  await modal.getByRole('button', { name: 'Guardar Renglón APU' }).click();
+
+  // El modal solo se cierra cuando el guardado en Firestore fue exitoso.
+  await expect(modal).toBeHidden({ timeout: 30_000 });
 }
 
 async function createProject(page: Page, code: string, name: string, progress: number) {
@@ -233,46 +149,43 @@ test.describe('FASE 2 — Módulo de Presupuestos APU: generación y factorizaci
 
     // Cambiar estado a Ejecución para habilitar presupuestos
     await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
-    await page.getByLabel('Estado del Proyecto').selectOption({ label: 'En Ejecución' });
-    await page.getByRole('button', { name: 'Actualizar' }).click();
-    await page.waitForTimeout(2500);
+    const editDialog = page.getByRole('dialog', { name: 'Editar Proyecto' });
+    await expect(editDialog).toBeVisible({ timeout: 15_000 });
+    await editDialog.getByLabel('Estado del Proyecto').selectOption({ label: 'En Ejecución' });
+    await editDialog.getByRole('button', { name: 'Actualizar' }).click();
+    await expect(editDialog).toBeHidden({ timeout: 30_000 });
 
-    // Obtener projectId desde Firestore
-    const projectId = await getProjectIdByCode(page, code);
-
-    // Escribir partidas APU directamente a Firestore vía Firebase SDK
-    await createAPUItemsViaFirebase(page, projectId, [
-      {
-        code: `${code.slice(-8)}-CONC`,
-        description: "Concreto f'c=250 psi",
-        unit: 'm3',
-        quantity: 10,
-        materialUnitCostGTQ: 450,
-        laborUnitCostGTQ: 0,
-        equipmentUnitCostGTQ: 0,
-        totalUnitCostGTQ: 450,
-        totalPriceGTQ: 4500,
-        department: 'Guatemala',
-      },
-      {
-        code: `${code.slice(-8)}-ACERO`,
-        description: 'Acero corrugado 1/2"',
-        unit: 'kg',
-        quantity: 500,
-        materialUnitCostGTQ: 12,
-        laborUnitCostGTQ: 0,
-        equipmentUnitCostGTQ: 0,
-        totalUnitCostGTQ: 12,
-        totalPriceGTQ: 6000,
-        department: 'Guatemala',
-      },
-    ]);
+    // El módulo APU opera sobre el **proyecto activo**: hay que activarlo en
+    // la cabecera antes de abrir el tab de presupuestos.
+    await selectActiveProject(page, code);
 
     await openTab(page, 'Presupuestos APU');
-    await page.waitForTimeout(2000);
+
+    // Renglón 1 — concreto f'c=250 psi: 10 m³ × Q450 = Q4,500
+    await addManualAPUItem(page, {
+      code: '01.01',
+      unit: 'm3',
+      desc: "Concreto f'c=250 psi",
+      qty: '10',
+      matCost: '450',
+      labCost: '0',
+      eqCost: '0',
+    });
+
+    // Renglón 2 — acero corrugado 1/2": 500 kg × Q12 = Q6,000
+    await addManualAPUItem(page, {
+      code: '02.01',
+      unit: 'kg',
+      desc: 'Acero corrugado 1/2"',
+      qty: '500',
+      matCost: '12',
+      labCost: '0',
+      eqCost: '0',
+    });
 
     // Verificar que los renglones aparecen en la tabla
     await expect(page.getByText("Concreto f'c=250 psi").first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Acero corrugado 1/2"').first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText('4,500').first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText('6,000').first()).toBeVisible({ timeout: 20_000 });
 
@@ -338,7 +251,8 @@ test.describe('FASE 3 — Módulo de Cotizaciones: búsqueda y selección de cli
 
     await expect(quoteModal).toBeHidden();
     await expect(page.getByText('Cliente Cotización QA').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('16,500').first()).toBeVisible({ timeout: 20_000 });
+    // 15,000 + IVA 12% (tarifa SAT de Guatemala) = 16,800.
+    await expect(page.getByText('16,800').first()).toBeVisible({ timeout: 20_000 });
 
     // Vinculación: verificar que la cotización aparece en el proyecto
     await openTab(page, 'Proyectos & Firmas');
@@ -483,8 +397,15 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
       });
     }
 
-    // Registrar asistencia GPS
-    await openTab(page, /Registro & Marcaje GPS/);
+    // Registrar asistencia GPS: "Registro & Marcaje GPS" es una pestaña
+    // interna del módulo Personal & IGSS, así que hay que volver a ese módulo
+    // (visitar Planillas Guate lo desmonta).
+    await openTab(page, 'Personal & IGSS');
+    await page.waitForTimeout(1500);
+
+    const gpsTab = page.getByRole('button', { name: 'Registro & Marcaje GPS' }).first();
+    await expect(gpsTab).toBeVisible({ timeout: 20_000 });
+    await gpsTab.click();
     await page.waitForTimeout(1500);
 
     const empSelect = page.locator('#attendance-employee');
@@ -521,23 +442,22 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
     await page.getByRole('button', { name: 'Actualizar' }).click();
     await page.waitForTimeout(2500);
 
+    // El formulario de gastos imputa al "proyecto activo": hay que activarlo
+    // ANTES de abrir el modal (el overlay del modal tapa la cabecera).
+    await selectActiveProject(page, code);
+
     await openTab(page, 'Gastos & Facturas');
-    await page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first().click();
+    await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     await page.waitForTimeout(1000);
 
-    const projectSelect = page.getByLabel('Proyecto Asignado *');
-    const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((o) => o.includes(code));
-    if (match) await projectSelect.selectOption({ label: match });
-
-    await page
-      .getByLabel('Descripción Detallada del Insumo o Servicio *')
-      .fill('Compra de acero estructural QA');
-    await page.getByLabel('Proveedor / Emisor SAT').fill('Acero Progreso');
-    await page.getByLabel('NIT del Proveedor').fill('CF');
-    await page.getByLabel('No. Factura SAT Serie/Número').fill(`FEL-QA-${RUN_ID}`);
-    await page.getByLabel('Monto del Gasto *').fill('18000');
-    await page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).click();
+    await fillExpenseForm(page, {
+      description: 'Compra de acero estructural QA',
+      supplier: 'Acero Progreso',
+      nit: '1294821-9',
+      invoice: `FEL-QA-${RUN_ID}`,
+      amount: '18000',
+    });
+    await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
     await expect(page.getByText('Compra de acero estructural QA').first()).toBeVisible({
@@ -564,20 +484,20 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
     const code = `QA-GASTO-ERR-${RUN_ID}`;
     await createProject(page, code, `QA Gasto Error ${RUN_ID}`, 5);
 
+    // El formulario de gastos imputa al "proyecto activo": hay que activarlo
+    // ANTES de abrir el modal (el overlay del modal tapa la cabecera).
+    await selectActiveProject(page, code);
+
     await openTab(page, 'Gastos & Facturas');
-    await page.getByRole('button', { name: 'Nuevo Gasto / Factura' }).first().click();
+    await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     await page.waitForTimeout(1000);
 
-    const projectSelect = page.getByLabel('Proyecto Asignado *');
-    const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((o) => o.includes(code));
-    if (match) await projectSelect.selectOption({ label: match });
-
     // Llenar solo descripción, dejar monto vacío
-    await page
-      .getByLabel('Descripción Detallada del Insumo o Servicio *')
-      .fill('Gasto incompleto QA');
-    await page.getByRole('button', { name: 'Guardar y Registrar Gasto' }).click();
+    await fillExpenseForm(page, {
+      description: 'Gasto incompleto QA',
+      amount: '',
+    });
+    await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
     // No debe guardar sin monto
@@ -595,18 +515,17 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
     await ensureAuthenticated(page);
 
     await openTab(page, 'Reportes Finales');
-    await page.waitForTimeout(2000);
 
-    const reportsVisible = await page
-      .getByText(/Reporte|Informe|Exportar|PDF/i)
-      .first()
-      .isVisible()
-      .catch(() => false);
-    if (reportsVisible) {
-      await expect(page.getByText(/Reporte|Informe|Exportar|PDF/i).first()).toBeVisible({
-        timeout: 15_000,
-      });
-    }
+    // El tab renderiza `features/reports/ReportsView.tsx`.
+    await expect(page.getByRole('heading', { name: 'Reportes de obra' })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole('heading', { name: 'Resumen de obra' })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole('button', { name: 'Imprimir / Guardar PDF' })).toBeEnabled({
+      timeout: 20_000,
+    });
   });
 
   test('asistente IA responde en contexto del proyecto', async ({ page }) => {

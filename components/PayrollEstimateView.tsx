@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { Download, Printer, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { formatGTQ } from '@/lib/data';
+import {
+  calculateEstimateRow,
+  sumEstimateTotals,
+  summarizeAttendanceForPeriod,
+  type PayrollEstimateRates,
+} from '@/lib/domain/payrollEstimate';
 import { toast } from 'react-hot-toast';
 import type { AttendanceRecord, CompanySettings, Employee } from '@/lib/types';
 
@@ -14,11 +20,21 @@ interface PayrollEstimateViewProps {
   onSaveRates?: (settings: Partial<CompanySettings>) => Promise<boolean>;
 }
 
-const DEFAULT_RATES = {
+const DEFAULT_RATES: PayrollEstimateRates = {
   employeeDeductionPercent: 4.83,
   employerCostPercent: 12.67,
   incentiveBonusGTQ: 250,
 };
+
+/** Mezcla los parámetros guardados con los valores por defecto (datos legacy/parciales). */
+function resolveRates(stored?: Partial<PayrollEstimateRates>): PayrollEstimateRates {
+  return {
+    employeeDeductionPercent:
+      stored?.employeeDeductionPercent ?? DEFAULT_RATES.employeeDeductionPercent,
+    employerCostPercent: stored?.employerCostPercent ?? DEFAULT_RATES.employerCostPercent,
+    incentiveBonusGTQ: stored?.incentiveBonusGTQ ?? DEFAULT_RATES.incentiveBonusGTQ,
+  };
+}
 
 function csvValue(value: string | number): string {
   return `"${String(value).replaceAll('"', '""')}"`;
@@ -34,62 +50,41 @@ export function PayrollEstimateView({
     new Date().toLocaleDateString('en-CA', { timeZone: 'America/Guatemala' }).slice(0, 7)
   );
   const [daysOverride, setDaysOverride] = useState<Record<string, number>>({});
-  const [rates, setRates] = useState({ ...DEFAULT_RATES, ...company.payrollEstimateRates });
+  const [rates, setRates] = useState<PayrollEstimateRates>(() =>
+    resolveRates(company.payrollEstimateRates)
+  );
   const [isSavingRates, setIsSavingRates] = useState(false);
 
   useEffect(() => {
-    if (company.payrollEstimateRates) setRates(company.payrollEstimateRates);
+    setRates(resolveRates(company.payrollEstimateRates));
   }, [company.payrollEstimateRates]);
 
-  const attendanceDays = useMemo(() => {
-    const datesByEmployee = new Map<string, Set<string>>();
-    for (const record of attendance) {
-      if (record.date.startsWith(`${period}-`) && record.status === 'Presente') {
-        const dates = datesByEmployee.get(record.employeeId) ?? new Set<string>();
-        dates.add(record.date);
-        datesByEmployee.set(record.employeeId, dates);
-      }
-    }
-    return new Map([...datesByEmployee].map(([employeeId, dates]) => [employeeId, dates.size]));
-  }, [attendance, period]);
+  // Los ajustes manuales de días son de un período concreto: al cambiarlo se
+  // descartan para no arrastrar una planilla inflada del mes anterior.
+  useEffect(() => {
+    setDaysOverride({});
+  }, [period]);
+
+  const attendanceSummary = useMemo(
+    () => summarizeAttendanceForPeriod(attendance, period),
+    [attendance, period]
+  );
 
   const estimates = useMemo(
     () =>
       employees.map((employee) => {
-        const days = daysOverride[employee.id] ?? attendanceDays.get(employee.id) ?? 0;
-        const ordinaryPay = employee.dailyRateGTQ * days;
-        const incentive = (rates.incentiveBonusGTQ * Math.min(days, 30)) / 30;
-        const employeeDeduction = employee.igssAffiliated
-          ? (ordinaryPay * rates.employeeDeductionPercent) / 100
-          : 0;
-        const employerCost = employee.igssAffiliated
-          ? (ordinaryPay * rates.employerCostPercent) / 100
-          : 0;
-        return {
-          employee,
-          days,
-          ordinaryPay,
-          incentive,
-          employeeDeduction,
-          netEstimate: ordinaryPay + incentive - employeeDeduction,
-          employerCost,
-          totalEmployerEstimate: ordinaryPay + incentive + employerCost,
-        };
+        const summary = attendanceSummary.get(employee.id);
+        const days = daysOverride[employee.id] ?? summary?.days ?? 0;
+        // Las horas extra se registran en asistencia y deben pagarse; antes se
+        // ignoraban y la planilla salía subestimada.
+        const overtimeHours = summary?.overtimeHours ?? 0;
+        const row = calculateEstimateRow({ employee, days, overtimeHours, rates });
+        return { employee, ...row };
       }),
-    [employees, daysOverride, attendanceDays, rates]
+    [employees, daysOverride, attendanceSummary, rates]
   );
 
-  const totals = estimates.reduce(
-    (sum, row) => ({
-      ordinaryPay: sum.ordinaryPay + row.ordinaryPay,
-      incentive: sum.incentive + row.incentive,
-      deductions: sum.deductions + row.employeeDeduction,
-      net: sum.net + row.netEstimate,
-      employerCost: sum.employerCost + row.employerCost,
-      total: sum.total + row.totalEmployerEstimate,
-    }),
-    { ordinaryPay: 0, incentive: 0, deductions: 0, net: 0, employerCost: 0, total: 0 }
-  );
+  const totals = useMemo(() => sumEstimateTotals(estimates), [estimates]);
 
   const handleSaveRates = async () => {
     if (
@@ -127,8 +122,11 @@ export function PayrollEstimateView({
       'Colaborador',
       'Puesto',
       'Días estimados',
+      'Horas extra',
       'Salario ordinario estimado',
-      'Bono configurable estimado',
+      'Pago de horas extra',
+      'Base IGSS',
+      'Bono estimado',
       'Deducción de referencia',
       'Líquido estimado',
       'Costo patronal estimado',
@@ -139,7 +137,10 @@ export function PayrollEstimateView({
         csvValue(row.employee.name),
         csvValue(row.employee.role),
         row.days,
+        row.overtimeHours,
         row.ordinaryPay.toFixed(2),
+        row.overtimeAmount.toFixed(2),
+        row.igssBase.toFixed(2),
         row.incentive.toFixed(2),
         row.employeeDeduction.toFixed(2),
         row.netEstimate.toFixed(2),
@@ -263,8 +264,9 @@ export function PayrollEstimateView({
         </div>
       </section>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Summary label="Líquido estimado" value={totals.net} />
+        <Summary label="Horas extra" value={totals.overtime} />
         <Summary label="Costo patronal estimado" value={totals.employerCost} />
         <Summary label="Costo total estimado" value={totals.total} />
       </div>
@@ -276,14 +278,17 @@ export function PayrollEstimateView({
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
-          <table className="w-full min-w-[900px] text-left text-xs">
+          <table className="w-full min-w-[1100px] text-left text-xs">
             <thead className="bg-slate-950 text-slate-400">
               <tr>
                 {[
                   'Colaborador',
                   'Días del período',
+                  'Horas extra',
                   'Salario base estimado',
+                  'Pago horas extra',
                   'Bono estimado',
+                  'Base IGSS',
                   'Deducción ref.',
                   'Líquido estimado',
                   'Costo empresa estimado',
@@ -300,6 +305,11 @@ export function PayrollEstimateView({
                   <td className="p-3">
                     <strong>{row.employee.name}</strong>
                     <span className="block text-slate-400">{row.employee.role}</span>
+                    {row.employee.overriddenIgssLaboral !== undefined && (
+                      <span className="mt-1 inline-block rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-200">
+                        IGSS manual
+                      </span>
+                    )}
                   </td>
                   <td className="p-3">
                     <input
@@ -316,12 +326,20 @@ export function PayrollEstimateView({
                       }
                       className="w-20 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-white"
                     />
-                    {attendanceDays.has(row.employee.id) && (
+                    {attendanceSummary.has(row.employee.id) && (
                       <span className="ml-2 text-[10px] text-slate-500">asistencia</span>
                     )}
                   </td>
+                  <td className="p-3">
+                    <span className="font-mono">{row.overtimeHours}h</span>
+                    {row.overtimeHours === 0 && (
+                      <span className="block text-[10px] text-slate-500">sin registro</span>
+                    )}
+                  </td>
                   <td className="p-3">{formatGTQ(row.ordinaryPay)}</td>
+                  <td className="p-3">{formatGTQ(row.overtimeAmount)}</td>
                   <td className="p-3">{formatGTQ(row.incentive)}</td>
+                  <td className="p-3 text-slate-400">{formatGTQ(row.igssBase)}</td>
                   <td className="p-3">{formatGTQ(row.employeeDeduction)}</td>
                   <td className="p-3 font-bold text-emerald-300">{formatGTQ(row.netEstimate)}</td>
                   <td className="p-3">{formatGTQ(row.totalEmployerEstimate)}</td>

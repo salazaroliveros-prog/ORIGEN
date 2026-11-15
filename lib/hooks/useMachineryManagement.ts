@@ -27,13 +27,10 @@ export function useMachineryManagement({
   currentUserId,
   machinery,
 }: UseMachineryManagementParams) {
-  const addMachinery = useCallback(
-    async (_item: Machinery) => {
-      toast.error('Inicia sesión en una empresa para registrar maquinaria.');
-      return false;
-    },
-    []
-  );
+  const addMachinery = useCallback(async (_item: Machinery) => {
+    toast.error('Inicia sesión en una empresa para registrar maquinaria.');
+    return false;
+  }, []);
 
   const addMachineryWithAuth = useCallback(
     async (item: Machinery) => {
@@ -62,13 +59,10 @@ export function useMachineryManagement({
     [companyId, currentUserId]
   );
 
-  const addMachineryLog = useCallback(
-    async (_log_: MachineryLog) => {
-      toast.error('Inicia sesión en una empresa para registrar horas de maquinaria.');
-      return false;
-    },
-    []
-  );
+  const addMachineryLog = useCallback(async (_log_: MachineryLog) => {
+    toast.error('Inicia sesión en una empresa para registrar horas de maquinaria.');
+    return false;
+  }, []);
 
   const addMachineryLogWithAuth = useCallback(
     async (log_: MachineryLog) => {
@@ -148,20 +142,23 @@ export function useMachineryManagement({
     [companyId, currentUserId, machinery]
   );
 
-  const deleteMachinery = useCallback(
-    async (_machineryId: string) => {
-      toast.error('Inicia sesión en una empresa para eliminar maquinaria.');
-      return false;
-    },
-    []
-  );
+  const deleteMachinery = useCallback(async (_machineryId: string) => {
+    toast.error('Inicia sesión en una empresa para eliminar maquinaria.');
+    return false;
+  }, []);
 
   const deleteMachineryWithAuth = useCallback(
     async (machineryId: string) => {
-      const deleted = await deleteMachineryFromFirestore(machineryId, companyId);
-      if (deleted) toast.success('Maquinaria eliminada correctamente.');
-      else toast.error('No se pudo eliminar la maquinaria.');
-      return deleted;
+      try {
+        const deleted = await deleteMachineryFromFirestore(machineryId, companyId);
+        if (deleted) toast.success('Maquinaria eliminada correctamente.');
+        else toast.error('No se pudo eliminar la maquinaria.');
+        return deleted;
+      } catch (err) {
+        log.error('Machinery deletion blocked', err as Error, { machineryId });
+        toast.error(err instanceof Error ? err.message : 'No se pudo eliminar la maquinaria.');
+        return false;
+      }
     },
     [companyId, currentUserId]
   );

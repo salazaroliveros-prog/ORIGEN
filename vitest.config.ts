@@ -11,7 +11,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     include: ['lib/**/*.test.ts', 'lib/**/*.test.tsx', 'app/api/**/*.test.ts'],
-    exclude: ['lib/firestore-emulator.test.ts'],
+    exclude: [
+      'lib/firestore-emulator.test.ts',
+      'lib/storage-emulator.test.ts',
+      'lib/firebaseService.crud.emulator.test.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

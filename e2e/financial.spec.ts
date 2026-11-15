@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { createTestProject } from './projectFixture';
 import { ensureAuthenticated } from './testCredentials';
 
 /**
@@ -9,9 +10,30 @@ import { ensureAuthenticated } from './testCredentials';
  *
  * El app es una SPA en '/'. No existe URL '/financial'.
  * Selectores confirmados en system-crud.spec.ts.
+ *
+ * Los módulos de gasto exigen un proyecto activo: sin proyectos, la pantalla
+ * muestra el estado vacío "Sin proyectos disponibles" y no renderiza el botón
+ * de registro. Por eso la suite crea un proyecto antes de correr.
  */
 
-test.describe('Sección Gastos & Facturas', () => {
+const RUN_ID = Date.now();
+// El código del proyecto admite máximo 20 caracteres.
+const PROJECT_CODE = `GTO-${RUN_ID}`;
+
+test.describe.serial('Sección Gastos & Facturas', () => {
+  test.beforeAll(async ({ browser }) => {
+    // Se crea el proyecto en un contexto propio: `beforeEach` trabaja con un
+    // contexto nuevo por prueba y no debe arrastrar el formulario abierto.
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await ensureAuthenticated(page);
+    await createTestProject(page, {
+      code: PROJECT_CODE,
+      name: `Proyecto para gastos E2E ${RUN_ID}`,
+    });
+    await context.close();
+  });
+
   test.beforeEach(async ({ page }) => {
     await ensureAuthenticated(page);
 
@@ -41,7 +63,7 @@ test.describe('Sección Gastos & Facturas', () => {
       timeout: 10_000,
     });
     await expect(page.getByLabel('Monto (GTQ)')).toBeVisible();
-    await expect(page.getByLabel('Proveedor')).toBeVisible();
+    await expect(page.getByLabel('Proveedor', { exact: true })).toBeVisible();
   });
 
   test('el formulario de gasto tiene el botón de guardar en español', async ({ page }) => {

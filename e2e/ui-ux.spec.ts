@@ -8,38 +8,108 @@
  * components/ui/Modal.tsx
  */
 
-import { expect, test } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
+import { expect, test, type Page } from '@playwright/test';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ensureAuthenticated } from './testCredentials';
 
-async function ensureAuthenticated(page: any) {
-  test.setTimeout(120_000);
-  await page.goto('/');
-  await page.waitForTimeout(5000);
+/** Los botones de la barra lateral (Navbar.tsx). */
+const PROYECTOS_TAB = /Proyectos & Firmas/;
+const GASTOS_TAB = /Gastos & Facturas/;
+const PERSONAL_TAB = /Personal & IGSS/;
 
-  // Verify we're authenticated by checking for the dashboard navigation
-  const tableroButton = page.getByRole('button', { name: 'Tablero' });
-  const isAuthenticated = await tableroButton.isVisible().catch(() => false);
+/**
+ * Sufijo único por ejecución.
+ *
+ * El emulador de Firebase conserva los datos entre ejecuciones: con códigos
+ * fijos, la segunda corrida deja varios proyectos con el mismo código y los
+ * localizadores estricto fallan ("resolved to N elements").
+ *
+ * Ojo: `RUN_ID` se evalúa al cargar el archivo, y Playwright carga el archivo
+ * de prueba **por worker**. Con `fullyParallel` dos pruebas del mismo archivo
+ * pueden acabar en workers distintos y, por tanto, con sufijos distintos: cada
+ * prueba debe crear sus propios datos y no depender de los de otra.
+ */
+const RUN_ID = Date.now().toString().slice(-6);
 
-  if (!isAuthenticated) {
-    // Fallback: try manual login
-    const emailField = page.getByLabel('Correo electrónico');
-    const loginVisible = await emailField.isVisible().catch(() => false);
-    if (loginVisible) {
-      await emailField.fill(ADMIN_EMAIL);
-      await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
-      await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
-      await page.waitForTimeout(4000);
-    }
-  }
-
-  await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({
-    timeout: 30_000,
-  });
-}
-
-async function openTab(page: any, name: string | RegExp) {
+async function openTab(page: Page, name: string | RegExp) {
   await page.getByRole('button', { name }).first().click();
   await page.waitForTimeout(1500);
+}
+
+/**
+ * Rellena el formulario "Nuevo Proyecto" con **todos** los campos obligatorios.
+ *
+ * `ProjectFormSchema` exige cliente, ubicación, municipio, departamento,
+ * presupuesto y fechas: si falta alguno el formulario no se guarda y el
+ * proyecto nunca aparece en la lista.
+ */
+async function fillNewProjectForm(page: Page, code: string, name: string) {
+  const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+  await dialog.getByLabel('Código del Proyecto').fill(code);
+  await dialog.getByLabel('Nombre del Proyecto').fill(name);
+  await dialog.getByLabel('Nombre del cliente').fill('Cliente UI');
+  await dialog.getByLabel('Ubicación').fill('Zona 1, Guatemala');
+  await dialog.getByLabel('Municipio').fill('Guatemala');
+  await dialog.getByLabel('Departamento').fill('Guatemala');
+  await dialog.getByLabel('Presupuesto Total (Q)').fill('50000');
+  await dialog.getByLabel('Avance (%)').fill('10');
+  await dialog.getByLabel('Fecha de Inicio').fill('2026-11-01');
+  await dialog.getByLabel('Fecha de Finalización').fill('2027-11-01');
+  return dialog;
+}
+
+/** Crea un proyecto desde la interfaz y espera a que aparezca en la lista. */
+async function createProject(page: Page, code: string, name: string) {
+  await openTab(page, PROYECTOS_TAB);
+  await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+  const dialog = await fillNewProjectForm(page, code, name);
+  await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
+  await expect(dialog).toBeHidden({ timeout: 20_000 });
+  await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
+}
+
+/**
+ * Registra una maquinaria desde la interfaz y devuelve su tarjeta.
+ *
+ * La tarjeta se identifica por el encabezado `<h3>` con el nombre del equipo
+ * (`components/MachineryManager.tsx`), no por el texto plano.
+ */
+async function registerMachinery(page: Page, name: string, plate: string) {
+  await page
+    .getByRole('button', { name: /Registrar Maquinaria/i })
+    .first()
+    .click();
+
+  const macDialog = page.getByRole('dialog', { name: /Registrar Nueva Maquinaria/ });
+  await expect(macDialog).toBeVisible({ timeout: 20_000 });
+  await macDialog
+    .getByLabel(/Nombre|Equipo/i)
+    .first()
+    .fill(name);
+  await macDialog
+    .getByLabel(/Modelo|Año/i)
+    .first()
+    .fill('2026');
+  await macDialog
+    .getByLabel(/Código|Placa/i)
+    .first()
+    .fill(plate);
+  await macDialog
+    .getByLabel(/Tarifa|Hora/i)
+    .first()
+    .fill('300');
+  await macDialog
+    .getByLabel(/Horómetro/i)
+    .first()
+    .fill('0');
+  await macDialog.getByRole('button', { name: /Guardar Maquinaria/i }).click();
+  await expect(macDialog).toBeHidden({ timeout: 30_000 });
+
+  const card = page
+    .locator('div.grid > div')
+    .filter({ has: page.getByRole('heading', { name, exact: true }) })
+    .first();
+  await expect(card).toBeVisible({ timeout: 30_000 });
+  return card;
 }
 
 test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () => {
@@ -58,7 +128,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   });
 
   test('UI-002: Botón Proyectos y Firmas abre sección', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    await openTab(page, PROYECTOS_TAB);
     await expect(
       page
         .getByRole('button', { name: 'Nuevo Proyecto' })
@@ -67,7 +137,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   });
 
   test('UI-003: Botón Nuevo Proyecto abre modal con campos', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    await openTab(page, PROYECTOS_TAB);
     await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
     const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
@@ -77,104 +147,83 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   });
 
   test('UI-004: Botón Crear Proyecto guarda y cierra modal', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    await openTab(page, PROYECTOS_TAB);
     await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
-    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
-    await dialog.getByLabel('Código del Proyecto').fill('UI-E2E-001');
-    await dialog.getByLabel('Nombre del Proyecto').fill('Proyecto UI E2E');
-    await dialog.getByLabel('Nombre del cliente').fill('Cliente UI');
-    await dialog.getByLabel('Ubicación').fill('Zona 1');
-    await dialog.getByLabel('Municipio').fill('Guatemala');
-    await dialog.getByLabel('Departamento').fill('Guatemala');
-    await dialog.getByLabel('Presupuesto Total (Q)').fill('50000');
-    await dialog.getByLabel('Avance (%)').fill('10');
-    await dialog.getByLabel('Fecha de Inicio').fill('2026-11-01');
-    await dialog.getByLabel('Fecha de Finalización').fill('2027-11-01');
+    const code = `UI-E2E-${RUN_ID}`;
+    const dialog = await fillNewProjectForm(page, code, 'Proyecto UI E2E');
     await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
 
     await expect(dialog).toBeHidden();
-    await expect(page.getByText('UI-E2E-001')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('UI-005: Botón Cancelar cierra modal sin guardar', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    await openTab(page, PROYECTOS_TAB);
     await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
     const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
-    await dialog.getByLabel('Código del Proyecto').fill('UI-CANCEL');
+    const code = `UI-CANCEL-${RUN_ID}`;
+    await dialog.getByLabel('Código del Proyecto').fill(code);
     await dialog.getByRole('button', { name: 'Cancelar' }).click();
 
     await expect(dialog).toBeHidden();
-    await expect(page.getByText('UI-CANCEL')).toHaveCount(0);
+    await expect(page.getByText(code)).toHaveCount(0);
   });
 
   test('UI-006: Botón Editar proyecto abre modal con datos precargados', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
-    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+    const code = `UI-EDIT-${RUN_ID}`;
+    await createProject(page, code, 'Proyecto para Editar');
 
-    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
-    await dialog.getByLabel('Código del Proyecto').fill('UI-EDIT-001');
-    await dialog.getByLabel('Nombre del Proyecto').fill('Proyecto para Editar');
-    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
-    await page.waitForTimeout(2000);
-
-    await page.getByRole('button', { name: 'Editar proyecto UI-EDIT-001' }).click();
+    await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
     const editDialog = page.getByRole('dialog', { name: 'Editar Proyecto' });
     await expect(editDialog).toBeVisible({ timeout: 10_000 });
     await expect(editDialog.getByLabel('Nombre del Proyecto')).toHaveValue('Proyecto para Editar');
   });
 
   test('UI-007: Botón Actualizar guarda cambios de edición', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
-    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+    const code = `UI-UPD-${RUN_ID}`;
+    const updatedName = `Actualizado ${RUN_ID}`;
+    await createProject(page, code, 'Original');
 
-    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
-    await dialog.getByLabel('Código del Proyecto').fill('UI-UPDATE-001');
-    await dialog.getByLabel('Nombre del Proyecto').fill('Original');
-    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
-    await page.waitForTimeout(2000);
-
-    await page.getByRole('button', { name: 'Editar proyecto UI-UPDATE-001' }).click();
+    await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
     const editDialog = page.getByRole('dialog', { name: 'Editar Proyecto' });
-    await editDialog.getByLabel('Nombre del Proyecto').fill('Actualizado');
+    await editDialog.getByLabel('Nombre del Proyecto').fill(updatedName);
     await editDialog.getByRole('button', { name: 'Actualizar' }).click();
     await expect(editDialog).toBeHidden();
-    await expect(page.getByText('Actualizado')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(updatedName).first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('UI-008: Botón Archivar proyecto cambia estado a archivado', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
-    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+    const code = `UI-ARCH-${RUN_ID}`;
+    await createProject(page, code, 'Para Archivar');
 
-    const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
-    await dialog.getByLabel('Código del Proyecto').fill('UI-ARCH-001');
-    await dialog.getByLabel('Nombre del Proyecto').fill('Para Archivar');
-    await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
-    await page.waitForTimeout(2000);
-
-    await page.getByRole('button', { name: 'Archivar proyecto UI-ARCH-001' }).click();
+    await page.getByRole('button', { name: `Archivar proyecto ${code}` }).click();
     await page.getByLabel('Mostrar').selectOption('archived');
     await page.waitForTimeout(2000);
-    await expect(page.getByText('UI-ARCH-001')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('UI-009: Botón Restaurar proyecto reactiva proyecto archivado', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    const code = `UI-REST-${RUN_ID}`;
+    await createProject(page, code, 'Para Restaurar');
+
+    await page.getByRole('button', { name: `Archivar proyecto ${code}` }).click();
     await page.getByLabel('Mostrar').selectOption('archived');
     await page.waitForTimeout(2000);
+    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
 
-    await page.getByRole('button', { name: 'Restaurar proyecto UI-ARCH-001' }).click();
+    await page.getByRole('button', { name: `Restaurar proyecto ${code}` }).click();
     await page.getByLabel('Mostrar').selectOption('active');
     await page.waitForTimeout(2000);
-    await expect(page.getByText('UI-ARCH-001')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
   });
 
   // ============================================================
   // UI-010 a UI-016: Gastos, Cotizaciones, Maquinaria, Asistencia
   // ============================================================
   test('UI-010: Botón Registrar Gasto / Factura abre formulario', async ({ page }) => {
-    await openTab(page, /Gastos y Facturas/);
+    await openTab(page, GASTOS_TAB);
     await expect(
       page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first()
     ).toBeVisible({ timeout: 20_000 });
@@ -188,7 +237,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   });
 
   test('UI-012: Botón Nuevo Empleado abre formulario', async ({ page }) => {
-    await openTab(page, /Personal y IGSS/);
+    await openTab(page, PERSONAL_TAB);
     await page
       .getByRole('button', { name: /Cuadrillas/ })
       .first()
@@ -207,7 +256,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   });
 
   test('UI-014: Botón En Obra registra asistencia', async ({ page }) => {
-    await openTab(page, /Personal y IGSS/);
+    await openTab(page, PERSONAL_TAB);
     await page
       .getByRole('button', { name: /Cuadrillas/ })
       .first()
@@ -216,18 +265,19 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await page.getByRole('button', { name: 'Nuevo Empleado' }).first().click();
 
     const empDialog = page.getByRole('dialog', { name: 'Registrar Nuevo Empleado' });
-    await empDialog.getByLabel('Nombre Completo').fill('Empleado UI E2E');
+    const employeeName = `Empleado UI E2E ${RUN_ID}`;
+    await empDialog.getByLabel('Nombre Completo').fill(employeeName);
     await empDialog.getByLabel('Jornal Diario (Q)').fill('250');
     await empDialog.getByLabel('Teléfono').fill('5555-1234');
     await empDialog.getByRole('button', { name: 'Guardar Empleado' }).click();
     await page.waitForTimeout(2000);
 
-    await page.getByRole('button', { name: 'Registro y Marcaje GPS' }).click();
+    await page.getByRole('button', { name: 'Registro & Marcaje GPS' }).click();
     await page.waitForTimeout(1500);
 
     const empOption = page
       .locator('#attendance-employee option')
-      .filter({ hasText: 'Empleado UI E2E' })
+      .filter({ hasText: employeeName })
       .first();
     const empId = await empOption.getAttribute('value');
     expect(empId).toBeTruthy();
@@ -239,38 +289,10 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
 
   test('UI-015: Botón Enviar a mantenimiento cambia estado', async ({ page }) => {
     await openTab(page, /Maquinaria/);
-    await page
-      .getByRole('button', { name: /Registrar Maquinaria/i })
-      .first()
-      .click();
 
-    const macDialog = page.getByRole('dialog', { name: /Registrar Nueva Maquinaria/ });
-    await macDialog
-      .getByLabel(/Nombre|Equipo/i)
-      .first()
-      .fill('Maquinaria UI E2E');
-    await macDialog
-      .getByLabel(/Modelo|Año/i)
-      .first()
-      .fill('2026');
-    await macDialog
-      .getByLabel(/Código|Placa/i)
-      .first()
-      .fill('UI-MAC-001');
-    await macDialog
-      .getByLabel(/Tarifa|Hora/i)
-      .first()
-      .fill('300');
-    await macDialog
-      .getByLabel(/Horómetro/i)
-      .first()
-      .fill('0');
-    await macDialog.getByRole('button', { name: /Guardar Maquinaria/i }).click();
-    await page.waitForTimeout(2000);
+    const machineryName = `Maquinaria UI E2E ${RUN_ID}`;
+    const macCard = await registerMachinery(page, machineryName, `UI-MAC-${RUN_ID}`);
 
-    const macCard = page
-      .locator('div.grid > div')
-      .filter({ has: page.getByText('Maquinaria UI E2E', { exact: true }) });
     await expect(macCard).toContainText('Disponible');
     await macCard.getByRole('button', { name: 'Enviar a mantenimiento' }).click();
     await expect(macCard).toContainText('Mantenimiento');
@@ -278,13 +300,18 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
 
   test('UI-016: Botón Marcar disponible restaura maquinaria', async ({ page }) => {
     await openTab(page, /Maquinaria/);
-    const macCard = page
-      .locator('div.grid > div')
-      .filter({ has: page.getByText('Maquinaria UI E2E', { exact: true }) });
-    if ((await macCard.count()) > 0) {
-      await macCard.getByRole('button', { name: 'Marcar disponible' }).click();
-      await expect(macCard).toContainText('Disponible');
-    }
+
+    // Esta prueba es autocontenida: no puede reutilizar la maquinaria de
+    // UI-015 porque `fullyParallel` puede ejecutar ambas en workers
+    // distintos (y por tanto con `RUN_ID` distintos).
+    const machineryName = `Maquinaria UI E2E Restore ${RUN_ID}`;
+    const macCard = await registerMachinery(page, machineryName, `UI-MAC-R-${RUN_ID}`);
+
+    await macCard.getByRole('button', { name: 'Enviar a mantenimiento' }).click();
+    await expect(macCard).toContainText('Mantenimiento');
+
+    await macCard.getByRole('button', { name: 'Marcar disponible' }).click();
+    await expect(macCard).toContainText('Disponible');
   });
 
   // ============================================================
@@ -340,18 +367,21 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
 
   test('UI-020: Botón Cerrar sesión termina sesión', async ({ page }) => {
     await ensureAuthenticated(page);
-    const logoutBtn = page.getByRole('button', { name: /Cerrar sesión/i });
-    if ((await logoutBtn.count()) > 0) {
-      await logoutBtn.click();
-      await page.waitForTimeout(3000);
-    }
+    const logoutBtn = page.getByRole('button', { name: /Cerrar sesión/i }).first();
+    await expect(logoutBtn).toBeVisible({ timeout: 20_000 });
+    await logoutBtn.click();
+
+    // Al cerrar sesión la app redirige a /login y debe mostrar el formulario
+    // de acceso.
+    await expect(page.getByLabel('Correo electrónico')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
   });
 
   // ============================================================
   // UI-021 a UI-025: Comportamiento de modales, inputs y selects
   // ============================================================
   test('UI-021: Clic fuera de modal cierra el diálogo', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    await openTab(page, PROYECTOS_TAB);
     await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
     const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
@@ -364,7 +394,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   });
 
   test('UI-022: Tecla Escape cierra modal', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    await openTab(page, PROYECTOS_TAB);
     await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
     const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
@@ -410,7 +440,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
   });
 
   test('UI-025: Select estado de proyecto filtra correctamente', async ({ page }) => {
-    await openTab(page, /Proyectos y Firmas/);
+    await openTab(page, PROYECTOS_TAB);
     const filterSelect = page.locator('main select').first();
     if ((await filterSelect.count()) > 0) {
       await filterSelect.selectOption({ label: 'Archivados' });

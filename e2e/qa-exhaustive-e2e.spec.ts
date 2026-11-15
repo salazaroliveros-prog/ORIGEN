@@ -13,44 +13,33 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './testCredentials';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ensureAuthenticated } from './testCredentials';
+import { fillExpenseForm, selectActiveProject, waitForProjectPersisted } from './projectFixture';
+
+/**
+ * Sufijo único por ejecución.
+ *
+ * El emulador de Firebase conserva los datos entre ejecuciones: sin un
+ * sufijo, dos corrida dejan el mismo nombre de empleado/maquinaria y los
+ * localizadores estricto fallan ("resolved to N elements").
+ */
+const RUN_ID = Date.now().toString().slice(-6);
 
 // ============================================================
 // HELPERS
 // ============================================================
-
-async function ensureAuthenticated(page: any, useQueryParam = true) {
-  test.setTimeout(120_000);
-  if (useQueryParam) {
-    await page.goto('/');
-  } else {
-    await page.goto('/');
-  }
-  await page.waitForTimeout(5000);
-
-  const tablero = page.getByRole('button', { name: 'Tablero' });
-  if (await tablero.isVisible({ timeout: 2000 })) {
-    return;
-  }
-
-  // Fallback: login manual
-  const emailField = page.getByLabel('Correo electrónico');
-  const loginVisible = await emailField.isVisible().catch(() => false);
-  if (loginVisible) {
-    await emailField.fill(ADMIN_EMAIL);
-    await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
-    await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
-    await page.waitForTimeout(4000);
-  }
-
-  await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
-}
 
 async function openTab(page: any, name: string | RegExp) {
   await page.getByRole('button', { name }).first().click();
   await page.waitForTimeout(1500);
 }
 
+/**
+ * Abre el formulario "Nuevo Proyecto", lo rellena y lo guarda.
+ *
+ * La navegación al módulo y la apertura del diálogo se hacen aquí para que
+ * cualquier prueba pueda crear un proyecto sin repetir esos pasos.
+ */
 async function fillProjectForm(page: any, overrides: any = {}) {
   const defaults = {
     code: `E2E-${Date.now()}`,
@@ -66,7 +55,11 @@ async function fillProjectForm(page: any, overrides: any = {}) {
     ...overrides,
   };
 
+  await openTab(page, 'Proyectos & Firmas');
+  await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
+
   const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
   await dialog.getByLabel('Código del Proyecto').fill(defaults.code);
   await dialog.getByLabel('Nombre del Proyecto').fill(defaults.name);
   await dialog.getByLabel('Nombre del cliente').fill(defaults.client);
@@ -78,7 +71,7 @@ async function fillProjectForm(page: any, overrides: any = {}) {
   await dialog.getByLabel('Fecha de Inicio').fill(defaults.startDate);
   await dialog.getByLabel('Fecha de Finalización').fill(defaults.endDate);
   await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
-  await expect(dialog).toBeHidden();
+  await expect(dialog).toBeHidden({ timeout: 20_000 });
   return defaults;
 }
 
@@ -173,14 +166,13 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
   });
 
   test('PASO-1.06 — Cierre de sesión → redirección a login', async ({ page }) => {
-    await ensureAuthenticated(page, false);
+    await ensureAuthenticated(page);
     const logoutBtn = page.getByRole('button', { name: /Cerrar sesión/i });
-    const isVisible = await logoutBtn.isVisible().catch(() => false);
-    if (isVisible) {
-      await logoutBtn.click();
-      await page.waitForTimeout(3000);
-    }
-    // Debe estar en login o mostrar formulario de auth
+    await expect(logoutBtn).toBeVisible({ timeout: 20_000 });
+    await logoutBtn.click();
+
+    // Tras cerrar sesión el formulario de acceso debe reaparecer.
+    await expect(page.getByLabel('Correo electrónico')).toBeVisible({ timeout: 30_000 });
   });
 });
 
@@ -276,8 +268,6 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     page,
   }) => {
     await openTab(page, 'Proyectos & Firmas');
-    await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
-
     const projectData = await fillProjectForm(page);
 
     // Verificar creación
@@ -290,21 +280,21 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     await editDialog.getByLabel('Nombre del Proyecto').fill(`${projectData.name} ACTUALIZADO`);
     await editDialog.getByRole('button', { name: 'Actualizar' }).click();
     await expect(editDialog).toBeHidden();
-    await expect(page.getByText(`${projectData.name} ACTUALIZADO`)).toBeVisible({
+    await expect(page.getByText(`${projectData.name} ACTUALIZADO`).first()).toBeVisible({
       timeout: 20_000,
     });
 
-    // Archivar
+    // Archivar: con el filtro "Activos" el proyecto archivado deja de listarse.
     await page.getByRole('button', { name: `Archivar proyecto ${projectData.code}` }).click();
-    await page.getByLabel('Mostrar').selectOption('archived');
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(2500);
     await expect(page.getByText(projectData.code)).toHaveCount(0);
 
-    // Restaurar
-    await page.getByLabel('Mostrar').selectOption('Archivados');
+    // Restaurar: el filtro "Archivados" muestra los proyectos archivados.
+    await page.getByLabel('Mostrar').selectOption('archived');
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: `Restaurar proyecto ${projectData.code}` }).click();
-    await page.getByLabel('Mostrar').selectOption('Activos');
+    await page.waitForTimeout(2500);
+    await page.getByLabel('Mostrar').selectOption('active');
     await page.waitForTimeout(2000);
     await expect(page.getByText(projectData.code).first()).toBeVisible({ timeout: 20_000 });
   });
@@ -312,20 +302,21 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
   test('PASO-3.02 — Crear gasto y propagar a proyecto y tablero', async ({ page }) => {
     const projectData = await fillProjectForm(page);
 
+    // El formulario de gastos imputa al "proyecto activo": hay que activarlo
+    // explícitamente para que el gasto se registre en el proyecto creado.
+    await selectActiveProject(page, projectData.code);
+
     await openTab(page, 'Gastos & Facturas');
     await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     await page.waitForTimeout(1000);
 
-    const projectSelect = page.getByLabel('Proyecto Asignado *');
-    const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((o: string) => o.includes(projectData.code));
-    if (match) await projectSelect.selectOption({ label: match });
-
-    await page
-      .getByLabel('Descripción Detallada del Insumo o Servicio *')
-      .fill('Gasto de prueba E2E');
-    await page.getByLabel('Proveedor / Emisor SAT').fill('Proveedor E2E');
-    await page.getByLabel('Monto del Gasto *').fill('15000');
+    await fillExpenseForm(page, {
+      description: 'Gasto de prueba E2E',
+      supplier: 'Proveedor E2E',
+      nit: '1294821-9',
+      invoice: 'FEL-E2E-001',
+      amount: '15000',
+    });
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
@@ -359,7 +350,8 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     await page.waitForTimeout(3500);
 
     await expect(page.getByText('Cliente E2E Cotización').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('22,000').first()).toBeVisible({ timeout: 20_000 });
+    // 20,000 + IVA 12% (tarifa SAT de Guatemala) = 22,400.
+    await expect(page.getByText('22,400').first()).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-3.04 — Registrar empleado y asistencia con GPS', async ({ page }) => {
@@ -372,18 +364,18 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
 
     await page.getByRole('button', { name: 'Nuevo Empleado' }).first().click();
     const empDialog = page.getByRole('dialog', { name: 'Registrar Nuevo Empleado' });
-    await empDialog.getByLabel('Nombre Completo').fill('Empleado E2E Prueba');
+    await empDialog.getByLabel('Nombre Completo').fill(`Empleado E2E Prueba ${RUN_ID}`);
     await empDialog.getByLabel('Jornal Diario (Q)').fill('250');
     await empDialog.getByLabel('Teléfono').fill('5555-1234');
     await empDialog.getByRole('button', { name: 'Guardar Empleado' }).click();
     await page.waitForTimeout(2000);
 
-    await page.getByRole('button', { name: 'Registro y Marcaje GPS' }).click();
+    await page.getByRole('button', { name: 'Registro & Marcaje GPS' }).click();
     await page.waitForTimeout(1500);
 
     const empOption = page
       .locator('#attendance-employee option')
-      .filter({ hasText: 'Empleado E2E Prueba' })
+      .filter({ hasText: `Empleado E2E Prueba ${RUN_ID}` })
       .first();
     const empId = await empOption.getAttribute('value');
     expect(empId).toBeTruthy();
@@ -401,10 +393,11 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
       .click();
 
     const macDialog = page.getByRole('dialog', { name: /Registrar Nueva Maquinaria/ });
+    const machineryName = `Maquinaria E2E Prueba ${RUN_ID}`;
     await macDialog
       .getByLabel(/Nombre|Equipo/i)
       .first()
-      .fill('Maquinaria E2E Prueba');
+      .fill(machineryName);
     await macDialog
       .getByLabel(/Modelo|Año/i)
       .first()
@@ -412,7 +405,7 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     await macDialog
       .getByLabel(/Código|Placa/i)
       .first()
-      .fill('EQ-E2E-001');
+      .fill(`EQ-E2E-${RUN_ID}`);
     await macDialog
       .getByLabel(/Tarifa|Hora/i)
       .first()
@@ -427,7 +420,8 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     await expect(macDialog).toBeHidden();
     const macCard = page
       .locator('div.grid > div')
-      .filter({ has: page.getByText('Maquinaria E2E Prueba', { exact: true }) });
+      .filter({ has: page.getByRole('heading', { name: machineryName, exact: true }) })
+      .first();
     await expect(macCard).toContainText('Disponible');
     await macCard.getByRole('button', { name: 'Enviar a mantenimiento' }).click();
     await expect(macCard).toContainText('Mantenimiento');
@@ -467,20 +461,20 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
   }) => {
     const projectData = await fillProjectForm(page);
 
+    // El formulario de gastos imputa al "proyecto activo".
+    await selectActiveProject(page, projectData.code);
+
     await openTab(page, 'Gastos & Facturas');
     await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first().click();
     await page.waitForTimeout(1000);
 
-    const projectSelect = page.getByLabel('Proyecto Asignado *');
-    const options = await projectSelect.locator('option').allTextContents();
-    const match = options.find((o: string) => o.includes(projectData.code));
-    if (match) await projectSelect.selectOption({ label: match });
-
-    await page
-      .getByLabel('Descripción Detallada del Insumo o Servicio *')
-      .fill('Gasto profundidad E2E');
-    await page.getByLabel('Proveedor / Emisor SAT').fill('Profundidad Proveedor');
-    await page.getByLabel('Monto del Gasto *').fill('8000');
+    await fillExpenseForm(page, {
+      description: 'Gasto profundidad E2E',
+      supplier: 'Profundidad Proveedor',
+      nit: '1294821-9',
+      invoice: 'FEL-E2E-002',
+      amount: '8000',
+    });
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
@@ -542,8 +536,10 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
   });
 
   test('PASO-4.05 — Profundidad: IA → Abrir → Enviar consulta', async ({ page }) => {
+    // El acceso al asistente está siempre disponible en la barra lateral: si
+    // no aparece, la prueba debe fallar (no Returning en silencio).
     const iaBtn = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
-    if (!(await iaBtn.isVisible().catch(() => false))) return;
+    await expect(iaBtn).toBeVisible({ timeout: 20_000 });
     await iaBtn.click();
     await page.waitForTimeout(1500);
     await expect(page.getByText(/Asistente|Gemini|Consulta|Pregunta/i).first()).toBeVisible({
@@ -563,18 +559,18 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
 
     await page.getByRole('button', { name: 'Nuevo Empleado' }).first().click();
     const empDialog = page.getByRole('dialog', { name: 'Registrar Nuevo Empleado' });
-    await empDialog.getByLabel('Nombre Completo').fill('Empleado Profundidad E2E');
+    await empDialog.getByLabel('Nombre Completo').fill(`Empleado Profundidad E2E ${RUN_ID}`);
     await empDialog.getByLabel('Jornal Diario (Q)').fill('200');
     await empDialog.getByLabel('Teléfono').fill('5555-9999');
     await empDialog.getByRole('button', { name: 'Guardar Empleado' }).click();
     await page.waitForTimeout(2000);
 
-    await page.getByRole('button', { name: 'Registro y Marcaje GPS' }).click();
+    await page.getByRole('button', { name: 'Registro & Marcaje GPS' }).click();
     await page.waitForTimeout(1500);
 
     const empOption = page
       .locator('#attendance-employee option')
-      .filter({ hasText: 'Empleado Profundidad E2E' })
+      .filter({ hasText: `Empleado Profundidad E2E ${RUN_ID}` })
       .first();
     const empId = await empOption.getAttribute('value');
     expect(empId).toBeTruthy();
@@ -696,6 +692,12 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
 
   test('PASO-5.08 — Validación 100%: Persistencia de datos tras recarga', async ({ page }) => {
     const projectData = await fillProjectForm(page);
+
+    // La recarga solo es segura cuando el backend ya confirmó el documento:
+    // el emulador envía el ack antes de aplicarlo y una recarga inmediata
+    // puede perder el proyecto.
+    await waitForProjectPersisted(page, projectData.code);
+
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');

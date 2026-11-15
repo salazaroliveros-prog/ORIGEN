@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { LoaderCircle, Send } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
+import { authFetch } from '@/lib/apiClient';
 import type { CompanySettings, Project } from '@/lib/types';
 
 interface ChatMessage {
@@ -50,7 +51,7 @@ export function AiAssistantView({ company, activeProject }: AiAssistantViewProps
           }
         : null;
 
-      const response = await fetch('/api/gemini', {
+      const response = await authFetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

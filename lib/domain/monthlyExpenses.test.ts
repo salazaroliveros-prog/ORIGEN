@@ -41,6 +41,22 @@ describe('buildMonthlyExpenseSeries', () => {
     expect(series.reduce((total, month) => total + month.amountGTQ, 0)).toBe(15000);
   });
 
+  it('ignores rejected expenses (not executed spending)', () => {
+    const rejected: ExpenseRecord = {
+      ...expense('r', 'project-a', '2026-10-15', 4000),
+      approvalStatus: 'Rechazado',
+    };
+
+    const series = buildMonthlyExpenseSeries(
+      [expense('a', 'project-a', '2026-10-02', 1000), rejected],
+      'project-a',
+      '6m',
+      new Date(2026, 9, 1)
+    );
+
+    expect(series.at(-1)).toMatchObject({ monthKey: '2026-10', amountGTQ: 1000 });
+  });
+
   it('uses the recorded month span for the all-records range', () => {
     const series = buildMonthlyExpenseSeries(
       [expense('a', 'project-a', '2025-12-15', 100), expense('b', 'project-a', '2026-02-01', 300)],

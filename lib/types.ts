@@ -57,12 +57,7 @@ export interface CompanySettings {
  * Roles predefinidos para el sistema ORIGEN
  */
 export type CompanyRole =
-  | 'owner'
-  | 'admin'
-  | 'project_manager'
-  | 'finance'
-  | 'field_worker'
-  | 'viewer';
+  'owner' | 'admin' | 'project_manager' | 'finance' | 'field_worker' | 'viewer';
 
 /**
  * Company workspace information
@@ -141,11 +136,7 @@ export interface CompanyInvitation {
  * Valores de estado de proyecto
  */
 export type ProjectStatus =
-  | 'En Ejecución'
-  | 'Planificación'
-  | 'Finalizado'
-  | 'Suspendido'
-  | 'Archivado';
+  'En Ejecución' | 'Planificación' | 'Finalizado' | 'Suspendido' | 'Archivado';
 
 /**
  * Interface for a project in the ORIGEN system
@@ -252,11 +243,15 @@ export interface Machinery {
   id: string;
   companyId?: string;
   createdBy?: string;
+  /** Usuario que hizo la última modificación del registro. */
+  updatedBy?: string;
   name: string;
   model: string;
   plateOrCode: string;
   hourlyRateGTQ: number;
   currentHorometer: number;
+  /** Horómetro del último servicio de mantenimiento (opcional). */
+  lastServiceHorometer?: number;
   status: 'Disponible' | 'En Obra' | 'Mantenimiento';
   currentProjectId?: string;
 }
@@ -336,6 +331,10 @@ export interface ExpenseRecord {
   projectId: string;
   companyId?: string;
   authorId?: string;
+  /** Usuario que hizo la última modificación del gasto. */
+  updatedBy?: string;
+  /** Fecha de la última modificación del gasto. */
+  updatedAt?: string;
   date: string;
   category:
     | 'Materiales (Cementos, Hierro)'
@@ -366,6 +365,10 @@ export interface ExpenseRecord {
 export interface QuoteRecord {
   id: string;
   companyId?: string;
+  /** Usuario que creó la cotización. */
+  createdBy?: string;
+  /** Usuario que hizo la última modificación de la cotización. */
+  updatedBy?: string;
   projectId: string;
   clientName: string;
   clientNit: string;
@@ -390,6 +393,8 @@ export interface APUItem {
   companyId?: string;
   projectId?: string;
   createdBy?: string;
+  /** Usuario que hizo la última modificación de la partida. */
+  updatedBy?: string;
   code: string;
   description: string;
   unit: string;

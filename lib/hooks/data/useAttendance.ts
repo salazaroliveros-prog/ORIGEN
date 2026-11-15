@@ -31,8 +31,12 @@ export interface UseAttendanceReturn {
   deleteAttendance: (attendanceId: string) => Promise<boolean>;
 }
 
-export function useAttendance({ companyId, currentUserId, role, projectIds = [] }: UseAttendanceOptions): UseAttendanceReturn {
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+export function useAttendance({
+  companyId,
+  currentUserId,
+  role,
+  projectIds = [],
+}: UseAttendanceOptions): UseAttendanceReturn {
   const [allAttendance, setAllAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const hasInitializedRef = useRef(false);
@@ -129,7 +133,11 @@ export function useAttendance({ companyId, currentUserId, role, projectIds = [] 
         return false;
       }
 
-      if (!attendance.some((record) => record.id === attendanceId)) {
+      // La existencia se comprueba contra `allAttendance`, que es la fuente
+      // de verdad de la suscripción. Antes se usaba un estado `attendance`
+      // que nunca se actualizaba, por lo que el borrado siempre se abortaba
+      // antes de pedir confirmación.
+      if (!allAttendance.some((record) => record.id === attendanceId)) {
         log.warn('Attendance record not found', { attendanceId });
         toast.error('No se encontró el registro de asistencia.');
         return false;
@@ -156,7 +164,7 @@ export function useAttendance({ companyId, currentUserId, role, projectIds = [] 
         return false;
       }
     },
-    [attendance, companyId, currentUserId]
+    [allAttendance, companyId, currentUserId]
   );
 
   return {

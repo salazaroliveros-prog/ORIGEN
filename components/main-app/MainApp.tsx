@@ -29,19 +29,71 @@ type TabKey =
   | 'equipo';
 
 const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }> = {
-  dashboard: { id: 'dashboard', label: 'Tablero de Control', subtitle: 'Resumen general de proyectos y estado del sistema' },
-  proyectos: { id: 'proyectos', label: 'Proyectos y Firmas Digitales', subtitle: 'Gestión de proyectos con trazabilidad completa' },
-  apu_presupuestos: { id: 'apu_presupuestos', label: 'Presupuestos APU y Gastos', subtitle: 'Control financiero con desglose por renglón y departamento' },
-  personal: { id: 'personal', label: 'Personal y Asistencia IGSS', subtitle: 'Control de cuadrillas, planillas y cumplimiento laboral' },
-  reportes: { id: 'reportes', label: 'Reportes Finales y Actas', subtitle: 'Generación de reportes ejecutivos y documentación de obra' },
-  ai: { id: 'ai', label: 'Asistente Técnico IA', subtitle: 'Consultas sobre presupuestos, normativas AGIES y COGUANOR' },
-  cotizaciones: { id: 'cotizaciones', label: 'Cotizaciones', subtitle: 'Gestión de cotizaciones y presupuestos de clientes' },
-  cronograma_gantt: { id: 'cronograma_gantt', label: 'Seguimiento & Hitos', subtitle: 'Cronograma de obra y seguimiento de hitos' },
-  maquinaria: { id: 'maquinaria', label: 'Maquinaria', subtitle: 'Control de flota de maquinaria y horómetros' },
-  planillas: { id: 'planillas', label: 'Planillas Guate', subtitle: 'Planillas laborales y cumplimiento IGSS' },
-  gastos: { id: 'gastos', label: 'Gastos & Facturas', subtitle: 'Registro y control de gastos operativos' },
-  gmail: { id: 'gmail', label: 'Correo & Avisos', subtitle: 'Comunicaciones y notificaciones del proyecto' },
-  equipo: { id: 'equipo', label: 'Equipo de la empresa', subtitle: 'Miembros, invitaciones y permisos de acceso' },
+  dashboard: {
+    id: 'dashboard',
+    label: 'Tablero de Control',
+    subtitle: 'Resumen general de proyectos y estado del sistema',
+  },
+  proyectos: {
+    id: 'proyectos',
+    label: 'Proyectos y Firmas Digitales',
+    subtitle: 'Gestión de proyectos con trazabilidad completa',
+  },
+  apu_presupuestos: {
+    id: 'apu_presupuestos',
+    label: 'Presupuestos APU y Gastos',
+    subtitle: 'Control financiero con desglose por renglón y departamento',
+  },
+  personal: {
+    id: 'personal',
+    label: 'Personal y Asistencia IGSS',
+    subtitle: 'Control de cuadrillas, planillas y cumplimiento laboral',
+  },
+  reportes: {
+    id: 'reportes',
+    label: 'Reportes Finales y Actas',
+    subtitle: 'Generación de reportes ejecutivos y documentación de obra',
+  },
+  ai: {
+    id: 'ai',
+    label: 'Asistente Técnico IA',
+    subtitle: 'Consultas sobre presupuestos, normativas AGIES y COGUANOR',
+  },
+  cotizaciones: {
+    id: 'cotizaciones',
+    label: 'Cotizaciones',
+    subtitle: 'Gestión de cotizaciones y presupuestos de clientes',
+  },
+  cronograma_gantt: {
+    id: 'cronograma_gantt',
+    label: 'Seguimiento & Hitos',
+    subtitle: 'Cronograma de obra y seguimiento de hitos',
+  },
+  maquinaria: {
+    id: 'maquinaria',
+    label: 'Maquinaria',
+    subtitle: 'Control de flota de maquinaria y horómetros',
+  },
+  planillas: {
+    id: 'planillas',
+    label: 'Planillas Guate',
+    subtitle: 'Planillas laborales y cumplimiento IGSS',
+  },
+  gastos: {
+    id: 'gastos',
+    label: 'Gastos & Facturas',
+    subtitle: 'Registro y control de gastos operativos',
+  },
+  gmail: {
+    id: 'gmail',
+    label: 'Correo & Avisos',
+    subtitle: 'Comunicaciones y notificaciones del proyecto',
+  },
+  equipo: {
+    id: 'equipo',
+    label: 'Equipo de la empresa',
+    subtitle: 'Miembros, invitaciones y permisos de acceso',
+  },
 };
 
 export default function MainApp() {
@@ -64,7 +116,11 @@ export default function MainApp() {
     error: workspaceError,
   } = useCompanyWorkspace(currentUser);
 
-  const data = useProjectData({ companyId: workspace?.id, currentUserId: currentUser?.uid, role: membership?.role });
+  const data = useProjectData({
+    companyId: workspace?.id,
+    currentUserId: currentUser?.uid,
+    role: membership?.role,
+  });
 
   const activeProjects = useMemo(
     () => data.projects.filter((project) => project.status !== 'Archivado'),
@@ -77,11 +133,25 @@ export default function MainApp() {
       canManageProjects: ['owner', 'admin', 'project_manager'].includes(role ?? ''),
       canManageQuotes: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
       canManageBudget: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-      canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
+      canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
+        role ?? ''
+      ),
       canManageExpenses: ['owner', 'admin', 'finance'].includes(role ?? ''),
+      canViewExpenses: ['owner', 'admin', 'project_manager', 'finance', 'viewer'].includes(
+        role ?? ''
+      ),
       canManageEmployees: ['owner', 'admin', 'finance'].includes(role ?? ''),
-      canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
-      canViewPersonnel: ['owner', 'admin', 'project_manager', 'finance', 'field_worker', 'viewer'].includes(role ?? ''),
+      canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
+        role ?? ''
+      ),
+      canViewPersonnel: [
+        'owner',
+        'admin',
+        'project_manager',
+        'finance',
+        'field_worker',
+        'viewer',
+      ].includes(role ?? ''),
       canViewFullPersonnel: ['owner', 'admin', 'finance'].includes(role ?? ''),
       canManageCompany: ['owner', 'admin'].includes(role ?? ''),
     };
@@ -164,7 +234,9 @@ export default function MainApp() {
 
   const handleUpdateCompany = async (updates: Partial<CompanySettings>) => {
     if (!permissions.canManageCompany) {
-      toast.error('Solo el propietario o un administrador puede cambiar la configuración de empresa.');
+      toast.error(
+        'Solo el propietario o un administrador puede cambiar la configuración de empresa.'
+      );
       return false;
     }
     if (!currentUser?.uid || !workspace?.id) {
@@ -260,6 +332,18 @@ export default function MainApp() {
           permissions={permissions}
           handleUpdateCompany={handleUpdateCompany}
           handleSaveExchangeRate={handleSaveExchangeRate}
+          currentUser={currentUser}
+          authStatus={authStatus}
+          isSigningOut={isSigningOut}
+          onSignOut={signOut}
+          projects={activeProjects}
+          activeProjectId={activeProjectId}
+          onSelectProject={handleSelectProject}
+          onSelectTab={handleSelectTab}
+          onOpenAiAssistant={() => setActiveTab('ai')}
+          workspaces={availableWorkspaces}
+          activeWorkspaceId={workspace?.id ?? ''}
+          onSelectWorkspace={(companyId) => void handleSelectWorkspace(companyId)}
         />
 
         <main
@@ -298,8 +382,8 @@ export default function MainApp() {
               {!currentUser.emailVerified
                 ? 'El correo aún no está verificado.'
                 : membership
-                ? `Rol en ${workspace?.name ?? 'la empresa'}: ${membership.role}.`
-                : 'No se encontró una membresía de empresa. Revisa la configuración del espacio de trabajo.'}
+                  ? `Rol en ${workspace?.name ?? 'la empresa'}: ${membership.role}.`
+                  : 'No se encontró una membresía de empresa. Revisa la configuración del espacio de trabajo.'}
             </div>
           )}
           {(authStatus === 'unauthenticated' ||
@@ -320,16 +404,16 @@ export default function MainApp() {
                   {workspaceError
                     ? 'No se pudo cargar la empresa.'
                     : authStatus === 'error'
-                    ? 'No se pudo comprobar tu sesión.'
-                    : 'Sesión no iniciada'}
+                      ? 'No se pudo comprobar tu sesión.'
+                      : 'Sesión no iniciada'}
                 </p>
                 <p className="mt-1 text-xs text-slate-300">
                   {workspaceError ??
                     (authStatus === 'error'
                       ? (authError ?? 'Revisa la configuración o intenta iniciar sesión de nuevo.')
                       : hasInviteLink
-                      ? 'Inicia sesión o crea una cuenta con el correo invitado. Verifica esa dirección para aceptar el acceso compartido.'
-                      : 'Inicia sesión con correo electrónico y contraseña para sincronizar y guardar tus datos.')}
+                        ? 'Inicia sesión o crea una cuenta con el correo invitado. Verifica esa dirección para aceptar el acceso compartido.'
+                        : 'Inicia sesión con correo electrónico y contraseña para sincronizar y guardar tus datos.')}
                 </p>
               </div>
             </div>
@@ -344,9 +428,19 @@ export default function MainApp() {
               data={data}
               permissions={permissions}
               onSelectProject={handleSelectProject}
+              onSelectTab={handleSelectTab}
               handleProjectCreated={handleProjectCreated}
-              currentUser={currentUser ? { uid: currentUser.uid, email: currentUser.email ?? '' } : null}
+              currentUser={
+                currentUser
+                  ? {
+                      uid: currentUser.uid,
+                      email: currentUser.email ?? '',
+                      displayName: currentUser.displayName,
+                    }
+                  : null
+              }
               workspace={workspace}
+              userRole={membership?.role ?? null}
             />
           )}
         </main>

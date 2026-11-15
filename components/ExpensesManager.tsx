@@ -2,7 +2,14 @@
 
 import { CameraCaptureModal } from '@/components/CameraCaptureModal';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
-import { formatGTQ, formatUSD, initialAPUItems } from '@/lib/data';
+import { formatGTQ, formatUSD } from '@/lib/data';
+import { authFetch } from '@/lib/apiClient';
+import {
+  detectApuOverrun,
+  sumApuSpent,
+  toGTQAmount,
+  type ApuOverrun,
+} from '@/lib/domain/expenseBudget';
 import { APUItem, CompanySettings, ExpenseAuditEntry, ExpenseRecord, Project } from '@/lib/types';
 import {
   AlertTriangle,
@@ -17,6 +24,7 @@ import {
   FileSearch,
   FolderOpen,
   History,
+  Lock,
   Plus,
   Receipt,
   RotateCw,
@@ -26,17 +34,33 @@ import {
   X,
 } from 'lucide-react';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface ExpensesManagerProps {
   expenses: ExpenseRecord[];
   projects: Project[];
   activeProjectId: string;
-  onAddExpense: (e: ExpenseRecord) => void;
-  onUpdateExpense?: (e: ExpenseRecord) => void;
+  /** Sin handler no se pueden registrar gastos: la UI se muestra en solo lectura. */
+  onAddExpense?: (e: ExpenseRecord) => void | Promise<unknown>;
+  onUpdateExpense?: (e: ExpenseRecord) => void | Promise<unknown>;
   currency: 'GTQ' | 'USD';
   company: CompanySettings;
+  /**
+   * Renglones APU del proyecto activo. Sin fallback a datos demo: si está vacío
+   * el gasto se registra como gasto general del proyecto.
+   */
   budgetItems?: APUItem[];
+  /** Roles financieros. Si es false, el módulo es de solo lectura. */
+  canWrite?: boolean;
+  /** Navegación al tab de proyectos para el estado vacío. */
+  onNavigateToProjects?: () => void;
+  /**
+   * Identidad real del usuario autenticado. La bitácora de auditoría y la firma
+   * de aprobación deben registrar a una persona real, nunca un nombre fijo de
+   * demostración.
+   */
+  auditUser?: { name: string; role: string } | null;
 }
 
 export function ExpensesManager({
@@ -47,7 +71,10 @@ export function ExpensesManager({
   onUpdateExpense,
   currency,
   company,
-  budgetItems = initialAPUItems,
+  budgetItems = [],
+  canWrite = true,
+  onNavigateToProjects,
+  auditUser,
 }: ExpensesManagerProps) {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [category, setCategory] = useState<
@@ -61,8 +88,9 @@ export function ExpensesManager({
   const [supplier, setSupplier] = useState('');
   const [nit, setNit] = useState('');
   const [factura, setFactura] = useState('');
-  const [amount, setAmount] = useState('5000');
-  const [assignedApuId, setAssignedApuId] = useState<string>('apu-2');
+  const [amount, setAmount] = useState('');
+  const [assignedApuId, setAssignedApuId] = useState<string>('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Receipt capture states for new expense
   const [newReceiptUrl, setNewReceiptUrl] = useState<string | null>(null);
@@ -89,7 +117,16 @@ export function ExpensesManager({
     'Aprobado'
   );
   const [approvalNote, setApprovalNote] = useState('');
-  const [pmName, setPmName] = useState('Ing. Carlos Mendoza (PM)');
+  const [pmName, setPmName] = useState(auditUser?.name ?? '');
+
+  // La sesión puede resolverse después del primer render: sincroniza el nombre
+  // de quien firma sin pisar un valor ya escrito manualmente.
+  useEffect(() => {
+    setPmName((current) => (current.trim() ? current : (auditUser?.name ?? '')));
+  }, [auditUser?.name]);
+
+  const auditUserName = auditUser?.name?.trim() || 'Usuario autenticado';
+  const auditUserRole = auditUser?.role?.trim() || 'Usuario autenticado';
 
   // Overrun warning toast
   const [warningToast, setWarningToast] = useState<{
@@ -116,16 +153,17 @@ export function ExpensesManager({
           <p className="mt-1 text-sm text-slate-400">
             Crea un proyecto primero para registrar gastos y facturas.
           </p>
-          <div className="mt-6">
-            <button
-              onClick={() => {
-                // Navigate to projects tab via parent
-              }}
-              className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 font-medium text-slate-100 hover:bg-slate-700"
-            >
-              Ir a Proyectos
-            </button>
-          </div>
+          {onNavigateToProjects && (
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={onNavigateToProjects}
+                className="cursor-pointer rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 font-medium text-slate-100 hover:bg-slate-700"
+              >
+                Ir a Proyectos
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -136,37 +174,35 @@ export function ExpensesManager({
     return currency === 'GTQ' ? formatGTQ(val) : formatUSD(val, company.exchangeRate);
   };
 
-  // Helper to check APU budget overrun
-  const checkApuOverrun = (apuId: string, additionalAmount: number, excludeExpenseId?: string) => {
-    const apu = budgetItems.find((b) => b.id === apuId);
-    if (!apu) return null;
+  // Control de sobregasto por renglón APU (regla de dominio, sin datos demo).
+  // Solo evalúa renglones del proyecto activo y excluye gastos rechazados.
+  const checkApuOverrun = (
+    apuId: string,
+    additionalAmount: number,
+    excludeExpenseId?: string
+  ): ApuOverrun | null =>
+    detectApuOverrun({
+      apuItems: budgetItems,
+      expenses,
+      projectId: activeProject.id,
+      apuId,
+      additionalAmount,
+      excludeExpenseId,
+    });
 
-    const currentSpent = expenses
-      .filter(
-        (e) =>
-          e.projectId === activeProject.id && e.assignedApuId === apuId && e.id !== excludeExpenseId
-      )
-      .reduce((sum, e) => sum + e.amount, 0);
-
-    const projectedTotal = currentSpent + additionalAmount;
-    if (projectedTotal > apu.totalPriceGTQ) {
-      return {
-        isOver: true,
-        diff: projectedTotal - apu.totalPriceGTQ,
-        apuCode: apu.code,
-        apuDesc: apu.description,
-        budgetTotal: apu.totalPriceGTQ,
-        currentSpent,
-        projectedTotal,
-      };
+  /** Convierte a GTQ (moneda de persistencia); null si el monto o la tasa no son válidos. */
+  const toAmountGTQ = (rawAmount: number): number | null => {
+    try {
+      return toGTQAmount(rawAmount, currency, company?.exchangeRate ?? 0);
+    } catch {
+      return null;
     }
-    return null;
   };
 
   const analyzeReceiptWithAI = async (dataUrl: string) => {
     try {
       setIsAnalyzing(true);
-      const res = await fetch('/api/gemini/receipt', {
+      const res = await authFetch('/api/gemini/receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: dataUrl }),
@@ -180,11 +216,12 @@ export function ExpensesManager({
         if (d.amount && !isNaN(Number(d.amount))) {
           const parsedAmt = String(d.amount);
           setAmount(parsedAmt);
-          // Check APU overrun
-          const overrun = checkApuOverrun(assignedApuId, Number(parsedAmt));
+          // Check APU overrun (monto convertido a GTQ para comparar contra el APU)
+          const amountGTQ = toAmountGTQ(Number(parsedAmt));
+          const overrun = amountGTQ !== null ? checkApuOverrun(assignedApuId, amountGTQ) : null;
           if (overrun) {
             setWarningToast({
-              message: `¡Alerta de Presupuesto APU! La factura detectada por IA de Q${d.amount} excede el renglón ${overrun.apuCode} (${overrun.apuDesc}).`,
+              message: `¡Alerta de Presupuesto APU! La factura detectada por IA de Q${amountGTQ?.toLocaleString('es-GT')} excede el renglón ${overrun.apuCode} (${overrun.apuDesc}).`,
               diff: overrun.diff,
               apuCode: overrun.apuCode,
               budgetTotal: overrun.budgetTotal,
@@ -208,15 +245,24 @@ export function ExpensesManager({
   ) => {
     if (cameraTargetExpenseId) {
       const target = expenses.find((e) => e.id === cameraTargetExpenseId);
-      if (target && onUpdateExpense) {
-        onUpdateExpense({
-          ...target,
-          receiptPhotoUrl: dataUrl,
-          receiptPhotoDate: meta.timestamp,
-          receiptCoords: meta.coords,
-        });
-      }
       setCameraTargetExpenseId(null);
+
+      if (!target) {
+        toast.error('No se encontró el gasto al que intentabas adjuntar el comprobante.');
+        return;
+      }
+      if (!onUpdateExpense) {
+        // No descartar la foto en silencio: el usuario debe saber que no se guardó.
+        toast.error('No tienes permiso para adjuntar comprobantes a gastos existentes.');
+        return;
+      }
+
+      void onUpdateExpense({
+        ...target,
+        receiptPhotoUrl: dataUrl,
+        receiptPhotoDate: meta.timestamp,
+        receiptCoords: meta.coords,
+      });
     } else {
       setNewReceiptUrl(dataUrl);
       setNewReceiptDate(meta.timestamp);
@@ -227,9 +273,29 @@ export function ExpensesManager({
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!desc.trim()) return;
 
-    const numAmount = Number(amount) || 1000;
+    if (!onAddExpense) {
+      setFormError('No tienes permiso para registrar gastos.');
+      return;
+    }
+    if (!desc.trim()) {
+      setFormError('La descripción del gasto es obligatoria.');
+      return;
+    }
+
+    // `amount` se captura en la moneda de la UI y se persiste siempre en GTQ.
+    // Nunca se inventa un monto por defecto.
+    let numAmount: number;
+    try {
+      numAmount = toGTQAmount(Number(amount), currency, company?.exchangeRate ?? 0);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Monto inválido.';
+      setFormError(message);
+      toast.error(message);
+      return;
+    }
+    setFormError(null);
+
     const selectedApu = budgetItems.find((b) => b.id === assignedApuId);
     const nowStr = new Date().toLocaleString('es-GT');
 
@@ -250,12 +316,12 @@ export function ExpensesManager({
       projectId: activeProject.id,
       date: new Date().toISOString().split('T')[0],
       category,
-      description: desc,
-      supplier: supplier || 'Proveedor Local',
-      nitSupplier: nit || '123456-7',
-      facturaNumber: factura || 'A-001',
+      description: desc.trim(),
+      supplier: supplier.trim(),
+      nitSupplier: nit.trim(),
+      facturaNumber: factura.trim(),
       amount: numAmount,
-      currency: 'GTQ',
+      currency: 'GTQ', // `amount` se persiste siempre en GTQ (ver toGTQAmount)
       paymentMethod: 'Transferencia BI',
       receiptPhotoUrl: newReceiptUrl || undefined,
       receiptPhotoDate: newReceiptDate || undefined,
@@ -267,8 +333,8 @@ export function ExpensesManager({
         {
           id: `aud-${Date.now()}-1`,
           action: 'CREADO',
-          user: 'Residente de Obra',
-          role: 'Ingeniero Residente',
+          user: auditUserName,
+          role: auditUserRole,
           timestamp: nowStr,
           note: newReceiptUrl
             ? 'Comprobante físico capturado con cámara y validado con IA'
@@ -277,20 +343,22 @@ export function ExpensesManager({
         {
           id: `aud-${Date.now() + 1}-2`,
           action: 'ENVIADO_A_REVISION',
-          user: 'Residente de Obra',
-          role: 'Ingeniero Residente',
+          user: auditUserName,
+          role: auditUserRole,
           timestamp: nowStr,
           note: `Enviado al flujo de aprobación del Project Manager (Renglón APU: ${selectedApu?.code || 'General'})`,
         },
       ],
     };
 
-    onAddExpense(ex);
+    void onAddExpense(ex);
     setIsOpenModal(false);
     setDesc('');
     setSupplier('');
     setNit('');
     setFactura('');
+    setAmount('');
+    setAssignedApuId('');
     setNewReceiptUrl(null);
     setNewReceiptDate(null);
     setNewReceiptCoords(null);
@@ -298,7 +366,15 @@ export function ExpensesManager({
 
   // Two-Step Approval Submit Handler
   const handleConfirmApproval = () => {
-    if (!approvalModalExpense || !onUpdateExpense) return;
+    if (!approvalModalExpense) return;
+    if (!onUpdateExpense) {
+      toast.error('No tienes permiso para cambiar el estado de aprobación de gastos.');
+      return;
+    }
+    if (!pmName.trim()) {
+      toast.error('Indica el nombre del Project Manager que firma la aprobación.');
+      return;
+    }
 
     const nowStr = new Date().toLocaleString('es-GT');
     const isApproving = approvalDecision === 'Aprobado';
@@ -328,8 +404,8 @@ export function ExpensesManager({
         : approvalDecision === 'Rechazado'
           ? 'RECHAZADO'
           : 'REVERTIDO',
-      user: pmName,
-      role: 'Project Manager / Director de Obra',
+      user: pmName.trim() || auditUserName,
+      role: auditUserRole,
       timestamp: nowStr,
       note:
         approvalNote.trim() ||
@@ -341,12 +417,12 @@ export function ExpensesManager({
     const updatedExpense: ExpenseRecord = {
       ...approvalModalExpense,
       approvalStatus: approvalDecision,
-      approvedBy: isApproving ? pmName : undefined,
+      approvedBy: isApproving ? pmName.trim() || auditUserName : undefined,
       approvedAt: isApproving ? nowStr : undefined,
       auditTrail: [...(approvalModalExpense.auditTrail || []), newAuditEntry],
     };
 
-    onUpdateExpense(updatedExpense);
+    void onUpdateExpense(updatedExpense);
     setApprovalModalExpense(null);
     setApprovalNote('');
   };
@@ -418,7 +494,7 @@ export function ExpensesManager({
       )}
 
       {/* Header bar */}
-      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-900">
@@ -441,7 +517,7 @@ export function ExpensesManager({
               onClick={() => setActiveExpenseTab('facturas')}
               className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'facturas'
-                  ? 'shadow-xs bg-white text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -452,7 +528,7 @@ export function ExpensesManager({
               onClick={() => setActiveExpenseTab('histograma')}
               className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 activeExpenseTab === 'histograma'
-                  ? 'shadow-xs bg-amber-500 text-slate-950'
+                  ? 'bg-amber-500 text-slate-950 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -461,15 +537,23 @@ export function ExpensesManager({
             </button>
           </div>
 
-          <button
-            onClick={() => {
-              setNewReceiptUrl(null);
-              setIsOpenModal(true);
-            }}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500"
-          >
-            <Plus className="h-4 w-4" /> Registrar Gasto / Factura
-          </button>
+          {!canWrite || !onAddExpense ? (
+            <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" /> Solo lectura
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setFormError(null);
+                setNewReceiptUrl(null);
+                setIsOpenModal(true);
+              }}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500"
+            >
+              <Plus className="h-4 w-4" /> Registrar Gasto / Factura
+            </button>
+          )}
         </div>
       </div>
 
@@ -485,7 +569,7 @@ export function ExpensesManager({
         <>
           {/* Metrics & Two-Step Approval Summary Bar */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="shadow-xs flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
               <div>
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Total Ejecutado Aprobado
@@ -502,7 +586,7 @@ export function ExpensesManager({
               </div>
             </div>
 
-            <div className="shadow-xs flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
               <div>
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Pendientes de Revisión PM
@@ -515,7 +599,7 @@ export function ExpensesManager({
               </div>
             </div>
 
-            <div className="shadow-xs flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
               <div>
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Control Presupuestario APU
@@ -538,7 +622,7 @@ export function ExpensesManager({
                 onClick={() => setStatusFilter('todos')}
                 className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'todos'
-                    ? 'shadow-xs bg-white text-slate-900'
+                    ? 'bg-white text-slate-900 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -548,7 +632,7 @@ export function ExpensesManager({
                 onClick={() => setStatusFilter('pendientes')}
                 className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'pendientes'
-                    ? 'shadow-xs bg-amber-500 text-slate-950'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -559,7 +643,7 @@ export function ExpensesManager({
                 onClick={() => setStatusFilter('aprobados')}
                 className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                   statusFilter === 'aprobados'
-                    ? 'shadow-xs bg-emerald-600 text-white'
+                    ? 'bg-emerald-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -574,7 +658,7 @@ export function ExpensesManager({
           </div>
 
           {/* Expenses Table */}
-          <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-500">
@@ -598,16 +682,21 @@ export function ExpensesManager({
                     const assignedApu = budgetItems.find((b) => b.id === ex.assignedApuId);
                     let apuOverrun = false;
                     if (assignedApu) {
-                      const totalSpentOnApu = projectExpenses
-                        .filter((e) => e.assignedApuId === assignedApu.id)
-                        .reduce((sum, e) => sum + e.amount, 0);
+                      // Los gastos rechazados no consumen presupuesto del renglón.
+                      const totalSpentOnApu = sumApuSpent({
+                        expenses: projectExpenses,
+                        projectId: activeProject.id,
+                        apuId: assignedApu.id,
+                      });
                       apuOverrun = totalSpentOnApu > assignedApu.totalPriceGTQ;
                     }
 
                     return (
                       <tr key={ex.id} className="transition hover:bg-slate-50/80">
                         <td className="p-3.5">
-                          <span className="font-bold text-slate-900">{ex.facturaNumber}</span>
+                          <span className="font-bold text-slate-900">
+                            {ex.facturaNumber || 'Interno'}
+                          </span>
                           <p className="text-[10px] text-slate-500">{ex.date}</p>
                         </td>
 
@@ -632,7 +721,7 @@ export function ExpensesManager({
 
                         <td className="p-3.5">
                           <span className="font-semibold text-slate-900">{ex.supplier}</span>
-                          <p className="text-[10px] text-slate-500">NIT: {ex.nitSupplier}</p>
+                          <p className="text-[10px] text-slate-500">NIT: {ex.nitSupplier || '—'}</p>
                         </td>
 
                         <td className="max-w-xs p-3.5">{ex.description}</td>
@@ -665,7 +754,7 @@ export function ExpensesManager({
                                 </span>
                               </div>
                             </button>
-                          ) : (
+                          ) : canWrite && onUpdateExpense ? (
                             <button
                               type="button"
                               onClick={() => {
@@ -678,6 +767,8 @@ export function ExpensesManager({
                               <Camera className="h-3.5 w-3.5 text-amber-600" aria-hidden="true" />
                               <span>Foto</span>
                             </button>
+                          ) : (
+                            <span className="text-[11px] text-slate-400">Sin comprobante</span>
                           )}
                         </td>
 
@@ -713,25 +804,27 @@ export function ExpensesManager({
                         {/* Project Manager Actions & Audit Trail */}
                         <td className="p-3.5 text-center">
                           <div className="flex items-center justify-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setApprovalModalExpense(ex);
-                                setApprovalDecision(isApproved ? 'Pendiente' : 'Aprobado');
-                              }}
-                              className={`shadow-xs cursor-pointer rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
-                                isApproved
-                                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                  : 'bg-emerald-600 text-white hover:bg-emerald-500'
-                              }`}
-                              title={
-                                isApproved
-                                  ? 'Cambiar estado de aprobación'
-                                  : 'Aprobar gasto como Project Manager'
-                              }
-                            >
-                              {isApproved ? 'Modificar' : 'Aprobar PM'}
-                            </button>
+                            {canWrite && onUpdateExpense && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setApprovalModalExpense(ex);
+                                  setApprovalDecision(isApproved ? 'Pendiente' : 'Aprobado');
+                                }}
+                                className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11px] font-bold shadow-xs transition ${
+                                  isApproved
+                                    ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                    : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                                }`}
+                                title={
+                                  isApproved
+                                    ? 'Cambiar estado de aprobación'
+                                    : 'Aprobar gasto como Project Manager'
+                                }
+                              >
+                                {isApproved ? 'Modificar' : 'Aprobar PM'}
+                              </button>
+                            )}
 
                             <button
                               type="button"
@@ -984,7 +1077,7 @@ export function ExpensesManager({
       )}
 
       {/* Modal: Registrar Nuevo Gasto con Cámara y APU Check */}
-      {isOpenModal && (
+      {isOpenModal && canWrite && onAddExpense && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
           <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-slate-900 p-4 text-white">
@@ -1010,6 +1103,7 @@ export function ExpensesManager({
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     setCategory(e.target.value as typeof category)
                   }
+                  aria-label="Categoría de Gasto"
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                 >
                   <option value="Materiales (Cementos, Hierro)">
@@ -1032,10 +1126,12 @@ export function ExpensesManager({
                   onChange={(e) => {
                     const newApuId = e.target.value;
                     setAssignedApuId(newApuId);
-                    const overrun = checkApuOverrun(newApuId, Number(amount) || 0);
+                    const amountGTQ = toAmountGTQ(Number(amount));
+                    const overrun =
+                      amountGTQ !== null ? checkApuOverrun(newApuId, amountGTQ) : null;
                     if (overrun) {
                       setWarningToast({
-                        message: `¡Alerta de Presupuesto! El monto de Q${amount} excede el renglón ${overrun.apuCode}.`,
+                        message: `¡Alerta de Presupuesto! El monto de Q${amountGTQ?.toLocaleString('es-GT')} excede el renglón ${overrun.apuCode}.`,
                         diff: overrun.diff,
                         apuCode: overrun.apuCode,
                         budgetTotal: overrun.budgetTotal,
@@ -1043,14 +1139,22 @@ export function ExpensesManager({
                       });
                     }
                   }}
+                  aria-label="Renglón de Presupuesto APU Asignado"
                   className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium"
                 >
+                  <option value="">Sin renglón APU (gasto general del proyecto)</option>
                   {budgetItems.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.code} — {item.description} ({formatGTQ(item.totalPriceGTQ)})
                     </option>
                   ))}
                 </select>
+                {budgetItems.length === 0 && (
+                  <p className="mt-1 text-[11px] font-medium text-amber-700">
+                    Este proyecto aún no tiene renglones APU registrados. El gasto se guardará como
+                    gasto general y no se validará contra un presupuesto de renglón.
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -1094,24 +1198,29 @@ export function ExpensesManager({
                     value={factura}
                     onChange={(e) => setFactura(e.target.value)}
                     placeholder="Ej. A-49201"
+                    aria-label="No. Factura FEL"
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
                     required
                   />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-semibold text-slate-700">
-                    Monto (GTQ)
+                    Monto ({currency})
                   </label>
                   <input
                     type="number"
                     value={amount}
+                    min="0.01"
+                    step="0.01"
                     onChange={(e) => {
                       const newAmt = e.target.value;
                       setAmount(newAmt);
-                      const overrun = checkApuOverrun(assignedApuId, Number(newAmt) || 0);
+                      const amountGTQ = toAmountGTQ(Number(newAmt));
+                      const overrun =
+                        amountGTQ !== null ? checkApuOverrun(assignedApuId, amountGTQ) : null;
                       if (overrun) {
                         setWarningToast({
-                          message: `¡Alerta! El monto ingresado (Q${newAmt}) excede el presupuesto del renglón ${overrun.apuCode}.`,
+                          message: `¡Alerta! El monto ingresado (Q${amountGTQ?.toLocaleString('es-GT')}) excede el presupuesto del renglón ${overrun.apuCode}.`,
                           diff: overrun.diff,
                           apuCode: overrun.apuCode,
                           budgetTotal: overrun.budgetTotal,
@@ -1119,10 +1228,17 @@ export function ExpensesManager({
                         });
                       }
                     }}
-                    aria-label="Monto (GTQ)"
+                    placeholder="0.00"
+                    aria-label={`Monto (${currency})`}
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-bold"
                     required
                   />
+                  {currency === 'USD' && (
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Se convertirá a GTQ con el tipo de cambio configurado (
+                      {company?.exchangeRate || 'sin configurar'} GTQ por USD).
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1245,6 +1361,15 @@ export function ExpensesManager({
                   </div>
                 )}
               </div>
+
+              {formError && (
+                <p
+                  role="alert"
+                  className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-800"
+                >
+                  {formError}
+                </p>
+              )}
 
               <div className="flex justify-end gap-2 border-t border-slate-100 pt-2">
                 <button

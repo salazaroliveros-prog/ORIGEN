@@ -152,18 +152,22 @@ describe('APU & Budget Calculations', () => {
       expect(result.remaining).toBe(22500);
       expect(result.utilization).toBe(40); // 15000 / 37500 = 40%
       expect(result.variance).toBe(-22500); // Under budget
+      expect(result.isOverBudget).toBe(false);
     });
 
     it('should handle empty items array', () => {
       const result = calculateBudgetSummary([], 1000);
       expect(result.budgetTotal).toBe(0);
       expect(result.utilization).toBe(0);
+      expect(result.isOverBudget).toBe(false);
     });
 
     it('should handle over-budget scenario', () => {
       const result = calculateBudgetSummary(mockItems, 50000);
       expect(result.variance).toBe(12500); // Over budget
-      expect(result.utilization).toBe(100); // Capped at 100%
+      // Sin cap: 50000 / 37500 = 133.33%. El sobregasto debe ser visible.
+      expect(result.utilization).toBeCloseTo(133.33, 2);
+      expect(result.isOverBudget).toBe(true);
     });
 
     it('should throw error for invalid inputs', () => {

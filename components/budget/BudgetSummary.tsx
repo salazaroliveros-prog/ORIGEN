@@ -25,7 +25,7 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
       [apuItems, totalSpent]
     );
 
-    const isOverBudget = budgetSummary.variance > 0;
+    const isOverBudget = budgetSummary.isOverBudget;
     const utilizationPercent = Math.round(budgetSummary.utilization);
 
     return (
@@ -75,7 +75,9 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
           {/* Utilization */}
           <div className="rounded-lg bg-slate-800/50 p-4">
             <p className="text-xs text-slate-400">Utilización</p>
-            <p className="mt-2 text-xl font-bold text-white">{utilizationPercent}%</p>
+            <p className={`mt-2 text-xl font-bold ${isOverBudget ? 'text-red-400' : 'text-white'}`}>
+              {utilizationPercent}%
+            </p>
           </div>
         </div>
 
@@ -83,18 +85,19 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-400">Progreso de gasto</span>
-            <span className="font-semibold text-white">{utilizationPercent}%</span>
+            <span className={`font-semibold ${isOverBudget ? 'text-red-300' : 'text-white'}`}>
+              {utilizationPercent}%
+            </span>
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-slate-800">
             <div
-              className={`h-full transition ${
-                isOverBudget ? 'bg-red-500' : 'bg-emerald-500'
-              }`}
+              className={`h-full transition ${isOverBudget ? 'bg-red-500' : 'bg-emerald-500'}`}
               style={{ width: `${Math.min(utilizationPercent, 100)}%` }}
               role="progressbar"
-              aria-valuenow={utilizationPercent}
+              aria-valuenow={Math.min(utilizationPercent, 100)}
               aria-valuemin={0}
               aria-valuemax={100}
+              aria-valuetext={`${utilizationPercent}%`}
             />
           </div>
         </div>

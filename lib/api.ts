@@ -39,6 +39,58 @@ export function extensionForMime(mime: string): string {
   return MIME_EXTENSIONS[mime.toLowerCase()] ?? 'jpg';
 }
 
+function asciiAt(bytes: Uint8Array, offset: number, length: number): string {
+  return String.fromCharCode(...bytes.subarray(offset, offset + length));
+}
+
+/**
+ * Detecta el tipo real de una imagen por sus *magic bytes*.
+ *
+ * `File.type` lo declara el cliente y se puede falsificar; subir un archivo
+ * ejecutable renombrado como `.jpg` a Storage es un riesgo real. Devuelve
+ * `null` si el contenido no es una imagen soportada.
+ */
+export function detectImageMime(bytes: Uint8Array): string | null {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return 'image/jpeg';
+  }
+
+  if (
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  ) {
+    return 'image/png';
+  }
+
+  if (bytes.length >= 6) {
+    const header = asciiAt(bytes, 0, 6);
+    if (header === 'GIF87a' || header === 'GIF89a') return 'image/gif';
+  }
+
+  if (bytes.length >= 12 && asciiAt(bytes, 0, 4) === 'RIFF' && asciiAt(bytes, 8, 4) === 'WEBP') {
+    return 'image/webp';
+  }
+
+  if (bytes.length >= 12 && asciiAt(bytes, 4, 4) === 'ftyp') {
+    const brand = asciiAt(bytes, 8, 4);
+    if (['heic', 'heix', 'hevc', 'heim', 'heis', 'hevm', 'hevs'].includes(brand)) {
+      return 'image/heic';
+    }
+    if (['mif1', 'msf1'].includes(brand)) {
+      return 'image/heif';
+    }
+  }
+
+  return null;
+}
+
 export function isDataUrlImage(value: unknown): value is string {
   return (
     typeof value === 'string' &&
@@ -87,30 +139,36 @@ export function createValidator<T extends Record<string, unknown>>(rules: Valida
 
 // Common validation rules
 export const validators = {
-  string: (min = 1, max = MAX_TEXT_LENGTH) => (value: unknown) =>
-    typeof value === 'string' && value.length >= min && value.length <= max
-      ? { valid: true }
-      : { valid: false, error: `Debe ser un string entre ${min} y ${max} caracteres` },
+  string:
+    (min = 1, max = MAX_TEXT_LENGTH) =>
+    (value: unknown) =>
+      typeof value === 'string' && value.length >= min && value.length <= max
+        ? { valid: true }
+        : { valid: false, error: `Debe ser un string entre ${min} y ${max} caracteres` },
 
   email: () => (value: unknown) =>
     typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
       ? { valid: true }
       : { valid: false, error: 'Email inválido' },
 
-  number: (min = -Infinity, max = Infinity) => (value: unknown) =>
-    typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max
-      ? { valid: true }
-      : { valid: false, error: `Debe ser un número entre ${min} y ${max}` },
+  number:
+    (min = -Infinity, max = Infinity) =>
+    (value: unknown) =>
+      typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max
+        ? { valid: true }
+        : { valid: false, error: `Debe ser un número entre ${min} y ${max}` },
 
   positiveNumber: () => (value: unknown) =>
     typeof value === 'number' && Number.isFinite(value) && value > 0
       ? { valid: true }
       : { valid: false, error: 'Debe ser un número positivo' },
 
-  enum: <T extends string>(values: T[]) => (value: unknown) =>
-    typeof value === 'string' && values.includes(value as T)
-      ? { valid: true }
-      : { valid: false, error: `Debe ser uno de: ${values.join(', ')}` },
+  enum:
+    <T extends string>(values: T[]) =>
+    (value: unknown) =>
+      typeof value === 'string' && values.includes(value as T)
+        ? { valid: true }
+        : { valid: false, error: `Debe ser uno de: ${values.join(', ')}` },
 
   uuid: () => (value: unknown) =>
     typeof value === 'string' &&
