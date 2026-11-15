@@ -511,11 +511,18 @@ export async function exportPayrollAccountingPdf(options: ExportPayrollPdfOption
     fontStyle: 'bold',
     align: 'center',
   });
-  addText(company.commercialName || 'ConstructERP Guatemala, S.A.', sigX + sigWidth / 2, y + 7.5, {
-    fontSize: 6,
-    color: [100, 116, 139],
-    align: 'center',
-  });
+  const approverCompany =
+    company.commercialName?.trim() ||
+    company.legalName?.trim() ||
+    company.companyName?.trim() ||
+    '';
+  if (approverCompany) {
+    addText(approverCompany, sigX + sigWidth / 2, y + 7.5, {
+      fontSize: 6,
+      color: [100, 116, 139],
+      align: 'center',
+    });
+  }
 
   // Save the document
   const fileName = `Planilla_Contable_${frequencyLabel}_${periodLabel.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;

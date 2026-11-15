@@ -5,7 +5,7 @@
 
 import { summarizeProjectFinance } from './domain/projectFinance';
 import { calculateScheduleProgress } from './domain/executionTimeline';
-import type { Project, ScheduleTask, Milestone, ExpenseRecord } from './types';
+import type { Project, ScheduleTask, Milestone, ExpenseRecord, APUItem, QuoteRecord, AttendanceRecord, Machinery, MachineryLog } from './types';
 
 /**
  * Calcula el progreso del proyecto.
@@ -199,5 +199,62 @@ export function updateProjectWithCalculatedMetrics(
     ...project,
     spentTotal: metrics.spentTotal,
     progressPercent: metrics.progressPercent,
+  };
+}
+
+/**
+ * Verifica si un proyecto tiene dependencias que impedirían su eliminación segura.
+ *
+ * Retorna un objeto con:
+ *  - hasDependencies: true si hay al menos una dependencia
+ *  - dependencies: lista de módulos con conteo de elementos vinculados
+ *  - canDelete: true si no hay dependencias (seguro para borrar)
+ *
+ * Se usa antes de permitir deleteProject para evitar huérfanos en:
+ *  - expenses (gastos registrados)
+ *  - apuItems (partidas de presupuesto APU)
+ *  - quotes (cotizaciones)
+ *  - attendance (registros de asistencia)
+ *  - machineryLogs (bitácoras de maquinaria vinculadas al proyecto)
+ */
+export interface ProjectDependencies {
+  hasDependencies: boolean;
+  canDelete: boolean;
+  dependencies: Record<string, number>;
+}
+
+export function hasProjectDependencies(params: {
+  projectId: string;
+  expenses?: ExpenseRecord[];
+  apuItems?: APUItem[];
+  quotes?: QuoteRecord[];
+  attendance?: AttendanceRecord[];
+  machineryLogs?: MachineryLog[];
+}): ProjectDependencies {
+  const { projectId, expenses = [], apuItems = [], quotes = [], attendance = [], machineryLogs = [] } = params;
+
+  const dependencies: Record<string, number> = {};
+
+  const expenseCount = expenses.filter((e) => e.projectId === projectId).length;
+  if (expenseCount > 0) dependencies.expenses = expenseCount;
+
+  const apuCount = apuItems.filter((a) => a.projectId === projectId).length;
+  if (apuCount > 0) dependencies.apuItems = apuCount;
+
+  const quoteCount = quotes.filter((q) => q.projectId === projectId).length;
+  if (quoteCount > 0) dependencies.quotes = quoteCount;
+
+  const attendanceCount = attendance.filter((a) => a.projectId === projectId).length;
+  if (attendanceCount > 0) dependencies.attendance = attendanceCount;
+
+  const machineryLogCount = machineryLogs.filter((m) => m.projectId === projectId).length;
+  if (machineryLogCount > 0) dependencies.machineryLogs = machineryLogCount;
+
+  const hasDependencies = Object.keys(dependencies).length > 0;
+
+  return {
+    hasDependencies,
+    canDelete: !hasDependencies,
+    dependencies,
   };
 }

@@ -14,6 +14,10 @@ export default [
       'public/',
       'next-env.d.ts',
       '.vercel/',
+      // Salidas generadas: `npm run test:coverage` produce JS ajeno al proyecto.
+      'coverage/**',
+      'test-results/**',
+      'playwright-report/**',
     ],
   },
   {

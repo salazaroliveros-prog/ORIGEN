@@ -1282,3 +1282,27 @@ export async function recordMachineryUse(
     return false;
   }
 }
+
+/**
+ * Elimina un proyecto de Firestore.
+ *
+ * Debe llamarse DESPUÉS de verificar con `hasProjectDependencies` que no hay
+ * dependencias (gastos, APU, cotizaciones, asistencia, logs de maquinaria).
+ * Si se llama con dependencias activas, los documentos relacionados quedarán
+ * huérfanos. La verificación previa es responsabilidad del llamador (hook/UI).
+ */
+export async function deleteProjectFromFirestore(
+  projectId: string,
+  companyId: string,
+  userId: string
+): Promise<boolean> {
+  const path = `projects/${projectId}`;
+  try {
+    await deleteDoc(doc(db, 'projects', projectId));
+    return true;
+  } catch (error) {
+    notifySyncEnd();
+    handleFirestoreError(error, OperationType.DELETE, path);
+    return false;
+  }
+}

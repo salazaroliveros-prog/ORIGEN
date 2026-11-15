@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Project, ProjectStatus } from '@/lib/types';
+import type { Project, ProjectStatus, ExpenseRecord, APUItem, QuoteRecord, AttendanceRecord, MachineryLog } from '@/lib/types';
 import {
   subscribeProjects,
   saveProjectToFirestore,
   saveProjectScheduleToFirestore,
+  deleteProjectFromFirestore,
 } from '@/lib/firebaseService';
 import {
   validateProjectForm,
@@ -14,7 +15,11 @@ import {
 } from '@/lib/validation/project.schema';
 import { toast } from 'react-hot-toast';
 import { notifySyncEnd } from '../useFirebaseSyncStatus';
-import { mergeProjectUpdate } from '@/lib/projectCalculations';
+import {
+  mergeProjectUpdate,
+  hasProjectDependencies,
+  type ProjectDependencies,
+} from '@/lib/projectCalculations';
 import { createLogger } from '@/lib/utils/logger';
 import { queryCache, createCacheKey } from '@/lib/utils/cacheManager';
 
@@ -36,6 +41,16 @@ export interface UseProjectsReturn {
   updateProject: (projectId: string, data: Partial<ProjectFormValues>) => Promise<boolean>;
   archiveProject: (projectId: string) => Promise<boolean>;
   restoreProject: (projectId: string) => Promise<boolean>;
+  deleteProject: (
+    projectId: string,
+    deps?: {
+      expenses?: ExpenseRecord[];
+      apuItems?: APUItem[];
+      quotes?: QuoteRecord[];
+      attendance?: AttendanceRecord[];
+      machineryLogs?: MachineryLog[];
+    }
+  ) => Promise<boolean>;
   updateProjectSchedule: (
     projectId: string,
     schedule: Partial<
@@ -334,6 +349,96 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
     [companyId, currentUserId]
   );
 
+  /**
+   * Elimina un proyecto tras verificar que no tiene dependencias activas.
+   *
+   * Las dependencias se pasan opcionalmente. Si se proporcionan y hay
+   * dependencias, la eliminación se bloquea y se muestra un toast con el
+   * detalle de qué módulos bloquean el borrado.
+   */
+  const deleteProject = useCallback(
+    async (
+      projectId: string,
+      deps?: {
+        expenses?: ExpenseRecord[];
+        apuItems?: APUItem[];
+        quotes?: QuoteRecord[];
+        attendance?: AttendanceRecord[];
+        machineryLogs?: MachineryLog[];
+      }
+    ) => {
+      if (!companyId || !currentUserId) {
+        log.warn('Project deletion attempted without auth');
+        toast.error('Usuario no autenticado');
+        return false;
+      }
+
+      const project = projects.find((item) => item.id === projectId);
+      if (!project) {
+        log.warn('Project not found for deletion', { projectId });
+        toast.error('No se encontró el proyecto que quieres eliminar.');
+        return false;
+      }
+
+      if (project.status !== 'Archivado') {
+        log.warn('Attempted to delete non-archived project', { projectId });
+        toast.error('Solo se pueden eliminar proyectos archivados. Archivalo primero.');
+        return false;
+      }
+
+      // Verificar dependencias si se proporcionaron datos
+      if (deps) {
+        const dependencyCheck = hasProjectDependencies({
+          projectId,
+          expenses: deps.expenses,
+          apuItems: deps.apuItems,
+          quotes: deps.quotes,
+          attendance: deps.attendance,
+          machineryLogs: deps.machineryLogs,
+        });
+
+        if (dependencyCheck.hasDependencies) {
+          const modulos = Object.entries(dependencyCheck.dependencies)
+            .map(([mod, count]) => `${count} ${mod}`)
+            .join(', ');
+          log.warn('Project deletion blocked by dependencies', {
+            projectId,
+            dependencies: dependencyCheck.dependencies,
+          });
+          toast.error(
+            `No se puede eliminar el proyecto: tiene ${modulos} asociado(s). Elimina esos registros primero.`
+          );
+          return false;
+        }
+      }
+
+      setLoading(true);
+      try {
+        log.info('Deleting project', { projectId, companyId });
+        const deleted = await deleteProjectFromFirestore(projectId, companyId, currentUserId);
+        if (!deleted) {
+          log.error('Project deletion failed', { projectId });
+          toast.error('No se pudo eliminar el proyecto.');
+          return false;
+        }
+
+        log.info('Project deleted successfully', { projectId });
+        toast.success('Proyecto eliminado correctamente.');
+        const cacheKey = createCacheKey('projects', { companyId });
+        queryCache.clear(cacheKey);
+        return true;
+      } catch (err) {
+        notifySyncEnd();
+        log.error('Project deletion error', err as Error, { projectId });
+        toast.error('Error inesperado al eliminar el proyecto.');
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [companyId, currentUserId, projects]
+  );
+
   return {
     projects,
     loading,
@@ -342,6 +447,7 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
     updateProject,
     archiveProject,
     restoreProject,
+    deleteProject,
     updateProjectSchedule,
     getDefaultValues: getDefaultProjectValues,
     validateForm: validateProjectForm,

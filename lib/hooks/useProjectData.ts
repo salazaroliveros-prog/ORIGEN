@@ -50,6 +50,7 @@ import {
   subscribeMachineryLogs,
   recordMachineryUse,
   deleteMachineryFromFirestore,
+  deleteProjectFromFirestore,
 } from '@/lib/firebaseService';
 import {
   validateProjectForm,
@@ -66,6 +67,7 @@ import {
   updateProjectWithCalculatedMetrics,
   calculateProjectSpentById,
   resolveProjectProgress,
+  hasProjectDependencies,
 } from '@/lib/projectCalculations';
 import { notifySyncEnd } from './useFirebaseSyncStatus';
 
@@ -1133,6 +1135,45 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     updateProject,
     archiveProject,
     restoreProject,
+    deleteProject: useCallback(
+      async (projectId: string) => {
+        if (!companyId || !currentUserId) {
+          toast.error('Usuario no autenticado');
+          return false;
+        }
+
+        const dependencyCheck = hasProjectDependencies({
+          projectId,
+          expenses,
+          apuItems,
+          quotes,
+          attendance,
+          machineryLogs,
+        });
+
+        if (dependencyCheck.hasDependencies) {
+          const modulos = Object.entries(dependencyCheck.dependencies)
+            .map(([mod, count]) => `${count} ${mod}`)
+            .join(', ');
+          toast.error(
+            `No se puede eliminar el proyecto: tiene ${modulos} asociado(s). Elimina esos registros primero.`
+          );
+          return false;
+        }
+
+        const deleted = await deleteProjectFromFirestore(projectId, companyId, currentUserId);
+        if (!deleted) {
+          toast.error('No se pudo eliminar el proyecto.');
+          return false;
+        }
+        log.info('Project deleted successfully', { projectId });
+        toast.success('Proyecto eliminado correctamente.');
+        const cacheKey = createCacheKey('projects', { companyId });
+        queryCache.clear(cacheKey);
+        return true;
+      },
+      [companyId, currentUserId, expenses, apuItems, quotes, attendance, machineryLogs]
+    ),
     addExpense,
     updateExpense,
     deleteExpense,
