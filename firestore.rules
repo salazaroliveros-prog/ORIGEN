@@ -151,7 +151,6 @@ service cloud.firestore {
             getAfter(receiptOrderPath(data.referenceId)).data.lines[0].quantity
             ? 'received' : 'partially_received');
     }
-
     function receiptBalanceUpdated(data, movementId) {
       return existsAfter(receiptBalancePath(data.balanceId)) &&
         getAfter(receiptBalancePath(data.balanceId)).data.lastMovementId == movementId &&
