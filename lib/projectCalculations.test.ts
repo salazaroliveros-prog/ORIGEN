@@ -250,6 +250,19 @@ describe('mergeProjectUpdate', () => {
     expect(updated.ownerId).toBe('user-1');
   });
 
+  it('preserves original project ownership when a different member edits it', () => {
+    const existing = project({ ownerId: 'original-owner' });
+    const updated = mergeProjectUpdate(
+      existing,
+      { name: 'Editado por gerente', ownerId: 'manager-user' },
+      { companyId: 'company-1', ownerId: 'manager-user' }
+    );
+
+    expect(updated.name).toBe('Editado por gerente');
+    expect(updated.ownerId).toBe('original-owner');
+    expect(updated.companyId).toBe('company-1');
+  });
+
   it('recomputes progress from the schedule and ignores the submitted value', () => {
     const existing = project({
       scheduleTasks: [task({ id: 'a', completed: true }), task({ id: 'b' })],

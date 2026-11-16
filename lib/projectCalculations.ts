@@ -53,7 +53,9 @@ export function mergeProjectUpdate(
     ...data,
     id: existing.id,
     companyId: context.companyId,
-    ownerId: context.ownerId,
+    // La propiedad original es inmutable en Firestore. Solo los registros
+    // legacy sin ownerId reciben el usuario autenticado como fallback.
+    ownerId: existing.ownerId ?? context.ownerId,
     spentTotal: existing.spentTotal,
   };
 
