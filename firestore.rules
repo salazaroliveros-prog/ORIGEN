@@ -671,7 +671,7 @@ service cloud.firestore {
     match /stockMovements/{movementId} {
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
-      allow create: if false
+      allow create: if false;
       allow update, delete: if false;
     }
 
@@ -698,7 +698,7 @@ service cloud.firestore {
         incoming().taxPercent is number && incoming().taxPercent >= 0 && incoming().taxPercent <= 100 &&
         incoming().taxGTQ is number && incoming().taxGTQ >= 0 &&
         incoming().totalGTQ is number && incoming().totalGTQ >= 0;
-      allow update: if false
+      allow update: if false;
       allow delete: if isValidId(orderId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
         existing().status == 'draft';
