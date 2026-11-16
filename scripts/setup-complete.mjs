@@ -140,9 +140,9 @@ async function seedFirestore(db, adminUid) {
   const settingsRef = db.collection('companySettings').doc(COMPANY_ID);
   const batch = db.batch();
   const now = new Date().toISOString();
-  const exchangeRate = Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 7.85);
-  if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
-    throw new Error('SETUP_EXCHANGE_RATE_GTQ_PER_USD debe ser un número mayor que cero.');
+  const exchangeRate = Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 0);
+  if (!Number.isFinite(exchangeRate) || exchangeRate < 0) {
+    throw new Error('SETUP_EXCHANGE_RATE_GTQ_PER_USD debe ser cero o un número positivo.');
   }
 
   if (!existingCompany.exists) {
@@ -150,7 +150,7 @@ async function seedFirestore(db, adminUid) {
       id: COMPANY_ID,
       companyId: COMPANY_ID,
       ownerId: adminUid,
-      legalName: COMPANY_NAME,
+      legalName: '',
       commercialName: COMPANY_NAME,
       companyName: COMPANY_NAME,
       createdAt: now,
@@ -174,7 +174,7 @@ async function seedFirestore(db, adminUid) {
       id: COMPANY_ID,
       companyId: COMPANY_ID,
       ownerId: COMPANY_ID,
-      legalName: COMPANY_NAME,
+      legalName: '',
       commercialName: COMPANY_NAME,
       companyName: COMPANY_NAME,
       nit: '',
@@ -262,9 +262,9 @@ async function main() {
     console.error('SETUP_COMPANY_ID solo puede contener letras, números, guion y guion bajo (máximo 128 caracteres).');
     process.exit(1);
   }
-  const configuredExchangeRate = Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 7.85);
-  if (!Number.isFinite(configuredExchangeRate) || configuredExchangeRate <= 0) {
-    console.error('SETUP_EXCHANGE_RATE_GTQ_PER_USD debe ser un número mayor que cero.');
+  const configuredExchangeRate = Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 0);
+  if (!Number.isFinite(configuredExchangeRate) || configuredExchangeRate < 0) {
+    console.error('SETUP_EXCHANGE_RATE_GTQ_PER_USD debe ser cero o un número positivo.');
     process.exit(1);
   }
   if (process.env.CONFIRM_FIREBASE_SETUP !== 'YES') {
