@@ -233,8 +233,16 @@ beforeEach(async () => {
     await assertFails(setDoc(doc(finance, 'purchaseOrders', 'discount-over-subtotal'), {
       ...order, id: 'discount-over-subtotal', discountGTQ: 800, taxGTQ: 0, totalGTQ: -50,
     }));
+    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), {
+      status: 'approved',
+      approvedBy: USERS.finance,
+      updatedAt: '2026-11-16T09:00:00.000Z',
+    }, { merge: true }));
     await assertFails(setDoc(doc(finance, 'purchaseOrders', order.id), {
-      ...order, status: 'approved', approvedBy: USERS.finance,
+      status: 'received',
+      updatedAt: '2026-11-16T09:30:00.000Z',
+      lastReceiptMovementId: 'forged-receipt',
+      lines: [{ ...order.lines[0], receivedQuantity: 10 }],
     }, { merge: true }));
     await assertFails(setDoc(doc(finance, 'purchaseOrders', 'multi-line-order'), {
       ...order,
