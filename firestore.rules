@@ -253,6 +253,150 @@ service cloud.firestore {
         receiptBalanceUpdated(data, movementId);
     }
 
+    function isValidTransferMovement(data, movementId) {
+      let transferId = data.referenceId;
+      let outgoingId = 'tr_' + transferId + '_out';
+      let incomingId = 'tr_' + transferId + '_in';
+      let outgoingPath = receiptMovementPath(outgoingId);
+      let incomingPath = receiptMovementPath(incomingId);
+      let outgoing = getAfter(outgoingPath).data;
+      let incoming = getAfter(incomingPath).data;
+      let sourceBalanceId = 'bal_' + outgoing.warehouseId + '_' + outgoing.itemId;
+      let destinationBalanceId = 'bal_' + incoming.warehouseId + '_' + incoming.itemId;
+      let sourceBalancePath = receiptBalancePath(sourceBalanceId);
+      let destinationBalancePath = receiptBalancePath(destinationBalanceId);
+      let sourceBefore = get(sourceBalancePath).data;
+      let sourceAfter = getAfter(sourceBalancePath).data;
+      let destinationBeforeExists = exists(destinationBalancePath);
+      let destinationBefore = destinationBeforeExists ? get(destinationBalancePath).data : null;
+      let destinationAfter = getAfter(destinationBalancePath).data;
+      let sourceWarehousePath = /databases/$(database)/documents/warehouses/$(outgoing.warehouseId);
+      let destinationWarehousePath = /databases/$(database)/documents/warehouses/$(incoming.warehouseId);
+      let sourceWarehouse = get(sourceWarehousePath).data;
+      let destinationWarehouse = get(destinationWarehousePath).data;
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(outgoing.itemId);
+      return data.id == movementId &&
+        isValidId(movementId) &&
+        transferId is string && transferId.size() > 0 && transferId.size() <= 75 &&
+        existsAfter(outgoingPath) && existsAfter(incomingPath) &&
+        outgoing.id == outgoingId && incoming.id == incomingId &&
+        outgoing.kind == 'transfer_out' && incoming.kind == 'transfer_in' &&
+        outgoing.companyId == incoming.companyId &&
+        outgoing.companyId == data.companyId &&
+        outgoing.itemId == incoming.itemId &&
+        outgoing.quantity == incoming.quantity &&
+        outgoing.unitCostGTQ == incoming.unitCostGTQ &&
+        outgoing.referenceId == incoming.referenceId &&
+        outgoing.createdBy == incoming.createdBy &&
+        outgoing.occurredAt == incoming.occurredAt &&
+        outgoing.warehouseId != incoming.warehouseId &&
+        outgoing.balanceId == sourceBalanceId &&
+        incoming.balanceId == destinationBalanceId &&
+        outgoing.quantity is number && outgoing.quantity > 0 &&
+        outgoing.unitCostGTQ is number && outgoing.unitCostGTQ >= 0 &&
+        outgoing.createdBy == request.auth.uid &&
+        canManageInventory(outgoing.companyId) &&
+        exists(sourceWarehousePath) && exists(destinationWarehousePath) &&
+        sourceWarehouse.companyId == outgoing.companyId &&
+        destinationWarehouse.companyId == outgoing.companyId &&
+        sourceWarehouse.active == true && destinationWarehouse.active == true &&
+        sourceWarehouse.type in ['general', 'project'] &&
+        destinationWarehouse.type in ['general', 'project'] &&
+        (
+          (
+            !outgoing.keys().hasAny(['projectId']) &&
+            !incoming.keys().hasAny(['projectId']) &&
+            sourceWarehouse.type == 'general' &&
+            destinationWarehouse.type == 'general'
+          ) ||
+          (
+            outgoing.keys().hasAny(['projectId']) &&
+            incoming.keys().hasAny(['projectId']) &&
+            outgoing.projectId == incoming.projectId &&
+            isProjectInCompany(outgoing.projectId, outgoing.companyId) &&
+            (sourceWarehouse.type == 'general' || sourceWarehouse.projectId == outgoing.projectId) &&
+            (destinationWarehouse.type == 'general' || destinationWarehouse.projectId == outgoing.projectId)
+          )
+        ) &&
+        exists(itemPath) &&
+        get(itemPath).data.companyId == outgoing.companyId &&
+        get(itemPath).data.active == true &&
+        exists(sourceBalancePath) && existsAfter(sourceBalancePath) &&
+        sourceBefore.companyId == outgoing.companyId &&
+        sourceBefore.itemId == outgoing.itemId &&
+        sourceBefore.warehouseId == outgoing.warehouseId &&
+        sourceBefore.quantity >= outgoing.quantity &&
+        sourceBefore.averageUnitCostGTQ == outgoing.unitCostGTQ &&
+        sourceAfter.lastMovementId == outgoingId &&
+        sourceAfter.quantity == sourceBefore.quantity - outgoing.quantity &&
+        sourceAfter.averageUnitCostGTQ == (sourceAfter.quantity == 0 ? 0 : sourceBefore.averageUnitCostGTQ) &&
+        sourceAfter.reorderLevel == sourceBefore.reorderLevel &&
+        existsAfter(destinationBalancePath) &&
+        destinationAfter.companyId == incoming.companyId &&
+        destinationAfter.itemId == incoming.itemId &&
+        destinationAfter.warehouseId == incoming.warehouseId &&
+        destinationAfter.lastMovementId == incomingId &&
+        destinationAfter.quantity == (destinationBeforeExists ? destinationBefore.quantity : 0) + incoming.quantity &&
+        destinationAfter.reorderLevel == (destinationBeforeExists ? destinationBefore.reorderLevel : get(itemPath).data.reorderLevel) &&
+        (
+          destinationBeforeExists
+            ? isWithinOneCent(
+                destinationAfter.averageUnitCostGTQ,
+                (
+                  destinationBefore.quantity * destinationBefore.averageUnitCostGTQ +
+                  incoming.quantity * incoming.unitCostGTQ
+                ) / destinationAfter.quantity
+              )
+            : destinationAfter.averageUnitCostGTQ == incoming.unitCostGTQ
+        ) &&
+        (
+          destinationBeforeExists
+            ? destinationAfter.createdBy == destinationBefore.createdBy &&
+              destinationAfter.createdAt == destinationBefore.createdAt
+            : destinationAfter.createdBy == request.auth.uid &&
+              destinationAfter.createdAt is string
+        ) &&
+        (
+          (data.kind == 'transfer_out' && data.id == outgoingId && data.balanceId == sourceBalanceId) ||
+          (data.kind == 'transfer_in' && data.id == incomingId && data.balanceId == destinationBalanceId)
+        );
+    }
+
+    function isValidTransferOutBalance(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      let movement = getAfter(movementPath).data;
+      return existsAfter(movementPath) &&
+        movement.kind == 'transfer_out' &&
+        movement.balanceId == balanceId &&
+        isValidTransferMovement(movement, movement.id) &&
+        data.quantity == existing().quantity - movement.quantity &&
+        data.averageUnitCostGTQ == (data.quantity == 0 ? 0 : existing().averageUnitCostGTQ) &&
+        data.reorderLevel == existing().reorderLevel;
+    }
+
+    function isValidTransferInBalance(data, balanceId, creating) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      let movement = getAfter(movementPath).data;
+      let previousQuantity = creating ? 0 : existing().quantity;
+      let previousAverage = creating ? 0 : existing().averageUnitCostGTQ;
+      let previousReorder = creating
+        ? get(/databases/$(database)/documents/inventoryItems/$(movement.itemId)).data.reorderLevel
+        : existing().reorderLevel;
+      return existsAfter(movementPath) &&
+        movement.kind == 'transfer_in' &&
+        movement.balanceId == balanceId &&
+        isValidTransferMovement(movement, movement.id) &&
+        data.quantity == previousQuantity + movement.quantity &&
+        isWithinOneCent(
+          data.averageUnitCostGTQ,
+          (
+            previousQuantity * previousAverage +
+            movement.quantity * movement.unitCostGTQ
+          ) / data.quantity
+        ) &&
+        data.reorderLevel == previousReorder;
+    }
+
     function isValidIssueBalance(data, balanceId) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let movement = getAfter(movementPath).data;
@@ -263,7 +407,7 @@ service cloud.firestore {
         movement.itemId == data.itemId &&
         movement.warehouseId == data.warehouseId &&
         data.quantity == existing().quantity - movement.quantity &&
-        data.averageUnitCostGTQ == existing().averageUnitCostGTQ &&
+        data.averageUnitCostGTQ == (data.quantity == 0 ? 0 : existing().averageUnitCostGTQ) &&
         data.reorderLevel == existing().reorderLevel;
     }
 
@@ -947,7 +1091,7 @@ service cloud.firestore {
         incoming().quantity is number && incoming().quantity > 0 &&
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
         incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
-        isValidReceiptBalance(incoming(), balanceId, true);
+        (isValidReceiptBalance(incoming(), balanceId, true) || isValidTransferInBalance(incoming(), balanceId, true));
       allow update: if isValidId(balanceId) &&
         incoming().id == existing().id &&
         incoming().id == balanceId &&
@@ -975,7 +1119,7 @@ service cloud.firestore {
     match /stockMovements/{movementId} {
       allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
-      allow create: if isValidReceiptMovement(incoming(), movementId) || isValidProjectIssueMovement(incoming(), movementId);
+      allow create: if isValidReceiptMovement(incoming(), movementId) || isValidProjectIssueMovement(incoming(), movementId) || isValidTransferMovement(incoming(), movementId);
       allow update, delete: if false;
     }
 
