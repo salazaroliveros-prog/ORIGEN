@@ -93,7 +93,7 @@ export function validateSupplier(supplier: SupplierRecord): SupplierRecord {
   requireText(supplier.name, 'Nombre del proveedor');
   requireText(supplier.nit, 'NIT');
   requireText(supplier.createdBy, 'Usuario creador');
-  if (supplier.name.trim().length > 200 || supplier.nit.trim().length > 30) {
+  if (supplier.name.trim().length < 2 || supplier.name.trim().length > 200 || supplier.nit.trim().length > 30) {
     throw new Error('El nombre o NIT del proveedor supera la longitud permitida.');
   }
   if (typeof supplier.active !== 'boolean') throw new Error('El estado del proveedor no es válido.');
@@ -109,7 +109,10 @@ export function validatePurchaseOrder(order: PurchaseOrderRecord): PurchaseOrder
   requireText(order.projectId, 'Proyecto');
   requireText(order.supplierId, 'Proveedor');
   requireText(order.number, 'Número de orden');
+  if (order.number.length > 80) throw new Error('El número de orden supera 80 caracteres.');
   requireText(order.requestedBy, 'Usuario solicitante');
+  requireText(order.createdAt, 'Fecha de creación');
+  requireText(order.updatedAt, 'Fecha de actualización');
   if (order.currency !== 'GTQ') throw new Error('La orden debe estar expresada en GTQ.');
   if (!['draft', 'submitted', 'approved', 'partially_received', 'received', 'cancelled'].includes(order.status)) {
     throw new Error('El estado de la orden de compra no es válido.');
@@ -195,10 +198,15 @@ export function validateSubcontract(contract: SubcontractRecord): SubcontractRec
   requireText(contract.projectId, 'Proyecto');
   requireText(contract.supplierId, 'Proveedor');
   requireText(contract.contractNumber, 'Número de contrato');
+  if (contract.contractNumber.length > 80) throw new Error('El número de contrato supera 80 caracteres.');
   requireText(contract.description, 'Descripción');
+  if (contract.description.length > 1000) throw new Error('La descripción del subcontrato supera 1000 caracteres.');
   requireText(contract.createdBy, 'Usuario creador');
   if (!['draft', 'active', 'completed', 'terminated'].includes(contract.status)) {
     throw new Error('El estado del subcontrato no es válido.');
+  }
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(contract.startDate) || !/^\\d{4}-\\d{2}-\\d{2}$/.test(contract.endDate)) {
+    throw new Error('Las fechas del subcontrato deben usar formato AAAA-MM-DD.');
   }
   const start = Date.parse(contract.startDate);
   const end = Date.parse(contract.endDate);
