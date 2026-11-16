@@ -273,6 +273,102 @@ export const MachineryDraftSchema = MachinerySchema.omit({ companyId: true });
 export type MachineryDraftValues = z.infer<typeof MachineryDraftSchema>;
 
 // ============================================================================
+// Supplier, Purchase Order and Subcontract schemas
+// Ownership fields are required because they are added by the authenticated
+// persistence layer, not by user-controlled form fields.
+// ============================================================================
+export const SupplierSchema = z.object({
+  id: z.string().min(1).max(128),
+  companyId: z.string().min(1).max(128),
+  name: z.string().trim().min(2).max(200),
+  nit: z.string().trim().min(1).max(30),
+  phone: z.string().max(40).optional(),
+  email: z.string().email().max(254).optional().or(z.literal('')),
+  address: z.string().max(500).optional(),
+  active: z.boolean(),
+  createdBy: z.string().min(1).max(128),
+});
+
+export const PurchaseOrderLineSchema = z.object({
+  itemId: z.string().min(1).max(128),
+  description: z.string().trim().min(1).max(300),
+  unit: z.string().trim().min(1).max(32),
+  quantity: z.number().positive().max(999999999),
+  receivedQuantity: z.number().min(0).max(999999999),
+  unitPriceGTQ: z.number().min(0).max(999999999),
+}).refine(line => line.receivedQuantity <= line.quantity, {
+  message: 'La cantidad recibida no puede superar la solicitada.',
+  path: ['receivedQuantity'],
+});
+
+export const PurchaseOrderSchema = z.object({
+  id: z.string().min(1).max(128),
+  companyId: z.string().min(1).max(128),
+  projectId: z.string().min(1).max(128),
+  supplierId: z.string().min(1).max(128),
+  number: z.string().trim().min(1).max(64),
+  status: z.enum(['draft', 'submitted', 'approved', 'partially_received', 'received', 'cancelled']),
+  currency: z.literal('GTQ'),
+  lines: z.array(PurchaseOrderLineSchema).min(1).max(500),
+  subtotalGTQ: z.number().min(0).max(999999999),
+  discountGTQ: z.number().min(0).max(999999999),
+  taxPercent: z.number().min(0).max(100),
+  taxGTQ: z.number().min(0).max(999999999),
+  totalGTQ: z.number().min(0).max(999999999),
+  requestedBy: z.string().min(1).max(128),
+  approvedBy: z.string().min(1).max(128).optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+}).superRefine((order, context) => {
+  const subtotal = Math.round(order.lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0) * 100) / 100;
+  const taxable = Math.round((subtotal - order.discountGTQ) * 100) / 100;
+  const tax = Math.round(taxable * order.taxPercent) / 100;
+  const total = Math.round((taxable + tax) * 100) / 100;
+  if (order.discountGTQ > subtotal) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'El descuento supera el subtotal.', path: ['discountGTQ'] });
+  }
+  if (Math.abs(order.subtotalGTQ - subtotal) > 0.01 || Math.abs(order.taxGTQ - tax) > 0.01 || Math.abs(order.totalGTQ - total) > 0.01) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'Los totales no coinciden con los renglones, descuento e IVA.', path: ['totalGTQ'] });
+  }
+  const allReceived = order.lines.every(line => line.receivedQuantity === line.quantity);
+  const anyReceived = order.lines.some(line => line.receivedQuantity > 0);
+  if (order.status === 'received' && !allReceived) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'La orden aún tiene cantidades pendientes.', path: ['status'] });
+  }
+  if (order.status === 'partially_received' && (!anyReceived || allReceived)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'La recepción parcial no coincide con las cantidades.', path: ['status'] });
+  }
+  if (order.status === 'approved' && !order.approvedBy) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'La orden aprobada requiere autorizador.', path: ['approvedBy'] });
+  }
+});
+
+export const SubcontractSchema = z.object({
+  id: z.string().min(1).max(128),
+  companyId: z.string().min(1).max(128),
+  projectId: z.string().min(1).max(128),
+  supplierId: z.string().min(1).max(128),
+  contractNumber: z.string().trim().min(1).max(64),
+  description: z.string().trim().min(1).max(1000),
+  startDate: z.string().date(),
+  endDate: z.string().date(),
+  amountGTQ: z.number().positive().max(999999999),
+  paidGTQ: z.number().min(0).max(999999999),
+  status: z.enum(['draft', 'active', 'completed', 'terminated']),
+  createdBy: z.string().min(1).max(128),
+}).refine(contract => contract.endDate >= contract.startDate, {
+  message: 'La fecha final debe ser igual o posterior a la fecha inicial.',
+  path: ['endDate'],
+}).refine(contract => contract.paidGTQ <= contract.amountGTQ, {
+  message: 'El monto pagado no puede superar el monto contratado.',
+  path: ['paidGTQ'],
+});
+
+export type SupplierValues = z.infer<typeof SupplierSchema>;
+export type PurchaseOrderValues = z.infer<typeof PurchaseOrderSchema>;
+export type SubcontractValues = z.infer<typeof SubcontractSchema>;
+
+// ============================================================================
 // Validation functions
 // ============================================================================
 export function validateExpenseRecord(data: unknown) {
@@ -302,4 +398,16 @@ export function validateMachinery(data: unknown) {
 /** Valida lo que captura la persona en el formulario (sin companyId). */
 export function validateMachineryDraft(data: unknown) {
   return MachineryDraftSchema.safeParse(data);
+}
+
+export function validateSupplier(data: unknown) {
+  return SupplierSchema.safeParse(data);
+}
+
+export function validatePurchaseOrder(data: unknown) {
+  return PurchaseOrderSchema.safeParse(data);
+}
+
+export function validateSubcontract(data: unknown) {
+  return SubcontractSchema.safeParse(data);
 }
