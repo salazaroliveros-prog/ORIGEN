@@ -19,6 +19,7 @@ import {
   writeBatch,
   type DocumentData,
   type QueryDocumentSnapshot,
+  type Transaction,
 } from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -250,7 +251,7 @@ beforeEach(async () => {
     const balanceRef = doc(database, 'inventoryBalances', balance.id);
 
     await assertFails(setDoc(movementRef, movement));
-    await assertSucceeds(runTransaction(database, async (transaction) => {
+    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
       transaction.set(movementRef, movement);
       transaction.set(balanceRef, balance);
       transaction.update(orderRef, {
