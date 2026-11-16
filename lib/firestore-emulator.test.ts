@@ -156,9 +156,6 @@ beforeEach(async () => {
   await seedCompany(COMPANY_B, { [USERS.otherCompanyOwner]: 'owner' });
 });
 
-afterAll(async () => {
-  await testEnvironment?.cleanup();
-
   it('isolates supplier records and restricts supplier maintenance to purchasing roles', async () => {
     const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
     const viewer = testEnvironment.authenticatedContext(USERS.viewer).firestore();
@@ -233,6 +230,9 @@ afterAll(async () => {
     }));
   });
 
+
+afterAll(async () => {
+  await testEnvironment?.cleanup();
 });
 
 describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
