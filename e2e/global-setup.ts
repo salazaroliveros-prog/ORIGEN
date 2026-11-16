@@ -14,6 +14,11 @@ async function warmUpSession(baseURL: string): Promise<void> {
 
   try {
     const page = await browser.newPage();
+    const browserErrors: string[] = [];
+    page.on('pageerror', (error) => browserErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') browserErrors.push(message.text());
+    });
     await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 120_000 });
 
     const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
@@ -43,7 +48,23 @@ async function warmUpSession(baseURL: string): Promise<void> {
       await emailField.fill(email);
       await passwordField.fill(password);
       await page.getByRole('button', { name: /Iniciar Sesión/i }).click();
-      await dashboard.waitFor({ state: 'visible', timeout: 180_000 });
+      try {
+        await dashboard.waitFor({ state: 'visible', timeout: 180_000 });
+      } catch (error) {
+        const bodyText = await page.locator('body').innerText().catch(() => '(no se pudo leer el contenido)');
+        const emailVisible = await emailField.isVisible().catch(() => false);
+        const passwordVisible = await passwordField.isVisible().catch(() => false);
+        throw new Error(
+          [
+            'La autenticación E2E no llegó al tablero.',
+            `URL: ${page.url()}`,
+            `Correo visible: ${emailVisible}; contraseña visible: ${passwordVisible}`,
+            `Contenido visible: ${bodyText.slice(0, 2500)}`,
+            `Errores del navegador: ${browserErrors.slice(-20).join(' | ') || '(ninguno)'}`,
+            `Error original: ${error instanceof Error ? error.message : String(error)}`,
+          ].join('\\n')
+        );
+      }
     }
 
     // "Tablero" aparece antes de que la empresa/membresía estén provisionadas:
