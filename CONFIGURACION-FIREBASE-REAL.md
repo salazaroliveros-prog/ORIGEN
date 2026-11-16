@@ -179,6 +179,7 @@ El sistema espera las siguientes colecciones en Firestore (ya definidas en `fire
 | project_manager | Gestión de proyectos, operaciones de campo, presupuestos     |
 | finance         | Presupuestos, gastos, cotizaciones, datos de personal        |
 | field_worker    | Operación de campo, asistencia, visitas, uso de maquinaria   |
+| warehouse_manager | Gestión de bodegas, artículos y control de inventario        |
 | viewer          | Solo lectura de datos de la empresa                          |
 
 ## Pruebas con datos reales (CRUD)
