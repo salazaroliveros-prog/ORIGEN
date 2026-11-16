@@ -207,12 +207,17 @@ export function validateSubcontract(contract: SubcontractRecord): SubcontractRec
   if (!['draft', 'active', 'completed', 'terminated'].includes(contract.status)) {
     throw new Error('El estado del subcontrato no es válido.');
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(contract.startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(contract.endDate)) {
-    throw new Error('Las fechas del subcontrato deben usar formato AAAA-MM-DD.');
+  const isCalendarDate = (value: string): boolean => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const parsed = new Date(`${value}T00:00:00.000Z`);
+    return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+  };
+  if (!isCalendarDate(contract.startDate) || !isCalendarDate(contract.endDate)) {
+    throw new Error('Las fechas del subcontrato deben ser fechas reales en formato AAAA-MM-DD.');
   }
-  const start = Date.parse(contract.startDate);
-  const end = Date.parse(contract.endDate);
-  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) {
+  const start = Date.parse(`${contract.startDate}T00:00:00.000Z`);
+  const end = Date.parse(`${contract.endDate}T00:00:00.000Z`);
+  if (end < start) {
     throw new Error('El período del subcontrato no es válido.');
   }
   requirePositive(contract.amountGTQ, 'Monto contratado');
