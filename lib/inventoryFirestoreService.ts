@@ -125,6 +125,8 @@ export async function createSupplierToFirestore(
 ): Promise<SupplierRecord> {
   const db = getDbOrThrow();
   const ref = doc(collection(db, 'suppliers'));
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario creador', 128);
   const supplier = validateSupplier({ ...input, id: ref.id, companyId, createdBy: userId });
   await persistNewRecord('suppliers', supplier);
   return supplier;
@@ -177,6 +179,8 @@ export async function createInventoryItemToFirestore(
 ): Promise<InventoryItemRecord> {
   assertText(input.name, 'Nombre de artículo', 200);
   assertText(input.unit, 'Unidad de medida', 32);
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario creador', 128);
   assertFiniteNonNegative(input.reorderLevel, 'Mínimo de reorden');
   if (typeof input.active !== 'boolean') throw new Error('El estado del artículo no es válido.');
   const db = getDbOrThrow();
@@ -202,6 +206,11 @@ export async function createPurchaseOrderToFirestore(
   const db = getDbOrThrow();
   const ref = doc(collection(db, 'purchaseOrders'));
   const now = new Date().toISOString();
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario solicitante', 128);
+  if (!Array.isArray(input.lines) || input.lines.length !== 1) {
+    throw new Error('Por ahora cada orden debe contener exactamente un renglón.');
+  }
   const order = validatePurchaseOrder({
     ...input,
     id: ref.id,
@@ -211,8 +220,8 @@ export async function createPurchaseOrderToFirestore(
     createdAt: input.createdAt ?? now,
     updatedAt: input.updatedAt ?? now,
   });
-  if (!['draft', 'submitted'].includes(order.status)) {
-    throw new Error('Una orden nueva solo puede crearse como borrador o enviada.');
+  if (order.status !== 'draft') {
+    throw new Error('Una orden nueva debe crearse como borrador; la aprobación se habilitará con el flujo auditable.');
   }
 
   try {
@@ -238,12 +247,17 @@ export async function createSubcontractToFirestore(
 ): Promise<SubcontractRecord> {
   const db = getDbOrThrow();
   const ref = doc(collection(db, 'subcontracts'));
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario creador', 128);
   const contract = validateSubcontract({
     ...input,
     id: ref.id,
     companyId,
     createdBy: userId,
   });
+  if (!['draft', 'active'].includes(contract.status) || contract.paidGTQ !== 0) {
+    throw new Error('Un subcontrato nuevo debe estar en borrador o activo y no puede registrar pagos iniciales.');
+  }
   try {
     await runTransaction(db, async (transaction: Transaction) => {
       await assertCompanyReference(transaction, 'projects', contract.projectId, companyId, 'Proyecto');
