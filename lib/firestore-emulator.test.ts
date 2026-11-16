@@ -30,6 +30,7 @@ const USERS = {
   finance: 'finance-a',
   fieldWorker: 'field-a',
   viewer: 'viewer-a',
+  warehouseManager: 'warehouse-a',
   otherCompanyOwner: 'owner-b',
 };
 
@@ -150,12 +151,88 @@ beforeEach(async () => {
     [USERS.finance]: 'finance',
     [USERS.fieldWorker]: 'field_worker',
     [USERS.viewer]: 'viewer',
+    [USERS.warehouseManager]: 'warehouse_manager',
   });
   await seedCompany(COMPANY_B, { [USERS.otherCompanyOwner]: 'owner' });
 });
 
 afterAll(async () => {
   await testEnvironment?.cleanup();
+
+  it('isolates supplier records and restricts supplier maintenance to purchasing roles', async () => {
+    const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
+    const viewer = testEnvironment.authenticatedContext(USERS.viewer).firestore();
+    const supplier = {
+      id: 'supplier-secure', companyId: COMPANY_A, name: 'Proveedor de prueba',
+      nit: '1234567-8', active: true, createdBy: USERS.finance,
+    };
+    await assertSucceeds(setDoc(doc(finance, 'suppliers', supplier.id), supplier));
+    await assertFails(setDoc(doc(viewer, 'suppliers', 'supplier-viewer'), {
+      ...supplier, id: 'supplier-viewer',
+    }));
+    const foreignOwner = testEnvironment.authenticatedContext(USERS.otherCompanyOwner).firestore();
+    await assertFails(getDoc(doc(foreignOwner, 'suppliers', supplier.id)));
+  });
+
+  it('allows warehouse managers to maintain inventory but makes stock movements append-only', async () => {
+    await seedProject(makeProject('inventory-project'));
+    const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const warehouse = {
+      id: 'warehouse-project', companyId: COMPANY_A, projectId: 'inventory-project',
+      name: 'Bodega de obra', type: 'project', active: true, createdBy: USERS.warehouseManager,
+    };
+    const item = {
+      id: 'item-cement', companyId: COMPANY_A, name: 'Cemento 42.5 kg',
+      unit: 'saco', reorderLevel: 10, active: true, createdBy: USERS.warehouseManager,
+    };
+    await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
+    await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
+    const movement = {
+      id: 'movement-opening', companyId: COMPANY_A, projectId: 'inventory-project',
+      warehouseId: warehouse.id, itemId: item.id, kind: 'opening',
+      quantity: 50, unitCostGTQ: 78, occurredAt: '2026-11-16T08:00:00.000Z',
+      createdBy: USERS.warehouseManager,
+    };
+    await assertSucceeds(setDoc(doc(manager, 'stockMovements', movement.id), movement));
+    await assertFails(setDoc(doc(manager, 'stockMovements', movement.id), {
+      ...movement, quantity: 500,
+    }));
+    await assertFails(deleteDoc(doc(manager, 'stockMovements', movement.id)));
+  });
+
+  it('allows finance to create purchase orders and subcontracts only for same-company references', async () => {
+    await seedProject(makeProject('procurement-project'));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'suppliers', 'supplier-procurement'), {
+        id: 'supplier-procurement', companyId: COMPANY_A, name: 'Proveedor QA',
+        nit: 'CF', active: true, createdBy: USERS.owner,
+      });
+    });
+    const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
+    const order = {
+      id: 'purchase-order-qa', companyId: COMPANY_A, projectId: 'procurement-project',
+      supplierId: 'supplier-procurement', number: 'OC-QA-001', status: 'draft',
+      currency: 'GTQ',
+      lines: [{ itemId: 'cement', description: 'Cemento', unit: 'saco', quantity: 10,
+        receivedQuantity: 0, unitPriceGTQ: 75 }],
+      subtotalGTQ: 750, discountGTQ: 0, taxPercent: 12, taxGTQ: 90, totalGTQ: 840,
+      requestedBy: USERS.finance, createdAt: '2026-11-16T08:00:00.000Z',
+      updatedAt: '2026-11-16T08:00:00.000Z',
+    };
+    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), order));
+    const contract = {
+      id: 'subcontract-qa', companyId: COMPANY_A, projectId: 'procurement-project',
+      supplierId: 'supplier-procurement', contractNumber: 'SUB-QA-001',
+      description: 'Instalación eléctrica de prueba', startDate: '2026-11-01',
+      endDate: '2026-12-31', amountGTQ: 100000, paidGTQ: 0,
+      status: 'draft', createdBy: USERS.finance,
+    };
+    await assertSucceeds(setDoc(doc(finance, 'subcontracts', contract.id), contract));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'foreign-order'), {
+      ...order, id: 'foreign-order', projectId: 'foreign-project',
+    }));
+  });
+
 });
 
 describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
