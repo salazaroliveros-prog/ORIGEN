@@ -51,7 +51,7 @@ interface NavbarProps {
   onSelectWorkspace?: (companyId: string) => void;
   canViewPersonnel?: boolean;
   canViewPayroll?: boolean;
-  canViewExpenses?: boolean;
+  canViewExpenses?: boolean;\n  canViewSupplyChain?: boolean;
   isMobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
   children?: React.ReactNode;
@@ -66,7 +66,7 @@ const TABS = [
   { id: 'maquinaria', label: 'Maquinaria', icon: Truck },
   { id: 'personal', label: 'Personal & IGSS', icon: Users },
   { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
-  { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
+  { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },\n  { id: 'inventario', label: 'Inventario & Compras', icon: Boxes },
   { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
   { id: 'ai', label: 'Asistente IA', icon: Sparkles },
   { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
@@ -76,7 +76,7 @@ const MOBILE_TABS = [
   { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
   { id: 'proyectos', label: 'Obras', icon: HardHat },
   { id: 'cronograma_gantt', label: 'Seguimiento', icon: CalendarDays },
-  { id: 'personal', label: 'Personal', icon: Users },
+  { id: 'personal', label: 'Personal', icon: Users },\n  { id: 'inventario', label: 'Inventario', icon: Boxes },
 ];
 
 export function Navbar({
@@ -98,7 +98,7 @@ export function Navbar({
   onSelectWorkspace,
   canViewPersonnel = false,
   canViewPayroll = false,
-  canViewExpenses = false,
+  canViewExpenses = false,\n  canViewSupplyChain = false,
   isMobileSidebarOpen = false,
   onToggleMobileSidebar,
   children,
@@ -106,7 +106,7 @@ export function Navbar({
   const tabs = TABS.filter((tab) => {
     if (tab.id === 'personal') return canViewPersonnel;
     if (tab.id === 'planillas') return canViewPayroll;
-    if (tab.id === 'gastos') return canViewExpenses;
+    if (tab.id === 'gastos') return canViewExpenses;\n    if (tab.id === 'inventario') return canViewSupplyChain;
     return true;
   });
 
