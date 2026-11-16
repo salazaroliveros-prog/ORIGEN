@@ -6,11 +6,7 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // 2. Companies collection - allow company members to read
-    match /companies/{companyId} {
-      allow read: if isCompanyMember(companyId);
-      allow write: if hasCompanyRole(companyId, ['owner', 'admin']);
-    }
+    // Las reglas específicas de companies/{companyId} están definidas más abajo.
 
     // Helper functions
     function isSignedIn() {
