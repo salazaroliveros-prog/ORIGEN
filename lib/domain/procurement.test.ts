@@ -51,7 +51,7 @@ describe('procurement domain', () => {
 
   it('rejects invalid tax rates, negative subtotals and unknown order states', () => {
     expect(() => validatePurchaseOrder({ ...order, subtotalGTQ: -1 })).toThrow('Subtotal');
-    expect(() => validatePurchaseOrder({ ...order, taxPercent: 101 })).toThrow('Porcentaje de IVA');
+    expect(() => validatePurchaseOrder({ ...order, taxPercent: 101 })).toThrow('porcentaje de IVA');
     expect(() => validatePurchaseOrder({ ...order, status: 'unknown' as PurchaseOrderRecord['status'] })).toThrow('estado');
   });
 
