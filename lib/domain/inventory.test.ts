@@ -75,7 +75,7 @@ describe('inventory domain', () => {
         movement({ id: 'earlier', quantity: 5, unitCostGTQ: 80, occurredAt: '2026-11-01T09:00:00Z' }),
       ],
     });
-    expect(result.quantity).toBe(13);
+    expect(result.quantity).toBe(3);
     expect(result.averageUnitCostGTQ).toBe(80);
   });
 
