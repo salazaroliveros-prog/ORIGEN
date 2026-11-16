@@ -49,6 +49,18 @@ describe('procurement domain', () => {
     expect(() => validatePurchaseOrder({ ...order, approvedBy: undefined })).toThrow('autorizó');
   });
 
+  it('rejects invalid tax rates, negative subtotals and unknown order states', () => {
+    expect(() => validatePurchaseOrder({ ...order, subtotalGTQ: -1 })).toThrow('Subtotal');
+    expect(() => validatePurchaseOrder({ ...order, taxPercent: 101 })).toThrow('Porcentaje de IVA');
+    expect(() => validatePurchaseOrder({ ...order, status: 'unknown' as PurchaseOrderRecord['status'] })).toThrow('estado');
+  });
+
+  it('rejects supplier lengths and invalid subcontract states', () => {
+    expect(() => validateSupplier({ ...supplier, name: 'x'.repeat(201) })).toThrow('longitud');
+    expect(() => validateSupplier({ ...supplier, nit: '1'.repeat(31) })).toThrow('longitud');
+    expect(() => validateSubcontract(subcontract({ status: 'unknown' as SubcontractRecord['status'] }))).toThrow('estado');
+  });
+
   it('records partial and complete receipts without over-receiving', () => {
     const partial = recordPurchaseReceipt(order, [4, 1], '2026-11-02T10:00:00.000Z');
     expect(partial.status).toBe('partially_received');
