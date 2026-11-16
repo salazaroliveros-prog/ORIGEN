@@ -983,6 +983,29 @@ service cloud.firestore {
         existing().status == 'draft';
     }
 
+    // Contact details are private and scoped to the authenticated UID.
+    match /userProfiles/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        request.auth.uid == userId &&
+        isValidId(userId) &&
+        incoming().uid == userId &&
+        incoming().phoneNumber is string &&
+        incoming().phoneNumber.size() <= 32 &&
+        incoming().updatedAt is string &&
+        incoming().keys().hasOnly(['uid', 'phoneNumber', 'updatedAt']);
+      allow update: if isSignedIn() &&
+        request.auth.uid == userId &&
+        incoming().uid == existing().uid &&
+        incoming().uid == userId &&
+        incoming().phoneNumber is string &&
+        incoming().phoneNumber.size() <= 32 &&
+        incoming().updatedAt is string &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phoneNumber', 'updatedAt']);
+      allow delete: if false;
+    }
+
     // FCM registration tokens are private to the authenticated user.
     match /fcm_tokens/{tokenId} {
       allow get: if isSignedIn() && existing().ownerId == request.auth.uid;

@@ -377,6 +377,26 @@ afterAll(async () => {
 });
 
 describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
+  it('keeps user profile contact data private to the authenticated UID', async () => {
+    const owner = testEnvironment.authenticatedContext(USERS.owner).firestore();
+    const other = testEnvironment.authenticatedContext(USERS.viewer).firestore();
+    const profile = {
+      uid: USERS.owner,
+      phoneNumber: '+502 5555-1234',
+      updatedAt: '2026-11-16T12:00:00.000Z',
+    };
+
+    await assertSucceeds(setDoc(doc(owner, 'userProfiles', USERS.owner), profile));
+    await assertSucceeds(getDoc(doc(owner, 'userProfiles', USERS.owner)));
+    await assertFails(getDoc(doc(other, 'userProfiles', USERS.owner)));
+    await assertFails(getDocs(collection(owner, 'userProfiles')));
+    await assertFails(setDoc(doc(other, 'userProfiles', USERS.owner), profile));
+    await assertFails(setDoc(doc(owner, 'userProfiles', USERS.owner), {
+      ...profile,
+      uid: USERS.viewer,
+    }, { merge: true }));
+  });
+
   it('permite resolver membresías y configuración de empresa al iniciar sesión', async () => {
     const database = testEnvironment.authenticatedContext(USERS.owner).firestore();
 

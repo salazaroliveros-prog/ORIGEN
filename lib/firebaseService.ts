@@ -1577,3 +1577,44 @@ export function subscribeFelInvoices(
     return () => {};
   }
 }
+
+
+/** Datos de contacto privados asociados exclusivamente al UID autenticado. */
+export interface UserProfileRecord {
+  uid: string;
+  phoneNumber: string;
+  updatedAt: string;
+}
+
+export async function getUserProfileFromFirestore(userId: string): Promise<UserProfileRecord | null> {
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(userId)) {
+    throw new Error('El identificador del usuario no es válido.');
+  }
+  const snapshot = await getDoc(doc(getDbOrThrow(), 'userProfiles', userId));
+  if (!snapshot.exists()) return null;
+  const profile = snapshot.data() as UserProfileRecord;
+  if (profile.uid !== userId) {
+    throw new Error('El perfil privado no coincide con el usuario autenticado.');
+  }
+  return profile;
+}
+
+export async function saveUserProfileToFirestore(
+  userId: string,
+  input: { phoneNumber: string }
+): Promise<UserProfileRecord> {
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(userId)) {
+    throw new Error('El identificador del usuario no es válido.');
+  }
+  if (typeof input.phoneNumber !== 'string' || input.phoneNumber.trim().length > 32) {
+    throw new Error('El teléfono debe tener máximo 32 caracteres.');
+  }
+
+  const profile: UserProfileRecord = {
+    uid: userId,
+    phoneNumber: input.phoneNumber.trim(),
+    updatedAt: new Date().toISOString(),
+  };
+  await setDoc(doc(getDbOrThrow(), 'userProfiles', userId), stripUndefined(profile), { merge: true });
+  return profile;
+}
