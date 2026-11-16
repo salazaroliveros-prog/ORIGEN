@@ -34,7 +34,7 @@ test.describe('Autenticación', () => {
   });
 
   test('la sesión autenticada no muestra el formulario de inicio de sesión', async ({ page }) => {
-    const emailInput = page.getByLabel('Correo electrónico');
+    const emailInput = page.locator('input[type="email"]');
     const isVisible = await emailInput.isVisible().catch(() => false);
     expect(isVisible).toBe(false);
   });
