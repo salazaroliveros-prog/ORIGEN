@@ -95,6 +95,11 @@ const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }
     label: 'Equipo de la empresa',
     subtitle: 'Miembros, invitaciones y permisos de acceso',
   },
+  inventario: {
+    id: 'inventario',
+    label: 'Inventario & Compras',
+    subtitle: 'Proveedores, bodegas, existencias y abastecimiento de obra',
+  },
 };
 
 export default function MainApp() {
@@ -154,7 +159,12 @@ export default function MainApp() {
         'viewer',
       ].includes(role ?? ''),
       canViewFullPersonnel: ['owner', 'admin', 'finance'].includes(role ?? ''),
-      canManageCompany: ['owner', 'admin'].includes(role ?? ''),\n      canViewInventory: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),\n      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),\n      canViewPurchasing: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),\n      canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),\n      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+      canManageCompany: ['owner', 'admin'].includes(role ?? ''),
+      canViewInventory: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),
+      canViewPurchasing: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+      canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
+      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
     };
   }, [membership?.role]);
 
