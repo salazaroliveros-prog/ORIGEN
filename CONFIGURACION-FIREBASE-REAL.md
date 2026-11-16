@@ -169,6 +169,12 @@ El sistema espera las siguientes colecciones en Firestore (ya definidas en `fire
 | companySettings            | Configuración de empresa      | id, companyId, ownerId, legalName, commercialName, exchangeRate  |
 | fcm_tokens                 | Tokens de notificaciones push | id, ownerId, token, active                                       |
 | project_alerts             | Alertas de proyecto           | id, ownerId, projectId, title, message, timestamp                |
+| suppliers                  | Proveedores por empresa       | id, companyId, name, nit, active, createdBy                       |
+| warehouses                 | Bodegas generales o de obra   | id, companyId, projectId?, type, name, active, createdBy          |
+| inventoryItems             | Catálogo de materiales        | id, companyId, name, unit, reorderLevel, active, createdBy       |
+| stockMovements             | Historial inmutable de stock  | id, companyId, warehouseId, itemId, kind, quantity, referenceId  |
+| purchaseOrders             | Órdenes de compra             | id, companyId, projectId, supplierId, status, lines, totalGTQ    |
+| subcontracts               | Contratos de subcontratistas  | id, companyId, projectId, supplierId, dates, amountGTQ, status   |
 
 ## Roles y permisos
 
@@ -184,7 +190,7 @@ El sistema espera las siguientes colecciones en Firestore (ya definidas en `fire
 
 ## Pruebas con datos reales (CRUD)
 
-Una vez configurado Firebase con credenciales reales, el sistema soporta operaciones CRUD completas:
+Una vez configurado Firebase con credenciales reales, los módulos que cuentan con flujos completos pueden probarse con datos reales. No todas las colecciones tienen CRUD completo ni todos los flujos están habilitados:
 
 ### Autenticación
 
@@ -238,15 +244,29 @@ Una vez configurado Firebase con credenciales reales, el sistema soporta operaci
 | Componente             | Estado                               |
 | ---------------------- | ------------------------------------ |
 | Firebase SDK           | Instalado (v12.19.0)                 |
-| Reglas Firestore       | Definidas para todas las colecciones |
+| Reglas Firestore       | Reglas por colección; escrituras de stock y transiciones de compras bloqueadas hasta completar flujo atómico |
 | Índices Firestore      | 21 índices configurados              |
-| Validación Zod         | Para todas las entidades             |
+| Validación Zod         | Esquemas para entidades principales; ampliar según módulos          |
 | Manejo de errores      | Con toast notifications              |
 | Cálculo automático     | Progreso y gasto de proyectos        |
-| Service Worker         | Para modo offline                    |
+| Service Worker         | Soporte offline parcial; inventario/compras aún sin cola transaccional |
 | FCM Push Notifications | Configurado                          |
 | TypeScript             | Compilación sin errores              |
 | Script de verificación | scripts/setup-firebase-check.js      |
+
+## Estado actual de inventario y abastecimiento
+
+El módulo **Inventario & Compras** ya permite consultar y registrar catálogos por empresa: proveedores, bodegas y artículos. También permite crear órdenes de compra como borradores de un solo renglón y registrar subcontratos en estado borrador o activo.
+
+Por seguridad, en esta etapa:
+
+- No se permite crear movimientos de stock desde el cliente.
+- No se permite aprobar ni recibir órdenes de compra.
+- No se permite modificar ni registrar pagos de subcontratos.
+- Las órdenes nuevas deben validar su subtotal, descuento, IVA y total contra el único renglón.
+- Los saldos de inventario solo se muestran cuando existen movimientos registrados.
+
+Estos flujos se habilitarán cuando la transacción de Firestore actualice de manera atómica el documento de negocio, el movimiento y el saldo, y las reglas lo verifiquen con pruebas de emulador.
 
 ## Próximos pasos
 
