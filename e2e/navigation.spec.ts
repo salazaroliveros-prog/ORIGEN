@@ -28,6 +28,20 @@ test.describe('Navegación principal', () => {
     await expect(page.getByRole('button', { name: 'Maquinaria' }).first()).toBeVisible();
   });
 
+  test('navegar a Inventario & Compras muestra sus secciones', async ({ page }) => {
+    const inventoryLink = page.getByRole('link', { name: 'Inventario & Compras' }).first();
+    await expect(inventoryLink).toBeVisible({ timeout: 20_000 });
+    await inventoryLink.click();
+
+    await expect(
+      page.getByRole('heading', { name: 'Inventario & Compras', exact: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('tab', { name: 'Resumen' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Artículos' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Bodegas' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Órdenes de compra' })).toBeVisible();
+  });
+
   test('navegar a Proyectos & Firmas muestra la lista de proyectos o estado vacío', async ({
     page,
   }) => {
