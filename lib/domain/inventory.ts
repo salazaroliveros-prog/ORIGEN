@@ -77,8 +77,20 @@ export function applyStockMovement(
   balance: InventoryBalance,
   movement: StockMovement
 ): InventoryBalance {
+  if (!balance.itemId.trim() || !balance.warehouseId.trim()) {
+    throw new Error('El saldo debe identificar un artículo y una bodega.');
+  }
+  assertNonNegativeFinite(balance.quantity, 'La existencia actual');
+  assertNonNegativeFinite(balance.averageUnitCostGTQ, 'El costo promedio actual');
+  assertNonNegativeFinite(balance.reorderLevel, 'El mínimo de reorden');
   if (movement.itemId !== balance.itemId || movement.warehouseId !== balance.warehouseId) {
     throw new Error('El movimiento no corresponde al artículo y bodega del saldo.');
+  }
+  if (!movement.id.trim() || !movement.companyId.trim() || !movement.createdBy.trim()) {
+    throw new Error('El movimiento debe identificar su ID, empresa y usuario creador.');
+  }
+  if (!Number.isFinite(Date.parse(movement.occurredAt))) {
+    throw new Error('La fecha del movimiento no es válida.');
   }
   assertPositiveFinite(movement.quantity, 'La cantidad');
   assertNonNegativeFinite(movement.unitCostGTQ, 'El costo unitario');
@@ -121,10 +133,14 @@ export function calculateInventoryBalance(params: {
   movements: StockMovement[];
 }): InventoryBalance {
   const { itemId, warehouseId, movements, reorderLevel = 0 } = params;
+  if (!itemId.trim() || !warehouseId.trim()) {
+    throw new Error('El cálculo requiere un artículo y una bodega.');
+  }
+  if (!Array.isArray(movements)) throw new Error('El historial de movimientos no es válido.');
   assertNonNegativeFinite(reorderLevel, 'El mínimo de reorden');
   const relevant = movements
     .filter((movement) => movement.itemId === itemId && movement.warehouseId === warehouseId)
-    .sort((a, b) => a.occurredAt.localeCompare(b.occurredAt) || a.id.localeCompare(b.id));
+    .sort((a, b) => Date.parse(a.occurredAt) - Date.parse(b.occurredAt) || a.id.localeCompare(b.id));
 
   let balance: InventoryBalance = {
     itemId,
