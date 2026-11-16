@@ -40,7 +40,7 @@ title: Vercel deployment fix summary — ORIGEN ConstructERP
 
 - `NEXT_PUBLIC_FIREBASE_VAPID_KEY`
 - `GEMINI_API_KEY` (already configured in `.env.local`: `***MASKED***`)
-- `PRIMARY_ADMIN_EMAIL` (`salazaroliveros@gmail.com`)
+- `PRIMARY_ADMIN_EMAIL` (`<CORREO_ADMINISTRADOR_CONFIGURADO_EN_SECRETS>`)
 - `ALLOWED_ORIGINS` (`http://localhost:3000,https://origen-one-kohl.vercel.app`)
 - `NEXT_PUBLIC_APP_URL` (`http://localhost:3000` or `https://origen-one-kohl.vercel.app`)
 
