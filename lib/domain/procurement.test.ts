@@ -81,6 +81,7 @@ describe('procurement domain', () => {
   it('validates subcontract dates and prevents overpayment', () => {
     expect(validateSubcontract(subcontract())).toBeTruthy();
     expect(() => validateSubcontract(subcontract({ endDate: '2026-09-30' }))).toThrow('período');
+    expect(() => validateSubcontract(subcontract({ startDate: '2026-10-01T08:00:00.000Z' }))).toThrow('formato AAAA-MM-DD');
     expect(() => validateSubcontract(subcontract({ paidGTQ: 100_001 }))).toThrow('superar');
   });
 
