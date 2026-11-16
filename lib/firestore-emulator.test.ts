@@ -380,6 +380,10 @@ beforeEach(async () => {
         id: 'cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
         reorderLevel: 10, active: true, createdBy: USERS.owner,
       });
+      await setDoc(doc(context.firestore(), 'inventoryItems', 'steel'), {
+        id: 'steel', companyId: COMPANY_A, name: 'Hierro', unit: 'varilla',
+        reorderLevel: 10, active: true, createdBy: USERS.owner,
+      });
     });
     const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
     const order = {
@@ -413,13 +417,27 @@ beforeEach(async () => {
       lastReceiptMovementId: 'forged-receipt',
       lines: [{ ...order.lines[0], receivedQuantity: 10 }],
     }, { merge: true }));
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'multi-line-order'), {
+    const multiLineOrder = {
       ...order,
       id: 'multi-line-order',
-      lines: [...order.lines, { ...order.lines[0], itemId: 'cement', description: 'Segundo renglón' }],
-      subtotalGTQ: 1500,
-      taxGTQ: 180,
-      totalGTQ: 1680,
+      number: 'OC-QA-002',
+      lines: [
+        { ...order.lines[0], quantity: 10 },
+        { itemId: 'steel', description: 'Hierro', unit: 'varilla', quantity: 20, receivedQuantity: 0, unitPriceGTQ: 45 },
+      ],
+      subtotalGTQ: 1650,
+      taxGTQ: 198,
+      totalGTQ: 1848,
+    };
+    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', multiLineOrder.id), multiLineOrder));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'too-many-lines'), {
+      ...multiLineOrder,
+      id: 'too-many-lines',
+      number: 'OC-QA-003',
+      lines: [...multiLineOrder.lines, ...multiLineOrder.lines, ...multiLineOrder.lines],
+      subtotalGTQ: 4950,
+      taxGTQ: 594,
+      totalGTQ: 5544,
     }));
     const contract = {
       id: 'subcontract-qa', companyId: COMPANY_A, projectId: 'procurement-project',
