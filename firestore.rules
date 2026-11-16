@@ -127,7 +127,8 @@ service cloud.firestore {
 
     function isValidPurchaseOrderLine(line, companyId) {
       return line.keys().hasAll(['itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ']) &&
-        line.itemId is string && isInventoryItemInCompany(line.itemId, companyId) &&
+        line.itemId is string && isValidId(line.itemId) &&
+        isInventoryItemInCompany(line.itemId, companyId) &&
         line.description is string && line.description.size() > 0 && line.description.size() <= 200 &&
         line.unit is string && line.unit.size() > 0 && line.unit.size() <= 32 &&
         line.quantity is number && line.quantity > 0 &&
@@ -136,56 +137,58 @@ service cloud.firestore {
     }
 
     function isValidPurchaseOrderLines(lines, companyId) {
-      return lines is list && lines.size() >= 1 && lines.size() <= 5 &&
-        isValidPurchaseOrderLine(lines[0], companyId) &&
-        (lines.size() < 2 || isValidPurchaseOrderLine(lines[1], companyId)) &&
-        (lines.size() < 3 || isValidPurchaseOrderLine(lines[2], companyId)) &&
-        (lines.size() < 4 || isValidPurchaseOrderLine(lines[3], companyId)) &&
-        (lines.size() < 5 || isValidPurchaseOrderLine(lines[4], companyId)) &&
-        (lines.size() < 2 || lines[0].itemId != lines[1].itemId) &&
-        (lines.size() < 3 || (lines[0].itemId != lines[2].itemId && lines[1].itemId != lines[2].itemId)) &&
-        (lines.size() < 4 || (lines[0].itemId != lines[3].itemId && lines[1].itemId != lines[3].itemId && lines[2].itemId != lines[3].itemId)) &&
-        (lines.size() < 5 || (lines[0].itemId != lines[4].itemId && lines[1].itemId != lines[4].itemId && lines[2].itemId != lines[4].itemId && lines[3].itemId != lines[4].itemId));
+      return lines is list && (
+        (lines.size() == 1 && isValidPurchaseOrderLine(lines[0], companyId)) ||
+        (lines.size() == 2 &&
+          isValidPurchaseOrderLine(lines[0], companyId) &&
+          isValidPurchaseOrderLine(lines[1], companyId) &&
+          lines[0].itemId != lines[1].itemId)
+      );
+    }
+
+    function isWithinOneCent(actual, expected) {
+      return actual >= expected - 0.01 && actual <= expected + 0.01;
     }
 
     function purchaseOrderLinesSubtotal(lines) {
       return lines[0].quantity * lines[0].unitPriceGTQ +
-        (lines.size() > 1 ? lines[1].quantity * lines[1].unitPriceGTQ : 0) +
-        (lines.size() > 2 ? lines[2].quantity * lines[2].unitPriceGTQ : 0) +
-        (lines.size() > 3 ? lines[3].quantity * lines[3].unitPriceGTQ : 0) +
-        (lines.size() > 4 ? lines[4].quantity * lines[4].unitPriceGTQ : 0);
+        (lines.size() == 2 ? lines[1].quantity * lines[1].unitPriceGTQ : 0);
     }
 
     function isPurchaseOrderFullyReceived(lines) {
-      return lines.size() >= 1 && lines.size() <= 5 &&
-        lines[0].receivedQuantity == lines[0].quantity &&
-        (lines.size() < 2 || lines[1].receivedQuantity == lines[1].quantity) &&
-        (lines.size() < 3 || lines[2].receivedQuantity == lines[2].quantity) &&
-        (lines.size() < 4 || lines[3].receivedQuantity == lines[3].quantity) &&
-        (lines.size() < 5 || lines[4].receivedQuantity == lines[4].quantity);
+      return lines.size() == 1
+        ? lines[0].receivedQuantity == lines[0].quantity
+        : lines.size() == 2 &&
+          lines[0].receivedQuantity == lines[0].quantity &&
+          lines[1].receivedQuantity == lines[1].quantity;
     }
 
-    function isReceiptLine(beforeLines, afterLines, lineIndex, currentIndex, quantity) {
-      return lineIndex == currentIndex
-        ? afterLines[currentIndex].itemId == beforeLines[currentIndex].itemId &&
-          afterLines[currentIndex].description == beforeLines[currentIndex].description &&
-          afterLines[currentIndex].unit == beforeLines[currentIndex].unit &&
-          afterLines[currentIndex].quantity == beforeLines[currentIndex].quantity &&
-          afterLines[currentIndex].unitPriceGTQ == beforeLines[currentIndex].unitPriceGTQ &&
-          afterLines[currentIndex].receivedQuantity == beforeLines[currentIndex].receivedQuantity + quantity
-        : afterLines[currentIndex] == beforeLines[currentIndex];
+    function isReceiptLine(beforeLine, afterLine, quantity) {
+      return afterLine.itemId == beforeLine.itemId &&
+        afterLine.description == beforeLine.description &&
+        afterLine.unit == beforeLine.unit &&
+        afterLine.quantity == beforeLine.quantity &&
+        afterLine.unitPriceGTQ == beforeLine.unitPriceGTQ &&
+        afterLine.receivedQuantity == beforeLine.receivedQuantity + quantity;
     }
 
     function isPurchaseOrderReceiptLinesUpdated(beforeLines, afterLines, lineIndex, quantity) {
       return beforeLines is list && afterLines is list &&
-        beforeLines.size() >= 1 && beforeLines.size() <= 5 &&
+        beforeLines.size() >= 1 && beforeLines.size() <= 2 &&
         afterLines.size() == beforeLines.size() &&
-        lineIndex is int && lineIndex >= 0 && lineIndex < beforeLines.size() &&
-        isReceiptLine(beforeLines, afterLines, lineIndex, 0, quantity) &&
-        (beforeLines.size() < 2 || isReceiptLine(beforeLines, afterLines, lineIndex, 1, quantity)) &&
-        (beforeLines.size() < 3 || isReceiptLine(beforeLines, afterLines, lineIndex, 2, quantity)) &&
-        (beforeLines.size() < 4 || isReceiptLine(beforeLines, afterLines, lineIndex, 3, quantity)) &&
-        (beforeLines.size() < 5 || isReceiptLine(beforeLines, afterLines, lineIndex, 4, quantity));
+        (
+          (beforeLines.size() == 1 && lineIndex == 0 &&
+            isReceiptLine(beforeLines[0], afterLines[0], quantity)) ||
+          (beforeLines.size() == 2 &&
+            (
+              (lineIndex == 0 &&
+                isReceiptLine(beforeLines[0], afterLines[0], quantity) &&
+                afterLines[1] == beforeLines[1]) ||
+              (lineIndex == 1 &&
+                afterLines[0] == beforeLines[0] &&
+                isReceiptLine(beforeLines[1], afterLines[1], quantity))
+            ))
+        );
     }
 
     function receiptOrderUpdated(data, movementId) {
@@ -234,7 +237,7 @@ service cloud.firestore {
         order.projectId == data.projectId &&
         order.status in ['approved', 'partially_received'] &&
         order.approvedBy is string &&
-        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 5 &&
+        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 2 &&
         data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < order.lines.size() &&
         data.itemId == order.lines[data.lineIndex].itemId &&
         data.quantity is number && data.quantity > 0 &&
@@ -984,12 +987,9 @@ service cloud.firestore {
         incoming().taxGTQ >= 0 &&
         incoming().totalGTQ is number &&
         incoming().totalGTQ >= 0 &&
-        incoming().subtotalGTQ >= purchaseOrderLinesSubtotal(incoming().lines) - 0.01 &&
-        incoming().subtotalGTQ <= purchaseOrderLinesSubtotal(incoming().lines) + 0.01 &&
-        incoming().taxGTQ >= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) - 0.01 &&
-        incoming().taxGTQ <= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) + 0.01 &&
-        incoming().totalGTQ >= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) - 0.01 &&
-        incoming().totalGTQ <= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) + 0.01;
+        isWithinOneCent(incoming().subtotalGTQ, purchaseOrderLinesSubtotal(incoming().lines)) &&
+        isWithinOneCent(incoming().taxGTQ, (incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) &&
+        isWithinOneCent(incoming().totalGTQ, incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ);
 
       allow update: if isValidId(orderId) &&
         incoming().id == existing().id &&
@@ -1007,9 +1007,9 @@ service cloud.firestore {
         incoming().totalGTQ == existing().totalGTQ &&
         incoming().createdAt == existing().createdAt &&
         incoming().lines is list &&
-        incoming().lines.size() >= 1 && incoming().lines.size() <= 5 &&
+        incoming().lines.size() >= 1 && incoming().lines.size() <= 2 &&
         existing().lines is list &&
-        existing().lines.size() >= 1 && existing().lines.size() <= 5 &&
+        existing().lines.size() >= 1 && existing().lines.size() <= 2 &&
         (
           (
             canManagePurchasing(existing().companyId) &&

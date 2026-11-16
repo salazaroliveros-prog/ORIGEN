@@ -133,8 +133,8 @@ export function validatePurchaseOrder(order: PurchaseOrderRecord): PurchaseOrder
   if (!['draft', 'submitted', 'approved', 'partially_received', 'received', 'cancelled'].includes(order.status)) {
     throw new Error('El estado de la orden de compra no es válido.');
   }
-  if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 5) {
-    throw new Error('La orden debe incluir entre 1 y 5 renglones.');
+  if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 2) {
+    throw new Error('La orden debe incluir entre 1 y 2 renglones.');
   }
   if (new Set(order.lines.map((line) => line.itemId)).size !== order.lines.length) {
     throw new Error('No repitas artículos en una misma orden; consolida sus cantidades en un solo renglón.');

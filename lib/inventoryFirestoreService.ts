@@ -226,8 +226,8 @@ export async function createPurchaseOrderToFirestore(
   const now = new Date().toISOString();
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario solicitante', 128);
-  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 5) {
-    throw new Error('Cada orden debe contener entre 1 y 5 renglones.');
+  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 2) {
+    throw new Error('Cada orden debe contener entre 1 y 2 renglones.');
   }
   const order = validatePurchaseOrder({
     ...input,
@@ -318,7 +318,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
   assertSafeDocumentId(warehouseId, 'Bodega');
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario que recibe', 128);
-  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex > 4) {
+  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex > 1) {
     throw new Error('El renglón de la orden no es válido.');
   }
   assertFiniteNonNegative(quantity, 'Cantidad recibida');
@@ -338,7 +338,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
       if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
       const order = orderSnapshot.data() as PurchaseOrderRecord;
       if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 5 || lineIndex >= order.lines.length) {
+      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 2 || lineIndex >= order.lines.length) {
         throw new Error('El renglón seleccionado no existe en esta orden.');
       }
 
