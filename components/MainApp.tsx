@@ -15,6 +15,7 @@ import { ExpensesManager } from '@/components/ExpensesManager';
 import { GanttSchedule } from '@/components/GanttSchedule';
 import { CotizacionesView } from '@/components/CotizacionesView';
 import { MachineryManager } from '@/components/MachineryManager';
+import { InventoryManager } from '@/components/InventoryManager';
 import { PayrollEstimateView } from '@/components/PayrollEstimateView';
 import { GmailManager } from '@/components/GmailManager';
 import { ProjectsView } from '@/features/projects/ProjectsView';
@@ -56,6 +57,7 @@ type TabKey =
   | 'maquinaria'
   | 'planillas'
   | 'gastos'
+  | 'inventario'
   | 'gmail'
   | 'equipo';
 
@@ -114,6 +116,11 @@ const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }
     id: 'gastos',
     label: 'Gastos & Facturas',
     subtitle: 'Registro y control de gastos operativos',
+  },
+  inventario: {
+    id: 'inventario',
+    label: 'Inventario, Compras y Subcontratos',
+    subtitle: 'Existencias por bodega, proveedores, órdenes de compra y contratos',
   },
   gmail: {
     id: 'gmail',
@@ -184,6 +191,9 @@ export default function MainApp() {
       canViewPersonnel: canReadEmployeeDirectory(role),
       canViewFullPersonnel: canReadFullPersonnel(role),
       canManageCompany: ['owner', 'admin'].includes(role ?? ''),
+      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),
+      canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
+      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager'].includes(role ?? ''),
     };
   }, [membership?.role]);
   const [company, setCompany] = useState<CompanySettings>(initialCompanySettings);
@@ -399,6 +409,7 @@ export default function MainApp() {
         canViewPersonnel={permissions.canViewPersonnel}
         canViewPayroll={permissions.canViewFullPersonnel}
         canViewExpenses={permissions.canViewExpenses}
+        canViewSupplyChain={permissions.canViewSupplyChain}
         isMobileSidebarOpen={isMobileSidebarOpen}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen((isOpen) => !isOpen)}
       />
@@ -548,6 +559,16 @@ export default function MainApp() {
                 budgetItems={data.apuItems}
                 attendance={data.attendance}
                 quotes={data.quotes}
+              />
+            )}
+            {activeTab === 'inventario' && permissions.canViewSupplyChain && workspace && currentUser && (
+              <InventoryManager
+                companyId={workspace.id}
+                userId={currentUser.uid}
+                projects={activeProjects}
+                activeProjectId={activeProject?.id ?? ''}
+                canManageInventory={permissions.canManageInventory}
+                canManagePurchasing={permissions.canManagePurchasing}
               />
             )}
             {activeTab === 'gastos' && (
