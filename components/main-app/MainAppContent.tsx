@@ -44,7 +44,8 @@ type TabKey =
   | 'planillas'
   | 'gastos'
   | 'gmail'
-  | 'equipo';
+  | 'equipo'
+  | 'inventario';
 
 type ProjectData = ReturnType<typeof useProjectData>;
 
@@ -153,7 +154,7 @@ function usePermissions(role?: string) {
       'viewer',
     ].includes(role ?? ''),
     canViewFullPersonnel: ['owner', 'admin', 'finance'].includes(role ?? ''),
-    canManageCompany: ['owner', 'admin'].includes(role ?? ''),
+    canManageCompany: ['owner', 'admin'].includes(role ?? ''),\n    canViewInventory: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),\n    canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),\n    canViewPurchasing: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),\n    canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),\n    canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
   };
 }
 
