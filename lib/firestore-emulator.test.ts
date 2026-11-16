@@ -171,7 +171,7 @@ beforeEach(async () => {
     await assertFails(getDoc(doc(foreignOwner, 'suppliers', supplier.id)));
   });
 
-  it('allows warehouse managers to maintain inventory but makes stock movements append-only', async () => {
+  it('allows warehouse managers to maintain catalogs but blocks stock movements pending atomic writes', async () => {
     await seedProject(makeProject('inventory-project'));
     const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
     const warehouse = {
@@ -190,7 +190,10 @@ beforeEach(async () => {
       quantity: 50, unitCostGTQ: 78, occurredAt: '2026-11-16T08:00:00.000Z',
       createdBy: USERS.warehouseManager,
     };
-    await assertSucceeds(setDoc(doc(manager, 'stockMovements', movement.id), movement));
+    await assertFails(setDoc(doc(manager, 'stockMovements', movement.id), movement));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'stockMovements', movement.id), movement);
+    });
     await assertFails(setDoc(doc(manager, 'stockMovements', movement.id), {
       ...movement, quantity: 500,
     }));
@@ -203,6 +206,10 @@ beforeEach(async () => {
       await setDoc(doc(context.firestore(), 'suppliers', 'supplier-procurement'), {
         id: 'supplier-procurement', companyId: COMPANY_A, name: 'Proveedor QA',
         nit: 'CF', active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(context.firestore(), 'inventoryItems', 'cement'), {
+        id: 'cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
+        reorderLevel: 10, active: true, createdBy: USERS.owner,
       });
     });
     const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
@@ -217,6 +224,17 @@ beforeEach(async () => {
       updatedAt: '2026-11-16T08:00:00.000Z',
     };
     await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), order));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', order.id), {
+      ...order, status: 'approved', approvedBy: USERS.finance,
+    }, { merge: true }));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'multi-line-order'), {
+      ...order,
+      id: 'multi-line-order',
+      lines: [...order.lines, { ...order.lines[0], itemId: 'cement', description: 'Segundo renglón' }],
+      subtotalGTQ: 1500,
+      taxGTQ: 180,
+      totalGTQ: 1680,
+    }));
     const contract = {
       id: 'subcontract-qa', companyId: COMPANY_A, projectId: 'procurement-project',
       supplierId: 'supplier-procurement', contractNumber: 'SUB-QA-001',
@@ -225,6 +243,9 @@ beforeEach(async () => {
       status: 'draft', createdBy: USERS.finance,
     };
     await assertSucceeds(setDoc(doc(finance, 'subcontracts', contract.id), contract));
+    await assertFails(setDoc(doc(finance, 'subcontracts', contract.id), {
+      ...contract, paidGTQ: 1000, status: 'active',
+    }, { merge: true }));
     await assertFails(setDoc(doc(finance, 'purchaseOrders', 'foreign-order'), {
       ...order, id: 'foreign-order', projectId: 'foreign-project',
     }));
