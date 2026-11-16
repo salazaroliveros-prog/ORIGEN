@@ -71,6 +71,23 @@ describe('procurement domain', () => {
     expect(() => recordPurchaseReceipt(order, [11, 0], '2026-11-02T10:00:00.000Z')).toThrow('supera lo pendiente');
   });
 
+  it('preserves fractional received quantities to four decimal places', () => {
+    const fractionalOrder: PurchaseOrderRecord = {
+      ...order,
+      lines: [{ ...order.lines[0], quantity: 1.2345, receivedQuantity: 0 }],
+      subtotalGTQ: 92.59,
+      taxGTQ: 11.11,
+      totalGTQ: 103.7,
+    };
+    const received = recordPurchaseReceipt(
+      fractionalOrder,
+      [1.2345],
+      '2026-11-16T10:00:00.000Z'
+    );
+    expect(received.lines[0].receivedQuantity).toBe(1.2345);
+    expect(received.status).toBe('received');
+  });
+
   it('rejects incomplete quantities marked as fully received', () => {
     expect(() => validatePurchaseOrder({
       ...order, status: 'received',
