@@ -25,6 +25,7 @@ const ROLE_LABELS: Record<CompanyRole, string> = {
   project_manager: 'Gerente de proyecto',
   finance: 'Finanzas',
   field_worker: 'Operaciones de campo',
+  warehouse_manager: 'Encargado de bodega',
   viewer: 'Solo lectura',
 };
 
@@ -33,6 +34,7 @@ const INVITABLE_ROLES: Exclude<CompanyRole, 'owner'>[] = [
   'field_worker',
   'finance',
   'project_manager',
+  'warehouse_manager',
   'admin',
 ];
 
