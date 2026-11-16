@@ -71,7 +71,7 @@
 
 ```env
 Project ID: origen-erp-guatemala
-API Key: AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI
+API Key: [CONFIGURAR EN VARIABLES DE ENTORNO]
 Auth Domain: origen-erp-guatemala.firebaseapp.com
 App ID: 1:893831571998:web:4e38903eeb0dff05011c0f
 Storage Bucket: origen-erp-guatemala.firebasestorage.app
