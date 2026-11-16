@@ -110,6 +110,7 @@ export function InventoryManager({
   const [contractStartDate, setContractStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [contractEndDate, setContractEndDate] = useState('');
   const [contractAmount, setContractAmount] = useState('');
+  const [contractStatus, setContractStatus] = useState<'draft' | 'active'>('draft');
 
   useEffect(() => {
     setWarehouseProjectId((current) => current || activeProjectId);
@@ -280,7 +281,7 @@ export function InventoryManager({
         {
           projectId: orderProjectId,
           supplierId: orderSupplierId,
-          number: `OC-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Date.now() % 10000).toString().padStart(4, '0')}`,
+          number: `OC-${new Date().toISOString().replace(/[-:.TZ]/g, '')}`,
           status: 'draft',
           currency: 'GTQ',
           lines: [
@@ -326,7 +327,7 @@ export function InventoryManager({
           endDate: contractEndDate,
           amountGTQ: Number(contractAmount),
           paidGTQ: 0,
-          status: 'draft',
+          status: contractStatus,
         },
         companyId,
         userId
@@ -335,6 +336,7 @@ export function InventoryManager({
       setContractDescription('');
       setContractEndDate('');
       setContractAmount('');
+      setContractStatus('draft');
       toast.success('Subcontrato registrado.');
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar el subcontrato.');
@@ -352,12 +354,7 @@ export function InventoryManager({
     { id: 'subcontratos', label: 'Subcontratos' },
   ];
 
-  const visibleSections = sections.filter((item) => {
-    if (item.id === 'proveedores' || item.id === 'ordenes' || item.id === 'subcontratos') {
-      return canWritePurchasing || canWriteInventory || item.id !== 'proveedores';
-    }
-    return true;
-  });
+  const visibleSections = sections;
 
   const projectOptions = projects.filter((project) => project.status !== 'Archivado');
 
@@ -545,6 +542,7 @@ export function InventoryManager({
                 <label className="block"><span className={labelClass}>Descripción / alcance</span><textarea className={fieldClass} value={contractDescription} onChange={(event) => setContractDescription(event.target.value)} required rows={3} maxLength={1000} /></label>
                 <div className="grid grid-cols-2 gap-2"><label className="block"><span className={labelClass}>Inicio</span><input className={fieldClass} type="date" value={contractStartDate} onChange={(event) => setContractStartDate(event.target.value)} required /></label><label className="block"><span className={labelClass}>Fin</span><input className={fieldClass} type="date" value={contractEndDate} onChange={(event) => setContractEndDate(event.target.value)} min={contractStartDate} required /></label></div>
                 <label className="block"><span className={labelClass}>Monto contratado (Q)</span><input className={fieldClass} type="number" min="0.01" step="0.01" value={contractAmount} onChange={(event) => setContractAmount(event.target.value)} required /></label>
+                <label className="block"><span className={labelClass}>Estado inicial</span><select className={fieldClass} value={contractStatus} onChange={(event) => setContractStatus(event.target.value as 'draft' | 'active')}><option value="draft">Borrador</option><option value="active">Activo / firmado</option></select></label>
                 <button className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !projectOptions.length || !activeSuppliers.length}>{submitting ? 'Guardando…' : 'Guardar subcontrato'}</button>
               </form>}
             </div>
