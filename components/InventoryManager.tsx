@@ -15,9 +15,11 @@ import {
   type SupplierRecord,
 } from '@/lib/domain/procurement';
 import {
+  approvePurchaseOrderToFirestore,
   createInventoryItemToFirestore,
   createPurchaseOrderToFirestore,
   createSubcontractToFirestore,
+  receivePurchaseOrderToWarehouse,
   createSupplierToFirestore,
   createWarehouseToFirestore,
   subscribeInventoryItems,
@@ -111,6 +113,10 @@ export function InventoryManager({
   const [contractEndDate, setContractEndDate] = useState('');
   const [contractAmount, setContractAmount] = useState('');
   const [contractStatus, setContractStatus] = useState<'draft' | 'active'>('draft');
+  const [receivingOrderId, setReceivingOrderId] = useState('');
+  const [receiptWarehouseId, setReceiptWarehouseId] = useState('');
+  const [receiptQuantity, setReceiptQuantity] = useState('1');
+  const [receiptNumber, setReceiptNumber] = useState('');
 
   useEffect(() => {
     setWarehouseProjectId((current) => current || activeProjectId);
@@ -320,6 +326,58 @@ export function InventoryManager({
     }
   };
 
+  const handleApproveOrder = async (orderId: string) => {
+    if (!canWritePurchasing || submitting) return;
+    setSubmitting(true);
+    try {
+      await approvePurchaseOrderToFirestore(orderId, companyId, userId);
+      toast.success('Orden de compra aprobada.');
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : 'No se pudo aprobar la orden.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleReceiptSubmit = async (event: FormEvent<HTMLFormElement>, order: PurchaseOrderRecord) => {
+    event.preventDefault();
+    if (!canWriteInventory || submitting) return;
+    const quantity = Number(receiptQuantity);
+    if (!receiptWarehouseId) {
+      toast.error('Selecciona la bodega que recibe el material.');
+      return;
+    }
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      toast.error('La cantidad recibida debe ser mayor a cero.');
+      return;
+    }
+    if (!receiptNumber.trim()) {
+      toast.error('Ingresa el número de recepción o documento de entrega.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const result = await receivePurchaseOrderToWarehouse({
+        orderId: order.id,
+        warehouseId: receiptWarehouseId,
+        quantity,
+        receiptNumber: receiptNumber.trim(),
+        companyId,
+        userId,
+      });
+      setReceivingOrderId('');
+      setReceiptNumber('');
+      setReceiptQuantity('1');
+      toast.success(result.alreadyProcessed
+        ? 'Esta recepción ya estaba registrada; no se duplicó el inventario.'
+        : 'Recepción registrada y existencias actualizadas.');
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar la recepción.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleContractSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canWritePurchasing || submitting) return;
@@ -521,7 +579,67 @@ export function InventoryManager({
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
               <section className={cardClass}>
                 <h3 className="mb-3 font-semibold text-white">Órdenes de compra</h3>
-                {orders.length === 0 ? <EmptyState message="Aún no hay órdenes de compra." /> : <div className="space-y-2">{orders.map((order) => <div key={order.id} className="rounded-xl border border-white/5 px-3 py-3"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-semibold text-white">{order.number}</p><span className="rounded-full bg-sky-500/10 px-2.5 py-1 text-xs text-sky-300">{order.status}</span></div><p className="mt-1 text-xs text-slate-400">{projects.find((project) => project.id === order.projectId)?.name ?? order.projectId} · {suppliers.find((supplier) => supplier.id === order.supplierId)?.name ?? 'Proveedor'}</p><p className="mt-2 text-sm font-semibold text-white">{currency.format(order.totalGTQ)}</p><p className="mt-1 text-xs text-slate-500">{order.lines.length} renglón(es) · IVA {order.taxPercent}% · {formatDate(order.createdAt)}</p></div>)}</div>}
+                {orders.length === 0 ? <EmptyState message="Aún no hay órdenes de compra." /> : <div className="space-y-2">{orders.map((order) => {
+                  const received = order.lines.reduce((total, line) => total + line.receivedQuantity, 0);
+                  const ordered = order.lines.reduce((total, line) => total + line.quantity, 0);
+                  const remaining = Math.max(0, ordered - received);
+                  const compatibleWarehouses = activeWarehouses.filter((warehouse) =>
+                    warehouse.type === 'general' || warehouse.projectId === order.projectId
+                  );
+                  return (
+                    <div key={order.id} className="rounded-xl border border-white/5 px-3 py-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-white">{order.number}</p>
+                        <span className="rounded-full bg-sky-500/10 px-2.5 py-1 text-xs text-sky-300">{order.status}</span>
+                      </div>
+                      <p className="mt-1 text-xs text-slate-400">{projects.find((project) => project.id === order.projectId)?.name ?? order.projectId} · {suppliers.find((supplier) => supplier.id === order.supplierId)?.name ?? 'Proveedor'}</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{currency.format(order.totalGTQ)}</p>
+                      <p className="mt-1 text-xs text-slate-500">{order.lines.length} renglón(es) · IVA {order.taxPercent}% · {formatDate(order.createdAt)}</p>
+                      <p className="mt-1 text-xs text-slate-400">Recibido: {received} de {ordered} · Pendiente: {remaining}</p>
+                      {order.status === 'draft' && canWritePurchasing && (
+                        <button type="button" disabled={submitting} onClick={() => void handleApproveOrder(order.id)} className="mt-3 rounded-lg bg-amber-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">
+                          {submitting ? 'Procesando…' : 'Aprobar orden'}
+                        </button>
+                      )}
+                      {['approved', 'partially_received'].includes(order.status) && canWriteInventory && remaining > 0 && (
+                        <div className="mt-3">
+                          {receivingOrderId !== order.id ? (
+                            <button type="button" disabled={submitting || compatibleWarehouses.length === 0} onClick={() => {
+                              setReceivingOrderId(order.id);
+                              setReceiptWarehouseId(compatibleWarehouses[0]?.id ?? '');
+                              setReceiptQuantity(String(remaining));
+                              setReceiptNumber('');
+                            }} className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-50">
+                              Registrar recepción
+                            </button>
+                          ) : (
+                            <form onSubmit={(event) => void handleReceiptSubmit(event, order)} className="grid gap-2 rounded-xl bg-slate-950/70 p-3">
+                              <label className="block"><span className={labelClass}>Bodega receptora</span>
+                                <select className={fieldClass} value={receiptWarehouseId} onChange={(event) => setReceiptWarehouseId(event.target.value)} required>
+                                  <option value="">Selecciona bodega</option>
+                                  {compatibleWarehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>)}
+                                </select>
+                              </label>
+                              <label className="block"><span className={labelClass}>Cantidad recibida (pendiente: {remaining})</span>
+                                <input className={fieldClass} type="number" min="0.0001" max={remaining} step="0.0001" value={receiptQuantity} onChange={(event) => setReceiptQuantity(event.target.value)} required />
+                              </label>
+                              <label className="block"><span className={labelClass}>Número de recepción / remisión</span>
+                                <input className={fieldClass} value={receiptNumber} onChange={(event) => setReceiptNumber(event.target.value)} pattern="[a-zA-Z0-9_-]{1,40}" maxLength={40} required />
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                <button type="submit" disabled={submitting || !compatibleWarehouses.length} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">
+                                  {submitting ? 'Guardando…' : 'Confirmar recepción'}
+                                </button>
+                                <button type="button" disabled={submitting} onClick={() => setReceivingOrderId('')} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 disabled:opacity-50">Cancelar</button>
+                              </div>
+                            </form>
+                          )}
+                          {compatibleWarehouses.length === 0 && <p className="mt-2 text-xs text-amber-300">No existe una bodega activa compatible con este proyecto.</p>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}</div>}
               </section>
               {canWritePurchasing && <form onSubmit={handleOrderSubmit} className={`${cardClass} space-y-3`}>
                 <h3 className="font-semibold text-white">Nueva orden (borrador)</h3>
@@ -531,7 +649,7 @@ export function InventoryManager({
                 <div className="grid grid-cols-2 gap-2"><label className="block"><span className={labelClass}>Cantidad</span><input className={fieldClass} type="number" min="0.0001" step="0.0001" value={orderQuantity} onChange={(event) => setOrderQuantity(event.target.value)} required /></label><label className="block"><span className={labelClass}>Precio unitario (Q)</span><input className={fieldClass} type="number" min="0" step="0.01" value={orderUnitPrice} onChange={(event) => setOrderUnitPrice(event.target.value)} required /></label></div>
                 <div className="rounded-xl bg-slate-950/80 p-3 text-sm"><div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{currency.format(Math.max(0, Number(orderQuantity) * Number(orderUnitPrice) || 0))}</span></div><div className="mt-1 flex justify-between text-slate-400"><span>IVA (12%)</span><span>{currency.format(Math.max(0, Number(orderQuantity) * Number(orderUnitPrice) * 0.12 || 0))}</span></div><div className="mt-2 flex justify-between border-t border-white/10 pt-2 font-semibold text-white"><span>Total</span><span>{currency.format(Math.max(0, Number(orderQuantity) * Number(orderUnitPrice) * 1.12 || 0))}</span></div></div>
                 <button className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !projectOptions.length || !activeSuppliers.length || !activeItems.length}>{submitting ? 'Guardando…' : 'Crear borrador de OC'}</button>
-                <p className="text-xs text-slate-500">La orden queda como borrador. La aprobación y recepción de materiales aún no están habilitadas.</p>
+                <p className="text-xs text-slate-500">La orden se registra como borrador. Después de aprobarla, el encargado de bodega puede registrar entregas parciales o completas con número de recepción y actualización transaccional de existencias.</p>
               </form>}
             </div>
           )}
