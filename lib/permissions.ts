@@ -1,5 +1,14 @@
 import type { CompanyRole } from '@/lib/types';
 
+export const INVITABLE_COMPANY_ROLES: Exclude<CompanyRole, 'owner'>[] = [
+  'admin',
+  'project_manager',
+  'finance',
+  'field_worker',
+  'warehouse_manager',
+  'viewer',
+];
+
 const FULL_PERSONNEL_ROLES: CompanyRole[] = ['owner', 'admin', 'finance'];
 const ATTENDANCE_ROLES: CompanyRole[] = [
   'owner',
