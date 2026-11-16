@@ -67,31 +67,44 @@ export function clearOfflineQueue(): void {
   saveOfflineData('offline_queue', []);
 }
 
+let isProcessingOfflineQueue = false;
+
 export async function processOfflineQueue(
   handler: (item: OfflineQueueItem) => Promise<boolean> | boolean
 ): Promise<{ processed: number; remaining: number }> {
+  // Evita que dos eventos de reconexión procesen simultáneamente el mismo lote.
+  if (isProcessingOfflineQueue) {
+    return { processed: 0, remaining: getOfflineQueue().length };
+  }
+
   const queue = getOfflineQueue();
   if (queue.length === 0) return { processed: 0, remaining: 0 };
 
-  const remainingItems: OfflineQueueItem[] = [];
+  isProcessingOfflineQueue = true;
   let processedCount = 0;
 
-  for (const item of queue) {
-    try {
-      const success = await handler(item);
-      if (success) {
-        processedCount++;
-      } else {
-        remainingItems.push(item);
+  try {
+    for (const item of queue) {
+      // Una acción puede haber sido retirada mientras esperaba su turno.
+      if (!getOfflineQueue().some((current) => current.id === item.id)) continue;
+
+      try {
+        const success = await handler(item);
+        if (success) {
+          // Lee la cola actual antes de retirar el elemento: conserva acciones
+          // nuevas añadidas mientras la sincronización estaba en curso.
+          removeOfflineAction(item.id);
+          processedCount++;
+        }
+      } catch (err) {
+        console.error('Failed to sync item:', item, err);
       }
-    } catch (err) {
-      console.error('Failed to sync item:', item, err);
-      remainingItems.push(item);
     }
+  } finally {
+    isProcessingOfflineQueue = false;
   }
 
-  saveOfflineData('offline_queue', remainingItems);
-  return { processed: processedCount, remaining: remainingItems.length };
+  return { processed: processedCount, remaining: getOfflineQueue().length };
 }
 
 export function registerServiceWorker(): void {
