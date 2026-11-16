@@ -46,6 +46,7 @@ export interface PurchaseOrderRecord {
   totalGTQ: number;
   requestedBy: string;
   approvedBy?: string;
+  lastReceiptMovementId?: string;
   createdAt: string;
   updatedAt: string;
 }
