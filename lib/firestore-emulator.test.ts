@@ -426,12 +426,50 @@ beforeEach(async () => {
       supplierId: 'supplier-procurement', contractNumber: 'SUB-QA-001',
       description: 'Instalación eléctrica de prueba', startDate: '2026-11-01',
       endDate: '2026-12-31', amountGTQ: 100000, paidGTQ: 0,
-      status: 'draft', createdBy: USERS.finance,
+      status: 'active', createdBy: USERS.finance,
     };
     await assertSucceeds(setDoc(doc(finance, 'subcontracts', contract.id), contract));
+    const payment = {
+      id: 'subpay_subcontract-qa_BANK-TRANSFER-001',
+      companyId: COMPANY_A,
+      contractId: contract.id,
+      projectId: contract.projectId,
+      supplierId: contract.supplierId,
+      amountGTQ: 25000,
+      paymentDate: '2026-11-16',
+      reference: 'BANK-TRANSFER-001',
+      createdBy: USERS.finance,
+      createdAt: '2026-11-16T10:00:00.000Z',
+    };
     await assertFails(setDoc(doc(finance, 'subcontracts', contract.id), {
-      ...contract, paidGTQ: 1000, status: 'active',
+      paidGTQ: 25000,
+      lastPaymentId: payment.id,
+      updatedAt: payment.createdAt,
     }, { merge: true }));
+    await assertFails(setDoc(doc(finance, 'subcontractPayments', payment.id), payment));
+    await assertSucceeds(runTransaction(finance, async (transaction) => {
+      transaction.set(doc(finance, 'subcontractPayments', payment.id), payment);
+      transaction.update(doc(finance, 'subcontracts', contract.id), {
+        paidGTQ: 25000,
+        lastPaymentId: payment.id,
+        updatedAt: payment.createdAt,
+      });
+    }));
+    const excessivePayment = {
+      ...payment,
+      id: 'subpay_subcontract-qa_OVERPAY-001',
+      amountGTQ: 80000,
+      reference: 'OVERPAY-001',
+      createdAt: '2026-11-16T10:30:00.000Z',
+    };
+    await assertFails(runTransaction(finance, async (transaction) => {
+      transaction.set(doc(finance, 'subcontractPayments', excessivePayment.id), excessivePayment);
+      transaction.update(doc(finance, 'subcontracts', contract.id), {
+        paidGTQ: 105000,
+        lastPaymentId: excessivePayment.id,
+        updatedAt: excessivePayment.createdAt,
+      });
+    }));
     await assertFails(setDoc(doc(finance, 'purchaseOrders', 'foreign-order'), {
       ...order, id: 'foreign-order', projectId: 'foreign-project',
     }));

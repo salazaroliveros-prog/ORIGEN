@@ -1015,6 +1015,58 @@ service cloud.firestore {
     }
 
     // Subcontracts remain linked to the project and supplier that own them.
+    function isValidSubcontractPayment(data, paymentId) {
+      let contractPath = /databases/$(database)/documents/subcontracts/$(data.contractId);
+      let beforeContract = get(contractPath).data;
+      let afterContract = getAfter(contractPath).data;
+      return data.id == paymentId &&
+        isValidId(paymentId) &&
+        data.keys().hasAll([
+          'id', 'companyId', 'contractId', 'projectId', 'supplierId',
+          'amountGTQ', 'paymentDate', 'reference', 'createdBy', 'createdAt'
+        ]) &&
+        canManagePurchasing(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.amountGTQ is number && data.amountGTQ > 0 &&
+        data.paymentDate is string && data.paymentDate.size() == 10 &&
+        data.reference is string && data.reference.size() > 0 && data.reference.size() <= 60 &&
+        data.createdAt is string &&
+        exists(contractPath) &&
+        existsAfter(contractPath) &&
+        beforeContract.companyId == data.companyId &&
+        beforeContract.projectId == data.projectId &&
+        beforeContract.supplierId == data.supplierId &&
+        beforeContract.status == 'active' &&
+        afterContract.companyId == beforeContract.companyId &&
+        afterContract.paidGTQ == beforeContract.paidGTQ + data.amountGTQ &&
+        afterContract.paidGTQ <= beforeContract.amountGTQ &&
+        afterContract.status == beforeContract.status &&
+        afterContract.lastPaymentId == paymentId &&
+        afterContract.updatedAt == data.createdAt;
+    }
+
+    function hasMatchingSubcontractPayment(contractId) {
+      let paymentId = incoming().lastPaymentId;
+      let paymentPath = /databases/$(database)/documents/subcontractPayments/$(paymentId);
+      let payment = getAfter(paymentPath).data;
+      return incoming().paidGTQ > existing().paidGTQ &&
+        incoming().paidGTQ <= existing().amountGTQ &&
+        incoming().lastPaymentId is string &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'paidGTQ', 'lastPaymentId', 'updatedAt'
+        ]) &&
+        existsAfter(paymentPath) &&
+        payment.id == paymentId &&
+        payment.contractId == contractId &&
+        payment.companyId == existing().companyId &&
+        payment.projectId == existing().projectId &&
+        payment.supplierId == existing().supplierId &&
+        payment.amountGTQ == incoming().paidGTQ - existing().paidGTQ &&
+        payment.createdBy == request.auth.uid &&
+        payment.createdAt == incoming().updatedAt &&
+        isValidSubcontractPayment(payment, paymentId);
+    }
+
     match /subcontracts/{contractId} {
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
@@ -1032,10 +1084,28 @@ service cloud.firestore {
         incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
         incoming().paidGTQ == 0 &&
         incoming().status in ['draft', 'active'];
-      allow update: if false;
+      allow update: if isValidId(contractId) &&
+        canManagePurchasing(existing().companyId) &&
+        incoming().id == existing().id &&
+        incoming().companyId == existing().companyId &&
+        incoming().projectId == existing().projectId &&
+        incoming().supplierId == existing().supplierId &&
+        incoming().amountGTQ == existing().amountGTQ &&
+        incoming().status == existing().status &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().updatedAt is string &&
+        hasMatchingSubcontractPayment(contractId);
       allow delete: if isValidId(contractId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
-        existing().status == 'draft';
+        existing().status == 'draft' &&
+        existing().paidGTQ == 0;
+    }
+
+    match /subcontractPayments/{paymentId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidSubcontractPayment(incoming(), paymentId);
+      allow update, delete: if false;
     }
 
     // Contact details are private and scoped to the authenticated UID.

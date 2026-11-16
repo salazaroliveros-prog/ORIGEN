@@ -19,6 +19,7 @@ import {
   createInventoryItemToFirestore,
   createPurchaseOrderToFirestore,
   createSubcontractToFirestore,
+  registerSubcontractPaymentToFirestore,
   receivePurchaseOrderToWarehouse,
   recordProjectStockIssueToFirestore,
   createSupplierToFirestore,
@@ -114,6 +115,11 @@ export function InventoryManager({
   const [contractEndDate, setContractEndDate] = useState('');
   const [contractAmount, setContractAmount] = useState('');
   const [contractStatus, setContractStatus] = useState<'draft' | 'active'>('draft');
+  const [payingContractId, setPayingContractId] = useState('');
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
+  const [paymentReference, setPaymentReference] = useState('');
+  const [paymentNotes, setPaymentNotes] = useState('');
   const [receivingOrderId, setReceivingOrderId] = useState('');
   const [receiptWarehouseId, setReceiptWarehouseId] = useState('');
   const [receiptQuantity, setReceiptQuantity] = useState('1');
@@ -464,6 +470,47 @@ export function InventoryManager({
     }
   };
 
+  const handleSubcontractPayment = async (
+    event: FormEvent<HTMLFormElement>,
+    contract: SubcontractRecord
+  ) => {
+    event.preventDefault();
+    if (!canWritePurchasing || submitting) return;
+    const amountGTQ = Number(paymentAmount);
+    const outstanding = Math.max(0, contract.amountGTQ - contract.paidGTQ);
+    if (!Number.isFinite(amountGTQ) || amountGTQ <= 0 || amountGTQ > outstanding) {
+      toast.error(`El pago debe ser mayor a cero y no superar el saldo pendiente (${currency.format(outstanding)}).`);
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]{1,60}$/.test(paymentReference.trim())) {
+      toast.error('Ingresa una referencia de pago válida.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const result = await registerSubcontractPaymentToFirestore({
+        contractId: contract.id,
+        amountGTQ,
+        paymentDate,
+        reference: paymentReference.trim(),
+        notes: paymentNotes.trim() || undefined,
+        companyId,
+        userId,
+      });
+      setPayingContractId('');
+      setPaymentAmount('');
+      setPaymentReference('');
+      setPaymentNotes('');
+      toast.success(result.alreadyProcessed
+        ? 'Este pago ya estaba registrado; no se duplicó.'
+        : 'Pago de subcontrato registrado y conciliado.');
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar el pago.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const sections: Array<{ id: Section; label: string }> = [
     { id: 'resumen', label: 'Resumen' },
     { id: 'articulos', label: 'Artículos' },
@@ -779,7 +826,56 @@ export function InventoryManager({
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
               <section className={cardClass}>
                 <h3 className="mb-3 font-semibold text-white">Subcontratos</h3>
-                {contracts.length === 0 ? <EmptyState message="Aún no hay subcontratos registrados." /> : <div className="space-y-2">{contracts.map((contract) => <div key={contract.id} className="rounded-xl border border-white/5 px-3 py-3"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-semibold text-white">{contract.contractNumber}</p><span className="rounded-full bg-slate-700 px-2.5 py-1 text-xs text-slate-200">{contract.status}</span></div><p className="mt-1 text-xs text-slate-400">{projects.find((project) => project.id === contract.projectId)?.name ?? contract.projectId} · {suppliers.find((supplier) => supplier.id === contract.supplierId)?.name ?? 'Proveedor'}</p><p className="mt-2 text-sm font-semibold text-white">{currency.format(contract.amountGTQ)}</p><p className="mt-1 text-xs text-slate-500">Vigencia: {formatDate(contract.startDate)} – {formatDate(contract.endDate)} · Pagado {currency.format(contract.paidGTQ)}</p></div>)}</div>}
+                {contracts.length === 0 ? <EmptyState message="Aún no hay subcontratos registrados." /> : (
+                  <div className="space-y-2">
+                    {contracts.map((contract) => {
+                      const outstanding = Math.max(0, contract.amountGTQ - contract.paidGTQ);
+                      return (
+                        <div key={contract.id} className="rounded-xl border border-white/5 px-3 py-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-white">{contract.contractNumber}</p>
+                            <span className="rounded-full bg-slate-700 px-2.5 py-1 text-xs text-slate-200">{contract.status}</span>
+                          </div>
+                          <p className="mt-1 text-xs text-slate-400">{projects.find((project) => project.id === contract.projectId)?.name ?? contract.projectId} · {suppliers.find((supplier) => supplier.id === contract.supplierId)?.name ?? 'Proveedor'}</p>
+                          <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                            <div><p className="text-slate-500">Contratado</p><p className="font-semibold text-white">{currency.format(contract.amountGTQ)}</p></div>
+                            <div><p className="text-slate-500">Pagado</p><p className="font-semibold text-emerald-300">{currency.format(contract.paidGTQ)}</p></div>
+                            <div><p className="text-slate-500">Pendiente</p><p className="font-semibold text-amber-200">{currency.format(outstanding)}</p></div>
+                          </div>
+                          <p className="mt-1 text-xs text-slate-500">Vigencia: {formatDate(contract.startDate)} – {formatDate(contract.endDate)}</p>
+                          {canWritePurchasing && contract.status === 'active' && outstanding > 0 && (
+                            payingContractId === contract.id ? (
+                              <form onSubmit={(event) => void handleSubcontractPayment(event, contract)} className="mt-3 grid gap-2 rounded-xl bg-slate-950/70 p-3">
+                                <label className="block"><span className={labelClass}>Monto del pago (saldo: {currency.format(outstanding)})</span>
+                                  <input className={fieldClass} type="number" min="0.01" max={outstanding} step="0.01" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} required />
+                                </label>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <label className="block"><span className={labelClass}>Fecha</span><input className={fieldClass} type="date" value={paymentDate} onChange={(event) => setPaymentDate(event.target.value)} required /></label>
+                                  <label className="block"><span className={labelClass}>Referencia / transferencia</span><input className={fieldClass} value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} maxLength={60} pattern="[a-zA-Z0-9_-]{1,60}" required /></label>
+                                </div>
+                                <label className="block"><span className={labelClass}>Notas</span><textarea className={fieldClass} value={paymentNotes} onChange={(event) => setPaymentNotes(event.target.value)} maxLength={1000} rows={2} /></label>
+                                <div className="flex flex-wrap gap-2">
+                                  <button type="submit" disabled={submitting} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">{submitting ? 'Registrando…' : 'Confirmar pago'}</button>
+                                  <button type="button" disabled={submitting} onClick={() => setPayingContractId('')} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 disabled:opacity-50">Cancelar</button>
+                                </div>
+                              </form>
+                            ) : (
+                              <button type="button" onClick={() => {
+                                setPayingContractId(contract.id);
+                                setPaymentAmount(outstanding.toFixed(2));
+                                setPaymentDate(new Date().toISOString().slice(0, 10));
+                                setPaymentReference('');
+                                setPaymentNotes('');
+                              }} className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200">
+                                Registrar pago
+                              </button>
+                            )
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
               {canWritePurchasing && <form onSubmit={handleContractSubmit} className={`${cardClass} space-y-3`}>
                 <h3 className="font-semibold text-white">Nuevo subcontrato</h3>

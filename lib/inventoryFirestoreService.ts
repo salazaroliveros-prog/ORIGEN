@@ -29,6 +29,7 @@ import {
   validateSupplier,
   type PurchaseOrderRecord,
   type SubcontractRecord,
+  type SubcontractPaymentRecord,
   type SupplierRecord,
 } from './domain/procurement';
 import { stripUndefined } from './utils/firestorePayload';
@@ -671,6 +672,119 @@ export async function createSubcontractToFirestore(
     throw handleFirestoreError(error, OperationType.CREATE, `subcontracts/${ref.id}`);
   }
   return contract;
+}
+
+export interface SubcontractPaymentResult {
+  payment: SubcontractPaymentRecord;
+  contract: SubcontractRecord & { lastPaymentId?: string; updatedAt?: string };
+  alreadyProcessed: boolean;
+}
+
+/**
+ * Append a subcontract payment and update its paid balance atomically.
+ * Payment IDs are derived from the contract and reference to make safe retries
+ * idempotent and prevent the same receipt/reference from being recorded twice.
+ */
+export async function registerSubcontractPaymentToFirestore(input: {
+  contractId: string;
+  amountGTQ: number;
+  paymentDate: string;
+  reference: string;
+  notes?: string;
+  companyId: string;
+  userId: string;
+}): Promise<SubcontractPaymentResult> {
+  const { contractId, amountGTQ, paymentDate, reference, notes, companyId, userId } = input;
+  assertSafeDocumentId(contractId, 'Subcontrato');
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario que registra', 128);
+  assertFiniteNonNegative(amountGTQ, 'Monto del pago');
+  if (amountGTQ <= 0) throw new Error('El monto del pago debe ser mayor a cero.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate) || Number.isNaN(Date.parse(`${paymentDate}T12:00:00`))) {
+    throw new Error('La fecha de pago no es válida.');
+  }
+  if (!/^[a-zA-Z0-9_-]{1,60}$/.test(reference.trim())) {
+    throw new Error('La referencia de pago solo puede contener letras, números, guion y guion bajo (máximo 60).');
+  }
+  if (notes !== undefined && (typeof notes !== 'string' || notes.length > 1000)) {
+    throw new Error('Las notas del pago no pueden superar 1000 caracteres.');
+  }
+
+  const normalizedReference = reference.trim().toUpperCase();
+  const paymentId = `subpay_${contractId.slice(0, 42)}_${normalizedReference.slice(0, 60)}`;
+  assertSafeDocumentId(paymentId, 'ID del pago');
+  const db = getDbOrThrow();
+  const contractRef = doc(db, 'subcontracts', contractId);
+  const paymentRef = doc(db, 'subcontractPayments', paymentId);
+  const now = new Date().toISOString();
+
+  try {
+    return await runTransaction(db, async (transaction: Transaction) => {
+      const [contractSnapshot, paymentSnapshot] = await Promise.all([
+        transaction.get(contractRef),
+        transaction.get(paymentRef),
+      ]);
+      if (!contractSnapshot.exists()) throw new Error('El subcontrato no existe.');
+      const contract = contractSnapshot.data() as SubcontractRecord & {
+        lastPaymentId?: string;
+        updatedAt?: string;
+      };
+      if (contract.companyId !== companyId) throw new Error('El subcontrato no pertenece a la empresa activa.');
+
+      if (paymentSnapshot.exists()) {
+        const previous = paymentSnapshot.data() as SubcontractPaymentRecord;
+        if (
+          previous.companyId === companyId &&
+          previous.contractId === contractId &&
+          previous.amountGTQ === amountGTQ &&
+          previous.paymentDate === paymentDate &&
+          previous.reference === normalizedReference &&
+          previous.createdBy === userId
+        ) {
+          return { payment: previous, contract, alreadyProcessed: true };
+        }
+        throw new Error('La referencia de pago ya fue utilizada.');
+      }
+
+      if (contract.status !== 'active') {
+        throw new Error('Solo se pueden registrar pagos de subcontratos activos.');
+      }
+      const paidGTQ = Math.round((contract.paidGTQ + amountGTQ + Number.EPSILON) * 100) / 100;
+      if (paidGTQ > contract.amountGTQ + 0.000001) {
+        throw new Error('El pago supera el saldo pendiente del subcontrato.');
+      }
+
+      const payment: SubcontractPaymentRecord = {
+        id: paymentId,
+        companyId,
+        contractId,
+        projectId: contract.projectId,
+        supplierId: contract.supplierId,
+        amountGTQ,
+        paymentDate,
+        reference: normalizedReference,
+        notes: notes?.trim() || undefined,
+        createdBy: userId,
+        createdAt: now,
+      };
+      const updatedContract = {
+        ...contract,
+        paidGTQ,
+        lastPaymentId: paymentId,
+        updatedAt: now,
+      };
+
+      transaction.set(paymentRef, stripUndefined(payment));
+      transaction.update(contractRef, {
+        paidGTQ,
+        lastPaymentId: paymentId,
+        updatedAt: now,
+      });
+      return { payment, contract: updatedContract, alreadyProcessed: false };
+    });
+  } catch (error) {
+    throw handleFirestoreError(error, OperationType.UPDATE, `subcontracts/${contractId}`);
+  }
 }
 
 function subscribeCompanyRecords<T>(

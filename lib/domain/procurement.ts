@@ -66,6 +66,20 @@ export interface SubcontractRecord {
   createdBy: string;
 }
 
+export interface SubcontractPaymentRecord {
+  id: string;
+  companyId: string;
+  contractId: string;
+  projectId: string;
+  supplierId: string;
+  amountGTQ: number;
+  paymentDate: string;
+  reference: string;
+  notes?: string;
+  createdBy: string;
+  createdAt: string;
+}
+
 export interface ContractExpiryAlert {
   subcontractId: string;
   contractNumber: string;
