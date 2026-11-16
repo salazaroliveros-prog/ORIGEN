@@ -8,6 +8,7 @@ import {
 } from '@firebase/rules-unit-testing';
 import {
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
@@ -101,6 +102,12 @@ async function seedCompany(companyId: string, members: Record<string, string>) {
         })
       )
     );
+    await setDoc(doc(database, 'companySettings', companyId), {
+      companyId,
+      ownerId: companyId,
+      legalName: 'Empresa de prueba',
+      commercialName: 'Empresa de prueba',
+    });
   });
 }
 
@@ -370,6 +377,28 @@ afterAll(async () => {
 });
 
 describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
+  it('permite resolver membresías y configuración de empresa al iniciar sesión', async () => {
+    const database = testEnvironment.authenticatedContext(USERS.owner).firestore();
+
+    const memberships = await getDocs(
+      query(collectionGroup(database, 'members'), where('uid', '==', USERS.owner))
+    );
+    expect(memberships.docs).toHaveLength(1);
+    expect(memberships.docs[0].data()).toMatchObject({
+      uid: USERS.owner,
+      companyId: COMPANY_A,
+      role: 'owner',
+    });
+
+    const settings = await getDoc(doc(database, 'companySettings', COMPANY_A));
+    expect(settings.exists()).toBe(true);
+    expect(settings.data()).toMatchObject({
+      companyId: COMPANY_A,
+      ownerId: COMPANY_A,
+      legalName: 'Empresa de prueba',
+    });
+  });
+
   it('impide que un administrador elimine el documento raíz de su empresa', async () => {
     const database = testEnvironment.authenticatedContext(USERS.owner).firestore();
     const companyRef = doc(database, 'companies', COMPANY_A);
