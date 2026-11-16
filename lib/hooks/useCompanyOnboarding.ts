@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { CompanySettings } from '@/lib/types';
-import { subscribeCompanySettings, saveCompanySettingsToFirestore } from '@/lib/firebaseService';
+import {
+  getAuthOrThrow,
+  subscribeCompanySettings,
+  saveCompanySettingsToFirestore,
+} from '@/lib/firebaseService';
 import { subscribeToAuthState } from '@/lib/firebaseAuth';
 import { toast } from 'react-hot-toast';
 import { createLogger } from '@/lib/utils/logger';
@@ -90,7 +94,6 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
         'companyId' | 'ownerId' | 'logoUrl' | 'logoSmallUrl' | 'logoSquareUrl' | 'bannerUrl'
       >
     ): Promise<boolean> => {
-      const { getAuthOrThrow } = await import('@/lib/firebaseService');
       const user = getAuthOrThrow().currentUser;
       if (!user) {
         toast.error('Inicia sesión para crear una empresa.');

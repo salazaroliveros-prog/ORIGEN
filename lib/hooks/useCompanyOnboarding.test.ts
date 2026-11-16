@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   authSubscriber: vi.fn(),
   settingsSubscriber: vi.fn(),
   saveSettings: vi.fn(),
+  getAuth: vi.fn(),
 }));
 
 vi.mock('@/lib/firebaseAuth', () => ({
@@ -21,8 +22,7 @@ import { useCompanyOnboarding } from './useCompanyOnboarding';
 type AuthCallback = (user: { uid: string } | null) => void;
 type SettingsCallback = (settings: Record<string, unknown> | null) => void;
 
-let authCallback: AuthCallback;
-let authErrorCallback: (error: Error) => void;
+let authCallback: AuthCallback = () => undefined;
 const settingsCallbacks = new Map<string, SettingsCallback>();
 const settingsUnsubscribers = new Map<string, ReturnType<typeof vi.fn>>();
 
@@ -38,9 +38,8 @@ beforeEach(() => {
   settingsCallbacks.clear();
   settingsUnsubscribers.clear();
 
-  mocks.authSubscriber.mockImplementation((onUser, onError) => {
+  mocks.authSubscriber.mockImplementation((onUser: unknown) => {
     authCallback = onUser as AuthCallback;
-    authErrorCallback = onError as (error: Error) => void;
     return vi.fn();
   });
 
@@ -52,6 +51,7 @@ beforeEach(() => {
   });
 
   mocks.saveSettings.mockResolvedValue(true);
+  mocks.getAuth.mockReturnValue({ currentUser: null });
 });
 
 afterEach(() => {
