@@ -95,7 +95,7 @@ async function persistNewRecord<T extends { id: string }>(
   try {
     // No se usa merge: las reglas deben evaluar una creación, no una
     // actualización accidental de un documento histórico con el mismo ID.
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async (transaction: Transaction) => {
       transaction.set(ref, stripUndefined(record));
     });
   } catch (error) {
@@ -158,7 +158,7 @@ export async function createWarehouseToFirestore(
     active: input.active,
     createdBy: userId,
   };
-  await runTransaction(db, async (transaction) => {
+  await runTransaction(db, async (transaction: Transaction) => {
     if (warehouse.projectId) {
       await assertCompanyReference(transaction, 'projects', warehouse.projectId, companyId, 'Proyecto');
     }
@@ -215,7 +215,7 @@ export async function createPurchaseOrderToFirestore(
   }
 
   try {
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async (transaction: Transaction) => {
       await assertCompanyReference(transaction, 'projects', order.projectId, companyId, 'Proyecto');
       await assertCompanyReference(transaction, 'suppliers', order.supplierId, companyId, 'Proveedor');
       const uniqueItemIds = [...new Set(order.lines.map((line) => line.itemId))];
@@ -244,7 +244,7 @@ export async function createSubcontractToFirestore(
     createdBy: userId,
   });
   try {
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async (transaction: Transaction) => {
       await assertCompanyReference(transaction, 'projects', contract.projectId, companyId, 'Proyecto');
       await assertCompanyReference(transaction, 'suppliers', contract.supplierId, companyId, 'Proveedor');
       transaction.set(ref, stripUndefined(contract));
