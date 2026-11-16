@@ -253,91 +253,67 @@ service cloud.firestore {
         receiptBalanceUpdated(data, movementId);
     }
 
-    function isValidTransferMovement(data, movementId) {
-      let transferId = data.referenceId;
-      let outgoingId = 'tr_' + transferId + '_out';
-      let incomingId = 'tr_' + transferId + '_in';
-      let outgoingPath = receiptMovementPath(outgoingId);
-      let incomingPath = receiptMovementPath(incomingId);
-      let outgoing = getAfter(outgoingPath).data;
-      let incoming = getAfter(incomingPath).data;
-      let sourceBalanceId = 'bal_' + outgoing.warehouseId + '_' + outgoing.itemId;
-      let destinationBalanceId = 'bal_' + incoming.warehouseId + '_' + incoming.itemId;
-      let sourceBalancePath = receiptBalancePath(sourceBalanceId);
-      let destinationBalancePath = receiptBalancePath(destinationBalanceId);
-      let sourceBefore = get(sourceBalancePath).data;
-      let sourceAfter = getAfter(sourceBalancePath).data;
-      let destinationBeforeExists = exists(destinationBalancePath);
-      let destinationBefore = destinationBeforeExists ? get(destinationBalancePath).data : null;
-      let destinationAfter = getAfter(destinationBalancePath).data;
-      let sourceWarehousePath = /databases/$(database)/documents/warehouses/$(outgoing.warehouseId);
-      let destinationWarehousePath = /databases/$(database)/documents/warehouses/$(incoming.warehouseId);
-      let sourceWarehouse = get(sourceWarehousePath).data;
-      let destinationWarehouse = get(destinationWarehousePath).data;
-      let itemPath = /databases/$(database)/documents/inventoryItems/$(outgoing.itemId);
-      return data.id == movementId &&
-        isValidId(movementId) &&
-        transferId is string && transferId.size() > 0 && transferId.size() <= 75 &&
-        existsAfter(outgoingPath) && existsAfter(incomingPath) &&
-        outgoing.id == outgoingId && incoming.id == incomingId &&
-        outgoing.kind == 'transfer_out' && incoming.kind == 'transfer_in' &&
-        outgoing.companyId == incoming.companyId &&
-        outgoing.companyId == data.companyId &&
-        outgoing.itemId == incoming.itemId &&
-        outgoing.quantity == incoming.quantity &&
-        outgoing.unitCostGTQ == incoming.unitCostGTQ &&
-        outgoing.referenceId == incoming.referenceId &&
-        outgoing.createdBy == incoming.createdBy &&
-        outgoing.occurredAt == incoming.occurredAt &&
-        outgoing.warehouseId != incoming.warehouseId &&
-        outgoing.balanceId == sourceBalanceId &&
-        incoming.balanceId == destinationBalanceId &&
-        outgoing.quantity is number && outgoing.quantity > 0 &&
-        outgoing.unitCostGTQ is number && outgoing.unitCostGTQ >= 0 &&
-        outgoing.createdBy == request.auth.uid &&
-        canManageInventory(outgoing.companyId) &&
-        exists(sourceWarehousePath) && exists(destinationWarehousePath) &&
-        sourceWarehouse.companyId == outgoing.companyId &&
-        destinationWarehouse.companyId == outgoing.companyId &&
-        sourceWarehouse.active == true && destinationWarehouse.active == true &&
+    function isTransferProjectContextValid(outgoing, incoming, sourceWarehouse, destinationWarehouse) {
+      return (
+          !outgoing.keys().hasAny(['projectId']) &&
+          !incoming.keys().hasAny(['projectId']) &&
+          sourceWarehouse.type == 'general' &&
+          destinationWarehouse.type == 'general'
+        ) || (
+          outgoing.keys().hasAny(['projectId']) &&
+          incoming.keys().hasAny(['projectId']) &&
+          outgoing.projectId == incoming.projectId &&
+          isProjectInCompany(outgoing.projectId, outgoing.companyId) &&
+          (sourceWarehouse.type == 'general' || sourceWarehouse.projectId == outgoing.projectId) &&
+          (destinationWarehouse.type == 'general' || destinationWarehouse.projectId == outgoing.projectId)
+        );
+    }
+
+    function isTransferWarehousesValid(outgoing, incoming) {
+      let sourcePath = /databases/$(database)/documents/warehouses/$(outgoing.warehouseId);
+      let destinationPath = /databases/$(database)/documents/warehouses/$(incoming.warehouseId);
+      let sourceWarehouse = get(sourcePath).data;
+      let destinationWarehouse = get(destinationPath).data;
+      return isWarehouseInCompany(outgoing.warehouseId, outgoing.companyId) &&
+        isWarehouseInCompany(incoming.warehouseId, incoming.companyId) &&
+        sourceWarehouse.active == true &&
+        destinationWarehouse.active == true &&
         sourceWarehouse.type in ['general', 'project'] &&
         destinationWarehouse.type in ['general', 'project'] &&
-        (
-          (
-            !outgoing.keys().hasAny(['projectId']) &&
-            !incoming.keys().hasAny(['projectId']) &&
-            sourceWarehouse.type == 'general' &&
-            destinationWarehouse.type == 'general'
-          ) ||
-          (
-            outgoing.keys().hasAny(['projectId']) &&
-            incoming.keys().hasAny(['projectId']) &&
-            outgoing.projectId == incoming.projectId &&
-            isProjectInCompany(outgoing.projectId, outgoing.companyId) &&
-            (sourceWarehouse.type == 'general' || sourceWarehouse.projectId == outgoing.projectId) &&
-            (destinationWarehouse.type == 'general' || destinationWarehouse.projectId == outgoing.projectId)
-          )
-        ) &&
-        exists(itemPath) &&
-        get(itemPath).data.companyId == outgoing.companyId &&
-        get(itemPath).data.active == true &&
-        exists(sourceBalancePath) && existsAfter(sourceBalancePath) &&
+        isTransferProjectContextValid(outgoing, incoming, sourceWarehouse, destinationWarehouse);
+    }
+
+    function isTransferBalancesValid(outgoing, incoming, sourceBalanceId, destinationBalanceId) {
+      let sourcePath = receiptBalancePath(sourceBalanceId);
+      let destinationPath = receiptBalancePath(destinationBalanceId);
+      let sourceBefore = get(sourcePath).data;
+      let sourceAfter = getAfter(sourcePath).data;
+      let destinationBeforeExists = exists(destinationPath);
+      let destinationBefore = destinationBeforeExists ? get(destinationPath).data : null;
+      let destinationAfter = getAfter(destinationPath).data;
+      return exists(sourcePath) &&
+        existsAfter(sourcePath) &&
         sourceBefore.companyId == outgoing.companyId &&
         sourceBefore.itemId == outgoing.itemId &&
         sourceBefore.warehouseId == outgoing.warehouseId &&
         sourceBefore.quantity >= outgoing.quantity &&
         sourceBefore.averageUnitCostGTQ == outgoing.unitCostGTQ &&
-        sourceAfter.lastMovementId == outgoingId &&
+        sourceAfter.companyId == outgoing.companyId &&
+        sourceAfter.itemId == outgoing.itemId &&
+        sourceAfter.warehouseId == outgoing.warehouseId &&
+        sourceAfter.lastMovementId == outgoing.id &&
         sourceAfter.quantity == sourceBefore.quantity - outgoing.quantity &&
         sourceAfter.averageUnitCostGTQ == (sourceAfter.quantity == 0 ? 0 : sourceBefore.averageUnitCostGTQ) &&
         sourceAfter.reorderLevel == sourceBefore.reorderLevel &&
-        existsAfter(destinationBalancePath) &&
+        existsAfter(destinationPath) &&
         destinationAfter.companyId == incoming.companyId &&
         destinationAfter.itemId == incoming.itemId &&
         destinationAfter.warehouseId == incoming.warehouseId &&
-        destinationAfter.lastMovementId == incomingId &&
+        destinationAfter.lastMovementId == incoming.id &&
         destinationAfter.quantity == (destinationBeforeExists ? destinationBefore.quantity : 0) + incoming.quantity &&
-        destinationAfter.reorderLevel == (destinationBeforeExists ? destinationBefore.reorderLevel : get(itemPath).data.reorderLevel) &&
+        destinationAfter.reorderLevel == (destinationBeforeExists
+          ? destinationBefore.reorderLevel
+          : get(/databases/$(database)/documents/inventoryItems/$(incoming.itemId)).data.reorderLevel) &&
         (
           destinationBeforeExists
             ? isWithinOneCent(
@@ -355,10 +331,64 @@ service cloud.firestore {
               destinationAfter.createdAt == destinationBefore.createdAt
             : destinationAfter.createdBy == request.auth.uid &&
               destinationAfter.createdAt is string
-        ) &&
+        );
+    }
+
+    function isTransferMovementPairValid(data, movementId, outgoingId, incomingId, outgoing, incoming, sourceBalanceId, destinationBalanceId) {
+      return data.id == movementId &&
         (
           (data.kind == 'transfer_out' && data.id == outgoingId && data.balanceId == sourceBalanceId) ||
           (data.kind == 'transfer_in' && data.id == incomingId && data.balanceId == destinationBalanceId)
+        ) &&
+        data.companyId == outgoing.companyId &&
+        data.itemId == outgoing.itemId &&
+        data.quantity == outgoing.quantity &&
+        data.unitCostGTQ == outgoing.unitCostGTQ &&
+        data.referenceId == outgoing.referenceId &&
+        data.createdBy == outgoing.createdBy &&
+        data.occurredAt == outgoing.occurredAt &&
+        data.warehouseId in [outgoing.warehouseId, incoming.warehouseId] &&
+        isValidId(movementId) &&
+        outgoing.id == outgoingId &&
+        incoming.id == incomingId &&
+        outgoing.kind == 'transfer_out' &&
+        incoming.kind == 'transfer_in' &&
+        outgoing.companyId == incoming.companyId &&
+        outgoing.companyId == data.companyId &&
+        outgoing.itemId == incoming.itemId &&
+        outgoing.quantity == incoming.quantity &&
+        outgoing.unitCostGTQ == incoming.unitCostGTQ &&
+        outgoing.referenceId == incoming.referenceId &&
+        outgoing.createdBy == incoming.createdBy &&
+        outgoing.occurredAt == incoming.occurredAt &&
+        outgoing.warehouseId != incoming.warehouseId &&
+        outgoing.balanceId == sourceBalanceId &&
+        incoming.balanceId == destinationBalanceId &&
+        outgoing.quantity is number && outgoing.quantity > 0 &&
+        outgoing.unitCostGTQ is number && outgoing.unitCostGTQ >= 0 &&
+        outgoing.createdBy == request.auth.uid &&
+        canManageInventory(outgoing.companyId) &&
+        isTransferWarehousesValid(outgoing, incoming) &&
+        isActiveInventoryItem(outgoing.itemId, outgoing.companyId) &&
+        isTransferBalancesValid(outgoing, incoming, sourceBalanceId, destinationBalanceId);
+    }
+
+    function isValidTransferMovement(data, movementId) {
+      let transferId = data.referenceId;
+      let outgoingId = 'tr_' + transferId + '_out';
+      let incomingId = 'tr_' + transferId + '_in';
+      let outgoingPath = receiptMovementPath(outgoingId);
+      let incomingPath = receiptMovementPath(incomingId);
+      let outgoing = getAfter(outgoingPath).data;
+      let incoming = getAfter(incomingPath).data;
+      let sourceBalanceId = 'bal_' + outgoing.warehouseId + '_' + outgoing.itemId;
+      let destinationBalanceId = 'bal_' + incoming.warehouseId + '_' + incoming.itemId;
+      return transferId is string &&
+        transferId.size() > 0 && transferId.size() <= 75 &&
+        existsAfter(outgoingPath) && existsAfter(incomingPath) &&
+        isTransferMovementPairValid(
+          data, movementId, outgoingId, incomingId, outgoing, incoming,
+          sourceBalanceId, destinationBalanceId
         );
     }
 
@@ -1109,8 +1139,8 @@ service cloud.firestore {
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
         incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
         (
-          (incoming().quantity > existing().quantity && isValidReceiptBalance(incoming(), balanceId, false)) ||
-          (incoming().quantity < existing().quantity && isValidIssueBalance(incoming(), balanceId))
+          (incoming().quantity > existing().quantity && (isValidReceiptBalance(incoming(), balanceId, false) || isValidTransferInBalance(incoming(), balanceId, false))) ||
+          (incoming().quantity < existing().quantity && (isValidIssueBalance(incoming(), balanceId) || isValidTransferOutBalance(incoming(), balanceId)))
         );
       allow delete: if false;
     }
