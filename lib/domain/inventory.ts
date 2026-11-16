@@ -131,6 +131,87 @@ export function applyStockMovement(
   };
 }
 
+export interface WarehouseTransferInput {
+  id: string;
+  companyId: string;
+  itemId: string;
+  fromWarehouseId: string;
+  toWarehouseId: string;
+  quantity: number;
+  occurredAt: string;
+  createdBy: string;
+  notes?: string;
+}
+
+export interface WarehouseTransferResult {
+  outgoing: StockMovement;
+  incoming: StockMovement;
+  sourceBalance: InventoryBalance;
+  destinationBalance: InventoryBalance;
+}
+
+/**
+ * Calcula ambos lados de un traslado. No persiste datos: el servicio Firestore
+ * debe escribir los dos movimientos y ambos saldos en una sola transacción.
+ */
+export function applyWarehouseTransfer(
+  source: InventoryBalance,
+  destination: InventoryBalance,
+  input: WarehouseTransferInput
+): WarehouseTransferResult {
+  if (!input.id.trim() || !input.companyId.trim() || !input.createdBy.trim()) {
+    throw new Error('El traslado debe identificar su ID, empresa y usuario creador.');
+  }
+  if (!input.itemId.trim() || !input.fromWarehouseId.trim() || !input.toWarehouseId.trim()) {
+    throw new Error('El traslado debe identificar el artículo y las dos bodegas.');
+  }
+  if (input.fromWarehouseId === input.toWarehouseId) {
+    throw new Error('La bodega de origen y destino deben ser diferentes.');
+  }
+  assertPositiveFinite(input.quantity, 'La cantidad del traslado');
+  if (!Number.isFinite(Date.parse(input.occurredAt))) {
+    throw new Error('La fecha del traslado no es válida.');
+  }
+  if (
+    source.itemId !== input.itemId || destination.itemId !== input.itemId ||
+    source.warehouseId !== input.fromWarehouseId ||
+    destination.warehouseId !== input.toWarehouseId
+  ) {
+    throw new Error('Los saldos no corresponden al artículo y bodegas del traslado.');
+  }
+
+  const unitCostGTQ = source.averageUnitCostGTQ;
+  const base = {
+    companyId: input.companyId,
+    itemId: input.itemId,
+    quantity: input.quantity,
+    unitCostGTQ,
+    occurredAt: input.occurredAt,
+    referenceId: input.id,
+    createdBy: input.createdBy,
+    ...(input.notes ? { notes: input.notes } : {}),
+  };
+  const outgoing: StockMovement = {
+    ...base,
+    id: `tr_${input.id}_out`,
+    warehouseId: input.fromWarehouseId,
+    kind: 'transfer_out',
+  };
+  const incoming: StockMovement = {
+    ...base,
+    id: `tr_${input.id}_in`,
+    warehouseId: input.toWarehouseId,
+    kind: 'transfer_in',
+  };
+
+  return {
+    outgoing,
+    incoming,
+    sourceBalance: applyStockMovement(source, outgoing),
+    destinationBalance: applyStockMovement(destination, incoming),
+  };
+}
+
 /** Construye el saldo de una combinación artículo/bodega a partir de movimientos. */
 export function calculateInventoryBalance(params: {
   itemId: string;
