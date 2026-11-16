@@ -27,6 +27,7 @@ export function Input({
   formTheme = 'dark',
   ...props
 }: InputProps) {
+  const inputId = props.id ?? React.useId();
   const isError = variant === 'error' || !!errorText;
   const isSuccess = variant === 'success';
   const isDisabled = variant === 'disabled' || disabled;
@@ -65,7 +66,7 @@ export function Input({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className={labelStyles}>
+        <label htmlFor={inputId} className={labelStyles}>
           {label}
         </label>
       )}
@@ -77,6 +78,7 @@ export function Input({
           <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>{rightIcon}</div>
         )}
         <input
+          id={inputId}
           className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[inputSize]} ${className}`}
           disabled={isDisabled}
           {...props}

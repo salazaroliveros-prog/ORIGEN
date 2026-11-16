@@ -17,8 +17,8 @@ async function warmUpSession(baseURL: string): Promise<void> {
     await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 120_000 });
 
     const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
-    const emailField = page.locator('input[type="email"]');
-    const passwordField = page.locator('input[type="password"]');
+    const emailField = page.getByLabel('Correo electrónico');
+    const passwordField = page.getByLabel('Contraseña', { exact: true });
 
     // La app monta primero el shell "Cargando…": hay que esperar a que aparezca
     // la sesión activa o el formulario de acceso.
@@ -37,7 +37,7 @@ async function warmUpSession(baseURL: string): Promise<void> {
 
     if (!loggedIn) {
       if (!(await emailField.isVisible().catch(() => false))) {
-        throw new Error('La app no mostró ni la sesión activa ni el formulario de acceso. URL actual: ${page.url()}');
+        throw new Error(`La app no mostró ni la sesión activa ni el formulario de acceso. URL actual: ${page.url()}`);
       }
 
       await emailField.fill(email);

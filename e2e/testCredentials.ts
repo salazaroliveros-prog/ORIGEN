@@ -31,7 +31,7 @@ export async function ensureAuthenticated(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
   const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
-  const emailField = page.locator('input[type="email"]');
+  const emailField = page.getByLabel('Correo electrónico');
 
   // `isVisible()` NO espera: si la app todavía no ha montado el shell, la
   // comprobación devuelve false y el flujo acaba esperando un formulario de
@@ -45,7 +45,7 @@ export async function ensureAuthenticated(page: Page) {
   }
 
   await emailField.fill(ADMIN_EMAIL);
-  await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
+  await page.getByLabel('Contraseña', { exact: true }).fill(ADMIN_PASSWORD);
   await page.getByRole('button', { name: /Iniciar Sesión/i }).click();
   await expect(dashboard).toBeVisible({ timeout: 60_000 });
   await waitForWorkspaceReady(page);
