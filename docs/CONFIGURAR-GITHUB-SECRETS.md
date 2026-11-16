@@ -24,12 +24,12 @@ For each variable, add:
 #### NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
 - **Name:** `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- **Value:** `origen-erp-guatemala`
+- **Value:** `<TU_FIREBASE_PROJECT_ID>`
 
 #### NEXT_PUBLIC_FIREBASE_API_KEY
 
 - **Name:** `NEXT_PUBLIC_FIREBASE_API_KEY`
-- **Value:** `AIzaSyDJ2pF5j_1jwuKFqYPoglDX9vFUw2g5YHI`
+- **Value:** `<TU_FIREBASE_API_KEY>`
 
 #### NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
 
@@ -39,7 +39,7 @@ For each variable, add:
 #### NEXT_PUBLIC_FIREBASE_APP_ID
 
 - **Name:** `NEXT_PUBLIC_FIREBASE_APP_ID`
-- **Value:** `1:893831571998:web:4e38903eeb0dff05011c0f`
+- **Value:** `<TU_FIREBASE_APP_ID>`
 
 #### NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 
@@ -49,7 +49,7 @@ For each variable, add:
 #### NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 
 - **Name:** `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- **Value:** `893831571998`
+- **Value:** `<TU_FIREBASE_MESSAGING_SENDER_ID>`
 
 #### NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 
