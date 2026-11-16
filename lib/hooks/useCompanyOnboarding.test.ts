@@ -44,8 +44,8 @@ beforeEach(() => {
     return vi.fn();
   });
 
-  mocks.settingsSubscriber.mockImplementation((companyId: string, callback: SettingsCallback) => {
-    settingsCallbacks.set(companyId, callback);
+  mocks.settingsSubscriber.mockImplementation((companyId: unknown, callback: unknown) => {
+    settingsCallbacks.set(String(companyId), callback as SettingsCallback);
     const unsubscribe = vi.fn();
     settingsUnsubscribers.set(companyId, unsubscribe);
     return unsubscribe;
@@ -91,8 +91,10 @@ describe('useCompanyOnboarding', () => {
     act(() => settingsCallbacks.get('user-1')?.(companySettings));
     expect(result.current.hasCompany).toBe(true);
 
+    const staleSettingsCallback = settingsCallbacks.get('user-1');
     act(() => authCallback({ uid: 'user-2' }));
     expect(settingsUnsubscribers.get('user-1')).toHaveBeenCalledTimes(1);
+    act(() => staleSettingsCallback?.({ ...companySettings, legalName: 'Empresa anterior' }));
     expect(result.current.company).toBeNull();
     expect(result.current.hasCompany).toBe(false);
     expect(result.current.loading).toBe(true);
