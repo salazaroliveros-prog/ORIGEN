@@ -602,6 +602,33 @@ afterAll(async () => {
 });
 
 describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
+  it('stores project photo metadata only for project members and keeps it immutable', async () => {
+    await seedProject(makeProject('photo-project'));
+    const owner = testEnvironment.authenticatedContext(USERS.owner).firestore();
+    const foreign = testEnvironment.authenticatedContext(USERS.otherCompanyOwner).firestore();
+    const photo = {
+      id: 'photo_20261116_ab12',
+      projectId: 'photo-project',
+      companyId: COMPANY_A,
+      filename: '20261116-ab12.jpg',
+      storagePath: 'projects/photo-project/progress/20261116-ab12.jpg',
+      uploadedAt: '2026-11-16T12:00:00.000Z',
+      size: 1024,
+      uploadedBy: USERS.owner,
+    };
+    const ownerRef = doc(owner, 'projects', 'photo-project', 'photos', photo.id);
+    const foreignRef = doc(foreign, 'projects', 'photo-project', 'photos', photo.id);
+
+    await assertSucceeds(setDoc(ownerRef, photo));
+    await assertSucceeds(getDoc(ownerRef));
+    await assertSucceeds(getDocs(collection(owner, 'projects', 'photo-project', 'photos')));
+    await assertFails(getDoc(foreignRef));
+    await assertFails(setDoc(foreignRef, { ...photo, uploadedBy: USERS.otherCompanyOwner }));
+    await assertFails(setDoc(ownerRef, { ...photo, filename: 'changed.jpg' }, { merge: true }));
+    await assertFails(deleteDoc(ownerRef));
+  });
+
+
   it('keeps user profile contact data private to the authenticated UID', async () => {
     const owner = testEnvironment.authenticatedContext(USERS.owner).firestore();
     const other = testEnvironment.authenticatedContext(USERS.viewer).firestore();
