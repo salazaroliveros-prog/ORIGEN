@@ -338,6 +338,15 @@ afterAll(async () => {
 });
 
 describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
+  it('impide que un administrador elimine el documento raíz de su empresa', async () => {
+    const database = testEnvironment.authenticatedContext(USERS.owner).firestore();
+    const companyRef = doc(database, 'companies', COMPANY_A);
+
+    await assertSucceeds(getDoc(companyRef));
+    await assertFails(deleteDoc(companyRef));
+    await assertSucceeds(getDoc(companyRef));
+  });
+
   it('reserva un ID de run QA una sola vez y permite actualizar solo su manifiesto', async () => {
     const database = testEnvironment.authenticatedContext(USERS.owner).firestore();
     const manifestRef = doc(database, 'qa_runs', 'qa-run-exclusive');
