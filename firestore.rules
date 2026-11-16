@@ -168,6 +168,11 @@ service cloud.firestore {
         ]) &&
         data.id == movementId &&
         isValidId(movementId) &&
+        data.projectId is string && isValidId(data.projectId) &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId is string && isValidId(data.balanceId) &&
+        data.occurredAt is string &&
         canManageInventory(data.companyId) &&
         data.createdBy == request.auth.uid &&
         data.kind == 'purchase_receipt' &&
@@ -866,6 +871,7 @@ service cloud.firestore {
         isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
         incoming().currency == 'GTQ' &&
         incoming().status == 'draft' &&
+        !incoming().keys().hasAny(['approvedBy', 'lastReceiptMovementId']) &&
         incoming().lines is list && incoming().lines.size() == 1 &&
         incoming().lines[0].keys().hasAll([
           'itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ'
