@@ -996,7 +996,8 @@ export async function saveCompanySettingsToFirestore(settings: CompanySettings, 
 
 export function subscribeCompanySettings(
   companyId: string,
-  callback: (settings: CompanySettings | null) => void
+  callback: (settings: CompanySettings | null) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = `companySettings/${companyId}`;
   try {
@@ -1011,12 +1012,14 @@ export function subscribeCompanySettings(
         }
       },
       (error: Error) => {
-        handleFirestoreError(error, OperationType.GET, path);
+        const normalized = handleFirestoreError(error, OperationType.GET, path);
+        onError?.(normalized);
       }
     );
   } catch (err) {
     notifySyncEnd();
-    handleFirestoreError(err, OperationType.GET, path);
+    const normalized = handleFirestoreError(err, OperationType.GET, path);
+    onError?.(normalized);
     return () => {};
   }
 }

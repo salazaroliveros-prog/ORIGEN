@@ -26,6 +26,7 @@ type SettingsCallback = (settings: Record<string, unknown> | null) => void;
 let authCallback: AuthCallback = () => undefined;
 const settingsCallbacks = new Map<string, SettingsCallback>();
 const settingsUnsubscribers = new Map<string, ReturnType<typeof vi.fn>>();
+const settingsErrorCallbacks = new Map<string, (error: Error) => void>();
 
 const companySettings = {
   companyId: 'user-1',
@@ -38,14 +39,18 @@ beforeEach(() => {
   vi.clearAllMocks();
   settingsCallbacks.clear();
   settingsUnsubscribers.clear();
+  settingsErrorCallbacks.clear();
 
   mocks.authSubscriber.mockImplementation((onUser: unknown) => {
     authCallback = onUser as AuthCallback;
     return vi.fn();
   });
 
-  mocks.settingsSubscriber.mockImplementation((companyId: unknown, callback: unknown) => {
+  mocks.settingsSubscriber.mockImplementation((companyId: unknown, callback: unknown, onError?: unknown) => {
     settingsCallbacks.set(String(companyId), callback as SettingsCallback);
+    if (typeof onError === 'function') {
+      settingsErrorCallbacks.set(String(companyId), onError as (error: Error) => void);
+    }
     const unsubscribe = vi.fn();
     settingsUnsubscribers.set(String(companyId), unsubscribe);
     return unsubscribe;
@@ -104,6 +109,19 @@ describe('useCompanyOnboarding', () => {
     expect(result.current.company?.companyId).toBe('user-2');
 
     unmount();
+  });
+
+  it('surfaces Firestore lookup errors instead of leaving onboarding loading forever', () => {
+    const { result } = renderHook(() => useCompanyOnboarding());
+
+    act(() => authCallback({ uid: 'user-1' }));
+    expect(result.current.loading).toBe(true);
+
+    act(() => settingsErrorCallbacks.get('user-1')?.(new Error('unavailable')));
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.hasCompany).toBe(false);
+    expect(result.current.error).toContain('conectar con Firebase');
   });
 
   it('clears company state after signing out and unsubscribes on unmount', () => {

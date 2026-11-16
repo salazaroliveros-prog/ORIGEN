@@ -20,6 +20,8 @@ export interface UseCompanyOnboardingReturn {
   loading: boolean;
   /** Indica si el usuario tiene empresa creada */
   hasCompany: boolean;
+  /** Error recuperable al comprobar la empresa. */
+  error: string | null;
   /** Crea la empresa inicial para el usuario autenticado */
   createCompany: (
     settings: Omit<
@@ -29,10 +31,22 @@ export interface UseCompanyOnboardingReturn {
   ) => Promise<boolean>;
 }
 
+function describeCompanyLookupError(error: Error): string {
+  const message = error.message.toLowerCase();
+  if (message.includes('permission-denied') || message.includes('missing or insufficient permissions')) {
+    return 'No se pudo verificar el acceso a tu empresa. Revisa tus permisos o inicia sesión de nuevo.';
+  }
+  if (message.includes('unavailable') || message.includes('network') || message.includes('offline')) {
+    return 'No se pudo conectar con Firebase para verificar tu empresa. Revisa tu conexión e inténtalo de nuevo.';
+  }
+  return 'No se pudo consultar la configuración de tu empresa. Inténtalo de nuevo.';
+}
+
 export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
   const [company, setCompany] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasCompany, setHasCompany] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let unsubscribeSettings: (() => void) | null = null;
@@ -46,38 +60,48 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
         activeUserId = user?.uid ?? null;
         setCompany(null);
         setHasCompany(false);
+        setError(null);
 
         if (!user) {
-          setCompany(null);
-          setHasCompany(false);
           setLoading(false);
           return;
         }
 
         setLoading(true);
         const userId = user.uid;
-        unsubscribeSettings = subscribeCompanySettings(userId, (data) => {
-          // Evita que una notificación pendiente de una sesión anterior
-          // sobrescriba la empresa del usuario autenticado actual.
-          if (activeUserId !== userId) return;
+        unsubscribeSettings = subscribeCompanySettings(
+          userId,
+          (data) => {
+            // Evita que una notificación pendiente de una sesión anterior
+            // sobrescriba la empresa del usuario autenticado actual.
+            if (activeUserId !== userId) return;
 
-          setLoading(false);
-          if (data && data.legalName) {
-            setCompany(data);
-            setHasCompany(true);
-          } else {
-            setCompany(null);
-            setHasCompany(false);
+            setLoading(false);
+            setError(null);
+            if (data && data.legalName) {
+              setCompany(data);
+              setHasCompany(true);
+            } else {
+              setCompany(null);
+              setHasCompany(false);
+            }
+          },
+          (settingsError) => {
+            if (activeUserId !== userId) return;
+            log.error('No se pudo consultar la configuración de empresa.', settingsError);
+            setLoading(false);
+            setError(describeCompanyLookupError(settingsError));
           }
-        });
+        );
       },
-      (error) => {
-        log.error('No se pudo comprobar la sesión para el onboarding de empresa.', error);
+      (authError) => {
+        log.error('No se pudo comprobar la sesión para el onboarding de empresa.', authError);
         unsubscribeSettings?.();
         unsubscribeSettings = null;
         activeUserId = null;
         setCompany(null);
         setHasCompany(false);
+        setError('No se pudo comprobar la sesión. Recarga la página e inténtalo de nuevo.');
         setLoading(false);
       }
     );
@@ -103,6 +127,7 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
       }
 
       setLoading(true);
+      setError(null);
       try {
         const companyId = user.uid;
         const companyData: CompanySettings = {
@@ -119,14 +144,17 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
         if (saved) {
           setCompany(companyData);
           setHasCompany(true);
+          setError(null);
           toast.success('Empresa creada correctamente.');
           return true;
         }
 
+        setError('No se pudo guardar la configuración de empresa. Inténtalo de nuevo.');
         toast.error('No se pudo crear la empresa.');
         return false;
-      } catch (error) {
-        log.error('Error creating company', error as Error);
+      } catch (createError) {
+        log.error('Error creating company', createError as Error);
+        setError('Ocurrió un error al crear la empresa. Inténtalo de nuevo.');
         toast.error('Error al crear la empresa.');
         return false;
       } finally {
@@ -140,6 +168,7 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
     company,
     loading,
     hasCompany,
+    error,
     createCompany,
   };
 }
