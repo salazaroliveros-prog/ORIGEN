@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { createServer } from 'node:net';
 import { existsSync, readFileSync } from 'node:fs';
-import { copyFile, mkdir, rm } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -73,7 +73,23 @@ async function main() {
     await Promise.all([
       mkdir(reportDirectory, { recursive: true }),
       mkdir(htmlDirectory, { recursive: true }),
-      copyFile(path.join(repositoryRoot, 'tsconfig.json'), tsconfigPath),
+      writeFile(
+        tsconfigPath,
+        (() => {
+          const projectConfig = JSON.parse(
+            readFileSync(path.join(repositoryRoot, 'tsconfig.json'), 'utf8')
+          );
+          // No incluir declaraciones .next/types ni .next/dev/types de builds
+          // previos. Next agregará los tipos de esta corrida al tsconfig temporal.
+          if (Array.isArray(projectConfig.include)) {
+            projectConfig.include = projectConfig.include.filter(
+              (entry) => typeof entry !== 'string' || !/^(?:\.\/)?\.next(?:\/|\\\\)/.test(entry)
+            );
+          }
+          return `${JSON.stringify(projectConfig, null, 2)}\\n`;
+        })(),
+        'utf8'
+      ),
     ]);
 
     // El correo y la clave son nuevos por corrida; no se reutilizan cuentas ni
