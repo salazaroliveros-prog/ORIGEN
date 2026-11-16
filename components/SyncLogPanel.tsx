@@ -100,8 +100,7 @@ export function SyncLogPanel({
                 </span>
               </div>
               <p className="mt-0.5 text-xs text-slate-400">
-                Registro en tiempo real de operaciones de escritura y consultas a la base de datos
-                de Firebase.
+                Estado de red y confirmación de escrituras pendientes en Firestore.
               </p>
             </div>
           </div>
@@ -133,7 +132,7 @@ export function SyncLogPanel({
                 ? 'Sin Internet'
                 : status === 'syncing'
                   ? 'Sincronizando…'
-                  : 'Conectado a Firestore'}
+                  : 'Internet disponible'}
             </strong>
           </div>
 
