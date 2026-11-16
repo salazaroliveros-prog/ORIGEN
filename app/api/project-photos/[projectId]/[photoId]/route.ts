@@ -23,7 +23,7 @@ function stringField(fields: FirestoreDocument['fields'], name: string): string 
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ projectId: string; photoId: string }> | { projectId: string; photoId: string } }
+  context: { params: Promise<{ projectId: string; photoId: string }> }
 ) {
   try {
     const auth = await requireApiUser(request);
