@@ -75,6 +75,7 @@ export interface ContractExpiryAlert {
 }
 
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
+const roundQuantity = (value: number) => Math.round((value + Number.EPSILON) * 10_000) / 10_000;
 
 function requireText(value: string, label: string): void {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${label} es obligatorio.`);
@@ -180,7 +181,7 @@ export function recordPurchaseReceipt(
     if (line.receivedQuantity + receivedNow > line.quantity) {
       throw new Error(`La recepción supera lo pendiente del artículo ${line.itemId}.`);
     }
-    return { ...line, receivedQuantity: money(line.receivedQuantity + receivedNow) };
+    return { ...line, receivedQuantity: roundQuantity(line.receivedQuantity + receivedNow) };
   });
   const allReceived = lines.every(line => line.receivedQuantity === line.quantity);
   const anyReceived = lines.some(line => line.receivedQuantity > 0);
