@@ -31,7 +31,7 @@ import {
   type SupplierRecord,
 } from './domain/procurement';
 import { stripUndefined } from './utils/firestorePayload';
-import type { StockMovement } from './domain/inventory';
+import { applyStockMovement, type InventoryBalance, type StockMovement } from './domain/inventory';
 
 export interface WarehouseRecord {
   id: string;
@@ -51,6 +51,22 @@ export interface InventoryItemRecord {
   reorderLevel: number;
   active: boolean;
   createdBy: string;
+}
+
+export interface InventoryBalanceRecord extends InventoryBalance {
+  id: string;
+  companyId: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  lastMovementId: string;
+}
+
+export interface PurchaseReceiptResult {
+  order: PurchaseOrderRecord;
+  movement: StockMovement;
+  balance: InventoryBalanceRecord;
+  alreadyProcessed: boolean;
 }
 
 type WarehouseInput = Omit<WarehouseRecord, 'id' | 'companyId' | 'createdBy'>;
@@ -238,6 +254,236 @@ export async function createPurchaseOrderToFirestore(
     throw handleFirestoreError(error, OperationType.CREATE, `purchaseOrders/${ref.id}`);
   }
   return order;
+}
+
+/**
+ * Aprueba una orden de compra. Esta transición no modifica existencias:
+ * únicamente registra quién autorizó y cuándo.
+ */
+export async function approvePurchaseOrderToFirestore(
+  orderId: string,
+  companyId: string,
+  userId: string
+): Promise<PurchaseOrderRecord> {
+  assertSafeDocumentId(orderId, 'Orden de compra');
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario que aprueba', 128);
+  const db = getDbOrThrow();
+  const orderRef = doc(db, 'purchaseOrders', orderId);
+  const now = new Date().toISOString();
+
+  try {
+    return await runTransaction(db, async (transaction: Transaction) => {
+      const snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists()) throw new Error('La orden de compra no existe.');
+      const current = snapshot.data() as PurchaseOrderRecord;
+      if (current.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
+      if (current.status !== 'draft') throw new Error('Solo se pueden aprobar órdenes en borrador.');
+      const approved = validatePurchaseOrder({
+        ...current,
+        status: 'approved',
+        approvedBy: userId,
+        updatedAt: now,
+      });
+      transaction.update(orderRef, {
+        status: approved.status,
+        approvedBy: approved.approvedBy,
+        updatedAt: approved.updatedAt,
+      });
+      return approved;
+    });
+  } catch (error) {
+    throw handleFirestoreError(error, OperationType.UPDATE, `purchaseOrders/${orderId}`);
+  }
+}
+
+/**
+ * Recibe una entrega de una OC de un solo renglón. El movimiento, el saldo
+ * ponderado y la cantidad recibida de la OC se confirman en una sola
+ * transacción. El número de recepción es la clave de idempotencia por orden.
+ */
+export async function receivePurchaseOrderToWarehouse(input: {
+  orderId: string;
+  warehouseId: string;
+  quantity: number;
+  receiptNumber: string;
+  companyId: string;
+  userId: string;
+}): Promise<PurchaseReceiptResult> {
+  const { orderId, warehouseId, quantity, receiptNumber, companyId, userId } = input;
+  assertSafeDocumentId(orderId, 'Orden de compra');
+  assertSafeDocumentId(warehouseId, 'Bodega');
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario que recibe', 128);
+  assertFiniteNonNegative(quantity, 'Cantidad recibida');
+  if (quantity <= 0) throw new Error('La cantidad recibida debe ser mayor a cero.');
+  if (!/^[a-zA-Z0-9_-]{1,40}$/.test(receiptNumber.trim())) {
+    throw new Error('El número de recepción solo puede contener letras, números, guion y guion bajo (máximo 40).');
+  }
+
+  const db = getDbOrThrow();
+  const orderRef = doc(db, 'purchaseOrders', orderId);
+  const warehouseRef = doc(db, 'warehouses', warehouseId);
+  const now = new Date().toISOString();
+
+  try {
+    return await runTransaction(db, async (transaction: Transaction) => {
+      const orderSnapshot = await transaction.get(orderRef);
+      if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
+      const order = orderSnapshot.data() as PurchaseOrderRecord;
+      if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
+      if (!['approved', 'partially_received'].includes(order.status)) {
+        throw new Error('Solo se pueden recibir órdenes aprobadas.');
+      }
+      if (!order.approvedBy) throw new Error('La orden no tiene una aprobación registrada.');
+      if (order.lines.length !== 1) {
+        throw new Error('La recepción segura requiere una orden de un solo renglón.');
+      }
+
+      const line = order.lines[0];
+      const itemId = line.itemId;
+      assertSafeDocumentId(itemId, 'Artículo');
+      if (warehouseId.length > 55 || itemId.length > 55 || orderId.length > 55) {
+        throw new Error('El identificador de bodega, artículo u orden supera el límite para referencias de inventario.');
+      }
+
+      const balanceId = `bal_${warehouseId}_${itemId}`;
+      const movementId = `rec_${orderId}_${receiptNumber.trim()}`;
+      assertSafeDocumentId(balanceId, 'Saldo de inventario');
+      assertSafeDocumentId(movementId, 'Movimiento de inventario');
+      const balanceRef = doc(db, 'inventoryBalances', balanceId);
+      const movementRef = doc(db, 'stockMovements', movementId);
+      const itemRef = doc(db, 'inventoryItems', itemId);
+
+      const [warehouseSnapshot, itemSnapshot, balanceSnapshot, movementSnapshot] = await Promise.all([
+        transaction.get(warehouseRef),
+        transaction.get(itemRef),
+        transaction.get(balanceRef),
+        transaction.get(movementRef),
+      ]);
+
+      if (movementSnapshot.exists()) {
+        const previous = movementSnapshot.data() as StockMovement;
+        if (
+          previous.companyId === companyId &&
+          previous.referenceId === orderId &&
+          previous.receiptNumber === receiptNumber.trim() &&
+          previous.warehouseId === warehouseId &&
+          previous.itemId === itemId
+        ) {
+          const previousBalance = balanceSnapshot.exists()
+            ? (balanceSnapshot.data() as InventoryBalanceRecord)
+            : {
+                id: balanceId,
+                companyId,
+                itemId,
+                warehouseId,
+                quantity: 0,
+                averageUnitCostGTQ: 0,
+                reorderLevel: 0,
+                createdBy: userId,
+                createdAt: now,
+                updatedAt: now,
+                lastMovementId: movementId,
+              };
+          return {
+            order,
+            movement: previous,
+            balance: previousBalance,
+            alreadyProcessed: true,
+          };
+        }
+        throw new Error('El número de recepción ya fue utilizado para otro movimiento.');
+      }
+
+      if (!warehouseSnapshot.exists()) throw new Error('La bodega seleccionada no existe.');
+      const warehouse = warehouseSnapshot.data() as WarehouseRecord;
+      if (warehouse.companyId !== companyId || !warehouse.active) {
+        throw new Error('La bodega no está activa o no pertenece a la empresa.');
+      }
+      if (warehouse.type === 'project' && warehouse.projectId !== order.projectId) {
+        throw new Error('La bodega pertenece a otro proyecto.');
+      }
+      if (!itemSnapshot.exists()) throw new Error('El artículo de la orden ya no existe.');
+      const item = itemSnapshot.data() as InventoryItemRecord;
+      if (item.companyId !== companyId || !item.active) {
+        throw new Error('El artículo no está activo o no pertenece a la empresa.');
+      }
+
+      const movement: StockMovement = {
+        id: movementId,
+        companyId,
+        projectId: order.projectId,
+        itemId,
+        warehouseId,
+        kind: 'purchase_receipt',
+        quantity,
+        unitCostGTQ: line.unitPriceGTQ,
+        occurredAt: now,
+        referenceId: orderId,
+        balanceId,
+        receiptNumber: receiptNumber.trim(),
+        createdBy: userId,
+      };
+      const previousBalance: InventoryBalance = balanceSnapshot.exists()
+        ? {
+            itemId,
+            warehouseId,
+            quantity: Number(balanceSnapshot.data().quantity),
+            averageUnitCostGTQ: Number(balanceSnapshot.data().averageUnitCostGTQ),
+            reorderLevel: item.reorderLevel,
+          }
+        : {
+            itemId,
+            warehouseId,
+            quantity: 0,
+            averageUnitCostGTQ: 0,
+            reorderLevel: item.reorderLevel,
+          };
+
+      if (
+        balanceSnapshot.exists() &&
+        balanceSnapshot.data().companyId !== companyId
+      ) {
+        throw new Error('El saldo de inventario no pertenece a la empresa activa.');
+      }
+
+      const nextBalance = applyStockMovement(previousBalance, movement);
+      const updatedOrder = recordPurchaseReceipt(order, [quantity], now);
+      updatedOrder.lastReceiptMovementId = movementId;
+
+      const balance: InventoryBalanceRecord = {
+        id: balanceId,
+        companyId,
+        itemId,
+        warehouseId,
+        quantity: nextBalance.quantity,
+        averageUnitCostGTQ: nextBalance.averageUnitCostGTQ,
+        reorderLevel: nextBalance.reorderLevel,
+        createdBy: balanceSnapshot.exists()
+          ? String(balanceSnapshot.data().createdBy)
+          : userId,
+        createdAt: balanceSnapshot.exists()
+          ? String(balanceSnapshot.data().createdAt)
+          : now,
+        updatedAt: now,
+        lastMovementId: movementId,
+      };
+
+      transaction.set(movementRef, stripUndefined(movement));
+      transaction.set(balanceRef, stripUndefined(balance));
+      transaction.update(orderRef, {
+        lines: updatedOrder.lines,
+        status: updatedOrder.status,
+        updatedAt: updatedOrder.updatedAt,
+        lastReceiptMovementId: movementId,
+      });
+
+      return { order: updatedOrder, movement, balance, alreadyProcessed: false };
+    });
+  } catch (error) {
+    throw handleFirestoreError(error, OperationType.UPDATE, `purchaseOrders/${orderId}`);
+  }
 }
 
 export async function createSubcontractToFirestore(
