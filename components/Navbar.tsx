@@ -16,6 +16,7 @@ import {
   Mail,
   Sparkles,
   UserPlus,
+  Boxes,
   ChevronRight,
   Phone,
   LogOut,
@@ -117,6 +118,7 @@ export function Navbar({
 
   const mobileTabs = MOBILE_TABS.filter((tab) => {
     if (tab.id === 'personal') return canViewPersonnel;
+    if (tab.id === 'inventario') return canViewSupplyChain;
     return true;
   });
 
@@ -144,6 +146,7 @@ export function Navbar({
           canViewPersonnel={canViewPersonnel}
           canViewPayroll={canViewPayroll}
           canViewExpenses={canViewExpenses}
+          canViewSupplyChain={canViewSupplyChain}
         />
 
         {/* Main Content */}
@@ -172,6 +175,8 @@ export function Navbar({
             label: tab.label,
             icon: <tab.icon className="h-5 w-5" />,
             activeIcon: <tab.icon className="h-5 w-5" />,
+            active: activeTab === tab.id,
+            onSelect: () => onSelectTab(tab.id),
           }))}
         />
 
@@ -207,6 +212,11 @@ export function Navbar({
                   href={`/${tab.id}`}
                   className={`flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`}
                   aria-current={isActive ? 'page' : undefined}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onSelectTab(tab.id);
+                    onToggleMobileSidebar?.();
+                  }}
                 >
                   <div className="flex items-center gap-3">
                     <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
