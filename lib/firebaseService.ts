@@ -28,6 +28,7 @@ import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
 import {
   Project,
+  ProjectPhotoRecord,
   FieldVisit,
   ExpenseRecord,
   AttendanceRecord,
@@ -433,6 +434,51 @@ export function subscribeProjects(
   } catch (err) {
     notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
+    return () => {};
+  }
+}
+
+export async function saveProjectPhotoToFirestore(
+  projectId: string,
+  companyId: string,
+  input: Pick<ProjectPhotoRecord, 'id' | 'filename' | 'storagePath' | 'uploadedAt' | 'size'>
+): Promise<ProjectPhotoRecord> {
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(projectId) || !/^[a-zA-Z0-9_-]{1,128}$/.test(input.id)) {
+    throw new Error('La referencia del proyecto o de la foto no es válida.');
+  }
+  const userId = auth?.currentUser?.uid;
+  if (!userId) throw new Error('Debes iniciar sesión para guardar la foto del proyecto.');
+  if (!companyId || !Number.isFinite(input.size) || input.size <= 0 || input.size > 10 * 1024 * 1024) {
+    throw new Error('Los metadatos de la foto no son válidos.');
+  }
+  if (input.storagePath !== `projects/${projectId}/progress/${input.filename}`) {
+    throw new Error('La ruta de la foto no corresponde al proyecto seleccionado.');
+  }
+
+  const record: ProjectPhotoRecord = { ...input, projectId, companyId, uploadedBy: userId };
+  await setDoc(doc(getDbOrThrow(), 'projects', projectId, 'photos', input.id), stripUndefined(record));
+  return record;
+}
+
+export function subscribeProjectPhotos(
+  projectId: string,
+  callback: (photos: ProjectPhotoRecord[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const path = `projects/${projectId}/photos`;
+  try {
+    return onSnapshot(
+      collection(getDbOrThrow(), 'projects', projectId, 'photos'),
+      (snapshot: QuerySnapshot<DocumentData>) =>
+        callback(snapshot.docs.map((photo) => photo.data() as ProjectPhotoRecord)),
+      (error: Error) => {
+        const normalized = handleFirestoreError(error, OperationType.LIST, path);
+        onError?.(normalized instanceof Error ? normalized : error);
+      }
+    );
+  } catch (error) {
+    const normalized = handleFirestoreError(error, OperationType.LIST, path);
+    onError?.(normalized instanceof Error ? normalized : error as Error);
     return () => {};
   }
 }

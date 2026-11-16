@@ -213,6 +213,17 @@ export interface Project {
   closureNotes?: string;
 }
 
+export interface ProjectPhotoRecord {
+  id: string;
+  projectId: string;
+  companyId: string;
+  filename: string;
+  storagePath: string;
+  uploadedAt: string;
+  size: number;
+  uploadedBy: string;
+}
+
 export interface FieldPhoto {
   id: string;
   url: string;
