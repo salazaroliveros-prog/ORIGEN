@@ -37,6 +37,19 @@ describe('inventory domain', () => {
     expect(result.averageUnitCostGTQ).toBe(80);
   });
 
+  it('preserves fractional material quantities to four decimal places', () => {
+    const result = applyStockMovement(
+      { ...openingBalance, quantity: 0 },
+      movement({ quantity: 1.2345 })
+    );
+    expect(result.quantity).toBe(1.2345);
+    const issued = applyStockMovement(
+      result,
+      movement({ kind: 'project_issue', quantity: 0.2345, unitCostGTQ: 0 })
+    );
+    expect(issued.quantity).toBe(1);
+  });
+
   it('rejects issue above available stock', () => {
     expect(() =>
       applyStockMovement(openingBalance, movement({ kind: 'project_issue', quantity: 11 }))
