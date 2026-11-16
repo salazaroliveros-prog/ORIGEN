@@ -13,6 +13,7 @@ import {
   query,
   runTransaction,
   where,
+  type Transaction,
   type Unsubscribe,
 } from 'firebase/firestore';
 
@@ -100,7 +101,7 @@ async function persistNewRecord<T extends { id: string }>(
 }
 
 async function assertCompanyReference(
-  transaction: Parameters<Parameters<ReturnType<typeof getDbOrThrow>['runTransaction']>[0]>[0],
+  transaction: Transaction,
   collectionName: string,
   id: string,
   companyId: string,
@@ -134,9 +135,8 @@ export async function createWarehouseToFirestore(
   if (input.type !== 'general' && input.type !== 'project') {
     throw new Error('El tipo de bodega no es válido.');
   }
-  if (!Number.isFinite(input.active)) {
-    // No-op branch intentionally not used; active is validated below as boolean.
-  }
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario creador', 128);
   if (typeof input.active !== 'boolean') throw new Error('El estado de la bodega no es válido.');
   if (input.type === 'general' && input.projectId) {
     throw new Error('Una bodega general no debe tener un proyecto asignado.');
