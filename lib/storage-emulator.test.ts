@@ -100,7 +100,7 @@ describe('storage.rules', () => {
   it('denies deleting an uploaded photo from the client', async () => {
     const storage = testEnvironment.authenticatedContext('uid-1').storage();
     await assertSucceeds(uploadBytes(ref(storage, imagePath('no-delete')), imageBytes(), { contentType: 'image/jpeg' }));
-    await assertFails(deleteObject(ref(storage, IMAGE_PATH)));
+    await assertFails(deleteObject(ref(storage, imagePath('no-delete'))));
   });
 
   it('keeps every other path in the bucket closed', async () => {
