@@ -127,7 +127,7 @@ async function main() {
   console.log(`📋 Proyecto Firebase: ${projectId}`);
 
   try {
-    const adminUid = await signUpUser(apiKey, ADMIN_EMAIL, ADMIN_PASSWORD);
+    await signUpUser(apiKey, ADMIN_EMAIL, ADMIN_PASSWORD);
 
     console.log('\n╔═══════════════════════════════════════════════════════════════╗');
     console.log('║  ✅ CUENTA DE ACCESO LISTA                                     ║');
