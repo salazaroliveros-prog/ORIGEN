@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { APUItem, AttendanceRecord, Employee } from '@/lib/types';
+import type { APUItem, AttendanceRecord, Employee, FieldVisit } from '@/lib/types';
 import { validateAPUItem, validateAttendanceRecord } from '@/lib/validation/entity.schemas';
-import { buildAPUItemRecords, buildAttendanceRecord, buildEmployeeRecord } from './ownership';
+import {
+  buildAPUItemRecords,
+  buildAttendanceRecord,
+  buildEmployeeRecord,
+  mergeAttendanceUpdate,
+  mergeFieldVisitUpdate,
+} from './ownership';
 
 const COMPANY_ID = 'company-1';
 const USER_ID = 'user-1';
@@ -131,5 +137,60 @@ describe('buildEmployeeRecord', () => {
 
     expect(record.name).toBe('Empleado de prueba');
     expect(record.dailyRateGTQ).toBe(250);
+  });
+});
+
+const existingFieldVisit: FieldVisit = {
+  id: 'visit-1',
+  companyId: COMPANY_ID,
+  authorId: 'original-author',
+  projectId: PROJECT_ID,
+  projectName: 'Proyecto',
+  date: '2026-06-15',
+  foremanName: 'Capataz',
+  notes: 'Visita original',
+  weather: 'Soleado',
+  workersCount: 4,
+  status: 'Autorizado',
+};
+
+describe('mergeFieldVisitUpdate', () => {
+  it('preserves company and author while recording the editor', () => {
+    const updated = mergeFieldVisitUpdate(
+      existingFieldVisit,
+      { notes: 'Nota actualizada', authorId: 'forged-author', companyId: 'foreign-company' },
+      'foreign-company',
+      'editor-1',
+      '2026-11-16T12:00:00.000Z'
+    );
+
+    expect(updated.companyId).toBe(COMPANY_ID);
+    expect(updated.authorId).toBe('original-author');
+    expect(updated.updatedBy).toBe('editor-1');
+    expect(updated.updatedAt).toBe('2026-11-16T12:00:00.000Z');
+    expect(updated.notes).toBe('Nota actualizada');
+  });
+});
+
+describe('mergeAttendanceUpdate', () => {
+  it('preserves attendance author/company when edited by another member', () => {
+    const existing: AttendanceRecord = {
+      ...draftAttendance,
+      companyId: COMPANY_ID,
+      authorId: 'original-author',
+    };
+    const updated = mergeAttendanceUpdate(
+      existing,
+      { status: 'Permiso', authorId: 'forged-author', companyId: 'foreign-company' },
+      'foreign-company',
+      'editor-2',
+      '2026-11-16T12:30:00.000Z'
+    );
+
+    expect(updated.companyId).toBe(COMPANY_ID);
+    expect(updated.authorId).toBe('original-author');
+    expect(updated.updatedBy).toBe('editor-2');
+    expect(updated.updatedAt).toBe('2026-11-16T12:30:00.000Z');
+    expect(updated.status).toBe('Permiso');
   });
 });

@@ -1,4 +1,4 @@
-import type { APUItem, AttendanceRecord, Employee } from '@/lib/types';
+import type { APUItem, AttendanceRecord, Employee, FieldVisit } from '@/lib/types';
 import { normalizeAPUItem } from './apu';
 
 /**
@@ -86,5 +86,47 @@ export function buildEmployeeRecord(
     companyId,
     ownerId: companyId,
     createdBy: userId,
+  };
+}
+
+
+/**
+ * Merge a field visit without transferring original authorship on edits.
+ * Firestore rules keep companyId and authorId immutable.
+ */
+export function mergeFieldVisitUpdate(
+  existing: FieldVisit,
+  updates: Partial<FieldVisit>,
+  companyId: string,
+  userId: string,
+  updatedAt = new Date().toISOString()
+): FieldVisit {
+  return {
+    ...existing,
+    ...updates,
+    id: existing.id,
+    companyId: existing.companyId ?? companyId,
+    authorId: existing.authorId ?? userId,
+    updatedBy: userId,
+    updatedAt,
+  };
+}
+
+/** Merge attendance updates while preserving its original owner and author. */
+export function mergeAttendanceUpdate(
+  existing: AttendanceRecord,
+  updates: Partial<AttendanceRecord>,
+  companyId: string,
+  userId: string,
+  updatedAt = new Date().toISOString()
+): AttendanceRecord {
+  return {
+    ...existing,
+    ...updates,
+    id: existing.id,
+    companyId: existing.companyId ?? companyId,
+    authorId: existing.authorId ?? userId,
+    updatedBy: userId,
+    updatedAt,
   };
 }

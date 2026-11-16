@@ -60,6 +60,8 @@ import {
   buildAPUItemRecords,
   buildAttendanceRecord,
   buildEmployeeRecord,
+  mergeAttendanceUpdate,
+  mergeFieldVisitUpdate,
 } from './domain/ownership';
 import {
   normalizeFelInvoiceItems,
@@ -542,12 +544,12 @@ export async function updateFieldVisitToFirestore(
       return false;
     }
 
-    const mergedVisit: FieldVisit = {
-      ...(existing.data() as FieldVisit),
-      ...visit,
+    const mergedVisit = mergeFieldVisitUpdate(
+      existing.data() as FieldVisit,
+      visit,
       companyId,
-      authorId: userId,
-    };
+      userId
+    );
 
     const docRef = doc(db, 'fieldVisits', visit.id);
     await setDoc(docRef, stripUndefined(mergedVisit), { merge: true });
@@ -748,14 +750,12 @@ export async function updateAttendanceToFirestore(
       return false;
     }
 
-    const mergedRecord: AttendanceRecord = {
-      ...(existing.data() as AttendanceRecord),
-      ...record,
-      updatedBy: userId,
-      updatedAt: new Date().toISOString(),
-    };
-
-    const recordWithOwnership = buildAttendanceRecord(mergedRecord, companyId, userId);
+    const recordWithOwnership = mergeAttendanceUpdate(
+      existing.data() as AttendanceRecord,
+      record,
+      companyId,
+      userId
+    );
 
     // Validar datos antes de guardar
     const validation = validateAttendanceRecord(recordWithOwnership);
