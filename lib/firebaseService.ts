@@ -5,6 +5,9 @@ import { toast } from 'react-hot-toast';
 
 import {
   getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   connectFirestoreEmulator,
   doc,
   deleteField,
@@ -184,11 +187,42 @@ if (useFirebaseEmulators && process.env.NODE_ENV === 'production') {
 
 // Conexión directa a Firebase/Firestore sin capa intermedia de verificación de aplicaciones.
 
-const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim();
-// Sin configuración válida (`app === null`) no se crean `db`/`auth`:
-// los deja en `null` y cualquier uso posterior lanza el error de
-// configuración al intentar acceder a ellos.
-export const db = app ? getFirestore(app, firestoreDatabaseId || '(default)') : null;
+const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId?.trim() || '(default)';
+
+/**
+ * Firestore persistence for browser-based field work.
+ *
+ * The SDK stores local reads and queued writes in IndexedDB and coordinates
+ * multiple tabs. On the server we keep the default memory instance. Browsers
+ * where IndexedDB persistence is unavailable fall back to the memory cache;
+ * this must never prevent the application from starting.
+ */
+function createFirestoreInstance(): ReturnType<typeof getFirestore> | null {
+  if (!app) return null;
+  if (typeof window === 'undefined') {
+    return getFirestore(app, firestoreDatabaseId);
+  }
+
+  try {
+    return initializeFirestore(
+      app,
+      {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      },
+      firestoreDatabaseId
+    );
+  } catch (error) {
+    console.warn(
+      '[firebase] IndexedDB persistence is unavailable; falling back to the in-memory Firestore cache.',
+      error
+    );
+    return getFirestore(app, firestoreDatabaseId);
+  }
+}
+
+export const db = createFirestoreInstance();
 export const auth = app ? getAuth(app) : null;
 
 if (useFirebaseEmulators && isNewFirebaseApp && auth && db) {
