@@ -275,6 +275,105 @@ beforeEach(async () => {
     }));
   });
 
+  it('requires both sides of a warehouse transfer and paired balances in one transaction', async () => {
+    await seedProject(makeProject('transfer-project'));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      const database = context.firestore();
+      await setDoc(doc(database, 'inventoryItems', 'transfer-cement'), {
+        id: 'transfer-cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
+        reorderLevel: 2, active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'warehouses', 'transfer-source'), {
+        id: 'transfer-source', companyId: COMPANY_A, name: 'Bodega general',
+        type: 'general', active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'warehouses', 'transfer-destination'), {
+        id: 'transfer-destination', companyId: COMPANY_A, projectId: 'transfer-project',
+        name: 'Bodega de obra', type: 'project', active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'inventoryBalances', 'bal_transfer-source_transfer-cement'), {
+        id: 'bal_transfer-source_transfer-cement',
+        companyId: COMPANY_A,
+        warehouseId: 'transfer-source',
+        itemId: 'transfer-cement',
+        quantity: 12,
+        averageUnitCostGTQ: 80,
+        reorderLevel: 2,
+        createdBy: USERS.owner,
+        createdAt: '2026-11-16T08:00:00.000Z',
+        updatedAt: '2026-11-16T08:00:00.000Z',
+        lastMovementId: 'opening-transfer-source',
+      });
+    });
+
+    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const outgoing = {
+      id: 'tr_transfer-001_out',
+      companyId: COMPANY_A,
+      projectId: 'transfer-project',
+      itemId: 'transfer-cement',
+      warehouseId: 'transfer-source',
+      kind: 'transfer_out',
+      quantity: 4,
+      unitCostGTQ: 80,
+      occurredAt: '2026-11-16T10:00:00.000Z',
+      referenceId: 'transfer-001',
+      balanceId: 'bal_transfer-source_transfer-cement',
+      createdBy: USERS.warehouseManager,
+    };
+    const incoming = {
+      ...outgoing,
+      id: 'tr_transfer-001_in',
+      warehouseId: 'transfer-destination',
+      kind: 'transfer_in',
+      balanceId: 'bal_transfer-destination_transfer-cement',
+    };
+    const sourceBalance = {
+      id: outgoing.balanceId,
+      companyId: COMPANY_A,
+      warehouseId: 'transfer-source',
+      itemId: 'transfer-cement',
+      quantity: 8,
+      averageUnitCostGTQ: 80,
+      reorderLevel: 2,
+      createdBy: USERS.owner,
+      createdAt: '2026-11-16T08:00:00.000Z',
+      updatedAt: outgoing.occurredAt,
+      lastMovementId: outgoing.id,
+    };
+    const destinationBalance = {
+      id: incoming.balanceId,
+      companyId: COMPANY_A,
+      warehouseId: 'transfer-destination',
+      itemId: 'transfer-cement',
+      quantity: 4,
+      averageUnitCostGTQ: 80,
+      reorderLevel: 2,
+      createdBy: USERS.warehouseManager,
+      createdAt: incoming.occurredAt,
+      updatedAt: incoming.occurredAt,
+      lastMovementId: incoming.id,
+    };
+
+    await assertFails(setDoc(doc(database, 'stockMovements', outgoing.id), outgoing));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      transaction.set(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+    }));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      transaction.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: 9 });
+      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+      transaction.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
+    }));
+    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
+      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+      transaction.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
+    }));
+  });
+
   it('requires a purchase receipt movement, balance, and order update in one atomic write', async () => {
     await seedProject(makeProject('receipt-project'));
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
