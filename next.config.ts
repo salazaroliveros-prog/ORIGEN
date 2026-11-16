@@ -1,6 +1,13 @@
 import type { NextConfig } from 'next';
 
+// Cada corrida E2E recibe una carpeta de compilación exclusiva. Así no lee
+// chunks antiguos de .next ni pisa la compilación de otro servidor local.
+const e2eRunId = process.env.ORIGEN_E2E_RUN_ID;
+const isolatedE2EDistDir =
+  e2eRunId && /^[a-f0-9]{16}$/.test(e2eRunId) ? `.next-e2e-${e2eRunId}` : '.next';
+
 const nextConfig: NextConfig = {
+  distDir: isolatedE2EDistDir,
   outputFileTracingRoot: process.cwd(),
   output: 'standalone',
   devIndicators: false,
@@ -8,8 +15,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
     // El explorador de segmentos de Next DevTools provoca errores 500 en el
-    // servidor de desarrollo durante corridas largas ("Could not find the
-    // module ... segment-explorer-node.js"). No aporta nada a la app.
+    // servidor de desarrollo durante corridas largas. No aporta nada a la app.
     devtoolSegmentExplorer: false,
   },
   images: {
@@ -37,13 +43,9 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   },
   reactStrictMode: true,
-  // Mejorar compatibilidad cross-browser
   transpilePackages: [],
-  // Configuración vacía de Turbopack para Next.js 16
   turbopack: {},
-  // Configuración de webpack para mejor compatibilidad
   webpack: (config, { isServer }) => {
-    // Optimizar para navegadores más antiguos
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -54,7 +56,7 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
-  // No fallar en build por warnings de ESLint (pre-existentes)
+  // ESLint se ejecuta explícitamente en CI antes de compilar.
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -1,21 +1,16 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
+import baseConfig from './playwright.config';
 
+/**
+ * Suite de QA ampliada. Hereda el servidor aislado, los guardas de Firebase,
+ * los reportes por corrida y el globalSetup de la configuración principal.
+ */
 export default defineConfig({
-  testDir: './e2e',
+  ...baseConfig,
+  testMatch: /qa-.*\.spec\.ts$/,
   fullyParallel: false,
-  forbidOnly: false,
+  forbidOnly: true,
   retries: 0,
   workers: 1,
-  reporter: 'list',
-  use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on',
-    screenshot: 'only-on-failure',
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+  reporter: [['list']],
 });
