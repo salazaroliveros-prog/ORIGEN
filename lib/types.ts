@@ -57,7 +57,7 @@ export interface CompanySettings {
  * Roles predefinidos para el sistema ORIGEN
  */
 export type CompanyRole =
-  'owner' | 'admin' | 'project_manager' | 'finance' | 'field_worker' | 'viewer';
+  'owner' | 'admin' | 'project_manager' | 'finance' | 'field_worker' | 'warehouse_manager' | 'viewer';
 
 /**
  * Company workspace information
