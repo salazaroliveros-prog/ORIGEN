@@ -21,7 +21,7 @@ async function waitForWorkspaceReady(page: Page) {
 /**
  * Inicia sesión con la cuenta E2E y espera a que el shell autenticado esté listo.
  *
- * La señal de sesión iniciada es el botón "Tablero" de la barra lateral: se
+ * La señal de sesión iniciada es el enlace "Tablero" de la barra lateral: se
  * renderiza en cuanto la app monta el shell, sin depender de que el "user pill"
  * con el correo haya terminado de pintar (evita timeouts en cascada).
  */
@@ -30,7 +30,7 @@ export async function ensureAuthenticated(page: Page) {
   // chunks y el evento `load` puede tardar más que el timeout del test.
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
-  const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
+  const dashboard = page.getByRole('link', { name: 'Tablero' }).first();
   const emailField = page.getByLabel('Correo electrónico');
 
   // `isVisible()` NO espera: si la app todavía no ha montado el shell, la

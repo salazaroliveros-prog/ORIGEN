@@ -26,9 +26,9 @@ test.describe('Autenticación', () => {
     await expect(page.getByText(ADMIN_EMAIL)).toBeVisible({ timeout: 30_000 });
   });
 
-  test('la navegación principal con botón real de la app es visible', async ({ page }) => {
-    // 'Tablero' es siempre el primer ítem de la barra lateral según Navbar.tsx
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
+  test('la navegación principal con enlace real de la app es visible', async ({ page }) => {
+    // 'Tablero' es un enlace de navegación de la barra lateral según Sidebar.tsx
+    await expect(page.getByRole('link', { name: 'Tablero' }).first()).toBeVisible({
       timeout: 30_000,
     });
   });

@@ -21,7 +21,7 @@ async function warmUpSession(baseURL: string): Promise<void> {
     });
     await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 120_000 });
 
-    const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
+    const dashboard = page.getByRole('link', { name: 'Tablero' }).first();
     const emailField = page.getByLabel('Correo electrónico');
     const passwordField = page.getByLabel('Contraseña', { exact: true });
 
