@@ -33,7 +33,12 @@ import {
   type SupplierRecord,
 } from './domain/procurement';
 import { stripUndefined } from './utils/firestorePayload';
-import { applyStockMovement, type InventoryBalance, type StockMovement } from './domain/inventory';
+import {
+  applyStockMovement,
+  applyWarehouseTransfer,
+  type InventoryBalance,
+  type StockMovement,
+} from './domain/inventory';
 
 export interface WarehouseRecord {
   id: string;
@@ -641,6 +646,243 @@ export async function recordProjectStockIssueToFirestore(input: {
     });
   } catch (error) {
     throw handleFirestoreError(error, OperationType.UPDATE, `inventoryBalances/${balanceId}`);
+  }
+}
+
+
+export interface WarehouseTransferResult {
+  outgoing: StockMovement;
+  incoming: StockMovement;
+  sourceBalance: InventoryBalanceRecord;
+  destinationBalance: InventoryBalanceRecord;
+  alreadyProcessed: boolean;
+}
+
+/**
+ * Moves stock between company warehouses. Both append-only movements and
+ * both balances are committed in one Firestore transaction.
+ */
+export async function transferInventoryBetweenWarehousesToFirestore(input: {
+  transferId: string;
+  itemId: string;
+  fromWarehouseId: string;
+  toWarehouseId: string;
+  quantity: number;
+  notes?: string;
+  companyId: string;
+  userId: string;
+}): Promise<WarehouseTransferResult> {
+  const {
+    transferId, itemId, fromWarehouseId, toWarehouseId,
+    quantity, notes, companyId, userId,
+  } = input;
+  assertSafeDocumentId(transferId, 'Traslado');
+  assertSafeDocumentId(itemId, 'Artículo');
+  assertSafeDocumentId(fromWarehouseId, 'Bodega de origen');
+  assertSafeDocumentId(toWarehouseId, 'Bodega de destino');
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario que registra', 128);
+  assertFiniteNonNegative(quantity, 'Cantidad del traslado');
+  if (quantity <= 0) throw new Error('La cantidad del traslado debe ser mayor a cero.');
+  if (fromWarehouseId === toWarehouseId) throw new Error('Selecciona dos bodegas diferentes.');
+  if (transferId.length > 75 || itemId.length > 55 || fromWarehouseId.length > 55 || toWarehouseId.length > 55) {
+    throw new Error('El ID del traslado, artículo o bodega supera el límite permitido.');
+  }
+  if (notes !== undefined && (typeof notes !== 'string' || notes.length > 1000)) {
+    throw new Error('Las notas del traslado no pueden superar 1000 caracteres.');
+  }
+
+  const db = getDbOrThrow();
+  const sourceBalanceId = `bal_${fromWarehouseId}_${itemId}`;
+  const destinationBalanceId = `bal_${toWarehouseId}_${itemId}`;
+  const outgoingId = `tr_${transferId}_out`;
+  const incomingId = `tr_${transferId}_in`;
+  const sourceBalanceRef = doc(db, 'inventoryBalances', sourceBalanceId);
+  const destinationBalanceRef = doc(db, 'inventoryBalances', destinationBalanceId);
+  const outgoingRef = doc(db, 'stockMovements', outgoingId);
+  const incomingRef = doc(db, 'stockMovements', incomingId);
+  const sourceWarehouseRef = doc(db, 'warehouses', fromWarehouseId);
+  const destinationWarehouseRef = doc(db, 'warehouses', toWarehouseId);
+  const itemRef = doc(db, 'inventoryItems', itemId);
+  const now = new Date().toISOString();
+
+  try {
+    return await runTransaction(db, async (transaction: Transaction) => {
+      const [
+        outgoingSnapshot,
+        incomingSnapshot,
+        sourceBalanceSnapshot,
+        destinationBalanceSnapshot,
+        sourceWarehouseSnapshot,
+        destinationWarehouseSnapshot,
+        itemSnapshot,
+      ] = await Promise.all([
+        transaction.get(outgoingRef),
+        transaction.get(incomingRef),
+        transaction.get(sourceBalanceRef),
+        transaction.get(destinationBalanceRef),
+        transaction.get(sourceWarehouseRef),
+        transaction.get(destinationWarehouseRef),
+        transaction.get(itemRef),
+      ]);
+
+      if (outgoingSnapshot.exists() || incomingSnapshot.exists()) {
+        if (!outgoingSnapshot.exists() || !incomingSnapshot.exists() ||
+            !sourceBalanceSnapshot.exists() || !destinationBalanceSnapshot.exists()) {
+          throw new Error('El traslado tiene registros incompletos. Se requiere revisión de inventario.');
+        }
+        const outgoing = outgoingSnapshot.data() as StockMovement;
+        const incoming = incomingSnapshot.data() as StockMovement;
+        const sourceBalance = sourceBalanceSnapshot.data() as InventoryBalanceRecord;
+        const destinationBalance = destinationBalanceSnapshot.data() as InventoryBalanceRecord;
+        const matches =
+          outgoing.referenceId === transferId &&
+          incoming.referenceId === transferId &&
+          outgoing.kind === 'transfer_out' &&
+          incoming.kind === 'transfer_in' &&
+          outgoing.companyId === companyId &&
+          incoming.companyId === companyId &&
+          outgoing.itemId === itemId &&
+          incoming.itemId === itemId &&
+          outgoing.warehouseId === fromWarehouseId &&
+          incoming.warehouseId === toWarehouseId &&
+          outgoing.quantity === quantity &&
+          incoming.quantity === quantity &&
+          outgoing.createdBy === userId &&
+          incoming.createdBy === userId;
+        if (!matches) throw new Error('El ID del traslado ya fue utilizado por otra operación.');
+        return {
+          outgoing,
+          incoming,
+          sourceBalance,
+          destinationBalance,
+          alreadyProcessed: true,
+        };
+      }
+
+      if (!sourceWarehouseSnapshot.exists() || !destinationWarehouseSnapshot.exists()) {
+        throw new Error('La bodega de origen o destino no existe.');
+      }
+      const sourceWarehouse = sourceWarehouseSnapshot.data() as WarehouseRecord;
+      const destinationWarehouse = destinationWarehouseSnapshot.data() as WarehouseRecord;
+      if (
+        sourceWarehouse.companyId !== companyId || !sourceWarehouse.active ||
+        destinationWarehouse.companyId !== companyId || !destinationWarehouse.active
+      ) {
+        throw new Error('Ambas bodegas deben estar activas y pertenecer a la empresa.');
+      }
+      if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
+      const item = itemSnapshot.data() as InventoryItemRecord;
+      if (item.companyId !== companyId || !item.active) {
+        throw new Error('El artículo no está activo o no pertenece a la empresa.');
+      }
+      if (!sourceBalanceSnapshot.exists()) {
+        throw new Error('No existe saldo disponible en la bodega de origen.');
+      }
+      const source = sourceBalanceSnapshot.data() as InventoryBalanceRecord;
+      if (
+        source.companyId !== companyId ||
+        source.itemId !== itemId ||
+        source.warehouseId !== fromWarehouseId
+      ) {
+        throw new Error('El saldo de origen no coincide con el artículo, bodega o empresa.');
+      }
+      if (quantity > source.quantity) {
+        throw new Error(`Existencia insuficiente. Disponible: ${source.quantity} ${item.unit}.`);
+      }
+
+      const destination = destinationBalanceSnapshot.exists()
+        ? destinationBalanceSnapshot.data() as InventoryBalanceRecord
+        : null;
+      if (destination && (
+        destination.companyId !== companyId ||
+        destination.itemId !== itemId ||
+        destination.warehouseId !== toWarehouseId
+      )) {
+        throw new Error('El saldo de destino no coincide con el artículo, bodega o empresa.');
+      }
+
+      let projectId: string | undefined;
+      if (sourceWarehouse.type === 'project') projectId = sourceWarehouse.projectId;
+      if (destinationWarehouse.type === 'project') {
+        if (projectId && projectId !== destinationWarehouse.projectId) {
+          throw new Error('No se pueden trasladar materiales directamente entre bodegas de proyectos distintos.');
+        }
+        projectId = destinationWarehouse.projectId;
+      }
+
+      const transfer = applyWarehouseTransfer(
+        {
+          itemId,
+          warehouseId: fromWarehouseId,
+          quantity: source.quantity,
+          averageUnitCostGTQ: source.averageUnitCostGTQ,
+          reorderLevel: source.reorderLevel,
+        },
+        {
+          itemId,
+          warehouseId: toWarehouseId,
+          quantity: destination?.quantity ?? 0,
+          averageUnitCostGTQ: destination?.averageUnitCostGTQ ?? 0,
+          reorderLevel: destination?.reorderLevel ?? item.reorderLevel,
+        },
+        {
+          id: transferId,
+          companyId,
+          itemId,
+          fromWarehouseId,
+          toWarehouseId,
+          quantity,
+          occurredAt: now,
+          createdBy: userId,
+          notes,
+        }
+      );
+      const outgoing = {
+        ...transfer.outgoing,
+        balanceId: sourceBalanceId,
+        ...(projectId ? { projectId } : {}),
+      };
+      const incoming = {
+        ...transfer.incoming,
+        balanceId: destinationBalanceId,
+        ...(projectId ? { projectId } : {}),
+      };
+
+      const sourceBalance: InventoryBalanceRecord = {
+        ...source,
+        quantity: transfer.sourceBalance.quantity,
+        averageUnitCostGTQ: transfer.sourceBalance.averageUnitCostGTQ,
+        updatedAt: now,
+        lastMovementId: outgoingId,
+      };
+      const destinationBalance: InventoryBalanceRecord = {
+        id: destinationBalanceId,
+        companyId,
+        itemId,
+        warehouseId: toWarehouseId,
+        quantity: transfer.destinationBalance.quantity,
+        averageUnitCostGTQ: transfer.destinationBalance.averageUnitCostGTQ,
+        reorderLevel: transfer.destinationBalance.reorderLevel,
+        createdBy: destination?.createdBy ?? userId,
+        createdAt: destination?.createdAt ?? now,
+        updatedAt: now,
+        lastMovementId: incomingId,
+      };
+
+      transaction.set(outgoingRef, stripUndefined(outgoing));
+      transaction.set(incomingRef, stripUndefined(incoming));
+      transaction.update(sourceBalanceRef, stripUndefined(sourceBalance));
+      if (destination) {
+        transaction.update(destinationBalanceRef, stripUndefined(destinationBalance));
+      } else {
+        transaction.set(destinationBalanceRef, stripUndefined(destinationBalance));
+      }
+
+      return { outgoing, incoming, sourceBalance, destinationBalance, alreadyProcessed: false };
+    });
+  } catch (error) {
+    throw handleFirestoreError(error, OperationType.UPDATE, `inventoryBalances/${sourceBalanceId}`);
   }
 }
 
