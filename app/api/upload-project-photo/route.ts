@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       url: downloadUrl,
+      photoId: `${timestamp}_${randomString}`,
       filename,
       storagePath,
       size: file.size,

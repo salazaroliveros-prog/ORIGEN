@@ -87,3 +87,41 @@ export async function uploadImageAsUser({
     storagePath: storedPath,
   };
 }
+
+
+export interface StorageDownloadResult {
+  data: Uint8Array;
+  contentType: string;
+}
+
+export async function downloadStorageObjectAsUser(params: {
+  idToken: string;
+  bucket: string;
+  storagePath: string;
+}): Promise<StorageDownloadResult> {
+  const { idToken, bucket, storagePath } = params;
+  if (!idToken || !bucket || !storagePath) {
+    throw new StorageUploadError('Faltan datos para descargar la foto.', 400);
+  }
+  const url = `${storageApiBaseUrl()}/v0/b/${encodeURIComponent(bucket)}/o/${encodeURIComponent(storagePath)}?alt=media`;
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  if (!response.ok) {
+    throw new StorageUploadError(
+      response.status === 403
+        ? 'No tienes permiso para ver esta foto del proyecto.'
+        : 'No se pudo recuperar la foto almacenada.',
+      response.status
+    );
+  }
+  const data = new Uint8Array(await response.arrayBuffer());
+  if (data.byteLength === 0 || data.byteLength > 10 * 1024 * 1024) {
+    throw new StorageUploadError('El archivo almacenado no supera la validación de tamaño.', 413);
+  }
+  const contentType = response.headers.get('content-type')?.split(';')[0]?.trim() ?? '';
+  if (!/^image\/(jpeg|png|webp|gif|heic|heif)$/.test(contentType)) {
+    throw new StorageUploadError('El archivo almacenado no es una imagen permitida.', 415);
+  }
+  return { data, contentType };
+}

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { StorageUploadError, uploadImageAsUser } from './storageRest';
+import { StorageUploadError, downloadStorageObjectAsUser, uploadImageAsUser } from './storageRest';
 
 const params = {
   idToken: 'id-token',
@@ -82,5 +82,58 @@ describe('uploadImageAsUser', () => {
     fetchMock.mockResolvedValue(new Response('boom', { status: 500 }));
 
     await expect(uploadImageAsUser(params)).rejects.toBeInstanceOf(StorageUploadError);
+  });
+});
+
+
+describe('downloadStorageObjectAsUser', () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    vi.stubEnv('NEXT_PUBLIC_USE_FIREBASE_EMULATORS', 'false');
+    fetchMock.mockReset();
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it('downloads project photos with the authenticated user token and verifies image MIME', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(new Uint8Array([0xff, 0xd8, 0xff]), {
+        status: 200,
+        headers: { 'content-type': 'image/jpeg' },
+      })
+    );
+    const result = await downloadStorageObjectAsUser(params);
+    expect(String(fetchMock.mock.calls[0][0])).toContain('alt=media');
+    expect((fetchMock.mock.calls[0][1] as RequestInit).headers).toEqual({
+      Authorization: 'Bearer id-token',
+    });
+    expect(result.contentType).toBe('image/jpeg');
+    expect(Array.from(result.data)).toEqual([0xff, 0xd8, 0xff]);
+  });
+
+  it('rejects downloads denied by Storage rules', async () => {
+    fetchMock.mockResolvedValue(new Response('forbidden', { status: 403 }));
+    await expect(downloadStorageObjectAsUser(params)).rejects.toMatchObject({
+      name: 'StorageUploadError',
+      status: 403,
+    });
+  });
+
+  it('rejects non-image content', async () => {
+    fetchMock.mockResolvedValue(
+      new Response('not an image', {
+        status: 200,
+        headers: { 'content-type': 'text/plain' },
+      })
+    );
+    await expect(downloadStorageObjectAsUser(params)).rejects.toMatchObject({
+      name: 'StorageUploadError',
+      status: 415,
+    });
   });
 });
