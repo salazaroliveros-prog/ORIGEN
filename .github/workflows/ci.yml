@@ -37,6 +37,15 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Set up Java for Firebase emulators
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Run Firebase emulator security tests
+        run: npx --yes firebase-tools emulators:exec --config firebase.emulators.json --project demo-origen-erp-test --only auth,firestore,storage "npx vitest run --config vitest.emulator.config.ts"
+
       - name: Build
         env:
           NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
