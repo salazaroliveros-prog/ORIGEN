@@ -78,6 +78,25 @@ describe('storage.rules', () => {
     await assertFails(uploadBytes(ref(storage, IMAGE_PATH), new Uint8Array([1, 2, 3]), { contentType: 'application/pdf' }));
   });
 
+  it('rejects empty and oversized image uploads', async () => {
+    const storage = testEnvironment.authenticatedContext('uid-1').storage();
+    await assertFails(uploadBytes(ref(storage, IMAGE_PATH), new Uint8Array(0), { contentType: 'image/jpeg' }));
+    await assertFails(
+      uploadBytes(
+        ref(storage, 'projects/project-1/progress/oversized.jpg'),
+        new Uint8Array(10 * 1024 * 1024 + 1),
+        { contentType: 'image/jpeg' }
+      )
+    );
+  });
+
+  it('does not allow replacing an existing project photo', async () => {
+    const storage = testEnvironment.authenticatedContext('uid-1').storage();
+    const photoRef = ref(storage, IMAGE_PATH);
+    await assertSucceeds(uploadBytes(photoRef, imageBytes(), { contentType: 'image/jpeg' }));
+    await assertFails(uploadBytes(photoRef, imageBytes(), { contentType: 'image/jpeg' }));
+  });
+
   it('denies deleting an uploaded photo from the client', async () => {
     const storage = testEnvironment.authenticatedContext('uid-1').storage();
     await assertSucceeds(uploadBytes(ref(storage, IMAGE_PATH), imageBytes(), { contentType: 'image/jpeg' }));
