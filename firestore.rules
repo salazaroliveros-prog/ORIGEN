@@ -681,6 +681,7 @@ service cloud.firestore {
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(orderId) &&
         incoming().id == orderId &&
+        incoming().keys().hasAll(['id', 'companyId', 'projectId', 'supplierId', 'number', 'status', 'currency', 'lines', 'subtotalGTQ', 'discountGTQ', 'taxPercent', 'taxGTQ', 'totalGTQ', 'requestedBy', 'createdAt', 'updatedAt']) &&
         canManagePurchasing(incoming().companyId) &&
         incoming().requestedBy == request.auth.uid &&
         isProjectInCompany(incoming().projectId, incoming().companyId) &&
@@ -688,16 +689,27 @@ service cloud.firestore {
         incoming().currency == 'GTQ' &&
         incoming().status == 'draft' &&
         incoming().lines is list && incoming().lines.size() == 1 &&
+        incoming().lines[0].keys().hasAll(['itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ']) &&
         incoming().lines[0].itemId is string &&
         isInventoryItemInCompany(incoming().lines[0].itemId, incoming().companyId) &&
+        incoming().lines[0].description is string && incoming().lines[0].description.size() > 0 && incoming().lines[0].description.size() <= 200 &&
+        incoming().lines[0].unit is string && incoming().lines[0].unit.size() > 0 && incoming().lines[0].unit.size() <= 32 &&
         incoming().lines[0].quantity is number && incoming().lines[0].quantity > 0 &&
         incoming().lines[0].receivedQuantity == 0 &&
         incoming().lines[0].unitPriceGTQ is number && incoming().lines[0].unitPriceGTQ >= 0 &&
+        incoming().number is string && incoming().number.size() > 0 && incoming().number.size() <= 80 &&
+        incoming().createdAt is string && incoming().updatedAt is string &&
         incoming().subtotalGTQ is number && incoming().subtotalGTQ >= 0 &&
-        incoming().discountGTQ is number && incoming().discountGTQ >= 0 &&
+        incoming().discountGTQ is number && incoming().discountGTQ >= 0 && incoming().discountGTQ <= incoming().subtotalGTQ &&
         incoming().taxPercent is number && incoming().taxPercent >= 0 && incoming().taxPercent <= 100 &&
         incoming().taxGTQ is number && incoming().taxGTQ >= 0 &&
-        incoming().totalGTQ is number && incoming().totalGTQ >= 0;
+        incoming().totalGTQ is number && incoming().totalGTQ >= 0 &&
+        incoming().subtotalGTQ >= (incoming().lines[0].quantity * incoming().lines[0].unitPriceGTQ) - 0.01 &&
+        incoming().subtotalGTQ <= (incoming().lines[0].quantity * incoming().lines[0].unitPriceGTQ) + 0.01 &&
+        incoming().taxGTQ >= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) - 0.01 &&
+        incoming().taxGTQ <= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) + 0.01 &&
+        incoming().totalGTQ >= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) - 0.01 &&
+        incoming().totalGTQ <= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) + 0.01;
       allow update: if false;
       allow delete: if isValidId(orderId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
@@ -710,17 +722,19 @@ service cloud.firestore {
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(contractId) &&
         incoming().id == contractId &&
+        incoming().keys().hasAll(['id', 'companyId', 'projectId', 'supplierId', 'contractNumber', 'description', 'startDate', 'endDate', 'amountGTQ', 'paidGTQ', 'status', 'createdBy']) &&
         canManagePurchasing(incoming().companyId) &&
         incoming().createdBy == request.auth.uid &&
         isProjectInCompany(incoming().projectId, incoming().companyId) &&
         isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
-        incoming().contractNumber is string && incoming().contractNumber.size() > 0 &&
-        incoming().description is string && incoming().description.size() > 0 &&
-        incoming().startDate is string && incoming().endDate is string &&
+        incoming().contractNumber is string && incoming().contractNumber.size() > 0 && incoming().contractNumber.size() <= 80 &&
+        incoming().description is string && incoming().description.size() > 0 && incoming().description.size() <= 1000 &&
+        incoming().startDate is string && incoming().startDate.size() == 10 &&
+        incoming().endDate is string && incoming().endDate.size() == 10 && incoming().endDate >= incoming().startDate &&
         incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
         incoming().paidGTQ == 0 &&
         incoming().status in ['draft', 'active'];
-      allow update: if false
+      allow update: if false;
       allow delete: if isValidId(contractId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
         existing().status == 'draft';
