@@ -6,6 +6,9 @@ import {
   validateMachinery,
   validateMachineryDraft,
   validateQuoteRecord,
+  validateSupplier,
+  validatePurchaseOrder,
+  validateSubcontract,
 } from './entity.schemas';
 
 describe('entity schemas use the persisted ERP record contracts', () => {
@@ -310,5 +313,59 @@ describe('rejects invalid entity data', () => {
         items: [{ description: 'Item inválido', qty: 0, unit: 'Global', unitPriceGTQ: 100 }],
       }).success
     ).toBe(false);
+  });
+});
+
+describe('supplier, purchase order and subcontract validation', () => {
+  const supplier = {
+    id: 'supplier-1', companyId: 'company-1', name: 'Proveedor de prueba',
+    nit: '1234567-8', email: 'ventas@example.com', active: true, createdBy: 'user-1',
+  };
+  const order = {
+    id: 'po-1', companyId: 'company-1', projectId: 'project-1',
+    supplierId: 'supplier-1', number: 'OC-0001', status: 'approved' as const,
+    currency: 'GTQ' as const,
+    lines: [{ itemId: 'cemento', description: 'Cemento', unit: 'saco', quantity: 10, receivedQuantity: 0, unitPriceGTQ: 75 }],
+    subtotalGTQ: 750, discountGTQ: 0, taxPercent: 12, taxGTQ: 90, totalGTQ: 840,
+    requestedBy: 'user-1', approvedBy: 'owner-1',
+    createdAt: '2026-11-01T08:00:00.000Z', updatedAt: '2026-11-01T08:00:00.000Z',
+  };
+  const subcontract = {
+    id: 'sub-1', companyId: 'company-1', projectId: 'project-1',
+    supplierId: 'supplier-1', contractNumber: 'SUB-001',
+    description: 'Instalación eléctrica', startDate: '2026-10-01',
+    endDate: '2026-11-30', amountGTQ: 100000, paidGTQ: 20000,
+    status: 'active' as const, createdBy: 'user-1',
+  };
+
+  it('validates supplier records and rejects malformed contact details', () => {
+    expect(validateSupplier(supplier).success).toBe(true);
+    expect(validateSupplier({ ...supplier, email: 'no-es-correo' }).success).toBe(false);
+    expect(validateSupplier({ ...supplier, companyId: '' }).success).toBe(false);
+  });
+
+  it('validates purchase orders with consistent GTQ subtotal, discount and IVA', () => {
+    expect(validatePurchaseOrder(order).success).toBe(true);
+    expect(validatePurchaseOrder({ ...order, totalGTQ: 100 }).success).toBe(false);
+    expect(validatePurchaseOrder({ ...order, status: 'approved', approvedBy: undefined }).success).toBe(false);
+    expect(validatePurchaseOrder({ ...order, currency: 'USD' }).success).toBe(false);
+  });
+
+  it('rejects received quantities above ordered quantities and incomplete receipts', () => {
+    expect(validatePurchaseOrder({
+      ...order,
+      lines: [{ ...order.lines[0], receivedQuantity: 11 }],
+    }).success).toBe(false);
+    expect(validatePurchaseOrder({
+      ...order,
+      status: 'received',
+      lines: [{ ...order.lines[0], receivedQuantity: 9 }],
+    }).success).toBe(false);
+  });
+
+  it('validates subcontract dates and prevents payments above contract value', () => {
+    expect(validateSubcontract(subcontract).success).toBe(true);
+    expect(validateSubcontract({ ...subcontract, endDate: '2026-09-30' }).success).toBe(false);
+    expect(validateSubcontract({ ...subcontract, paidGTQ: 100001 }).success).toBe(false);
   });
 });
