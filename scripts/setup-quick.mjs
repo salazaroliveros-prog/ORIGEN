@@ -83,102 +83,13 @@ async function signUpUser(apiKey, email, password) {
     const errorMsg = signUpResult.data.error?.message || 'Error desconocido';
     console.error(`   ❌ Error: ${errorMsg}`);
     if (errorMsg.includes('EMAIL_EXISTS')) {
-      console.log(`   ⚠️  El email ya está registrado`);
-      // Intentar obtener el UID
-      const lookupResult = await identityToolkitRequest(apiKey, 'accounts:lookup', { email });
-      if (lookupResult.ok && lookupResult.data.users?.[0]) {
-        return lookupResult.data.users[0].localId;
-      }
+      throw new Error('El correo ya existe, pero la contraseña suministrada no permite iniciar sesión. Usa la recuperación de contraseña o el instalador completo con credenciales de servicio.');
     }
     throw new Error(errorMsg);
   }
 
   console.log(`   ✅ Usuario creado (UID: ${signUpResult.data.localId})`);
   return signUpResult.data.localId;
-}
-
-async function seedFirestore(apiKey, adminUid) {
-  console.log('\n🌱 Sembrando base de datos Firestore...');
-
-  const PROJECTS = [
-    {
-      id: 'proj-residencia-001',
-      code: 'RES-001',
-      name: 'Residencia Unifamiliar Los Altos',
-      client: 'Familia Méndez García',
-      location: 'Zona 10, Ciudad de Guatemala',
-      municipality: 'Guatemala',
-      department: 'Guatemala',
-      budgetTotal: 260000,
-      spentTotal: 48500,
-      progressPercent: 22,
-      status: 'En Ejecución',
-    },
-    {
-      id: 'proj-edificio-002',
-      code: 'EDI-002',
-      name: 'Edificio Comercial Plaza Xela',
-      client: 'Corporación Inversiones Xela S.A.',
-      location: 'Zona 1, Quetzaltenango',
-      municipality: 'Quetzaltenango',
-      department: 'Quetzaltenango',
-      budgetTotal: 1800000,
-      spentTotal: 320000,
-      progressPercent: 18,
-      status: 'En Ejecución',
-    },
-    {
-      id: 'proj-puente-003',
-      code: 'PUE-003',
-      name: 'Puente Vehicular Río Polochic',
-      client: 'Municipalidad de Cobán',
-      location: 'Río Polochic, Cobán',
-      municipality: 'Cobán',
-      department: 'Alta Verapaz',
-      budgetTotal: 1350000,
-      spentTotal: 85000,
-      progressPercent: 8,
-      status: 'Planificación',
-    },
-  ];
-
-  const EXPENSES = [
-    {
-      projectId: 'proj-residencia-001',
-      category: 'Materiales (Cementos, Hierro)',
-      description: 'Cemento Progreso 50kg x 100 bolsas',
-      supplier: 'Cemento Progreso S.A.',
-      amount: 45000,
-    },
-    {
-      projectId: 'proj-residencia-001',
-      category: 'Mano de Obra',
-      description: 'Albañilería semana 1-2',
-      supplier: 'Juan Pérez',
-      amount: 25000,
-    },
-    {
-      projectId: 'proj-edificio-002',
-      category: 'Materiales (Cementos, Hierro)',
-      description: 'Hierro corrugado 1/2" x 500kg',
-      supplier: 'Hierros Guatemala',
-      amount: 120000,
-    },
-  ];
-
-  // Nota: Firestore REST API requiere autenticación con ID token de usuario.
-  // Como no tenemos un token de administrador, no podemos escribir directamente
-  // a Firestore desde este script sin service account credentials.
-  //
-  // SOLUCIÓN: Los datos de Firestore se crearán automáticamente cuando el usuario
-  // inicie sesión por primera vez y use la aplicación.
-  //
-  // Para ahora, solo creamos el usuario en Auth. Los datos de Firestore
-  // se pueden poblar usando el seed-admin.mjs con credenciales de servicio.
-
-  console.log('   ⏭️  Firestore seeding requiere credenciales de servicio (service account)');
-  console.log('   💡 Los datos se crearán automáticamente al usar la aplicación');
-  console.log('   💡 O ejecuta: node scripts/seed-admin.mjs (con credenciales de servicio)');
 }
 
 async function main() {
@@ -217,13 +128,11 @@ async function main() {
 
   try {
     const adminUid = await signUpUser(apiKey, ADMIN_EMAIL, ADMIN_PASSWORD);
-    await seedFirestore(apiKey, adminUid);
 
     console.log('\n╔═══════════════════════════════════════════════════════════════╗');
-    console.log('║  ✅ CONFIGURACIÓN RÁPIDA COMPLETADA                            ║');
+    console.log('║  ✅ CUENTA DE ACCESO LISTA                                     ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
-    console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║                                                               ║');
+    console.log('║  Completa el registro de empresa desde el onboarding.         ║');
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝\n');
