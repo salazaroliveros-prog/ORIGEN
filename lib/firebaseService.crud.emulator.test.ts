@@ -700,6 +700,7 @@ describe('firebaseService CRUD contra el emulador', () => {
 
     const partial = await inventoryService.receivePurchaseOrderToWarehouse({
       orderId: order.id,
+      lineIndex: 0,
       warehouseId: warehouse.id,
       quantity: 2,
       receiptNumber: 'RCV-001',
@@ -714,6 +715,7 @@ describe('firebaseService CRUD contra el emulador', () => {
 
     const completed = await inventoryService.receivePurchaseOrderToWarehouse({
       orderId: order.id,
+      lineIndex: 0,
       warehouseId: warehouse.id,
       quantity: 2,
       receiptNumber: 'RCV-002',
@@ -728,6 +730,7 @@ describe('firebaseService CRUD contra el emulador', () => {
 
     const retry = await inventoryService.receivePurchaseOrderToWarehouse({
       orderId: order.id,
+      lineIndex: 0,
       warehouseId: warehouse.id,
       quantity: 2,
       receiptNumber: 'RCV-002',
@@ -765,6 +768,7 @@ describe('firebaseService CRUD contra el emulador', () => {
     await expect(
       inventoryService.receivePurchaseOrderToWarehouse({
         orderId: order.id,
+        lineIndex: 0,
         warehouseId: warehouse.id,
         quantity: 1,
         receiptNumber: 'RCV-003',

@@ -216,7 +216,7 @@ service cloud.firestore {
       return data.keys().hasAll([
           'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
           'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId',
-          'balanceId', 'receiptNumber', 'createdBy'
+          'balanceId', 'receiptNumber', 'lineIndex', 'createdBy'
         ]) &&
         data.id == movementId &&
         isValidId(movementId) &&
