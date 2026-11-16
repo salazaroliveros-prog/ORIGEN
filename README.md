@@ -277,15 +277,21 @@ Consulta `SCREEN_BY_SCREEN_TESTING_REPORT.md` para ver todos los problemas docum
 
 Consulta `CRUD_TESTING_RESULTS.md` para ver los resultados completos de la suite de pruebas.
 
-## Resumen de métricas
+## Estado verificado del proyecto
 
-Estado del proyecto: 100 % completo
-Cobertura de pruebas: 91 % (239 / 249 pruebas aprobadas)
-Calidad del código: Listo para producción
-Seguridad: Validada
-Rendimiento: Optimizado
-Documentación: Completa
-Accesibilidad: WCAG AA
+ORIGEN continúa en desarrollo y validación. No debe considerarse listo para producción hasta completar las pruebas de integración, seguridad, operación offline y despliegue real.
+
+| Área | Estado verificado |
+| ---- | ----------------- |
+| Catálogo de proveedores, bodegas y artículos | Persistencia Firestore implementada; validación de emulador en curso |
+| Órdenes de compra | Alta de borradores de un renglón; aprobación y recepción bloqueadas |
+| Subcontratos | Alta de contratos en borrador/activos; pagos y modificaciones bloqueados |
+| Existencias | Cálculo desde movimientos; escritura de movimientos bloqueada hasta implementar transacciones atómicas |
+| Permisos | Roles de inventario y abastecimiento diferenciados; rol Encargado de bodega incorporado |
+| Modo offline | Parcial; inventario y compras aún no tienen cola offline transaccional |
+| Despliegue | No verificado en producción desde la integración actual |
+
+Los estados pueden cambiar conforme avancen las validaciones. Consulta el PR de trabajo y sus ejecuciones de CI antes de aprobar cambios o desplegar.
 
 ## Lista de verificación de despliegue
 
@@ -319,6 +325,6 @@ El sistema ORIGEN ERP se desarrolló con:
 - Suite completa de documentación
 - 54 errores identificados y corregidos
 
-Estado: Listo para producción
+Estado: En desarrollo; pendiente de validación final
 
 ¿Tienes dudas? Consulta `DOCUMENTATION_INDEX.md` para ver toda la documentación disponible.
