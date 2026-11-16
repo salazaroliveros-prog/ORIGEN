@@ -4,6 +4,10 @@ import {
   canReadEmployeeDirectory,
   canManagePersonnel,
   canReadAttendance,
+  canReadInventory,
+  canManageInventory,
+  canReadPurchasing,
+  canManagePurchasing,
 } from './permissions';
 import type { CompanyRole } from './types';
 
@@ -13,6 +17,7 @@ const ALL_ROLES: CompanyRole[] = [
   'project_manager',
   'finance',
   'field_worker',
+  'warehouse_manager',
   'viewer',
 ];
 
@@ -84,5 +89,39 @@ describe('role hierarchy', () => {
   it('field_worker can attend but not manage personnel', () => {
     expect(canReadAttendance('field_worker')).toBe(true);
     expect(canReadFullPersonnel('field_worker')).toBe(false);
+  });
+});
+
+
+describe('inventory and purchasing permissions', () => {
+  it('grants inventory maintenance to project and warehouse managers', () => {
+    expect(canManageInventory('owner')).toBe(true);
+    expect(canManageInventory('admin')).toBe(true);
+    expect(canManageInventory('project_manager')).toBe(true);
+    expect(canManageInventory('warehouse_manager')).toBe(true);
+    expect(canManageInventory('finance')).toBe(false);
+    expect(canManageInventory('field_worker')).toBe(false);
+    expect(canManageInventory('viewer')).toBe(false);
+  });
+
+  it('grants purchasing maintenance only to authorized financial/project roles', () => {
+    expect(canManagePurchasing('owner')).toBe(true);
+    expect(canManagePurchasing('admin')).toBe(true);
+    expect(canManagePurchasing('project_manager')).toBe(true);
+    expect(canManagePurchasing('finance')).toBe(true);
+    expect(canManagePurchasing('warehouse_manager')).toBe(false);
+    expect(canManagePurchasing('field_worker')).toBe(false);
+    expect(canManagePurchasing('viewer')).toBe(false);
+  });
+
+  it('allows warehouse managers and finance to read the supply chain', () => {
+    for (const role of ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'] as const) {
+      expect(canReadInventory(role)).toBe(true);
+      expect(canReadPurchasing(role)).toBe(true);
+    }
+    expect(canReadInventory('field_worker')).toBe(false);
+    expect(canReadPurchasing('field_worker')).toBe(false);
+    expect(canReadInventory(null)).toBe(false);
+    expect(canManagePurchasing(undefined)).toBe(false);
   });
 });
