@@ -142,6 +142,8 @@ service cloud.firestore {
           get(receiptOrderPath(data.referenceId)).data.lines[0].itemId &&
         getAfter(receiptOrderPath(data.referenceId)).data.lines[0].quantity ==
           get(receiptOrderPath(data.referenceId)).data.lines[0].quantity &&
+        getAfter(receiptOrderPath(data.referenceId)).data.lines[0].unitPriceGTQ ==
+          get(receiptOrderPath(data.referenceId)).data.lines[0].unitPriceGTQ &&
         getAfter(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity ==
           get(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity + data.quantity &&
         getAfter(receiptOrderPath(data.referenceId)).data.status ==
