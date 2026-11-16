@@ -374,6 +374,14 @@ export async function receivePurchaseOrderToWarehouse(input: {
           previous.unitCostGTQ === line.unitPriceGTQ
         ) {
           const previousBalance = balanceSnapshot.data() as InventoryBalanceRecord;
+          if (
+            previousBalance.companyId !== companyId ||
+            previousBalance.warehouseId !== warehouseId ||
+            previousBalance.itemId !== itemId ||
+            previousBalance.id !== balanceId
+          ) {
+            throw new Error('El saldo asociado a la recepción no coincide con la empresa, bodega o artículo.');
+          }
           return {
             order,
             movement: previous,
