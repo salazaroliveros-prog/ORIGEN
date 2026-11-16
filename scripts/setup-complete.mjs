@@ -2,12 +2,12 @@
  * SCRIPT DE CONFIGURACIÓN AUTOMÁTICA COMPLETA — ORIGEN ERP
  * ============================================================
  *
- * Este script configura TODO el sistema automáticamente:
+ * Prepara el espacio de trabajo sin datos ficticios:
  *  1. Lee variables de entorno de .env.local
- *  2. Inicializa Firebase Admin SDK con credenciales del proyecto
- *  3. Crea el usuario administrador en Firebase Authentication
- *  4. Sembrar Firestore con empresa, membresía, proyectos, gastos, etc.
- *  5. Verifica que todo funcione correctamente
+ *  2. Inicializa Firebase Admin SDK con credenciales seguras
+ *  3. Crea/verifica el usuario administrador
+ *  4. Crea la empresa vacía y la membresía owner
+ *  5. Verifica los documentos iniciales
  *
  * USO:
  *   node scripts/setup-complete.mjs
