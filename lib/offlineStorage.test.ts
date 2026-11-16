@@ -257,7 +257,7 @@ describe('lib/offlineStorage', () => {
       const handler = vi.fn(async () => {
         addOfflineAction(
           'progress',
-          { projectId: 'project-1', date: '2026-11-16', progressPercent: 25, notes: 'Avance capturado' },
+          { projectId: 'project-1', milestoneId: 'milestone-1', progressPercent: 25, notes: 'Avance capturado' },
           'New action during sync'
         );
         return true;
@@ -280,7 +280,13 @@ describe('lib/offlineStorage', () => {
         payload: {},
         synced: false,
       };
-      vi.mocked(localStorageMock.getItem).mockReturnValue(JSON.stringify([item]));
+      let storedQueue = [item];
+      vi.mocked(localStorageMock.getItem).mockImplementation((key: string) =>
+        key === 'constructerp_offline_queue' ? JSON.stringify(storedQueue) : null
+      );
+      vi.mocked(localStorageMock.setItem).mockImplementation((key: string, value: string) => {
+        if (key === 'constructerp_offline_queue') storedQueue = JSON.parse(value);
+      });
 
       let finishFirst: (value: boolean) => void = () => undefined;
       const first = processOfflineQueue(() => new Promise<boolean>((resolve) => {
