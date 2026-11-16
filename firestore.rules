@@ -809,7 +809,7 @@ service cloud.firestore {
     // Balances only change as part of a verified purchase-receipt transaction.
     // Inventory balances are writable only together with a valid purchase receipt.
     match /inventoryBalances/{balanceId} {
-      allow get: if isCompanyMember(existing().companyId);
+      allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(balanceId) &&
         incoming().id == balanceId &&
@@ -848,7 +848,7 @@ service cloud.firestore {
 
     // Movements are append-only and must match their paired order and balance writes.
     match /stockMovements/{movementId} {
-      allow get: if isCompanyMember(existing().companyId);
+      allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidReceiptMovement(incoming(), movementId);
       allow update, delete: if false;
