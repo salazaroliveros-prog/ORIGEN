@@ -264,6 +264,38 @@ beforeEach(async () => {
     }));
   });
 
+    const secondMovement = {
+      ...movement,
+      id: 'rec_receipt-order_receipt-2',
+      quantity: 6,
+      occurredAt: '2026-11-16T11:00:00.000Z',
+      receiptNumber: 'receipt-2',
+    };
+    const secondBalance = {
+      ...balance,
+      quantity: 10,
+      averageUnitCostGTQ: 75,
+      updatedAt: '2026-11-16T11:00:00.000Z',
+      lastMovementId: secondMovement.id,
+    };
+    const secondOrderUpdate = {
+      lines: [{ itemId: 'receipt-cement', description: 'Cemento', unit: 'saco',
+        quantity: 10, receivedQuantity: 10, unitPriceGTQ: 75 }],
+      status: 'received',
+      updatedAt: '2026-11-16T11:00:00.000Z',
+      lastReceiptMovementId: secondMovement.id,
+    };
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', secondMovement.id), secondMovement);
+      transaction.set(balanceRef, { ...secondBalance, averageUnitCostGTQ: 999 });
+      transaction.update(orderRef, secondOrderUpdate);
+    }));
+    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', secondMovement.id), secondMovement);
+      transaction.set(balanceRef, secondBalance);
+      transaction.update(orderRef, secondOrderUpdate);
+    }));
+
   it('allows finance to create purchase orders and subcontracts only for same-company references', async () => {
     await seedProject(makeProject('procurement-project'));
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
