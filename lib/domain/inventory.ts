@@ -58,6 +58,7 @@ export interface PurchaseOrderTotals {
 }
 
 const roundCurrency = (amount: number): number => Math.round((amount + Number.EPSILON) * 100) / 100;
+const roundQuantity = (amount: number): number => Math.round((amount + Number.EPSILON) * 10_000) / 10_000;
 
 function assertPositiveFinite(value: number, label: string): void {
   if (!Number.isFinite(value) || value <= 0) {
@@ -92,10 +93,10 @@ export function applyStockMovement(
     if (movement.quantity > balance.quantity) {
       throw new Error('Existencia insuficiente para completar el movimiento.');
     }
-    return { ...balance, quantity: roundCurrency(balance.quantity - movement.quantity) };
+    return { ...balance, quantity: roundQuantity(balance.quantity - movement.quantity) };
   }
 
-  const newQuantity = balance.quantity + movement.quantity;
+  const newQuantity = roundQuantity(balance.quantity + movement.quantity);
   const newAverage =
     newQuantity === 0
       ? 0
@@ -107,7 +108,7 @@ export function applyStockMovement(
 
   return {
     ...balance,
-    quantity: roundCurrency(newQuantity),
+    quantity: newQuantity,
     averageUnitCostGTQ: newAverage,
   };
 }
