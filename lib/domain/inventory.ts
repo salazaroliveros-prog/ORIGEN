@@ -159,8 +159,14 @@ export function applyWarehouseTransfer(
   destination: InventoryBalance,
   input: WarehouseTransferInput
 ): WarehouseTransferResult {
-  if (!input.id.trim() || !input.companyId.trim() || !input.createdBy.trim()) {
-    throw new Error('El traslado debe identificar su ID, empresa y usuario creador.');
+  if (!/^[a-zA-Z0-9_-]{1,120}$/.test(input.id)) {
+    throw new Error('El ID del traslado debe contener entre 1 y 120 caracteres alfanuméricos, guion o guion bajo.');
+  }
+  if (!input.companyId.trim() || !input.createdBy.trim()) {
+    throw new Error('El traslado debe identificar su empresa y usuario creador.');
+  }
+  if (input.notes !== undefined && (typeof input.notes !== 'string' || input.notes.length > 1000)) {
+    throw new Error('Las notas del traslado no pueden superar 1000 caracteres.');
   }
   if (!input.itemId.trim() || !input.fromWarehouseId.trim() || !input.toWarehouseId.trim()) {
     throw new Error('El traslado debe identificar el artículo y las dos bodegas.');
