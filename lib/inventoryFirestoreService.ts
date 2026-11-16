@@ -259,7 +259,8 @@ export async function createSubcontractToFirestore(
 function subscribeCompanyRecords<T>(
   collectionName: string,
   companyId: string,
-  callback: (records: T[]) => void
+  callback: (records: T[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const db = getDbOrThrow();
   const recordsQuery = query(collection(db, collectionName), where('companyId', '==', companyId));
@@ -268,39 +269,48 @@ function subscribeCompanyRecords<T>(
     (snapshot: QuerySnapshot<DocumentData>) =>
       callback(snapshot.docs.map((document: QueryDocumentSnapshot<DocumentData>) => document.data() as T)),
     (error: Error) => {
-      handleFirestoreError(error, OperationType.LIST, collectionName);
+      const normalized = handleFirestoreError(error, OperationType.LIST, collectionName);
+      onError?.(normalized instanceof Error ? normalized : error);
     }
   );
 }
 
-export const subscribeSuppliers = (companyId: string, callback: (records: SupplierRecord[]) => void) =>
-  subscribeCompanyRecords('suppliers', companyId, callback);
+export const subscribeSuppliers = (
+  companyId: string,
+  callback: (records: SupplierRecord[]) => void,
+  onError?: (error: Error) => void
+) => subscribeCompanyRecords('suppliers', companyId, callback, onError);
 
 export const subscribeWarehouses = (
   companyId: string,
-  callback: (records: WarehouseRecord[]) => void
-) => subscribeCompanyRecords('warehouses', companyId, callback);
+  callback: (records: WarehouseRecord[]) => void,
+  onError?: (error: Error) => void
+) => subscribeCompanyRecords('warehouses', companyId, callback, onError);
 
 export const subscribeInventoryItems = (
   companyId: string,
-  callback: (records: InventoryItemRecord[]) => void
-) => subscribeCompanyRecords('inventoryItems', companyId, callback);
+  callback: (records: InventoryItemRecord[]) => void,
+  onError?: (error: Error) => void
+) => subscribeCompanyRecords('inventoryItems', companyId, callback, onError);
 
 export const subscribePurchaseOrders = (
   companyId: string,
-  callback: (records: PurchaseOrderRecord[]) => void
-) => subscribeCompanyRecords('purchaseOrders', companyId, callback);
+  callback: (records: PurchaseOrderRecord[]) => void,
+  onError?: (error: Error) => void
+) => subscribeCompanyRecords('purchaseOrders', companyId, callback, onError);
 
 export const subscribeSubcontracts = (
   companyId: string,
-  callback: (records: SubcontractRecord[]) => void
-) => subscribeCompanyRecords('subcontracts', companyId, callback);
+  callback: (records: SubcontractRecord[]) => void,
+  onError?: (error: Error) => void
+) => subscribeCompanyRecords('subcontracts', companyId, callback, onError);
 
 /** Movimientos de solo lectura; las escrituras se habilitarán junto a la
  * transacción de recepción/traslado/salida y sus reglas de stock. */
 export const subscribeStockMovements = (
   companyId: string,
-  callback: (records: StockMovement[]) => void
-) => subscribeCompanyRecords('stockMovements', companyId, callback);
+  callback: (records: StockMovement[]) => void,
+  onError?: (error: Error) => void
+) => subscribeCompanyRecords('stockMovements', companyId, callback, onError);
 
 export { getSubcontractExpiryAlerts };
