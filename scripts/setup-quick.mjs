@@ -106,6 +106,14 @@ async function main() {
     console.error('Define SETUP_ADMIN_EMAIL y SETUP_ADMIN_PASSWORD.');
     process.exit(1);
   }
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(ADMIN_EMAIL)) {
+    console.error('SETUP_ADMIN_EMAIL no tiene un formato válido.');
+    process.exit(1);
+  }
+  if (ADMIN_PASSWORD.length < 12) {
+    console.error('SETUP_ADMIN_PASSWORD debe tener al menos 12 caracteres.');
+    process.exit(1);
+  }
   if (process.env.CONFIRM_FIREBASE_SETUP !== 'YES') {
     console.error('Define CONFIRM_FIREBASE_SETUP=YES para confirmar la creación de cuenta.');
     process.exit(1);
