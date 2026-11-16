@@ -13,6 +13,9 @@ import {
   query,
   runTransaction,
   where,
+  type DocumentData,
+  type QueryDocumentSnapshot,
+  type QuerySnapshot,
   type Transaction,
   type Unsubscribe,
 } from 'firebase/firestore';
@@ -261,8 +264,9 @@ function subscribeCompanyRecords<T>(
   const recordsQuery = query(collection(db, collectionName), where('companyId', '==', companyId));
   return onSnapshot(
     recordsQuery,
-    (snapshot) => callback(snapshot.docs.map((document) => document.data() as T)),
-    (error) => {
+    (snapshot: QuerySnapshot<DocumentData>) =>
+      callback(snapshot.docs.map((document: QueryDocumentSnapshot<DocumentData>) => document.data() as T)),
+    (error: Error) => {
       handleFirestoreError(error, OperationType.LIST, collectionName);
     }
   );
