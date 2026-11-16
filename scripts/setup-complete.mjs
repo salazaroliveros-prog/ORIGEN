@@ -215,7 +215,7 @@ async function createAdminUser(auth) {
     const userRecord = await getAuth().createUser({
       email: ADMIN_EMAIL,
       emailVerified: true,
-      Password: [not displayed]
+      password: ADMIN_PASSWORD,
       displayName: 'Administrador del Sistema',
       disabled: false,
     });
