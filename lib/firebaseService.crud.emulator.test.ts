@@ -741,7 +741,7 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(retry.balance.quantity).toBe(4);
 
     const balanceId = `bal_${warehouse.id}_${item.id}`;
-    const movementId = `rec_${order.id}_RCV-002`;
+    const movementId = `rec_${order.id}_0_RCV-002`;
     const storedBalance = await expectPersisted('inventoryBalances', balanceId, (callback) =>
       inventoryService.subscribeInventoryBalances(companyId, callback)
     );

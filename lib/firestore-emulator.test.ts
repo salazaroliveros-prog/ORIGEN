@@ -310,7 +310,7 @@ beforeEach(async () => {
       warehouseId: 'receipt-warehouse', kind: 'purchase_receipt',
       quantity: 4, unitCostGTQ: 75, occurredAt: '2026-11-16T10:00:00.000Z',
       referenceId: 'receipt-order', balanceId: 'bal_receipt-warehouse_receipt-cement',
-      receiptNumber: 'receipt-1', createdBy: USERS.warehouseManager,
+      receiptNumber: 'receipt-1', lineIndex: 0, createdBy: USERS.warehouseManager,
     };
     const balance = {
       id: movement.balanceId, companyId: COMPANY_A, warehouseId: 'receipt-warehouse',
