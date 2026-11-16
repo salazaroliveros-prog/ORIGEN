@@ -226,8 +226,8 @@ export async function createPurchaseOrderToFirestore(
   const now = new Date().toISOString();
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario solicitante', 128);
-  if (!Array.isArray(input.lines) || input.lines.length !== 1) {
-    throw new Error('Por ahora cada orden debe contener exactamente un renglón.');
+  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 5) {
+    throw new Error('Cada orden debe contener entre 1 y 5 renglones.');
   }
   const order = validatePurchaseOrder({
     ...input,
@@ -306,17 +306,21 @@ export async function approvePurchaseOrderToFirestore(
  */
 export async function receivePurchaseOrderToWarehouse(input: {
   orderId: string;
+  lineIndex: number;
   warehouseId: string;
   quantity: number;
   receiptNumber: string;
   companyId: string;
   userId: string;
 }): Promise<PurchaseReceiptResult> {
-  const { orderId, warehouseId, quantity, receiptNumber, companyId, userId } = input;
+  const { orderId, lineIndex, warehouseId, quantity, receiptNumber, companyId, userId } = input;
   assertSafeDocumentId(orderId, 'Orden de compra');
   assertSafeDocumentId(warehouseId, 'Bodega');
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario que recibe', 128);
+  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex > 4) {
+    throw new Error('El renglón de la orden no es válido.');
+  }
   assertFiniteNonNegative(quantity, 'Cantidad recibida');
   if (quantity <= 0) throw new Error('La cantidad recibida debe ser mayor a cero.');
   if (!/^[a-zA-Z0-9_-]{1,40}$/.test(receiptNumber.trim())) {
@@ -334,11 +338,11 @@ export async function receivePurchaseOrderToWarehouse(input: {
       if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
       const order = orderSnapshot.data() as PurchaseOrderRecord;
       if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (order.lines.length !== 1) {
-        throw new Error('La recepción segura requiere una orden de un solo renglón.');
+      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 5 || lineIndex >= order.lines.length) {
+        throw new Error('El renglón seleccionado no existe en esta orden.');
       }
 
-      const line = order.lines[0];
+      const line = order.lines[lineIndex];
       const itemId = line.itemId;
       assertSafeDocumentId(itemId, 'Artículo');
       if (warehouseId.length > 55 || itemId.length > 55 || orderId.length > 55) {
@@ -346,7 +350,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
       }
 
       const balanceId = `bal_${warehouseId}_${itemId}`;
-      const movementId = `rec_${orderId}_${receiptNumber.trim()}`;
+      const movementId = `rec_${orderId}_${lineIndex}_${receiptNumber.trim()}`;
       assertSafeDocumentId(balanceId, 'Saldo de inventario');
       assertSafeDocumentId(movementId, 'Movimiento de inventario');
       const balanceRef = doc(db, 'inventoryBalances', balanceId);
@@ -368,6 +372,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
         if (
           previous.companyId === companyId &&
           previous.referenceId === orderId &&
+          previous.lineIndex === lineIndex &&
           previous.receiptNumber === receiptNumber.trim() &&
           previous.warehouseId === warehouseId &&
           previous.itemId === itemId &&
@@ -424,6 +429,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
         referenceId: orderId,
         balanceId,
         receiptNumber: receiptNumber.trim(),
+        lineIndex,
         createdBy: userId,
       };
       const previousBalance: InventoryBalance = balanceSnapshot.exists()
@@ -442,15 +448,13 @@ export async function receivePurchaseOrderToWarehouse(input: {
             reorderLevel: item.reorderLevel,
           };
 
-      if (
-        balanceSnapshot.exists() &&
-        balanceSnapshot.data().companyId !== companyId
-      ) {
+      if (balanceSnapshot.exists() && balanceSnapshot.data().companyId !== companyId) {
         throw new Error('El saldo de inventario no pertenece a la empresa activa.');
       }
 
       const nextBalance = applyStockMovement(previousBalance, movement);
-      const updatedOrder = recordPurchaseReceipt(order, [quantity], now);
+      const receivedQuantities = order.lines.map((_, index) => index === lineIndex ? quantity : 0);
+      const updatedOrder = recordPurchaseReceipt(order, receivedQuantities, now);
       updatedOrder.lastReceiptMovementId = movementId;
 
       const balance: InventoryBalanceRecord = {
@@ -461,12 +465,8 @@ export async function receivePurchaseOrderToWarehouse(input: {
         quantity: nextBalance.quantity,
         averageUnitCostGTQ: nextBalance.averageUnitCostGTQ,
         reorderLevel: nextBalance.reorderLevel,
-        createdBy: balanceSnapshot.exists()
-          ? String(balanceSnapshot.data().createdBy)
-          : userId,
-        createdAt: balanceSnapshot.exists()
-          ? String(balanceSnapshot.data().createdAt)
-          : now,
+        createdBy: balanceSnapshot.exists() ? String(balanceSnapshot.data().createdBy) : userId,
+        createdAt: balanceSnapshot.exists() ? String(balanceSnapshot.data().createdAt) : now,
         updatedAt: now,
         lastMovementId: movementId,
       };

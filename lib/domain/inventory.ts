@@ -37,6 +37,8 @@ export interface StockMovement {
   referenceId?: string;
   balanceId?: string;
   receiptNumber?: string;
+  /** Renglón de la orden al que pertenece la recepción. */
+  lineIndex?: number;
   notes?: string;
   createdBy: string;
 }
