@@ -369,7 +369,9 @@ export async function receivePurchaseOrderToWarehouse(input: {
           previous.referenceId === orderId &&
           previous.receiptNumber === receiptNumber.trim() &&
           previous.warehouseId === warehouseId &&
-          previous.itemId === itemId
+          previous.itemId === itemId &&
+          previous.quantity === quantity &&
+          previous.unitCostGTQ === line.unitPriceGTQ
         ) {
           const previousBalance = balanceSnapshot.data() as InventoryBalanceRecord;
           return {
@@ -562,5 +564,11 @@ export const subscribeStockMovements = (
   callback: (records: StockMovement[]) => void,
   onError?: (error: Error) => void
 ) => subscribeCompanyRecords('stockMovements', companyId, callback, onError);
+
+export const subscribeInventoryBalances = (
+  companyId: string,
+  callback: (records: InventoryBalanceRecord[]) => void,
+  onError?: (error: Error) => void
+) => subscribeCompanyRecords('inventoryBalances', companyId, callback, onError);
 
 export { getSubcontractExpiryAlerts };
