@@ -25,6 +25,7 @@ const INVITATION_ROLES: Exclude<CompanyRole, 'owner'>[] = [
   'project_manager',
   'finance',
   'field_worker',
+  'warehouse_manager',
   'viewer',
 ];
 
