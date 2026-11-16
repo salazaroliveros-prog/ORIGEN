@@ -23,6 +23,7 @@ import { PayrollEstimateView } from '@/components/PayrollEstimateView';
 import { GmailManager } from '@/components/GmailManager';
 import { CompanyTeamManager } from '@/components/CompanyTeamManager';
 import { MachineryManager } from '@/components/MachineryManager';
+import { InventoryManager } from '@/components/InventoryManager';
 import { GanttSchedule } from '@/components/GanttSchedule';
 import { PageHeader } from '@/components/PageHeader';
 import { saveProjectScheduleToFirestore } from '@/lib/firebaseService';
@@ -418,6 +419,38 @@ export function MainAppContent({
         tokenExpiresAt={null}
         onAuthorize={async () => ({ accessToken: '', expiresAt: 0 })}
       />
+    );
+  }
+
+  if (activeTab === 'inventario') {
+    if (!permissions.canViewSupplyChain) {
+      return <AccessDeniedPanel title="inventario y compras" />;
+    }
+    if (!workspace?.id || !currentUser?.uid) {
+      return <AccessDeniedPanel title="inventario y compras de la empresa activa" />;
+    }
+    return (
+      <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-5">
+        <PageHeader
+          title={tabConfig.label}
+          subtitle={tabConfig.subtitle}
+          logoUrl={company.logoUrl}
+          companyName={company.companyName}
+          breadcrumbs={[
+            { label: 'Inicio', href: '/' },
+            { label: 'Operaciones', href: '/' },
+            { label: tabConfig.label },
+          ]}
+        />
+        <InventoryManager
+          companyId={workspace.id}
+          userId={currentUser.uid}
+          projects={activeProjects}
+          activeProjectId={activeProject?.id ?? ''}
+          canManageInventory={permissions.canManageInventory}
+          canManagePurchasing={permissions.canManagePurchasing}
+        />
+      </div>
     );
   }
 
