@@ -8,6 +8,7 @@ import {
   canManageInventory,
   canReadPurchasing,
   canManagePurchasing,
+  INVITABLE_COMPANY_ROLES,
 } from './permissions';
 import type { CompanyRole } from './types';
 
@@ -123,5 +124,13 @@ describe('inventory and purchasing permissions', () => {
     expect(canReadPurchasing('field_worker')).toBe(false);
     expect(canReadInventory(null)).toBe(false);
     expect(canManagePurchasing(undefined)).toBe(false);
+  });
+});
+
+
+describe('company invitations', () => {
+  it('exposes the warehouse manager as an assignable role', () => {
+    expect(INVITABLE_COMPANY_ROLES).toContain('warehouse_manager');
+    expect(INVITABLE_COMPANY_ROLES).not.toContain('owner');
   });
 });
