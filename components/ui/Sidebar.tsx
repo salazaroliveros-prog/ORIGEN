@@ -16,6 +16,7 @@ import {
   Mail,
   Sparkles,
   UserPlus,
+  Boxes,
   ChevronRight,
   Phone,
   LogOut,
@@ -146,6 +147,10 @@ export function Sidebar({
               href={`/${tab.id}`}
               className={`w-full flex items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`}
               aria-current={isActive ? 'page' : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                onSelectTab(tab.id);
+              }}
             >
               <div className="flex items-center gap-3">
                 <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? 'stroke-[2.5] text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
