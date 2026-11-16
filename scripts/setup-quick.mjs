@@ -223,8 +223,6 @@ async function main() {
     console.log('║  ✅ CONFIGURACIÓN RÁPIDA COMPLETADA                            ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
     console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║  📧 Email:    [redacted]                       ║');
-    console.log('║  🔑 Password: [not displayed]
     console.log('║                                                               ║');
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
