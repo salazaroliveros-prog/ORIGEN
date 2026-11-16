@@ -293,6 +293,7 @@ beforeEach(async () => {
       transaction.set(doc(database, 'stockMovements', secondMovement.id), secondMovement);
       transaction.set(balanceRef, secondBalance);
       transaction.update(orderRef, secondOrderUpdate);
+    }));
   });
 
   it('allows finance to create purchase orders and subcontracts only for same-company references', async () => {
