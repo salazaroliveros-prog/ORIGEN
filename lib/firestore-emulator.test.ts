@@ -209,6 +209,72 @@ beforeEach(async () => {
     await assertFails(deleteDoc(doc(manager, 'stockMovements', movement.id)));
   });
 
+  it('requires project stock issues and reduced balances in one atomic write and rejects overdrafts', async () => {
+    await seedProject(makeProject('issue-project'));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      const database = context.firestore();
+      await setDoc(doc(database, 'inventoryItems', 'issue-cement'), {
+        id: 'issue-cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
+        reorderLevel: 2, active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'warehouses', 'issue-warehouse'), {
+        id: 'issue-warehouse', companyId: COMPANY_A, projectId: 'issue-project',
+        name: 'Bodega de salida', type: 'project', active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'inventoryBalances', 'bal_issue-warehouse_issue-cement'), {
+        id: 'bal_issue-warehouse_issue-cement',
+        companyId: COMPANY_A,
+        warehouseId: 'issue-warehouse',
+        itemId: 'issue-cement',
+        quantity: 12,
+        averageUnitCostGTQ: 75,
+        reorderLevel: 2,
+        createdBy: USERS.owner,
+        createdAt: '2026-11-16T08:00:00.000Z',
+        updatedAt: '2026-11-16T08:00:00.000Z',
+        lastMovementId: 'opening-seed',
+      });
+    });
+
+    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const movement = {
+      id: 'issue-out-001',
+      companyId: COMPANY_A,
+      projectId: 'issue-project',
+      itemId: 'issue-cement',
+      warehouseId: 'issue-warehouse',
+      kind: 'project_issue',
+      quantity: 3,
+      unitCostGTQ: 75,
+      occurredAt: '2026-11-16T10:00:00.000Z',
+      referenceId: 'VALE-001',
+      balanceId: 'bal_issue-warehouse_issue-cement',
+      createdBy: USERS.warehouseManager,
+    };
+    const balanceRef = doc(database, 'inventoryBalances', movement.balanceId);
+    const movementRef = doc(database, 'stockMovements', movement.id);
+    const balanceUpdate = {
+      quantity: 9,
+      averageUnitCostGTQ: 75,
+      updatedAt: '2026-11-16T10:00:00.000Z',
+      lastMovementId: movement.id,
+    };
+
+    await assertFails(setDoc(movementRef, movement));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(movementRef, movement);
+      transaction.update(balanceRef, { ...balanceUpdate, quantity: -1 });
+    }));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(movementRef, { ...movement, quantity: 99 });
+      transaction.update(balanceRef, balanceUpdate);
+    }));
+    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(movementRef, movement);
+      transaction.update(balanceRef, balanceUpdate);
+    }));
+  });
+
   it('requires a purchase receipt movement, balance, and order update in one atomic write', async () => {
     await seedProject(makeProject('receipt-project'));
     await testEnvironment.withSecurityRulesDisabled(async (context) => {

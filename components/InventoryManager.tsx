@@ -20,6 +20,7 @@ import {
   createPurchaseOrderToFirestore,
   createSubcontractToFirestore,
   receivePurchaseOrderToWarehouse,
+  recordProjectStockIssueToFirestore,
   createSupplierToFirestore,
   createWarehouseToFirestore,
   subscribeInventoryItems,
@@ -33,7 +34,7 @@ import {
 } from '@/lib/inventoryFirestoreService';
 import toast from 'react-hot-toast';
 
-type Section = 'resumen' | 'articulos' | 'bodegas' | 'proveedores' | 'ordenes' | 'subcontratos';
+type Section = 'resumen' | 'articulos' | 'bodegas' | 'proveedores' | 'ordenes' | 'movimientos' | 'subcontratos';
 
 interface InventoryManagerProps {
   companyId: string;
@@ -117,6 +118,11 @@ export function InventoryManager({
   const [receiptWarehouseId, setReceiptWarehouseId] = useState('');
   const [receiptQuantity, setReceiptQuantity] = useState('1');
   const [receiptNumber, setReceiptNumber] = useState('');
+  const [issueProjectId, setIssueProjectId] = useState(activeProjectId);
+  const [issueBalanceKey, setIssueBalanceKey] = useState('');
+  const [issueQuantity, setIssueQuantity] = useState('1');
+  const [issueReference, setIssueReference] = useState('');
+  const [issueNotes, setIssueNotes] = useState('');
 
   useEffect(() => {
     setWarehouseProjectId((current) => current || activeProjectId);
@@ -378,6 +384,53 @@ export function InventoryManager({
     }
   };
 
+  const handleStockIssueSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canWriteInventory || submitting) return;
+    const [itemId, warehouseId] = issueBalanceKey.split('|');
+    const selectedBalance = balances.find(
+      (balance) => balance.itemId === itemId && balance.warehouseId === warehouseId
+    );
+    const quantity = Number(issueQuantity);
+    if (!selectedBalance) {
+      toast.error('Selecciona una combinación de artículo y bodega con saldo disponible.');
+      return;
+    }
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > selectedBalance.quantity) {
+      toast.error(`La cantidad debe ser mayor a cero y no superar ${selectedBalance.quantity}.`);
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]{1,80}$/.test(issueReference.trim())) {
+      toast.error('Ingresa un vale de salida válido (máximo 80 caracteres).');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const result = await recordProjectStockIssueToFirestore({
+        movementId: `iss_${issueReference.trim()}`,
+        projectId: issueProjectId,
+        itemId,
+        warehouseId,
+        quantity,
+        reference: issueReference.trim(),
+        notes: issueNotes.trim() || undefined,
+        companyId,
+        userId,
+      });
+      setIssueReference('');
+      setIssueNotes('');
+      setIssueQuantity('1');
+      toast.success(result.alreadyProcessed
+        ? 'Esta salida ya estaba registrada; no se volvió a descontar inventario.'
+        : 'Salida registrada y existencias descontadas.');
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar la salida de inventario.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleContractSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canWritePurchasing || submitting) return;
@@ -417,10 +470,11 @@ export function InventoryManager({
     { id: 'bodegas', label: 'Bodegas' },
     { id: 'proveedores', label: 'Proveedores' },
     { id: 'ordenes', label: 'Órdenes de compra' },
+    { id: 'movimientos', label: 'Salidas a obra' },
     { id: 'subcontratos', label: 'Subcontratos' },
   ];
 
-  const visibleSections = sections;
+  const visibleSections = sections.filter((item) => item.id !== 'movimientos' || canWriteInventory);
 
   const projectOptions = projects.filter((project) => project.status !== 'Archivado');
 
@@ -651,6 +705,73 @@ export function InventoryManager({
                 <button className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !projectOptions.length || !activeSuppliers.length || !activeItems.length}>{submitting ? 'Guardando…' : 'Crear borrador de OC'}</button>
                 <p className="text-xs text-slate-500">La orden se registra como borrador. Después de aprobarla, el encargado de bodega puede registrar entregas parciales o completas con número de recepción y actualización transaccional de existencias.</p>
               </form>}
+            </div>
+          )}
+
+          {section === 'movimientos' && (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+              <section className={cardClass}>
+                <h3 className="mb-3 font-semibold text-white">Existencias disponibles</h3>
+                {balances.length === 0 ? (
+                  <EmptyState message="Aún no hay saldos calculados. Registra una recepción de compra para habilitar salidas." />
+                ) : (
+                  <div className="space-y-2">
+                    {balances.map((balance) => (
+                      <div key={balance.itemId + ':' + balance.warehouseId} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/5 px-3 py-2">
+                        <div>
+                          <p className="text-sm font-medium text-white">{items.find((item) => item.id === balance.itemId)?.name ?? balance.itemId}</p>
+                          <p className="text-xs text-slate-400">{warehouses.find((warehouse) => warehouse.id === balance.warehouseId)?.name ?? balance.warehouseId}</p>
+                        </div>
+                        <span className="text-sm font-semibold text-white">{balance.quantity} · {currency.format(balance.averageUnitCostGTQ)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+              {canWriteInventory && (
+                <form onSubmit={(event) => void handleStockIssueSubmit(event)} className={`${cardClass} space-y-3`}>
+                  <h3 className="font-semibold text-white">Registrar salida de material a obra</h3>
+                  <label className="block">
+                    <span className={labelClass}>Proyecto destino</span>
+                    <select className={fieldClass} value={issueProjectId} onChange={(event) => { setIssueProjectId(event.target.value); setIssueBalanceKey(''); }} required>
+                      <option value="">Selecciona un proyecto</option>
+                      {projectOptions.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Artículo y bodega de origen</span>
+                    <select className={fieldClass} value={issueBalanceKey} onChange={(event) => setIssueBalanceKey(event.target.value)} required>
+                      <option value="">Selecciona existencias</option>
+                      {balances.filter((balance) => balance.quantity > 0 && (
+                        warehouses.find((warehouse) => warehouse.id === balance.warehouseId)?.type === 'general' ||
+                        warehouses.find((warehouse) => warehouse.id === balance.warehouseId)?.projectId === issueProjectId
+                      )).map((balance) => {
+                        const item = items.find((candidate) => candidate.id === balance.itemId);
+                        const warehouse = warehouses.find((candidate) => candidate.id === balance.warehouseId);
+                        return <option key={balance.itemId + ':' + balance.warehouseId} value={balance.itemId + '|' + balance.warehouseId}>
+                          {item?.name ?? balance.itemId} · {warehouse?.name ?? balance.warehouseId} · disponible {balance.quantity} {item?.unit ?? ''}
+                        </option>;
+                      })}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Cantidad a retirar</span>
+                    <input className={fieldClass} type="number" min="0.0001" step="0.0001" value={issueQuantity} onChange={(event) => setIssueQuantity(event.target.value)} required />
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Vale / referencia de salida</span>
+                    <input className={fieldClass} value={issueReference} onChange={(event) => setIssueReference(event.target.value)} maxLength={80} pattern="[a-zA-Z0-9_-]{1,80}" required />
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Notas</span>
+                    <textarea className={fieldClass} rows={3} value={issueNotes} onChange={(event) => setIssueNotes(event.target.value)} maxLength={1000} />
+                  </label>
+                  <button type="submit" className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !projectOptions.length || !balances.some((balance) => balance.quantity > 0)}>
+                    {submitting ? 'Registrando…' : 'Confirmar salida'}
+                  </button>
+                  <p className="text-xs text-slate-500">El sistema valida el saldo y guarda el movimiento y el descuento en una sola transacción. No permite existencias negativas ni duplicar el vale.</p>
+                </form>
+              )}
             </div>
           )}
 

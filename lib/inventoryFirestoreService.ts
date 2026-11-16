@@ -486,6 +486,163 @@ export async function receivePurchaseOrderToWarehouse(input: {
   }
 }
 
+
+export interface StockIssueResult {
+  movement: StockMovement;
+  balance: InventoryBalanceRecord;
+  alreadyProcessed: boolean;
+}
+
+/**
+ * Registers an outbound issue to a construction project. The append-only
+ * movement and the reduced balance are committed together in one transaction.
+ * A caller-supplied movement ID makes retries idempotent.
+ */
+export async function recordProjectStockIssueToFirestore(input: {
+  movementId: string;
+  projectId: string;
+  itemId: string;
+  warehouseId: string;
+  quantity: number;
+  reference: string;
+  notes?: string;
+  companyId: string;
+  userId: string;
+}): Promise<StockIssueResult> {
+  const { movementId, projectId, itemId, warehouseId, quantity, reference, notes, companyId, userId } = input;
+  assertSafeDocumentId(movementId, 'Movimiento de salida');
+  assertSafeDocumentId(projectId, 'Proyecto');
+  assertSafeDocumentId(itemId, 'Artículo');
+  assertSafeDocumentId(warehouseId, 'Bodega');
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario que registra', 128);
+  assertText(reference, 'Referencia de salida', 100);
+  assertFiniteNonNegative(quantity, 'Cantidad de salida');
+  if (quantity <= 0) throw new Error('La cantidad de salida debe ser mayor a cero.');
+  if (notes !== undefined && (typeof notes !== 'string' || notes.length > 1000)) {
+    throw new Error('Las notas no pueden superar 1000 caracteres.');
+  }
+  if (warehouseId.length > 55 || itemId.length > 55) {
+    throw new Error('El identificador de bodega o artículo supera el límite para referencias de inventario.');
+  }
+
+  const db = getDbOrThrow();
+  const movementRef = doc(db, 'stockMovements', movementId);
+  const balanceId = `bal_${warehouseId}_${itemId}`;
+  assertSafeDocumentId(balanceId, 'Saldo de inventario');
+  const balanceRef = doc(db, 'inventoryBalances', balanceId);
+  const warehouseRef = doc(db, 'warehouses', warehouseId);
+  const itemRef = doc(db, 'inventoryItems', itemId);
+  const projectRef = doc(db, 'projects', projectId);
+  const now = new Date().toISOString();
+
+  try {
+    return await runTransaction(db, async (transaction: Transaction) => {
+      const [movementSnapshot, balanceSnapshot, warehouseSnapshot, itemSnapshot, projectSnapshot] =
+        await Promise.all([
+          transaction.get(movementRef),
+          transaction.get(balanceRef),
+          transaction.get(warehouseRef),
+          transaction.get(itemRef),
+          transaction.get(projectRef),
+        ]);
+
+      if (movementSnapshot.exists()) {
+        const previous = movementSnapshot.data() as StockMovement;
+        if (
+          previous.companyId === companyId &&
+          previous.kind === 'project_issue' &&
+          previous.projectId === projectId &&
+          previous.itemId === itemId &&
+          previous.warehouseId === warehouseId &&
+          previous.quantity === quantity &&
+          previous.referenceId === reference.trim() &&
+          previous.createdBy === userId
+        ) {
+          if (!balanceSnapshot.exists()) {
+            throw new Error('Se encontró una salida previa sin saldo asociado. Se requiere revisión de inventario.');
+          }
+          const balance = balanceSnapshot.data() as InventoryBalanceRecord;
+          return { movement: previous, balance, alreadyProcessed: true };
+        }
+        throw new Error('La referencia de salida ya fue utilizada para otro movimiento.');
+      }
+
+      if (!projectSnapshot.exists() || projectSnapshot.data().companyId !== companyId) {
+        throw new Error('El proyecto no existe o no pertenece a la empresa activa.');
+      }
+      if (!warehouseSnapshot.exists()) throw new Error('La bodega seleccionada no existe.');
+      const warehouse = warehouseSnapshot.data() as WarehouseRecord;
+      if (warehouse.companyId !== companyId || !warehouse.active) {
+        throw new Error('La bodega no está activa o no pertenece a la empresa.');
+      }
+      if (warehouse.type === 'project' && warehouse.projectId !== projectId) {
+        throw new Error('La bodega pertenece a otro proyecto.');
+      }
+      if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
+      const item = itemSnapshot.data() as InventoryItemRecord;
+      if (item.companyId !== companyId || !item.active) {
+        throw new Error('El artículo no está activo o no pertenece a la empresa.');
+      }
+      if (!balanceSnapshot.exists()) {
+        throw new Error('No hay saldo registrado para este artículo en la bodega. Registra una recepción antes de retirar material.');
+      }
+
+      const current = balanceSnapshot.data() as InventoryBalanceRecord;
+      if (
+        current.companyId !== companyId ||
+        current.itemId !== itemId ||
+        current.warehouseId !== warehouseId
+      ) {
+        throw new Error('El saldo no coincide con la empresa, artículo o bodega seleccionada.');
+      }
+      if (quantity > current.quantity) {
+        throw new Error(`Existencia insuficiente. Disponible: ${current.quantity} ${item.unit}.`);
+      }
+
+      const movement: StockMovement = {
+        id: movementId,
+        companyId,
+        projectId,
+        itemId,
+        warehouseId,
+        kind: 'project_issue',
+        quantity,
+        unitCostGTQ: current.averageUnitCostGTQ,
+        occurredAt: now,
+        referenceId: reference.trim(),
+        balanceId,
+        notes: notes?.trim() || undefined,
+        createdBy: userId,
+      };
+      const next = applyStockMovement(
+        {
+          itemId,
+          warehouseId,
+          quantity: current.quantity,
+          averageUnitCostGTQ: current.averageUnitCostGTQ,
+          reorderLevel: item.reorderLevel,
+        },
+        movement
+      );
+      const balance: InventoryBalanceRecord = {
+        ...current,
+        quantity: next.quantity,
+        averageUnitCostGTQ: next.averageUnitCostGTQ,
+        reorderLevel: next.reorderLevel,
+        updatedAt: now,
+        lastMovementId: movementId,
+      };
+
+      transaction.set(movementRef, stripUndefined(movement));
+      transaction.update(balanceRef, stripUndefined(balance));
+      return { movement, balance, alreadyProcessed: false };
+    });
+  } catch (error) {
+    throw handleFirestoreError(error, OperationType.UPDATE, `inventoryBalances/${balanceId}`);
+  }
+}
+
 export async function createSubcontractToFirestore(
   input: SubcontractInput,
   companyId: string,

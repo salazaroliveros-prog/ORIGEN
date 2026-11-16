@@ -191,6 +191,58 @@ service cloud.firestore {
         receiptBalanceUpdated(data, movementId);
     }
 
+    function isValidIssueBalance(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      let movement = getAfter(movementPath).data;
+      return existsAfter(movementPath) &&
+        movement.kind == 'project_issue' &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        data.quantity == existing().quantity - movement.quantity &&
+        data.averageUnitCostGTQ == existing().averageUnitCostGTQ &&
+        data.reorderLevel == existing().reorderLevel;
+    }
+
+    function isValidProjectIssueMovement(data, movementId) {
+      let balancePath = receiptBalancePath(data.balanceId);
+      let beforeBalance = get(balancePath).data;
+      let afterBalance = getAfter(balancePath).data;
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId',
+          'balanceId', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.companyId is string &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.kind == 'project_issue' &&
+        data.projectId is string && isValidId(data.projectId) &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.referenceId is string && data.referenceId.size() > 0 && data.referenceId.size() <= 100 &&
+        data.occurredAt is string &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number && data.unitCostGTQ >= 0 &&
+        exists(balancePath) &&
+        beforeBalance.companyId == data.companyId &&
+        beforeBalance.itemId == data.itemId &&
+        beforeBalance.warehouseId == data.warehouseId &&
+        beforeBalance.quantity >= data.quantity &&
+        beforeBalance.averageUnitCostGTQ == data.unitCostGTQ &&
+        existsAfter(balancePath) &&
+        afterBalance.lastMovementId == movementId &&
+        afterBalance.quantity == beforeBalance.quantity - data.quantity &&
+        afterBalance.averageUnitCostGTQ == beforeBalance.averageUnitCostGTQ &&
+        isProjectInCompany(data.projectId, data.companyId) &&
+        isActiveWarehouseForProject(data.warehouseId, data.projectId, data.companyId) &&
+        isActiveInventoryItem(data.itemId, data.companyId);
+    }
+
     function isValidReceiptBalance(data, balanceId, creating) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let movement = getAfter(movementPath).data;
@@ -819,10 +871,13 @@ service cloud.firestore {
         ]) &&
         canManageInventory(existing().companyId) &&
         incoming().updatedAt is string &&
-        incoming().quantity is number && incoming().quantity > existing().quantity &&
+        incoming().quantity is number && incoming().quantity >= 0 &&
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
         incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
-        isValidReceiptBalance(incoming(), balanceId, false);
+        (
+          (incoming().quantity > existing().quantity && isValidReceiptBalance(incoming(), balanceId, false)) ||
+          (incoming().quantity < existing().quantity && isValidIssueBalance(incoming(), balanceId))
+        );
       allow delete: if false;
     }
 
@@ -830,7 +885,7 @@ service cloud.firestore {
     match /stockMovements/{movementId} {
       allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
-      allow create: if isValidReceiptMovement(incoming(), movementId);
+      allow create: if isValidReceiptMovement(incoming(), movementId) || isValidProjectIssueMovement(incoming(), movementId);
       allow update, delete: if false;
     }
 
