@@ -296,16 +296,15 @@ export function CRUDDemo({ companyId, userId, role }: CRUDDemoProps) {
   }, [projects]);
 
   const handleProcessQueue = useCallback(async () => {
-    const result = await processOfflineQueue(async (item) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.debug('Sincronizando:', item);
-      }
-      toast.success(`🔄 Procesando: ${item.description}`);
-      return true;
-    });
+    // Este componente es una demostración local: no dispone de un adaptador
+    // real que persista cada tipo de evento en Firestore. Mantener los
+    // elementos en cola evita reportar una sincronización que nunca ocurrió.
+    const result = await processOfflineQueue(async () => false);
 
     setOfflineQueue(getOfflineQueue());
-    toast.success(`✅ Procesados: ${result.processed}, Pendientes: ${result.remaining}`);
+    toast.error(
+      `No se sincronizaron registros: esta demostración no tiene un adaptador Firestore. Pendientes: ${result.remaining}`
+    );
   }, []);
 
   // ============================================================================
