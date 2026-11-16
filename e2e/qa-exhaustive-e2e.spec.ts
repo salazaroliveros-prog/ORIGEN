@@ -30,7 +30,7 @@ const RUN_ID = Date.now().toString().slice(-6);
 // ============================================================
 
 async function openTab(page: any, name: string | RegExp) {
-  await page.getByRole('button', { name }).first().click();
+  await page.getByRole('link', { name }).first().click();
   await page.waitForTimeout(1500);
 }
 
@@ -94,7 +94,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
       await page.waitForTimeout(4000);
     }
 
-    await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('link', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(ADMIN_EMAIL)).toBeVisible();
   });
 
@@ -112,7 +112,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
     await page.waitForTimeout(2000);
 
     // Debe mostrar error de validación, no redirigir
-    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Tablero' })).toHaveCount(0);
   });
 
   test('PASO-1.03 — Login con contraseña corta (< 6 caracteres) → error', async ({ page }) => {
@@ -128,7 +128,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
     await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
     await page.waitForTimeout(2000);
 
-    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Tablero' })).toHaveCount(0);
   });
 
   test('PASO-1.04 — Login con credenciales incorrectas → error', async ({ page }) => {
@@ -144,7 +144,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
     await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
     await page.waitForTimeout(2000);
 
-    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Tablero' })).toHaveCount(0);
   });
 
   test('PASO-1.05 — Registro exitoso de nuevo usuario', async ({ page }) => {
@@ -186,12 +186,12 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
   });
 
   test('PASO-2.01 — Todos los botones de navegación base son visibles', async ({ page }) => {
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Proyectos & Firmas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Presupuestos APU' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Cotizaciones' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Gastos & Facturas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Maquinaria' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Tablero' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Proyectos & Firmas' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Presupuestos APU' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Cotizaciones' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Gastos & Facturas' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Maquinaria' }).first()).toBeVisible();
   });
 
   test('PASO-2.02 — Navegar a cada sección y verificar carga', async ({ page }) => {
@@ -230,22 +230,22 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
   });
 
   test('PASO-2.05 — Reportes visible', async ({ page }) => {
-    const reportes = page.getByRole('button', { name: /Reportes|Informes/i }).first();
+    const reportes = page.getByRole('link', { name: /Reportes|Informes/i }).first();
     await expect(reportes).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-2.06 — Asistente IA visible', async ({ page }) => {
-    const ia = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
+    const ia = page.getByRole('link', { name: /Asistente|IA|AI/i }).first();
     await expect(ia).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-2.07 — Correo / Avisos visible', async ({ page }) => {
-    const correo = page.getByRole('button', { name: /Correo|Avisos|Gmail/i }).first();
+    const correo = page.getByRole('link', { name: /Correo|Avisos|Gmail/i }).first();
     await expect(correo).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-2.08 — Equipo de la empresa visible', async ({ page }) => {
-    const equipo = page.getByRole('button', { name: 'Equipo de la empresa' }).first();
+    const equipo = page.getByRole('link', { name: 'Equipo de la empresa' }).first();
     await expect(equipo).toBeVisible({ timeout: 20_000 });
   });
 
@@ -538,7 +538,7 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
   test('PASO-4.05 — Profundidad: IA → Abrir → Enviar consulta', async ({ page }) => {
     // El acceso al asistente está siempre disponible en la barra lateral: si
     // no aparece, la prueba debe fallar (no Returning en silencio).
-    const iaBtn = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
+    const iaBtn = page.getByRole('link', { name: /Asistente|IA|AI/i }).first();
     await expect(iaBtn).toBeVisible({ timeout: 20_000 });
     await iaBtn.click();
     await page.waitForTimeout(1500);
