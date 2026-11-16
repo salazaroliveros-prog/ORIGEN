@@ -47,7 +47,7 @@ const PROJECTS = [
     status: 'En Ejecución',
     clientNit: '1234567-8',
     clientPhone: '+502 2233-4455',
-    clientEmail: 'familia.mendez@gmail.com',
+    clientEmail: '[redacted]',
     clientAddress: 'Colonia Los Altos, Zona 10, Guatemala',
     lat: 14.6349,
     lng: -90.5283,
@@ -69,7 +69,7 @@ const PROJECTS = [
     status: 'En Ejecución',
     clientNit: '9876543-2',
     clientPhone: '+502 7755-6688',
-    clientEmail: 'admin@inversionesxela.com',
+    clientEmail: '[redacted]',
     clientAddress: 'Zona 1, Quetzaltenango',
     lat: 14.8322,
     lng: -91.5157,
@@ -91,7 +91,7 @@ const PROJECTS = [
     status: 'Planificación',
     clientNit: '5555555-5',
     clientPhone: '+502 7900-1122',
-    clientEmail: 'ingenieria@municoban.gob.gt',
+    clientEmail: '[redacted]',
     clientAddress: 'Municipalidad de Cobán, Alta Verapaz',
     lat: 15.4933,
     lng: -90.3657,
@@ -215,7 +215,7 @@ async function createAdminUser(auth) {
     const userRecord = await getAuth().createUser({
       email: ADMIN_EMAIL,
       emailVerified: true,
-      password: ADMIN_PASSWORD,
+      Password: [not displayed]
       displayName: 'Administrador del Sistema',
       disabled: false,
     });
@@ -444,8 +444,8 @@ async function main() {
     console.log('║  ✅ CONFIGURACIÓN COMPLETADA EXITOSAMENTE                     ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
     console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║  📧 Email:    salazaroliveros@gmail.com                       ║');
-    console.log('║  🔑 Password: AngelDarioJose.2026                             ║');
+    console.log('║  📧 Email:    [redacted]                       ║');
+    console.log('║  🔑 Password: [not displayed]
     console.log('║                                                               ║');
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
