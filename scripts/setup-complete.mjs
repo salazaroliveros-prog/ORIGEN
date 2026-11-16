@@ -284,7 +284,7 @@ async function seedFirestore(db, adminUid) {
 
   // 3. Crear proyectos
   for (const project of PROJECTS) {
-    const projectRef = db.collection('companies').doc(COMPANY_ID).collection('projects').doc(project.id);
+    const projectRef = db.collection('projects').doc(project.id);
     batch.set(projectRef, {
       ...project,
       id: project.id,
@@ -300,7 +300,7 @@ async function seedFirestore(db, adminUid) {
 
   // 4. Crear gastos
   for (const expense of EXPENSES) {
-    const expenseRef = db.collection('companies').doc(COMPANY_ID).collection('expenses').doc();
+    const expenseRef = db.collection('expenses').doc();
     batch.set(expenseRef, {
       ...expense,
       id: expenseRef.id,
@@ -317,7 +317,7 @@ async function seedFirestore(db, adminUid) {
   }
 
   // 5. Crear configuración de empresa
-  const settingsRef = db.collection('companies').doc(COMPANY_ID).collection('companySettings').doc(COMPANY_ID);
+  const settingsRef = db.collection('companySettings').doc(COMPANY_ID);
   batch.set(settingsRef, {
     id: COMPANY_ID,
     companyId: COMPANY_ID,
