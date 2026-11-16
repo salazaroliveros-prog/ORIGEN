@@ -103,6 +103,830 @@ service cloud.firestore {
       return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager', 'finance']);
     }
 
+    function isActiveWarehouseForProject(warehouseId, projectId, companyId) {
+      return exists(/databases/$(database)/documents/warehouses/$(warehouseId)) &&
+        get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.companyId == companyId &&
+        get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.active == true &&
+        (get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.type == 'general' ||
+          (get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.type == 'project' &&
+            get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.projectId == projectId));
+    }
+
+    function isActiveInventoryItem(itemId, companyId) {
+      return isInventoryItemInCompany(itemId, companyId) &&
+        get(/databases/$(database)/documents/inventoryItems/$(itemId)).data.active == true;
+    }
+
+    function receiptMovementPath(movementId) {
+      return /databases/$(database)/documents/stockMovements/$(movementId);
+    }
+
+    function receiptOrderPath(orderId) {
+      return /databases/$(database)/documents/purchaseOrders/$(orderId);
+    }
+
+    function receiptBalancePath(balanceId) {
+      return /databases/$(database)/documents/inventoryBalances/$(balanceId);
+    }
+
+    function receiptOrderUpdated(data, movementId) {
+      return existsAfter(receiptOrderPath(data.referenceId)) &&
+        exists(receiptOrderPath(data.referenceId)) &&
+        get(receiptOrderPath(data.referenceId)).data.status in ['approved', 'partially_received'] &&
+        getAfter(receiptOrderPath(data.referenceId)).data.lastReceiptMovementId == movementId &&
+        getAfter(receiptOrderPath(data.referenceId)).data.lines is list &&
+        getAfter(receiptOrderPath(data.referenceId)).data.lines.size() == 1 &&
+        getAfter(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity ==
+          get(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity + data.quantity &&
+        getAfter(receiptOrderPath(data.referenceId)).data.status ==
+          (getAfter(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity ==
+            getAfter(receiptOrderPath(data.referenceId)).data.lines[0].quantity
+            ? 'received' : 'partially_received');
+    }
+
+    function receiptBalanceUpdated(data, movementId) {
+      return existsAfter(receiptBalancePath(data.balanceId)) &&
+        getAfter(receiptBalancePath(data.balanceId)).data.lastMovementId == movementId &&
+        getAfter(receiptBalancePath(data.balanceId)).data.companyId == data.companyId &&
+        getAfter(receiptBalancePath(data.balanceId)).data.itemId == data.itemId &&
+        getAfter(receiptBalancePath(data.balanceId)).data.warehouseId == data.warehouseId;
+    }
+
+    function isReceiptMovement(data, movementId) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId',
+          'balanceId', 'receiptNumber', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.kind == 'purchase_receipt' &&
+        data.referenceId is string &&
+        exists(receiptOrderPath(data.referenceId)) &&
+        get(receiptOrderPath(data.referenceId)).data.companyId == data.companyId &&
+        get(receiptOrderPath(data.referenceId)).data.projectId == data.projectId &&
+        get(receiptOrderPath(data.referenceId)).data.status in ['approved', 'partially_received'] &&
+        get(receiptOrderPath(data.referenceId)).data.approvedBy is string &&
+        get(receiptOrderPath(data.referenceId)).data.lines is list &&
+        get(receiptOrderPath(data.referenceId)).data.lines.size() == 1 &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number &&
+        data.unitCostGTQ == get(receiptOrderPath(data.referenceId)).data.lines[0].unitPriceGTQ &&
+        data.receiptNumber is string &&
+        data.receiptNumber.matches('^[a-zA-Z0-9_-]{1,40}
+    match /{path=**}/members/{memberId} {
+      allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    function isAssignableCompanyRole(role) {
+      return role in ['admin', 'project_manager', 'finance', 'field_worker', 'warehouse_manager', 'viewer'];
+    }
+
+    // Validation helpers
+    function isValidProject(data) {
+      return data.keys().hasAll(['id', 'code', 'name', 'client', 'budgetTotal', 'spentTotal', 'status', 'ownerId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.code is string && data.code.size() <= 64 &&
+        data.name is string && data.name.size() <= 200 &&
+        data.client is string && data.client.size() <= 200 &&
+        data.budgetTotal is number && data.budgetTotal >= 0 &&
+        data.spentTotal is number && data.spentTotal >= 0 &&
+        (!data.keys().hasAny(['progressPercent']) ||
+          (data.progressPercent is number && data.progressPercent >= 0 && data.progressPercent <= 100)) &&
+        data.status in ['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'] &&
+        data.companyId is string &&
+        data.ownerId is string && data.ownerId.size() <= 128;
+    }
+
+    function isValidFieldVisit(data) {
+      return data.keys().hasAll(['id', 'projectId', 'projectName', 'date', 'foremanName', 'status', 'authorId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.projectName is string && data.projectName.size() <= 200 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.foremanName is string && data.foremanName.size() <= 150 &&
+        data.status in ['Autorizado', 'Pendiente', 'Revisión'] &&
+        data.companyId is string &&
+        data.authorId is string;
+    }
+
+    function isValidExpense(data) {
+      return data.keys().hasAll(['id', 'projectId', 'date', 'category', 'amount', 'currency', 'authorId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.category is string && data.category.size() <= 100 &&
+        data.amount is number && data.amount >= 0 &&
+        data.currency in ['GTQ', 'USD'] &&
+        data.companyId is string &&
+        data.authorId is string;
+    }
+
+    function isValidAttendance(data) {
+      return data.keys().hasAll(['id', 'projectId', 'date', 'employeeId', 'employeeName', 'status', 'authorId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.employeeId is string && data.employeeId.size() <= 128 &&
+        data.employeeName is string && data.employeeName.size() <= 150 &&
+        data.status in ['Presente', 'Ausente', 'Permiso', 'Incapacidad IGSS'] &&
+        data.companyId is string &&
+        data.authorId is string;
+    }
+
+    function isValidCompanySettings(data) {
+      return data.keys().hasAll(['legalName', 'commercialName', 'ownerId']) &&
+        data.legalName is string && data.legalName.size() <= 250 &&
+        data.commercialName is string && data.commercialName.size() <= 250 &&
+        data.companyId is string &&
+        data.ownerId == data.companyId;
+    }
+
+    function isValidQuote(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'clientName', 'clientNit',
+          'date', 'validUntil', 'items', 'totalGTQ', 'status', 'createdBy'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.clientName is string && data.clientName.size() <= 200 &&
+        data.clientNit is string && data.clientNit.size() <= 30 &&
+        data.date is string && data.validUntil is string &&
+        data.items is list && data.items.size() <= 500 &&
+        data.totalGTQ is number && data.totalGTQ >= 0 &&
+        data.status in ['Aceptada', 'Enviada', 'Borrador', 'Rechazada'] &&
+        data.createdBy == request.auth.uid;
+    }
+
+    function isValidMachinery(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'name', 'model', 'plateOrCode',
+          'hourlyRateGTQ', 'currentHorometer', 'status', 'createdBy'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.name is string && data.name.size() <= 150 &&
+        data.model is string && data.model.size() <= 80 &&
+        data.plateOrCode is string && data.plateOrCode.size() <= 80 &&
+        data.hourlyRateGTQ is number && data.hourlyRateGTQ >= 0 &&
+        data.currentHorometer is number && data.currentHorometer >= 0 &&
+        data.status in ['Disponible', 'En Obra', 'Mantenimiento'] &&
+        data.createdBy == request.auth.uid;
+    }
+
+    function isValidAPUItem(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'createdBy', 'code', 'description',
+          'unit', 'quantity', 'materialUnitCostGTQ', 'laborUnitCostGTQ',
+          'equipmentUnitCostGTQ', 'totalUnitCostGTQ', 'totalPriceGTQ'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.code is string && data.code.size() <= 64 &&
+        data.description is string && data.description.size() <= 500 &&
+        data.unit is string && data.unit.size() <= 32 &&
+        data.quantity is number && data.quantity > 0 &&
+        data.materialUnitCostGTQ is number && data.materialUnitCostGTQ >= 0 &&
+        data.laborUnitCostGTQ is number && data.laborUnitCostGTQ >= 0 &&
+        data.equipmentUnitCostGTQ is number && data.equipmentUnitCostGTQ >= 0 &&
+        data.totalUnitCostGTQ is number && data.totalUnitCostGTQ >= 0 &&
+        data.totalPriceGTQ is number && data.totalPriceGTQ >= 0 &&
+        data.createdBy is string;
+    }
+
+    // Projects collection
+    match /companies/{companyId} {
+      allow get: if isCompanyMember(companyId) ||
+        (isSignedIn() &&
+          companyId == request.auth.uid &&
+          !exists(/databases/$(database)/documents/companies/$(companyId))) ||
+        (isSignedIn() && existing().ownerId == request.auth.uid);
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        companyId == request.auth.uid &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().id == companyId;
+      allow update: if isCompanyMember(companyId) &&
+        hasCompanyRole(companyId, ['owner', 'admin']) &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().id == existing().id;
+      allow delete: if false;
+
+      match /members/{memberId} {
+        allow get: if isSignedIn() &&
+          (memberId == request.auth.uid ||
+            hasCompanyRole(companyId, ['owner', 'admin']));
+        allow list: if isSignedIn() &&
+          (resource.data.uid == request.auth.uid ||
+            hasCompanyRole(companyId, ['owner', 'admin']));
+        allow create: if isSignedIn() &&
+          ((memberId == request.auth.uid &&
+            incoming().uid == request.auth.uid &&
+            incoming().companyId == companyId &&
+            incoming().role == 'owner' &&
+            get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid) ||
+          (memberId == request.auth.uid &&
+            request.auth.token.email_verified == true &&
+            incoming().uid == request.auth.uid &&
+            incoming().companyId == companyId &&
+            incoming().email == request.auth.token.email &&
+            incoming().role is string &&
+            isAssignableCompanyRole(incoming().role) &&
+            incoming().invitationId is string &&
+            existsAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)) &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.status == 'accepted' &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.companyId == companyId &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.email == request.auth.token.email &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.role == incoming().role &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.acceptedBy == request.auth.uid));
+        allow update: if hasCompanyRole(companyId, ['owner', 'admin']) &&
+          memberId != get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId &&
+          incoming().uid == existing().uid &&
+          incoming().companyId == existing().companyId &&
+          isAssignableCompanyRole(incoming().role);
+        allow delete: if hasCompanyRole(companyId, ['owner', 'admin']) &&
+          memberId != get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId;
+      }
+
+      match /invitations/{invitationId} {
+        allow get: if isSignedIn() &&
+          request.auth.token.email_verified == true &&
+          resource.data.email == request.auth.token.email &&
+          resource.data.companyId == companyId &&
+          resource.data.status == 'pending' &&
+          resource.data.expiresAt is timestamp &&
+          resource.data.expiresAt > request.time;
+        allow list: if hasCompanyRole(companyId, ['owner', 'admin']);
+        allow create: if isValidId(invitationId) &&
+          hasCompanyRole(companyId, ['owner', 'admin']) &&
+          incoming().id == invitationId &&
+          incoming().companyId == companyId &&
+          incoming().email is string &&
+          incoming().email.size() <= 254 &&
+          incoming().role is string &&
+          isAssignableCompanyRole(incoming().role) &&
+          incoming().status == 'pending' &&
+          incoming().createdBy == request.auth.uid &&
+          incoming().expiresAt is timestamp &&
+          incoming().expiresAt > request.time &&
+          incoming().expiresAt <= request.time + duration.value(7, 'd');
+        allow update: if isSignedIn() &&
+          request.auth.token.email_verified == true &&
+          existing().companyId == companyId &&
+          existing().status == 'pending' &&
+          existing().email == request.auth.token.email &&
+          existing().expiresAt > request.time &&
+          incoming().companyId == existing().companyId &&
+          incoming().email == existing().email &&
+          incoming().role == existing().role &&
+          incoming().createdBy == existing().createdBy &&
+          incoming().id == existing().id &&
+          incoming().status == 'accepted' &&
+          incoming().acceptedBy == request.auth.uid &&
+          incoming().acceptedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'acceptedBy', 'acceptedAt']) &&
+          existsAfter(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)) &&
+          getAfter(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data.invitationId == invitationId &&
+          getAfter(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data.role == existing().role;
+        allow delete: if hasCompanyRole(companyId, ['owner', 'admin']) &&
+          existing().companyId == companyId &&
+          existing().status == 'pending';
+      }
+    }
+
+    match /projects/{projectId} {
+      allow get: if (isCompanyMember(existing().companyId)) ||
+        (isSignedIn() && existing().ownerId == request.auth.uid);
+      allow list: if (isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.ownerId == request.auth.uid));
+      allow create: if isValidId(projectId) && incoming().id == projectId &&
+        canManageProjects(incoming().companyId) &&
+        incoming().ownerId == request.auth.uid &&
+        isValidProject(incoming());
+      allow update: if isValidId(projectId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageProjects(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == projectId &&
+            incoming().companyId == existing().companyId &&
+            incoming().ownerId == existing().ownerId &&
+            isValidProject(incoming()))
+          : (isSignedIn() &&
+            existing().ownerId == request.auth.uid &&
+            incoming().companyId == existing().ownerId &&
+            incoming().ownerId == existing().ownerId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(projectId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    // Field visits collection
+    match /fieldVisits/{visitId} {
+      allow get: if isCompanyMember(existing().companyId) ||
+        (isSignedIn() && existing().authorId == request.auth.uid);
+      allow list: if isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.authorId == request.auth.uid);
+      allow create: if isValidId(visitId) && incoming().id == visitId &&
+        canManageFieldOperations(incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().authorId == request.auth.uid && isValidFieldVisit(incoming());
+      allow update: if isValidId(visitId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageFieldOperations(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == visitId &&
+            incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
+            incoming().authorId == existing().authorId &&
+            isValidFieldVisit(incoming()))
+          : (isSignedIn() &&
+            existing().authorId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().authorId == existing().authorId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(visitId) && canManageFieldOperations(existing().companyId);
+    }
+
+    // Expenses collection
+    match /expenses/{expenseId} {
+      allow get: if isCompanyMember(existing().companyId) ||
+        (isSignedIn() && existing().authorId == request.auth.uid);
+      allow list: if isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.authorId == request.auth.uid);
+      allow create: if isValidId(expenseId) &&
+        incoming().id == expenseId &&
+        (canManageFinance(incoming().companyId) || canCreatePendingMachineryExpense(incoming())) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().authorId == request.auth.uid && isValidExpense(incoming());
+      allow update: if isValidId(expenseId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageFinance(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == expenseId &&
+            incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
+            incoming().authorId == existing().authorId &&
+            isValidExpense(incoming()))
+          : (isSignedIn() &&
+            existing().authorId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().authorId == existing().authorId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(expenseId) && canManageFinance(existing().companyId);
+    }
+
+    // Attendance collection
+    match /attendance/{attendanceId} {
+      allow get: if (isSignedIn() && existing().authorId == request.auth.uid) ||
+        hasCompanyRole(
+          existing().companyId,
+          ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+        );
+      allow list: if (isSignedIn() && resource.data.authorId == request.auth.uid) ||
+        hasCompanyRole(
+          resource.data.companyId,
+          ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+        );
+      allow create: if isValidId(attendanceId) && incoming().id == attendanceId &&
+        canManageFieldOperations(incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().authorId == request.auth.uid && isValidAttendance(incoming());
+      allow update: if isValidId(attendanceId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageFieldOperations(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == attendanceId &&
+            incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
+            incoming().authorId == existing().authorId &&
+            isValidAttendance(incoming()))
+          : (isSignedIn() &&
+            existing().authorId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().authorId == existing().authorId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(attendanceId) && canManageFieldOperations(existing().companyId);
+    }
+
+    // Company Settings collection
+    match /companySettings/{settingId} {
+      allow get: if (resource == null && isSignedIn() && settingId == request.auth.uid) ||
+        isCompanyMember(existing().companyId) ||
+        (isSignedIn() && existing().ownerId == request.auth.uid);
+      allow list: if isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isValidId(settingId) && hasCompanyRole(incoming().companyId, ['owner', 'admin']) &&
+        isValidCompanySettings(incoming());
+      allow update: if isValidId(settingId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+            incoming().companyId == existing().companyId &&
+            incoming().ownerId == existing().ownerId &&
+            isValidCompanySettings(incoming()))
+          : (isSignedIn() &&
+            existing().ownerId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(settingId) && hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Full personnel records include compensation, contact, and social-security data.
+    match /employees/{employeeId} {
+      allow get: if (isSignedIn() && existing().ownerId == request.auth.uid) ||
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+      allow list: if (isSignedIn() && resource.data.ownerId == request.auth.uid) ||
+        hasCompanyRole(resource.data.companyId, ['owner', 'admin', 'finance']);
+      allow create: if isValidId(employeeId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().ownerId == incoming().companyId;
+      allow update: if isValidId(employeeId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']) &&
+            incoming().companyId == existing().companyId &&
+            incoming().ownerId == existing().ownerId)
+          : (isSignedIn() &&
+            existing().ownerId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().ownerId == existing().ownerId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(employeeId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+    }
+
+    match /employeeDirectory/{employeeId} {
+      allow get: if hasCompanyRole(
+        existing().companyId,
+        ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+      );
+      allow list: if hasCompanyRole(
+        resource.data.companyId,
+        ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+      );
+      allow create, update: if isValidId(employeeId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().id == employeeId &&
+        incoming().keys().hasOnly(['id', 'companyId', 'name', 'role']) &&
+        incoming().keys().hasAll(['id', 'companyId', 'name', 'role']) &&
+        incoming().name is string &&
+        incoming().name.size() <= 150 &&
+        incoming().role in [
+          'Capataz', 'Albañil', 'Ayudante', 'Arquitecto Residente', 'Bodeguero', 'Electricista'
+        ] &&
+        (!exists(/databases/$(database)/documents/employeeDirectory/$(employeeId)) ||
+          incoming().companyId == existing().companyId);
+      allow delete: if isValidId(employeeId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+    }
+
+    match /quotes/{quoteId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(quoteId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
+        incoming().id == quoteId &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isValidQuote(incoming());
+      allow update: if isValidId(quoteId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isValidQuote(incoming());
+      allow delete: if isValidId(quoteId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']);
+    }
+
+    match /machinery/{machineryId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(machineryId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
+        incoming().id == machineryId && isValidMachinery(incoming());
+      allow update: if isValidId(machineryId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        isValidMachinery(incoming());
+      allow delete: if isValidId(machineryId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    match /apuItems/{itemId} {
+      allow create: if isValidId(itemId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
+        incoming().id == itemId &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        isValidAPUItem(incoming());
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow update: if isValidId(itemId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
+        incoming().companyId == existing().companyId &&
+        incoming().projectId == existing().projectId &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().createdBy == existing().createdBy &&
+        isValidAPUItem(incoming());
+      allow delete: if isValidId(itemId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']);
+    }
+
+    match /machineryLogs/{logId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(logId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
+        incoming().id == logId &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().expenseId is string &&
+        isMachineryInCompany(incoming().machineryId, incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().machineryName is string &&
+        incoming().date is string &&
+        incoming().operatorName is string &&
+        incoming().hoursWorked is number &&
+        incoming().hoursWorked > 0 &&
+        incoming().fuelGallons is number &&
+        incoming().fuelGallons >= 0 &&
+        incoming().costGTQ is number &&
+        incoming().costGTQ >= 0;
+      allow update: if isValidId(logId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']) &&
+        incoming().id == existing().id && incoming().id == logId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().expenseId == existing().expenseId &&
+        incoming().machineryId == existing().machineryId &&
+        incoming().projectId == existing().projectId &&
+        incoming().hoursWorked is number && incoming().hoursWorked > 0 &&
+        incoming().fuelGallons is number && incoming().fuelGallons >= 0 &&
+        incoming().costGTQ is number && incoming().costGTQ >= 0;
+      allow delete: if isValidId(logId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    // Suppliers are shared company records; only finance/admin can maintain them.
+    match /suppliers/{supplierId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(supplierId) &&
+        incoming().id == supplierId &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 200 &&
+        incoming().nit is string && incoming().nit.size() > 0 && incoming().nit.size() <= 30 &&
+        incoming().active is bool;
+      allow update: if isValidId(supplierId) &&
+        canManagePurchasing(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == supplierId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 200 &&
+        incoming().nit is string && incoming().nit.size() > 0 && incoming().nit.size() <= 30 &&
+        incoming().active is bool;
+      allow delete: if isValidId(supplierId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Warehouses belong to a company and may optionally be scoped to one project.
+    match /warehouses/{warehouseId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(warehouseId) &&
+        incoming().id == warehouseId &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 150 &&
+        incoming().type in ['general', 'project'] &&
+        (incoming().type == 'general'
+          ? !incoming().keys().hasAny(['projectId'])
+          : (incoming().projectId is string && isProjectInCompany(incoming().projectId, incoming().companyId)));
+      allow update: if isValidId(warehouseId) &&
+        canManageInventory(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == warehouseId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().type == existing().type &&
+        (incoming().type == 'general'
+          ? !incoming().keys().hasAny(['projectId'])
+          : (incoming().projectId == existing().projectId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId)));
+      // Keep warehouse history stable; archive by setting active=false instead.
+      allow delete: if false;
+    }
+
+    // Inventory catalog. Stock itself is derived from immutable movements.
+    match /inventoryItems/{itemId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(itemId) &&
+        incoming().id == itemId &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 200 &&
+        incoming().unit is string && incoming().unit.size() > 0 && incoming().unit.size() <= 32 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        incoming().active is bool;
+      allow update: if isValidId(itemId) &&
+        canManageInventory(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == itemId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 200 &&
+        incoming().unit is string && incoming().unit.size() > 0 && incoming().unit.size() <= 32 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        incoming().active is bool;
+      allow delete: if isValidId(itemId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Balances only change as part of a verified purchase-receipt transaction.
+    match /inventoryBalances/{balanceId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(balanceId) &&
+        incoming().id == balanceId &&
+        incoming().keys().hasAll([
+          'id', 'companyId', 'warehouseId', 'itemId', 'quantity',
+          'averageUnitCostGTQ', 'reorderLevel', 'createdBy', 'createdAt',
+          'updatedAt', 'lastMovementId'
+        ]) &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().createdAt is string &&
+        incoming().updatedAt is string &&
+        incoming().quantity is number && incoming().quantity > 0 &&
+        incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        incoming().id == 'bal_' + incoming().warehouseId + '_' + incoming().itemId &&
+        isActiveInventoryItem(incoming().itemId, incoming().companyId) &&
+        isActiveWarehouseForProject(incoming().warehouseId,
+          getAfter(receiptOrderPath(getAfter(receiptMovementPath(incoming().lastMovementId)).data.referenceId)).data.projectId,
+          incoming().companyId) &&
+        receiptBalanceUpdatedFromBalance(incoming(), balanceId, true);
+      allow update: if isValidId(balanceId) &&
+        incoming().id == existing().id && incoming().id == balanceId &&
+        incoming().companyId == existing().companyId &&
+        incoming().warehouseId == existing().warehouseId &&
+        incoming().itemId == existing().itemId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'quantity', 'averageUnitCostGTQ', 'reorderLevel', 'updatedAt', 'lastMovementId'
+        ]) &&
+        canManageInventory(existing().companyId) &&
+        incoming().updatedAt is string &&
+        incoming().quantity is number && incoming().quantity > existing().quantity &&
+        incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        isActiveInventoryItem(incoming().itemId, incoming().companyId) &&
+        receiptBalanceUpdatedFromBalance(incoming(), balanceId, false, existing());
+      allow delete: if false;
+    }
+
+    // Stock movements are append-only and only accepted with the paired order and balance writes.
+    match /stockMovements/{movementId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidReceiptMovement(incoming(), movementId);
+      allow update, delete: if false;
+    }
+
+    // Purchase orders must reference a supplier and a project in the same company.
+    match /purchaseOrders/{orderId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(orderId) &&
+        incoming().id == orderId &&
+        incoming().keys().hasAll(['id', 'companyId', 'projectId', 'supplierId', 'number', 'status', 'currency', 'lines', 'subtotalGTQ', 'discountGTQ', 'taxPercent', 'taxGTQ', 'totalGTQ', 'requestedBy', 'createdAt', 'updatedAt']) &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().requestedBy == request.auth.uid &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().currency == 'GTQ' &&
+        incoming().status == 'draft' &&
+        incoming().lines is list && incoming().lines.size() == 1 &&
+        incoming().lines[0].keys().hasAll(['itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ']) &&
+        incoming().lines[0].itemId is string &&
+        isInventoryItemInCompany(incoming().lines[0].itemId, incoming().companyId) &&
+        incoming().lines[0].description is string && incoming().lines[0].description.size() > 0 && incoming().lines[0].description.size() <= 200 &&
+        incoming().lines[0].unit is string && incoming().lines[0].unit.size() > 0 && incoming().lines[0].unit.size() <= 32 &&
+        incoming().lines[0].quantity is number && incoming().lines[0].quantity > 0 &&
+        incoming().lines[0].receivedQuantity == 0 &&
+        incoming().lines[0].unitPriceGTQ is number && incoming().lines[0].unitPriceGTQ >= 0 &&
+        incoming().number is string && incoming().number.size() > 0 && incoming().number.size() <= 80 &&
+        incoming().createdAt is string && incoming().updatedAt is string &&
+        incoming().subtotalGTQ is number && incoming().subtotalGTQ >= 0 &&
+        incoming().discountGTQ is number && incoming().discountGTQ >= 0 && incoming().discountGTQ <= incoming().subtotalGTQ &&
+        incoming().taxPercent is number && incoming().taxPercent >= 0 && incoming().taxPercent <= 100 &&
+        incoming().taxGTQ is number && incoming().taxGTQ >= 0 &&
+        incoming().totalGTQ is number && incoming().totalGTQ >= 0 &&
+        incoming().subtotalGTQ >= (incoming().lines[0].quantity * incoming().lines[0].unitPriceGTQ) - 0.01 &&
+        incoming().subtotalGTQ <= (incoming().lines[0].quantity * incoming().lines[0].unitPriceGTQ) + 0.01 &&
+        incoming().taxGTQ >= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) - 0.01 &&
+        incoming().taxGTQ <= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) + 0.01 &&
+        incoming().totalGTQ >= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) - 0.01 &&
+        incoming().totalGTQ <= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) + 0.01;
+      allow update: if false;
+      allow delete: if isValidId(orderId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        existing().status == 'draft';
+    }
+
+    // Subcontracts remain linked to the project and supplier that own them.
+    match /subcontracts/{contractId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(contractId) &&
+        incoming().id == contractId &&
+        incoming().keys().hasAll(['id', 'companyId', 'projectId', 'supplierId', 'contractNumber', 'description', 'startDate', 'endDate', 'amountGTQ', 'paidGTQ', 'status', 'createdBy']) &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().contractNumber is string && incoming().contractNumber.size() > 0 && incoming().contractNumber.size() <= 80 &&
+        incoming().description is string && incoming().description.size() > 0 && incoming().description.size() <= 1000 &&
+        incoming().startDate is string && incoming().startDate.size() == 10 &&
+        incoming().endDate is string && incoming().endDate.size() == 10 && incoming().endDate >= incoming().startDate &&
+        incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
+        incoming().paidGTQ == 0 &&
+        incoming().status in ['draft', 'active'];
+      allow update: if false;
+      allow delete: if isValidId(contractId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        existing().status == 'draft';
+    }
+
+    // FCM registration tokens are private to the authenticated user.
+    match /fcm_tokens/{tokenId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if tokenId is string && tokenId.size() <= 1500 && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().token == tokenId &&
+        incoming().active is bool;
+      allow update: if tokenId is string && tokenId.size() <= 1500 && isSignedIn() &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().token == tokenId &&
+        incoming().active is bool;
+      allow delete: if tokenId is string && tokenId.size() <= 1500 &&
+        isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // Project alerts can only be read or changed by the user that created them.
+    match /project_alerts/{alertId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(alertId) && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().id == alertId &&
+        incoming().projectId is string &&
+        incoming().projectName is string &&
+        incoming().title is string &&
+        incoming().message is string &&
+        incoming().signatureRequired is bool;
+      allow update: if isValidId(alertId) && isSignedIn() &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().id == alertId;
+      allow delete: if isValidId(alertId) && isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    match /qa_runs/{runId} {
+      allow get: if isSignedIn() &&
+        (resource == null || isCompanyMember(resource.data.companyId));
+      allow list: if false;
+      allow create: if isValidId(runId) &&
+        incoming().id == runId &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().createdDocumentIds is list &&
+        incoming().createdDocumentIds.size() <= 100 &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin']);
+      allow update: if isValidId(runId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        incoming().id == existing().id &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdDocumentIds is list &&
+        incoming().createdDocumentIds.size() <= 100 &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['createdDocumentIds', 'updatedAt']);
+      allow delete: if isValidId(runId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+  }
+}
+) &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        isActiveWarehouseForProject(data.warehouseId, data.projectId, data.companyId) &&
+        isActiveInventoryItem(data.itemId, data.companyId) &&
+        get(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity + data.quantity <=
+          get(receiptOrderPath(data.referenceId)).data.lines[0].quantity &&
+        receiptOrderUpdated(data, movementId) &&
+        receiptBalanceUpdated(data, movementId);
+    }
+
     match /{path=**}/members/{memberId} {
       allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
