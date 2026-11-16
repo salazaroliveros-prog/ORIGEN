@@ -148,7 +148,7 @@ export function SyncLogPanel({
           <div className="rounded-2xl border border-slate-700/60 bg-slate-800/60 p-3">
             <span className="block font-sans text-[10px] text-slate-400">Último Refresco:</span>
             <strong className="mt-0.5 block text-xs text-sky-400">
-              {lastSyncedAt ? lastSyncedAt.toLocaleTimeString('es-GT') : 'Reciente'}
+              {lastSyncedAt ? lastSyncedAt.toLocaleTimeString('es-GT') : 'Sin confirmar'}
             </strong>
           </div>
         </div>
