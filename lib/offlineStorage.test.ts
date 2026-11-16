@@ -237,6 +237,62 @@ describe('lib/offlineStorage', () => {
       expect(result.remaining).toBe(1);
     });
 
+    it('preserves actions added while an existing action is syncing', async () => {
+      const firstItem = {
+        id: 'queue-1',
+        type: 'attendance',
+        timestamp: '2024-01-01',
+        description: 'Existing action',
+        payload: {},
+        synced: false,
+      };
+      let storedQueue = [firstItem];
+      vi.mocked(localStorageMock.getItem).mockImplementation((key: string) =>
+        key === 'constructerp_offline_queue' ? JSON.stringify(storedQueue) : null
+      );
+      vi.mocked(localStorageMock.setItem).mockImplementation((key: string, value: string) => {
+        if (key === 'constructerp_offline_queue') storedQueue = JSON.parse(value);
+      });
+
+      const handler = vi.fn(async () => {
+        addOfflineAction(
+          'progress',
+          { projectId: 'project-1', date: '2026-11-16', progressPercent: 25, notes: 'Avance capturado' },
+          'New action during sync'
+        );
+        return true;
+      });
+
+      const result = await processOfflineQueue(handler);
+
+      expect(result.processed).toBe(1);
+      expect(result.remaining).toBe(1);
+      expect(storedQueue).toHaveLength(1);
+      expect(storedQueue[0].description).toBe('New action during sync');
+    });
+
+    it('does not run a second queue processor concurrently', async () => {
+      const item = {
+        id: 'queue-concurrent',
+        type: 'attendance',
+        timestamp: '2024-01-01',
+        description: 'Concurrent action',
+        payload: {},
+        synced: false,
+      };
+      vi.mocked(localStorageMock.getItem).mockReturnValue(JSON.stringify([item]));
+
+      let finishFirst: (value: boolean) => void = () => undefined;
+      const first = processOfflineQueue(() => new Promise<boolean>((resolve) => {
+        finishFirst = resolve;
+      }));
+      const second = await processOfflineQueue(() => true);
+
+      expect(second).toEqual({ processed: 0, remaining: 1 });
+      finishFirst(true);
+      await expect(first).resolves.toEqual({ processed: 1, remaining: 0 });
+    });
+
     it('should return empty for empty queue', async () => {
       vi.mocked(localStorageMock.getItem).mockReturnValue(JSON.stringify([]));
       const result = await processOfflineQueue(async () => true);
