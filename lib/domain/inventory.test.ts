@@ -94,6 +94,8 @@ describe('inventory domain', () => {
     expect(() => applyWarehouseTransfer(source, destination, { ...input, quantity: 3 })).toThrow('Existencia insuficiente');
     expect(() => applyWarehouseTransfer(source, destination, { ...input, toWarehouseId: input.fromWarehouseId })).toThrow('diferentes');
     expect(() => applyWarehouseTransfer(source, destination, { ...input, occurredAt: 'fecha-invalida' })).toThrow('fecha');
+    expect(() => applyWarehouseTransfer(source, destination, { ...input, id: 'transfer/con-invalid' })).toThrow('ID del traslado');
+    expect(() => applyWarehouseTransfer(source, destination, { ...input, notes: 'x'.repeat(1001) })).toThrow('notas del traslado');
   });
 
   it('rejects issue above available stock', () => {
