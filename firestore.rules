@@ -130,12 +130,18 @@ service cloud.firestore {
     }
 
     function receiptOrderUpdated(data, movementId) {
-      return existsAfter(receiptOrderPath(data.referenceId)) &&
-        exists(receiptOrderPath(data.referenceId)) &&
+      return exists(receiptOrderPath(data.referenceId)) &&
+        existsAfter(receiptOrderPath(data.referenceId)) &&
         get(receiptOrderPath(data.referenceId)).data.status in ['approved', 'partially_received'] &&
         getAfter(receiptOrderPath(data.referenceId)).data.lastReceiptMovementId == movementId &&
+        get(receiptOrderPath(data.referenceId)).data.lines is list &&
+        get(receiptOrderPath(data.referenceId)).data.lines.size() == 1 &&
         getAfter(receiptOrderPath(data.referenceId)).data.lines is list &&
         getAfter(receiptOrderPath(data.referenceId)).data.lines.size() == 1 &&
+        getAfter(receiptOrderPath(data.referenceId)).data.lines[0].itemId ==
+          get(receiptOrderPath(data.referenceId)).data.lines[0].itemId &&
+        getAfter(receiptOrderPath(data.referenceId)).data.lines[0].quantity ==
+          get(receiptOrderPath(data.referenceId)).data.lines[0].quantity &&
         getAfter(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity ==
           get(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity + data.quantity &&
         getAfter(receiptOrderPath(data.referenceId)).data.status ==
@@ -152,7 +158,7 @@ service cloud.firestore {
         getAfter(receiptBalancePath(data.balanceId)).data.warehouseId == data.warehouseId;
     }
 
-    function isReceiptMovement(data, movementId) {
+    function isValidReceiptMovement(data, movementId) {
       return data.keys().hasAll([
           'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
           'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId',
@@ -171,11 +177,64 @@ service cloud.firestore {
         get(receiptOrderPath(data.referenceId)).data.approvedBy is string &&
         get(receiptOrderPath(data.referenceId)).data.lines is list &&
         get(receiptOrderPath(data.referenceId)).data.lines.size() == 1 &&
+        data.itemId == get(receiptOrderPath(data.referenceId)).data.lines[0].itemId &&
         data.quantity is number && data.quantity > 0 &&
         data.unitCostGTQ is number &&
         data.unitCostGTQ == get(receiptOrderPath(data.referenceId)).data.lines[0].unitPriceGTQ &&
         data.receiptNumber is string &&
-        data.receiptNumber.matches('^[a-zA-Z0-9_-]{1,40}
+        data.receiptNumber.matches('^[a-zA-Z0-9_-]{1,40}$') &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        isActiveWarehouseForProject(data.warehouseId, data.projectId, data.companyId) &&
+        isActiveInventoryItem(data.itemId, data.companyId) &&
+        get(receiptOrderPath(data.referenceId)).data.lines[0].receivedQuantity + data.quantity <=
+          get(receiptOrderPath(data.referenceId)).data.lines[0].quantity &&
+        receiptOrderUpdated(data, movementId) &&
+        receiptBalanceUpdated(data, movementId);
+    }
+
+    function isValidReceiptBalance(data, balanceId, creating) {
+      return data.id == balanceId &&
+        data.id == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        isActiveInventoryItem(data.itemId, data.companyId) &&
+        existsAfter(receiptMovementPath(data.lastMovementId)) &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.balanceId == balanceId &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.companyId == data.companyId &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.itemId == data.itemId &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.warehouseId == data.warehouseId &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.quantity is number &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.unitCostGTQ is number &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.referenceId is string &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.kind == 'purchase_receipt' &&
+        getAfter(receiptMovementPath(data.lastMovementId)).data.createdBy == request.auth.uid &&
+        data.companyId == get(receiptOrderPath(getAfter(receiptMovementPath(data.lastMovementId)).data.referenceId)).data.companyId &&
+        data.reorderLevel == get(/databases/$(database)/documents/inventoryItems/$(data.itemId)).data.reorderLevel &&
+        isActiveWarehouseForProject(
+          data.warehouseId,
+          get(receiptOrderPath(getAfter(receiptMovementPath(data.lastMovementId)).data.referenceId)).data.projectId,
+          data.companyId
+        ) &&
+        receiptOrderUpdated(
+          getAfter(receiptMovementPath(data.lastMovementId)).data,
+          data.lastMovementId
+        ) &&
+        (creating
+          ? data.quantity == getAfter(receiptMovementPath(data.lastMovementId)).data.quantity &&
+            data.averageUnitCostGTQ == getAfter(receiptMovementPath(data.lastMovementId)).data.unitCostGTQ
+          : data.quantity == resource.data.quantity + getAfter(receiptMovementPath(data.lastMovementId)).data.quantity &&
+            data.averageUnitCostGTQ >= (
+              (resource.data.quantity * resource.data.averageUnitCostGTQ +
+                getAfter(receiptMovementPath(data.lastMovementId)).data.quantity *
+                getAfter(receiptMovementPath(data.lastMovementId)).data.unitCostGTQ) /
+              data.quantity
+            ) - 0.01 &&
+            data.averageUnitCostGTQ <= (
+              (resource.data.quantity * resource.data.averageUnitCostGTQ +
+                getAfter(receiptMovementPath(data.lastMovementId)).data.quantity *
+                getAfter(receiptMovementPath(data.lastMovementId)).data.unitCostGTQ) /
+              data.quantity
+            ) + 0.01);
+    }
+
     match /{path=**}/members/{memberId} {
       allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
