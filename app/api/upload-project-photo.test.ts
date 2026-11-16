@@ -171,7 +171,7 @@ describe('app/api/upload-project-photo', () => {
       expect.objectContaining({
         idToken: 'id-token',
         contentType: 'image/jpeg',
-        storagePath: expect.stringMatching(/^projects\/OBRA-001\/progress\//),
+        storagePath: expect.stringMatching(/^projects\/proj-1\/progress\//),
       })
     );
   });
