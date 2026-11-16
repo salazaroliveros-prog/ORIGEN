@@ -58,6 +58,7 @@ connectAuthEmulator(auth, `http://${EMULATOR_HOST}:9099`, { disableWarnings: tru
 // para que el módulo reutilice esta instancia (y no cree otra) y para que
 // las conexiones al emulador queden activas.
 const service = await import('@/lib/firebaseService');
+const inventoryService = await import('@/lib/inventoryFirestoreService');
 
 let companyId: string;
 let userId: string;
@@ -535,4 +536,117 @@ describe('firebaseService CRUD contra el emulador', () => {
     await expect(service.deleteQuoteFromFirestore(quoteId)).resolves.toBe(true);
     await expectRemoved('quotes', quoteId);
   });
+
+  it('persiste proveedores, bodegas y artículos con ownership de empresa', async () => {
+    const projectId = await createProject('INV-CATALOG', 'Proyecto para inventario');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor de materiales QA', nit: '1234567-8', active: true },
+      companyId,
+      userId
+    );
+    const warehouse = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega de proyecto QA', type: 'project', projectId, active: true },
+      companyId,
+      userId
+    );
+    const item = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Cemento uso general QA', unit: 'saco', reorderLevel: 12, active: true },
+      companyId,
+      userId
+    );
+
+    const storedSupplier = await expectPersisted('suppliers', supplier.id, (callback) =>
+      inventoryService.subscribeSuppliers(companyId, callback)
+    );
+    const storedWarehouse = await expectPersisted('warehouses', warehouse.id, (callback) =>
+      inventoryService.subscribeWarehouses(companyId, callback)
+    );
+    const storedItem = await expectPersisted('inventoryItems', item.id, (callback) =>
+      inventoryService.subscribeInventoryItems(companyId, callback)
+    );
+
+    expect(storedSupplier).toMatchObject({ companyId, createdBy: userId, nit: '1234567-8' });
+    expect(storedWarehouse).toMatchObject({ companyId, createdBy: userId, projectId, type: 'project' });
+    expect(storedItem).toMatchObject({ companyId, createdBy: userId, unit: 'saco', reorderLevel: 12 });
+  });
+
+  it('crea órdenes de compra y subcontratos solo con referencias existentes de la empresa', async () => {
+    const projectId = await createProject('PROCUREMENT-CRUD', 'Proyecto para abastecimiento');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor OC QA', nit: 'CF', active: true },
+      companyId,
+      userId
+    );
+    const item = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Acero de refuerzo QA', unit: 'quintal', reorderLevel: 5, active: true },
+      companyId,
+      userId
+    );
+
+    const order = await inventoryService.createPurchaseOrderToFirestore(
+      {
+        projectId,
+        supplierId: supplier.id,
+        number: 'OC-CRUD-QA-001',
+        status: 'draft',
+        currency: 'GTQ',
+        lines: [
+          {
+            itemId: item.id,
+            description: 'Acero de refuerzo',
+            unit: 'quintal',
+            quantity: 4,
+            unitPriceGTQ: 425,
+          },
+        ],
+        subtotalGTQ: 1700,
+        discountGTQ: 0,
+        taxPercent: 12,
+        taxGTQ: 204,
+        totalGTQ: 1904,
+      },
+      companyId,
+      userId
+    );
+    const contract = await inventoryService.createSubcontractToFirestore(
+      {
+        projectId,
+        supplierId: supplier.id,
+        contractNumber: 'SUB-CRUD-QA-001',
+        description: 'Instalación de estructura metálica de prueba',
+        startDate: '2026-11-16',
+        endDate: '2026-12-31',
+        amountGTQ: 25_000,
+        paidGTQ: 0,
+        status: 'draft',
+      },
+      companyId,
+      userId
+    );
+
+    const storedOrder = await expectPersisted('purchaseOrders', order.id, (callback) =>
+      inventoryService.subscribePurchaseOrders(companyId, callback)
+    );
+    const storedContract = await expectPersisted('subcontracts', contract.id, (callback) =>
+      inventoryService.subscribeSubcontracts(companyId, callback)
+    );
+
+    expect(storedOrder).toMatchObject({
+      companyId,
+      projectId,
+      supplierId: supplier.id,
+      requestedBy: userId,
+      currency: 'GTQ',
+      taxGTQ: 204,
+      totalGTQ: 1904,
+    });
+    expect(storedContract).toMatchObject({
+      companyId,
+      projectId,
+      supplierId: supplier.id,
+      createdBy: userId,
+      amountGTQ: 25_000,
+    });
+  });
+
 });
