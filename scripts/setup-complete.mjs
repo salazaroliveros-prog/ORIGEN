@@ -169,6 +169,9 @@ async function seedFirestore(db, adminUid) {
   }, { merge: true });
 
   const existingSettings = await settingsRef.get();
+  if (existingSettings.exists && (existingSettings.data()?.companyId !== COMPANY_ID || existingSettings.data()?.ownerId !== COMPANY_ID)) {
+    throw new Error('La configuración existente no pertenece a la empresa indicada. No se sobrescribió.');
+  }
   if (!existingSettings.exists) {
     batch.create(settingsRef, {
       id: COMPANY_ID,
@@ -217,6 +220,9 @@ async function verifySetup(auth, db, adminUid) {
   if (companyDoc.data()?.ownerId !== adminUid) throw new Error('El propietario de la empresa no coincide con la cuenta administradora.');
   if (!memberDoc.exists || memberDoc.data()?.role !== 'owner') throw new Error('No se pudo verificar la membresía owner.');
   if (!settingsDoc.exists) throw new Error('No se encontró la configuración inicial de empresa.');
+  if (settingsDoc.data()?.companyId !== COMPANY_ID || settingsDoc.data()?.ownerId !== COMPANY_ID) {
+    throw new Error('La configuración de empresa tiene un propietario o identificador inconsistente.');
+  }
 
   console.log('\n🔍 Verificación completada');
   console.log('   ✅ Usuario administrador y empresa');
