@@ -23,6 +23,7 @@ import {
 import { getDbOrThrow, handleFirestoreError, OperationType } from './firebaseService';
 import {
   getSubcontractExpiryAlerts,
+  recordPurchaseReceipt,
   validatePurchaseOrder,
   validateSubcontract,
   validateSupplier,
@@ -332,10 +333,6 @@ export async function receivePurchaseOrderToWarehouse(input: {
       if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
       const order = orderSnapshot.data() as PurchaseOrderRecord;
       if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (!['approved', 'partially_received'].includes(order.status)) {
-        throw new Error('Solo se pueden recibir órdenes aprobadas.');
-      }
-      if (!order.approvedBy) throw new Error('La orden no tiene una aprobación registrada.');
       if (order.lines.length !== 1) {
         throw new Error('La recepción segura requiere una orden de un solo renglón.');
       }
@@ -364,6 +361,9 @@ export async function receivePurchaseOrderToWarehouse(input: {
 
       if (movementSnapshot.exists()) {
         const previous = movementSnapshot.data() as StockMovement;
+        if (!balanceSnapshot.exists()) {
+          throw new Error('Se encontró una recepción previa sin saldo asociado. Se requiere revisión de inventario.');
+        }
         if (
           previous.companyId === companyId &&
           previous.referenceId === orderId &&
@@ -371,21 +371,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
           previous.warehouseId === warehouseId &&
           previous.itemId === itemId
         ) {
-          const previousBalance = balanceSnapshot.exists()
-            ? (balanceSnapshot.data() as InventoryBalanceRecord)
-            : {
-                id: balanceId,
-                companyId,
-                itemId,
-                warehouseId,
-                quantity: 0,
-                averageUnitCostGTQ: 0,
-                reorderLevel: 0,
-                createdBy: userId,
-                createdAt: now,
-                updatedAt: now,
-                lastMovementId: movementId,
-              };
+          const previousBalance = balanceSnapshot.data() as InventoryBalanceRecord;
           return {
             order,
             movement: previous,
@@ -396,6 +382,10 @@ export async function receivePurchaseOrderToWarehouse(input: {
         throw new Error('El número de recepción ya fue utilizado para otro movimiento.');
       }
 
+      if (!['approved', 'partially_received'].includes(order.status)) {
+        throw new Error('Solo se pueden recibir órdenes aprobadas.');
+      }
+      if (!order.approvedBy) throw new Error('La orden no tiene una aprobación registrada.');
       if (!warehouseSnapshot.exists()) throw new Error('La bodega seleccionada no existe.');
       const warehouse = warehouseSnapshot.data() as WarehouseRecord;
       if (warehouse.companyId !== companyId || !warehouse.active) {
