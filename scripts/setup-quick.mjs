@@ -17,15 +17,13 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
-const COMPANY_ID = 'empresa-origen';
-const COMPANY_NAME = 'ConstructERP Guatemala';
+let ADMIN_EMAIL = '';
+let ADMIN_PASSWORD = '';
 
-function loadEnvFile(filePath: string): Record<string, string> {
+function loadEnvFile(filePath) {
   try {
     const content = readFileSync(filePath, 'utf8');
-    const env: Record<string, string> = {};
+    const env = {};
     for (const rawLine of content.split(/\r?\n/)) {
       const line = rawLine.trim();
       if (!line || line.startsWith('#')) continue;
@@ -47,7 +45,7 @@ function loadEnvFile(filePath: string): Record<string, string> {
   }
 }
 
-async function identityToolkitRequest(apiKey: string, endpoint: string, body: any) {
+async function identityToolkitRequest(apiKey, endpoint, body) {
   const url = `https://identitytoolkit.googleapis.com/v1/${endpoint}?key=${apiKey}`;
   const response = await fetch(url, {
     method: 'POST',
@@ -58,7 +56,7 @@ async function identityToolkitRequest(apiKey: string, endpoint: string, body: an
   return { ok: response.ok, status: response.status, data };
 }
 
-async function signUpUser(apiKey: string, email: string, password: string) {
+async function signUpUser(apiKey, email, password) {
   console.log(`\n👤 Creando usuario en Firebase Auth...`);
   console.log(`   Email: ${email}`);
 
@@ -99,7 +97,7 @@ async function signUpUser(apiKey: string, email: string, password: string) {
   return signUpResult.data.localId;
 }
 
-async function seedFirestore(apiKey: string, adminUid: string) {
+async function seedFirestore(apiKey, adminUid) {
   console.log('\n🌱 Sembrando base de datos Firestore...');
 
   const PROJECTS = [
@@ -191,6 +189,16 @@ async function main() {
   // Cargar .env.local
   const env = loadEnvFile(resolve(process.cwd(), '.env.local'));
   Object.assign(process.env, env);
+  ADMIN_EMAIL = process.env.SETUP_ADMIN_EMAIL || '';
+  ADMIN_PASSWORD = process.env.SETUP_ADMIN_PASSWORD || '';
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error('Define SETUP_ADMIN_EMAIL y SETUP_ADMIN_PASSWORD.');
+    process.exit(1);
+  }
+  if (process.env.CONFIRM_FIREBASE_SETUP !== 'YES') {
+    console.error('Define CONFIRM_FIREBASE_SETUP=YES para confirmar la creación de cuenta.');
+    process.exit(1);
+  }
 
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
@@ -215,14 +223,14 @@ async function main() {
     console.log('║  ✅ CONFIGURACIÓN RÁPIDA COMPLETADA                            ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
     console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║  📧 Email:    salazaroliveros@gmail.com                       ║');
-    console.log('║  🔑 Password: AngelDarioJose.2026                             ║');
+    console.log('║  📧 Email:    [redacted]                       ║');
+    console.log('║  🔑 Password: [not displayed]
     console.log('║                                                               ║');
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝\n');
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('\n╔═══════════════════════════════════════════════════════════════╗');
     console.error('║  ❌ ERROR                                                      ║');
     console.error('╠═══════════════════════════════════════════════════════════════╣');
