@@ -31,6 +31,7 @@ import {
   type SupplierRecord,
 } from './domain/procurement';
 import { stripUndefined } from './utils/firestorePayload';
+import type { StockMovement } from './domain/inventory';
 
 export interface WarehouseRecord {
   id: string;
@@ -294,5 +295,12 @@ export const subscribeSubcontracts = (
   companyId: string,
   callback: (records: SubcontractRecord[]) => void
 ) => subscribeCompanyRecords('subcontracts', companyId, callback);
+
+/** Movimientos de solo lectura; las escrituras se habilitarán junto a la
+ * transacción de recepción/traslado/salida y sus reglas de stock. */
+export const subscribeStockMovements = (
+  companyId: string,
+  callback: (records: StockMovement[]) => void
+) => subscribeCompanyRecords('stockMovements', companyId, callback);
 
 export { getSubcontractExpiryAlerts };
