@@ -50,6 +50,51 @@ describe('inventory domain', () => {
     expect(issued.quantity).toBe(1);
   });
 
+  it('calculates a warehouse transfer atomically and preserves the source valuation', () => {
+    const result = applyWarehouseTransfer(
+      { ...openingBalance, quantity: 8, averageUnitCostGTQ: 80 },
+      { ...openingBalance, warehouseId: 'bodega-general', quantity: 2, averageUnitCostGTQ: 70 },
+      {
+        id: 'transfer-001',
+        companyId: 'company-1',
+        itemId: 'cemento-42',
+        fromWarehouseId: 'bodega-obra-1',
+        toWarehouseId: 'bodega-general',
+        quantity: 3,
+        occurredAt: '2026-11-16T10:00:00.000Z',
+        createdBy: 'user-1',
+      }
+    );
+
+    expect(result.sourceBalance.quantity).toBe(5);
+    expect(result.sourceBalance.averageUnitCostGTQ).toBe(80);
+    expect(result.destinationBalance.quantity).toBe(5);
+    expect(result.destinationBalance.averageUnitCostGTQ).toBe(76);
+    expect(result.outgoing.kind).toBe('transfer_out');
+    expect(result.incoming.kind).toBe('transfer_in');
+    expect(result.outgoing.referenceId).toBe(result.incoming.referenceId);
+    expect(result.outgoing.unitCostGTQ).toBe(result.incoming.unitCostGTQ);
+  });
+
+  it('rejects invalid warehouse transfers before calculating either balance', () => {
+    const input = {
+      id: 'transfer-invalid',
+      companyId: 'company-1',
+      itemId: 'cemento-42',
+      fromWarehouseId: 'bodega-obra-1',
+      toWarehouseId: 'bodega-general',
+      quantity: 1,
+      occurredAt: '2026-11-16T10:00:00.000Z',
+      createdBy: 'user-1',
+    };
+    const source = { ...openingBalance, quantity: 2 };
+    const destination = { ...openingBalance, warehouseId: 'bodega-general' };
+
+    expect(() => applyWarehouseTransfer(source, destination, { ...input, quantity: 3 })).toThrow('Existencia insuficiente');
+    expect(() => applyWarehouseTransfer(source, destination, { ...input, toWarehouseId: input.fromWarehouseId })).toThrow('diferentes');
+    expect(() => applyWarehouseTransfer(source, destination, { ...input, occurredAt: 'fecha-invalida' })).toThrow('fecha');
+  });
+
   it('rejects issue above available stock', () => {
     expect(() =>
       applyStockMovement(openingBalance, movement({ kind: 'project_issue', quantity: 11 }))
