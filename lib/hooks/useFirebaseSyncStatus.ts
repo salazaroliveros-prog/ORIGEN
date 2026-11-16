@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { enableNetwork, waitForPendingWrites } from 'firebase/firestore';
 
 export type SyncStatus = 'online' | 'syncing' | 'offline';
 
@@ -19,6 +20,45 @@ export function useFirebaseSyncStatus() {
   const [status, setStatus] = useState<SyncStatus>('online');
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(new Date());
   const [syncLogs, setSyncLogs] = useState<SyncLogEntry[]>(INITIAL_SYNC_LOGS);
+
+  const syncPendingWrites = async (logId?: string) => {
+    if (typeof navigator === 'undefined' || !navigator.onLine) {
+      setStatus('offline');
+      return false;
+    }
+
+    setStatus('syncing');
+    try {
+      // Importación diferida para evitar el ciclo de dependencias:
+      // firebaseService emite los eventos que consume este hook.
+      const { getDbOrThrow } = await import('../firebaseService');
+      const firestore = getDbOrThrow();
+      await enableNetwork(firestore);
+      await waitForPendingWrites(firestore);
+
+      setStatus('online');
+      setLastSyncedAt(new Date());
+      setSyncLogs((prev) =>
+        prev.map((entry) =>
+          logId && entry.id === logId
+            ? { ...entry, status: 'completado', details: 'Firestore confirmó las escrituras pendientes.' }
+            : entry
+        )
+      );
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      setStatus(navigator.onLine ? 'online' : 'offline');
+      setSyncLogs((prev) =>
+        prev.map((entry) =>
+          logId && entry.id === logId
+            ? { ...entry, status: 'error', details: `No se pudo confirmar la sincronización: ${message}` }
+            : entry
+        )
+      );
+      return false;
+    }
+  };
 
   useEffect(() => {
     // Initial online check
@@ -42,17 +82,7 @@ export function useFirebaseSyncStatus() {
       };
       setSyncLogs((prev) => [newLog, ...prev]);
 
-      setTimeout(() => {
-        setStatus('online');
-        setLastSyncedAt(new Date());
-        setSyncLogs((prev) =>
-          prev.map((l) =>
-            l.id === newLog.id
-              ? { ...l, status: 'completado', details: 'Sincronización completa con Firestore.' }
-              : l
-          )
-        );
-      }, 1000);
+      void syncPendingWrites(newLog.id);
     };
 
     const handleOffline = () => {
@@ -124,18 +154,18 @@ export function useFirebaseSyncStatus() {
     setSyncLogs([]);
   };
 
-  const forceResync = () => {
-    setStatus('syncing');
-    notifySyncStart({
-      operation: 'Resincronización Manual',
-      path: 'firestore/all',
-      details: 'Forzando actualización de la caché…',
-    });
-    setTimeout(() => {
-      setStatus('online');
-      setLastSyncedAt(new Date());
-      notifySyncEnd();
-    }, 1200);
+  const forceResync = async () => {
+    const logId = `log-${Date.now()}`;
+    const entry: SyncLogEntry = {
+      id: logId,
+      operation: 'Reintento de escrituras pendientes',
+      path: 'firestore/pending-writes',
+      timestamp: new Date().toLocaleTimeString('es-GT'),
+      status: 'sincronizando',
+      details: 'Restableciendo la conexión y esperando confirmación de Firestore…',
+    };
+    setSyncLogs((prev) => [entry, ...prev.slice(0, 19)]);
+    await syncPendingWrites(logId);
   };
 
   return { status, lastSyncedAt, syncLogs, clearSyncLogs, forceResync };
