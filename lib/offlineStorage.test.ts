@@ -189,7 +189,13 @@ describe('lib/offlineStorage', () => {
         payload: {},
         synced: false,
       };
-      vi.mocked(localStorageMock.getItem).mockReturnValue(JSON.stringify([item]));
+      let storedQueue = [item];
+      vi.mocked(localStorageMock.getItem).mockImplementation((key: string) =>
+        key === 'constructerp_offline_queue' ? JSON.stringify(storedQueue) : null
+      );
+      vi.mocked(localStorageMock.setItem).mockImplementation((key: string, value: string) => {
+        if (key === 'constructerp_offline_queue') storedQueue = JSON.parse(value);
+      });
 
       const handler = vi.fn(() => true);
       const result = await processOfflineQueue(handler);
