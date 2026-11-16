@@ -18,7 +18,7 @@ const INITIAL_SYNC_LOGS: SyncLogEntry[] = [];
 
 export function useFirebaseSyncStatus() {
   const [status, setStatus] = useState<SyncStatus>('online');
-  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(new Date());
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
   const [syncLogs, setSyncLogs] = useState<SyncLogEntry[]>(INITIAL_SYNC_LOGS);
 
   const syncPendingWrites = async (logId?: string) => {
@@ -97,7 +97,7 @@ export function useFirebaseSyncStatus() {
           second: '2-digit',
         }),
         status: 'pendiente',
-        details: 'Los cambios locales se guardarán en la memoria hasta recuperar conexión.',
+        details: 'Las operaciones compatibles se conservan localmente; otras requieren conexión. Se reintentarán al recuperar Internet.',
       };
       setSyncLogs((prev) => [newLog, ...prev]);
     };
