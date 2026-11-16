@@ -13,6 +13,7 @@ import {
   getDoc,
   getDocs,
   query,
+  runTransaction,
   setDoc,
   where,
   writeBatch,
@@ -198,6 +199,68 @@ beforeEach(async () => {
       ...movement, quantity: 500,
     }));
     await assertFails(deleteDoc(doc(manager, 'stockMovements', movement.id)));
+  });
+
+  it('requires a purchase receipt movement, balance, and order update in one atomic write', async () => {
+    await seedProject(makeProject('receipt-project'));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      const database = context.firestore();
+      await setDoc(doc(database, 'suppliers', 'receipt-supplier'), {
+        id: 'receipt-supplier', companyId: COMPANY_A, name: 'Proveedor recepción',
+        nit: 'CF', active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'inventoryItems', 'receipt-cement'), {
+        id: 'receipt-cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
+        reorderLevel: 2, active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'warehouses', 'receipt-warehouse'), {
+        id: 'receipt-warehouse', companyId: COMPANY_A, projectId: 'receipt-project',
+        name: 'Bodega recepción', type: 'project', active: true, createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'purchaseOrders', 'receipt-order'), {
+        id: 'receipt-order', companyId: COMPANY_A, projectId: 'receipt-project',
+        supplierId: 'receipt-supplier', number: 'OC-REC-001', status: 'approved',
+        currency: 'GTQ',
+        lines: [{ itemId: 'receipt-cement', description: 'Cemento', unit: 'saco',
+          quantity: 10, receivedQuantity: 0, unitPriceGTQ: 75 }],
+        subtotalGTQ: 750, discountGTQ: 0, taxPercent: 12, taxGTQ: 90, totalGTQ: 840,
+        requestedBy: USERS.finance, approvedBy: USERS.finance,
+        createdAt: '2026-11-16T08:00:00.000Z', updatedAt: '2026-11-16T08:00:00.000Z',
+      });
+    });
+
+    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const movement = {
+      id: 'rec_receipt-order_receipt-1', companyId: COMPANY_A,
+      projectId: 'receipt-project', itemId: 'receipt-cement',
+      warehouseId: 'receipt-warehouse', kind: 'purchase_receipt',
+      quantity: 4, unitCostGTQ: 75, occurredAt: '2026-11-16T10:00:00.000Z',
+      referenceId: 'receipt-order', balanceId: 'bal_receipt-warehouse_receipt-cement',
+      receiptNumber: 'receipt-1', createdBy: USERS.warehouseManager,
+    };
+    const balance = {
+      id: movement.balanceId, companyId: COMPANY_A, warehouseId: 'receipt-warehouse',
+      itemId: 'receipt-cement', quantity: 4, averageUnitCostGTQ: 75,
+      reorderLevel: 2, createdBy: USERS.warehouseManager,
+      createdAt: '2026-11-16T10:00:00.000Z',
+      updatedAt: '2026-11-16T10:00:00.000Z', lastMovementId: movement.id,
+    };
+    const orderRef = doc(database, 'purchaseOrders', 'receipt-order');
+    const movementRef = doc(database, 'stockMovements', movement.id);
+    const balanceRef = doc(database, 'inventoryBalances', balance.id);
+
+    await assertFails(setDoc(movementRef, movement));
+    await assertSucceeds(runTransaction(database, async (transaction) => {
+      transaction.set(movementRef, movement);
+      transaction.set(balanceRef, balance);
+      transaction.update(orderRef, {
+        lines: [{ itemId: 'receipt-cement', description: 'Cemento', unit: 'saco',
+          quantity: 10, receivedQuantity: 4, unitPriceGTQ: 75 }],
+        status: 'partially_received',
+        updatedAt: '2026-11-16T10:00:00.000Z',
+        lastReceiptMovementId: movement.id,
+      });
+    }));
   });
 
   it('allows finance to create purchase orders and subcontracts only for same-company references', async () => {
