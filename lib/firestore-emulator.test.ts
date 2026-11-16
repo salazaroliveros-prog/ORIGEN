@@ -447,7 +447,7 @@ beforeEach(async () => {
       updatedAt: payment.createdAt,
     }, { merge: true }));
     await assertFails(setDoc(doc(finance, 'subcontractPayments', payment.id), payment));
-    await assertSucceeds(runTransaction(finance, async (transaction) => {
+    await assertSucceeds(runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', payment.id), payment);
       transaction.update(doc(finance, 'subcontracts', contract.id), {
         paidGTQ: 25000,
@@ -462,7 +462,7 @@ beforeEach(async () => {
       reference: 'OVERPAY-001',
       createdAt: '2026-11-16T10:30:00.000Z',
     };
-    await assertFails(runTransaction(finance, async (transaction) => {
+    await assertFails(runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', excessivePayment.id), excessivePayment);
       transaction.update(doc(finance, 'subcontracts', contract.id), {
         paidGTQ: 105000,
