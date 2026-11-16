@@ -1,17 +1,27 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Réplica de `storage.rules` para el emulador: así las pruebas locales
-    // ejercitan las mismas reglas que producción.
-    match /projects/{projectCode}/progress/{fileName} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null
+    // Las fotos de avance quedan aisladas por proyecto y empresa.
+    // La membresía se valida contra Firestore; estar autenticado no basta.
+    function isProjectMember(projectId) {
+      let projectPath = /databases/(default)/documents/projects/$(projectId);
+      return request.auth != null
+        && firestore.exists(projectPath)
+        && firestore.exists(
+          /databases/(default)/documents/companies/$(firestore.get(projectPath).data.companyId)/members/$(request.auth.uid)
+        );
+    }
+
+    match /projects/{projectId}/progress/{fileName} {
+      allow read: if isProjectMember(projectId);
+      allow create: if isProjectMember(projectId)
         && request.resource.size > 0
         && request.resource.size <= 10 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
+        && request.resource.contentType.matches('image/(jpeg|png|webp|gif|heic|heif)');
       allow update, delete: if false;
     }
 
+    // Todo lo demás queda denegado por defecto.
     match /{allPaths=**} {
       allow read, write: if false;
     }
