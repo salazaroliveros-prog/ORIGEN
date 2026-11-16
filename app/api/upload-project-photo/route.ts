@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jsonError, detectImageMime, extensionForMime, sanitizePathSegment } from '@/lib/api';
+import { jsonError, detectImageMime, extensionForMime } from '@/lib/api';
 import { canReadDocumentAsUser, requireApiUser } from '@/lib/apiAuth';
 import { rateLimitMiddleware } from '@/lib/security';
 import { StorageUploadError, uploadImageAsUser } from '@/lib/storageRest';
@@ -33,9 +33,8 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file');
     const projectId = formData.get('projectId');
-    const projectCode = formData.get('projectCode');
 
-    if (!(file instanceof File) || typeof projectId !== 'string' || !projectId.trim()) {
+    if (!(file instanceof File) || typeof projectId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(projectId.trim())) {
       return jsonError('Faltan datos requeridos para subir la foto.', 400);
     }
 
@@ -72,11 +71,10 @@ export async function POST(request: NextRequest) {
       return jsonError('El almacenamiento de archivos no está configurado.', 503);
     }
 
-    const safeProjectCode = sanitizePathSegment(projectCode, sanitizePathSegment(projectId));
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 10);
     const filename = `${timestamp}-${randomString}.${extensionForMime(detectedMime)}`;
-    const storagePath = `projects/${safeProjectCode}/progress/${filename}`;
+    const storagePath = `projects/${projectId.trim()}/progress/${filename}`;
 
     // 5. Escritura con el token del usuario: `storage.rules` decide.
     const { downloadUrl } = await uploadImageAsUser({
