@@ -98,7 +98,7 @@ describe('inventory domain', () => {
       calculatePurchaseOrderTotals({
         lines: [{ itemId: 'x', description: 'X', quantity: 0, unit: 'u', unitPriceGTQ: 1 }],
       })
-    ).toThrow('Cantidad');
+    ).toThrow('cantidad');
     expect(() =>
       calculatePurchaseOrderTotals({
         lines: [{ itemId: 'x', description: 'X', quantity: 1, unit: 'u', unitPriceGTQ: 1 }],
