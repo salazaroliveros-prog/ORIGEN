@@ -21,13 +21,13 @@ test.describe('Sección Personal & IGSS', () => {
     page,
   }) => {
     // El administrador (owner) siempre ve Personal & IGSS
-    await expect(page.getByRole('button', { name: 'Personal & IGSS' }).first()).toBeVisible({
+    await expect(page.getByRole('link', { name: 'Personal & IGSS' }).first()).toBeVisible({
       timeout: 20_000,
     });
   });
 
   test('la sección Personal & IGSS carga contenido de cuadrillas al navegar', async ({ page }) => {
-    await page.getByRole('button', { name: 'Personal & IGSS' }).first().click();
+    await page.getByRole('link', { name: 'Personal & IGSS' }).first().click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el sub-menú o botón de 'Cuadrillas' confirmado en system-crud.spec.ts
@@ -36,7 +36,7 @@ test.describe('Sección Personal & IGSS', () => {
   });
 
   test('la sub-sección Cuadrillas permite registrar un empleado nuevo', async ({ page }) => {
-    await page.getByRole('button', { name: 'Personal & IGSS' }).first().click();
+    await page.getByRole('link', { name: 'Personal & IGSS' }).first().click();
     await page.waitForTimeout(1500);
 
     await page

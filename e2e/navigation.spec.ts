@@ -20,12 +20,12 @@ test.describe('Navegación principal', () => {
     page,
   }) => {
     // Estas son las secciones que siempre están disponibles (sin permisos condicionales)
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Proyectos & Firmas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Presupuestos APU' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Cotizaciones' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Gastos & Facturas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Maquinaria' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Tablero' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Proyectos & Firmas' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Presupuestos APU' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Cotizaciones' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Gastos & Facturas' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Maquinaria' }).first()).toBeVisible();
   });
 
   test('navegar a Inventario & Compras muestra sus secciones', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('Navegación principal', () => {
   test('navegar a Proyectos & Firmas muestra la lista de proyectos o estado vacío', async ({
     page,
   }) => {
-    await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
+    await page.getByRole('link', { name: 'Proyectos & Firmas' }).first().click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el botón de crear proyecto o estado sin proyectos
@@ -56,7 +56,7 @@ test.describe('Navegación principal', () => {
   });
 
   test('navegar a Gastos & Facturas muestra la sección de gastos', async ({ page }) => {
-    await page.getByRole('button', { name: 'Gastos & Facturas' }).first().click();
+    await page.getByRole('link', { name: 'Gastos & Facturas' }).first().click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el botón para registrar un nuevo gasto o estado sin proyectos
@@ -71,7 +71,7 @@ test.describe('Navegación principal', () => {
   });
 
   test('navegar a Cotizaciones muestra la sección de cotizaciones', async ({ page }) => {
-    await page.getByRole('button', { name: 'Cotizaciones' }).first().click();
+    await page.getByRole('link', { name: 'Cotizaciones' }).first().click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el botón para crear una cotización
@@ -80,7 +80,7 @@ test.describe('Navegación principal', () => {
   });
 
   test('navegar a Presupuestos APU carga la vista de presupuestos', async ({ page }) => {
-    await page.getByRole('button', { name: 'Presupuestos APU' }).first().click();
+    await page.getByRole('link', { name: 'Presupuestos APU' }).first().click();
     await page.waitForTimeout(2000);
 
     // La vista APU muestra botón de renglón manual si hay proyectos,
