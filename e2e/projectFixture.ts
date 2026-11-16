@@ -29,7 +29,7 @@ export async function createTestProject(page: Page, project: TestProject): Promi
     );
   }
 
-  await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
+  await page.getByRole('link', { name: 'Proyectos & Firmas' }).first().click();
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
   const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
@@ -96,7 +96,7 @@ export async function waitForProjectPersisted(page: Page, code: string): Promise
   const probe = await page.context().newPage();
   try {
     await probe.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await probe.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
+    await probe.getByRole('link', { name: 'Proyectos & Firmas' }).first().click();
     await expect(probe.getByText(code).first()).toBeVisible({ timeout: 30_000 });
   } finally {
     await probe.close();
