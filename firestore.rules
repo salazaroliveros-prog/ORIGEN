@@ -198,10 +198,7 @@ service cloud.firestore {
     function isValidReceiptBalance(data, balanceId, creating) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let movement = getAfter(movementPath).data;
-      let orderPath = receiptOrderPath(movement.referenceId);
-      let order = getAfter(orderPath).data;
       let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
-      let item = get(itemPath).data;
       return data.id == balanceId &&
         data.id == 'bal_' + data.warehouseId + '_' + data.itemId &&
         existsAfter(movementPath) &&
@@ -213,20 +210,12 @@ service cloud.firestore {
         movement.createdBy == request.auth.uid &&
         movement.quantity is number && movement.quantity > 0 &&
         movement.unitCostGTQ is number && movement.unitCostGTQ >= 0 &&
-        existsAfter(orderPath) &&
-        order.companyId == data.companyId &&
-        order.lastReceiptMovementId == data.lastMovementId &&
-        order.status in ['partially_received', 'received'] &&
-        order.lines.size() == 1 &&
-        order.lines[0].itemId == data.itemId &&
-        item.companyId == data.companyId &&
-        item.active == true &&
-        data.reorderLevel == item.reorderLevel &&
-        isActiveWarehouseForProject(data.warehouseId, order.projectId, data.companyId) &&
         (creating
-          ? data.quantity == movement.quantity &&
+          ? data.reorderLevel == get(itemPath).data.reorderLevel &&
+            data.quantity == movement.quantity &&
             data.averageUnitCostGTQ == movement.unitCostGTQ
-          : data.quantity == resource.data.quantity + movement.quantity &&
+          : data.reorderLevel == resource.data.reorderLevel &&
+            data.quantity == resource.data.quantity + movement.quantity &&
             data.averageUnitCostGTQ >= (
               (resource.data.quantity * resource.data.averageUnitCostGTQ +
                 movement.quantity * movement.unitCostGTQ) / data.quantity
@@ -236,7 +225,6 @@ service cloud.firestore {
                 movement.quantity * movement.unitCostGTQ) / data.quantity
             ) + 0.01);
     }
-
 
     match /{path=**}/members/{memberId} {
       allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
