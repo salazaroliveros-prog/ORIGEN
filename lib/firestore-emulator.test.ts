@@ -224,6 +224,15 @@ beforeEach(async () => {
       updatedAt: '2026-11-16T08:00:00.000Z',
     };
     await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), order));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'wrong-subtotal'), {
+      ...order, id: 'wrong-subtotal', subtotalGTQ: 900, taxGTQ: 108, totalGTQ: 1008,
+    }));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'wrong-tax'), {
+      ...order, id: 'wrong-tax', taxGTQ: 120, totalGTQ: 870,
+    }));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'discount-over-subtotal'), {
+      ...order, id: 'discount-over-subtotal', discountGTQ: 800, taxGTQ: 0, totalGTQ: -50,
+    }));
     await assertFails(setDoc(doc(finance, 'purchaseOrders', order.id), {
       ...order, status: 'approved', approvedBy: USERS.finance,
     }, { merge: true }));
