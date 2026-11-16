@@ -179,7 +179,7 @@ async function seedFirestore(db, adminUid) {
       address: '',
       phone: '',
       email: ADMIN_EMAIL,
-      exchangeRate: Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 7.85),
+      exchangeRate: configuredExchangeRate,
       primaryColor: '#f59e0b',
       secondaryColor: '#38bdf8',
       logoUrl: '',
@@ -244,6 +244,23 @@ async function main() {
   COMPANY_NAME = process.env.SETUP_COMPANY_NAME || '';
   if (!ADMIN_EMAIL || !ADMIN_PASSWORD || !COMPANY_ID || !COMPANY_NAME) {
     console.error('Faltan SETUP_ADMIN_EMAIL, SETUP_ADMIN_PASSWORD, SETUP_COMPANY_ID o SETUP_COMPANY_NAME.');
+    process.exit(1);
+  }
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(ADMIN_EMAIL)) {
+    console.error('SETUP_ADMIN_EMAIL no tiene un formato válido.');
+    process.exit(1);
+  }
+  if (ADMIN_PASSWORD.length < 12) {
+    console.error('SETUP_ADMIN_PASSWORD debe tener al menos 12 caracteres.');
+    process.exit(1);
+  }
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(COMPANY_ID)) {
+    console.error('SETUP_COMPANY_ID solo puede contener letras, números, guion y guion bajo (máximo 128 caracteres).');
+    process.exit(1);
+  }
+  const configuredExchangeRate = Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 7.85);
+  if (!Number.isFinite(configuredExchangeRate) || configuredExchangeRate <= 0) {
+    console.error('SETUP_EXCHANGE_RATE_GTQ_PER_USD debe ser un número mayor que cero.');
     process.exit(1);
   }
   if (process.env.CONFIRM_FIREBASE_SETUP !== 'YES') {
