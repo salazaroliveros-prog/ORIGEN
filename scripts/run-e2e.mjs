@@ -67,67 +67,68 @@ async function main() {
   const htmlDirectory = path.join(repositoryRoot, 'playwright-report', runId);
   const tsconfigFileName = `.tsconfig.e2e-${runId}.json`;
   const tsconfigPath = path.join(repositoryRoot, tsconfigFileName);
-  await Promise.all([
-    mkdir(reportDirectory, { recursive: true }),
-    mkdir(htmlDirectory, { recursive: true }),
-    copyFile(path.join(repositoryRoot, 'tsconfig.json'), tsconfigPath),
-  ]);
 
-  // El correo y la clave son nuevos por corrida; no se reutilizan cuentas ni
-  // datos de otro test. Firebase Auth/Firestore/Storage serán emuladores limpios.
-  const env = {
-    ...process.env,
-    ORIGEN_E2E_RUN_ID: runId,
-    ORIGEN_E2E_TSCONFIG_PATH: tsconfigFileName,
-    E2E_PORT: String(port),
-    E2E_BASE_URL: `http://127.0.0.1:${port}`,
-    E2E_ADMIN_EMAIL: `e2e-${runId}@origen.invalid`,
-    E2E_ADMIN_PASSWORD: randomBytes(24).toString('base64url'),
-    E2E_ALLOW_FIREBASE_MUTATIONS: '1',
-    E2E_FIREBASE_TARGET: 'emulator',
-    E2E_PLAYWRIGHT_ARGS: JSON.stringify(process.argv.slice(2)),
-    NEXT_TELEMETRY_DISABLED: '1',
-    NEXT_PUBLIC_USE_FIREBASE_EMULATORS: 'true',
-    NEXT_PUBLIC_FIREBASE_PROJECT_ID: projectId,
-    NEXT_PUBLIC_FIREBASE_API_KEY: 'demo-api-key',
-    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'localhost',
-    NEXT_PUBLIC_FIREBASE_APP_ID: '1:000000000000:web:demo',
-    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: `${projectId}.appspot.com`,
-    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '000000000000',
-    NEXT_PUBLIC_FIREBASE_EMULATOR_HOST: '127.0.0.1',
-  };
-
-  console.log(`[e2e] Run: ${runId}`);
-  console.log(`[e2e] App aislada: ${env.E2E_BASE_URL}`);
-  console.log(`[e2e] Firebase project: ${projectId} (emuladores desechables)`);
-
-  const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
   let exitCode = 1;
   try {
+    await Promise.all([
+      mkdir(reportDirectory, { recursive: true }),
+      mkdir(htmlDirectory, { recursive: true }),
+      copyFile(path.join(repositoryRoot, 'tsconfig.json'), tsconfigPath),
+    ]);
+
+    // El correo y la clave son nuevos por corrida; no se reutilizan cuentas ni
+    // datos de otro test. Firebase Auth/Firestore/Storage serán emuladores limpios.
+    const env = {
+      ...process.env,
+      ORIGEN_E2E_RUN_ID: runId,
+      ORIGEN_E2E_TSCONFIG_PATH: tsconfigFileName,
+      E2E_PORT: String(port),
+      E2E_BASE_URL: `http://127.0.0.1:${port}`,
+      E2E_ADMIN_EMAIL: `e2e-${runId}@origen.invalid`,
+      E2E_ADMIN_PASSWORD: randomBytes(24).toString('base64url'),
+      E2E_ALLOW_FIREBASE_MUTATIONS: '1',
+      E2E_FIREBASE_TARGET: 'emulator',
+      E2E_PLAYWRIGHT_ARGS: JSON.stringify(process.argv.slice(2)),
+      NEXT_TELEMETRY_DISABLED: '1',
+      NEXT_PUBLIC_USE_FIREBASE_EMULATORS: 'true',
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: projectId,
+      NEXT_PUBLIC_FIREBASE_API_KEY: 'demo-api-key',
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'localhost',
+      NEXT_PUBLIC_FIREBASE_APP_ID: '1:000000000000:web:demo',
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: `${projectId}.appspot.com`,
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '000000000000',
+      NEXT_PUBLIC_FIREBASE_EMULATOR_HOST: '127.0.0.1',
+    };
+
+    console.log(`[e2e] Run: ${runId}`);
+    console.log(`[e2e] App aislada: ${env.E2E_BASE_URL}`);
+    console.log(`[e2e] Firebase project: ${projectId} (emuladores desechables)`);
+
+    const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
     exitCode = await run(
-    executable,
-    [
-      '--yes',
-      'firebase-tools',
-      'emulators:exec',
-      '--config',
-      'firebase.emulators.json',
-      '--project',
-      projectId,
-      '--only',
-      'auth,firestore,storage',
-      'node scripts/run-e2e-inside.mjs',
-    ],
-    {
-      cwd: repositoryRoot,
-      env,
-      stdio: 'inherit',
-      shell: process.platform === 'win32',
-    }
+      executable,
+      [
+        '--yes',
+        'firebase-tools',
+        'emulators:exec',
+        '--config',
+        'firebase.emulators.json',
+        '--project',
+        projectId,
+        '--only',
+        'auth,firestore,storage',
+        'node scripts/run-e2e-inside.mjs',
+      ],
+      {
+        cwd: repositoryRoot,
+        env,
+        stdio: 'inherit',
+        shell: process.platform === 'win32',
+      }
     );
   } finally {
-    // Next.js puede actualizar la configuración para registrar tipos de la
-    // carpeta distDir. Solo se permite tocar el tsconfig temporal de esta run.
+    // Next.js solo modifica el tsconfig temporal de esta corrida. El original
+    // del proyecto permanece intacto incluso cuando el emulador o Playwright falla.
     await rm(tsconfigPath, { force: true });
   }
 
