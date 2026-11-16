@@ -262,11 +262,6 @@ async function main() {
     console.error('SETUP_COMPANY_ID solo puede contener letras, números, guion y guion bajo (máximo 128 caracteres).');
     process.exit(1);
   }
-  const configuredExchangeRate = Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 0);
-  if (!Number.isFinite(configuredExchangeRate) || configuredExchangeRate < 0) {
-    console.error('SETUP_EXCHANGE_RATE_GTQ_PER_USD debe ser cero o un número positivo.');
-    process.exit(1);
-  }
   if (process.env.CONFIRM_FIREBASE_SETUP !== 'YES') {
     console.error('Operación bloqueada: define CONFIRM_FIREBASE_SETUP=YES para confirmar escrituras en Firebase.');
     process.exit(1);
