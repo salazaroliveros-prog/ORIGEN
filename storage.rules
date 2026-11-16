@@ -14,7 +14,10 @@ service firebase.storage {
 
     match /projects/{projectId}/progress/{fileName} {
       allow read: if isProjectMember(projectId);
-      allow create: if isProjectMember(projectId)
+      // A photo path is immutable after its first upload. Storage evaluates
+      // resource as null only when the object does not yet exist.
+      allow create: if resource == null
+        && isProjectMember(projectId)
         && request.resource.size > 0
         && request.resource.size <= 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif|heic|heif)');
