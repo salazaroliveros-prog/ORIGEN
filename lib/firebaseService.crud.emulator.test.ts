@@ -649,4 +649,130 @@ describe('firebaseService CRUD contra el emulador', () => {
     });
   });
 
+  it('aprueba y recibe una OC con saldo atómico, costo promedio e idempotencia', async () => {
+    const projectId = await createProject('INV-RECEIPT', 'Proyecto para recepción atómica');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor recepción QA', nit: 'CF', active: true },
+      companyId,
+      userId
+    );
+    const item = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Cemento recepción QA', unit: 'saco', reorderLevel: 3, active: true },
+      companyId,
+      userId
+    );
+    const warehouse = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega recepción QA', type: 'project', projectId, active: true },
+      companyId,
+      userId
+    );
+    const order = await inventoryService.createPurchaseOrderToFirestore(
+      {
+        projectId,
+        supplierId: supplier.id,
+        number: uniqueId('OC-RECEIPT'),
+        status: 'draft',
+        currency: 'GTQ',
+        lines: [{
+          itemId: item.id,
+          description: item.name,
+          unit: item.unit,
+          quantity: 4,
+          unitPriceGTQ: 425,
+        }],
+        subtotalGTQ: 1700,
+        discountGTQ: 0,
+        taxPercent: 12,
+        taxGTQ: 204,
+        totalGTQ: 1904,
+      },
+      companyId,
+      userId
+    );
+
+    const approved = await inventoryService.approvePurchaseOrderToFirestore(
+      order.id,
+      companyId,
+      userId
+    );
+    expect(approved.status).toBe('approved');
+    expect(approved.approvedBy).toBe(userId);
+
+    const partial = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id,
+      warehouseId: warehouse.id,
+      quantity: 2,
+      receiptNumber: 'RCV-001',
+      companyId,
+      userId,
+    });
+    expect(partial.alreadyProcessed).toBe(false);
+    expect(partial.order.status).toBe('partially_received');
+    expect(partial.order.lines[0].receivedQuantity).toBe(2);
+    expect(partial.balance.quantity).toBe(2);
+    expect(partial.balance.averageUnitCostGTQ).toBe(425);
+
+    const completed = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id,
+      warehouseId: warehouse.id,
+      quantity: 2,
+      receiptNumber: 'RCV-002',
+      companyId,
+      userId,
+    });
+    expect(completed.alreadyProcessed).toBe(false);
+    expect(completed.order.status).toBe('received');
+    expect(completed.order.lines[0].receivedQuantity).toBe(4);
+    expect(completed.balance.quantity).toBe(4);
+    expect(completed.balance.averageUnitCostGTQ).toBe(425);
+
+    const retry = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id,
+      warehouseId: warehouse.id,
+      quantity: 2,
+      receiptNumber: 'RCV-002',
+      companyId,
+      userId,
+    });
+    expect(retry.alreadyProcessed).toBe(true);
+    expect(retry.balance.quantity).toBe(4);
+
+    const balanceId = `bal_${warehouse.id}_${item.id}`;
+    const movementId = `rec_${order.id}_RCV-002`;
+    const storedBalance = await expectPersisted('inventoryBalances', balanceId, (callback) =>
+      inventoryService.subscribeInventoryBalances(companyId, callback)
+    );
+    const storedMovement = await expectPersisted('stockMovements', movementId, (callback) =>
+      inventoryService.subscribeStockMovements(companyId, callback)
+    );
+    expect(storedBalance).toMatchObject({
+      companyId,
+      warehouseId: warehouse.id,
+      itemId: item.id,
+      quantity: 4,
+      averageUnitCostGTQ: 425,
+      lastMovementId: movementId,
+    });
+    expect(storedMovement).toMatchObject({
+      companyId,
+      warehouseId: warehouse.id,
+      itemId: item.id,
+      quantity: 2,
+      referenceId: order.id,
+      receiptNumber: 'RCV-002',
+    });
+
+    await expect(
+      inventoryService.receivePurchaseOrderToWarehouse({
+        orderId: order.id,
+        warehouseId: warehouse.id,
+        quantity: 1,
+        receiptNumber: 'RCV-003',
+        companyId,
+        userId,
+      })
+    ).rejects.toThrow();
+  });
+
+
 });
