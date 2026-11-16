@@ -326,7 +326,7 @@ function usePermissions(role?: string) {
       ),
       canViewPersonnel: canReadEmployeeDirectory(role as any),
       canViewFullPersonnel: canReadFullPersonnel(role as any),
-      canManageCompany: ['owner', 'admin'].includes(role ?? ''),
+      canManageCompany: ['owner', 'admin'].includes(role ?? ''),\n      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
     }),
     [role]
   );
