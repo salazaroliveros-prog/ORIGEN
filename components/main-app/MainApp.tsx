@@ -26,7 +26,8 @@ type TabKey =
   | 'planillas'
   | 'gastos'
   | 'gmail'
-  | 'equipo';
+  | 'equipo'
+  | 'inventario';
 
 const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }> = {
   dashboard: {
@@ -153,7 +154,7 @@ export default function MainApp() {
         'viewer',
       ].includes(role ?? ''),
       canViewFullPersonnel: ['owner', 'admin', 'finance'].includes(role ?? ''),
-      canManageCompany: ['owner', 'admin'].includes(role ?? ''),
+      canManageCompany: ['owner', 'admin'].includes(role ?? ''),\n      canViewInventory: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),\n      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),\n      canViewPurchasing: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),\n      canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),\n      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
     };
   }, [membership?.role]);
 
