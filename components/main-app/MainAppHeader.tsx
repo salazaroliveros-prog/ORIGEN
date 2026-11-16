@@ -41,7 +41,8 @@ type TabKey =
   | 'planillas'
   | 'gastos'
   | 'gmail'
-  | 'equipo';
+  | 'equipo'
+  | 'inventario';
 
 const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }> = {
   dashboard: {
@@ -108,6 +109,11 @@ const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }
     id: 'equipo',
     label: 'Equipo de la empresa',
     subtitle: 'Miembros, invitaciones y permisos de acceso',
+  },
+  inventario: {
+    id: 'inventario',
+    label: 'Inventario & Compras',
+    subtitle: 'Proveedores, bodegas, existencias y abastecimiento de obra',
   },
 };
 
@@ -326,7 +332,8 @@ function usePermissions(role?: string) {
       ),
       canViewPersonnel: canReadEmployeeDirectory(role as any),
       canViewFullPersonnel: canReadFullPersonnel(role as any),
-      canManageCompany: ['owner', 'admin'].includes(role ?? ''),\n      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+      canManageCompany: ['owner', 'admin'].includes(role ?? ''),
+      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
     }),
     [role]
   );
