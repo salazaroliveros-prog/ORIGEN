@@ -56,6 +56,29 @@ describe('inventory domain', () => {
     ).toThrow('Existencia insuficiente');
   });
 
+  it('rejects corrupted current balances before applying a movement', () => {
+    expect(() => applyStockMovement({ ...openingBalance, quantity: -1 }, movement())).toThrow('existencia actual');
+    expect(() => applyStockMovement({ ...openingBalance, averageUnitCostGTQ: Number.NaN }, movement())).toThrow('costo promedio actual');
+  });
+
+  it('rejects movements without audit identity or a valid timestamp', () => {
+    expect(() => applyStockMovement(openingBalance, movement({ createdBy: '' }))).toThrow('ID, empresa y usuario');
+    expect(() => applyStockMovement(openingBalance, movement({ occurredAt: 'fecha-invalida' }))).toThrow('fecha del movimiento');
+  });
+
+  it('orders movements by their actual instant even when timezone offsets differ', () => {
+    const result = calculateInventoryBalance({
+      itemId: 'cemento-42',
+      warehouseId: 'bodega-obra-1',
+      movements: [
+        movement({ id: 'later', kind: 'project_issue', quantity: 2, unitCostGTQ: 0, occurredAt: '2026-11-01T12:00:00+02:00' }),
+        movement({ id: 'earlier', quantity: 5, unitCostGTQ: 80, occurredAt: '2026-11-01T09:00:00Z' }),
+      ],
+    });
+    expect(result.quantity).toBe(13);
+    expect(result.averageUnitCostGTQ).toBe(80);
+  });
+
   it('calculates stock in chronological order and ignores other warehouses', () => {
     const result = calculateInventoryBalance({
       itemId: 'cemento-42',
