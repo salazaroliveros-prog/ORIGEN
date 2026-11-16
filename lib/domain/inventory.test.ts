@@ -56,6 +56,15 @@ describe('inventory domain', () => {
     ).toThrow('Existencia insuficiente');
   });
 
+  it('resets weighted average cost when an outgoing movement depletes the warehouse', () => {
+    const result = applyStockMovement(
+      { ...openingBalance, quantity: 10, averageUnitCostGTQ: 82.35 },
+      movement({ kind: 'transfer_out', quantity: 10, unitCostGTQ: 0 })
+    );
+    expect(result.quantity).toBe(0);
+    expect(result.averageUnitCostGTQ).toBe(0);
+  });
+
   it('rejects corrupted current balances before applying a movement', () => {
     expect(() => applyStockMovement({ ...openingBalance, quantity: -1 }, movement())).toThrow('existencia actual');
     expect(() => applyStockMovement({ ...openingBalance, averageUnitCostGTQ: Number.NaN }, movement())).toThrow('costo promedio actual');
