@@ -12,6 +12,7 @@ import {
   subscribeCompanyInvitations,
   subscribeCompanyMembers,
 } from '@/lib/companyInvitations';
+import { INVITABLE_COMPANY_ROLES } from '@/lib/permissions';
 import type {
   CompanyInvitation,
   CompanyMembership,
@@ -28,15 +29,6 @@ const ROLE_LABELS: Record<CompanyRole, string> = {
   warehouse_manager: 'Encargado de bodega',
   viewer: 'Solo lectura',
 };
-
-const INVITABLE_ROLES: Exclude<CompanyRole, 'owner'>[] = [
-  'viewer',
-  'field_worker',
-  'finance',
-  'project_manager',
-  'warehouse_manager',
-  'admin',
-];
 
 interface CompanyTeamManagerProps {
   companyId: string;
@@ -176,7 +168,7 @@ export function CompanyTeamManager({
               disabled={isLoading}
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
             >
-              {INVITABLE_ROLES.map((item) => (
+              {INVITABLE_COMPANY_ROLES.map((item) => (
                 <option key={item} value={item}>
                   {ROLE_LABELS[item]}
                 </option>
