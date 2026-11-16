@@ -47,7 +47,7 @@ beforeEach(() => {
   mocks.settingsSubscriber.mockImplementation((companyId: unknown, callback: unknown) => {
     settingsCallbacks.set(String(companyId), callback as SettingsCallback);
     const unsubscribe = vi.fn();
-    settingsUnsubscribers.set(companyId, unsubscribe);
+    settingsUnsubscribers.set(String(companyId), unsubscribe);
     return unsubscribe;
   });
 
