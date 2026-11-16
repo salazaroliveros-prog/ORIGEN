@@ -188,7 +188,7 @@ export function ProjectPhotoDropzone({
           <p className="font-medium">Las fotos se almacenan en Firebase Storage</p>
           <p className="mt-1">
             Se guardarán en la carpeta{' '}
-            <code className="rounded bg-blue-100 px-1">/projects/{projectCode}/progress</code>
+            <code className="rounded bg-blue-100 px-1">/projects/{projectId}/progress</code>
           </p>
         </div>
       </div>
