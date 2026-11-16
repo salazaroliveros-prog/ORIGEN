@@ -8,7 +8,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useCompanyOnboarding } from '@/lib/hooks/useCompanyOnboarding';
@@ -45,11 +45,12 @@ export default function OnboardingEmpresaPage() {
     exchangeRate: '7.85',
   });
 
-  // Si ya tiene empresa, redirigir al dashboard
-  if (hasCompany) {
-    router.replace('/');
-    return null;
-  }
+  // Si ya tiene empresa, redirigir al dashboard (fuera del render).
+  useEffect(() => {
+    if (hasCompany) {
+      router.replace('/');
+    }
+  }, [hasCompany, router]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
