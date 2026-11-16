@@ -105,7 +105,13 @@ export function applyStockMovement(
     if (movement.quantity > balance.quantity) {
       throw new Error('Existencia insuficiente para completar el movimiento.');
     }
-    return { ...balance, quantity: roundQuantity(balance.quantity - movement.quantity) };
+    const remainingQuantity = roundQuantity(balance.quantity - movement.quantity);
+    return {
+      ...balance,
+      quantity: remainingQuantity,
+      // A fully depleted warehouse must not retain a stale average cost.
+      averageUnitCostGTQ: remainingQuantity === 0 ? 0 : balance.averageUnitCostGTQ,
+    };
   }
 
   const newQuantity = roundQuantity(balance.quantity + movement.quantity);
