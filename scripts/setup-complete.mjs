@@ -97,7 +97,7 @@ async function createAdminUser(auth) {
   try {
     // Verificar si el usuario ya existe
     try {
-      const existingUser = await getAuth().getUserByEmail(ADMIN_EMAIL);
+      const existingUser = await auth.getUserByEmail(ADMIN_EMAIL);
       console.log(`   ⚠️  El usuario ya existe (UID: ${existingUser.uid})`);
       return existingUser;
     } catch (err) {
@@ -105,7 +105,7 @@ async function createAdminUser(auth) {
     }
 
     // Crear el usuario
-    const userRecord = await getAuth().createUser({
+    const userRecord = await auth.createUser({
       email: ADMIN_EMAIL,
       emailVerified: false,
       password: ADMIN_PASSWORD,
@@ -140,6 +140,10 @@ async function seedFirestore(db, adminUid) {
   const settingsRef = db.collection('companySettings').doc(COMPANY_ID);
   const batch = db.batch();
   const now = new Date().toISOString();
+  const exchangeRate = Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 7.85);
+  if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
+    throw new Error('SETUP_EXCHANGE_RATE_GTQ_PER_USD debe ser un número mayor que cero.');
+  }
 
   if (!existingCompany.exists) {
     batch.create(companyRef, {
@@ -179,7 +183,7 @@ async function seedFirestore(db, adminUid) {
       address: '',
       phone: '',
       email: ADMIN_EMAIL,
-      exchangeRate: configuredExchangeRate,
+      exchangeRate,
       primaryColor: '#f59e0b',
       secondaryColor: '#38bdf8',
       logoUrl: '',
