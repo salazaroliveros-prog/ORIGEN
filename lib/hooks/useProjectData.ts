@@ -101,7 +101,11 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
 
   // ========== BUDGET SUMMARY MEMOIZATION ==========
   const budgetSummary = useMemo(() => {
-    if (apuItems.length === 0 && expenses.length === 0) {
+    const totalSpent = expenses.reduce(
+      (sum, exp) => (exp.approvalStatus !== 'Rechazado' ? sum + exp.amount : sum),
+      0
+    );
+    if (apuItems.length === 0 && totalSpent === 0) {
       return {
         budgetTotal: 0,
         spentTotal: 0,
@@ -113,10 +117,7 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     }
 
     try {
-      return calculateBudgetSummary(
-        apuItems,
-        expenses.reduce((sum, exp) => sum + exp.amount, 0)
-      );
+      return calculateBudgetSummary(apuItems, totalSpent);
     } catch (error) {
       log.error('Budget summary calculation failed', error as Error, {
         apuItemsCount: apuItems.length,

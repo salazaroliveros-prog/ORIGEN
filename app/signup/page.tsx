@@ -31,6 +31,15 @@ interface PasswordStrength {
   color: string;
 }
 
+const EMPTY_FORM: SignUpFormData = {
+  fullName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  company: '',
+  phone: '',
+};
+
 export default function SignUpPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -39,14 +48,7 @@ export default function SignUpPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const [formData, setFormData] = useState<SignUpFormData>({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    company: '',
-    phone: '',
-  });
+  const [formData, setFormData] = useState<SignUpFormData>(EMPTY_FORM);
 
   const calculatePasswordStrength = (password: string): PasswordStrength => {
     let score = 0;
@@ -121,6 +123,8 @@ export default function SignUpPage() {
     try {
       setLoading(true);
 
+      // Solo se envían a Auth los campos que la API acepta; el resto se recoge
+      // para el onboarding/perfil posterior y no se persiste en este paso.
       const result = await createEmailAccount(formData.email, formData.password);
 
       if (!result.user) {
@@ -130,14 +134,8 @@ export default function SignUpPage() {
       }
 
       toast.success('¡Cuenta creada exitosamente!');
-      setFormData({
-        fullName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        company: '',
-        phone: '',
-      });
+      setFormData(EMPTY_FORM);
+      setAgreedToTerms(false);
       setErrors({});
 
       setTimeout(() => {
@@ -376,7 +374,7 @@ export default function SignUpPage() {
           <div className="mt-6 border-t border-white/10 pt-6 text-center">
             <p className="text-sm text-slate-400">
               ¿Ya tienes cuenta?{' '}
-              <Link href="/" className="font-medium text-amber-400 hover:text-amber-300">
+              <Link href="/login" className="font-medium text-amber-400 hover:text-amber-300">
                 Inicia sesión aquí
               </Link>
             </p>

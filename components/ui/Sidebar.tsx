@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useMemo } from 'react';
 import {
   LayoutDashboard,
   HardHat,
@@ -17,7 +16,6 @@ import {
   Sparkles,
   UserPlus,
   ChevronRight,
-  Phone,
   LogOut,
   Building2,
 } from 'lucide-react';
@@ -64,28 +62,30 @@ export function Sidebar({
   canViewExpenses = false,
   className = '',
 }: SidebarProps) {
-  const tabs = [
-    { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
-    { id: 'proyectos', label: 'Proyectos & Firmas', icon: HardHat, badge: 'Firma' },
-    { id: 'apu_presupuestos', label: 'Presupuestos APU', icon: Calculator },
-    { id: 'cotizaciones', label: 'Cotizaciones', icon: FileText },
-    { id: 'cronograma_gantt', label: 'Seguimiento & Hitos', icon: CalendarDays, badge: 'Avance' },
-    { id: 'maquinaria', label: 'Maquinaria', icon: Truck },
-    { id: 'personal', label: 'Personal & IGSS', icon: Users },
-    { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
-    { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
-    { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
-    { id: 'ai', label: 'Asistente IA', icon: Sparkles },
-    { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
-    ...(canManageCompany ? [{ id: 'equipo', label: 'Equipo de la empresa', icon: UserPlus }] : []),
-  ].filter((tab) => {
-    if (tab.id === 'personal') return canViewPersonnel;
-    if (tab.id === 'planillas') return canViewPayroll;
-    if (tab.id === 'gastos') return canViewExpenses;
-    return true;
-  });
-
-  const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0] || null;
+  const tabs = useMemo(
+    () =>
+      [
+        { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
+        { id: 'proyectos', label: 'Proyectos & Firmas', icon: HardHat, badge: 'Firma' },
+        { id: 'apu_presupuestos', label: 'Presupuestos APU', icon: Calculator },
+        { id: 'cotizaciones', label: 'Cotizaciones', icon: FileText },
+        { id: 'cronograma_gantt', label: 'Seguimiento & Hitos', icon: CalendarDays, badge: 'Avance' },
+        { id: 'maquinaria', label: 'Maquinaria', icon: Truck },
+        { id: 'personal', label: 'Personal & IGSS', icon: Users },
+        { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
+        { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
+        { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
+        { id: 'ai', label: 'Asistente IA', icon: Sparkles },
+        { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
+        ...(canManageCompany ? [{ id: 'equipo', label: 'Equipo de la empresa', icon: UserPlus }] : []),
+      ].filter((tab) => {
+        if (tab.id === 'personal') return canViewPersonnel;
+        if (tab.id === 'planillas') return canViewPayroll;
+        if (tab.id === 'gastos') return canViewExpenses;
+        return true;
+      }),
+    [canManageCompany, canViewPersonnel, canViewPayroll, canViewExpenses]
+  );
 
   return (
     <aside
@@ -104,8 +104,7 @@ export function Sidebar({
           </div>
         </div>
         {company.phone && (
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-xs text-slate-300 hover:bg-white/[0.1] hover:text-white transition-colors">
-            <Phone className="h-4 w-4" />
+          <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-xs text-slate-300 hover:bg-white/[0.1] hover:text-white transition-colors">
             <span className="truncate max-w-[140px]">{company.phone}</span>
           </button>
         )}
@@ -137,9 +136,10 @@ export function Sidebar({
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
-            <Link
+            <button
               key={tab.id}
-              href={`/${tab.id}`}
+              type="button"
+              onClick={() => onSelectTab(tab.id)}
               className={`w-full flex items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`}
               aria-current={isActive ? 'page' : undefined}
             >
@@ -153,7 +153,7 @@ export function Sidebar({
                 )}
               </div>
               {isActive && <ChevronRight className="h-3 w-3 shrink-0 text-slate-950" />}
-            </Link>
+            </button>
           );
         })}
       </nav>

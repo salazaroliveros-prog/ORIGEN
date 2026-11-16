@@ -17,11 +17,11 @@ import { ProjectForm } from '@/components/ProjectForm';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { TouchTarget } from '@/components/ui/TouchTarget';
 import { Pagination } from '@/components/ui/Pagination';
 import { ProjectPhotoDropzone } from '@/components/ProjectPhotoDropzone';
 import { toast } from 'react-hot-toast';
 import type { APUItem, CompanySettings, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
+import { formatGTQ } from '@/lib/data';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
 
 interface ProjectsViewProps {
@@ -73,14 +73,18 @@ export function ProjectsView({
     const start = (currentPage - 1) * pageSize;
     return visibleProjects.slice(start, start + pageSize);
   }, [visibleProjects, currentPage, pageSize]);
+
   const projectSpentById = useMemo(
     () =>
       expenses.reduce((totals, expense) => {
+        // Excluir rechazados: no consumen presupuesto (consistente con sumCountableExpenses).
+        if (expense.approvalStatus === 'Rechazado') return totals;
         totals.set(expense.projectId, (totals.get(expense.projectId) ?? 0) + expense.amount);
         return totals;
       }, new Map<string, number>()),
     [expenses]
   );
+
   const projectApuById = useMemo(
     () =>
       budgetItems.reduce((totals, item) => {
@@ -91,6 +95,7 @@ export function ProjectsView({
       }, new Map<string, number>()),
     [budgetItems]
   );
+
   const projectQuoteById = useMemo(
     () =>
       quotes.reduce((totals, quote) => {
@@ -237,217 +242,178 @@ export function ProjectsView({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                <label className="flex items-center gap-2 normal-case tracking-normal">
-                  <span>Mostrar</span>
-                  <select
-                    value={showArchived ? 'archived' : 'active'}
-                    onChange={(event) => setShowArchived(event.target.value === 'archived')}
-                    className="min-h-9 rounded-lg border border-white/15 bg-slate-900 px-2 text-xs text-white"
-                  >
-                    <option value="active">Activos</option>
-                    <option value="archived">Archivados</option>
-                  </select>
-                </label>
-                {visibleProjects.length} registro{visibleProjects.length !== 1 ? 's' : ''}
+                {showArchived ? 'Archivados' : 'Activos'}
               </span>
+              <button
+                type="button"
+                onClick={() => setShowArchived((prev) => !prev)}
+                className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/[0.07]"
+              >
+                {showArchived ? 'Ver activos' : 'Ver archivados'}
+              </button>
             </div>
           </div>
-          <ul className="space-y-3">
-            {paginatedProjects.map((p) => {
-              return (
-                <div key={p.id} className="glass-l1">
-                  <li className="glass-l1 flex flex-col justify-between gap-3 rounded-xl border border-white/10 p-4 duration-200 hover:bg-white/[0.05] lg:flex-row lg:items-center">
-                    <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
-                      <div className="flex items-center gap-3">
-                        <div className="project-avatar-wrapper" style={{}}>
-                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 text-white shadow-lg">
-                            <span className="text-sm font-bold">{p.code?.charAt(0) || 'P'}</span>
-                          </div>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-semibold text-slate-200">
-                            {p.code || 'PRO-001'}
-                          </span>
-                          <span className="text-base font-bold leading-tight text-white">
-                            {p.name || 'Proyecto sin nombre'}
-                          </span>
-                        </div>
-                      </div>
-                      <p className="mt-1 line-clamp-2 text-xs text-slate-400 lg:mt-0">
-                        {p.client || 'Sin cliente asignado'}
-                        {p.municipality && p.department
-                          ? ` • ${p.municipality}, ${p.department}`
-                          : ''}
-                      </p>
-                    </div>
 
-                    <div className="flex w-full flex-col items-end gap-3 lg:w-auto lg:flex-row">
-                      <div className="flex items-center gap-2">
-                        <span className="rounded border border-amber-400/30 bg-amber-400/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                          {p.status || 'Planificación'}
-                        </span>
-                        <span className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-[10px] text-slate-300">
-                          {p.progressPercent ?? 0}%
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 font-mono text-xs text-slate-400">
-                        <div className="flex items-center gap-2">
-                          <span title="Presupuesto planificado">
-                            Ppto. Q{(p.budgetTotal ?? 0).toLocaleString('es-GT')}
-                          </span>
-                          <span className="text-amber-400">·</span>
-                          <span title="Gasto ejecutado">
-                            Gast. Q
-                            {(projectSpentById.get(p.id) ?? p.spentTotal ?? 0).toLocaleString(
-                              'es-GT'
-                            )}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px]">
-                          <span
-                            title="Total de partidas APU"
-                            className={
-                              (projectApuById.get(p.id) ?? 0) > (p.budgetTotal ?? 0)
-                                ? 'text-rose-300'
-                                : 'text-sky-300'
-                            }
-                          >
-                            APU Q{(projectApuById.get(p.id) ?? 0).toLocaleString('es-GT')}
-                          </span>
-                          <span className="text-slate-600">·</span>
-                          <span title="Cotizaciones activas">
-                            Cot. {projectQuoteById.get(p.id)?.count ?? 0}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <TouchTarget
-                          onPress={() => openPhotoModal(p)}
-                          className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-blue-500/20 hover:text-blue-300"
-                          aria-label={`Subir fotos de avance ${p.code}`}
-                          title={`Subir fotos de avance`}
-                        >
-                          <ImageIcon className="h-4 w-4" aria-hidden="true" />
-                        </TouchTarget>
-                        {canManageProjects && p.status !== 'Archivado' && (
-                          <TouchTarget
-                            onPress={() => openEdit(p)}
-                            className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-white/[0.1]"
-                            aria-label={`Editar proyecto ${p.code}`}
-                            title={`Editar proyecto ${p.code}`}
-                          >
-                            <Edit2 className="h-4 w-4" aria-hidden="true" />
-                          </TouchTarget>
-                        )}
-                        {canManageProjects &&
-                          (p.status === 'Archivado' ? (
-                            <TouchTarget
-                              onPress={() => void onRestoreProject(p.id)}
-                              className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-emerald-500/20 hover:text-emerald-300"
-                              aria-label={`Restaurar proyecto ${p.code}`}
-                              title={`Restaurar proyecto ${p.code}`}
-                            >
-                              <ArchiveRestore className="h-4 w-4" aria-hidden="true" />
-                            </TouchTarget>
-                          ) : (
-                            <TouchTarget
-                              onPress={() => void onArchiveProject(p.id)}
-                              className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-amber-500/20 hover:text-amber-300"
-                              aria-label={`Archivar proyecto ${p.code}`}
-                              title={`Archivar proyecto ${p.code}; conserva sus datos`}
-                            >
-                              <Archive className="h-4 w-4" aria-hidden="true" />
-                            </TouchTarget>
-                          ))}
-                      </div>
-                    </div>
-                  </li>
-                </div>
-              );
-            })}
-            {visibleProjects.length === 0 && (
-              <li className="glass-l1 flex flex-col items-center gap-3 rounded-xl p-8 text-center text-sm text-slate-400">
-                <Building className="h-10 w-10 text-slate-500 opacity-30" aria-hidden="true" />
-                <span>
-                  {showArchived ? 'No hay proyectos archivados' : 'No hay proyectos activos'}
+          {visibleProjects.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-white/10 p-8 text-center">
+              <Building className="mx-auto h-8 w-8 text-slate-600" aria-hidden="true" />
+              <p className="mt-2 text-sm text-slate-400">
+                {showArchived ? 'No hay proyectos archivados.' : 'Aún no hay proyectos registrados.'}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-800/50">
+                    <tr>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-slate-400 uppercase border-b border-slate-700">Código</th>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-slate-400 uppercase border-b border-slate-700">Proyecto</th>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-slate-400 uppercase border-b border-slate-700">Cliente</th>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-slate-400 uppercase border-b border-slate-700">Estado</th>
+                      <th className="text-right py-3 px-4 text-xs font-bold text-slate-400 uppercase border-b border-slate-700">Presupuesto</th>
+                      <th className="text-right py-3 px-4 text-xs font-bold text-slate-400 uppercase border-b border-slate-700">Gasto</th>
+                      <th className="text-center py-3 px-4 text-xs font-bold text-slate-400 uppercase border-b border-slate-700">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700/30">
+                    {paginatedProjects.map((project) => {
+                      const spent = projectSpentById.get(project.id) ?? project.spentTotal;
+                      const isArchived = project.status === 'Archivado';
+                      return (
+                        <tr key={project.id} className="hover:bg-white/5 transition-colors">
+                          <td className="py-3 px-4 text-sm font-mono text-slate-200">{project.code || project.id}</td>
+                          <td className="py-3 px-4 text-sm text-slate-200">
+                            <div className="font-medium">{project.name}</div>
+                            <div className="text-xs text-slate-500">{project.location}</div>
+                          </td>
+                          <td className="py-3 px-4 text-sm text-slate-200">{project.client}</td>
+                          <td className="py-3 px-4 text-sm">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-slate-700/40 text-slate-200 border border-slate-600/30">
+                              {project.status}
+                            </span>
+                          </td>
+                          <td className="text-right py-3 px-4 text-sm font-mono text-slate-200">
+                            {formatGTQ(project.budgetTotal)}
+                          </td>
+                          <td className="text-right py-3 px-4 text-sm font-mono text-slate-200">
+                            {formatGTQ(spent)}
+                          </td>
+                          <td className="py-3 px-4 text-sm">
+                            <div className="flex gap-1 justify-center">
+                              {canManageProjects && !isArchived && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openEdit(project)}
+                                  className="text-xs p-2"
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                              {canManageProjects && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => void (isArchived ? onRestoreProject(project.id) : onArchiveProject(project.id))}
+                                  className="text-xs p-2"
+                                >
+                                  {isArchived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+                                </Button>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openPhotoModal(project)}
+                                className="text-xs p-2"
+                              >
+                                <ImageIcon className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-xs text-slate-500">
+                  Página {currentPage} de {Math.max(1, Math.ceil(visibleProjects.length / pageSize))}
                 </span>
-                {canManageProjects && !showArchived && (
-                  <Button
-                    variant="primary"
-                    size="md"
-                    onClick={() => setFormOpen(true)}
-                    className="mt-3"
-                  >
-                    <Plus className="mr-2 h-3 w-3" aria-hidden="true" />
-                    Crear su primer proyecto
-                  </Button>
-                )}
-              </li>
-            )}
-          </ul>
-          {visibleProjects.length > 0 && (
-            <Pagination
-              totalItems={visibleProjects.length}
-              pageSize={pageSize}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-              ariaLabel="Paginación de proyectos"
-              onPageSizeChange={setPageSize}
-            />
+                <Pagination
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  totalItems={visibleProjects.length}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                />
+              </div>
+            </>
           )}
         </Card>
       </div>
 
-      {canManageProjects && (
-        <ProjectForm
-          isOpen={formOpen}
-          onClose={() => {
-            startTransition(() => {
-              setFormOpen(false);
-              setEditingProject(null);
-            });
-          }}
-          onSave={(values) =>
-            editingProject
-              ? onUpdateProject(editingProject.id ?? '', values)
-              : onCreateProject(values, onProjectCreated)
-          }
-          editingProject={editingProject}
-        />
-      )}
-
-      {/* Modal para subir fotos de avance */}
-      {photoModalOpen && selectedProjectForPhotos && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 p-5">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">
-                  Fotos de Avance - {selectedProjectForPhotos.name}
-                </h3>
-                <p className="text-sm text-slate-600">{selectedProjectForPhotos.code}</p>
-              </div>
+      {formOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-slate-900 p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white">
+                {editingProject ? 'Editar Proyecto' : 'Nuevo Proyecto'}
+              </h2>
               <button
-                onClick={() => {
-                  startTransition(() => {
-                    setPhotoModalOpen(false);
-                    setSelectedProjectForPhotos(null);
-                  });
-                }}
-                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100"
+                type="button"
+                onClick={() => setFormOpen(false)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-white/[0.05] hover:text-white"
+                aria-label="Cerrar formulario"
               >
-                <X className="h-5 w-5" aria-hidden="true" />
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-5">
-              <ProjectPhotoDropzone
-                projectId={selectedProjectForPhotos.id}
-                projectCode={selectedProjectForPhotos.code || 'PROYECTO'}
-                onPhotoUploaded={handlePhotoUploaded}
-                maxFiles={5}
-                maxSizeMB={10}
-              />
+            <ProjectForm
+              initialValues={editingProject ?? undefined}
+              onSubmit={async (values) => {
+                const ok = editingProject
+                  ? await onUpdateProject(editingProject.id, values)
+                  : await onCreateProject(values, onProjectCreated);
+                if (ok) {
+                  setFormOpen(false);
+                  setEditingProject(null);
+                  toast.success(editingProject ? 'Proyecto actualizado.' : 'Proyecto creado.');
+                } else {
+                  toast.error('No se pudo guardar el proyecto.');
+                }
+                return ok;
+              }}
+              onCancel={() => setFormOpen(false)}
+              isSubmitting={false}
+            />
+          </div>
+        </div>
+      )}
+
+      {photoModalOpen && selectedProjectForPhotos && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-slate-900 p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white">
+                Fotos de avance · {selectedProjectForPhotos.name}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setPhotoModalOpen(false)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-white/[0.05] hover:text-white"
+                aria-label="Cerrar fotos"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
+            <ProjectPhotoDropzone
+              projectId={selectedProjectForPhotos.id}
+              projectCode={selectedProjectForPhotos.code}
+              onUpload={handlePhotoUploaded}
+            />
           </div>
         </div>
       )}

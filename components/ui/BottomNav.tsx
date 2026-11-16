@@ -1,11 +1,9 @@
 'use client';
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 
-interface BottomNavItem {
-  href: string;
+export interface BottomNavItem {
+  id: string;
   label: string;
   icon: React.ReactNode;
   activeIcon?: React.ReactNode;
@@ -13,23 +11,21 @@ interface BottomNavItem {
 
 interface BottomNavProps {
   items: BottomNavItem[];
+  activeId?: string;
+  onSelect: (id: string) => void;
   className?: string;
 }
 
-export function BottomNav({ items, className = '' }: BottomNavProps) {
-  const pathname = usePathname();
-
+export function BottomNav({ items, activeId = '', onSelect, className = '' }: BottomNavProps) {
   return (
-    <nav
-      className={`mobile-bottom-nav ${className}`}
-      aria-label="Navegación principal"
-    >
+    <nav className={`mobile-bottom-nav ${className}`} aria-label="Navegación principal">
       {items.map((item) => {
-        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const isActive = activeId === item.id;
         return (
-          <Link
-            key={item.href}
-            href={item.href}
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSelect(item.id)}
             className={`bottom-nav-item flex-col gap-1 p-2 text-xs w-16 h-16 ${isActive ? 'text-brand-400 bg-brand-500/10 border border-brand-500/20' : ''}`}
             aria-current={isActive ? 'page' : undefined}
           >
@@ -37,7 +33,7 @@ export function BottomNav({ items, className = '' }: BottomNavProps) {
             <span className={isActive ? 'text-xs font-medium' : 'text-[10px] font-medium'}>
               {item.label}
             </span>
-          </Link>
+          </button>
         );
       })}
     </nav>

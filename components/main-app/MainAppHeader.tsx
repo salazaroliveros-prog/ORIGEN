@@ -3,24 +3,15 @@
 import { useMemo } from 'react';
 import type { User } from 'firebase/auth';
 import type { AuthSessionStatus } from '@/lib/firebaseAuth';
-import type { CompanyWorkspaceOption, Project } from '@/lib/types';
+import type { CompanySettings, Project, CompanyWorkspaceOption } from '@/lib/types';
 import { LogoUpload } from '@/components/LogoUpload';
 import { Navbar } from '@/components/Navbar';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
-import { MobileHeader, PageHeader } from '@/components/PageHeader';
+import { MobileHeader } from '@/components/PageHeader';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
 import { Button } from '@/components/ui/Button';
 import { TouchTarget } from '@/components/ui/TouchTarget';
 import { Settings } from 'lucide-react';
-import type { CompanySettings, Employee, TaskReminder } from '@/lib/types';
-import { initialCompanySettings } from '@/lib/data';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
-import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
-import { useProjectData } from '@/lib/hooks/data';
-import { isPrimaryAdministrator } from '@/lib/firebaseAuth';
-import { startTransition } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
 import {
   canManagePersonnel,
   canReadEmployeeDirectory,

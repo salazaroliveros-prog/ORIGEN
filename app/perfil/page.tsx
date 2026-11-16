@@ -7,11 +7,17 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import {
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updateProfile,
+  updatePassword,
+} from 'firebase/auth';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
-import { updateProfileData, updateUserPassword } from '@/lib/firebaseAuth';
+import { getAuthOrThrow } from '@/lib/firebaseService';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -25,18 +31,41 @@ interface ProfileFormData {
   confirmPassword: string;
 }
 
+const EMPTY_FORM: ProfileFormData = {
+  displayName: '',
+  phoneNumber: '',
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+};
+
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, signOut } = useAuthSession();
+  const { currentUser, status: authStatus, signOut } = useAuthSession();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formData, setFormData] = useState<ProfileFormData>({
-    displayName: currentUser?.displayName ?? '',
-    phoneNumber: currentUser?.phoneNumber ?? '',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
+  const [formData, setFormData] = useState<ProfileFormData>(EMPTY_FORM);
+
+  // Inicializar formulario cuando la sesión esté disponible.
+  useEffect(() => {
+    if (currentUser) {
+      setFormData((prev) => ({
+        ...prev,
+        displayName: currentUser.displayName ?? '',
+        phoneNumber: currentUser.phoneNumber ?? '',
+      }));
+    }
+  }, [currentUser]);
+
+  // Si la sesión no está autenticada (y ya terminó de cargar), redirigir a login.
+  useEffect(() => {
+    if (authStatus !== 'loading' && !currentUser) {
+      const timer = setTimeout(() => {
+        router.replace('/login');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [authStatus, currentUser, router]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -52,6 +81,9 @@ export default function ProfilePage() {
     }
     if (formData.confirmPassword && !formData.newPassword) {
       newErrors.newPassword = 'Ingrese una contraseña nueva';
+    }
+    if (formData.newPassword && !formData.currentPassword.trim()) {
+      newErrors.currentPassword = 'Ingresa tu contraseña actual para confirmar el cambio';
     }
 
     setErrors(newErrors);
@@ -73,35 +105,81 @@ export default function ProfilePage() {
 
     setLoading(true);
     try {
-      // Actualizar nombre y teléfono
-      await updateProfileData({
-        displayName: formData.displayName.trim() || undefined,
-        phoneNumber: formData.phoneNumber.trim() || undefined,
-      });
+      // 1. Actualizar perfil (nombre/teléfono) sin requerir reautenticación.
+      const profileUpdates: { displayName?: string; phoneNumber?: string } = {};
+      if (formData.displayName.trim()) profileUpdates.displayName = formData.displayName.trim();
+      if (formData.phoneNumber.trim()) profileUpdates.phoneNumber = formData.phoneNumber.trim();
+      if (Object.keys(profileUpdates).length > 0) {
+        await updateProfile(currentUser, profileUpdates);
+      }
 
-      // Cambiar contraseña si se proporcionó
+      // 2. Cambiar contraseña: Firebase exige reautenticación reciente.
       if (formData.newPassword) {
-        await updateUserPassword(formData.newPassword);
+        const auth = getAuthOrThrow();
+        const user = auth.currentUser ?? currentUser;
+        if (!user.email) {
+          throw new Error('No se pudo determinar el correo de la cuenta.');
+        }
+        const credential = EmailAuthProvider.credential(user.email, formData.currentPassword);
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, formData.newPassword);
       }
 
       toast.success('Perfil actualizado correctamente.');
+      setFormData((prev) => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      }));
       setTimeout(() => {
         router.replace('/');
       }, 1500);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Error al actualizar perfil';
+      const code = (error as { code?: string })?.code ?? '';
+      const message =
+        code === 'auth/wrong-password' || code === 'auth/invalid-credential'
+          ? 'La contraseña actual es incorrecta.'
+          : code === 'auth/requires-recent-login'
+            ? 'Por seguridad, inicia sesión nuevamente antes de cambiar la contraseña.'
+            : error instanceof Error
+              ? error.message
+              : 'Error al actualizar perfil';
+      setErrors({ general: message });
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!currentUser) {
+  if (authStatus === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="text-center">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary animate-spin mb-4" />
           <p className="text-slate-400">Cargando perfil…</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-950 px-4 text-center">
+        <Card variant="glass" padding="lg" className="max-w-md">
+          <h1 className="text-xl font-bold text-white">Sesión no iniciada</h1>
+          <p className="mt-2 text-sm text-slate-400">
+            Inicia sesión para ver y editar tu perfil. Serás redirigido al login en unos segundos.
+          </p>
+          <div className="mt-4 flex justify-center gap-2">
+            <Button variant="primary" size="md" onClick={() => router.replace('/login')}>
+              Ir a iniciar sesión
+            </Button>
+            <Button variant="ghost" size="md" onClick={() => void signOut()}>
+              Cerrar sesión
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -118,6 +196,12 @@ export default function ProfilePage() {
             <p className="text-sm text-slate-400">{currentUser.email}</p>
           </div>
         </div>
+
+        {errors.general && (
+          <div className="mb-6 flex gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
+            <p className="text-xs text-red-600">{errors.general}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -155,7 +239,7 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className="pt-6 border-t border-white/10 pt-6">
+          <div className="pt-6 border-t border-white/10">
             <h3 className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-wider">
               Cambiar Contraseña
             </h3>
@@ -170,7 +254,11 @@ export default function ProfilePage() {
                   value={formData.currentPassword}
                   onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
                   disabled={loading}
+                  variant={errors.currentPassword ? 'error' : 'default'}
                 />
+                {errors.currentPassword && (
+                  <p className="mt-1 text-xs text-red-400">{errors.currentPassword}</p>
+                )}
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -220,25 +308,18 @@ export default function ProfilePage() {
             </Button>
           </div>
         </form>
-
-        <div className="mt-8 border-t border-white/10 pt-8">
-          <Button
-            variant="outline"
-            onClick={() => {
-              signOut().then(() => router.replace('/login'));
-            }}
-            className="w-full text-rose-400 hover:text-rose-300"
-          >
-            Cerrar Sesión
-          </Button>
-        </div>
-
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-amber-400 hover:text-amber-300">
-            ← Volver al Tablero
-          </Link>
-        </div>
       </Card>
+
+      <div className="mt-6 text-center">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.replace('/')}
+          className="text-slate-400 hover:text-amber-300"
+        >
+          ← Volver al inicio
+        </Button>
+      </div>
     </div>
   );
 }

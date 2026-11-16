@@ -543,11 +543,17 @@ export async function updateFieldVisitToFirestore(
       return false;
     }
 
+    const existingData = existing.data() as FieldVisit;
     const mergedVisit: FieldVisit = {
-      ...(existing.data() as FieldVisit),
+      ...existingData,
       ...visit,
-      companyId,
-      authorId: userId,
+      // Preservar autoría y empresa originales: las reglas de Firestore exigen
+      // inmutabilidad de `authorId`/`companyId` en updates. El editor queda
+      // registrado en `updatedBy`/`updatedAt`.
+      companyId: existingData.companyId ?? companyId,
+      authorId: existingData.authorId ?? userId,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString(),
     };
 
     const docRef = doc(db, 'fieldVisits', visit.id);
@@ -749,8 +755,9 @@ export async function updateAttendanceToFirestore(
       return false;
     }
 
+    const existingData = existing.data() as AttendanceRecord;
     const mergedRecord: AttendanceRecord = {
-      ...(existing.data() as AttendanceRecord),
+      ...existingData,
       ...record,
       updatedBy: userId,
       updatedAt: new Date().toISOString(),
@@ -1109,42 +1116,6 @@ export async function saveAPUItemsToFirestore(
     return true;
   } catch (error) {
     notifySyncEnd();
-    handleFirestoreError(error, OperationType.WRITE, path);
-    return false;
-  }
-}
-
-export async function saveAPUItemsToFirestoreServer(
-  items: APUItem[],
-  projectId: string,
-  companyId: string,
-  userId: string
-): Promise<boolean> {
-  if (items.length > 500) {
-    throw new Error('No se pueden guardar más de 500 partidas APU en una operación.');
-  }
-
-  const records = buildAPUItemRecords(items, projectId, companyId, userId);
-
-  for (const record of records) {
-    const validation = validateAPUItem(record);
-    if (!validation.success) {
-      console.error('APU Item validation failed:', validation.error);
-      throw new Error(
-        `Datos de partida APU inválidos (${record.code}): ${validation.error.issues.map((i) => i.message).join(', ')}`
-      );
-    }
-  }
-
-  const path = 'apuItems';
-  try {
-    const batch = writeBatch(db);
-    for (const record of records) {
-      batch.set(doc(db, path, record.id), stripUndefined(record), { merge: true });
-    }
-    await batch.commit();
-    return true;
-  } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
     return false;
   }

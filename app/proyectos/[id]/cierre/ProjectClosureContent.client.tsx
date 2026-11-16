@@ -11,7 +11,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
-import { useProjectData } from '@/lib/hooks/useProjectData';
+import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
+import { useProjectData } from '@/lib/hooks/data';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -26,8 +27,18 @@ interface ClosureFormData {
 
 export function ProjectClosureContent({ projectId }: { projectId: string }) {
   const router = useRouter();
-  const { currentUser } = useAuthSession();
-  const { projects, loading } = useProjectData('', '');
+  const { currentUser, status: authStatus } = useAuthSession();
+  const {
+    workspace,
+    membership,
+    loading: workspaceLoading,
+    error: workspaceError,
+  } = useCompanyWorkspace(currentUser);
+  const { projects, loading: projectsLoading } = useProjectData({
+    companyId: workspace?.id,
+    currentUserId: currentUser?.uid,
+    role: membership?.role,
+  });
 
   const [formData, setFormData] = useState<ClosureFormData>({
     closureNotes: '',
@@ -117,7 +128,29 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     }
   };
 
-  if (!project) {
+  if (!currentUser || authStatus !== 'authenticated' || workspaceLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="text-center">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary animate-spin mb-4" />
+          <p className="text-slate-400">Cargando sesión y espacio de trabajo…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (workspaceError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
+        <Card variant="glass" padding="lg" className="max-w-md text-center">
+          <h1 className="text-lg font-bold text-white">No se pudo cargar la empresa</h1>
+          <p className="mt-2 text-sm text-slate-400">{workspaceError}</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (projectsLoading || !project) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="text-center">

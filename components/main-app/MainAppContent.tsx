@@ -1,14 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { startTransition } from 'react';
+import React, { useMemo, useState } from 'react';
 import type {
   Project,
   CompanySettings,
   Employee,
   TaskReminder,
   ExpenseRecord,
-  Milestone,
   CompanyRole,
 } from '@/lib/types';
 import { DashboardView } from '@/features/dashboard/DashboardView';
@@ -28,6 +26,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { saveProjectScheduleToFirestore } from '@/lib/firebaseService';
 import { roleLabel } from '@/lib/permissions';
 import { useProjectData } from '@/lib/hooks/data';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -48,81 +47,25 @@ type TabKey =
 
 type ProjectData = ReturnType<typeof useProjectData>;
 
-const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }> = {
-  dashboard: {
-    id: 'dashboard',
-    label: 'Tablero de Control',
-    subtitle: 'Resumen general de proyectos y estado del sistema',
-  },
-  proyectos: {
-    id: 'proyectos',
-    label: 'Proyectos y Firmas Digitales',
-    subtitle: 'Gestión de proyectos con trazabilidad completa',
-  },
-  apu_presupuestos: {
-    id: 'apu_presupuestos',
-    label: 'Presupuestos APU y Gastos',
-    subtitle: 'Control financiero con desglose por renglón y departamento',
-  },
-  personal: {
-    id: 'personal',
-    label: 'Personal y Asistencia IGSS',
-    subtitle: 'Control de cuadrillas, planillas y cumplimiento laboral',
-  },
-  reportes: {
-    id: 'reportes',
-    label: 'Reportes Finales y Actas',
-    subtitle: 'Generación de reportes ejecutivos y documentación de obra',
-  },
-  ai: {
-    id: 'ai',
-    label: 'Asistente Técnico IA',
-    subtitle: 'Consultas sobre presupuestos, normativas AGIES y COGUANOR',
-  },
-  cotizaciones: {
-    id: 'cotizaciones',
-    label: 'Cotizaciones',
-    subtitle: 'Gestión de cotizaciones y presupuestos de clientes',
-  },
-  cronograma_gantt: {
-    id: 'cronograma_gantt',
-    label: 'Seguimiento & Hitos',
-    subtitle: 'Cronograma de obra y seguimiento de hitos',
-  },
-  maquinaria: {
-    id: 'maquinaria',
-    label: 'Maquinaria',
-    subtitle: 'Control de flota de maquinaria y horómetros',
-  },
-  planillas: {
-    id: 'planillas',
-    label: 'Planillas Guate',
-    subtitle: 'Planillas laborales y cumplimiento IGSS',
-  },
-  gastos: {
-    id: 'gastos',
-    label: 'Gastos & Facturas',
-    subtitle: 'Registro y control de gastos operativos',
-  },
-  gmail: {
-    id: 'gmail',
-    label: 'Correo & Avisos',
-    subtitle: 'Comunicaciones y notificaciones del proyecto',
-  },
-  equipo: {
-    id: 'equipo',
-    label: 'Equipo de la empresa',
-    subtitle: 'Miembros, invitaciones y permisos de acceso',
-  },
-};
-
 interface MainAppContentProps {
   activeTab: TabKey;
   activeProjectId: string;
   activeProjects: Project[];
   company: CompanySettings;
   data: ProjectData;
-  permissions: ReturnType<typeof usePermissions>;
+  permissions: {
+    canManageProjects: boolean;
+    canManageQuotes: boolean;
+    canManageBudget: boolean;
+    canManageMachinery: boolean;
+    canManageExpenses: boolean;
+    canViewExpenses: boolean;
+    canManageEmployees: boolean;
+    canManageAttendance: boolean;
+    canViewPersonnel: boolean;
+    canViewFullPersonnel: boolean;
+    canManageCompany: boolean;
+  };
   onSelectProject: (projectId: string) => void;
   onSelectTab: (tab: string) => void;
   handleProjectCreated: (projectId: string) => void;
@@ -130,31 +73,6 @@ interface MainAppContentProps {
   workspace: { id: string } | null;
   /** Rol del usuario en la empresa (para auditoría y permisos). */
   userRole?: string | null;
-}
-
-function usePermissions(role?: string) {
-  return {
-    canManageProjects: ['owner', 'admin', 'project_manager'].includes(role ?? ''),
-    canManageQuotes: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-    canManageBudget: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-    canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
-    canManageExpenses: ['owner', 'admin', 'finance'].includes(role ?? ''),
-    canViewExpenses: ['owner', 'admin', 'project_manager', 'finance', 'viewer'].includes(
-      role ?? ''
-    ),
-    canManageEmployees: ['owner', 'admin', 'finance'].includes(role ?? ''),
-    canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
-    canViewPersonnel: [
-      'owner',
-      'admin',
-      'project_manager',
-      'finance',
-      'field_worker',
-      'viewer',
-    ].includes(role ?? ''),
-    canViewFullPersonnel: ['owner', 'admin', 'finance'].includes(role ?? ''),
-    canManageCompany: ['owner', 'admin'].includes(role ?? ''),
-  };
 }
 
 /**
@@ -190,7 +108,25 @@ export function MainAppContent({
   workspace,
   userRole,
 }: MainAppContentProps) {
-  const tabConfig = TAB_CONFIG[activeTab];
+  const { gmailAccess, authorizeGmail } = useAuthSession();
+
+  const tabConfig = {
+    dashboard: { label: 'Tablero de Control', subtitle: 'Resumen general de proyectos y estado del sistema' },
+    proyectos: { label: 'Proyectos y Firmas Digitales', subtitle: 'Gestión de proyectos con trazabilidad completa' },
+    apu_presupuestos: { label: 'Presupuestos APU y Gastos', subtitle: 'Control financiero con desglose por renglón y departamento' },
+    personal: { label: 'Personal y Asistencia IGSS', subtitle: 'Control de cuadrillas, planillas y cumplimiento laboral' },
+    reportes: { label: 'Reportes Finales y Actas', subtitle: 'Generación de reportes ejecutivos y documentación de obra' },
+    ai: { label: 'Asistente Técnico IA', subtitle: 'Consultas sobre presupuestos, normativas AGIES y COGUANOR' },
+    cotizaciones: { label: 'Cotizaciones', subtitle: 'Gestión de cotizaciones y presupuestos de clientes' },
+    cronograma_gantt: { label: 'Seguimiento & Hitos', subtitle: 'Cronograma de obra y seguimiento de hitos' },
+    maquinaria: { label: 'Maquinaria', subtitle: 'Control de flota de maquinaria y horómetros' },
+    planillas: { label: 'Planillas Guate', subtitle: 'Planillas laborales y cumplimiento IGSS' },
+    gastos: { label: 'Gastos & Facturas', subtitle: 'Registro y control de gastos operativos' },
+    gmail: { label: 'Correo & Avisos', subtitle: 'Comunicaciones y notificaciones del proyecto' },
+    equipo: { label: 'Equipo de la empresa', subtitle: 'Miembros, invitaciones y permisos de acceso' },
+  } as const;
+  const currentTabConfig = tabConfig[activeTab] ?? tabConfig.dashboard;
+
   const activeProject =
     activeProjects.find((project) => project.id === activeProjectId) ?? activeProjects[0];
 
@@ -246,8 +182,6 @@ export function MainAppContent({
     () => activeProjects.flatMap((project) => project.scheduleMilestones ?? []),
     [activeProjects]
   );
-
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   if (activeTab === 'dashboard') {
     return (
@@ -403,9 +337,13 @@ export function MainAppContent({
         activeProjectId={activeProject?.id ?? ''}
         onSelectProject={onSelectProject}
         userEmail={currentUser?.email}
-        accessToken={null}
-        tokenExpiresAt={null}
-        onAuthorize={async () => ({ accessToken: '', expiresAt: 0 })}
+        accessToken={gmailAccess?.accessToken}
+        tokenExpiresAt={gmailAccess?.expiresAt}
+        onAuthorize={async () => {
+          const result = await authorizeGmail();
+          if (!result) throw new Error('No se pudo autorizar Gmail.');
+          return result;
+        }}
       />
     );
   }
@@ -425,14 +363,14 @@ export function MainAppContent({
     return (
       <div className="responsive-container safe-area-top safe-area-bottom min-h-full space-y-5">
         <PageHeader
-          title={tabConfig.label}
-          subtitle={tabConfig.subtitle}
+          title={currentTabConfig.label}
+          subtitle={currentTabConfig.subtitle}
           logoUrl={company.logoUrl}
           companyName={company.companyName}
           breadcrumbs={[
             { label: 'Inicio', href: '/' },
             { label: 'Proyectos', href: '/projects' },
-            { label: tabConfig.label },
+            { label: currentTabConfig.label },
           ]}
         />
         <MachineryManager
@@ -460,14 +398,14 @@ export function MainAppContent({
     return (
       <div className="responsive-container safe-area-top safe-area-bottom min-h-full">
         <PageHeader
-          title={tabConfig.label}
-          subtitle={tabConfig.subtitle}
+          title={currentTabConfig.label}
+          subtitle={currentTabConfig.subtitle}
           logoUrl={company.logoUrl}
           companyName={company.companyName}
           breadcrumbs={[
             { label: 'Inicio', href: '/' },
             { label: 'Proyectos', href: '/projects' },
-            { label: tabConfig.label },
+            { label: currentTabConfig.label },
           ]}
         />
         {activeProject ? (

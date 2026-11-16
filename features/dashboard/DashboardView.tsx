@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Activity, Download, SlidersHorizontal, Eye, EyeOff } from 'lucide-react';
+import { Activity, Download, SlidersHorizontal } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CashFlowProjectionChart } from '@/components/CashFlowProjectionChart';
@@ -9,13 +9,12 @@ import { LaborProductivityChart } from '@/components/LaborProductivityChart';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
 import { D3BudgetUtilizationChart } from '@/components/D3BudgetUtilizationChart';
 import { exportDashboardPerformancePdf } from '@/lib/dashboardPdfExport';
-import { formatGTQ, initialCompanySettings } from '@/lib/data';
+import { initialCompanySettings } from '@/lib/data';
 import type { DashboardViewProps, DashboardTotals, ProgressChartDataPoint, StackedChartDataPoint, WidgetId } from './types';
-import { WIDGET_CATALOG, DEFAULT_VISIBLE_WIDGETS, HIGH_PRIORITY_WIDGETS } from './widgetCatalog';
+import { DEFAULT_VISIBLE_WIDGETS } from './types';
 import {
   KPICards,
   OverbudgetWarning,
-  UpcomingMilestones,
   ProgressComparison,
   StackedBudget,
   ProjectBreakdown,
@@ -64,28 +63,18 @@ export function DashboardView({
     });
   };
 
-  const handleResetWidgets = () => {
-    setVisibleWidgets(DEFAULT_VISIBLE_WIDGETS);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('constructerp_dashboard_widgets', JSON.stringify(DEFAULT_VISIBLE_WIDGETS));
-    }
-  };
-
-  const handleSetOnlyHighPriority = () => {
-    setVisibleWidgets(HIGH_PRIORITY_WIDGETS);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('constructerp_dashboard_widgets', JSON.stringify(HIGH_PRIORITY_WIDGETS));
-    }
-  };
-
   const filteredProjects = useMemo(() => {
     if (statusFilter === 'todos') return projects;
     return projects.filter((p) => p.status === statusFilter);
   }, [projects, statusFilter]);
 
-  const displayedActiveProjectId = filteredProjects.some((project) => project.id === activeProjectId)
-    ? activeProjectId
-    : filteredProjects[0]?.id ?? '';
+  const displayedActiveProjectId = useMemo(
+    () =>
+      filteredProjects.some((project) => project.id === activeProjectId)
+        ? activeProjectId
+        : filteredProjects[0]?.id ?? '',
+    [filteredProjects, activeProjectId]
+  );
 
   const totals = useMemo((): DashboardTotals => {
     const totalBudget = filteredProjects.reduce((sum, p) => sum + (p.budgetTotal || 0), 0);
@@ -94,7 +83,12 @@ export function DashboardView({
     projects.forEach((p) => {
       const projExpenses = expenses.filter((e) => e.projectId === p.id);
       const computedSpent =
-        projExpenses.length > 0 ? projExpenses.reduce((s, e) => s + e.amount, 0) : p.spentTotal;
+        projExpenses.length > 0
+          ? projExpenses.reduce(
+              (s, e) => (e.approvalStatus !== 'Rechazado' ? s + e.amount : s),
+              0
+            )
+          : p.spentTotal;
       projectSpentMap.set(p.id, computedSpent);
     });
 
@@ -197,176 +191,94 @@ export function DashboardView({
               Tablero de Control Financiero & Avance de Obras
             </h1>
             <p className="mt-0.5 text-xs font-medium text-slate-300">
-              Monitoreo analítico en tiempo real de presupuestos proyectados, gastos ejecutados y descalces de obra en Guatemala.
+              {displayedActiveProjectId ? 'Proyecto activo seleccionado' : 'Vista consolidada de la empresa'}
             </p>
           </div>
         </div>
-
-        {/* Filter & Widget Customization Controls */}
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <label htmlFor="project-status-filter" className="sr-only">Filtrar proyectos por estado</label>
-          <select
-            id="project-status-filter"
-            value={statusFilter}
-            onChange={(e) => {
-              const nextFilter = e.target.value as typeof statusFilter;
-              setStatusFilter(nextFilter);
-              if (
-                nextFilter !== 'todos' &&
-                !projects.some((project) => project.id === activeProjectId && project.status === nextFilter)
-              ) {
-                const firstMatchingProject = projects.find((project) => project.status === nextFilter);
-                if (firstMatchingProject) onSelectProject(firstMatchingProject.id);
-              }
-            }}
-            className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-          >
-            <option value="todos">Todos los proyectos ({projects.length})</option>
-            <option value="En Ejecución">En Ejecución</option>
-            <option value="Planificación">Planificación</option>
-            <option value="Finalizado">Finalizado</option>
-          </select>
-
-          <Button variant="outline" size="sm" onClick={() => setIsWidgetModalOpen(true)} className="flex items-center gap-2 border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20">
-            <SlidersHorizontal className="h-4 w-4 text-amber-400" aria-hidden="true" />
-            <span>Personalizar Widgets ({activeWidgetCount}/7)</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="md" onClick={() => setIsWidgetModalOpen(true)}>
+            <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+            <span className="ml-2">Widgets ({activeWidgetCount})</span>
           </Button>
-
-          <Button variant="primary" size="sm" disabled={isExportingPdf} onClick={handleExportPdf} className="flex items-center gap-2 font-bold shadow-md">
-            <Download className="h-4 w-4 text-slate-950" aria-hidden="true" />
-            <span>{isExportingPdf ? 'Generando PDF…' : 'Exportar Reporte PDF'}</span>
+          <Button variant="primary" size="md" onClick={() => void handleExportPdf()} disabled={isExportingPdf}>
+            <Download className="h-4 w-4" aria-hidden="true" />
+            <span className="ml-2">{isExportingPdf ? 'Generando…' : 'Exportar PDF'}</span>
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <KPICards projects={filteredProjects} totals={totals} />
-
-      {/* Financial Overbudget Warning Banner */}
-      <OverbudgetWarning totals={totals} />
-
-      {/* Upcoming Milestones */}
-      <UpcomingMilestones projects={projects} milestones={milestones} onSelectProject={onSelectProject} />
-
-      {/* Dynamic Widgets Section */}
-      <div className="space-y-6">
-        {/* WIDGET 1: CASH FLOW PROJECTION CHART (High Priority) */}
-        {visibleWidgets.cashFlow && (
-          <div className="group relative">
-            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
-              <button
-                onClick={() => handleToggleWidget('cashFlow')}
-                title="Ocultar Widget"
-                className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
-                aria-label="Ocultar widget Proyección de Flujo de Caja"
-              >
-                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
-            <CashFlowProjectionChart
-              projects={filteredProjects}
-              milestones={milestones}
-              activeProjectId={displayedActiveProjectId}
-              onSelectProject={onSelectProject}
-            />
-          </div>
-        )}
-
-        {/* WIDGET 2: ACTIVE LABOR COSTS & PRODUCTIVITY (High Priority) */}
-        {visibleWidgets.laborCosts && (
-          <div className="group relative">
-            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
-              <button
-                onClick={() => handleToggleWidget('laborCosts')}
-                title="Ocultar Widget"
-                className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
-                aria-label="Ocultar widget Costos de Mano de Obra"
-              >
-                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
-            <LaborProductivityChart
-              employees={employees}
-              attendance={attendance}
-              projects={filteredProjects}
-              activeProjectId={displayedActiveProjectId}
-              company={company}
-              currency="GTQ"
-            />
-          </div>
-        )}
-
-        {/* WIDGET 3: PHYSICAL PROGRESS VS FINANCIAL EXECUTION */}
-        <ProgressComparison
-          data={progressChartData}
-          visible={visibleWidgets.progressComparison}
-          onToggle={() => handleToggleWidget('progressComparison')}
-        />
-
-        {/* WIDGET 4: STACKED BUDGET COMPARISON */}
-        <StackedBudget
-          data={stackedChartData}
-          visible={visibleWidgets.stackedBudget}
-          onToggle={() => handleToggleWidget('stackedBudget')}
-        />
-
-        {/* WIDGET 5: MONTHLY EXPENSES HISTOGRAM */}
-        {visibleWidgets.expensesHistogram && (
-          <div className="group relative">
-            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
-              <button
-                onClick={() => handleToggleWidget('expensesHistogram')}
-                title="Ocultar Widget"
-                className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
-                aria-label="Ocultar widget Histórico de Gastos Mensuales"
-              >
-                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
-            <MonthlyExpensesHistogram
-              projects={filteredProjects}
-              expenses={expenses}
-              company={company}
-              currency="GTQ"
-              activeProjectId={displayedActiveProjectId}
-              onSelectProject={onSelectProject}
-            />
-          </div>
-        )}
-
-        {/* WIDGET 6: D3 BUDGET UTILIZATION */}
-        {visibleWidgets.budgetUtilization && (
-          <div className="group relative">
-            <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
-              <button
-                onClick={() => handleToggleWidget('budgetUtilization')}
-                title="Ocultar Widget"
-                className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
-                aria-label="Ocultar widget Utilización de Presupuesto APU"
-              >
-                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
-            <D3BudgetUtilizationChart
-              projects={filteredProjects}
-              activeProjectId={displayedActiveProjectId}
-              onSelectProject={onSelectProject}
-              currency="GTQ"
-              company={company}
-            />
-          </div>
-        )}
-
-        {/* WIDGET 7: PROJECT BREAKDOWN CARDS */}
-        <ProjectBreakdown
-          projects={filteredProjects}
-          totals={totals}
-          visible={visibleWidgets.projectBreakdown}
-          onToggle={() => handleToggleWidget('projectBreakdown')}
-        />
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        {(['todos', 'En Ejecución', 'Planificación', 'Finalizado'] as const).map((filter) => (
+          <button
+            key={filter}
+            type="button"
+            onClick={() => setStatusFilter(filter)}
+            className={`rounded-full border px-4 py-1.5 text-xs font-bold transition-colors ${
+              statusFilter === filter
+                ? 'border-amber-500/40 bg-amber-500/15 text-amber-200'
+                : 'border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/[0.07]'
+            }`}
+          >
+            {filter === 'todos' ? 'Todos' : filter}
+          </button>
+        ))}
       </div>
 
-      {/* Widget Selection Modal */}
+      {/* KPI Cards */}
+      <KPICards
+        projects={filteredProjects}
+        totals={totals}
+      />
+
+      <OverbudgetWarning totals={totals} />
+
+      {/* Charts grid */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card variant="elevated" padding="md" className={visibleWidgets.progressComparison ? '' : 'hidden'}>
+          <ProgressComparison
+            data={progressChartData}
+            visible={visibleWidgets.progressComparison}
+            onToggle={() => handleToggleWidget('progressComparison')}
+          />
+        </Card>
+        <Card variant="elevated" padding="md" className={visibleWidgets.stackedBudget ? '' : 'hidden'}>
+          <StackedBudget
+            data={stackedChartData}
+            visible={visibleWidgets.stackedBudget}
+            onToggle={() => handleToggleWidget('stackedBudget')}
+          />
+        </Card>
+        {visibleWidgets.cashFlow && (
+          <Card variant="elevated" padding="md">
+            <CashFlowProjectionChart projects={filteredProjects} company={company} />
+          </Card>
+        )}
+        {visibleWidgets.expensesHistogram && (
+          <Card variant="elevated" padding="md">
+            <MonthlyExpensesHistogram expenses={expenses} projects={filteredProjects} currency="GTQ" />
+          </Card>
+        )}
+        {visibleWidgets.budgetUtilization && (
+          <Card variant="elevated" padding="md">
+            <D3BudgetUtilizationChart projects={filteredProjects} currency="GTQ" />
+          </Card>
+        )}
+        {visibleWidgets.laborCosts && (
+          <Card variant="elevated" padding="md">
+            <LaborProductivityChart employees={employees} attendance={attendance} currency="GTQ" />
+          </Card>
+        )}
+        <Card variant="elevated" padding="md" className={visibleWidgets.projectBreakdown ? '' : 'hidden'}>
+          <ProjectBreakdown
+            projects={filteredProjects}
+            totals={totals}
+            visible={visibleWidgets.projectBreakdown}
+            onToggle={() => handleToggleWidget('projectBreakdown')}
+          />
+        </Card>
+      </div>
+
       <DashboardWidgetsModal
         isOpen={isWidgetModalOpen}
         onClose={() => setIsWidgetModalOpen(false)}
