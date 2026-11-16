@@ -79,7 +79,11 @@ describe('useCompanyOnboarding', () => {
 
     act(() => authCallback({ uid: 'user-1' }));
     expect(result.current.loading).toBe(true);
-    expect(mocks.settingsSubscriber).toHaveBeenCalledWith('user-1', expect.any(Function));
+    expect(mocks.settingsSubscriber).toHaveBeenCalledWith(
+      'user-1',
+      expect.any(Function),
+      expect.any(Function)
+    );
 
     act(() => settingsCallbacks.get('user-1')?.(companySettings));
     expect(result.current.loading).toBe(false);
