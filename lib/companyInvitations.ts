@@ -19,15 +19,7 @@ import type { User } from 'firebase/auth';
 import { db, handleFirestoreError, OperationType } from '@/lib/firebaseService';
 import type { CompanyInvitation, CompanyMembership, CompanyRole } from '@/lib/types';
 import { notifySyncEnd } from './hooks/useFirebaseSyncStatus';
-
-const INVITATION_ROLES: Exclude<CompanyRole, 'owner'>[] = [
-  'admin',
-  'project_manager',
-  'finance',
-  'field_worker',
-  'warehouse_manager',
-  'viewer',
-];
+import { INVITABLE_COMPANY_ROLES } from './permissions';
 
 export function subscribeCompanyMembers(
   companyId: string,
@@ -88,7 +80,7 @@ export async function createCompanyInvitation(
   role: Exclude<CompanyRole, 'owner'>,
   userId: string
 ): Promise<{ id: string; url: string }> {
-  if (!INVITATION_ROLES.includes(role))
+  if (!INVITABLE_COMPANY_ROLES.includes(role))
     throw new Error('El rol seleccionado no se puede asignar por invitación.');
   const normalizedEmail = email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
@@ -195,7 +187,7 @@ export async function acceptCompanyInvitation(
   if (invitation.expiresAt.toDate().getTime() <= Date.now()) {
     throw new Error('La invitación venció. Solicita a un administrador que envíe otra.');
   }
-  if (!INVITATION_ROLES.includes(invitation.role))
+  if (!INVITABLE_COMPANY_ROLES.includes(invitation.role))
     throw new Error('La invitación contiene un rol no válido.');
 
   const batch = writeBatch(db);
