@@ -384,6 +384,15 @@ beforeEach(async () => {
         id: 'steel', companyId: COMPANY_A, name: 'Hierro', unit: 'varilla',
         reorderLevel: 10, active: true, createdBy: USERS.owner,
       });
+      await setDoc(doc(context.firestore(), 'warehouses', 'procurement-warehouse'), {
+        id: 'procurement-warehouse',
+        companyId: COMPANY_A,
+        projectId: 'procurement-project',
+        name: 'Bodega de compras',
+        type: 'project',
+        active: true,
+        createdBy: USERS.owner,
+      });
     });
     const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
     const order = {
@@ -430,6 +439,100 @@ beforeEach(async () => {
       totalGTQ: 1848,
     };
     await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', multiLineOrder.id), multiLineOrder));
+    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', multiLineOrder.id), {
+      status: 'approved',
+      approvedBy: USERS.finance,
+      updatedAt: '2026-11-16T09:15:00.000Z',
+    }, { merge: true }));
+
+    const warehouseManager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const firstReceipt = {
+      id: 'rec_multi-line-order_0_RCV-001',
+      companyId: COMPANY_A,
+      projectId: multiLineOrder.projectId,
+      itemId: 'cement',
+      warehouseId: 'procurement-warehouse',
+      kind: 'purchase_receipt',
+      quantity: 10,
+      unitCostGTQ: 75,
+      occurredAt: '2026-11-16T10:00:00.000Z',
+      referenceId: multiLineOrder.id,
+      balanceId: 'bal_procurement-warehouse_cement',
+      receiptNumber: 'RCV-001',
+      lineIndex: 0,
+      createdBy: USERS.warehouseManager,
+    };
+    const firstBalance = {
+      id: firstReceipt.balanceId,
+      companyId: COMPANY_A,
+      itemId: 'cement',
+      warehouseId: 'procurement-warehouse',
+      quantity: 10,
+      averageUnitCostGTQ: 75,
+      reorderLevel: 10,
+      createdBy: USERS.warehouseManager,
+      createdAt: '2026-11-16T10:00:00.000Z',
+      updatedAt: '2026-11-16T10:00:00.000Z',
+      lastMovementId: firstReceipt.id,
+    };
+    await assertFails(setDoc(doc(warehouseManager, 'stockMovements', firstReceipt.id), firstReceipt));
+    await assertSucceeds(runTransaction(warehouseManager, async (transaction: Transaction) => {
+      transaction.set(doc(warehouseManager, 'stockMovements', firstReceipt.id), firstReceipt);
+      transaction.set(doc(warehouseManager, 'inventoryBalances', firstBalance.id), firstBalance);
+      transaction.update(doc(warehouseManager, 'purchaseOrders', multiLineOrder.id), {
+        lines: [
+          { ...multiLineOrder.lines[0], receivedQuantity: 10 },
+          multiLineOrder.lines[1],
+        ],
+        status: 'partially_received',
+        updatedAt: firstReceipt.occurredAt,
+        lastReceiptMovementId: firstReceipt.id,
+      });
+    }));
+
+    const secondReceipt = {
+      id: 'rec_multi-line-order_1_RCV-002',
+      companyId: COMPANY_A,
+      projectId: multiLineOrder.projectId,
+      itemId: 'steel',
+      warehouseId: 'procurement-warehouse',
+      kind: 'purchase_receipt',
+      quantity: 20,
+      unitCostGTQ: 45,
+      occurredAt: '2026-11-16T10:30:00.000Z',
+      referenceId: multiLineOrder.id,
+      balanceId: 'bal_procurement-warehouse_steel',
+      receiptNumber: 'RCV-002',
+      lineIndex: 1,
+      createdBy: USERS.warehouseManager,
+    };
+    const secondBalance = {
+      id: secondReceipt.balanceId,
+      companyId: COMPANY_A,
+      itemId: 'steel',
+      warehouseId: 'procurement-warehouse',
+      quantity: 20,
+      averageUnitCostGTQ: 45,
+      reorderLevel: 10,
+      createdBy: USERS.warehouseManager,
+      createdAt: '2026-11-16T10:30:00.000Z',
+      updatedAt: '2026-11-16T10:30:00.000Z',
+      lastMovementId: secondReceipt.id,
+    };
+    await assertSucceeds(runTransaction(warehouseManager, async (transaction: Transaction) => {
+      transaction.set(doc(warehouseManager, 'stockMovements', secondReceipt.id), secondReceipt);
+      transaction.set(doc(warehouseManager, 'inventoryBalances', secondBalance.id), secondBalance);
+      transaction.update(doc(warehouseManager, 'purchaseOrders', multiLineOrder.id), {
+        lines: [
+          { ...multiLineOrder.lines[0], receivedQuantity: 10 },
+          { ...multiLineOrder.lines[1], receivedQuantity: 20 },
+        ],
+        status: 'received',
+        updatedAt: secondReceipt.occurredAt,
+        lastReceiptMovementId: secondReceipt.id,
+      });
+    }));
+
     await assertFails(setDoc(doc(finance, 'purchaseOrders', 'too-many-lines'), {
       ...multiLineOrder,
       id: 'too-many-lines',

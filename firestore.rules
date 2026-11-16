@@ -241,7 +241,13 @@ service cloud.firestore {
         data.unitCostGTQ is number &&
         data.unitCostGTQ == order.lines[data.lineIndex].unitPriceGTQ &&
         data.receiptNumber is string &&
-        data.receiptNumber.matches('^[a-zA-Z0-9_-]{1,40}
+        data.receiptNumber.matches('^[a-zA-Z0-9_-]{1,40}$') &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        isActiveWarehouseForProject(data.warehouseId, data.projectId, data.companyId) &&
+        isActiveInventoryItem(data.itemId, data.companyId) &&
+        order.lines[data.lineIndex].receivedQuantity + data.quantity <= order.lines[data.lineIndex].quantity &&
+        receiptOrderUpdated(data, movementId) &&
+        receiptBalanceUpdated(data, movementId);
     }
 
     function isValidIssueBalance(data, balanceId) {
