@@ -5,7 +5,7 @@ const PREFIX = 'constructerp_';
 export function saveOfflineData<T>(key: string, data: T): void {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(`${PREFIX}${key}`, JSON.stringify(data));
+    window.localStorage.setItem(`${PREFIX}${key}`, JSON.stringify(data));
   } catch {
     console.error('Error saving offline data');
   }
@@ -14,7 +14,7 @@ export function saveOfflineData<T>(key: string, data: T): void {
 export function loadOfflineData<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
   try {
-    const item = localStorage.getItem(`${PREFIX}${key}`);
+    const item = window.localStorage.getItem(`${PREFIX}${key}`);
     return item ? JSON.parse(item) : fallback;
   } catch {
     return fallback;
