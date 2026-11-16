@@ -9,6 +9,18 @@ const ATTENDANCE_ROLES: CompanyRole[] = [
   'field_worker',
 ];
 const EXPENSE_WRITE_ROLES: CompanyRole[] = ['owner', 'admin', 'finance'];
+const INVENTORY_READ_ROLES: CompanyRole[] = [
+  'owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer',
+];
+const INVENTORY_WRITE_ROLES: CompanyRole[] = [
+  'owner', 'admin', 'project_manager', 'warehouse_manager',
+];
+const PURCHASING_READ_ROLES: CompanyRole[] = [
+  'owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer',
+];
+const PURCHASING_WRITE_ROLES: CompanyRole[] = [
+  'owner', 'admin', 'project_manager', 'finance',
+];
 const EXPENSE_READ_ROLES: CompanyRole[] = [
   'owner',
   'admin',
@@ -38,6 +50,26 @@ export function canReadAttendance(role?: CompanyRole | null): boolean {
  * El Project Manager puede consultarlos, pero la aprobación por PM se define
  * en las reglas de Firestore y en el flujo de auditoría.
  */
+/** Consulta del catálogo de artículos, bodegas, proveedores y compras. */
+export function canReadInventory(role?: CompanyRole | null): boolean {
+  return role != null && INVENTORY_READ_ROLES.includes(role);
+}
+
+/** Alta y mantenimiento de existencias/catálogos por personal autorizado de obra. */
+export function canManageInventory(role?: CompanyRole | null): boolean {
+  return role != null && INVENTORY_WRITE_ROLES.includes(role);
+}
+
+/** Consulta de órdenes y contratos asociados a compras. */
+export function canReadPurchasing(role?: CompanyRole | null): boolean {
+  return role != null && PURCHASING_READ_ROLES.includes(role);
+}
+
+/** Alta y autorización de órdenes de compra/subcontratos. */
+export function canManagePurchasing(role?: CompanyRole | null): boolean {
+  return role != null && PURCHASING_WRITE_ROLES.includes(role);
+}
+
 export function canWriteExpenses(role?: CompanyRole | null): boolean {
   return role !== undefined && role !== null && EXPENSE_WRITE_ROLES.includes(role);
 }
@@ -53,6 +85,7 @@ const ROLE_LABELS: Record<CompanyRole, string> = {
   project_manager: 'Project Manager / Director de Obra',
   finance: 'Finanzas',
   field_worker: 'Trabajador de Campo',
+  warehouse_manager: 'Encargado de bodega',
   viewer: 'Consulta (solo lectura)',
 };
 
