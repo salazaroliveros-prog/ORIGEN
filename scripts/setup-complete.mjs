@@ -18,7 +18,7 @@
  *   - Servicio de Firebase Admin SDK debe estar habilitado
  */
 
-import { initializeApp, getApps, cert, getApp } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, getApp, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { readFileSync } from 'fs';
@@ -31,113 +31,6 @@ let ADMIN_EMAIL = '';
 let ADMIN_PASSWORD = '';
 let COMPANY_ID = '';
 let COMPANY_NAME = '';
-
-const PROJECTS = [
-  {
-    id: 'proj-residencia-001',
-    code: 'RES-001',
-    name: 'Residencia Unifamiliar Los Altos',
-    client: 'Familia Méndez García',
-    location: 'Zona 10, Ciudad de Guatemala',
-    municipality: 'Guatemala',
-    department: 'Guatemala',
-    budgetTotal: 260000,
-    spentTotal: 48500,
-    progressPercent: 22,
-    status: 'En Ejecución',
-    clientNit: '1234567-8',
-    clientPhone: '+502 2233-4455',
-    clientEmail: '[redacted]',
-    clientAddress: 'Colonia Los Altos, Zona 10, Guatemala',
-    lat: 14.6349,
-    lng: -90.5283,
-    expectedProfitMarginPercent: 15,
-    apuBudgetTotal: 200000,
-    apuBudgetVarianceGTQ: -5000,
-  },
-  {
-    id: 'proj-edificio-002',
-    code: 'EDI-002',
-    name: 'Edificio Comercial Plaza Xela',
-    client: 'Corporación Inversiones Xela S.A.',
-    location: 'Zona 1, Quetzaltenango',
-    municipality: 'Quetzaltenango',
-    department: 'Quetzaltenango',
-    budgetTotal: 1800000,
-    spentTotal: 320000,
-    progressPercent: 18,
-    status: 'En Ejecución',
-    clientNit: '9876543-2',
-    clientPhone: '+502 7755-6688',
-    clientEmail: '[redacted]',
-    clientAddress: 'Zona 1, Quetzaltenango',
-    lat: 14.8322,
-    lng: -91.5157,
-    expectedProfitMarginPercent: 20,
-    apuBudgetTotal: 1500000,
-    apuBudgetVarianceGTQ: 20000,
-  },
-  {
-    id: 'proj-puente-003',
-    code: 'PUE-003',
-    name: 'Puente Vehicular Río Polochic',
-    client: 'Municipalidad de Cobán',
-    location: 'Río Polochic, Cobán',
-    municipality: 'Cobán',
-    department: 'Alta Verapaz',
-    budgetTotal: 1350000,
-    spentTotal: 85000,
-    progressPercent: 8,
-    status: 'Planificación',
-    clientNit: '5555555-5',
-    clientPhone: '+502 7900-1122',
-    clientEmail: '[redacted]',
-    clientAddress: 'Municipalidad de Cobán, Alta Verapaz',
-    lat: 15.4933,
-    lng: -90.3657,
-    expectedProfitMarginPercent: 10,
-    apuBudgetTotal: 1300000,
-    apuBudgetVarianceGTQ: 0,
-  },
-];
-
-const EXPENSES = [
-  {
-    projectId: 'proj-residencia-001',
-    category: 'Materiales (Cementos, Hierro)',
-    description: 'Cemento Progreso 50kg x 100 bolsas',
-    supplier: 'Cemento Progreso S.A.',
-    nitSupplier: '1234567-8',
-    facturaNumber: 'FEL-001-2026',
-    amount: 45000,
-    currency: 'GTQ',
-    paymentMethod: 'Transferencia BI',
-    assignedApuId: 'apu-cemento-001',
-    assignedApuDescription: 'Cemento estructural',
-  },
-  {
-    projectId: 'proj-residencia-001',
-    category: 'Mano de Obra',
-    description: 'Albañilería semana 1-2',
-    supplier: 'Juan Pérez',
-    nitSupplier: 'CF',
-    facturaNumber: 'FEL-002-2026',
-    amount: 25000,
-    currency: 'GTQ',
-    paymentMethod: 'Efectivo',
-  },
-  {
-    projectId: 'proj-edificio-002',
-    category: 'Materiales (Cementos, Hierro)',
-    description: 'Hierro corrugado 1/2" x 500kg',
-    supplier: 'Hierros Guatemala',
-    nitSupplier: '8765432-1',
-    facturaNumber: 'FEL-003-2026',
-    amount: 120000,
-    currency: 'GTQ',
-    paymentMethod: 'Cheque',
-  },
-];
 
 // ============================================================
 // FUNCIONES
@@ -188,10 +81,10 @@ function initFirebaseAdmin() {
     }
   }
 
-  // Opción 2: Inicializar solo con projectId (funciona para algunas operaciones)
+  // Opción 2: credenciales ADC (por ejemplo, entorno seguro de Google Cloud)
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   if (projectId) {
-    return initializeApp({ projectId });
+    return initializeApp({ credential: applicationDefault(), projectId });
   }
 
   throw new Error('No se pudo inicializar Firebase Admin. Falta configuración.');
@@ -214,7 +107,7 @@ async function createAdminUser(auth) {
     // Crear el usuario
     const userRecord = await getAuth().createUser({
       email: ADMIN_EMAIL,
-      emailVerified: true,
+      emailVerified: false,
       password: ADMIN_PASSWORD,
       displayName: 'Administrador del Sistema',
       disabled: false,
@@ -235,154 +128,98 @@ async function createAdminUser(auth) {
 }
 
 async function seedFirestore(db, adminUid) {
-  console.log('\n🌱 Sembrando base de datos Firestore...');
+  console.log('\n🌱 Preparando espacio de trabajo vacío para producción...');
 
-  const batch = db.batch();
-
-  // 1. Crear empresa
   const companyRef = db.collection('companies').doc(COMPANY_ID);
-  batch.set(companyRef, {
-    id: COMPANY_ID,
-    companyId: COMPANY_ID,
-    ownerId: adminUid,
-    legalName: `${COMPANY_NAME} S.A.`,
-    commercialName: COMPANY_NAME,
-    companyName: COMPANY_NAME,
-    nit: '1234567-8',
-    architectName: 'Ing. Administrador',
-    architectColNumber: '12345',
-    address: 'Zona 10, Ciudad de Guatemala, Guatemala',
-    phone: '+502 2233-4455',
-    email: ADMIN_EMAIL,
-    exchangeRate: 7.85,
-    primaryColor: '#f59e0b',
-    secondaryColor: '#38bdf8',
-    logoUrl: '',
-    logoSmallUrl: '',
-    logoSquareUrl: '',
-    bannerUrl: '',
-    payrollEstimateRates: {
-      employeeDeductionPercent: 4.83,
-      employerCostPercent: 12.67,
-      incentiveBonusGTQ: 500,
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }, { merge: true });
+  const existingCompany = await companyRef.get();
+  if (existingCompany.exists && existingCompany.data()?.ownerId !== adminUid) {
+    throw new Error('El identificador de empresa ya pertenece a otro usuario. No se modificó información existente.');
+  }
 
-  // 2. Crear membresía del administrador
-  const memberRef = db.collection('companies').doc(COMPANY_ID).collection('members').doc(adminUid);
+  const memberRef = companyRef.collection('members').doc(adminUid);
+  const settingsRef = db.collection('companySettings').doc(COMPANY_ID);
+  const batch = db.batch();
+  const now = new Date().toISOString();
+
+  if (!existingCompany.exists) {
+    batch.create(companyRef, {
+      id: COMPANY_ID,
+      companyId: COMPANY_ID,
+      ownerId: adminUid,
+      legalName: COMPANY_NAME,
+      commercialName: COMPANY_NAME,
+      companyName: COMPANY_NAME,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
   batch.set(memberRef, {
     id: adminUid,
     companyId: COMPANY_ID,
     uid: adminUid,
     email: ADMIN_EMAIL,
     role: 'owner',
-    joinedAt: new Date().toISOString(),
-    invitationId: 'seed-admin',
+    joinedAt: now,
+    invitationId: 'initial-owner',
   }, { merge: true });
 
-  // 3. Crear proyectos
-  for (const project of PROJECTS) {
-    const projectRef = db.collection('projects').doc(project.id);
-    batch.set(projectRef, {
-      ...project,
-      id: project.id,
+  const existingSettings = await settingsRef.get();
+  if (!existingSettings.exists) {
+    batch.create(settingsRef, {
+      id: COMPANY_ID,
       companyId: COMPANY_ID,
-      ownerId: adminUid,
-      createdBy: adminUid,
-      updatedBy: adminUid,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }, { merge: true });
-    console.log(`   ✅ Proyecto: ${project.name}`);
+      ownerId: COMPANY_ID,
+      legalName: COMPANY_NAME,
+      commercialName: COMPANY_NAME,
+      companyName: COMPANY_NAME,
+      nit: '',
+      architectName: '',
+      architectColNumber: '',
+      address: '',
+      phone: '',
+      email: ADMIN_EMAIL,
+      exchangeRate: Number(process.env.SETUP_EXCHANGE_RATE_GTQ_PER_USD || 7.85),
+      primaryColor: '#f59e0b',
+      secondaryColor: '#38bdf8',
+      logoUrl: '',
+      logoSmallUrl: '',
+      logoSquareUrl: '',
+      bannerUrl: '',
+      createdAt: now,
+      updatedAt: now,
+    });
   }
-
-  // 4. Crear gastos
-  for (const expense of EXPENSES) {
-    const expenseRef = db.collection('expenses').doc();
-    batch.set(expenseRef, {
-      ...expense,
-      id: expenseRef.id,
-      companyId: COMPANY_ID,
-      authorId: adminUid,
-      createdBy: adminUid,
-      updatedBy: adminUid,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      approvalStatus: 'Pendiente',
-      auditTrail: [],
-    }, { merge: true });
-    console.log(`   ✅ Gasto: ${expense.description}`);
-  }
-
-  // 5. Crear configuración de empresa
-  const settingsRef = db.collection('companySettings').doc(COMPANY_ID);
-  batch.set(settingsRef, {
-    id: COMPANY_ID,
-    companyId: COMPANY_ID,
-    legalName: `${COMPANY_NAME} S.A.`,
-    commercialName: COMPANY_NAME,
-    companyName: COMPANY_NAME,
-    nit: '1234567-8',
-    architectName: 'Ing. Administrador',
-    architectColNumber: '12345',
-    address: 'Zona 10, Ciudad de Guatemala, Guatemala',
-    phone: '+502 2233-4455',
-    email: ADMIN_EMAIL,
-    exchangeRate: 7.85,
-    primaryColor: '#f59e0b',
-    secondaryColor: '#38bdf8',
-    logoUrl: '',
-    logoSmallUrl: '',
-    logoSquareUrl: '',
-    bannerUrl: '',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }, { merge: true });
 
   await batch.commit();
-  console.log('\n✅ Base de datos sembrada exitosamente');
+  console.log('   ✅ Empresa y membresía de propietario verificadas');
+  console.log('   ✅ Configuración inicial creada sin proyectos, clientes ni gastos ficticios');
 }
 
-async function verifySetup(auth, db) {
-  console.log('\n🔍 Verificando configuración...');
+async function verifySetup(auth, db, adminUid) {
+  const user = await auth.getUser(adminUid);
+  if (user.email !== ADMIN_EMAIL) throw new Error('La cuenta administradora no coincide con el correo configurado.');
 
-  // Verificar usuario
-  try {
-    const user = await getAuth().getUserByEmail(ADMIN_EMAIL);
-    console.log(`   ✅ Usuario Auth: ${user.email} (UID: ${user.uid})`);
-  } catch (error) {
-    console.error(`   ❌ Error verificando usuario: ${error.message}`);
-  }
+  const companyRef = db.collection('companies').doc(COMPANY_ID);
+  const [companyDoc, memberDoc, settingsDoc, projectsSnapshot, expensesSnapshot] = await Promise.all([
+    companyRef.get(),
+    companyRef.collection('members').doc(adminUid).get(),
+    db.collection('companySettings').doc(COMPANY_ID).get(),
+    db.collection('projects').where('companyId', '==', COMPANY_ID).get(),
+    db.collection('expenses').where('companyId', '==', COMPANY_ID).get(),
+  ]);
 
-  // Verificar empresa
-  try {
-    const companyDoc = await db.collection('companies').doc(COMPANY_ID).get();
-    if (companyDoc.exists) {
-      console.log(`   ✅ Empresa: ${COMPANY_NAME}`);
-    } else {
-      console.error(`   ❌ Empresa no encontrada`);
-    }
-  } catch (error) {
-    console.error(`   ❌ Error verificando empresa: ${error.message}`);
-  }
+  if (!companyDoc.exists) throw new Error('No se encontró el documento de empresa.');
+  if (companyDoc.data()?.ownerId !== adminUid) throw new Error('El propietario de la empresa no coincide con la cuenta administradora.');
+  if (!memberDoc.exists || memberDoc.data()?.role !== 'owner') throw new Error('No se pudo verificar la membresía owner.');
+  if (!settingsDoc.exists) throw new Error('No se encontró la configuración inicial de empresa.');
 
-  // Verificar proyectos
-  try {
-    const projectsSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('projects').get();
-    console.log(`   ✅ Proyectos: ${projectsSnapshot.size} encontrados`);
-  } catch (error) {
-    console.error(`   ❌ Error verificando proyectos: ${error.message}`);
-  }
-
-  // Verificar gastos
-  try {
-    const expensesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('expenses').get();
-    console.log(`   ✅ Gastos: ${expensesSnapshot.size} encontrados`);
-  } catch (error) {
-    console.error(`   ❌ Error verificando gastos: ${error.message}`);
-  }
+  console.log('\n🔍 Verificación completada');
+  console.log('   ✅ Usuario administrador y empresa');
+  console.log('   ✅ Membresía con rol owner');
+  console.log('   ✅ Configuración de empresa');
+  console.log(`   ℹ️  Proyectos existentes: ${projectsSnapshot.size}`);
+  console.log(`   ℹ️  Gastos existentes: ${expensesSnapshot.size}`);
 }
 
 // ============================================================
@@ -394,7 +231,7 @@ async function main() {
   console.log('║  ORIGEN ERP - CONFIGURACIÓN AUTOMÁTICA COMPLETA              ║');
   console.log('╠═══════════════════════════════════════════════════════════════╣');
   console.log('║  Usuario admin: configurado mediante variables de entorno   ║');
-  console.log('║  Empresa: ConstructERP Guatemala                             ║');
+  console.log('║  Empresa: configurada mediante variables de entorno          ║');
   console.log('║  Proyecto Firebase: configurado mediante variables entorno  ║');
   console.log('╚═══════════════════════════════════════════════════════════════╝\n');
 
@@ -438,14 +275,12 @@ async function main() {
     await seedFirestore(db, adminUser.uid);
 
     // Verificar configuración
-    await verifySetup(auth, db);
+    await verifySetup(auth, db, adminUser.uid);
 
     console.log('\n╔═══════════════════════════════════════════════════════════════╗');
     console.log('║  ✅ CONFIGURACIÓN COMPLETADA EXITOSAMENTE                     ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
-    console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║  📧 Email:    [redacted]                       ║');
-    console.log('║  🔑 Password: [not displayed]
+    console.log('║  Cuenta creada/verificada. La contraseña no se imprime.      ║');
     console.log('║                                                               ║');
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
