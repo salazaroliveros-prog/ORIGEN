@@ -103,9 +103,9 @@ export function InventoryManager({
 
   const [orderProjectId, setOrderProjectId] = useState(activeProjectId);
   const [orderSupplierId, setOrderSupplierId] = useState('');
-  const [orderItemId, setOrderItemId] = useState('');
-  const [orderQuantity, setOrderQuantity] = useState('1');
-  const [orderUnitPrice, setOrderUnitPrice] = useState('0');
+  const [orderLines, setOrderLines] = useState<Array<{ itemId: string; quantity: string; unitPriceGTQ: string }>>([
+    { itemId: '', quantity: '1', unitPriceGTQ: '0' },
+  ]);
 
   const [contractProjectId, setContractProjectId] = useState(activeProjectId);
   const [contractSupplierId, setContractSupplierId] = useState('');
@@ -121,6 +121,7 @@ export function InventoryManager({
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentNotes, setPaymentNotes] = useState('');
   const [receivingOrderId, setReceivingOrderId] = useState('');
+  const [receivingLineIndex, setReceivingLineIndex] = useState<number | null>(null);
   const [receiptWarehouseId, setReceiptWarehouseId] = useState('');
   const [receiptQuantity, setReceiptQuantity] = useState('1');
   const [receiptNumber, setReceiptNumber] = useState('');
@@ -288,18 +289,41 @@ export function InventoryManager({
   const handleOrderSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canWritePurchasing || submitting) return;
-    const selectedItem = activeItems.find((item) => item.id === orderItemId);
-    const quantity = Number(orderQuantity);
-    const unitPriceGTQ = Number(orderUnitPrice);
-    if (!selectedItem) {
-      toast.error('Selecciona un artículo válido.');
+    if (orderLines.length < 1 || orderLines.length > 5) {
+      toast.error('Una orden debe contener entre 1 y 5 renglones.');
       return;
     }
-    if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPriceGTQ) || unitPriceGTQ < 0) {
-      toast.error('Revisa la cantidad y el precio unitario de la orden.');
+
+    const selectedLines = orderLines.map((draft) => {
+      const item = activeItems.find((candidate) => candidate.id === draft.itemId);
+      const quantity = Number(draft.quantity);
+      const unitPriceGTQ = Number(draft.unitPriceGTQ);
+      return { draft, item, quantity, unitPriceGTQ };
+    });
+    if (selectedLines.some((line) =>
+      !line.item ||
+      !Number.isFinite(line.quantity) || line.quantity <= 0 ||
+      !Number.isFinite(line.unitPriceGTQ) || line.unitPriceGTQ < 0
+    )) {
+      toast.error('Revisa los artículos, cantidades y precios de todos los renglones.');
       return;
     }
-    const subtotalGTQ = Math.round(quantity * unitPriceGTQ * 100) / 100;
+    const itemIds = selectedLines.map((line) => line.item!.id);
+    if (new Set(itemIds).size !== itemIds.length) {
+      toast.error('No repitas artículos en una misma orden. Consolida la cantidad en un solo renglón.');
+      return;
+    }
+
+    const lines = selectedLines.map(({ item, quantity, unitPriceGTQ }) => ({
+      itemId: item!.id,
+      description: item!.name,
+      unit: item!.unit,
+      quantity,
+      unitPriceGTQ,
+    }));
+    const subtotalGTQ = Math.round(
+      lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0) * 100
+    ) / 100;
     const taxGTQ = Math.round(subtotalGTQ * 0.12 * 100) / 100;
     setSubmitting(true);
     try {
@@ -310,15 +334,7 @@ export function InventoryManager({
           number: `OC-${new Date().toISOString().replace(/[-:.TZ]/g, '')}`,
           status: 'draft',
           currency: 'GTQ',
-          lines: [
-            {
-              itemId: selectedItem.id,
-              description: selectedItem.name,
-              unit: selectedItem.unit,
-              quantity,
-              unitPriceGTQ,
-            },
-          ],
+          lines,
           subtotalGTQ,
           discountGTQ: 0,
           taxPercent: 12,
@@ -328,8 +344,7 @@ export function InventoryManager({
         companyId,
         userId
       );
-      setOrderQuantity('1');
-      setOrderUnitPrice('0');
+      setOrderLines([{ itemId: '', quantity: '1', unitPriceGTQ: '0' }]);
       toast.success('Orden de compra creada como borrador.');
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'No se pudo crear la orden.');
@@ -351,16 +366,26 @@ export function InventoryManager({
     }
   };
 
-  const handleReceiptSubmit = async (event: FormEvent<HTMLFormElement>, order: PurchaseOrderRecord) => {
+  const handleReceiptSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+    order: PurchaseOrderRecord,
+    lineIndex: number
+  ) => {
     event.preventDefault();
     if (!canWriteInventory || submitting) return;
+    const line = order.lines[lineIndex];
+    if (!line) {
+      toast.error('El renglón seleccionado ya no existe.');
+      return;
+    }
     const quantity = Number(receiptQuantity);
+    const remaining = Math.max(0, line.quantity - line.receivedQuantity);
     if (!receiptWarehouseId) {
       toast.error('Selecciona la bodega que recibe el material.');
       return;
     }
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-      toast.error('La cantidad recibida debe ser mayor a cero.');
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > remaining) {
+      toast.error(`La cantidad debe ser mayor a cero y no superar lo pendiente (${remaining}).`);
       return;
     }
     if (!receiptNumber.trim()) {
@@ -371,6 +396,7 @@ export function InventoryManager({
     try {
       const result = await receivePurchaseOrderToWarehouse({
         orderId: order.id,
+        lineIndex,
         warehouseId: receiptWarehouseId,
         quantity,
         receiptNumber: receiptNumber.trim(),
@@ -378,11 +404,12 @@ export function InventoryManager({
         userId,
       });
       setReceivingOrderId('');
+      setReceivingLineIndex(null);
       setReceiptNumber('');
       setReceiptQuantity('1');
       toast.success(result.alreadyProcessed
         ? 'Esta recepción ya estaba registrada; no se duplicó el inventario.'
-        : 'Recepción registrada y existencias actualizadas.');
+        : 'Renglón recibido y existencias actualizadas.');
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar la recepción.');
     } finally {
@@ -677,81 +704,143 @@ export function InventoryManager({
           )}
 
           {section === 'ordenes' && (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
               <section className={cardClass}>
                 <h3 className="mb-3 font-semibold text-white">Órdenes de compra</h3>
-                {orders.length === 0 ? <EmptyState message="Aún no hay órdenes de compra." /> : <div className="space-y-2">{orders.map((order) => {
-                  const received = order.lines.reduce((total, line) => total + line.receivedQuantity, 0);
-                  const ordered = order.lines.reduce((total, line) => total + line.quantity, 0);
-                  const remaining = Math.max(0, ordered - received);
-                  const compatibleWarehouses = activeWarehouses.filter((warehouse) =>
-                    warehouse.type === 'general' || warehouse.projectId === order.projectId
-                  );
-                  return (
-                    <div key={order.id} className="rounded-xl border border-white/5 px-3 py-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-white">{order.number}</p>
-                        <span className="rounded-full bg-sky-500/10 px-2.5 py-1 text-xs text-sky-300">{order.status}</span>
-                      </div>
-                      <p className="mt-1 text-xs text-slate-400">{projects.find((project) => project.id === order.projectId)?.name ?? order.projectId} · {suppliers.find((supplier) => supplier.id === order.supplierId)?.name ?? 'Proveedor'}</p>
-                      <p className="mt-2 text-sm font-semibold text-white">{currency.format(order.totalGTQ)}</p>
-                      <p className="mt-1 text-xs text-slate-500">{order.lines.length} renglón(es) · IVA {order.taxPercent}% · {formatDate(order.createdAt)}</p>
-                      <p className="mt-1 text-xs text-slate-400">Recibido: {received} de {ordered} · Pendiente: {remaining}</p>
-                      {order.status === 'draft' && canWritePurchasing && (
-                        <button type="button" disabled={submitting} onClick={() => void handleApproveOrder(order.id)} className="mt-3 rounded-lg bg-amber-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">
-                          {submitting ? 'Procesando…' : 'Aprobar orden'}
-                        </button>
-                      )}
-                      {['approved', 'partially_received'].includes(order.status) && canWriteInventory && remaining > 0 && (
-                        <div className="mt-3">
-                          {receivingOrderId !== order.id ? (
-                            <button type="button" disabled={submitting || compatibleWarehouses.length === 0} onClick={() => {
-                              setReceivingOrderId(order.id);
-                              setReceiptWarehouseId(compatibleWarehouses[0]?.id ?? '');
-                              setReceiptQuantity(String(remaining));
-                              setReceiptNumber('');
-                            }} className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-50">
-                              Registrar recepción
+                {orders.length === 0 ? <EmptyState message="Aún no hay órdenes de compra." /> : (
+                  <div className="space-y-3">
+                    {orders.map((order) => {
+                      const totalReceived = order.lines.reduce((total, line) => total + line.receivedQuantity, 0);
+                      const totalOrdered = order.lines.reduce((total, line) => total + line.quantity, 0);
+                      const compatibleWarehouses = activeWarehouses.filter((warehouse) =>
+                        warehouse.type === 'general' || warehouse.projectId === order.projectId
+                      );
+                      return (
+                        <div key={order.id} className="rounded-xl border border-white/5 px-3 py-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-white">{order.number}</p>
+                            <span className="rounded-full bg-sky-500/10 px-2.5 py-1 text-xs text-sky-300">{order.status}</span>
+                          </div>
+                          <p className="mt-1 text-xs text-slate-400">{projects.find((project) => project.id === order.projectId)?.name ?? order.projectId} · {suppliers.find((supplier) => supplier.id === order.supplierId)?.name ?? 'Proveedor'}</p>
+                          <p className="mt-2 text-sm font-semibold text-white">{currency.format(order.totalGTQ)}</p>
+                          <p className="mt-1 text-xs text-slate-500">{order.lines.length} renglón(es) · IVA {order.taxPercent}% · {formatDate(order.createdAt)}</p>
+                          <p className="mt-1 text-xs text-slate-400">Recibido total: {totalReceived} de {totalOrdered}</p>
+                          {order.status === 'draft' && canWritePurchasing && (
+                            <button type="button" disabled={submitting} onClick={() => void handleApproveOrder(order.id)} className="mt-3 rounded-lg bg-amber-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">
+                              {submitting ? 'Procesando…' : 'Aprobar orden'}
                             </button>
-                          ) : (
-                            <form onSubmit={(event) => void handleReceiptSubmit(event, order)} className="grid gap-2 rounded-xl bg-slate-950/70 p-3">
-                              <label className="block"><span className={labelClass}>Bodega receptora</span>
-                                <select className={fieldClass} value={receiptWarehouseId} onChange={(event) => setReceiptWarehouseId(event.target.value)} required>
-                                  <option value="">Selecciona bodega</option>
-                                  {compatibleWarehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>)}
-                                </select>
-                              </label>
-                              <label className="block"><span className={labelClass}>Cantidad recibida (pendiente: {remaining})</span>
-                                <input className={fieldClass} type="number" min="0.0001" max={remaining} step="0.0001" value={receiptQuantity} onChange={(event) => setReceiptQuantity(event.target.value)} required />
-                              </label>
-                              <label className="block"><span className={labelClass}>Número de recepción / remisión</span>
-                                <input className={fieldClass} value={receiptNumber} onChange={(event) => setReceiptNumber(event.target.value)} pattern="[a-zA-Z0-9_-]{1,40}" maxLength={40} required />
-                              </label>
-                              <div className="flex flex-wrap gap-2">
-                                <button type="submit" disabled={submitting || !compatibleWarehouses.length} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">
-                                  {submitting ? 'Guardando…' : 'Confirmar recepción'}
-                                </button>
-                                <button type="button" disabled={submitting} onClick={() => setReceivingOrderId('')} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 disabled:opacity-50">Cancelar</button>
-                              </div>
-                            </form>
                           )}
-                          {compatibleWarehouses.length === 0 && <p className="mt-2 text-xs text-amber-300">No existe una bodega activa compatible con este proyecto.</p>}
+                          <div className="mt-3 space-y-2">
+                            {order.lines.map((line, lineIndex) => {
+                              const remaining = Math.max(0, line.quantity - line.receivedQuantity);
+                              const compatibleItemWarehouses = compatibleWarehouses;
+                              const isReceivingThisLine = receivingOrderId === order.id && receivingLineIndex === lineIndex;
+                              return (
+                                <div key={line.itemId} className="rounded-xl bg-slate-950/60 p-3">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <div>
+                                      <p className="text-sm font-medium text-white">{line.description}</p>
+                                      <p className="text-xs text-slate-400">{line.quantity} {line.unit} · {currency.format(line.unitPriceGTQ)} c/u</p>
+                                    </div>
+                                    <span className="text-xs text-slate-300">Recibido {line.receivedQuantity} · Pendiente {remaining}</span>
+                                  </div>
+                                  {['approved', 'partially_received'].includes(order.status) && canWriteInventory && remaining > 0 && (
+                                    <div className="mt-2">
+                                      {!isReceivingThisLine ? (
+                                        <button type="button" disabled={submitting || compatibleItemWarehouses.length === 0} onClick={() => {
+                                          setReceivingOrderId(order.id);
+                                          setReceivingLineIndex(lineIndex);
+                                          setReceiptWarehouseId(compatibleItemWarehouses[0]?.id ?? '');
+                                          setReceiptQuantity(String(remaining));
+                                          setReceiptNumber('');
+                                        }} className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-50">
+                                          Recibir renglón
+                                        </button>
+                                      ) : (
+                                        <form onSubmit={(event) => void handleReceiptSubmit(event, order, lineIndex)} className="grid gap-2 rounded-xl bg-slate-900 p-3">
+                                          <label className="block"><span className={labelClass}>Bodega receptora</span>
+                                            <select className={fieldClass} value={receiptWarehouseId} onChange={(event) => setReceiptWarehouseId(event.target.value)} required>
+                                              <option value="">Selecciona bodega</option>
+                                              {compatibleItemWarehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>)}
+                                            </select>
+                                          </label>
+                                          <label className="block"><span className={labelClass}>Cantidad recibida (pendiente: {remaining})</span>
+                                            <input className={fieldClass} type="number" min="0.0001" max={remaining} step="0.0001" value={receiptQuantity} onChange={(event) => setReceiptQuantity(event.target.value)} required />
+                                          </label>
+                                          <label className="block"><span className={labelClass}>Número de recepción / remisión</span>
+                                            <input className={fieldClass} value={receiptNumber} onChange={(event) => setReceiptNumber(event.target.value)} pattern="[a-zA-Z0-9_-]{1,40}" maxLength={40} required />
+                                          </label>
+                                          <div className="flex flex-wrap gap-2">
+                                            <button type="submit" disabled={submitting} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">{submitting ? 'Guardando…' : 'Confirmar recepción'}</button>
+                                            <button type="button" disabled={submitting} onClick={() => { setReceivingOrderId(''); setReceivingLineIndex(null); }} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 disabled:opacity-50">Cancelar</button>
+                                          </div>
+                                        </form>
+                                      )}
+                                      {compatibleItemWarehouses.length === 0 && <p className="mt-2 text-xs text-amber-300">No existe una bodega activa compatible con este proyecto.</p>}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}</div>}
+                      );
+                    })}
+                  </div>
+                )}
               </section>
-              {canWritePurchasing && <form onSubmit={handleOrderSubmit} className={`${cardClass} space-y-3`}>
-                <h3 className="font-semibold text-white">Nueva orden (borrador)</h3>
-                <label className="block"><span className={labelClass}>Proyecto</span><select className={fieldClass} value={orderProjectId} onChange={(event) => setOrderProjectId(event.target.value)} required><option value="">Selecciona un proyecto</option>{projectOptions.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
-                <label className="block"><span className={labelClass}>Proveedor</span><select className={fieldClass} value={orderSupplierId} onChange={(event) => setOrderSupplierId(event.target.value)} required><option value="">Selecciona un proveedor</option>{activeSuppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name} · {supplier.nit}</option>)}</select></label>
-                <label className="block"><span className={labelClass}>Artículo</span><select className={fieldClass} value={orderItemId} onChange={(event) => setOrderItemId(event.target.value)} required><option value="">Selecciona un artículo</option>{activeItems.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.unit})</option>)}</select></label>
-                <div className="grid grid-cols-2 gap-2"><label className="block"><span className={labelClass}>Cantidad</span><input className={fieldClass} type="number" min="0.0001" step="0.0001" value={orderQuantity} onChange={(event) => setOrderQuantity(event.target.value)} required /></label><label className="block"><span className={labelClass}>Precio unitario (Q)</span><input className={fieldClass} type="number" min="0" step="0.01" value={orderUnitPrice} onChange={(event) => setOrderUnitPrice(event.target.value)} required /></label></div>
-                <div className="rounded-xl bg-slate-950/80 p-3 text-sm"><div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{currency.format(Math.max(0, Number(orderQuantity) * Number(orderUnitPrice) || 0))}</span></div><div className="mt-1 flex justify-between text-slate-400"><span>IVA (12%)</span><span>{currency.format(Math.max(0, Number(orderQuantity) * Number(orderUnitPrice) * 0.12 || 0))}</span></div><div className="mt-2 flex justify-between border-t border-white/10 pt-2 font-semibold text-white"><span>Total</span><span>{currency.format(Math.max(0, Number(orderQuantity) * Number(orderUnitPrice) * 1.12 || 0))}</span></div></div>
-                <button className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !projectOptions.length || !activeSuppliers.length || !activeItems.length}>{submitting ? 'Guardando…' : 'Crear borrador de OC'}</button>
-                <p className="text-xs text-slate-500">La orden se registra como borrador. Después de aprobarla, el encargado de bodega puede registrar entregas parciales o completas con número de recepción y actualización transaccional de existencias.</p>
-              </form>}
+              {canWritePurchasing && (
+                <form onSubmit={handleOrderSubmit} className={`${cardClass} space-y-3`}>
+                  <h3 className="font-semibold text-white">Nueva orden (borrador)</h3>
+                  <label className="block"><span className={labelClass}>Proyecto</span>
+                    <select className={fieldClass} value={orderProjectId} onChange={(event) => setOrderProjectId(event.target.value)} required>
+                      <option value="">Selecciona un proyecto</option>
+                      {projectOptions.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+                    </select>
+                  </label>
+                  <label className="block"><span className={labelClass}>Proveedor</span>
+                    <select className={fieldClass} value={orderSupplierId} onChange={(event) => setOrderSupplierId(event.target.value)} required>
+                      <option value="">Selecciona un proveedor</option>
+                      {activeSuppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name} · {supplier.nit}</option>)}
+                    </select>
+                  </label>
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-sm font-semibold text-white">Renglones de la orden</h4>
+                    <button type="button" disabled={submitting || orderLines.length >= 5} onClick={() => setOrderLines((current) => [...current, { itemId: '', quantity: '1', unitPriceGTQ: '0' }])} className="rounded-lg border border-amber-400/30 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-50">
+                      Agregar renglón ({orderLines.length}/5)
+                    </button>
+                  </div>
+                  {orderLines.map((line, index) => (
+                    <div key={index} className="grid gap-2 rounded-xl bg-slate-950/70 p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-300">Renglón {index + 1}</span>
+                        <button type="button" disabled={submitting || orderLines.length <= 1} onClick={() => setOrderLines((current) => current.filter((_, lineIndex) => lineIndex !== index))} className="text-xs text-red-300 disabled:opacity-40">Quitar</button>
+                      </div>
+                      <label className="block"><span className={labelClass}>Artículo</span>
+                        <select className={fieldClass} value={line.itemId} onChange={(event) => setOrderLines((current) => current.map((item, lineIndex) => lineIndex === index ? { ...item, itemId: event.target.value } : item))} required>
+                          <option value="">Selecciona un artículo</option>
+                          {activeItems.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.unit})</option>)}
+                        </select>
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className="block"><span className={labelClass}>Cantidad</span>
+                          <input className={fieldClass} type="number" min="0.0001" step="0.0001" value={line.quantity} onChange={(event) => setOrderLines((current) => current.map((item, lineIndex) => lineIndex === index ? { ...item, quantity: event.target.value } : item))} required />
+                        </label>
+                        <label className="block"><span className={labelClass}>Precio unitario (Q)</span>
+                          <input className={fieldClass} type="number" min="0" step="0.01" value={line.unitPriceGTQ} onChange={(event) => setOrderLines((current) => current.map((item, lineIndex) => lineIndex === index ? { ...item, unitPriceGTQ: event.target.value } : item))} required />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="rounded-xl bg-slate-950/80 p-3 text-sm">
+                    <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{currency.format(orderLines.reduce((sum, line) => sum + Math.max(0, Number(line.quantity) * Number(line.unitPriceGTQ) || 0), 0))}</span></div>
+                    <div className="mt-1 flex justify-between text-slate-400"><span>IVA (12%)</span><span>{currency.format(orderLines.reduce((sum, line) => sum + Math.max(0, Number(line.quantity) * Number(line.unitPriceGTQ) || 0), 0) * 0.12)}</span></div>
+                    <div className="mt-2 flex justify-between border-t border-white/10 pt-2 font-semibold text-white"><span>Total</span><span>{currency.format(orderLines.reduce((sum, line) => sum + Math.max(0, Number(line.quantity) * Number(line.unitPriceGTQ) || 0), 0) * 1.12)}</span></div>
+                  </div>
+                  <button className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !projectOptions.length || !activeSuppliers.length || !activeItems.length}>{submitting ? 'Guardando…' : 'Crear borrador de OC'}</button>
+                  <p className="text-xs text-slate-500">Máximo 5 renglones únicos. La recepción es independiente por artículo y actualiza el saldo mediante transacción.</p>
+                </form>
+              )}
             </div>
           )}
 
