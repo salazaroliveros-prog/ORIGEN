@@ -349,7 +349,7 @@ export async function saveProjectToFirestore(project: Project, companyId: string
       stripUndefined({
         ...project,
         companyId,
-        ownerId: userId,
+        ownerId: project.ownerId ?? userId,
         createdBy: project.createdBy ?? userId,
       }),
       { merge: true }
@@ -393,7 +393,6 @@ export async function saveProjectScheduleToFirestore(
       stripUndefined({
         ...schedule,
         companyId,
-        ownerId: userId,
         updatedBy: userId,
       }),
       { merge: true }
