@@ -93,6 +93,10 @@ export function validateSupplier(supplier: SupplierRecord): SupplierRecord {
   requireText(supplier.name, 'Nombre del proveedor');
   requireText(supplier.nit, 'NIT');
   requireText(supplier.createdBy, 'Usuario creador');
+  if (supplier.name.trim().length > 200 || supplier.nit.trim().length > 30) {
+    throw new Error('El nombre o NIT del proveedor supera la longitud permitida.');
+  }
+  if (typeof supplier.active !== 'boolean') throw new Error('El estado del proveedor no es válido.');
   if (supplier.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(supplier.email)) {
     throw new Error('Correo del proveedor inválido.');
   }
@@ -107,7 +111,10 @@ export function validatePurchaseOrder(order: PurchaseOrderRecord): PurchaseOrder
   requireText(order.number, 'Número de orden');
   requireText(order.requestedBy, 'Usuario solicitante');
   if (order.currency !== 'GTQ') throw new Error('La orden debe estar expresada en GTQ.');
-  if (!order.lines.length) throw new Error('La orden debe incluir al menos un renglón.');
+  if (!['draft', 'submitted', 'approved', 'partially_received', 'received', 'cancelled'].includes(order.status)) {
+    throw new Error('El estado de la orden de compra no es válido.');
+  }
+  if (!Array.isArray(order.lines) || !order.lines.length) throw new Error('La orden debe incluir al menos un renglón.');
 
   for (const line of order.lines) {
     requireText(line.itemId, 'Artículo');
@@ -122,8 +129,10 @@ export function validatePurchaseOrder(order: PurchaseOrderRecord): PurchaseOrder
   }
 
   const expectedSubtotal = money(order.lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0));
+  requireNonNegative(order.subtotalGTQ, 'Subtotal');
   requireNonNegative(order.discountGTQ, 'Descuento');
   requireNonNegative(order.taxPercent, 'Porcentaje de IVA');
+  if (order.taxPercent > 100) throw new Error('El porcentaje de IVA no puede superar 100%.');
   requireNonNegative(order.taxGTQ, 'IVA');
   requireNonNegative(order.totalGTQ, 'Total');
   if (order.discountGTQ > expectedSubtotal) throw new Error('El descuento supera el subtotal.');
@@ -188,6 +197,9 @@ export function validateSubcontract(contract: SubcontractRecord): SubcontractRec
   requireText(contract.contractNumber, 'Número de contrato');
   requireText(contract.description, 'Descripción');
   requireText(contract.createdBy, 'Usuario creador');
+  if (!['draft', 'active', 'completed', 'terminated'].includes(contract.status)) {
+    throw new Error('El estado del subcontrato no es válido.');
+  }
   const start = Date.parse(contract.startDate);
   const end = Date.parse(contract.endDate);
   if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) {
