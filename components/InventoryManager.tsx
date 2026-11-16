@@ -122,16 +122,24 @@ export function InventoryManager({
     setLoading(true);
     setError(null);
     const unsubscribers: Array<() => void> = [];
+    let readyCount = 0;
+    const markReady = () => {
+      readyCount += 1;
+      if (readyCount === 6) setLoading(false);
+    };
+    const handleSubscriptionError = (cause: Error) => {
+      setError(cause.message || 'No se pudo sincronizar el inventario.');
+      setLoading(false);
+    };
     try {
       unsubscribers.push(
-        subscribeSuppliers(companyId, setSuppliers),
-        subscribeWarehouses(companyId, setWarehouses),
-        subscribeInventoryItems(companyId, setItems),
-        subscribeStockMovements(companyId, setMovements),
-        subscribePurchaseOrders(companyId, setOrders),
-        subscribeSubcontracts(companyId, setContracts)
+        subscribeSuppliers(companyId, (records) => { setSuppliers(records); markReady(); }, handleSubscriptionError),
+        subscribeWarehouses(companyId, (records) => { setWarehouses(records); markReady(); }, handleSubscriptionError),
+        subscribeInventoryItems(companyId, (records) => { setItems(records); markReady(); }, handleSubscriptionError),
+        subscribeStockMovements(companyId, (records) => { setMovements(records); markReady(); }, handleSubscriptionError),
+        subscribePurchaseOrders(companyId, (records) => { setOrders(records); markReady(); }, handleSubscriptionError),
+        subscribeSubcontracts(companyId, (records) => { setContracts(records); markReady(); }, handleSubscriptionError)
       );
-      setLoading(false);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'No se pudo abrir el inventario.');
       setLoading(false);
