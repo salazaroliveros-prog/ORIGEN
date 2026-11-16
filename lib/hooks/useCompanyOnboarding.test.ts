@@ -15,6 +15,7 @@ vi.mock('@/lib/firebaseAuth', () => ({
 vi.mock('@/lib/firebaseService', () => ({
   subscribeCompanySettings: (...args: unknown[]) => mocks.settingsSubscriber(...args),
   saveCompanySettingsToFirestore: (...args: unknown[]) => mocks.saveSettings(...args),
+  getAuthOrThrow: () => mocks.getAuth(),
 }));
 
 import { useCompanyOnboarding } from './useCompanyOnboarding';

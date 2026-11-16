@@ -44,6 +44,8 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
         unsubscribeSettings?.();
         unsubscribeSettings = null;
         activeUserId = user?.uid ?? null;
+        setCompany(null);
+        setHasCompany(false);
 
         if (!user) {
           setCompany(null);
