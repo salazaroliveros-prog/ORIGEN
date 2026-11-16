@@ -22,6 +22,7 @@ import {
   registerSubcontractPaymentToFirestore,
   receivePurchaseOrderToWarehouse,
   recordProjectStockIssueToFirestore,
+  transferInventoryBetweenWarehousesToFirestore,
   createSupplierToFirestore,
   createWarehouseToFirestore,
   subscribeInventoryItems,
@@ -130,6 +131,11 @@ export function InventoryManager({
   const [issueQuantity, setIssueQuantity] = useState('1');
   const [issueReference, setIssueReference] = useState('');
   const [issueNotes, setIssueNotes] = useState('');
+  const [transferBalanceKey, setTransferBalanceKey] = useState('');
+  const [transferDestinationId, setTransferDestinationId] = useState('');
+  const [transferQuantity, setTransferQuantity] = useState('1');
+  const [transferReference, setTransferReference] = useState('');
+  const [transferNotes, setTransferNotes] = useState('');
 
   useEffect(() => {
     setWarehouseProjectId((current) => current || activeProjectId);
@@ -459,6 +465,67 @@ export function InventoryManager({
         : 'Salida registrada y existencias descontadas.');
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar la salida de inventario.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleWarehouseTransferSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canWriteInventory || submitting) return;
+    const [itemId, fromWarehouseId] = transferBalanceKey.split('|');
+    const sourceBalance = balances.find(
+      (balance) => balance.itemId === itemId && balance.warehouseId === fromWarehouseId
+    );
+    const sourceWarehouse = warehouses.find((warehouse) => warehouse.id === fromWarehouseId);
+    const destinationWarehouse = warehouses.find((warehouse) => warehouse.id === transferDestinationId);
+    const quantity = Number(transferQuantity);
+
+    if (!sourceBalance || !sourceWarehouse || !destinationWarehouse) {
+      toast.error('Selecciona un artículo y dos bodegas válidas.');
+      return;
+    }
+    if (!destinationWarehouse.active || destinationWarehouse.id === sourceWarehouse.id) {
+      toast.error('La bodega destino debe estar activa y ser diferente a la de origen.');
+      return;
+    }
+    if (
+      sourceWarehouse.type === 'project' &&
+      destinationWarehouse.type === 'project' &&
+      sourceWarehouse.projectId !== destinationWarehouse.projectId
+    ) {
+      toast.error('No se permiten traslados directos entre bodegas de proyectos diferentes.');
+      return;
+    }
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > sourceBalance.quantity) {
+      toast.error(`La cantidad debe ser mayor a cero y no superar ${sourceBalance.quantity}.`);
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]{1,75}$/.test(transferReference.trim())) {
+      toast.error('Ingresa una referencia válida para el traslado.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const result = await transferInventoryBetweenWarehousesToFirestore({
+        transferId: transferReference.trim(),
+        itemId,
+        fromWarehouseId,
+        toWarehouseId: destinationWarehouse.id,
+        quantity,
+        notes: transferNotes.trim() || undefined,
+        companyId,
+        userId,
+      });
+      setTransferReference('');
+      setTransferNotes('');
+      setTransferQuantity('1');
+      toast.success(result.alreadyProcessed
+        ? 'Este traslado ya estaba registrado; no se duplicó el inventario.'
+        : 'Traslado registrado: salida y entrada de existencias conciliadas.');
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar el traslado.');
     } finally {
       setSubmitting(false);
     }
@@ -906,6 +973,66 @@ export function InventoryManager({
                     {submitting ? 'Registrando…' : 'Confirmar salida'}
                   </button>
                   <p className="text-xs text-slate-500">El sistema valida el saldo y guarda el movimiento y el descuento en una sola transacción. No permite existencias negativas ni duplicar el vale.</p>
+                </form>
+              )}
+              {canWriteInventory && (
+                <form onSubmit={(event) => void handleWarehouseTransferSubmit(event)} className={`${cardClass} space-y-3`}>
+                  <h3 className="font-semibold text-white">Trasladar entre bodegas</h3>
+                  <label className="block">
+                    <span className={labelClass}>Artículo y bodega de origen</span>
+                    <select className={fieldClass} value={transferBalanceKey} onChange={(event) => {
+                      setTransferBalanceKey(event.target.value);
+                      setTransferDestinationId('');
+                    }} required>
+                      <option value="">Selecciona existencias</option>
+                      {balances.filter((balance) => balance.quantity > 0).map((balance) => {
+                        const item = items.find((candidate) => candidate.id === balance.itemId);
+                        const warehouse = warehouses.find((candidate) => candidate.id === balance.warehouseId);
+                        return (
+                          <option key={balance.itemId + ':' + balance.warehouseId} value={balance.itemId + '|' + balance.warehouseId}>
+                            {item?.name ?? balance.itemId} · {warehouse?.name ?? balance.warehouseId} · disponible {balance.quantity} {item?.unit ?? ''}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Bodega de destino</span>
+                    <select className={fieldClass} value={transferDestinationId} onChange={(event) => setTransferDestinationId(event.target.value)} required>
+                      <option value="">Selecciona destino</option>
+                      {(() => {
+                        const sourceId = transferBalanceKey.split('|')[1];
+                        const sourceWarehouse = warehouses.find((warehouse) => warehouse.id === sourceId);
+                        return warehouses.filter((warehouse) =>
+                          warehouse.active &&
+                          warehouse.id !== sourceId &&
+                          (
+                            sourceWarehouse?.type !== 'project' ||
+                            warehouse.type === 'general' ||
+                            warehouse.projectId === sourceWarehouse.projectId
+                          )
+                        ).map((warehouse) => (
+                          <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+                        ));
+                      })()}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Cantidad a trasladar</span>
+                    <input className={fieldClass} type="number" min="0.0001" step="0.0001" value={transferQuantity} onChange={(event) => setTransferQuantity(event.target.value)} required />
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Número / referencia del traslado</span>
+                    <input className={fieldClass} value={transferReference} onChange={(event) => setTransferReference(event.target.value)} maxLength={75} pattern="[a-zA-Z0-9_-]{1,75}" required />
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Notas</span>
+                    <textarea className={fieldClass} rows={3} value={transferNotes} onChange={(event) => setTransferNotes(event.target.value)} maxLength={1000} />
+                  </label>
+                  <button type="submit" className="w-full rounded-xl bg-sky-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !transferBalanceKey || !transferDestinationId}>
+                    {submitting ? 'Registrando…' : 'Confirmar traslado'}
+                  </button>
+                  <p className="text-xs text-slate-500">El sistema registra las dos caras del traslado y actualiza ambos saldos en una sola transacción, conservando el costo promedio ponderado.</p>
                 </form>
               )}
             </div>
