@@ -27,7 +27,8 @@ export function Input({
   formTheme = 'dark',
   ...props
 }: InputProps) {
-  const inputId = props.id ?? React.useId();
+  const generatedId = React.useId();
+  const inputId = props.id ?? generatedId;
   const isError = variant === 'error' || !!errorText;
   const isSuccess = variant === 'success';
   const isDisabled = variant === 'disabled' || disabled;
