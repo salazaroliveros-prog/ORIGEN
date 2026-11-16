@@ -296,7 +296,7 @@ export function InventoryManager({
     event.preventDefault();
     if (!canWritePurchasing || submitting) return;
     if (orderLines.length < 1 || orderLines.length > 2) {
-      toast.error('Una orden debe contener entre 1 y 5 renglones.');
+      toast.error('Una orden debe contener entre 1 y 2 renglones.');
       return;
     }
 
