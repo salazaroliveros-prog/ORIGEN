@@ -9,6 +9,7 @@ import { LaborProductivityChart } from '@/components/LaborProductivityChart';
 import { MonthlyExpensesHistogram } from '@/components/MonthlyExpensesHistogram';
 import { D3BudgetUtilizationChart } from '@/components/D3BudgetUtilizationChart';
 import { exportDashboardPerformancePdf } from '@/lib/dashboardPdfExport';
+import { calculateProjectSpentById } from '@/lib/projectCalculations';
 import { formatGTQ, initialCompanySettings } from '@/lib/data';
 import type { DashboardViewProps, DashboardTotals, ProgressChartDataPoint, StackedChartDataPoint, WidgetId } from './types';
 import { WIDGET_CATALOG, DEFAULT_VISIBLE_WIDGETS, HIGH_PRIORITY_WIDGETS } from './widgetCatalog';
@@ -88,22 +89,25 @@ export function DashboardView({
     : filteredProjects[0]?.id ?? '';
 
   const totals = useMemo((): DashboardTotals => {
-    const totalBudget = filteredProjects.reduce((sum, p) => sum + (p.budgetTotal || 0), 0);
-
+    const totalBudget = filteredProjects.reduce((sum, project) => sum + (project.budgetTotal || 0), 0);
     const projectSpentMap = new Map<string, number>();
-    projects.forEach((p) => {
-      const projExpenses = expenses.filter((e) => e.projectId === p.id);
-      const computedSpent =
-        projExpenses.length > 0 ? projExpenses.reduce((s, e) => s + e.amount, 0) : p.spentTotal;
-      projectSpentMap.set(p.id, computedSpent);
-    });
+
+    for (const project of projects) {
+      const projectExpenses = expenses.filter((expense) => expense.projectId === project.id);
+      // If expense records exist but all are rejected, executed spending is zero.
+      // Use the persisted snapshot only when there are no expense records.
+      const computedSpent = projectExpenses.length > 0
+        ? calculateProjectSpentById(projectExpenses, project.id)
+        : (project.spentTotal ?? 0);
+      projectSpentMap.set(project.id, computedSpent);
+    }
 
     const totalSpent = filteredProjects.reduce(
-      (sum, p) => sum + (projectSpentMap.get(p.id) || p.spentTotal || 0),
+      (sum, project) => sum + (projectSpentMap.get(project.id) ?? 0),
       0
     );
     const overbudgetProjects = filteredProjects.filter(
-      (p) => (projectSpentMap.get(p.id) || p.spentTotal) > p.budgetTotal
+      (project) => (projectSpentMap.get(project.id) ?? 0) > project.budgetTotal
     );
 
     return {
@@ -119,7 +123,7 @@ export function DashboardView({
 
   const progressChartData = useMemo((): ProgressChartDataPoint[] => {
     return filteredProjects.map((p) => {
-      const actualSpent = totals.projectSpentMap.get(p.id) || p.spentTotal || 0;
+      const actualSpent = totals.projectSpentMap.get(p.id) ?? 0;
       const financialPercent = p.budgetTotal > 0 ? Math.round((actualSpent / p.budgetTotal) * 100) : 0;
       const physicalPercent = p.progressPercent || 0;
       const gap = financialPercent - physicalPercent;
@@ -142,7 +146,7 @@ export function DashboardView({
   const stackedChartData = useMemo((): StackedChartDataPoint[] => {
     return filteredProjects.map((p) => {
       const budget = p.budgetTotal || 0;
-      const spent = totals.projectSpentMap.get(p.id) || p.spentTotal || 0;
+      const spent = totals.projectSpentMap.get(p.id) ?? 0;
 
       const isOver = spent > budget;
       const spentWithinBudget = isOver ? budget : spent;

@@ -76,7 +76,12 @@ export function ProjectsView({
   const projectSpentById = useMemo(
     () =>
       expenses.reduce((totals, expense) => {
-        totals.set(expense.projectId, (totals.get(expense.projectId) ?? 0) + expense.amount);
+        // Preserve a zero for projects with only rejected expenses, rather
+        // than falling back to a stale persisted spentTotal.
+        if (!totals.has(expense.projectId)) totals.set(expense.projectId, 0);
+        if (expense.approvalStatus !== 'Rechazado') {
+          totals.set(expense.projectId, (totals.get(expense.projectId) ?? 0) + expense.amount);
+        }
         return totals;
       }, new Map<string, number>()),
     [expenses]
