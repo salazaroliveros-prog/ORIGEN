@@ -802,6 +802,7 @@ service cloud.firestore {
     }
 
     // Balances only change as part of a verified purchase-receipt transaction.
+    // Inventory balances are writable only together with a valid purchase receipt.
     match /inventoryBalances/{balanceId} {
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
@@ -819,14 +820,10 @@ service cloud.firestore {
         incoming().quantity is number && incoming().quantity > 0 &&
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
         incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
-        incoming().id == 'bal_' + incoming().warehouseId + '_' + incoming().itemId &&
-        isActiveInventoryItem(incoming().itemId, incoming().companyId) &&
-        isActiveWarehouseForProject(incoming().warehouseId,
-          getAfter(receiptOrderPath(getAfter(receiptMovementPath(incoming().lastMovementId)).data.referenceId)).data.projectId,
-          incoming().companyId) &&
-        receiptBalanceUpdatedFromBalance(incoming(), balanceId, true);
+        isValidReceiptBalance(incoming(), balanceId, true);
       allow update: if isValidId(balanceId) &&
-        incoming().id == existing().id && incoming().id == balanceId &&
+        incoming().id == existing().id &&
+        incoming().id == balanceId &&
         incoming().companyId == existing().companyId &&
         incoming().warehouseId == existing().warehouseId &&
         incoming().itemId == existing().itemId &&
@@ -840,12 +837,11 @@ service cloud.firestore {
         incoming().quantity is number && incoming().quantity > existing().quantity &&
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
         incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
-        isActiveInventoryItem(incoming().itemId, incoming().companyId) &&
-        receiptBalanceUpdatedFromBalance(incoming(), balanceId, false, existing());
+        isValidReceiptBalance(incoming(), balanceId, false);
       allow delete: if false;
     }
 
-    // Stock movements are append-only and only accepted with the paired order and balance writes.
+    // Movements are append-only and must match their paired order and balance writes.
     match /stockMovements/{movementId} {
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
@@ -853,13 +849,17 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Purchase orders must reference a supplier and a project in the same company.
+    // Purchase orders are draft-only on create; updates are restricted to approval or paired receipt.
     match /purchaseOrders/{orderId} {
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(orderId) &&
         incoming().id == orderId &&
-        incoming().keys().hasAll(['id', 'companyId', 'projectId', 'supplierId', 'number', 'status', 'currency', 'lines', 'subtotalGTQ', 'discountGTQ', 'taxPercent', 'taxGTQ', 'totalGTQ', 'requestedBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasAll([
+          'id', 'companyId', 'projectId', 'supplierId', 'number', 'status',
+          'currency', 'lines', 'subtotalGTQ', 'discountGTQ', 'taxPercent',
+          'taxGTQ', 'totalGTQ', 'requestedBy', 'createdAt', 'updatedAt'
+        ]) &&
         canManagePurchasing(incoming().companyId) &&
         incoming().requestedBy == request.auth.uid &&
         isProjectInCompany(incoming().projectId, incoming().companyId) &&
@@ -867,28 +867,115 @@ service cloud.firestore {
         incoming().currency == 'GTQ' &&
         incoming().status == 'draft' &&
         incoming().lines is list && incoming().lines.size() == 1 &&
-        incoming().lines[0].keys().hasAll(['itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ']) &&
+        incoming().lines[0].keys().hasAll([
+          'itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ'
+        ]) &&
         incoming().lines[0].itemId is string &&
         isInventoryItemInCompany(incoming().lines[0].itemId, incoming().companyId) &&
-        incoming().lines[0].description is string && incoming().lines[0].description.size() > 0 && incoming().lines[0].description.size() <= 200 &&
-        incoming().lines[0].unit is string && incoming().lines[0].unit.size() > 0 && incoming().lines[0].unit.size() <= 32 &&
-        incoming().lines[0].quantity is number && incoming().lines[0].quantity > 0 &&
+        incoming().lines[0].description is string &&
+        incoming().lines[0].description.size() > 0 &&
+        incoming().lines[0].description.size() <= 200 &&
+        incoming().lines[0].unit is string &&
+        incoming().lines[0].unit.size() > 0 &&
+        incoming().lines[0].unit.size() <= 32 &&
+        incoming().lines[0].quantity is number &&
+        incoming().lines[0].quantity > 0 &&
         incoming().lines[0].receivedQuantity == 0 &&
-        incoming().lines[0].unitPriceGTQ is number && incoming().lines[0].unitPriceGTQ >= 0 &&
-        incoming().number is string && incoming().number.size() > 0 && incoming().number.size() <= 80 &&
-        incoming().createdAt is string && incoming().updatedAt is string &&
-        incoming().subtotalGTQ is number && incoming().subtotalGTQ >= 0 &&
-        incoming().discountGTQ is number && incoming().discountGTQ >= 0 && incoming().discountGTQ <= incoming().subtotalGTQ &&
-        incoming().taxPercent is number && incoming().taxPercent >= 0 && incoming().taxPercent <= 100 &&
-        incoming().taxGTQ is number && incoming().taxGTQ >= 0 &&
-        incoming().totalGTQ is number && incoming().totalGTQ >= 0 &&
+        incoming().lines[0].unitPriceGTQ is number &&
+        incoming().lines[0].unitPriceGTQ >= 0 &&
+        incoming().number is string &&
+        incoming().number.size() > 0 &&
+        incoming().number.size() <= 80 &&
+        incoming().createdAt is string &&
+        incoming().updatedAt is string &&
+        incoming().subtotalGTQ is number &&
+        incoming().subtotalGTQ >= 0 &&
+        incoming().discountGTQ is number &&
+        incoming().discountGTQ >= 0 &&
+        incoming().discountGTQ <= incoming().subtotalGTQ &&
+        incoming().taxPercent is number &&
+        incoming().taxPercent >= 0 &&
+        incoming().taxPercent <= 100 &&
+        incoming().taxGTQ is number &&
+        incoming().taxGTQ >= 0 &&
+        incoming().totalGTQ is number &&
+        incoming().totalGTQ >= 0 &&
         incoming().subtotalGTQ >= (incoming().lines[0].quantity * incoming().lines[0].unitPriceGTQ) - 0.01 &&
         incoming().subtotalGTQ <= (incoming().lines[0].quantity * incoming().lines[0].unitPriceGTQ) + 0.01 &&
         incoming().taxGTQ >= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) - 0.01 &&
         incoming().taxGTQ <= ((incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) + 0.01 &&
         incoming().totalGTQ >= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) - 0.01 &&
         incoming().totalGTQ <= (incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ) + 0.01;
-      allow update: if false;
+
+      allow update: if isValidId(orderId) &&
+        incoming().id == existing().id &&
+        incoming().id == orderId &&
+        incoming().companyId == existing().companyId &&
+        incoming().projectId == existing().projectId &&
+        incoming().supplierId == existing().supplierId &&
+        incoming().number == existing().number &&
+        incoming().currency == existing().currency &&
+        incoming().requestedBy == existing().requestedBy &&
+        incoming().subtotalGTQ == existing().subtotalGTQ &&
+        incoming().discountGTQ == existing().discountGTQ &&
+        incoming().taxPercent == existing().taxPercent &&
+        incoming().taxGTQ == existing().taxGTQ &&
+        incoming().totalGTQ == existing().totalGTQ &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().lines is list &&
+        incoming().lines.size() == 1 &&
+        existing().lines is list &&
+        existing().lines.size() == 1 &&
+        (
+          (
+            canManagePurchasing(existing().companyId) &&
+            existing().status == 'draft' &&
+            incoming().status == 'approved' &&
+            incoming().approvedBy == request.auth.uid &&
+            incoming().updatedAt is string &&
+            incoming().lines == existing().lines &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'approvedBy', 'updatedAt'
+            ])
+          ) ||
+          (
+            canManageInventory(existing().companyId) &&
+            existing().status in ['approved', 'partially_received'] &&
+            incoming().status in ['partially_received', 'received'] &&
+            incoming().approvedBy == existing().approvedBy &&
+            incoming().approvedBy is string &&
+            incoming().updatedAt is string &&
+            incoming().lastReceiptMovementId is string &&
+            incoming().lines[0].itemId == existing().lines[0].itemId &&
+            incoming().lines[0].description == existing().lines[0].description &&
+            incoming().lines[0].unit == existing().lines[0].unit &&
+            incoming().lines[0].quantity == existing().lines[0].quantity &&
+            incoming().lines[0].unitPriceGTQ == existing().lines[0].unitPriceGTQ &&
+            incoming().lines[0].receivedQuantity is number &&
+            incoming().lines[0].receivedQuantity > existing().lines[0].receivedQuantity &&
+            incoming().lines[0].receivedQuantity <= existing().lines[0].quantity &&
+            incoming().status == (
+              incoming().lines[0].receivedQuantity == incoming().lines[0].quantity
+                ? 'received' : 'partially_received'
+            ) &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'lines', 'updatedAt', 'lastReceiptMovementId'
+            ]) &&
+            existsAfter(receiptMovementPath(incoming().lastReceiptMovementId)) &&
+            getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.referenceId == orderId &&
+            getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.quantity ==
+              incoming().lines[0].receivedQuantity - existing().lines[0].receivedQuantity &&
+            getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.itemId == incoming().lines[0].itemId &&
+            getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.balanceId is string &&
+            existsAfter(receiptBalancePath(
+              getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.balanceId
+            )) &&
+            getAfter(receiptBalancePath(
+              getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.balanceId
+            )).data.lastMovementId == incoming().lastReceiptMovementId
+          )
+        );
+
       allow delete: if isValidId(orderId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
         existing().status == 'draft';
