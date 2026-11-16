@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import { spawn, spawnSync } from 'node:child_process';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -53,7 +54,21 @@ async function main() {
   if (!hasConfig) args.push('--config=playwright.config.ts');
   args.push(...extraArgs);
 
-  process.exitCode = await runPlaywright(args);
+  let exitCode = 1;
+  try {
+    exitCode = await runPlaywright(args);
+  } finally {
+    const runId = process.env.ORIGEN_E2E_RUN_ID ?? '';
+    if (/^[a-f0-9]{16}$/.test(runId)) {
+      // Conservar reportes y trazas por corrida, pero eliminar la compilación
+      // temporal para que las ejecuciones sucesivas no acumulen builds viejos.
+      await rm(path.join(repositoryRoot, `.next-e2e-${runId}`), {
+        recursive: true,
+        force: true,
+      });
+    }
+  }
+  process.exitCode = exitCode;
 }
 
 main().catch((error) => {
