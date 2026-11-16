@@ -470,7 +470,7 @@ export function subscribeProjectPhotos(
     return onSnapshot(
       collection(getDbOrThrow(), 'projects', projectId, 'photos'),
       (snapshot: QuerySnapshot<DocumentData>) =>
-        callback(snapshot.docs.map((photo) => photo.data() as ProjectPhotoRecord)),
+        callback(snapshot.docs.map((photo: QueryDocumentSnapshot<DocumentData>) => photo.data() as ProjectPhotoRecord)),
       (error: Error) => {
         const normalized = handleFirestoreError(error, OperationType.LIST, path);
         onError?.(normalized instanceof Error ? normalized : error);
