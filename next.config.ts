@@ -5,9 +5,14 @@ import type { NextConfig } from 'next';
 const e2eRunId = process.env.ORIGEN_E2E_RUN_ID;
 const isolatedE2EDistDir =
   e2eRunId && /^[a-f0-9]{16}$/.test(e2eRunId) ? `.next-e2e-${e2eRunId}` : '.next';
+const isolatedE2ETsConfig =
+  e2eRunId && process.env.ORIGEN_E2E_TSCONFIG_PATH === `.tsconfig.e2e-${e2eRunId}.json`
+    ? process.env.ORIGEN_E2E_TSCONFIG_PATH
+    : undefined;
 
 const nextConfig: NextConfig = {
   distDir: isolatedE2EDistDir,
+  ...(isolatedE2ETsConfig ? { typescript: { tsconfigPath: isolatedE2ETsConfig } } : {}),
   outputFileTracingRoot: process.cwd(),
   output: 'standalone',
   devIndicators: false,

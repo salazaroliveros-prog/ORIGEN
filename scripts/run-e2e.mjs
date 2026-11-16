@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { createServer } from 'node:net';
 import { existsSync, readFileSync } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
+import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -65,9 +65,12 @@ async function main() {
   const port = await getAvailablePort();
   const reportDirectory = path.join(repositoryRoot, 'test-results', runId);
   const htmlDirectory = path.join(repositoryRoot, 'playwright-report', runId);
+  const tsconfigFileName = `.tsconfig.e2e-${runId}.json`;
+  const tsconfigPath = path.join(repositoryRoot, tsconfigFileName);
   await Promise.all([
     mkdir(reportDirectory, { recursive: true }),
     mkdir(htmlDirectory, { recursive: true }),
+    copyFile(path.join(repositoryRoot, 'tsconfig.json'), tsconfigPath),
   ]);
 
   // El correo y la clave son nuevos por corrida; no se reutilizan cuentas ni
@@ -75,6 +78,7 @@ async function main() {
   const env = {
     ...process.env,
     ORIGEN_E2E_RUN_ID: runId,
+    ORIGEN_E2E_TSCONFIG_PATH: tsconfigFileName,
     E2E_PORT: String(port),
     E2E_BASE_URL: `http://127.0.0.1:${port}`,
     E2E_ADMIN_EMAIL: `e2e-${runId}@origen.invalid`,
@@ -98,7 +102,9 @@ async function main() {
   console.log(`[e2e] Firebase project: ${projectId} (emuladores desechables)`);
 
   const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-  const exitCode = await run(
+  let exitCode = 1;
+  try {
+    exitCode = await run(
     executable,
     [
       '--yes',
@@ -118,7 +124,12 @@ async function main() {
       stdio: 'inherit',
       shell: process.platform === 'win32',
     }
-  );
+    );
+  } finally {
+    // Next.js puede actualizar la configuración para registrar tipos de la
+    // carpeta distDir. Solo se permite tocar el tsconfig temporal de esta run.
+    await rm(tsconfigPath, { force: true });
+  }
 
   process.exitCode = exitCode;
 }
