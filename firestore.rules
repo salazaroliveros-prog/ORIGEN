@@ -80,12 +80,35 @@ service cloud.firestore {
         get(/databases/$(database)/documents/machinery/$(machineryId)).data.companyId == companyId;
     }
 
+    function isSupplierInCompany(supplierId, companyId) {
+      return exists(/databases/$(database)/documents/suppliers/$(supplierId)) &&
+        get(/databases/$(database)/documents/suppliers/$(supplierId)).data.companyId == companyId;
+    }
+
+    function isWarehouseInCompany(warehouseId, companyId) {
+      return exists(/databases/$(database)/documents/warehouses/$(warehouseId)) &&
+        get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.companyId == companyId;
+    }
+
+    function isInventoryItemInCompany(itemId, companyId) {
+      return exists(/databases/$(database)/documents/inventoryItems/$(itemId)) &&
+        get(/databases/$(database)/documents/inventoryItems/$(itemId)).data.companyId == companyId;
+    }
+
+    function canManageInventory(companyId) {
+      return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager', 'warehouse_manager']);
+    }
+
+    function canManagePurchasing(companyId) {
+      return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager', 'finance']);
+    }
+
     match /{path=**}/members/{memberId} {
       allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
 
     function isAssignableCompanyRole(role) {
-      return role in ['admin', 'project_manager', 'finance', 'field_worker', 'viewer'];
+      return role in ['admin', 'project_manager', 'finance', 'field_worker', 'warehouse_manager', 'viewer'];
     }
 
     // Validation helpers
@@ -567,6 +590,172 @@ service cloud.firestore {
         incoming().costGTQ is number && incoming().costGTQ >= 0;
       allow delete: if isValidId(logId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    // Suppliers are shared company records; only finance/admin can maintain them.
+    match /suppliers/{supplierId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(supplierId) &&
+        incoming().id == supplierId &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 200 &&
+        incoming().nit is string && incoming().nit.size() > 0 && incoming().nit.size() <= 30 &&
+        incoming().active is bool;
+      allow update: if isValidId(supplierId) &&
+        canManagePurchasing(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == supplierId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 200 &&
+        incoming().nit is string && incoming().nit.size() > 0 && incoming().nit.size() <= 30 &&
+        incoming().active is bool;
+      allow delete: if isValidId(supplierId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Warehouses belong to a company and may optionally be scoped to one project.
+    match /warehouses/{warehouseId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(warehouseId) &&
+        incoming().id == warehouseId &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 150 &&
+        incoming().type in ['general', 'project'] &&
+        (incoming().type == 'general'
+          ? !incoming().keys().hasAny(['projectId'])
+          : (incoming().projectId is string && isProjectInCompany(incoming().projectId, incoming().companyId)));
+      allow update: if isValidId(warehouseId) &&
+        canManageInventory(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == warehouseId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().type == existing().type &&
+        (incoming().type == 'general'
+          ? !incoming().keys().hasAny(['projectId'])
+          : (incoming().projectId == existing().projectId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId)));
+      // Keep warehouse history stable; archive by setting active=false instead.
+      allow delete: if false;
+    }
+
+    // Inventory catalog. Stock itself is derived from immutable movements.
+    match /inventoryItems/{itemId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(itemId) &&
+        incoming().id == itemId &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 200 &&
+        incoming().unit is string && incoming().unit.size() > 0 && incoming().unit.size() <= 32 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        incoming().active is bool;
+      allow update: if isValidId(itemId) &&
+        canManageInventory(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == itemId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 200 &&
+        incoming().unit is string && incoming().unit.size() > 0 && incoming().unit.size() <= 32 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        incoming().active is bool;
+      allow delete: if isValidId(itemId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Stock movements are append-only to preserve traceability and prevent stock tampering.
+    match /stockMovements/{movementId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(movementId) &&
+        incoming().id == movementId &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        isWarehouseInCompany(incoming().warehouseId, incoming().companyId) &&
+        isInventoryItemInCompany(incoming().itemId, incoming().companyId) &&
+        (!incoming().keys().hasAny(['projectId']) ||
+          isProjectInCompany(incoming().projectId, incoming().companyId)) &&
+        incoming().kind in ['opening', 'purchase_receipt', 'project_issue', 'transfer_in', 'transfer_out', 'adjustment_in', 'adjustment_out', 'return'] &&
+        incoming().quantity is number && incoming().quantity > 0 &&
+        incoming().unitCostGTQ is number && incoming().unitCostGTQ >= 0 &&
+        incoming().occurredAt is string;
+      allow update, delete: if false;
+    }
+
+    // Purchase orders must reference a supplier and a project in the same company.
+    match /purchaseOrders/{orderId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(orderId) &&
+        incoming().id == orderId &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().requestedBy == request.auth.uid &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().currency == 'GTQ' &&
+        incoming().status in ['draft', 'submitted'] &&
+        incoming().lines is list && incoming().lines.size() > 0 && incoming().lines.size() <= 500 &&
+        incoming().subtotalGTQ is number && incoming().subtotalGTQ >= 0 &&
+        incoming().discountGTQ is number && incoming().discountGTQ >= 0 &&
+        incoming().taxPercent is number && incoming().taxPercent >= 0 && incoming().taxPercent <= 100 &&
+        incoming().taxGTQ is number && incoming().taxGTQ >= 0 &&
+        incoming().totalGTQ is number && incoming().totalGTQ >= 0;
+      allow update: if isValidId(orderId) &&
+        canManagePurchasing(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == orderId &&
+        incoming().companyId == existing().companyId &&
+        incoming().requestedBy == existing().requestedBy &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().currency == 'GTQ' &&
+        incoming().status in ['draft', 'submitted', 'approved', 'partially_received', 'received', 'cancelled'] &&
+        incoming().lines is list && incoming().lines.size() > 0 && incoming().lines.size() <= 500 &&
+        incoming().subtotalGTQ is number && incoming().subtotalGTQ >= 0 &&
+        incoming().discountGTQ is number && incoming().discountGTQ >= 0 &&
+        incoming().taxPercent is number && incoming().taxPercent >= 0 && incoming().taxPercent <= 100 &&
+        incoming().taxGTQ is number && incoming().taxGTQ >= 0 &&
+        incoming().totalGTQ is number && incoming().totalGTQ >= 0 &&
+        (incoming().status != 'approved' || incoming().approvedBy == request.auth.uid);
+      allow delete: if isValidId(orderId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        existing().status == 'draft';
+    }
+
+    // Subcontracts remain linked to the project and supplier that own them.
+    match /subcontracts/{contractId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(contractId) &&
+        incoming().id == contractId &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().contractNumber is string && incoming().contractNumber.size() > 0 &&
+        incoming().description is string && incoming().description.size() > 0 &&
+        incoming().startDate is string && incoming().endDate is string &&
+        incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
+        incoming().paidGTQ is number && incoming().paidGTQ >= 0 &&
+        incoming().paidGTQ <= incoming().amountGTQ &&
+        incoming().status in ['draft', 'active', 'completed', 'terminated'];
+      allow update: if isValidId(contractId) &&
+        canManagePurchasing(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == contractId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
+        incoming().paidGTQ is number && incoming().paidGTQ >= 0 &&
+        incoming().paidGTQ <= incoming().amountGTQ &&
+        incoming().status in ['draft', 'active', 'completed', 'terminated'];
+      allow delete: if isValidId(contractId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        existing().status == 'draft';
     }
 
     // FCM registration tokens are private to the authenticated user.
