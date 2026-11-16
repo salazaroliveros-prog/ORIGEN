@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, startTransition } from 'react';
+import React, { useEffect, useMemo, useState, startTransition } from 'react';
 import {
   Plus,
   Edit2,
@@ -21,7 +21,8 @@ import { TouchTarget } from '@/components/ui/TouchTarget';
 import { Pagination } from '@/components/ui/Pagination';
 import { ProjectPhotoDropzone } from '@/components/ProjectPhotoDropzone';
 import { toast } from 'react-hot-toast';
-import type { APUItem, CompanySettings, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
+import type { APUItem, CompanySettings, ExpenseRecord, Project, ProjectPhotoRecord, QuoteRecord } from '@/lib/types';
+import { saveProjectPhotoToFirestore, subscribeProjectPhotos } from '@/lib/firebaseService';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
 
 interface ProjectsViewProps {
@@ -61,8 +62,21 @@ export function ProjectsView({
   const [showArchived, setShowArchived] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedProjectForPhotos, setSelectedProjectForPhotos] = useState<Project | null>(null);
+  const [savedProjectPhotos, setSavedProjectPhotos] = useState<ProjectPhotoRecord[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    if (!photoModalOpen || !selectedProjectForPhotos || !company?.companyId) {
+      setSavedProjectPhotos([]);
+      return;
+    }
+    return subscribeProjectPhotos(
+      selectedProjectForPhotos.id,
+      setSavedProjectPhotos,
+      (error) => toast.error(error.message || 'No se pudieron cargar las fotos del proyecto.')
+    );
+  }, [photoModalOpen, selectedProjectForPhotos?.id, company?.companyId]);
 
   const visibleProjects = useMemo(
     () => projects.filter((project) => (project.status === 'Archivado') === showArchived),
@@ -127,13 +141,19 @@ export function ProjectsView({
     });
   };
 
-  const handlePhotoUploaded = (
-    photoUrl: string,
-    metadata: { filename: string; uploadedAt: string; size: number }
+  const handlePhotoUploaded = async (
+    _photoUrl: string,
+    metadata: { id: string; filename: string; storagePath: string; uploadedAt: string; size: number }
   ) => {
-    // Aquí podrías guardar la referencia de la foto en el proyecto
-    // Por ahora solo mostramos un toast de éxito
-    toast.success(`Foto guardada para ${selectedProjectForPhotos?.name}`);
+    if (!selectedProjectForPhotos || !company?.companyId) {
+      throw new Error('No se pudo identificar la empresa y el proyecto para guardar la foto.');
+    }
+    await saveProjectPhotoToFirestore(
+      selectedProjectForPhotos.id,
+      company.companyId,
+      metadata
+    );
+    toast.success(`Foto vinculada al proyecto ${selectedProjectForPhotos.name}`);
   };
 
   const exportProjects = () => {
@@ -449,6 +469,7 @@ export function ProjectsView({
                 projectId={selectedProjectForPhotos.id}
                 projectCode={selectedProjectForPhotos.code || 'PROYECTO'}
                 onPhotoUploaded={handlePhotoUploaded}
+                savedPhotos={savedProjectPhotos}
                 maxFiles={5}
                 maxSizeMB={10}
               />

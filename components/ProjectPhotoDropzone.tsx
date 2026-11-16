@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Image as ImageIcon, Check, AlertCircle } from 'lucide-react';
+import { Upload, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { authFetch } from '@/lib/apiClient';
+import type { ProjectPhotoRecord } from '@/lib/types';
 
 interface ProjectPhotoDropzoneProps {
   projectId: string;
@@ -13,11 +14,14 @@ interface ProjectPhotoDropzoneProps {
   onPhotoUploaded: (
     photoUrl: string,
     metadata: {
+      id: string;
       filename: string;
+      storagePath: string;
       uploadedAt: string;
       size: number;
     }
-  ) => void;
+  ) => Promise<void> | void;
+  savedPhotos?: ProjectPhotoRecord[];
   maxFiles?: number;
   maxSizeMB?: number;
   disabled?: boolean;
@@ -27,6 +31,7 @@ export function ProjectPhotoDropzone({
   projectId,
   projectCode,
   onPhotoUploaded,
+  savedPhotos = [],
   maxFiles = 5,
   maxSizeMB = 10,
   disabled = false,
@@ -34,12 +39,61 @@ export function ProjectPhotoDropzone({
   const [uploading, setUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<
     Array<{
+      id: string;
       url: string;
       filename: string;
       uploadedAt: string;
       size: number;
     }>
   >([]);
+
+  const [savedFiles, setSavedFiles] = useState<Array<{
+    id: string;
+    url: string;
+    filename: string;
+    uploadedAt: string;
+    size: number;
+  }>>([]);
+
+  useEffect(() => {
+    let active = true;
+    const objectUrls: string[] = [];
+    const loadSavedPhotos = async () => {
+      const results = await Promise.all(savedPhotos.map(async (photo) => {
+        try {
+          const response = await authFetch(
+            `/api/project-photos/${encodeURIComponent(projectId)}/${encodeURIComponent(photo.id)}`
+          );
+          if (!response.ok) return null;
+          const objectUrl = URL.createObjectURL(await response.blob());
+          objectUrls.push(objectUrl);
+          return {
+            id: photo.id,
+            url: objectUrl,
+            filename: photo.filename,
+            uploadedAt: photo.uploadedAt,
+            size: photo.size,
+          };
+        } catch {
+          return null;
+        }
+      }));
+      if (active) setSavedFiles(results.filter((photo): photo is NonNullable<typeof photo> => photo !== null));
+    };
+    void loadSavedPhotos();
+    return () => {
+      active = false;
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [projectId, savedPhotos]);
+
+  const displayedFiles = useMemo(() => {
+    const savedIds = new Set(savedFiles.map((file) => file.id));
+    return [
+      ...savedFiles,
+      ...uploadedFiles.filter((file) => !savedIds.has(file.id)),
+    ];
+  }, [savedFiles, uploadedFiles]);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -74,15 +128,20 @@ export function ProjectPhotoDropzone({
           const data = await response.json();
 
           const photoData = {
-            url: data.url,
+            id: data.photoId as string,
+            url: data.url as string,
             filename: file.name,
-            uploadedAt: new Date().toISOString(),
+            storagePath: data.storagePath as string,
+            uploadedAt: data.uploadedAt as string,
             size: file.size,
           };
+          if (!photoData.id || !photoData.storagePath || !photoData.uploadedAt || !photoData.url) {
+            throw new Error('El servidor no devolvió la referencia completa de la foto.');
+          }
 
+          await onPhotoUploaded(data.url, photoData);
           setUploadedFiles((prev) => [...prev, photoData]);
-          onPhotoUploaded(data.url, photoData);
-          toast.success(`Foto "${file.name}" subida correctamente`);
+          toast.success(`Foto "${file.name}" guardada y vinculada al proyecto`);
         }
       } catch (error) {
         console.error('Error uploading photos:', error);
@@ -103,16 +162,6 @@ export function ProjectPhotoDropzone({
     maxSize: maxSizeMB * 1024 * 1024,
     disabled,
   });
-
-  const removePhoto = (index: number) => {
-    setUploadedFiles((prev) => {
-      const newFiles = [...prev];
-      const removed = newFiles.splice(index, 1)[0];
-      // Notificar al componente padre que se eliminó una foto
-      toast.success(`Foto "${removed.filename}" eliminada`);
-      return newFiles;
-    });
-  };
 
   return (
     <div className="space-y-4">
@@ -153,8 +202,8 @@ export function ProjectPhotoDropzone({
             Fotos subidas ({uploadedFiles.length})
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {uploadedFiles.map((file, index) => (
-              <div key={index} className="group relative">
+            {displayedFiles.map((file) => (
+              <div key={file.id} className="group relative">
                 <div className="aspect-square overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                   <Image
                     src={file.url}
@@ -165,13 +214,6 @@ export function ProjectPhotoDropzone({
                     quality={80}
                   />
                 </div>
-                <button
-                  onClick={() => removePhoto(index)}
-                  className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
-                  title="Eliminar foto"
-                >
-                  <X className="h-4 w-4" />
-                </button>
                 <div className="absolute bottom-0 left-0 right-0 rounded-b-lg bg-black/60 p-1.5 text-xs text-white">
                   <p className="truncate">{file.filename}</p>
                 </div>
@@ -185,9 +227,9 @@ export function ProjectPhotoDropzone({
       <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
         <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
         <div className="text-xs text-blue-800">
-          <p className="font-medium">Las fotos se almacenan en Firebase Storage</p>
+          <p className="font-medium">Las fotos se almacenan y quedan vinculadas al proyecto</p>
           <p className="mt-1">
-            Se guardarán en la carpeta{' '}
+            El acceso a los archivos requiere sesión y permisos del proyecto. Carpeta:{' '}
             <code className="rounded bg-blue-100 px-1">/projects/{projectId}/progress</code>
           </p>
         </div>
