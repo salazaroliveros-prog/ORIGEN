@@ -35,6 +35,8 @@ export interface StockMovement {
   unitCostGTQ: number;
   occurredAt: string;
   referenceId?: string;
+  balanceId?: string;
+  receiptNumber?: string;
   notes?: string;
   createdBy: string;
 }
