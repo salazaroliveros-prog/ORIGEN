@@ -13,6 +13,7 @@ import { toast } from 'react-hot-toast';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
 import { useProjectData } from '@/lib/hooks/data';
+import { calculateProjectClosureFinancialSummary } from '@/lib/domain/projectClosure';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -34,7 +35,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     loading: workspaceLoading,
     error: workspaceError,
   } = useCompanyWorkspace(currentUser);
-  const { projects, loading: projectsLoading } = useProjectData({
+  const { projects, allExpenses, expensesLoading, loading: projectsLoading } = useProjectData({
     companyId: workspace?.id,
     currentUserId: currentUser?.uid,
     role: membership?.role,
@@ -47,6 +48,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [manuallyEditedBalanceProjectId, setManuallyEditedBalanceProjectId] = useState<string | null>(null);
 
   // Cargar datos del proyecto una vez disponible
   useEffect(() => {
@@ -54,15 +56,20 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
       const found = projects.find((p: Project) => p.id === projectId);
       if (found) {
         setProject(found);
+        const closureSummary = calculateProjectClosureFinancialSummary({
+          projectId: found.id,
+          budgetTotalGTQ: found.budgetTotal ?? 0,
+          expenses: allExpenses,
+        });
         setFormData((prev) => ({
           ...prev,
-          finalBalanceGTQ: (
-            (found.budgetTotal ?? 0) - (found.spentTotal ?? 0)
-          ).toString(),
+          finalBalanceGTQ: manuallyEditedBalanceProjectId === found.id
+            ? prev.finalBalanceGTQ
+            : closureSummary.remainingBudgetGTQ.toFixed(2),
         }));
       }
     }
-  }, [projects, projectId]);
+  }, [projects, allExpenses, projectId, manuallyEditedBalanceProjectId]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -88,6 +95,23 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
 
     if (!project || !currentUser) {
       toast.error('No se pudo obtener la información del proyecto');
+      return;
+    }
+
+    if (expensesLoading) {
+      toast.error('Espera a que termine de cargar el historial financiero antes de cerrar la obra.');
+      return;
+    }
+
+    const closureFinancials = calculateProjectClosureFinancialSummary({
+      projectId: project.id,
+      budgetTotalGTQ: project.budgetTotal ?? 0,
+      expenses: allExpenses,
+    });
+    if (!closureFinancials.canClose) {
+      toast.error(
+        `No se puede cerrar la obra: hay ${closureFinancials.pendingExpenseCount} gasto(s) pendientes de aprobación por ${formatGTQ(closureFinancials.pendingExpenseTotalGTQ)}.`
+      );
       return;
     }
 
@@ -150,7 +174,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     );
   }
 
-  if (projectsLoading || !project) {
+  if (projectsLoading || expensesLoading || !project) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="text-center">
@@ -161,9 +185,15 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     );
   }
 
+  const closureFinancials = calculateProjectClosureFinancialSummary({
+    projectId: project.id,
+    budgetTotalGTQ: project.budgetTotal ?? 0,
+    expenses: allExpenses,
+  });
   const budgetTotal = project.budgetTotal ?? 0;
-  const spentTotal = project.spentTotal ?? 0;
-  const remainingBalance = budgetTotal - spentTotal;
+  const approvedExpenseTotal = closureFinancials.approvedExpenseTotalGTQ;
+  const pendingExpenseTotal = closureFinancials.pendingExpenseTotalGTQ;
+  const remainingBalance = closureFinancials.remainingBudgetGTQ;
 
   return (
     <div className="max-w-2xl mx-auto p-4">
@@ -179,7 +209,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
         </div>
 
         {/* Resumen financiero */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <div className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Presupuesto Total
@@ -188,15 +218,26 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Gastos Ejecutados
+              Gasto Aprobado
             </p>
             <p className="text-lg font-bold text-rose-400">
-              {formatGTQ(spentTotal)}
+              {formatGTQ(approvedExpenseTotal)}
             </p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Balance Final
+              Pendiente de Aprobación
+            </p>
+            <p className={`text-lg font-bold ${
+              pendingExpenseTotal > 0 ? 'text-amber-400' : 'text-slate-200'
+            }`}>
+              {formatGTQ(pendingExpenseTotal)}
+            </p>
+            <p className="mt-1 text-[10px] text-slate-500">{closureFinancials.pendingExpenseCount} solicitud(es)</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Saldo tras Compromisos
             </p>
             <p className={`text-lg font-bold ${
               remainingBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'
@@ -205,6 +246,14 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
             </p>
           </div>
         </div>
+
+        {closureFinancials.pendingExpenseCount > 0 ? (
+          <div role="alert" className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+            No es posible cerrar esta obra mientras existan gastos pendientes de aprobación. Resuelve las {closureFinancials.pendingExpenseCount} solicitud(es) por {formatGTQ(pendingExpenseTotal)} y vuelve a generar el cierre.
+          </div>
+        ) : (
+          <p className="mb-5 text-xs text-emerald-300">No hay solicitudes de gasto pendientes de aprobación.</p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -227,13 +276,16 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
 
           <div>
             <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Balance Final (GTQ)
+              Saldo final tras compromisos (GTQ)
             </label>
             <Input
               type="number"
               step="0.01"
               value={formData.finalBalanceGTQ}
-              onChange={(e) => setFormData({ ...formData, finalBalanceGTQ: e.target.value })}
+              onChange={(e) => {
+                setManuallyEditedBalanceProjectId(project.id);
+                setFormData({ ...formData, finalBalanceGTQ: e.target.value });
+              }}
               disabled={isLoading}
               required
               variant={errors.finalBalanceGTQ ? 'error' : 'default'}
@@ -253,7 +305,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
               variant="primary"
               size="lg"
               isLoading={isLoading}
-              disabled={isLoading || !project}
+              disabled={isLoading || expensesLoading || !project || !closureFinancials.canClose}
               className="w-full"
             >
               {isLoading ? 'Cerrando proyecto…' : 'Cerrar Proyecto Definitivamente'}
@@ -261,7 +313,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
           </div>
 
           <p className="mt-4 text-xs text-slate-500 text-center">
-            ⚠️ Una vez cerrado, el proyecto no podrá tener nuevos gastos ni APU.
+            ⚠️ El cierre requiere resolver todas las solicitudes pendientes. Una vez cerrado, el proyecto no podrá tener nuevos gastos ni APU.
           </p>
         </form>
       </Card>

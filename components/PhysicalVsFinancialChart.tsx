@@ -45,17 +45,17 @@ export function PhysicalVsFinancialChart({
   const chartData = useMemo(() => {
     return projects.map((p) => {
       const avanceFisico = p.progressPercent || 0;
-      const avanceFinanciero = Math.min(
+      const avanceComprometido = Math.min(
         100,
         Math.round(((p.spentTotal || 0) / (p.budgetTotal || 1)) * 100 * 10) / 10
       );
-      const brecha = Math.round((avanceFisico - avanceFinanciero) * 10) / 10;
+      const brecha = Math.round((avanceFisico - avanceComprometido) * 10) / 10;
 
       let diagnostico: 'Saludable' | 'Neutro' | 'Alerta Desfase' = 'Neutro';
       if (brecha >= 2) {
-        diagnostico = 'Saludable'; // Physical progress is higher than financial spend
+        diagnostico = 'Saludable'; // El avance físico supera el compromiso presupuestario
       } else if (brecha < -2) {
-        diagnostico = 'Alerta Desfase'; // Financial spend is higher than physical progress
+        diagnostico = 'Alerta Desfase'; // El compromiso presupuestario supera el avance físico
       }
 
       return {
@@ -63,7 +63,7 @@ export function PhysicalVsFinancialChart({
         code: p.code,
         fullName: p.name,
         avanceFisico,
-        avanceFinanciero,
+        avanceComprometido,
         brecha,
         spentTotal: p.spentTotal,
         budgetTotal: p.budgetTotal,
@@ -83,16 +83,16 @@ export function PhysicalVsFinancialChart({
     );
   }, [chartData]);
 
-  const avgFinanciero = useMemo(() => {
+  const avgComprometido = useMemo(() => {
     if (chartData.length === 0) return 0;
     return (
       Math.round(
-        (chartData.reduce((acc, curr) => acc + curr.avanceFinanciero, 0) / chartData.length) * 10
+        (chartData.reduce((acc, curr) => acc + curr.avanceComprometido, 0) / chartData.length) * 10
       ) / 10
     );
   }, [chartData]);
 
-  const globalBrecha = Math.round((avgFisico - avgFinanciero) * 10) / 10;
+  const globalBrecha = Math.round((avgFisico - avgComprometido) * 10) / 10;
 
   return (
     <div className="glass-panel space-y-5 rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
@@ -104,15 +104,15 @@ export function PhysicalVsFinancialChart({
               <Scale className="h-5 w-5" aria-hidden="true" />
             </span>
             <h2 className="text-base font-extrabold tracking-tight text-white sm:text-lg">
-              Avance Físico vs. Avance Financiero por Obra
+              Avance Físico vs. Presupuesto Comprometido por Obra
             </h2>
             <span className="rounded-full border border-sky-400/30 bg-sky-400/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-sky-300">
               Recharts Dual Bar Engine
             </span>
           </div>
           <p className="max-w-2xl text-xs leading-relaxed text-slate-400">
-            Comparativa directa entre el avance físico de ejecución en sitio (%) y la ejecución
-            presupuestaria desembolsada (%) para detectar sobrecostos o eficiencia operativa.
+            Comparativa entre avance físico en sitio (%) y presupuesto comprometido
+            (gastos aprobados + pendientes; excluye rechazados) para detectar descalces de costo.
           </p>
         </div>
 
@@ -133,7 +133,7 @@ export function PhysicalVsFinancialChart({
                 </>
               ) : (
                 <>
-                  <TrendingDown className="h-3.5 w-3.5" /> {globalBrecha}% Exceso Financiero
+                  <TrendingDown className="h-3.5 w-3.5" /> {globalBrecha}% Sobrecompromiso
                 </>
               )}
             </span>
@@ -159,10 +159,10 @@ export function PhysicalVsFinancialChart({
         <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-slate-950/50 p-3.5">
           <div>
             <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Promedio Avance Financiero
+              Promedio Presupuesto Comprometido
             </span>
-            <span className="text-xl font-extrabold text-amber-400">{avgFinanciero}%</span>
-            <span className="mt-0.5 block text-[10px] text-slate-400">Presupuesto consumido</span>
+            <span className="text-xl font-extrabold text-amber-400">{avgComprometido}%</span>
+            <span className="mt-0.5 block text-[10px] text-slate-400">Aprobados + pendientes; excluye rechazados</span>
           </div>
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-amber-400">
             <DollarSign className="h-5 w-5" aria-hidden="true" />
@@ -172,7 +172,7 @@ export function PhysicalVsFinancialChart({
         <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-slate-950/50 p-3.5">
           <div>
             <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Estado de Salud Financiera
+              Estado del Compromiso Presupuestario
             </span>
             <span className="mt-1 flex items-center gap-1 text-sm font-bold text-white">
               {globalBrecha >= 0 ? (
@@ -256,22 +256,22 @@ export function PhysicalVsFinancialChart({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 font-semibold text-amber-400">
                             <span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-400" />
-                            Avance Financiero:
+                            Presupuesto Comprometido:
                           </span>
                           <span className="font-mono font-bold text-amber-400">
-                            {data.avanceFinanciero}%
+                            {data.avanceComprometido}%
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between border-t border-white/10 pt-1 text-[11px]">
-                          <span className="text-slate-400">Gastado:</span>
+                          <span className="text-slate-400">Comprometido:</span>
                           <span className="font-mono font-semibold text-slate-200">
                             {formatMoney(data.spentTotal)} / {formatMoney(data.budgetTotal)}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between pt-1">
-                          <span className="text-slate-400">Desfase Físico-Financiero:</span>
+                          <span className="text-slate-400">Desfase Físico-Compromiso:</span>
                           <span
                             className={`font-mono font-bold ${
                               data.brecha >= 0 ? 'text-emerald-400' : 'text-rose-400'
@@ -290,7 +290,7 @@ export function PhysicalVsFinancialChart({
                         )}
                         {data.diagnostico === 'Alerta Desfase' && (
                           <span className="inline-flex items-center gap-1 rounded border border-rose-400/30 bg-rose-400/20 px-2 py-0.5 text-[10px] font-bold text-rose-300">
-                            <AlertTriangle className="h-3 w-3" /> Alerta Sobrecosto
+                            <AlertTriangle className="h-3 w-3" /> Alerta Sobrecompromiso
                           </span>
                         )}
                         {data.diagnostico === 'Neutro' && (
@@ -325,8 +325,8 @@ export function PhysicalVsFinancialChart({
               barSize={22}
             />
             <Bar
-              dataKey="avanceFinanciero"
-              name="Avance Financiero (% Presupuesto)"
+              dataKey="avanceComprometido"
+              name="Presupuesto Comprometido (% Presupuesto)"
               fill="#f59e0b"
               radius={[6, 6, 0, 0]}
               barSize={22}
