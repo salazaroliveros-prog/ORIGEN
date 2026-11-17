@@ -340,6 +340,7 @@ service cloud.firestore {
       let incoming = getAfter(incomingPath).data;
       return transferId is string &&
         transferId.size() > 0 && transferId.size() <= 75 &&
+        !exists(outgoingPath) && !exists(incomingPath) &&
         existsAfter(outgoingPath) && existsAfter(incomingPath) &&
         isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
         canManageInventory(data.companyId) &&
@@ -357,7 +358,8 @@ service cloud.firestore {
       let movement = getAfter(movementPath).data;
       let incomingPath = receiptMovementPath('tr_' + movement.referenceId + '_in');
       let incoming = getAfter(incomingPath).data;
-      return existsAfter(movementPath) &&
+      return !exists(movementPath) && !exists(incomingPath) &&
+        existsAfter(movementPath) &&
         existsAfter(incomingPath) &&
         movement.kind == 'transfer_out' &&
         movement.balanceId == balanceId &&
@@ -380,7 +382,8 @@ service cloud.firestore {
       let previousReorder = creating
         ? get(/databases/$(database)/documents/inventoryItems/$(movement.itemId)).data.reorderLevel
         : existing().reorderLevel;
-      return existsAfter(movementPath) &&
+      return !exists(movementPath) && !exists(outgoingPath) &&
+        existsAfter(movementPath) &&
         existsAfter(outgoingPath) &&
         movement.kind == 'transfer_in' &&
         movement.balanceId == balanceId &&
@@ -402,7 +405,7 @@ service cloud.firestore {
     function isValidIssueBalance(data, balanceId) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let movement = getAfter(movementPath).data;
-      return existsAfter(movementPath) &&
+      return !exists(movementPath) && existsAfter(movementPath) &&
         movement.kind == 'project_issue' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
@@ -483,7 +486,7 @@ service cloud.firestore {
       let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
       return data.id == balanceId &&
         data.id == 'bal_' + data.warehouseId + '_' + data.itemId &&
-        existsAfter(movementPath) &&
+        !exists(movementPath) && existsAfter(movementPath) &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
         movement.itemId == data.itemId &&
