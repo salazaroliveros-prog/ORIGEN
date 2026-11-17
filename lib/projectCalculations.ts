@@ -70,8 +70,8 @@ export function mergeProjectUpdate(
 }
 
 /**
- * Calcula el gasto total del proyecto sumando solo gastos ejecutados
- * (excluye rechazados, que no consumen presupuesto).
+ * Calcula los gastos registrados no rechazados del proyecto.
+ * Incluye solicitudes pendientes para medir el presupuesto comprometido; excluye rechazados.
  */
 export function calculateProjectSpentTotal(expenses: ExpenseRecord[]): number {
   return sumCountableExpenses(expenses);
