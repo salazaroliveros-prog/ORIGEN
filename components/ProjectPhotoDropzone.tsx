@@ -93,15 +93,15 @@ export function ProjectPhotoDropzone({
   useEffect(() => {
     const savedIds = new Set(savedPhotos.map((photo) => photo.id));
     if (savedIds.size === 0) return;
-    setUploadedFiles((current) => {
-      const confirmed = current.filter((file) => savedIds.has(file.id));
-      confirmed.forEach((file) => {
-        URL.revokeObjectURL(file.url);
-        uploadedObjectUrls.current.delete(file.url);
-      });
-      return current.filter((file) => !savedIds.has(file.id));
+    const confirmed = uploadedFiles.filter((file) => savedIds.has(file.id));
+    if (confirmed.length === 0) return;
+
+    confirmed.forEach((file) => {
+      URL.revokeObjectURL(file.url);
+      uploadedObjectUrls.current.delete(file.url);
     });
-  }, [savedPhotos]);
+    setUploadedFiles((current) => current.filter((file) => !savedIds.has(file.id)));
+  }, [savedPhotos, uploadedFiles]);
 
   useEffect(() => () => {
     uploadedObjectUrls.current.forEach((url) => URL.revokeObjectURL(url));
