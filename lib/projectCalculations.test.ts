@@ -157,6 +157,17 @@ describe('project spending helpers', () => {
     expect(calculateProjectSpentById(expenses, 'unknown')).toBe(0);
   });
 
+  it('excludes rejected expenses from a project budget while retaining pending expenses', () => {
+    const projectExpenses = [
+      expense({ id: 'accepted', projectId: 'proj-1', amount: 1200, approvalStatus: 'Aprobado' }),
+      expense({ id: 'pending', projectId: 'proj-1', amount: 300, approvalStatus: 'Pendiente' }),
+      expense({ id: 'rejected', projectId: 'proj-1', amount: 900, approvalStatus: 'Rechazado' }),
+      expense({ id: 'other-project', projectId: 'proj-2', amount: 7000 }),
+    ];
+
+    expect(calculateProjectSpentById(projectExpenses, 'proj-1')).toBe(1500);
+  });
+
   it('detects over-budget projects strictly above the limit', () => {
     const base = project({ budgetTotal: 4000 });
     expect(isProjectOverBudget(base, 4000)).toBe(false);
