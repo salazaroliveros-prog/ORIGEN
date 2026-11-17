@@ -1141,7 +1141,7 @@ service cloud.firestore {
       allow create: if
         (incoming().kind == 'purchase_receipt' && isValidReceiptMovement(incoming(), movementId)) ||
         (incoming().kind == 'project_issue' && isValidProjectIssueMovement(incoming(), movementId)) ||
-        ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in') && isValidTransferMovement(incoming(), movementId);
+        ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in') && isValidTransferMovement(incoming(), movementId));
       allow update, delete: if false;
     }
 
