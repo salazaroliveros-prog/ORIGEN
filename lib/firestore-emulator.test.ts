@@ -273,6 +273,14 @@ beforeEach(async () => {
       transaction.set(movementRef, movement);
       transaction.update(balanceRef, balanceUpdate);
     }));
+    // A previously committed movement cannot be replayed to deduct stock again.
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.update(balanceRef, {
+        ...balanceUpdate,
+        quantity: 6,
+        updatedAt: '2026-11-16T11:00:00.000Z',
+      });
+    }));
   });
 
   it('requires both sides of a warehouse transfer and paired balances in one transaction', async () => {
@@ -380,6 +388,14 @@ beforeEach(async () => {
       transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
       transaction.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
     }));
+    // Reusing the immutable outgoing movement must not debit the source a second time.
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), {
+        ...sourceBalance,
+        quantity: 4,
+        updatedAt: '2026-11-16T11:00:00.000Z',
+      });
+    }));
   });
 
   it('requires a purchase receipt movement, balance, and order update in one atomic write', async () => {
@@ -473,6 +489,14 @@ beforeEach(async () => {
       transaction.set(doc(database, 'stockMovements', secondMovement.id), secondMovement);
       transaction.set(balanceRef, secondBalance);
       transaction.update(orderRef, secondOrderUpdate);
+    }));
+    // A receipt already committed with its purchase order cannot be replayed as a balance-only write.
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.update(balanceRef, {
+        ...secondBalance,
+        quantity: 16,
+        updatedAt: '2026-11-16T12:00:00.000Z',
+      });
     }));
   });
 
