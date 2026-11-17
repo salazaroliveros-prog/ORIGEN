@@ -364,6 +364,21 @@ beforeEach(async () => {
     };
 
     await assertFails(setDoc(doc(database, 'stockMovements', outgoing.id), outgoing));
+    // A transfer cannot write only the movement pair or only one warehouse balance.
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
+    }));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
+      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+    }));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
+      transaction.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
+    }));
     await assertFails(runTransaction(database, async (transaction: Transaction) => {
       transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       transaction.set(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);

@@ -332,6 +332,15 @@ service cloud.firestore {
         isTransferProjectContextValid(outgoing, incoming, sourceWarehouse, destinationWarehouse);
     }
 
+    function isTransferBalancePairPresent(outgoing, incoming) {
+      let sourceBalancePath = receiptBalancePath(outgoing.balanceId);
+      let destinationBalancePath = receiptBalancePath(incoming.balanceId);
+      return existsAfter(sourceBalancePath) &&
+        getAfter(sourceBalancePath).data.lastMovementId == outgoing.id &&
+        existsAfter(destinationBalancePath) &&
+        getAfter(destinationBalancePath).data.lastMovementId == incoming.id;
+    }
+
     function isValidTransferMovement(data, movementId) {
       let transferId = data.referenceId;
       let outgoingPath = receiptMovementPath('tr_' + transferId + '_out');
@@ -346,6 +355,7 @@ service cloud.firestore {
           (data.kind == 'transfer_out' &&
             isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
             canManageInventory(outgoing.companyId) &&
+            isTransferBalancePairPresent(outgoing, incoming) &&
             isTransferWarehousesValid(outgoing, incoming) &&
             isActiveInventoryItem(outgoing.itemId, outgoing.companyId)) ||
           (data.kind == 'transfer_in' &&
