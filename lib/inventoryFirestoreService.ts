@@ -1064,6 +1064,9 @@ export async function registerSubcontractPaymentToFirestore(input: {
         amount: amountGTQ,
         currency: 'GTQ',
         paymentMethod,
+        approvalStatus: 'Aprobado',
+        approvedBy: userId,
+        approvedAt: now,
       };
       const updatedContract = {
         ...contract,
