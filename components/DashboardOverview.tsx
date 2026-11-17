@@ -146,9 +146,9 @@ export function DashboardOverview() {
         textColor: COLORS.kpi.budget.text,
       },
       {
-        title: 'Gastos',
+        title: 'Gastos Registrados',
         value: `Q${budgetMetrics.totalSpent.toLocaleString()}`,
-        change: `${budgetUtilization}% utilizado`,
+        change: `${budgetUtilization}% utilizado · incluye pendientes`,
         changeType: budgetUtilization > BUDGET_CRITICAL_USAGE_PERCENT ? 'negative' : 'positive',
         icon: <TrendingUp className="h-6 w-6" aria-hidden="true" />,
         color: COLORS.kpi.expense.bg,
