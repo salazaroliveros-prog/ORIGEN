@@ -609,7 +609,7 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
       dashboard.locator('p').filter({ hasText: /^Presupuesto Proyectado$/ })
     ).toBeVisible({ timeout: 15_000 });
     await expect(
-      dashboard.locator('p').filter({ hasText: /^Gasto Real Acumulado$/ })
+      dashboard.locator('p').filter({ hasText: /^Gastos Registrados$/ })
     ).toBeVisible({ timeout: 15_000 });
   });
 });
