@@ -567,10 +567,24 @@ export async function recordProjectStockIssueToFirestore(input: {
           previous.referenceId === reference.trim() &&
           previous.createdBy === userId
         ) {
-          if (!balanceSnapshot.exists()) {
-            throw new Error('Se encontró una salida previa sin saldo asociado. Se requiere revisión de inventario.');
+          if (
+            previous.id !== movementId ||
+            previous.balanceId !== balanceId ||
+            !balanceSnapshot.exists()
+          ) {
+            throw new Error('Se encontró una salida previa sin saldo asociado o con referencias inconsistentes. Se requiere revisión de inventario.');
           }
           const balance = balanceSnapshot.data() as InventoryBalanceRecord;
+          if (
+            balance.id !== balanceId ||
+            balance.companyId !== companyId ||
+            balance.itemId !== itemId ||
+            balance.warehouseId !== warehouseId
+          ) {
+            throw new Error('El saldo de la salida previa no coincide con la empresa, artículo o bodega. Se requiere revisión de inventario.');
+          }
+          assertFiniteNonNegative(balance.quantity, 'La existencia del saldo de salida');
+          assertFiniteNonNegative(balance.averageUnitCostGTQ, 'El costo promedio del saldo de salida');
           return { movement: previous, balance, alreadyProcessed: true };
         }
         throw new Error('La referencia de salida ya fue utilizada para otro movimiento.');
@@ -738,10 +752,14 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
         const sourceBalance = sourceBalanceSnapshot.data() as InventoryBalanceRecord;
         const destinationBalance = destinationBalanceSnapshot.data() as InventoryBalanceRecord;
         const matches =
+          outgoing.id === outgoingId &&
+          incoming.id === incomingId &&
           outgoing.referenceId === transferId &&
           incoming.referenceId === transferId &&
           outgoing.kind === 'transfer_out' &&
           incoming.kind === 'transfer_in' &&
+          outgoing.balanceId === sourceBalanceId &&
+          incoming.balanceId === destinationBalanceId &&
           outgoing.companyId === companyId &&
           incoming.companyId === companyId &&
           outgoing.itemId === itemId &&
@@ -750,9 +768,26 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
           incoming.warehouseId === toWarehouseId &&
           outgoing.quantity === quantity &&
           incoming.quantity === quantity &&
+          outgoing.unitCostGTQ === incoming.unitCostGTQ &&
           outgoing.createdBy === userId &&
           incoming.createdBy === userId;
         if (!matches) throw new Error('El ID del traslado ya fue utilizado por otra operación.');
+        if (
+          sourceBalance.id !== sourceBalanceId ||
+          sourceBalance.companyId !== companyId ||
+          sourceBalance.itemId !== itemId ||
+          sourceBalance.warehouseId !== fromWarehouseId ||
+          destinationBalance.id !== destinationBalanceId ||
+          destinationBalance.companyId !== companyId ||
+          destinationBalance.itemId !== itemId ||
+          destinationBalance.warehouseId !== toWarehouseId
+        ) {
+          throw new Error('Los saldos del traslado previo no coinciden con la empresa, artículo o bodegas. Se requiere revisión de inventario.');
+        }
+        assertFiniteNonNegative(sourceBalance.quantity, 'La existencia del saldo de origen');
+        assertFiniteNonNegative(sourceBalance.averageUnitCostGTQ, 'El costo promedio del saldo de origen');
+        assertFiniteNonNegative(destinationBalance.quantity, 'La existencia del saldo de destino');
+        assertFiniteNonNegative(destinationBalance.averageUnitCostGTQ, 'El costo promedio del saldo de destino');
         return {
           outgoing,
           incoming,
