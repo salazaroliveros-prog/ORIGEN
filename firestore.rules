@@ -1145,7 +1145,6 @@ service cloud.firestore {
           'averageUnitCostGTQ', 'reorderLevel', 'createdBy', 'createdAt',
           'updatedAt', 'lastMovementId'
         ]) &&
-        canManageInventory(incoming().companyId) &&
         incoming().createdBy == request.auth.uid &&
         incoming().createdAt is string &&
         incoming().updatedAt is string &&
@@ -1164,7 +1163,6 @@ service cloud.firestore {
         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'quantity', 'averageUnitCostGTQ', 'reorderLevel', 'updatedAt', 'lastMovementId'
         ]) &&
-        canManageInventory(existing().companyId) &&
         incoming().updatedAt is string &&
         incoming().quantity is number && incoming().quantity >= 0 &&
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
