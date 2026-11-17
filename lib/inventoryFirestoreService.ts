@@ -551,7 +551,7 @@ export async function recordProjectStockIssueToFirestore(input: {
     // warehouse and item again inside the transaction adds no safety because
     // Firestore rules validate those references on the atomic write itself.
     const previousMovement = await getDoc(movementRef);
-    let preflightProject: ProjectRecord | null = null;
+    let projectPreflightPassed = false;
     let preflightWarehouse: WarehouseRecord | null = null;
     let preflightItem: InventoryItemRecord | null = null;
 
@@ -566,7 +566,7 @@ export async function recordProjectStockIssueToFirestore(input: {
       }
       if (!warehouseSnapshot.exists()) throw new Error('La bodega seleccionada no existe.');
       if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
-      preflightProject = projectSnapshot.data() as ProjectRecord;
+      projectPreflightPassed = true;
       preflightWarehouse = warehouseSnapshot.data() as WarehouseRecord;
       preflightItem = itemSnapshot.data() as InventoryItemRecord;
       if (preflightWarehouse.companyId !== companyId || !preflightWarehouse.active) {
@@ -624,7 +624,7 @@ export async function recordProjectStockIssueToFirestore(input: {
       // Reference documents were preflighted above. The transaction still
       // atomically rereads the balance and deterministic movement; security
       // rules revalidate project, warehouse, item and company ownership at commit.
-      if (!preflightProject || !preflightWarehouse || !preflightItem) {
+      if (!projectPreflightPassed || !preflightWarehouse || !preflightItem) {
         throw new Error('No se pudieron validar las referencias de la salida.');
       }
       const item = preflightItem;
