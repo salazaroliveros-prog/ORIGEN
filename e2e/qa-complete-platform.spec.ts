@@ -604,10 +604,10 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
     // <option> ocultas con códigos/nombres similares y no representa un KPI.
     const dashboard = page.locator('#main-content');
     await expect(
-      dashboard.getByText('Presupuesto Proyectado', { exact: true })
+      dashboard.locator('p').filter({ hasText: /^Presupuesto Proyectado$/ })
     ).toBeVisible({ timeout: 15_000 });
     await expect(
-      dashboard.getByText('Gasto Real Acumulado', { exact: true })
+      dashboard.locator('p').filter({ hasText: /^Gasto Real Acumulado$/ })
     ).toBeVisible({ timeout: 15_000 });
   });
 });
