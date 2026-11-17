@@ -58,7 +58,7 @@ export async function createTestProject(page: Page, project: TestProject): Promi
 }
 
 /**
- * Activa un proyecto desde el selector de la cabecera.
+ * Activa un proyecto desde el selector accesible de la barra lateral.
  *
  * El formulario de gastos **no** tiene selector de proyecto: usa el
  * "proyecto activo" del ERP (`activeProjectId`). Los flujos que registran un
