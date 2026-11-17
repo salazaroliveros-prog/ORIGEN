@@ -37,7 +37,7 @@ const CustomProgressTooltip = memo(function CustomProgressTooltip({ active, payl
             <span>{data.avanceFisico}%</span>
           </div>
           <div className="flex justify-between gap-4 font-semibold text-amber-400">
-            <span>Ejecución Financiera:</span>
+            <span>Presupuesto Comprometido:</span>
             <span>{data.ejecucionFinanciera}%</span>
           </div>
           <div className="flex justify-between gap-4 font-mono text-slate-300">
@@ -45,7 +45,7 @@ const CustomProgressTooltip = memo(function CustomProgressTooltip({ active, payl
             <span>{formatGTQ(data.presupuesto)}</span>
           </div>
           <div className="flex justify-between gap-4 font-mono text-sky-400">
-            <span>Gasto Ejecutado:</span>
+            <span>Gastos Registrados:</span>
             <span>{formatGTQ(data.gastoReal)}</span>
           </div>
           {data.isAlert && (

@@ -50,7 +50,7 @@ const ProjectCard = memo(function ProjectCard({
               : 'border border-emerald-700 bg-emerald-900/60 text-emerald-300'
           }`}
         >
-          {pct}% Ejercido
+          {pct}% Comprometido
         </span>
       </div>
 
@@ -60,7 +60,7 @@ const ProjectCard = memo(function ProjectCard({
           <strong className="text-xs text-white">{formatGTQ(budget)}</strong>
         </div>
         <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-2">
-          <span className="block font-sans text-[10px] text-slate-400">Gasto Real:</span>
+          <span className="block font-sans text-[10px] text-slate-400">Gastos Registrados:</span>
           <strong className={isOver ? 'text-xs text-rose-400' : 'text-xs text-sky-400'}>
             {formatGTQ(spent)}
           </strong>

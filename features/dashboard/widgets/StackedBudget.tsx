@@ -34,7 +34,7 @@ const CustomStackedTooltip = memo(function CustomStackedTooltip({ active, payloa
             <span>{formatGTQ(data.presupuestoAsignado)}</span>
           </div>
           <div className="flex justify-between gap-4 font-bold text-blue-400">
-            <span>Gasto Real Acumulado:</span>
+            <span>Gastos Registrados:</span>
             <span>{formatGTQ(data.totalGasto)}</span>
           </div>
           {data.isOverbudget ? (
@@ -49,7 +49,7 @@ const CustomStackedTooltip = memo(function CustomStackedTooltip({ active, payloa
             </div>
           )}
           <p className="pt-1 font-sans text-[10px] text-slate-400">
-            Porcentaje Ejercido: <strong>{data.percentExecuted}%</strong>
+            Porcentaje Comprometido: <strong>{data.percentExecuted}%</strong>
           </p>
         </div>
       </div>
@@ -68,7 +68,7 @@ const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visi
           onClick={onToggle}
           title="Ocultar Widget"
           className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
-          aria-label="Ocultar widget Presupuesto Asignado vs Gasto Real"
+          aria-label="Ocultar widget Presupuesto Asignado vs Gastos Registrados"
         >
           <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
@@ -81,13 +81,13 @@ const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visi
               Comparativa de Presupuesto Asignado vs. Gasto Acumulado (Barras Apiladas)
             </h3>
             <p className="mt-0.5 text-xs text-slate-400">
-              Gráfico apilado que visibiliza el saldo disponible frente al gasto real ejecutado y sobrecostos excedidos.
+              Gráfico apilado que visibiliza el saldo disponible frente al gastos registrados (aprobados y pendientes) y sobrecostos excedidos.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs font-bold">
             <span className="flex items-center gap-1.5 text-blue-400">
-              <span className="inline-block h-3 w-3 rounded bg-blue-600" aria-hidden="true" /> Gasto Real
+              <span className="inline-block h-3 w-3 rounded bg-blue-600" aria-hidden="true" /> Gastos Registrados
             </span>
             <span className="flex items-center gap-1.5 text-slate-400">
               <span className="inline-block h-3 w-3 rounded bg-slate-700" aria-hidden="true" /> Disponible
@@ -99,7 +99,7 @@ const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visi
               onClick={onToggle}
               title="Ocultar Widget"
               className="rounded-lg p-1 text-slate-500 hover:text-slate-200"
-              aria-label="Ocultar widget Presupuesto Asignado vs Gasto Real"
+              aria-label="Ocultar widget Presupuesto Asignado vs Gastos Registrados"
             >
               <EyeOff className="h-4 w-4" aria-hidden="true" />
             </button>
