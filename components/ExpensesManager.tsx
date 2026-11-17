@@ -696,7 +696,7 @@ export function ExpensesManager({
                       <tr key={ex.id} className="transition hover:bg-slate-50/80">
                         <td className="p-3.5">
                           <span className="font-bold text-slate-900">
-                            {ex.facturaNumber || 'Interno'}
+                            {ex.facturaNumber || (ex.paymentReference ? `Ref. ${ex.paymentReference}` : 'Interno')}
                           </span>
                           <p className="text-[10px] text-slate-300">{ex.date}</p>
                         </td>
@@ -805,7 +805,7 @@ export function ExpensesManager({
                         {/* Project Manager Actions & Audit Trail */}
                         <td className="p-3.5 text-center">
                           <div className="flex items-center justify-center gap-1.5">
-                            {canWrite && onUpdateExpense && (
+                            {canWrite && onUpdateExpense && !ex.subcontractPaymentId && (
                               <button
                                 type="button"
                                 onClick={() => {
@@ -827,14 +827,20 @@ export function ExpensesManager({
                               </button>
                             )}
 
-                            <button
-                              type="button"
-                              onClick={() => setViewingAuditExpense(ex)}
-                              className="rounded-lg p-1.5 text-slate-300 transition hover:bg-blue-50 hover:text-blue-600"
-                              title="Ver Pista de Auditoría Completa"
-                            >
-                              <FileSearch className="h-4 w-4" aria-hidden="true" />
-                            </button>
+                            {!ex.subcontractPaymentId ? (
+                              <button
+                                type="button"
+                                onClick={() => setViewingAuditExpense(ex)}
+                                className="rounded-lg p-1.5 text-slate-300 transition hover:bg-blue-50 hover:text-blue-600"
+                                title="Ver Pista de Auditoría Completa"
+                              >
+                                <FileSearch className="h-4 w-4" aria-hidden="true" />
+                              </button>
+                            ) : (
+                              <span className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">
+                                Pago conciliado
+                              </span>
+                            )}
                           </div>
                         </td>
                       </tr>
