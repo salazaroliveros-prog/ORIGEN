@@ -49,38 +49,6 @@ describe('procurement domain', () => {
     expect(() => validatePurchaseOrder({ ...order, approvedBy: undefined })).toThrow('autorizó');
   });
 
-  it('supports up to five distinct purchase-order lines and rejects a sixth', () => {
-    const lines = Array.from({ length: 5 }, (_, index) => ({
-      itemId: `item-${index + 1}`,
-      description: `Material ${index + 1}`,
-      unit: 'unidad',
-      quantity: 1,
-      receivedQuantity: 0,
-      unitPriceGTQ: 10 + index,
-    }));
-    const subtotalGTQ = lines.reduce((sum, line) => sum + line.unitPriceGTQ, 0);
-    const fiveLineOrder: PurchaseOrderRecord = {
-      ...order,
-      lines,
-      subtotalGTQ,
-      taxGTQ: 7.2,
-      totalGTQ: 67.2,
-    };
-    expect(validatePurchaseOrder(fiveLineOrder)).toEqual(fiveLineOrder);
-
-    const sixLines = [...lines, {
-      itemId: 'item-6', description: 'Material 6', unit: 'unidad',
-      quantity: 1, receivedQuantity: 0, unitPriceGTQ: 15,
-    }];
-    expect(() => validatePurchaseOrder({
-      ...fiveLineOrder,
-      lines: sixLines,
-      subtotalGTQ: 75,
-      taxGTQ: 9,
-      totalGTQ: 84,
-    })).toThrow('entre 1 y 5 renglones');
-  });
-
   it('rejects invalid tax rates, negative subtotals and unknown order states', () => {
     expect(() => validatePurchaseOrder({ ...order, subtotalGTQ: -1 })).toThrow('Subtotal');
     expect(() => validatePurchaseOrder({ ...order, taxPercent: 101 })).toThrow('porcentaje de IVA');

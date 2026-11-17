@@ -137,31 +137,13 @@ service cloud.firestore {
     }
 
     function isValidPurchaseOrderLines(lines, companyId) {
-      return lines is list &&
-        lines.size() >= 1 && lines.size() <= 5 &&
-        isValidPurchaseOrderLine(lines[0], companyId) &&
-        (lines.size() < 2 || (
+      return lines is list && (
+        (lines.size() == 1 && isValidPurchaseOrderLine(lines[0], companyId)) ||
+        (lines.size() == 2 &&
+          isValidPurchaseOrderLine(lines[0], companyId) &&
           isValidPurchaseOrderLine(lines[1], companyId) &&
-          lines[0].itemId != lines[1].itemId
-        )) &&
-        (lines.size() < 3 || (
-          isValidPurchaseOrderLine(lines[2], companyId) &&
-          lines[0].itemId != lines[2].itemId &&
-          lines[1].itemId != lines[2].itemId
-        )) &&
-        (lines.size() < 4 || (
-          isValidPurchaseOrderLine(lines[3], companyId) &&
-          lines[0].itemId != lines[3].itemId &&
-          lines[1].itemId != lines[3].itemId &&
-          lines[2].itemId != lines[3].itemId
-        )) &&
-        (lines.size() < 5 || (
-          isValidPurchaseOrderLine(lines[4], companyId) &&
-          lines[0].itemId != lines[4].itemId &&
-          lines[1].itemId != lines[4].itemId &&
-          lines[2].itemId != lines[4].itemId &&
-          lines[3].itemId != lines[4].itemId
-        ));
+          lines[0].itemId != lines[1].itemId)
+      );
     }
 
     function isWithinOneCent(actual, expected) {
@@ -170,19 +152,15 @@ service cloud.firestore {
 
     function purchaseOrderLinesSubtotal(lines) {
       return lines[0].quantity * lines[0].unitPriceGTQ +
-        (lines.size() > 1 ? lines[1].quantity * lines[1].unitPriceGTQ : 0) +
-        (lines.size() > 2 ? lines[2].quantity * lines[2].unitPriceGTQ : 0) +
-        (lines.size() > 3 ? lines[3].quantity * lines[3].unitPriceGTQ : 0) +
-        (lines.size() > 4 ? lines[4].quantity * lines[4].unitPriceGTQ : 0);
+        (lines.size() == 2 ? lines[1].quantity * lines[1].unitPriceGTQ : 0);
     }
 
     function isPurchaseOrderFullyReceived(lines) {
-      return lines is list && lines.size() >= 1 && lines.size() <= 5 &&
-        lines[0].receivedQuantity == lines[0].quantity &&
-        (lines.size() < 2 || lines[1].receivedQuantity == lines[1].quantity) &&
-        (lines.size() < 3 || lines[2].receivedQuantity == lines[2].quantity) &&
-        (lines.size() < 4 || lines[3].receivedQuantity == lines[3].quantity) &&
-        (lines.size() < 5 || lines[4].receivedQuantity == lines[4].quantity);
+      return lines.size() == 1
+        ? lines[0].receivedQuantity == lines[0].quantity
+        : lines.size() == 2 &&
+          lines[0].receivedQuantity == lines[0].quantity &&
+          lines[1].receivedQuantity == lines[1].quantity;
     }
 
     function isReceiptLine(beforeLine, afterLine, quantity) {
@@ -196,24 +174,21 @@ service cloud.firestore {
 
     function isPurchaseOrderReceiptLinesUpdated(beforeLines, afterLines, lineIndex, quantity) {
       return beforeLines is list && afterLines is list &&
-        beforeLines.size() >= 1 && beforeLines.size() <= 5 &&
+        beforeLines.size() >= 1 && beforeLines.size() <= 2 &&
         afterLines.size() == beforeLines.size() &&
-        lineIndex is int && lineIndex >= 0 && lineIndex < beforeLines.size() &&
-        (lineIndex == 0
-          ? isReceiptLine(beforeLines[0], afterLines[0], quantity)
-          : afterLines[0] == beforeLines[0]) &&
-        (beforeLines.size() < 2 || (lineIndex == 1
-          ? isReceiptLine(beforeLines[1], afterLines[1], quantity)
-          : afterLines[1] == beforeLines[1])) &&
-        (beforeLines.size() < 3 || (lineIndex == 2
-          ? isReceiptLine(beforeLines[2], afterLines[2], quantity)
-          : afterLines[2] == beforeLines[2])) &&
-        (beforeLines.size() < 4 || (lineIndex == 3
-          ? isReceiptLine(beforeLines[3], afterLines[3], quantity)
-          : afterLines[3] == beforeLines[3])) &&
-        (beforeLines.size() < 5 || (lineIndex == 4
-          ? isReceiptLine(beforeLines[4], afterLines[4], quantity)
-          : afterLines[4] == beforeLines[4]));
+        (
+          (beforeLines.size() == 1 && lineIndex == 0 &&
+            isReceiptLine(beforeLines[0], afterLines[0], quantity)) ||
+          (beforeLines.size() == 2 &&
+            (
+              (lineIndex == 0 &&
+                isReceiptLine(beforeLines[0], afterLines[0], quantity) &&
+                afterLines[1] == beforeLines[1]) ||
+              (lineIndex == 1 &&
+                afterLines[0] == beforeLines[0] &&
+                isReceiptLine(beforeLines[1], afterLines[1], quantity))
+            ))
+        );
     }
 
     function receiptOrderUpdated(data, movementId) {
@@ -262,7 +237,7 @@ service cloud.firestore {
         order.projectId == data.projectId &&
         order.status in ['approved', 'partially_received'] &&
         order.approvedBy is string &&
-        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 5 &&
+        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 2 &&
         data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < order.lines.size() &&
         data.itemId == order.lines[data.lineIndex].itemId &&
         data.quantity is number && data.quantity > 0 &&
@@ -1200,9 +1175,9 @@ service cloud.firestore {
         incoming().totalGTQ == existing().totalGTQ &&
         incoming().createdAt == existing().createdAt &&
         incoming().lines is list &&
-        incoming().lines.size() >= 1 && incoming().lines.size() <= 5 &&
+        incoming().lines.size() >= 1 && incoming().lines.size() <= 2 &&
         existing().lines is list &&
-        existing().lines.size() >= 1 && existing().lines.size() <= 5 &&
+        existing().lines.size() >= 1 && existing().lines.size() <= 2 &&
         (
           (
             canManagePurchasing(existing().companyId) &&

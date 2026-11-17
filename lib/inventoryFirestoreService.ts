@@ -23,7 +23,6 @@ import {
 import { getDbOrThrow, handleFirestoreError, OperationType } from './firebaseService';
 import {
   getSubcontractExpiryAlerts,
-  MAX_PURCHASE_ORDER_LINES,
   recordPurchaseReceipt,
   validatePurchaseOrder,
   validateSubcontract,
@@ -234,8 +233,8 @@ export async function createPurchaseOrderToFirestore(
   const now = new Date().toISOString();
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario solicitante', 128);
-  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > MAX_PURCHASE_ORDER_LINES) {
-    throw new Error(`Cada orden debe contener entre 1 y ${MAX_PURCHASE_ORDER_LINES} renglones.`);
+  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 2) {
+    throw new Error('Cada orden debe contener entre 1 y 2 renglones.');
   }
   const order = validatePurchaseOrder({
     ...input,
@@ -254,10 +253,10 @@ export async function createPurchaseOrderToFirestore(
     await runTransaction(db, async (transaction: Transaction) => {
       await assertCompanyReference(transaction, 'projects', order.projectId, companyId, 'Proyecto');
       await assertCompanyReference(transaction, 'suppliers', order.supplierId, companyId, 'Proveedor');
-      // Firestore rules validate that every distinct line item exists and belongs
-      // to this company as part of the same atomic create. Avoid reading the same
-      // item documents here as well: duplicated rule evaluation can exceed the
-      // Firestore expression budget for multi-line orders.
+      const uniqueItemIds = [...new Set(order.lines.map((line) => line.itemId))];
+      for (const itemId of uniqueItemIds) {
+        await assertCompanyReference(transaction, 'inventoryItems', itemId, companyId, 'Artículo');
+      }
       transaction.set(ref, stripUndefined(order));
     });
   } catch (error) {
@@ -308,7 +307,7 @@ export async function approvePurchaseOrderToFirestore(
 }
 
 /**
- * Recibe una entrega de un renglón de una OC de varios renglones. El movimiento, el saldo
+ * Recibe una entrega de una OC de un solo renglón. El movimiento, el saldo
  * ponderado y la cantidad recibida de la OC se confirman en una sola
  * transacción. El número de recepción es la clave de idempotencia por orden.
  */
@@ -326,7 +325,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
   assertSafeDocumentId(warehouseId, 'Bodega');
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario que recibe', 128);
-  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex >= MAX_PURCHASE_ORDER_LINES) {
+  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex > 1) {
     throw new Error('El renglón de la orden no es válido.');
   }
   assertFiniteNonNegative(quantity, 'Cantidad recibida');
@@ -346,7 +345,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
       if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
       const order = orderSnapshot.data() as PurchaseOrderRecord;
       if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > MAX_PURCHASE_ORDER_LINES || lineIndex >= order.lines.length) {
+      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 2 || lineIndex >= order.lines.length) {
         throw new Error('El renglón seleccionado no existe en esta orden.');
       }
 
