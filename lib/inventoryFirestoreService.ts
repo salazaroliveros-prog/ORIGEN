@@ -1079,8 +1079,8 @@ export const subscribeSubcontracts = (
   onError?: (error: Error) => void
 ) => subscribeCompanyRecords('subcontracts', companyId, callback, onError);
 
-/** Movimientos de solo lectura; las escrituras se habilitarán junto a la
- * transacción de recepción/traslado/salida y sus reglas de stock. */
+/** Suscripción de solo lectura. Las escrituras se realizan exclusivamente
+ * mediante servicios transaccionales de recepción, salida y traslado. */
 export const subscribeStockMovements = (
   companyId: string,
   callback: (records: StockMovement[]) => void,
