@@ -163,7 +163,7 @@ export function Sidebar({
       )}
 
       {/* Navegación principal */}
-      <nav className="flex-1 space-y-0.5 px-3 py-4" aria-label="Navegación">
+      <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-0.5 px-3 py-4" aria-label="Navegación">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (

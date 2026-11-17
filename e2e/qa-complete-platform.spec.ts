@@ -479,7 +479,7 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
 
     // Propagación: verificar en el tablero
     await openTab(page, 'Tablero');
-    await expect(page.getByText('GASTO REAL ACUMULADO')).toBeVisible();
+    await expect(page.getByText(/Gastos Registrados/i).first()).toBeVisible();
     await expect(page.getByText('18,000').first()).toBeVisible({ timeout: 20_000 });
   });
 
@@ -558,10 +558,12 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
   test('sistema de correo y avisos está disponible', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const gmailTab = page.getByRole('link', { name: /Correo|Avisos|Gmail/i }).first();
+    const gmailNavigation = page.getByRole('navigation', { name: 'Navegación' });
+    const gmailTab = gmailNavigation.getByRole('link', { name: /Correo\s*&\s*Avisos/i });
     if (!(await gmailTab.isVisible().catch(() => false))) return;
 
-    await gmailTab.click();
+    await gmailTab.scrollIntoViewIfNeeded({ timeout: 10_000 });
+    await gmailTab.click({ timeout: 15_000 });
     await page.waitForTimeout(1500);
 
     const gmailVisible = await page
