@@ -81,9 +81,7 @@ export function calculateProjectSpentTotal(expenses: ExpenseRecord[]): number {
  * Calcula el gasto total de un proyecto específico
  */
 export function calculateProjectSpentById(expenses: ExpenseRecord[], projectId: string): number {
-  return expenses
-    .filter((expense) => expense.projectId === projectId)
-    .reduce((total, expense) => total + expense.amount, 0);
+  return sumCountableExpenses(expenses.filter((expense) => expense.projectId === projectId));
 }
 
 /**
