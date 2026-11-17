@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -37,6 +37,7 @@ export function ProjectPhotoDropzone({
   disabled = false,
 }: ProjectPhotoDropzoneProps) {
   const [uploading, setUploading] = useState(false);
+  const uploadedObjectUrls = useRef(new Set<string>());
   const [uploadedFiles, setUploadedFiles] = useState<
     Array<{
       id: string;
@@ -87,6 +88,26 @@ export function ProjectPhotoDropzone({
     };
   }, [projectId, savedPhotos]);
 
+  // When the Firestore listener confirms metadata for a new upload, stop
+  // using the temporary preview URL; the authenticated GET now owns its view.
+  useEffect(() => {
+    const savedIds = new Set(savedPhotos.map((photo) => photo.id));
+    if (savedIds.size === 0) return;
+    setUploadedFiles((current) => {
+      const confirmed = current.filter((file) => savedIds.has(file.id));
+      confirmed.forEach((file) => {
+        URL.revokeObjectURL(file.url);
+        uploadedObjectUrls.current.delete(file.url);
+      });
+      return current.filter((file) => !savedIds.has(file.id));
+    });
+  }, [savedPhotos]);
+
+  useEffect(() => () => {
+    uploadedObjectUrls.current.forEach((url) => URL.revokeObjectURL(url));
+    uploadedObjectUrls.current.clear();
+  }, []);
+
   const displayedFiles = useMemo(() => {
     const savedIds = new Set(savedFiles.map((file) => file.id));
     return [
@@ -94,6 +115,8 @@ export function ProjectPhotoDropzone({
       ...uploadedFiles.filter((file) => !savedIds.has(file.id)),
     ];
   }, [savedFiles, uploadedFiles]);
+
+  const remainingSlots = Math.max(0, maxFiles - savedPhotos.length - uploadedFiles.length);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -127,21 +150,39 @@ export function ProjectPhotoDropzone({
 
           const data = await response.json();
 
-          const photoData = {
+          const photoMetadata = {
             id: data.photoId as string,
-            url: data.url as string,
             filename: file.name,
             storagePath: data.storagePath as string,
             uploadedAt: data.uploadedAt as string,
             size: file.size,
           };
-          if (!photoData.id || !photoData.storagePath || !photoData.uploadedAt || !photoData.url) {
+          if (!photoMetadata.id || !photoMetadata.storagePath || !photoMetadata.uploadedAt) {
             throw new Error('El servidor no devolvió la referencia completa de la foto.');
           }
 
-          await onPhotoUploaded(data.url, photoData);
-          setUploadedFiles((prev) => [...prev, photoData]);
+          await onPhotoUploaded('', photoMetadata);
           toast.success(`Foto "${file.name}" guardada y vinculada al proyecto`);
+
+          // Preview is served through the authenticated project-photo API.
+          // The download token returned by Storage is deliberately not used
+          // in the browser or stored in the project record.
+          try {
+            const previewResponse = await authFetch(
+              `/api/project-photos/${encodeURIComponent(projectId)}/${encodeURIComponent(photoMetadata.id)}`
+            );
+            if (!previewResponse.ok) {
+              throw new Error('La foto se guardó, pero no se pudo cargar la previsualización.');
+            }
+            const previewUrl = URL.createObjectURL(await previewResponse.blob());
+            uploadedObjectUrls.current.add(previewUrl);
+            setUploadedFiles((prev) => [...prev, {
+              ...photoMetadata,
+              url: previewUrl,
+            }]);
+          } catch (previewError) {
+            console.warn('La foto se guardó; la previsualización se cargará desde el registro del proyecto.', previewError);
+          }
         }
       } catch (error) {
         console.error('Error uploading photos:', error);
@@ -158,9 +199,9 @@ export function ProjectPhotoDropzone({
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.webp'],
     },
-    maxFiles,
+    maxFiles: remainingSlots,
     maxSize: maxSizeMB * 1024 * 1024,
-    disabled,
+    disabled: disabled || remainingSlots === 0,
   });
 
   return (
@@ -187,7 +228,7 @@ export function ProjectPhotoDropzone({
                     : 'Arrastra fotos o haz clic para seleccionar'}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  PNG, JPG, WEBP (máx. {maxSizeMB}MB, {maxFiles} archivos)
+                  PNG, JPG, WEBP (máx. {maxSizeMB}MB, {maxFiles} fotos en el proyecto)
                 </p>
               </div>
             </>
@@ -196,10 +237,10 @@ export function ProjectPhotoDropzone({
       </div>
 
       {/* Lista de fotos subidas */}
-      {uploadedFiles.length > 0 && (
+      {displayedFiles.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm font-medium text-slate-700">
-            Fotos subidas ({uploadedFiles.length})
+            Fotos del proyecto ({displayedFiles.length})
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {displayedFiles.map((file) => (
