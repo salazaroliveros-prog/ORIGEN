@@ -361,6 +361,14 @@ beforeEach(async () => {
       transaction.set(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
     }));
     await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, quantity: -4 });
+      transaction.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: -4 });
+    }));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, unitCostGTQ: -1 });
+      transaction.set(doc(database, 'stockMovements', incoming.id), { ...incoming, unitCostGTQ: -1 });
+    }));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
       transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       transaction.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: 9 });
       transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
