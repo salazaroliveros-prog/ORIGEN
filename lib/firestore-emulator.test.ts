@@ -277,6 +277,78 @@ beforeEach(async () => {
     await assertFails(deleteDoc(movementRef));
   });
 
+  it('accepts an opening stock movement only with its first balance in the same transaction', async () => {
+    await seedProject(makeProject('opening-project-atomic'));
+    const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const warehouse = {
+      id: 'opening-warehouse-atomic',
+      companyId: COMPANY_A,
+      projectId: 'opening-project-atomic',
+      name: 'Bodega inicial de obra',
+      type: 'project',
+      active: true,
+      createdBy: USERS.warehouseManager,
+    };
+    const item = {
+      id: 'opening-item-atomic',
+      companyId: COMPANY_A,
+      name: 'Block inicial',
+      unit: 'unidad',
+      reorderLevel: 12,
+      active: true,
+      createdBy: USERS.warehouseManager,
+    };
+    await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
+    await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
+
+    const movement = {
+      id: 'opening-movement-atomic',
+      companyId: COMPANY_A,
+      projectId: 'opening-project-atomic',
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      kind: 'opening',
+      quantity: 85,
+      unitCostGTQ: 4.25,
+      occurredAt: '2026-11-17T08:00:00.000Z',
+      referenceId: 'ACTA-CONTEO-001',
+      balanceId: `bal_${warehouse.id}_${item.id}`,
+      createdBy: USERS.warehouseManager,
+    };
+    const balance = {
+      id: movement.balanceId,
+      companyId: COMPANY_A,
+      warehouseId: warehouse.id,
+      itemId: item.id,
+      quantity: movement.quantity,
+      averageUnitCostGTQ: movement.unitCostGTQ,
+      reorderLevel: item.reorderLevel,
+      createdBy: USERS.warehouseManager,
+      createdAt: movement.occurredAt,
+      updatedAt: movement.occurredAt,
+      lastMovementId: movement.id,
+    };
+    const movementRef = doc(manager, 'stockMovements', movement.id);
+    const balanceRef = doc(manager, 'inventoryBalances', movement.balanceId);
+
+    await assertFails(setDoc(movementRef, movement));
+    await assertFails(setDoc(balanceRef, balance));
+    await assertSucceeds(runTransaction(manager, async (transaction: Transaction) => {
+      transaction.set(movementRef, movement);
+      transaction.set(balanceRef, balance);
+    }));
+
+    const replay = {
+      ...movement,
+      id: 'opening-movement-atomic-replay',
+      referenceId: 'ACTA-CONTEO-002',
+    };
+    await assertFails(runTransaction(manager, async (transaction: Transaction) => {
+      transaction.set(doc(manager, 'stockMovements', replay.id), replay);
+      transaction.set(balanceRef, { ...balance, lastMovementId: replay.id });
+    }));
+  });
+
   it('requires project stock issues and reduced balances in one atomic write and rejects overdrafts', async () => {
     await seedProject(makeProject('issue-project'));
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
