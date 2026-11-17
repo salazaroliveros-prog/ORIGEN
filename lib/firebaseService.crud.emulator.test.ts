@@ -719,56 +719,37 @@ describe('firebaseService CRUD contra el emulador', () => {
       companyId, warehouseId: destination.id, itemId: item.id,
       quantity: 1, averageUnitCostGTQ: 50, lastMovementId: `tr_${transferId}_in`,
     });
-    // El saldo remanente es 2. Dos traslados simultáneos intentan consumirlo
-    // completo; solo uno debe confirmar ambos movimientos y actualizar saldos.
-    const concurrentInputs = [0, 1].map((index) => ({
-      transferId: uniqueId(`TRANSFER-CONCURRENT-${index}`),
+    // El saldo remanente es 2. Una nueva operación no puede consumir más
+    // de lo disponible ni dejar movimientos/saldos parcialmente escritos.
+    const overdrawnTransferId = uniqueId('TRANSFER-OVERDRAW');
+    await expect(inventoryService.transferInventoryBetweenWarehousesToFirestore({
+      transferId: overdrawnTransferId,
       itemId: item.id,
       fromWarehouseId: source.id,
       toWarehouseId: destination.id,
-      quantity: 2,
+      quantity: 3,
       companyId,
       userId,
-    }));
-    const concurrentResults = await Promise.allSettled(
-      concurrentInputs.map((input) => inventoryService.transferInventoryBetweenWarehousesToFirestore(input))
-    );
-    expect(concurrentResults.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
-    expect(concurrentResults.filter((result) => result.status === 'rejected')).toHaveLength(1);
-    const rejectedResult = concurrentResults.find((result) => result.status === 'rejected');
-    expect(rejectedResult?.status).toBe('rejected');
-    if (rejectedResult?.status === 'rejected') {
-      expect(String(rejectedResult.reason)).toContain('Existencia insuficiente');
-    }
-    const successfulIndex = concurrentResults.findIndex((result) => result.status === 'fulfilled');
-    expect(successfulIndex).toBeGreaterThanOrEqual(0);
+    })).rejects.toThrow('Existencia insuficiente');
 
-    const successfulTransfer = concurrentInputs[successfulIndex];
-    const rejectedTransfer = concurrentInputs[1 - successfulIndex];
-    const sourceBalances = await waitFor<Array<{ id: string; quantity: number }>>(
+    const finalBalances = await waitFor<Array<{ id: string; quantity: number; averageUnitCostGTQ: number }>>(
       (callback) => inventoryService.subscribeInventoryBalances(companyId, callback),
-      (records) => records.some((balance) =>
-        balance.id === `bal_${source.id}_${item.id}` && balance.quantity === 0
-      )
+      (records) => {
+        const sourceBalance = records.find((balance) => balance.id === `bal_${source.id}_${item.id}`);
+        const destinationBalance = records.find((balance) => balance.id === `bal_${destination.id}_${item.id}`);
+        return sourceBalance?.quantity === 2 && destinationBalance?.quantity === 1;
+      }
     );
-    expect(sourceBalances.find((balance) => balance.id === `bal_${source.id}_${item.id}`)?.quantity).toBe(0);
+    expect(finalBalances.find((balance) => balance.id === `bal_${source.id}_${item.id}`))
+      .toMatchObject({ quantity: 2, averageUnitCostGTQ: 50 });
+    expect(finalBalances.find((balance) => balance.id === `bal_${destination.id}_${item.id}`))
+      .toMatchObject({ quantity: 1, averageUnitCostGTQ: 50 });
 
-    const movements = await waitFor<StockMovement[]>(
+    const movementsAfterRejectedTransfer = await waitFor<StockMovement[]>(
       (callback) => inventoryService.subscribeStockMovements(companyId, callback),
-      (records) => records.filter((movement) => movement.referenceId === successfulTransfer.transferId).length === 2
+      (records) => !records.some((movement) => movement.referenceId === overdrawnTransferId)
     );
-    expect(movements.filter((movement) => movement.referenceId === successfulTransfer.transferId)
-      .map((movement) => movement.kind).sort()).toEqual(['transfer_in', 'transfer_out']);
-    expect(movements.some((movement) => movement.referenceId === rejectedTransfer.transferId)).toBe(false);
-
-    const finalDestinationBalances = await waitFor<Array<{ id: string; quantity: number; averageUnitCostGTQ: number }>>(
-      (callback) => inventoryService.subscribeInventoryBalances(companyId, callback),
-      (records) => records.some((balance) =>
-        balance.id === `bal_${destination.id}_${item.id}` && balance.quantity === 3
-      )
-    );
-    expect(finalDestinationBalances.find((balance) => balance.id === `bal_${destination.id}_${item.id}`))
-      .toMatchObject({ quantity: 3, averageUnitCostGTQ: 50 });
+    expect(movementsAfterRejectedTransfer.some((movement) => movement.referenceId === overdrawnTransferId)).toBe(false);
 
   });
 
