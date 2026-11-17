@@ -648,6 +648,9 @@ beforeEach(async () => {
       endDate: '2026-12-31', amountGTQ: 100000, paidGTQ: 0,
       status: 'active', createdBy: USERS.finance,
     };
+    await assertFails(setDoc(doc(finance, 'subcontracts', 'subcontract-bad-date'), {
+      ...contract, id: 'subcontract-bad-date', startDate: '2026/11/01',
+    }));
     await assertSucceeds(setDoc(doc(finance, 'subcontracts', contract.id), contract));
     const payment = {
       id: 'subpay_subcontract-qa_BANK-TRANSFER-001',
@@ -667,6 +670,20 @@ beforeEach(async () => {
       updatedAt: payment.createdAt,
     }, { merge: true }));
     await assertFails(setDoc(doc(finance, 'subcontractPayments', payment.id), payment));
+    const malformedDatePayment = {
+      ...payment,
+      id: 'subpay_subcontract-qa_BAD-DATE',
+      paymentDate: '2026/11/16',
+      reference: 'BAD-DATE',
+    };
+    await assertFails(runTransaction(finance, async (transaction: Transaction) => {
+      transaction.set(doc(finance, 'subcontractPayments', malformedDatePayment.id), malformedDatePayment);
+      transaction.update(doc(finance, 'subcontracts', contract.id), {
+        paidGTQ: 25000,
+        lastPaymentId: malformedDatePayment.id,
+        updatedAt: malformedDatePayment.createdAt,
+      });
+    }));
     await assertSucceeds(runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', payment.id), payment);
       transaction.update(doc(finance, 'subcontracts', contract.id), {
