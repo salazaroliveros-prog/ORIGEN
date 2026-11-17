@@ -39,7 +39,7 @@ export function useBudgetSummary(
     try {
       return calculateBudgetSummary(
         apuItems,
-        expenses.reduce((sum, exp) => sum + exp.amount, 0)
+        sumCountableExpenses(expenses)
       );
     } catch (error) {
       log.error('Budget summary calculation failed', error as Error, {
