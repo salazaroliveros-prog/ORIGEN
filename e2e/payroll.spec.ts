@@ -53,7 +53,7 @@ test.describe('Sección Personal & IGSS', () => {
 
   test('la sub-sección Planillas Guate está visible en la navegación', async ({ page }) => {
     // Planillas es condicional (canViewPayroll) pero el admin tiene acceso
-    const planillasBtn = page.getByRole('button', { name: 'Planillas Guate' }).first();
+    const planillasBtn = page.getByRole('link', { name: 'Planillas Guate' }).first();
     await expect(planillasBtn).toBeVisible({ timeout: 20_000 });
   });
 });
