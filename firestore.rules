@@ -100,17 +100,28 @@ service cloud.firestore {
     }
 
     function isActiveWarehouseForProject(warehouseId, projectId, companyId) {
-      return exists(/databases/$(database)/documents/warehouses/$(warehouseId)) &&
-        get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.companyId == companyId &&
-        get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.active == true &&
-        (get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.type == 'general' ||
-          (get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.type == 'project' &&
-            get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.projectId == projectId));
+      let warehousePath = /databases/$(database)/documents/warehouses/$(warehouseId);
+      return exists(warehousePath) &&
+        isActiveWarehouseForProjectAfter(warehousePath, projectId, companyId);
+    }
+
+    function isActiveWarehouseForProjectAfter(warehousePath, projectId, companyId) {
+      let warehouse = get(warehousePath).data;
+      return warehouse.companyId == companyId &&
+        warehouse.active == true &&
+        (warehouse.type == 'general' ||
+          (warehouse.type == 'project' && warehouse.projectId == projectId));
     }
 
     function isActiveInventoryItem(itemId, companyId) {
-      return isInventoryItemInCompany(itemId, companyId) &&
-        get(/databases/$(database)/documents/inventoryItems/$(itemId)).data.active == true;
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(itemId);
+      return exists(itemPath) &&
+        isActiveInventoryItemAfter(itemPath, companyId);
+    }
+
+    function isActiveInventoryItemAfter(itemPath, companyId) {
+      let item = get(itemPath).data;
+      return item.companyId == companyId && item.active == true;
     }
 
     function receiptMovementPath(movementId) {
