@@ -735,6 +735,11 @@ describe('firebaseService CRUD contra el emulador', () => {
     );
     expect(concurrentResults.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
     expect(concurrentResults.filter((result) => result.status === 'rejected')).toHaveLength(1);
+    const rejectedResult = concurrentResults.find((result) => result.status === 'rejected');
+    expect(rejectedResult?.status).toBe('rejected');
+    if (rejectedResult?.status === 'rejected') {
+      expect(String(rejectedResult.reason)).toContain('Existencia insuficiente');
+    }
     const successfulIndex = concurrentResults.findIndex((result) => result.status === 'fulfilled');
     expect(successfulIndex).toBeGreaterThanOrEqual(0);
 
