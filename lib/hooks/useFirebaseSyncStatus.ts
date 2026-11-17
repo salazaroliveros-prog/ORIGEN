@@ -16,6 +16,28 @@ export interface SyncLogEntry {
 
 const INITIAL_SYNC_LOGS: SyncLogEntry[] = [];
 
+export function settleSyncLog(
+  entries: SyncLogEntry[],
+  succeeded: boolean
+): SyncLogEntry[] {
+  const index = entries.findIndex((entry) => entry.status === 'sincronizando');
+  if (index < 0) return entries;
+
+  const next = [...entries];
+  next[index] = succeeded
+    ? {
+        ...next[index],
+        status: 'completado',
+        details: 'Operación confirmada por Firestore.',
+      }
+    : {
+        ...next[index],
+        status: 'error',
+        details: 'La operación no se confirmó correctamente. No se registró como sincronización exitosa.',
+      };
+  return next;
+}
+
 export function useFirebaseSyncStatus() {
   const [status, setStatus] = useState<SyncStatus>('online');
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
@@ -123,18 +145,14 @@ export function useFirebaseSyncStatus() {
       }
     };
 
-    const handleSyncEnd = () => {
-      if (navigator.onLine) {
-        setStatus('online');
-        setLastSyncedAt(new Date());
-        setSyncLogs((prev) =>
-          prev.map((l, index) =>
-            index === 0 && l.status === 'sincronizando'
-              ? { ...l, status: 'completado', details: 'Operación confirmada por Firestore.' }
-              : l
-          )
-        );
-      }
+    const handleSyncEnd = (event: Event) => {
+      const succeeded = (event as CustomEvent<{ success?: boolean }>).detail?.success === true;
+      setStatus(navigator.onLine ? 'online' : 'offline');
+
+      setSyncLogs((prev) => settleSyncLog(prev, succeeded));
+
+      // An end/error event alone is not evidence of a successful sync.
+      if (succeeded) setLastSyncedAt(new Date());
     };
 
     window.addEventListener('online', handleOnline);
@@ -177,8 +195,10 @@ export function notifySyncStart(details?: { operation?: string; path?: string; d
   }
 }
 
-export function notifySyncEnd() {
+export function notifySyncEnd(success = false) {
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('firebase-sync-end'));
+    window.dispatchEvent(
+      new CustomEvent('firebase-sync-end', { detail: { success } })
+    );
   }
 }

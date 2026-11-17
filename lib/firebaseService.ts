@@ -391,7 +391,7 @@ export async function saveProjectToFirestore(project: Project, companyId: string
       }),
       { merge: true }
     );
-    notifySyncEnd();
+    notifySyncEnd(true);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(`origen.project.${project.code}`, project.id);
     }
@@ -458,10 +458,10 @@ export function subscribeProjects(
           list.push(docSnap.data() as Project)
         );
         callback(list);
-        notifySyncEnd();
+        notifySyncEnd(true);
       },
       (error: Error) => {
-        notifySyncEnd();
+        notifySyncEnd(false);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );

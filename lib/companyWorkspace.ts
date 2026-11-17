@@ -84,7 +84,7 @@ async function migrateLegacyCompanyData(ownerId: string): Promise<boolean> {
       `Migración de empresa incompleta: ${migrated} documentos migrados, ${failed} omitidos.`
     );
   }
-  notifySyncEnd();
+  notifySyncEnd(failed === 0);
   return failed === 0;
 }
 
