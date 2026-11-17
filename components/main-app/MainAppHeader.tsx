@@ -198,6 +198,7 @@ export function MainAppHeader({
         canViewPersonnel={permissions.canViewPersonnel}
         canViewPayroll={permissions.canViewFullPersonnel}
         canViewExpenses={permissions.canViewExpenses}
+        canViewSupplyChain={permissions.canViewSupplyChain}
         isMobileSidebarOpen={isMobileSidebarOpen}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen((isOpen) => !isOpen)}
       />
