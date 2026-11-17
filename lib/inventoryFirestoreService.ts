@@ -27,6 +27,7 @@ import {
   validatePurchaseOrder,
   validateSubcontract,
   validateSupplier,
+  isValidCalendarDate,
   type PurchaseOrderRecord,
   type SubcontractRecord,
   type SubcontractPaymentRecord,
@@ -942,8 +943,8 @@ export async function registerSubcontractPaymentToFirestore(input: {
   assertText(userId, 'Usuario que registra', 128);
   assertFiniteNonNegative(amountGTQ, 'Monto del pago');
   if (amountGTQ <= 0) throw new Error('El monto del pago debe ser mayor a cero.');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate) || Number.isNaN(Date.parse(`${paymentDate}T12:00:00`))) {
-    throw new Error('La fecha de pago no es válida.');
+  if (!isValidCalendarDate(paymentDate)) {
+    throw new Error('La fecha de pago debe ser una fecha real en formato AAAA-MM-DD.');
   }
   if (!/^[a-zA-Z0-9_-]{1,60}$/.test(reference.trim())) {
     throw new Error('La referencia de pago solo puede contener letras, números, guion y guion bajo (máximo 60).');
