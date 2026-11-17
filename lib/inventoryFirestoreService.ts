@@ -669,6 +669,198 @@ export async function recordOpeningStockToFirestore(input: {
   }
 }
 
+export interface StockAdjustmentResult {
+  movement: StockMovement;
+  balance: InventoryBalanceRecord;
+  alreadyProcessed: boolean;
+}
+
+/**
+ * Records a physical stock reconciliation without mutating the ledger.
+ * Adjustment movement and balance update are committed in one transaction.
+ * Outgoing adjustments use the current weighted-average cost; incoming
+ * adjustments require the counted unit cost supplied by the operator.
+ */
+export async function adjustInventoryStockToFirestore(input: {
+  movementId: string;
+  itemId: string;
+  warehouseId: string;
+  kind: 'adjustment_in' | 'adjustment_out';
+  quantity: number;
+  unitCostGTQ?: number;
+  reference: string;
+  reason: string;
+  companyId: string;
+  userId: string;
+}): Promise<StockAdjustmentResult> {
+  const {
+    movementId, itemId, warehouseId, kind, quantity, unitCostGTQ,
+    reference, reason, companyId, userId,
+  } = input;
+  assertSafeDocumentId(movementId, 'Movimiento de ajuste');
+  assertSafeDocumentId(itemId, 'Artículo');
+  assertSafeDocumentId(warehouseId, 'Bodega');
+  assertText(companyId, 'Empresa', 128);
+  assertText(userId, 'Usuario que registra', 128);
+  assertText(reference, 'Referencia del ajuste', 100);
+  assertText(reason, 'Motivo del ajuste', 1000);
+  if (kind !== 'adjustment_in' && kind !== 'adjustment_out') {
+    throw new Error('Tipo de ajuste no válido.');
+  }
+  assertFiniteNonNegative(quantity, 'Cantidad del ajuste');
+  if (quantity <= 0) throw new Error('La cantidad del ajuste debe ser mayor a cero.');
+  if (kind === 'adjustment_in') {
+    if (typeof unitCostGTQ !== 'number') {
+      throw new Error('El ajuste de entrada requiere costo unitario promedio en GTQ.');
+    }
+    assertFiniteNonNegative(unitCostGTQ, 'Costo unitario del ajuste');
+  }
+  if (warehouseId.length > 55 || itemId.length > 55) {
+    throw new Error('El identificador de bodega o artículo supera el límite para referencias de inventario.');
+  }
+
+  const db = getDbOrThrow();
+  const balanceId = `bal_${warehouseId}_${itemId}`;
+  assertSafeDocumentId(balanceId, 'Saldo de inventario');
+  const movementRef = doc(db, 'stockMovements', movementId);
+  const balanceRef = doc(db, 'inventoryBalances', balanceId);
+  const warehouseRef = doc(db, 'warehouses', warehouseId);
+  const itemRef = doc(db, 'inventoryItems', itemId);
+  const now = new Date().toISOString();
+
+  try {
+    // The deterministic movement ID is checked first so an unknown network
+    // outcome can be retried without creating a second adjustment.
+    const previousMovement = await getDoc(movementRef);
+    let warehouse: WarehouseRecord | null = null;
+    let item: InventoryItemRecord | null = null;
+
+    if (!previousMovement.exists()) {
+      const [warehouseSnapshot, itemSnapshot] = await Promise.all([
+        getDoc(warehouseRef),
+        getDoc(itemRef),
+      ]);
+      if (!warehouseSnapshot.exists()) throw new Error('La bodega seleccionada no existe.');
+      if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
+      warehouse = warehouseSnapshot.data() as WarehouseRecord;
+      item = itemSnapshot.data() as InventoryItemRecord;
+      if (warehouse.companyId !== companyId || !warehouse.active) {
+        throw new Error('La bodega no está activa o no pertenece a la empresa.');
+      }
+      if (item.companyId !== companyId || !item.active) {
+        throw new Error('El artículo no está activo o no pertenece a la empresa.');
+      }
+      if (warehouse.type === 'project' && !warehouse.projectId) {
+        throw new Error('La bodega de proyecto no tiene un proyecto asignado.');
+      }
+      if (warehouse.type === 'project' && warehouse.projectId) {
+        const projectSnapshot = await getDoc(doc(db, 'projects', warehouse.projectId));
+        if (!projectSnapshot.exists() || projectSnapshot.data().companyId !== companyId) {
+          throw new Error('El proyecto asociado a la bodega no pertenece a la empresa activa.');
+        }
+      }
+    }
+
+    return await runTransaction(db, async (transaction: Transaction) => {
+      const [movementSnapshot, balanceSnapshot] = await Promise.all([
+        transaction.get(movementRef),
+        transaction.get(balanceRef),
+      ]);
+
+      if (movementSnapshot.exists()) {
+        const previous = movementSnapshot.data() as StockMovement;
+        if (!balanceSnapshot.exists()) {
+          throw new Error('Se encontró un ajuste previo sin saldo asociado. Se requiere revisión de inventario.');
+        }
+        const previousBalance = balanceSnapshot.data() as InventoryBalanceRecord;
+        const sameOperation =
+          previous.id === movementId &&
+          previous.kind === kind &&
+          previous.companyId === companyId &&
+          previous.itemId === itemId &&
+          previous.warehouseId === warehouseId &&
+          previous.quantity === quantity &&
+          previous.referenceId === reference.trim() &&
+          previous.notes === reason.trim() &&
+          previous.createdBy === userId &&
+          (kind !== 'adjustment_in' || previous.unitCostGTQ === unitCostGTQ);
+        if (!sameOperation) {
+          throw new Error('El ID del movimiento de ajuste ya fue utilizado para otra operación.');
+        }
+        if (
+          previous.balanceId !== balanceId ||
+          previousBalance.id !== balanceId ||
+          previousBalance.companyId !== companyId ||
+          previousBalance.itemId !== itemId ||
+          previousBalance.warehouseId !== warehouseId
+        ) {
+          throw new Error('El saldo del ajuste previo no coincide con la empresa, artículo o bodega.');
+        }
+        assertFiniteNonNegative(previousBalance.quantity, 'La existencia del saldo ajustado');
+        assertFiniteNonNegative(previousBalance.averageUnitCostGTQ, 'El costo promedio del saldo ajustado');
+        return { movement: previous, balance: previousBalance, alreadyProcessed: true };
+      }
+
+      if (!balanceSnapshot.exists()) {
+        throw new Error('No existe saldo de inventario para ajustar. Registra primero el inventario inicial o una recepción.');
+      }
+      if (!warehouse || !item) {
+        throw new Error('No se pudieron validar las referencias del ajuste de inventario.');
+      }
+
+      const current = balanceSnapshot.data() as InventoryBalanceRecord;
+      if (
+        current.companyId !== companyId ||
+        current.itemId !== itemId ||
+        current.warehouseId !== warehouseId
+      ) {
+        throw new Error('El saldo no coincide con la empresa, artículo o bodega seleccionada.');
+      }
+      assertFiniteNonNegative(current.quantity, 'La existencia del saldo');
+      assertFiniteNonNegative(current.averageUnitCostGTQ, 'El costo promedio del saldo');
+      const movement: StockMovement = {
+        id: movementId,
+        companyId,
+        ...(warehouse.type === 'project' && warehouse.projectId ? { projectId: warehouse.projectId } : {}),
+        itemId,
+        warehouseId,
+        kind,
+        quantity,
+        unitCostGTQ: kind === 'adjustment_in' ? unitCostGTQ! : current.averageUnitCostGTQ,
+        occurredAt: now,
+        referenceId: reference.trim(),
+        balanceId,
+        notes: reason.trim(),
+        createdBy: userId,
+      };
+      const next = applyStockMovement(
+        {
+          itemId,
+          warehouseId,
+          quantity: current.quantity,
+          averageUnitCostGTQ: current.averageUnitCostGTQ,
+          reorderLevel: item.reorderLevel,
+        },
+        movement
+      );
+      const balance: InventoryBalanceRecord = {
+        ...current,
+        quantity: next.quantity,
+        averageUnitCostGTQ: next.averageUnitCostGTQ,
+        reorderLevel: next.reorderLevel,
+        updatedAt: now,
+        lastMovementId: movementId,
+      };
+
+      transaction.set(movementRef, stripUndefined(movement));
+      transaction.update(balanceRef, stripUndefined(balance));
+      return { movement, balance, alreadyProcessed: false };
+    });
+  } catch (error) {
+    throw handleFirestoreError(error, OperationType.UPDATE, `inventoryBalances/${balanceId}`);
+  }
+}
+
 export interface StockIssueResult {
   movement: StockMovement;
   balance: InventoryBalanceRecord;
