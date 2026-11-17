@@ -661,8 +661,26 @@ beforeEach(async () => {
       amountGTQ: 25000,
       paymentDate: '2026-11-16',
       reference: 'BANK-TRANSFER-001',
+      paymentMethod: 'Transferencia BI',
       createdBy: USERS.finance,
       createdAt: '2026-11-16T10:00:00.000Z',
+    };
+    const paymentExpense = {
+      id: payment.id,
+      subcontractPaymentId: payment.id,
+      paymentReference: payment.reference,
+      companyId: COMPANY_A,
+      projectId: contract.projectId,
+      authorId: USERS.finance,
+      date: payment.paymentDate,
+      category: 'Subcontratos',
+      description: 'Pago de subcontrato SUB-QA-001: Instalación eléctrica de prueba',
+      supplier: 'Proveedor QA',
+      nitSupplier: 'CF',
+      facturaNumber: '',
+      amount: payment.amountGTQ,
+      currency: 'GTQ',
+      paymentMethod: payment.paymentMethod,
     };
     await assertFails(setDoc(doc(finance, 'subcontracts', contract.id), {
       paidGTQ: 25000,
@@ -670,6 +688,9 @@ beforeEach(async () => {
       updatedAt: payment.createdAt,
     }, { merge: true }));
     await assertFails(setDoc(doc(finance, 'subcontractPayments', payment.id), payment));
+    // A linked Subcontratos expense is rejected unless its payment exists in
+    // the same atomic write, preventing free-standing or duplicate ledger rows.
+    await assertFails(setDoc(doc(finance, 'expenses', paymentExpense.id), paymentExpense));
     const malformedDatePayment = {
       ...payment,
       id: 'subpay_subcontract-qa_BAD-DATE',
@@ -686,12 +707,23 @@ beforeEach(async () => {
     }));
     await assertSucceeds(runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', payment.id), payment);
+      transaction.set(doc(finance, 'expenses', paymentExpense.id), paymentExpense);
       transaction.update(doc(finance, 'subcontracts', contract.id), {
         paidGTQ: 25000,
         lastPaymentId: payment.id,
         updatedAt: payment.createdAt,
       });
     }));
+    const persistedPaymentExpense = await getDoc(doc(finance, 'expenses', paymentExpense.id));
+    expect(persistedPaymentExpense.exists()).toBe(true);
+    expect(persistedPaymentExpense.data()).toMatchObject({
+      category: 'Subcontratos',
+      amount: 25000,
+      paymentReference: 'BANK-TRANSFER-001',
+      subcontractPaymentId: payment.id,
+    });
+    // The linked expense is an immutable accounting entry.
+    await assertFails(deleteDoc(doc(finance, 'expenses', paymentExpense.id)));
     const excessivePayment = {
       ...payment,
       id: 'subpay_subcontract-qa_OVERPAY-001',
