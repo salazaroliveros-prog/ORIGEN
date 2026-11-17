@@ -91,10 +91,10 @@ export function validateAPUItem(item: Partial<APUItem>): APUItem {
 }
 
 /**
- * Calcula el resumen del presupuesto comparando gasto real ejecutado contra
- * el total de partidas APU.
+ * Calcula el resumen del presupuesto comparando gastos registrados no rechazados
+ * (incluye pendientes de aprobación) contra el total de partidas APU.
  *
- * Dimensión medida: gasto real ejecutado (expenses) vs presupuesto APU planificado.
+ * Dimensión medida: gasto registrado (aprobados + pendientes) vs presupuesto APU planificado.
  *
  * @param apuItems Partidas APU que constituyen el presupuesto de referencia.
  * @param totalSpent Monto total gastado ejecutado (suma de ExpenseRecord.amount).
