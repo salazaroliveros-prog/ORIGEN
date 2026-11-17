@@ -354,7 +354,7 @@ export function MonthlyExpensesHistogram({
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
           <div className="mb-1 flex items-center justify-between text-slate-400">
             <span className="text-[10px] font-bold uppercase tracking-wider">
-              Gastos Reales Ejecutados
+              Gastos Registrados (aprobados y pendientes)
             </span>
             <TrendingUp className="h-4 w-4 text-amber-400" aria-hidden="true" />
           </div>
