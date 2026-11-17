@@ -22,6 +22,7 @@ import {
 import { calculateExecutionTimeline } from '@/lib/domain/executionTimeline';
 import type { TimelineStatus } from '@/lib/domain/executionTimeline';
 import { BUDGET_CRITICAL_USAGE_PERCENT } from '@/lib/domain/projectFinance';
+import { sumCountableExpenses } from '@/lib/projectCalculations';
 import type { APUItem, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
 
 interface ProjectBudgetSummaryProps {
