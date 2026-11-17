@@ -1051,6 +1051,7 @@ export async function registerSubcontractPaymentToFirestore(input: {
       const expense: ExpenseRecord = {
         id: paymentId,
         subcontractPaymentId: paymentId,
+        paymentReference: normalizedReference,
         companyId,
         projectId: contract.projectId,
         authorId: userId,
