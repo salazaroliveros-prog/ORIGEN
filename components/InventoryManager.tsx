@@ -120,6 +120,7 @@ export function InventoryManager({
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
   const [paymentReference, setPaymentReference] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'Efectivo' | 'Cheque' | 'Transferencia BI' | 'Tarjeta'>('Transferencia BI');
   const [paymentNotes, setPaymentNotes] = useState('');
   const [receivingOrderId, setReceivingOrderId] = useState('');
   const [receivingLineIndex, setReceivingLineIndex] = useState<number | null>(null);
@@ -587,6 +588,7 @@ export function InventoryManager({
         amountGTQ,
         paymentDate,
         reference: paymentReference.trim(),
+        paymentMethod,
         notes: paymentNotes.trim() || undefined,
         companyId,
         userId,
@@ -594,6 +596,7 @@ export function InventoryManager({
       setPayingContractId('');
       setPaymentAmount('');
       setPaymentReference('');
+      setPaymentMethod('Transferencia BI');
       setPaymentNotes('');
       toast.success(result.alreadyProcessed
         ? 'Este pago ya estaba registrado; no se duplicó.'
@@ -1069,6 +1072,14 @@ export function InventoryManager({
                                   <label className="block"><span className={labelClass}>Fecha</span><input className={fieldClass} type="date" value={paymentDate} onChange={(event) => setPaymentDate(event.target.value)} required /></label>
                                   <label className="block"><span className={labelClass}>Referencia / transferencia</span><input className={fieldClass} value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} maxLength={60} pattern="[a-zA-Z0-9_-]{1,60}" required /></label>
                                 </div>
+                                <label className="block"><span className={labelClass}>Método de pago</span>
+                                  <select className={fieldClass} value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as typeof paymentMethod)} required>
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Transferencia BI">Transferencia bancaria</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Tarjeta">Tarjeta</option>
+                                  </select>
+                                </label>
                                 <label className="block"><span className={labelClass}>Notas</span><textarea className={fieldClass} value={paymentNotes} onChange={(event) => setPaymentNotes(event.target.value)} maxLength={1000} rows={2} /></label>
                                 <div className="flex flex-wrap gap-2">
                                   <button type="submit" disabled={submitting} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50">{submitting ? 'Registrando…' : 'Confirmar pago'}</button>
