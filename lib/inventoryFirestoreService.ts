@@ -34,6 +34,7 @@ import {
   type SupplierRecord,
 } from './domain/procurement';
 import { stripUndefined } from './utils/firestorePayload';
+import type { ExpenseRecord } from './types';
 import {
   applyStockMovement,
   applyWarehouseTransfer,
@@ -919,6 +920,7 @@ export async function createSubcontractToFirestore(
 
 export interface SubcontractPaymentResult {
   payment: SubcontractPaymentRecord;
+  expense: ExpenseRecord;
   contract: SubcontractRecord & { lastPaymentId?: string; updatedAt?: string };
   alreadyProcessed: boolean;
 }
@@ -933,11 +935,15 @@ export async function registerSubcontractPaymentToFirestore(input: {
   amountGTQ: number;
   paymentDate: string;
   reference: string;
+  paymentMethod: 'Efectivo' | 'Cheque' | 'Transferencia BI' | 'Tarjeta';
   notes?: string;
   companyId: string;
   userId: string;
 }): Promise<SubcontractPaymentResult> {
-  const { contractId, amountGTQ, paymentDate, reference, notes, companyId, userId } = input;
+  const {
+    contractId, amountGTQ, paymentDate, reference, paymentMethod,
+    notes, companyId, userId,
+  } = input;
   assertSafeDocumentId(contractId, 'Subcontrato');
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario que registra', 128);
@@ -945,6 +951,9 @@ export async function registerSubcontractPaymentToFirestore(input: {
   if (amountGTQ <= 0) throw new Error('El monto del pago debe ser mayor a cero.');
   if (!isValidCalendarDate(paymentDate)) {
     throw new Error('La fecha de pago debe ser una fecha real en formato AAAA-MM-DD.');
+  }
+  if (!['Efectivo', 'Cheque', 'Transferencia BI', 'Tarjeta'].includes(paymentMethod)) {
+    throw new Error('Selecciona un método de pago válido.');
   }
   if (!/^[a-zA-Z0-9_-]{1,60}$/.test(reference.trim())) {
     throw new Error('La referencia de pago solo puede contener letras, números, guion y guion bajo (máximo 60).');
@@ -959,13 +968,17 @@ export async function registerSubcontractPaymentToFirestore(input: {
   const db = getDbOrThrow();
   const contractRef = doc(db, 'subcontracts', contractId);
   const paymentRef = doc(db, 'subcontractPayments', paymentId);
+  // La misma clave determinística permite conciliar e impedir duplicados en
+  // el libro de gastos del proyecto, sin crear un egreso por cada reintento.
+  const expenseRef = doc(db, 'expenses', paymentId);
   const now = new Date().toISOString();
 
   try {
     return await runTransaction(db, async (transaction: Transaction) => {
-      const [contractSnapshot, paymentSnapshot] = await Promise.all([
+      const [contractSnapshot, paymentSnapshot, expenseSnapshot] = await Promise.all([
         transaction.get(contractRef),
         transaction.get(paymentRef),
+        transaction.get(expenseRef),
       ]);
       if (!contractSnapshot.exists()) throw new Error('El subcontrato no existe.');
       const contract = contractSnapshot.data() as SubcontractRecord & {
@@ -982,13 +995,31 @@ export async function registerSubcontractPaymentToFirestore(input: {
           previous.amountGTQ === amountGTQ &&
           previous.paymentDate === paymentDate &&
           previous.reference === normalizedReference &&
+          previous.paymentMethod === paymentMethod &&
           previous.createdBy === userId
         ) {
-          return { payment: previous, contract, alreadyProcessed: true };
+          if (!expenseSnapshot.exists()) {
+            throw new Error('El pago ya existe, pero no tiene su gasto vinculado. Se requiere regularización contable.');
+          }
+          const expense = expenseSnapshot.data() as ExpenseRecord;
+          if (
+            expense.subcontractPaymentId !== paymentId ||
+            expense.companyId !== companyId ||
+            expense.projectId !== contract.projectId ||
+            expense.amount !== amountGTQ ||
+            expense.date !== paymentDate ||
+            expense.paymentMethod !== paymentMethod
+          ) {
+            throw new Error('El gasto vinculado al pago no coincide. Se requiere revisión contable.');
+          }
+          return { payment: previous, expense, contract, alreadyProcessed: true };
         }
         throw new Error('La referencia de pago ya fue utilizada.');
       }
 
+      if (expenseSnapshot.exists()) {
+        throw new Error('Ya existe un gasto con el identificador reservado para este pago. Se requiere revisión contable.');
+      }
       if (contract.status !== 'active') {
         throw new Error('Solo se pueden registrar pagos de subcontratos activos.');
       }
@@ -996,6 +1027,12 @@ export async function registerSubcontractPaymentToFirestore(input: {
       if (paidGTQ > contract.amountGTQ + 0.000001) {
         throw new Error('El pago supera el saldo pendiente del subcontrato.');
       }
+
+      const supplierSnapshot = await transaction.get(doc(db, 'suppliers', contract.supplierId));
+      if (!supplierSnapshot.exists() || supplierSnapshot.data().companyId !== companyId) {
+        throw new Error('El proveedor del subcontrato no existe o no pertenece a la empresa activa.');
+      }
+      const supplier = supplierSnapshot.data() as SupplierRecord;
 
       const payment: SubcontractPaymentRecord = {
         id: paymentId,
@@ -1006,9 +1043,26 @@ export async function registerSubcontractPaymentToFirestore(input: {
         amountGTQ,
         paymentDate,
         reference: normalizedReference,
+        paymentMethod,
         notes: notes?.trim() || undefined,
         createdBy: userId,
         createdAt: now,
+      };
+      const expense: ExpenseRecord = {
+        id: paymentId,
+        subcontractPaymentId: paymentId,
+        companyId,
+        projectId: contract.projectId,
+        authorId: userId,
+        date: paymentDate,
+        category: 'Subcontratos',
+        description: `Pago de subcontrato ${contract.contractNumber}: ${contract.description}`.slice(0, 500),
+        supplier: supplier.name,
+        nitSupplier: supplier.nit,
+        facturaNumber: '',
+        amount: amountGTQ,
+        currency: 'GTQ',
+        paymentMethod,
       };
       const updatedContract = {
         ...contract,
@@ -1017,13 +1071,16 @@ export async function registerSubcontractPaymentToFirestore(input: {
         updatedAt: now,
       };
 
+      // Pago, egreso del proyecto y saldo contractual forman un único asiento
+      // atómico: nunca debe existir uno de los tres sin los otros dos.
       transaction.set(paymentRef, stripUndefined(payment));
+      transaction.set(expenseRef, stripUndefined(expense));
       transaction.update(contractRef, {
         paidGTQ,
         lastPaymentId: paymentId,
         updatedAt: now,
       });
-      return { payment, contract: updatedContract, alreadyProcessed: false };
+      return { payment, expense, contract: updatedContract, alreadyProcessed: false };
     });
   } catch (error) {
     throw handleFirestoreError(error, OperationType.UPDATE, `subcontracts/${contractId}`);
