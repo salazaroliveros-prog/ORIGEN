@@ -6,6 +6,18 @@
 import { summarizeProjectFinance } from './domain/projectFinance';
 import { calculateScheduleProgress } from './domain/executionTimeline';
 import type { Project, ScheduleTask, Milestone, ExpenseRecord, APUItem, QuoteRecord, AttendanceRecord, Machinery, MachineryLog } from './types';
+import { isBudgetCommitmentExpense, sumBudgetCommitments } from './domain/expenseRecognition';
+
+export {
+  classifyExpenseApproval, isApprovedExpense, isBudgetCommitmentExpense,
+  isPendingApprovalExpense, isRejectedExpense, sumApprovedExpenses,
+  sumBudgetCommitments, sumPendingApprovalExpenses, sumRejectedExpenses,
+} from './domain/expenseRecognition';
+
+/** @deprecated Use isBudgetCommitmentExpense; pending approvals are not executed spend. */
+export const isCountableExpense = isBudgetCommitmentExpense;
+/** @deprecated Use sumBudgetCommitments; pending approvals are included. */
+export const sumCountableExpenses = sumBudgetCommitments;
 
 /**
  * Calcula el progreso del proyecto.
@@ -74,37 +86,17 @@ export function mergeProjectUpdate(
  * Incluye solicitudes pendientes para medir el presupuesto comprometido; excluye rechazados.
  */
 export function calculateProjectSpentTotal(expenses: ExpenseRecord[]): number {
-  return sumCountableExpenses(expenses);
+  return sumBudgetCommitments(expenses);
 }
 
 /**
  * Calcula el gasto total de un proyecto específico
  */
 export function calculateProjectSpentById(expenses: ExpenseRecord[], projectId: string): number {
-  return sumCountableExpenses(expenses.filter((expense) => expense.projectId === projectId));
-}
-
-/**
- * Determina si un gasto cuenta para el presupuesto comprometido.
- * Los gastos pendientes cuentan como compromiso; los rechazados quedan excluidos.
- */
-export function isCountableExpense(expense: ExpenseRecord): boolean {
-  return expense.approvalStatus !== 'Rechazado';
+  return sumBudgetCommitments(expenses.filter((expense) => expense.projectId === projectId));
 }
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
-
-/**
- * Suma de gastos registrados no rechazados (incluye pendientes), redondeada a centavos.
- */
-export function sumCountableExpenses(expenses: ExpenseRecord[]): number {
-  return round2(
-    expenses.reduce(
-      (total, expense) => (isCountableExpense(expense) ? total + expense.amount : total),
-      0
-    )
-  );
-}
 
 /**
  * Deriva los campos de proyecto que NUNCA deben persistirse desde el formulario:
@@ -120,7 +112,7 @@ export function deriveProjectsFinancials(
 ): Project[] {
   const spentByProject = new Map<string, number>();
   for (const expense of expenses) {
-    if (!isCountableExpense(expense)) continue;
+    if (!isBudgetCommitmentExpense(expense)) continue;
     spentByProject.set(
       expense.projectId,
       (spentByProject.get(expense.projectId) ?? 0) + expense.amount

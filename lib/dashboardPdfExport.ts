@@ -32,11 +32,12 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   };
 
   // Aggregated totals
-  // Un gasto rechazado no es gasto ejecutado: el informe ejecutivo usa el mismo
-  // criterio que el presupuesto y el tablero (dominio, no una suma local).
+  // El informe separa ejecución aprobada de solicitudes pendientes y presupuesto comprometido.
   const auditMetrics = buildPortfolioAuditMetrics({ projects, expenses });
-  const { totalBudget, totalSpent, remainingBudget, spentPercent, overbudgetCount } = auditMetrics;
-  const spentPct = spentPercent;
+  const {
+    totalBudget, totalSpent, totalPending, totalCommitted,
+    remainingBudget, spentPercent, commitmentPercent, overbudgetCount,
+  } = auditMetrics;
 
   // Header Banner Background
   doc.setFillColor(15, 23, 42); // slate-900
@@ -84,10 +85,10 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   const kpis = [
     { label: 'Proyectos Activos Registrados:', val: `${projects.length} Obras` },
     { label: 'Presupuesto Total Proyectado:', val: formatMoney(totalBudget) },
-    { label: 'Gasto Real Acumulado:', val: formatMoney(totalSpent) },
-    { label: 'Saldo Presupuestario Disponible:', val: formatMoney(remainingBudget) },
-    { label: 'Porcentaje de Ejecución Global:', val: `${spentPct}% Ejercido` },
-    { label: 'Alertas de Sobrecosto Registradas:', val: `${overbudgetCount} Obras en Alerta` },
+    { label: 'Gasto Real Aprobado:', val: formatMoney(totalSpent) },
+    { label: 'Solicitudes Pendientes:', val: formatMoney(totalPending) },
+    { label: 'Saldo tras Compromisos:', val: formatMoney(remainingBudget) },
+    { label: 'Alertas por Sobrecompromiso:', val: `${overbudgetCount} Obras en Alerta` },
   ];
 
   kpis.forEach((kpi, index) => {
@@ -112,7 +113,27 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
     doc.text(kpi.val, cx + 4, cy + 12);
   });
 
-  y += 3 * (cardH + 4) + 6;
+  y += 3 * (cardH + 4) + 2;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(71, 85, 105);
+  doc.text(
+    `Ejecución aprobada: ${spentPercent}%  |  Presupuesto comprometido: ${commitmentPercent}% (${formatMoney(totalCommitted)})`,
+    margin,
+    y
+  );
+  y += 5;
+  if (totalPending > 0) {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7);
+    doc.setTextColor(146, 64, 14);
+    doc.text(
+      `Las solicitudes pendientes por ${formatMoney(totalPending)} no se incluyen en el gasto real aprobado, pero sí reducen el saldo disponible.`,
+      margin,
+      y
+    );
+    y += 5;
+  }
 
   if (auditMetrics.rejectedCount > 0) {
     doc.setFont('helvetica', 'italic');
@@ -121,7 +142,7 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
     doc.text(
       `Nota: ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatMoney(
         auditMetrics.rejectedAmount
-      )} no se incluyen en el gasto real acumulado.`,
+      )} no se incluyen en el gasto real aprobado.`,
       margin,
       y
     );

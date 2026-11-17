@@ -646,8 +646,8 @@ export async function exportConstructionAuditPdf(
   };
 
   // 1. Calculate Core Financial & Audit Metrics
-  // Los gastos rechazados no son erogación ejecutada: el acta solo certifica los
-  // gastos que la obra reconoció (mismo criterio que presupuesto y tablero).
+  // El acta certifica solo gastos aprobados (y registros históricos sin estado).
+  // Las solicitudes pendientes se muestran aparte como compromisos, no como ejecución.
   const auditMetrics = buildProjectAuditMetrics({ project, expenses });
   const {
     budgetTotal: totalBudget,
@@ -657,7 +657,7 @@ export async function exportConstructionAuditPdf(
     financialProgress,
     progressDeviation,
   } = auditMetrics;
-  const projectExpenses = auditMetrics.countableExpenses;
+  const projectExpenses = auditMetrics.approvedExpenses;
 
   // Categorical distribution
   const categories: Record<string, { total: number; count: number }> = {};
@@ -906,7 +906,7 @@ export async function exportConstructionAuditPdf(
     isBalancePositive ? 208 : 202
   );
   doc.roundedRect(kpi3X, y, cardW, cardH, 1, 1, 'FD');
-  addText('SALDO POR EJECUTAR', kpi3X + 3, y + 3.8, {
+  addText('SALDO TRAS COMPROMISOS', kpi3X + 3, y + 3.8, {
     fontSize: 6.5,
     fontStyle: 'bold',
     color: isBalancePositive ? [22, 101, 52] : [153, 27, 27],
@@ -1373,14 +1373,18 @@ export async function exportConstructionAuditPdf(
   doc.setDrawColor(203, 213, 225);
   doc.roundedRect(margin, y, usableWidth, 14, 1.5, 1.5, 'FD');
 
+  const pendingNote =
+    auditMetrics.pendingCount > 0
+      ? ` Hay ${auditMetrics.pendingCount} solicitud(es) pendientes de aprobación por ${formatGTQ(auditMetrics.pendingAmount)}; no se certifican como gasto ejecutado, pero sí reducen el saldo disponible.`
+      : '';
   const rejectionNote =
     auditMetrics.rejectedCount > 0
-      ? ` No se incluyen ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatGTQ(auditMetrics.rejectedAmount)}, por no constituir erogación ejecutada de la obra.`
+      ? ` Se excluyen ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatGTQ(auditMetrics.rejectedAmount)}.`
       : '';
 
   const defaultNotes =
     auditNotes?.trim() ||
-    `Se hace constar que los gastos ejecutados registrados ascienden a ${formatGTQ(totalExpenses)} y se corresponden con el avance físico reportado de ${physicalProgress}%. El saldo presupuestario disponible es de ${formatGTQ(budgetBalance)}.${rejectionNote} Las cifras provienen de los registros capturados en la plataforma; la verificación documental y fiscal de cada comprobante se realiza por separado y no se certifica en este documento.`;
+    `Se hace constar que los gastos aprobados registrados ascienden a ${formatGTQ(totalExpenses)} y se comparan con el avance físico reportado de ${physicalProgress}%. El saldo presupuestario después de compromisos es de ${formatGTQ(budgetBalance)}.${pendingNote}${rejectionNote} Las cifras provienen de los registros capturados en la plataforma; la verificación documental y fiscal de cada comprobante se realiza por separado y no se certifica en este documento.`;
 
   addText(defaultNotes, margin + 3, y + 4.5, {
     fontSize: 7,
