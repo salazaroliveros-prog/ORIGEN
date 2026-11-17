@@ -202,7 +202,7 @@ export function Sidebar({
             <p className="text-sm font-semibold text-white truncate">{currentUser?.email || 'Usuario'}</p>
             <p className="text-[10px] text-slate-400 truncate">{canManageCompany ? 'Administrador' : 'Usuario'}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={onSignOut} disabled={isSigningOut} className="h-7 w-7 p-0">
+          <Button type="button" variant="outline" size="sm" onClick={onSignOut} disabled={isSigningOut} aria-label="Cerrar sesión" title="Cerrar sesión" className="h-7 w-7 p-0">
             <LogOut className="h-3.5 w-3.5" />
           </Button>
         </div>
