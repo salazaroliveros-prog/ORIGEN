@@ -341,7 +341,7 @@ service cloud.firestore {
         getAfter(destinationBalancePath).data.lastMovementId == incoming.id;
     }
 
-    function isValidTransferMovement(data, movementId) {
+    function isValidTransferOutMovement(data, movementId) {
       let transferId = data.referenceId;
       let outgoingPath = receiptMovementPath('tr_' + transferId + '_out');
       let incomingPath = receiptMovementPath('tr_' + transferId + '_in');
@@ -351,39 +351,46 @@ service cloud.firestore {
         transferId.size() > 0 && transferId.size() <= 75 &&
         !exists(outgoingPath) && !exists(incomingPath) &&
         existsAfter(outgoingPath) && existsAfter(incomingPath) &&
-        (
-          (data.kind == 'transfer_out' &&
-            isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
-            canManageInventory(outgoing.companyId) &&
-            isTransferBalancePairPresent(outgoing, incoming) &&
-            isTransferWarehousesValid(outgoing, incoming) &&
-            isActiveInventoryItem(outgoing.itemId, outgoing.companyId)) ||
-          (data.kind == 'transfer_in' &&
-            data.id == movementId &&
-            incoming.id == movementId &&
-            incoming.kind == 'transfer_in' &&
-            incoming.referenceId == transferId &&
-            incoming.companyId == outgoing.companyId &&
-            incoming.itemId == outgoing.itemId &&
-            incoming.quantity is number && incoming.quantity > 0 &&
-            incoming.unitCostGTQ is number && incoming.unitCostGTQ >= 0 &&
-            incoming.createdBy == request.auth.uid &&
-            outgoing.id == 'tr_' + transferId + '_out' &&
-            outgoing.kind == 'transfer_out' &&
-            outgoing.referenceId == transferId &&
-            outgoing.createdBy == incoming.createdBy)
-        );
+        isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
+        canManageInventory(outgoing.companyId) &&
+        isTransferBalancePairPresent(outgoing, incoming) &&
+        isTransferWarehousesValid(outgoing, incoming) &&
+        isActiveInventoryItem(outgoing.itemId, outgoing.companyId);
+    }
+
+    // The outgoing movement is the authoritative validator for the complete
+    // pair. The incoming side only proves it belongs to that new transfer,
+    // avoiding a second lookup of both movement documents and duplicate checks.
+    function isValidTransferInMovement(data, movementId) {
+      let transferId = data.referenceId;
+      let outgoingPath = receiptMovementPath('tr_' + transferId + '_out');
+      let outgoing = getAfter(outgoingPath).data;
+      return transferId is string &&
+        transferId.size() > 0 && transferId.size() <= 75 &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.kind == 'transfer_in' &&
+        data.createdBy == request.auth.uid &&
+        existsAfter(outgoingPath) &&
+        outgoing.id == 'tr_' + transferId + '_out' &&
+        outgoing.kind == 'transfer_out' &&
+        outgoing.referenceId == transferId &&
+        outgoing.createdBy == request.auth.uid;
+    }
+
+    function isValidTransferMovement(data, movementId) {
+      return data.kind == 'transfer_out'
+        ? isValidTransferOutMovement(data, movementId)
+        : (data.kind == 'transfer_in'
+          ? isValidTransferInMovement(data, movementId)
+          : false);
     }
 
     function isValidTransferOutBalance(data, balanceId, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let incomingPath = receiptMovementPath('tr_' + movement.referenceId + '_in');
-      // The transfer_out movement rule validates the complete immutable pair
-      // (including incoming quantity, cost, warehouse and creator). The balance
-      // only needs to prove that this pair is part of the same atomic write;
-      // repeating getAfter() of the other movement adds an avoidable rule read.
-      return !exists(movementPath) &&
-        existsAfter(movementPath) && existsAfter(incomingPath) &&
+      // The transfer_out movement validator requires the complete pair and
+      // both post-transfer balances. This rule validates this side's arithmetic.
+      return !exists(movementPath) && existsAfter(movementPath) &&
         movement.kind == 'transfer_out' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
@@ -396,17 +403,14 @@ service cloud.firestore {
 
     function isValidTransferInBalance(data, balanceId, creating, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let outgoingPath = receiptMovementPath('tr_' + movement.referenceId + '_out');
       let previousQuantity = creating ? 0 : existing().quantity;
       let previousAverage = creating ? 0 : existing().averageUnitCostGTQ;
       let previousReorder = creating
         ? get(/databases/$(database)/documents/inventoryItems/$(movement.itemId)).data.reorderLevel
         : existing().reorderLevel;
-      // The paired transfer_out movement is the authoritative validator for
-      // the entire transfer pair. It must be present in this same atomic write;
-      // do not re-read its fields from the destination balance rule.
-      return !exists(movementPath) &&
-        existsAfter(movementPath) && existsAfter(outgoingPath) &&
+      // The transfer_out movement validator requires the complete pair and
+      // both post-transfer balances. This rule validates this side's arithmetic.
+      return !exists(movementPath) && existsAfter(movementPath) &&
         movement.kind == 'transfer_in' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
