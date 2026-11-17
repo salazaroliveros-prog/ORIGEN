@@ -383,7 +383,8 @@ export interface ExpenseRecord {
     | 'Mano de Obra'
     | 'Maquinaria y Combustible'
     | 'Permisos & Licencias'
-    | 'Imprevistos';
+    | 'Imprevistos'
+    | 'Subcontratos';
   description: string;
   supplier: string;
   nitSupplier: string;
@@ -402,6 +403,8 @@ export interface ExpenseRecord {
   auditTrail?: ExpenseAuditEntry[];
   /** ID del registro de maquinaria asociado (opcional) */
   machineryLogId?: string;
+  /** Enlace inmutable al pago de subcontrato que originó este egreso. */
+  subcontractPaymentId?: string;
 }
 
 export interface QuoteRecord {
