@@ -54,6 +54,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: true,
   retries: 0,
+  maxFailures: 1,
   workers: 1,
   outputDir: `${reportDirectory}/artifacts`,
   reporter: [
