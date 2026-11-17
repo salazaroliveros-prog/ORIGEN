@@ -209,6 +209,74 @@ beforeEach(async () => {
     await assertFails(deleteDoc(doc(manager, 'stockMovements', movement.id)));
   });
 
+  it('requires an opening movement and first balance to be created atomically', async () => {
+    await seedProject(makeProject('opening-project'));
+    const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const warehouse = {
+      id: 'opening-warehouse',
+      companyId: COMPANY_A,
+      name: 'Bodega de inventario inicial',
+      type: 'general',
+      active: true,
+      createdBy: USERS.warehouseManager,
+    };
+    const item = {
+      id: 'opening-item',
+      companyId: COMPANY_A,
+      name: 'Block de inventario inicial',
+      unit: 'unidad',
+      reorderLevel: 15,
+      active: true,
+      createdBy: USERS.warehouseManager,
+    };
+    await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
+    await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
+
+    const movement = {
+      id: 'opening-movement-001',
+      companyId: COMPANY_A,
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      kind: 'opening',
+      quantity: 120,
+      unitCostGTQ: 4.5,
+      occurredAt: '2026-11-17T08:00:00.000Z',
+      referenceId: 'CONTEO-INICIAL-001',
+      balanceId: `bal_${warehouse.id}_${item.id}`,
+      createdBy: USERS.warehouseManager,
+    };
+    const balance = {
+      id: movement.balanceId,
+      companyId: COMPANY_A,
+      warehouseId: warehouse.id,
+      itemId: item.id,
+      quantity: movement.quantity,
+      averageUnitCostGTQ: movement.unitCostGTQ,
+      reorderLevel: item.reorderLevel,
+      createdBy: USERS.warehouseManager,
+      createdAt: movement.occurredAt,
+      updatedAt: movement.occurredAt,
+      lastMovementId: movement.id,
+    };
+    const movementRef = doc(manager, 'stockMovements', movement.id);
+    const balanceRef = doc(manager, 'inventoryBalances', movement.balanceId);
+
+    await assertFails(setDoc(movementRef, movement));
+    await assertFails(setDoc(balanceRef, balance));
+    await assertSucceeds(runTransaction(manager, async (transaction: Transaction) => {
+      transaction.set(movementRef, movement);
+      transaction.set(balanceRef, balance);
+    }));
+
+    const replayMovement = { ...movement, id: 'opening-movement-replay', referenceId: 'CONTEO-INICIAL-REPETIDO' };
+    await assertFails(runTransaction(manager, async (transaction: Transaction) => {
+      transaction.set(doc(manager, 'stockMovements', replayMovement.id), replayMovement);
+      transaction.set(balanceRef, { ...balance, lastMovementId: replayMovement.id });
+    }));
+    await assertFails(setDoc(movementRef, { ...movement, quantity: 500 }));
+    await assertFails(deleteDoc(movementRef));
+  });
+
   it('requires project stock issues and reduced balances in one atomic write and rejects overdrafts', async () => {
     await seedProject(makeProject('issue-project'));
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
