@@ -649,6 +649,109 @@ describe('firebaseService CRUD contra el emulador', () => {
     });
   });
 
+  it('registra salidas y traslados de inventario atómicos e idempotentes', async () => {
+    const projectId = await createProject('INV-MOVEMENTS', 'Proyecto para movimientos');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor movimientos QA', nit: 'CF', active: true }, companyId, userId
+    );
+    const item = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Mortero movimientos QA', unit: 'saco', reorderLevel: 2, active: true }, companyId, userId
+    );
+    const source = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega de obra movimientos QA', type: 'project', projectId, active: true }, companyId, userId
+    );
+    const destination = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega general movimientos QA', type: 'general', active: true }, companyId, userId
+    );
+    const order = await inventoryService.createPurchaseOrderToFirestore({
+      projectId, supplierId: supplier.id, number: uniqueId('OC-MOV'), status: 'draft', currency: 'GTQ',
+      lines: [{ itemId: item.id, description: item.name, unit: item.unit, quantity: 5, unitPriceGTQ: 50 }],
+      subtotalGTQ: 250, discountGTQ: 0, taxPercent: 12, taxGTQ: 30, totalGTQ: 280,
+    }, companyId, userId);
+    await inventoryService.approvePurchaseOrderToFirestore(order.id, companyId, userId);
+    const receipt = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 0, warehouseId: source.id, quantity: 5,
+      receiptNumber: 'MOV-RECEIPT', companyId, userId,
+    });
+    expect(receipt.balance.quantity).toBe(5);
+
+    const movementId = uniqueId('ISSUE');
+    const issueInput = {
+      movementId, projectId, itemId: item.id, warehouseId: source.id, quantity: 2,
+      reference: 'VALE-MOV-001', notes: 'Consumo de prueba', companyId, userId,
+    };
+    const issue = await inventoryService.recordProjectStockIssueToFirestore(issueInput);
+    expect(issue.alreadyProcessed).toBe(false);
+    expect(issue.balance.quantity).toBe(3);
+    const issueRetry = await inventoryService.recordProjectStockIssueToFirestore(issueInput);
+    expect(issueRetry.alreadyProcessed).toBe(true);
+    await expect(inventoryService.recordProjectStockIssueToFirestore({
+      ...issueInput, movementId: uniqueId('ISSUE-OVER'), quantity: 4, reference: 'VALE-MOV-OVER',
+    })).rejects.toThrow('Existencia insuficiente');
+
+    const transferId = uniqueId('TRANSFER');
+    const transferInput = {
+      transferId, itemId: item.id, fromWarehouseId: source.id, toWarehouseId: destination.id,
+      quantity: 1, notes: 'Traslado de prueba', companyId, userId,
+    };
+    const transfer = await inventoryService.transferInventoryBetweenWarehousesToFirestore(transferInput);
+    expect(transfer.alreadyProcessed).toBe(false);
+    expect(transfer.sourceBalance.quantity).toBe(2);
+    expect(transfer.destinationBalance.quantity).toBe(1);
+    expect(transfer.destinationBalance.averageUnitCostGTQ).toBe(50);
+    const transferRetry = await inventoryService.transferInventoryBetweenWarehousesToFirestore(transferInput);
+    expect(transferRetry.alreadyProcessed).toBe(true);
+
+    const destinationBalanceId = `bal_${destination.id}_${item.id}`;
+    const storedDestination = await expectPersisted('inventoryBalances', destinationBalanceId, (callback) =>
+      inventoryService.subscribeInventoryBalances(companyId, callback)
+    );
+    expect(storedDestination).toMatchObject({
+      companyId, warehouseId: destination.id, itemId: item.id,
+      quantity: 1, averageUnitCostGTQ: 50, lastMovementId: `tr_${transferId}_in`,
+    });
+  });
+
+  it('registra pagos de subcontratos con fecha real, atomicidad, idempotencia y límite de saldo', async () => {
+    const projectId = await createProject('SUB-PAYMENTS', 'Proyecto para pagos de subcontrato');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor pagos QA', nit: 'CF', active: true }, companyId, userId
+    );
+    const contract = await inventoryService.createSubcontractToFirestore({
+      projectId, supplierId: supplier.id, contractNumber: uniqueId('SUB-PAY'),
+      description: 'Subcontrato de prueba para pagos', startDate: '2026-11-16',
+      endDate: '2026-12-31', amountGTQ: 1000, paidGTQ: 0, status: 'active',
+    }, companyId, userId);
+
+    await expect(inventoryService.registerSubcontractPaymentToFirestore({
+      contractId: contract.id, amountGTQ: 100, paymentDate: '2026-02-31',
+      reference: 'INVALID-DATE', companyId, userId,
+    })).rejects.toThrow('fecha real');
+
+    const input = {
+      contractId: contract.id, amountGTQ: 350, paymentDate: '2026-11-16',
+      reference: 'BANK-TRANSFER-350', notes: 'Pago de prueba', companyId, userId,
+    };
+    const firstPayment = await inventoryService.registerSubcontractPaymentToFirestore(input);
+    expect(firstPayment.alreadyProcessed).toBe(false);
+    expect(firstPayment.contract.paidGTQ).toBe(350);
+
+    const storedPayment = await getDoc(doc(db, 'subcontractPayments', firstPayment.payment.id));
+    expect(storedPayment.exists()).toBe(true);
+    expect(storedPayment.data()).toMatchObject({
+      companyId, contractId: contract.id, amountGTQ: 350,
+      paymentDate: '2026-11-16', reference: 'BANK-TRANSFER-350', createdBy: userId,
+    });
+
+    const retry = await inventoryService.registerSubcontractPaymentToFirestore(input);
+    expect(retry.alreadyProcessed).toBe(true);
+    expect(retry.contract.paidGTQ).toBe(350);
+
+    await expect(inventoryService.registerSubcontractPaymentToFirestore({
+      ...input, amountGTQ: 700, reference: 'BANK-TRANSFER-700',
+    })).rejects.toThrow('supera el saldo pendiente');
+  });
+
   it('aprueba y recibe una OC con saldo atómico, costo promedio e idempotencia', async () => {
     const projectId = await createProject('INV-RECEIPT', 'Proyecto para recepción atómica');
     const supplier = await inventoryService.createSupplierToFirestore(
