@@ -1263,7 +1263,10 @@ service cloud.firestore {
       let supplier = get(supplierPath).data;
       return data.subcontractPaymentId is string &&
         data.subcontractPaymentId == data.id &&
-        data.keys().hasAll(['subcontractPaymentId', 'paymentReference', 'paymentMethod']) &&
+        data.keys().hasAll([
+          'subcontractPaymentId', 'paymentReference', 'paymentMethod',
+          'approvalStatus', 'approvedBy', 'approvedAt'
+        ]) &&
         existsAfter(paymentPath) &&
         exists(supplierPath) &&
         payment.id == paymentId &&
@@ -1274,6 +1277,9 @@ service cloud.firestore {
         payment.reference == data.paymentReference &&
         payment.paymentMethod == data.paymentMethod &&
         payment.createdBy == data.authorId &&
+        data.approvalStatus == 'Aprobado' &&
+        data.approvedBy == payment.createdBy &&
+        data.approvedAt == payment.createdAt &&
         data.category == 'Subcontratos' &&
         data.currency == 'GTQ' &&
         data.supplier == supplier.name &&
