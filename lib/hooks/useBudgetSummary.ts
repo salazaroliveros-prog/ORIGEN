@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import type { APUItem, ExpenseRecord } from '@/lib/types';
 import { createLogger } from '@/lib/utils/logger';
 import { calculateBudgetSummary } from '@/lib/utils/calculations';
+import { sumCountableExpenses } from '@/lib/projectCalculations';
 
 const log = createLogger('useBudgetSummary');
 
