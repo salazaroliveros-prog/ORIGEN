@@ -95,7 +95,7 @@ export function isCountableExpense(expense: ExpenseRecord): boolean {
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 /**
- * Suma de gastos ejecutados (excluye los rechazados), redondeada a centavos.
+ * Suma de gastos registrados no rechazados (incluye pendientes), redondeada a centavos.
  */
 export function sumCountableExpenses(expenses: ExpenseRecord[]): number {
   return round2(
