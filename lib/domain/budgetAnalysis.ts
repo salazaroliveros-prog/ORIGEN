@@ -278,7 +278,7 @@ export function calculateLaborRequirements(items: APUItem[], hoursPerShift = 8):
  *
  * Dimensión medida: presupuesto planificado del proyecto (project.budgetTotal)
  * vs total de partidas APU. Evalúa si el presupuesto autorizado cubre las
- * partidas APU definidas y qué tanto se ha ejecutado del plan.
+ * partidas APU definidas y qué tanto del presupuesto está comprometido.
  *
  * @param project Proyecto con budgetTotal (presupuesto planificado/autorizado) y spentTotal.
  * @param items Partidas APU del proyecto.
