@@ -686,6 +686,10 @@ describe('firebaseService CRUD contra el emulador', () => {
     const issueRetry = await inventoryService.recordProjectStockIssueToFirestore(issueInput);
     expect(issueRetry.alreadyProcessed).toBe(true);
     await expect(inventoryService.recordProjectStockIssueToFirestore({
+      ...issueInput,
+      quantity: 1,
+    })).rejects.toThrow('La referencia de salida ya fue utilizada');
+    await expect(inventoryService.recordProjectStockIssueToFirestore({
       ...issueInput, movementId: uniqueId('ISSUE-OVER'), quantity: 4, reference: 'VALE-MOV-OVER',
     })).rejects.toThrow('Existencia insuficiente');
 
@@ -701,6 +705,10 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(transfer.destinationBalance.averageUnitCostGTQ).toBe(50);
     const transferRetry = await inventoryService.transferInventoryBetweenWarehousesToFirestore(transferInput);
     expect(transferRetry.alreadyProcessed).toBe(true);
+    await expect(inventoryService.transferInventoryBetweenWarehousesToFirestore({
+      ...transferInput,
+      quantity: 2,
+    })).rejects.toThrow('El ID del traslado ya fue utilizado');
 
     const destinationBalanceId = `bal_${destination.id}_${item.id}`;
     const storedDestination = await expectPersisted('inventoryBalances', destinationBalanceId, (callback) =>
