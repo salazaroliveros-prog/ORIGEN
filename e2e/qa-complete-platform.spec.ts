@@ -56,6 +56,12 @@ async function addManualAPUItem(
   await expect(modal).toBeHidden({ timeout: 30_000 });
 }
 
+async function getProjectRow(page: Page, code: string, action: 'Editar proyecto' | 'Archivar proyecto' | 'Restaurar proyecto' = 'Editar proyecto') {
+  const actionButton = page.getByRole('button', { name: `${action} ${code}` });
+  await expect(actionButton).toBeVisible({ timeout: 20_000 });
+  return actionButton.locator('xpath=ancestor::li[1]');
+}
+
 async function createProject(page: Page, code: string, name: string, progress: number) {
   await openTab(page, 'Proyectos & Firmas');
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
@@ -87,13 +93,15 @@ test.describe('FASE 1 — Módulo de Proyectos: ciclo de vida completo', () => {
 
     await createProject(page, code, name, 5);
 
-    // Verificar que el proyecto aparece en la lista
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(name).first()).toBeVisible();
-    await expect(page.getByText('Planificación').first()).toBeVisible();
-    await expect(page.getByText('100,000').first()).toBeVisible();
+    // Verificar la fila visible del listado; el selector de proyecto contiene
+    // una <option> oculta con el mismo código y no debe usarse como resultado.
+    let projectRow = await getProjectRow(page, code);
+    await expect(projectRow.getByText(code, { exact: true })).toBeVisible();
+    await expect(projectRow.getByText(name, { exact: true })).toBeVisible();
+    await expect(projectRow.getByText('Planificación', { exact: true })).toBeVisible();
+    await expect(projectRow.getByText('100,000')).toBeVisible();
 
-    // Editar: corregir presupuesto (inconsistencia detectada: valor bajo para obra real)
+    // Editar: corregir presupuesto.
     await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
     await expect(page.getByText('Editar Proyecto')).toBeVisible();
     await page.getByLabel('Presupuesto Total (Q)').fill('250000');
@@ -101,38 +109,36 @@ test.describe('FASE 1 — Módulo de Proyectos: ciclo de vida completo', () => {
     await page.getByRole('button', { name: 'Actualizar' }).click();
     await page.waitForTimeout(3000);
 
-    await expect(page.getByText('250,000').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('10%').first()).toBeVisible({ timeout: 20_000 });
+    projectRow = await getProjectRow(page, code);
+    await expect(projectRow.getByText('250,000')).toBeVisible({ timeout: 20_000 });
+    await expect(projectRow.getByText('10%', { exact: true })).toBeVisible({ timeout: 20_000 });
 
-    // Persistencia: recargar y verificar que los datos se mantienen
+    // Persistencia: recargar y verificar la fila real del listado.
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('250,000').first()).toBeVisible();
-    await expect(page.getByText('Planificación').first()).toBeVisible();
+    projectRow = await getProjectRow(page, code);
+    await expect(projectRow.getByText('250,000')).toBeVisible();
+    await expect(projectRow.getByText('Planificación', { exact: true })).toBeVisible();
   });
 
   test('archiva y restaura el proyecto sin perder datos', async ({ page }) => {
     await ensureAuthenticated(page);
     const code = `QA-PROJ-${RUN_ID}-ARCH`;
     await createProject(page, code, `QA Archivo ${RUN_ID}`, 5);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
+    await getProjectRow(page, code);
 
     await page.getByRole('button', { name: `Archivar proyecto ${code}` }).click();
-    await page.waitForTimeout(2500);
-    await expect(page.getByText(code)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: `Editar proyecto ${code}` })).toHaveCount(0);
 
     await page.locator('main select').first().selectOption({ label: 'Archivados' });
-    await page.waitForTimeout(2000);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
+    const archivedRow = await getProjectRow(page, code, 'Restaurar proyecto');
+    await expect(archivedRow.getByText('100,000')).toBeVisible();
 
     await page.getByRole('button', { name: `Restaurar proyecto ${code}` }).click();
-    await page.waitForTimeout(2500);
     await page.locator('main select').first().selectOption({ label: 'Activos' });
-    await page.waitForTimeout(2000);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('250,000').first()).toBeVisible();
+    const restoredRow = await getProjectRow(page, code);
+    await expect(restoredRow.getByText('100,000')).toBeVisible();
   });
 });
 
