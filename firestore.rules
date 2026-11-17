@@ -739,7 +739,11 @@ service cloud.firestore {
 
     // Field visits collection
     match /fieldVisits/{visitId} {
-      allow get: if isCompanyMember(existing().companyId) ||
+      // Missing deterministic IDs can be read by signed-in callers so a
+      // transaction can safely check for collisions before creating a ledger row.
+      // Existing expense data remains private to company members / its author.
+      allow get: if (resource == null && isSignedIn()) ||
+        isCompanyMember(existing().companyId) ||
         (isSignedIn() && existing().authorId == request.auth.uid);
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.authorId == request.auth.uid);
@@ -783,6 +787,7 @@ service cloud.firestore {
       // amount, date, category and payment link must never be edited or erased.
       allow update: if isValidId(expenseId) &&
         !existing().keys().hasAny(['subcontractPaymentId']) &&
+        !incoming().keys().hasAny(['subcontractPaymentId']) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFinance(existing().companyId) &&
             incoming().id == existing().id && incoming().id == expenseId &&
