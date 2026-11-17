@@ -97,7 +97,7 @@ export function validateAPUItem(item: Partial<APUItem>): APUItem {
  * Dimensión medida: gasto registrado (aprobados + pendientes) vs presupuesto APU planificado.
  *
  * @param apuItems Partidas APU que constituyen el presupuesto de referencia.
- * @param totalSpent Monto total gastado ejecutado (suma de ExpenseRecord.amount).
+ * @param totalSpent Monto registrado no rechazado (aprobados + pendientes).
  * @returns Objeto con:
  *   - budgetTotal: Suma de totalPriceGTQ de todas las partidas APU (presupuesto APU).
  *   - spentTotal: Monto total gastado ejecutado.
