@@ -75,7 +75,7 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
           onClick={onToggle}
           title="Ocultar Widget"
           className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 hover:text-white"
-          aria-label="Ocultar widget Avance Físico vs Ejecución Financiera"
+          aria-label="Ocultar widget Avance Físico vs Compromiso Presupuestario"
         >
           <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
@@ -85,10 +85,10 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
           <div>
             <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
               <BarChart3 className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-              Avance Físico de Obra vs. Ejecución Financiera (%)
+              Avance Físico de Obra vs. Compromiso Presupuestario (%)
             </h3>
             <p className="mt-0.5 text-xs text-slate-400">
-              Comparativa porcentual por proyecto. Detecta descalces donde el gasto financiero supera al avance real de construcción.
+              Comparativa porcentual por proyecto. Detecta descalces donde el presupuesto comprometido supera al avance real de construcción.
             </p>
           </div>
 
@@ -97,13 +97,13 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
               <span className="inline-block h-3 w-3 rounded bg-emerald-500" aria-hidden="true" /> Avance Físico (%)
             </span>
             <span className="flex items-center gap-1.5 text-amber-400">
-              <span className="inline-block h-3 w-3 rounded bg-amber-500" aria-hidden="true" /> Ejecución Financiera (%)
+              <span className="inline-block h-3 w-3 rounded bg-amber-500" aria-hidden="true" /> Compromiso Presupuestario (%)
             </span>
             <button
               onClick={onToggle}
               title="Ocultar Widget"
               className="rounded-lg p-1 text-slate-500 hover:text-slate-200"
-              aria-label="Ocultar widget Avance Físico vs Ejecución Financiera"
+              aria-label="Ocultar widget Avance Físico vs Compromiso Presupuestario"
             >
               <EyeOff className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -140,7 +140,7 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
               <Bar dataKey="avanceFisico" name="Avance Físico (%)" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
               <Bar
                 dataKey="ejecucionFinanciera"
-                name="Ejecución Financiera (%)"
+                name="Compromiso Presupuestario (%)"
                 radius={[4, 4, 0, 0]}
                 barSize={20}
               >

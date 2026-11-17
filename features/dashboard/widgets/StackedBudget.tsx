@@ -81,7 +81,7 @@ const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visi
               Comparativa de Presupuesto Asignado vs. Gasto Acumulado (Barras Apiladas)
             </h3>
             <p className="mt-0.5 text-xs text-slate-400">
-              Gráfico apilado que visibiliza el saldo disponible frente al gastos registrados (aprobados y pendientes) y sobrecostos excedidos.
+              Gráfico apilado que visibiliza el saldo disponible frente a los gastos registrados (aprobados y pendientes) y sobrecostos excedidos.
             </p>
           </div>
 
