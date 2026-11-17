@@ -417,7 +417,7 @@ beforeEach(async () => {
         updatedAt: '2026-11-16T11:00:00.000Z',
       });
     }));
-  });
+  }, 60_000);
 
   it('requires a purchase receipt movement, balance, and order update in one atomic write', async () => {
     await seedProject(makeProject('receipt-project'));
