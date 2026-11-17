@@ -75,6 +75,7 @@ export interface SubcontractPaymentRecord {
   amountGTQ: number;
   paymentDate: string;
   reference: string;
+  paymentMethod: 'Efectivo' | 'Cheque' | 'Transferencia BI' | 'Tarjeta';
   notes?: string;
   createdBy: string;
   createdAt: string;
