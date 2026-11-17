@@ -725,12 +725,13 @@ describe('firebaseService CRUD contra el emulador', () => {
 
     await expect(inventoryService.registerSubcontractPaymentToFirestore({
       contractId: contract.id, amountGTQ: 100, paymentDate: '2026-02-31',
-      reference: 'INVALID-DATE', companyId, userId,
+      reference: 'INVALID-DATE', paymentMethod: 'Efectivo', companyId, userId,
     })).rejects.toThrow('fecha real');
 
     const input = {
       contractId: contract.id, amountGTQ: 350, paymentDate: '2026-11-16',
-      reference: 'BANK-TRANSFER-350', notes: 'Pago de prueba', companyId, userId,
+      reference: 'BANK-TRANSFER-350', paymentMethod: 'Transferencia BI',
+      notes: 'Pago de prueba', companyId, userId,
     };
     const firstPayment = await inventoryService.registerSubcontractPaymentToFirestore(input);
     expect(firstPayment.alreadyProcessed).toBe(false);
@@ -740,12 +741,47 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(storedPayment.exists()).toBe(true);
     expect(storedPayment.data()).toMatchObject({
       companyId, contractId: contract.id, amountGTQ: 350,
-      paymentDate: '2026-11-16', reference: 'BANK-TRANSFER-350', createdBy: userId,
+      paymentDate: '2026-11-16', reference: 'BANK-TRANSFER-350',
+      paymentMethod: 'Transferencia BI', createdBy: userId,
+    });
+
+    const storedExpense = await expectPersisted<ExpenseRecord>(
+      'expenses',
+      firstPayment.expense.id,
+      (callback) => service.subscribeExpenses(companyId, callback)
+    );
+    expect(storedExpense).toMatchObject({
+      id: firstPayment.payment.id,
+      subcontractPaymentId: firstPayment.payment.id,
+      paymentReference: 'BANK-TRANSFER-350',
+      companyId,
+      projectId,
+      authorId: userId,
+      date: '2026-11-16',
+      category: 'Subcontratos',
+      amount: 350,
+      currency: 'GTQ',
+      paymentMethod: 'Transferencia BI',
+      supplier: 'Proveedor pagos QA',
+      nitSupplier: 'CF',
     });
 
     const retry = await inventoryService.registerSubcontractPaymentToFirestore(input);
     expect(retry.alreadyProcessed).toBe(true);
     expect(retry.contract.paidGTQ).toBe(350);
+    expect(retry.expense.id).toBe(firstPayment.expense.id);
+    const storedExpensesAfterRetry = await new Promise<ExpenseRecord[]>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        unsubscribe();
+        reject(new Error('Timeout esperando el egreso del pago de subcontrato'));
+      }, 10_000);
+      const unsubscribe = service.subscribeExpenses(companyId, (records) => {
+        clearTimeout(timeout);
+        unsubscribe();
+        resolve(records);
+      });
+    });
+    expect(storedExpensesAfterRetry.filter((expense) => expense.subcontractPaymentId === firstPayment.payment.id)).toHaveLength(1);
 
     await expect(inventoryService.registerSubcontractPaymentToFirestore({
       ...input, amountGTQ: 700, reference: 'BANK-TRANSFER-700',
