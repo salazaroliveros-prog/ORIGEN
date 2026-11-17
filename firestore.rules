@@ -368,17 +368,17 @@ service cloud.firestore {
     function isValidTransferOutBalance(data, balanceId, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let incomingPath = receiptMovementPath('tr_' + movement.referenceId + '_in');
-      let incoming = getAfter(incomingPath).data;
-      return !exists(movementPath) && !exists(incomingPath) &&
+      // The transfer_out movement rule validates the complete immutable pair
+      // (including incoming quantity, cost, warehouse and creator). The balance
+      // only needs to prove that this pair is part of the same atomic write;
+      // repeating getAfter() of the other movement adds an avoidable rule read.
+      return !exists(movementPath) &&
         existsAfter(movementPath) && existsAfter(incomingPath) &&
         movement.kind == 'transfer_out' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
         movement.itemId == data.itemId &&
         movement.warehouseId == data.warehouseId &&
-        incoming.kind == 'transfer_in' &&
-        incoming.referenceId == movement.referenceId &&
-        incoming.quantity == movement.quantity &&
         data.quantity == existing().quantity - movement.quantity &&
         data.averageUnitCostGTQ == (data.quantity == 0 ? 0 : existing().averageUnitCostGTQ) &&
         data.reorderLevel == existing().reorderLevel;
@@ -387,22 +387,21 @@ service cloud.firestore {
     function isValidTransferInBalance(data, balanceId, creating, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let outgoingPath = receiptMovementPath('tr_' + movement.referenceId + '_out');
-      let outgoing = getAfter(outgoingPath).data;
       let previousQuantity = creating ? 0 : existing().quantity;
       let previousAverage = creating ? 0 : existing().averageUnitCostGTQ;
       let previousReorder = creating
         ? get(/databases/$(database)/documents/inventoryItems/$(movement.itemId)).data.reorderLevel
         : existing().reorderLevel;
-      return !exists(movementPath) && !exists(outgoingPath) &&
+      // The paired transfer_out movement is the authoritative validator for
+      // the entire transfer pair. It must be present in this same atomic write;
+      // do not re-read its fields from the destination balance rule.
+      return !exists(movementPath) &&
         existsAfter(movementPath) && existsAfter(outgoingPath) &&
         movement.kind == 'transfer_in' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
         movement.itemId == data.itemId &&
         movement.warehouseId == data.warehouseId &&
-        outgoing.kind == 'transfer_out' &&
-        outgoing.referenceId == movement.referenceId &&
-        outgoing.quantity == movement.quantity &&
         data.quantity == previousQuantity + movement.quantity &&
         isWithinOneCent(
           data.averageUnitCostGTQ,
