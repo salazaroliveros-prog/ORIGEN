@@ -23,7 +23,7 @@ test.describe('Autenticación', () => {
   });
 
   test('el correo del administrador autenticado es visible en pantalla', async ({ page }) => {
-    await expect(page.getByText(ADMIN_EMAIL)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(ADMIN_EMAIL).first()).toBeVisible({ timeout: 30_000 });
   });
 
   test('la navegación principal con enlace real de la app es visible', async ({ page }) => {
