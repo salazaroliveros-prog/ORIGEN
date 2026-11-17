@@ -44,7 +44,6 @@ export function useCompanyWorkspace(user: User | null) {
     async (companyId: string) => {
       if (!user) return false;
       const requestId = ++selectionRequestId.current;
-      const requestId = ++selectionRequestId.current;
       setLoading(true);
       setResolvedUserId(null);
       setWorkspace(null);
