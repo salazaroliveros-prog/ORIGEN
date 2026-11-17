@@ -85,8 +85,8 @@ export function calculateProjectSpentById(expenses: ExpenseRecord[], projectId: 
 }
 
 /**
- * Determina si un gasto cuenta como ejecutado.
- * Un gasto rechazado en el flujo de aprobación no consume presupuesto.
+ * Determina si un gasto cuenta para el presupuesto comprometido.
+ * Los gastos pendientes cuentan como compromiso; los rechazados quedan excluidos.
  */
 export function isCountableExpense(expense: ExpenseRecord): boolean {
   return expense.approvalStatus !== 'Rechazado';
