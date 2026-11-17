@@ -771,10 +771,18 @@ service cloud.firestore {
         (isSignedIn() && resource.data.authorId == request.auth.uid);
       allow create: if isValidId(expenseId) &&
         incoming().id == expenseId &&
-        (canManageFinance(incoming().companyId) || canCreatePendingMachineryExpense(incoming())) &&
+        (
+          (incoming().keys().hasAny(['subcontractPaymentId'])
+            ? (canManagePurchasing(incoming().companyId) &&
+              isValidSubcontractPaymentExpense(incoming()))
+            : (canManageFinance(incoming().companyId) || canCreatePendingMachineryExpense(incoming())))
+        ) &&
         isProjectInCompany(incoming().projectId, incoming().companyId) &&
         incoming().authorId == request.auth.uid && isValidExpense(incoming());
+      // A subcontract payment expense is an immutable ledger entry. Its
+      // amount, date, category and payment link must never be edited or erased.
       allow update: if isValidId(expenseId) &&
+        !existing().keys().hasAny(['subcontractPaymentId']) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFinance(existing().companyId) &&
             incoming().id == existing().id && incoming().id == expenseId &&
@@ -787,7 +795,9 @@ service cloud.firestore {
             incoming().companyId == request.auth.uid &&
             incoming().authorId == existing().authorId &&
             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
-      allow delete: if isValidId(expenseId) && canManageFinance(existing().companyId);
+      allow delete: if isValidId(expenseId) &&
+        !existing().keys().hasAny(['subcontractPaymentId']) &&
+        canManageFinance(existing().companyId);
     }
 
     // Attendance collection
@@ -1214,13 +1224,14 @@ service cloud.firestore {
         isValidId(paymentId) &&
         data.keys().hasAll([
           'id', 'companyId', 'contractId', 'projectId', 'supplierId',
-          'amountGTQ', 'paymentDate', 'reference', 'createdBy', 'createdAt'
+          'amountGTQ', 'paymentDate', 'reference', 'paymentMethod', 'createdBy', 'createdAt'
         ]) &&
         canManagePurchasing(data.companyId) &&
         data.createdBy == request.auth.uid &&
         data.amountGTQ is number && data.amountGTQ > 0 &&
         data.paymentDate is string && data.paymentDate.size() == 10 && data.paymentDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}') &&
         data.reference is string && data.reference.size() > 0 && data.reference.size() <= 60 &&
+        data.paymentMethod in ['Efectivo', 'Cheque', 'Transferencia BI', 'Tarjeta'] &&
         data.createdAt is string &&
         exists(contractPath) &&
         existsAfter(contractPath) &&
@@ -1234,6 +1245,36 @@ service cloud.firestore {
         afterContract.status == beforeContract.status &&
         afterContract.lastPaymentId == paymentId &&
         afterContract.updatedAt == data.createdAt;
+    }
+
+    // The payment and its project expense must be created in the same atomic
+    // Firestore write. This gives project spend a single auditable source and
+    // prevents forged or duplicate "Subcontratos" expenses.
+    function isValidSubcontractPaymentExpense(data) {
+      let paymentId = data.subcontractPaymentId;
+      let paymentPath = /databases/$(database)/documents/subcontractPayments/$(paymentId);
+      let payment = getAfter(paymentPath).data;
+      let supplierPath = /databases/$(database)/documents/suppliers/$(payment.supplierId);
+      let supplier = get(supplierPath).data;
+      return data.subcontractPaymentId is string &&
+        data.subcontractPaymentId == data.id &&
+        data.keys().hasAll(['subcontractPaymentId', 'paymentReference', 'paymentMethod']) &&
+        existsAfter(paymentPath) &&
+        exists(supplierPath) &&
+        payment.id == paymentId &&
+        payment.companyId == data.companyId &&
+        payment.projectId == data.projectId &&
+        payment.amountGTQ == data.amount &&
+        payment.paymentDate == data.date &&
+        payment.reference == data.paymentReference &&
+        payment.paymentMethod == data.paymentMethod &&
+        payment.createdBy == data.authorId &&
+        data.category == 'Subcontratos' &&
+        data.currency == 'GTQ' &&
+        data.supplier == supplier.name &&
+        data.nitSupplier == supplier.nit &&
+        isValidExpense(data) &&
+        isProjectInCompany(data.projectId, data.companyId);
     }
 
     function hasMatchingSubcontractPayment(contractId) {
