@@ -337,11 +337,21 @@ service cloud.firestore {
     }
 
     function isTransferBalancePairPresent(outgoing, incoming) {
-      // Each balance's own create/update rule validates its quantity, cost,
-      // warehouse, item and matching lastMovementId. The movement rule only
-      // needs to enforce that both balance writes are part of this commit.
-      return existsAfter(receiptBalancePath(outgoing.balanceId)) &&
-        existsAfter(receiptBalancePath(incoming.balanceId));
+      let sourcePath = receiptBalancePath(outgoing.balanceId);
+      let destinationPath = receiptBalancePath(incoming.balanceId);
+      return existsAfter(sourcePath) && existsAfter(destinationPath) &&
+        isTransferBalancePairLinkedAfter(outgoing, incoming, sourcePath, destinationPath);
+    }
+
+    function isTransferBalancePairLinkedAfter(outgoing, incoming, sourcePath, destinationPath) {
+      let sourceBalance = getAfter(sourcePath).data;
+      let destinationBalance = getAfter(destinationPath).data;
+      // Existence alone is insufficient: the source balance already exists
+      // before a transfer. Both post-write balances must point to their new
+      // immutable movement, otherwise a transfer could mint stock by only
+      // writing the incoming side.
+      return sourceBalance.lastMovementId == outgoing.id &&
+        destinationBalance.lastMovementId == incoming.id;
     }
 
     function isValidTransferOutMovement(data, movementId) {
