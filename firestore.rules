@@ -351,15 +351,16 @@ service cloud.firestore {
       return transferId is string &&
         transferId.size() > 0 && transferId.size() <= 75 &&
         !exists(outgoingPath) && !exists(incomingPath) &&
-        existsAfter(outgoingPath) && existsAfter(incomingPath) &&
-        isValidTransferOutPairAfter(data, movementId, outgoingPath, incomingPath);
+        existsAfter(incomingPath) &&
+        isValidTransferOutPairAfter(data, movementId, incomingPath);
     }
 
-    // Read post-write documents only after confirming that both sides exist.
-    // This keeps malformed/incomplete batches on a clean deny path instead of
-    // dereferencing .data from a missing getAfter() result in the emulator.
-    function isValidTransferOutPairAfter(data, movementId, outgoingPath, incomingPath) {
-      let outgoing = getAfter(outgoingPath).data;
+    // The outgoing document is already the request being authorized. Reuse its
+    // data instead of performing a redundant getAfter() on the same document.
+    // This keeps the atomic pair validation within Firestore's per-write access
+    // budget while still checking the incoming movement and both balances.
+    function isValidTransferOutPairAfter(data, movementId, incomingPath) {
+      let outgoing = data;
       let incoming = getAfter(incomingPath).data;
       return isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
         canManageInventory(outgoing.companyId) &&
@@ -458,32 +459,40 @@ service cloud.firestore {
     // This avoids evaluating receipt/issue rule branches for unrelated movement types.
     function isValidInventoryBalanceCreate(data, balanceId) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let movement = getAfter(movementPath).data;
       return existsAfter(movementPath) &&
-        (movement.kind == 'purchase_receipt'
-          ? isValidReceiptBalance(data, balanceId, true, movement)
-          : (movement.kind == 'transfer_in'
-            ? isValidTransferInBalance(data, balanceId, true, movement)
-            : false));
+        isValidInventoryBalanceCreateForMovement(data, balanceId, movementPath);
+    }
+
+    function isValidInventoryBalanceCreateForMovement(data, balanceId, movementPath) {
+      let movement = getAfter(movementPath).data;
+      return movement.kind == 'purchase_receipt'
+        ? isValidReceiptBalance(data, balanceId, true, movement)
+        : (movement.kind == 'transfer_in'
+          ? isValidTransferInBalance(data, balanceId, true, movement)
+          : false);
     }
 
     function isValidInventoryBalanceUpdate(data, balanceId) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let movement = getAfter(movementPath).data;
       return existsAfter(movementPath) &&
-        (movement.kind == 'purchase_receipt'
+        isValidInventoryBalanceUpdateForMovement(data, balanceId, movementPath);
+    }
+
+    function isValidInventoryBalanceUpdateForMovement(data, balanceId, movementPath) {
+      let movement = getAfter(movementPath).data;
+      return movement.kind == 'purchase_receipt'
+        ? (data.quantity > existing().quantity &&
+          isValidReceiptBalance(data, balanceId, false, movement))
+        : (movement.kind == 'transfer_in'
           ? (data.quantity > existing().quantity &&
-            isValidReceiptBalance(data, balanceId, false, movement))
-          : (movement.kind == 'transfer_in'
-            ? (data.quantity > existing().quantity &&
-              isValidTransferInBalance(data, balanceId, false, movement))
-            : (movement.kind == 'project_issue'
+            isValidTransferInBalance(data, balanceId, false, movement))
+          : (movement.kind == 'project_issue'
+            ? (data.quantity < existing().quantity &&
+              isValidIssueBalance(data, balanceId, movement))
+            : (movement.kind == 'transfer_out'
               ? (data.quantity < existing().quantity &&
-                isValidIssueBalance(data, balanceId, movement))
-              : (movement.kind == 'transfer_out'
-                ? (data.quantity < existing().quantity &&
-                  isValidTransferOutBalance(data, balanceId, movement))
-                : false))));
+                isValidTransferOutBalance(data, balanceId, movement))
+              : false)));
     }
 
     function isValidProjectIssueMovement(data, movementId) {
