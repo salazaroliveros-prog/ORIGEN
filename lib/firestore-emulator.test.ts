@@ -363,49 +363,55 @@ beforeEach(async () => {
       lastMovementId: incoming.id,
     };
 
+    const commitBatch = async (configure: (batch: ReturnType<typeof writeBatch>) => void) => {
+      const batch = writeBatch(database);
+      configure(batch);
+      await batch.commit();
+    };
+
     await assertFails(setDoc(doc(database, 'stockMovements', outgoing.id), outgoing));
     // A transfer cannot write only the movement pair or only one warehouse balance.
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
-      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
+    await assertFails(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      batch.set(doc(database, 'stockMovements', incoming.id), incoming);
     }));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
-      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
-      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+    await assertFails(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      batch.set(doc(database, 'stockMovements', incoming.id), incoming);
+      batch.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
     }));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
-      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
-      transaction.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
+    await assertFails(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      batch.set(doc(database, 'stockMovements', incoming.id), incoming);
+      batch.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
     }));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
-      transaction.set(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+    await assertFails(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      batch.set(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
     }));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, quantity: -4 });
-      transaction.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: -4 });
+    await assertFails(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, quantity: -4 });
+      batch.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: -4 });
     }));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, unitCostGTQ: -1 });
-      transaction.set(doc(database, 'stockMovements', incoming.id), { ...incoming, unitCostGTQ: -1 });
+    await assertFails(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, unitCostGTQ: -1 });
+      batch.set(doc(database, 'stockMovements', incoming.id), { ...incoming, unitCostGTQ: -1 });
     }));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
-      transaction.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: 9 });
-      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
-      transaction.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
+    await assertFails(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      batch.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: 9 });
+      batch.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+      batch.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
     }));
-    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
-      transaction.set(doc(database, 'stockMovements', outgoing.id), outgoing);
-      transaction.set(doc(database, 'stockMovements', incoming.id), incoming);
-      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
-      transaction.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
+    await assertSucceeds(commitBatch((batch) => {
+      batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
+      batch.set(doc(database, 'stockMovements', incoming.id), incoming);
+      batch.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
+      batch.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
     }));
     // Reusing the immutable outgoing movement must not debit the source a second time.
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
-      transaction.update(doc(database, 'inventoryBalances', sourceBalance.id), {
+    await assertFails(commitBatch((batch) => {
+      batch.update(doc(database, 'inventoryBalances', sourceBalance.id), {
         ...sourceBalance,
         quantity: 4,
         updatedAt: '2026-11-16T11:00:00.000Z',
