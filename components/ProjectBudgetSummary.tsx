@@ -209,9 +209,9 @@ export function ProjectBudgetSummary({
             tone="text-sky-300"
           />
           <Kpi
-            label="Gasto ejecutado"
+            label="Gasto registrado"
             value={formatMoney(coverage.spentTotalGTQ)}
-            hint={`${coverage.budgetUsagePercent}% del presupuesto`}
+            hint={`${coverage.budgetUsagePercent}% del presupuesto · incluye pendientes; excluye rechazados`}
             tone={
               coverage.budgetUsagePercent >= 100
                 ? 'text-rose-300'
