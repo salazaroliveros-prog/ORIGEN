@@ -465,6 +465,99 @@ service cloud.firestore {
         data.reorderLevel == existing().reorderLevel;
     }
 
+    function isOpeningWarehouseValid(data, warehouse) {
+      return warehouse.companyId == data.companyId &&
+        warehouse.active == true &&
+        (
+          (warehouse.type == 'general' && !data.keys().hasAny(['projectId'])) ||
+          (warehouse.type == 'project' &&
+            data.projectId is string &&
+            warehouse.projectId == data.projectId &&
+            isProjectInCompany(data.projectId, data.companyId))
+        );
+    }
+
+    function isValidOpeningBalance(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        isValidOpeningBalanceAfter(data, balanceId, movementPath);
+    }
+
+    function isValidOpeningBalanceAfter(data, balanceId, movementPath) {
+      let movement = getAfter(movementPath).data;
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
+      let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return movement.kind == 'opening' &&
+        movement.id == data.lastMovementId &&
+        movement.id is string && movement.id == movementPath.segments[6] &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        movement.createdBy == request.auth.uid &&
+        data.id == balanceId &&
+        data.id == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.createdBy == request.auth.uid &&
+        data.quantity == movement.quantity &&
+        data.averageUnitCostGTQ == movement.unitCostGTQ &&
+        data.reorderLevel == item.reorderLevel &&
+        item.companyId == data.companyId &&
+        item.active == true &&
+        isOpeningWarehouseValid(movement, warehouse);
+    }
+
+    function isValidOpeningMovement(data, movementId) {
+      let balancePath = receiptBalancePath(data.balanceId);
+      return !exists(balancePath) && existsAfter(balancePath) &&
+        isValidOpeningMovementAfter(data, movementId, balancePath);
+    }
+
+    function isValidOpeningMovementAfter(data, movementId, balancePath) {
+      let balance = getAfter(balancePath).data;
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
+      let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return data.keys().hasAll([
+          'id', 'companyId', 'itemId', 'warehouseId', 'kind', 'quantity',
+          'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId', 'createdBy'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId',
+          'notes', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.kind == 'opening' &&
+        data.companyId is string &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number && data.unitCostGTQ >= 0 &&
+        data.occurredAt is string &&
+        data.referenceId is string && data.referenceId.size() > 0 && data.referenceId.size() <= 100 &&
+        (!data.keys().hasAny(['notes']) ||
+          (data.notes is string && data.notes.size() <= 1000)) &&
+        balance.id == data.balanceId &&
+        balance.lastMovementId == movementId &&
+        balance.companyId == data.companyId &&
+        balance.itemId == data.itemId &&
+        balance.warehouseId == data.warehouseId &&
+        balance.createdBy == request.auth.uid &&
+        balance.quantity == data.quantity &&
+        balance.averageUnitCostGTQ == data.unitCostGTQ &&
+        balance.reorderLevel == item.reorderLevel &&
+        item.companyId == data.companyId &&
+        item.active == true &&
+        isOpeningWarehouseValid(data, warehouse);
+    }
+
     // Dispatch by the authoritative movement kind before calling validators.
     // This avoids evaluating receipt/issue rule branches for unrelated movement types.
     function isValidInventoryBalanceCreate(data, balanceId) {
@@ -475,11 +568,13 @@ service cloud.firestore {
 
     function isValidInventoryBalanceCreateForMovement(data, balanceId, movementPath) {
       let movement = getAfter(movementPath).data;
-      return movement.kind == 'purchase_receipt'
-        ? isValidReceiptBalance(data, balanceId, true, movement)
-        : (movement.kind == 'transfer_in'
-          ? isValidTransferInBalance(data, balanceId, true, movement)
-          : false);
+      return movement.kind == 'opening'
+        ? isValidOpeningBalance(data, balanceId)
+        : (movement.kind == 'purchase_receipt'
+          ? isValidReceiptBalance(data, balanceId, true, movement)
+          : (movement.kind == 'transfer_in'
+            ? isValidTransferInBalance(data, balanceId, true, movement)
+            : false));
     }
 
     function isValidInventoryBalanceUpdate(data, balanceId) {
@@ -1221,13 +1316,15 @@ service cloud.firestore {
     match /stockMovements/{movementId} {
       allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
-      allow create: if incoming().kind == 'purchase_receipt'
-        ? isValidReceiptMovement(incoming(), movementId)
-        : (incoming().kind == 'project_issue'
-          ? isValidProjectIssueMovement(incoming(), movementId)
-          : ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in')
-            ? isValidTransferMovement(incoming(), movementId)
-            : false));
+      allow create: if incoming().kind == 'opening'
+        ? isValidOpeningMovement(incoming(), movementId)
+        : (incoming().kind == 'purchase_receipt'
+          ? isValidReceiptMovement(incoming(), movementId)
+          : (incoming().kind == 'project_issue'
+            ? isValidProjectIssueMovement(incoming(), movementId)
+            : ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in')
+              ? isValidTransferMovement(incoming(), movementId)
+              : false)));
       allow update, delete: if false;
     }
 
