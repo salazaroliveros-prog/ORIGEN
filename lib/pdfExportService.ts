@@ -1382,9 +1382,14 @@ export async function exportConstructionAuditPdf(
       ? ` Se excluyen ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatGTQ(auditMetrics.rejectedAmount)}.`
       : '';
 
-  const defaultNotes =
+  const baseNotes =
     auditNotes?.trim() ||
-    `Se hace constar que los gastos aprobados registrados ascienden a ${formatGTQ(totalExpenses)} y se comparan con el avance físico reportado de ${physicalProgress}%. El saldo presupuestario después de compromisos es de ${formatGTQ(budgetBalance)}.${pendingNote}${rejectionNote} Las cifras provienen de los registros capturados en la plataforma; la verificación documental y fiscal de cada comprobante se realiza por separado y no se certifica en este documento.`;
+    `Se hace constar que los gastos aprobados registrados ascienden a ${formatGTQ(totalExpenses)} y se comparan con el avance físico reportado de ${physicalProgress}%. El saldo presupuestario después de compromisos es de ${formatGTQ(budgetBalance)}. Las cifras provienen de los registros capturados en la plataforma; la verificación documental y fiscal de cada comprobante se realiza por separado y no se certifica en este documento.`;
+  // Mandatory financial qualifications must remain visible even when the auditor
+  // writes custom observations; they are not optional editorial notes.
+  const defaultNotes = [baseNotes, pendingNote.trim(), rejectionNote.trim()]
+    .filter(Boolean)
+    .join(' ');
 
   addText(defaultNotes, margin + 3, y + 4.5, {
     fontSize: 7,
