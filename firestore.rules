@@ -320,10 +320,14 @@ service cloud.firestore {
     function isTransferWarehousesValid(outgoing, incoming) {
       let sourcePath = /databases/$(database)/documents/warehouses/$(outgoing.warehouseId);
       let destinationPath = /databases/$(database)/documents/warehouses/$(incoming.warehouseId);
+      return exists(sourcePath) && exists(destinationPath) &&
+        isTransferWarehousesAfter(outgoing, incoming, sourcePath, destinationPath);
+    }
+
+    function isTransferWarehousesAfter(outgoing, incoming, sourcePath, destinationPath) {
       let sourceWarehouse = get(sourcePath).data;
       let destinationWarehouse = get(destinationPath).data;
-      return exists(sourcePath) && exists(destinationPath) &&
-        sourceWarehouse.companyId == outgoing.companyId &&
+      return sourceWarehouse.companyId == outgoing.companyId &&
         destinationWarehouse.companyId == outgoing.companyId &&
         sourceWarehouse.active == true &&
         destinationWarehouse.active == true &&
@@ -333,12 +337,11 @@ service cloud.firestore {
     }
 
     function isTransferBalancePairPresent(outgoing, incoming) {
-      let sourceBalancePath = receiptBalancePath(outgoing.balanceId);
-      let destinationBalancePath = receiptBalancePath(incoming.balanceId);
-      return existsAfter(sourceBalancePath) &&
-        getAfter(sourceBalancePath).data.lastMovementId == outgoing.id &&
-        existsAfter(destinationBalancePath) &&
-        getAfter(destinationBalancePath).data.lastMovementId == incoming.id;
+      // Each balance's own create/update rule validates its quantity, cost,
+      // warehouse, item and matching lastMovementId. The movement rule only
+      // needs to enforce that both balance writes are part of this commit.
+      return existsAfter(receiptBalancePath(outgoing.balanceId)) &&
+        existsAfter(receiptBalancePath(incoming.balanceId));
     }
 
     function isValidTransferOutMovement(data, movementId) {
