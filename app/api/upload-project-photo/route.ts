@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     const storagePath = `projects/${projectId.trim()}/progress/${filename}`;
 
     // 5. Escritura con el token del usuario: `storage.rules` decide.
-    const { downloadUrl } = await uploadImageAsUser({
+    const uploaded = await uploadImageAsUser({
       idToken: auth.idToken,
       bucket,
       storagePath,
@@ -87,10 +87,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      url: downloadUrl,
       photoId: `${timestamp}_${randomString}`,
       filename,
-      storagePath,
+      storagePath: uploaded.storagePath,
       size: file.size,
       uploadedAt: new Date().toISOString(),
     });
