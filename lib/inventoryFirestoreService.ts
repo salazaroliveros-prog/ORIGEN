@@ -9,6 +9,7 @@
 import {
   collection,
   doc,
+  getDoc,
   onSnapshot,
   query,
   runTransaction,
@@ -545,15 +546,45 @@ export async function recordProjectStockIssueToFirestore(input: {
   const now = new Date().toISOString();
 
   try {
+    // Check the deterministic movement ID before doing reference lookups.
+    // Existing retries only need the movement and its balance; reading project,
+    // warehouse and item again inside the transaction adds no safety because
+    // Firestore rules validate those references on the atomic write itself.
+    const previousMovement = await getDoc(movementRef);
+    let preflightProject: ProjectRecord | null = null;
+    let preflightWarehouse: WarehouseRecord | null = null;
+    let preflightItem: InventoryItemRecord | null = null;
+
+    if (!previousMovement.exists()) {
+      const [projectSnapshot, warehouseSnapshot, itemSnapshot] = await Promise.all([
+        getDoc(projectRef),
+        getDoc(warehouseRef),
+        getDoc(itemRef),
+      ]);
+      if (!projectSnapshot.exists() || projectSnapshot.data().companyId !== companyId) {
+        throw new Error('El proyecto no existe o no pertenece a la empresa activa.');
+      }
+      if (!warehouseSnapshot.exists()) throw new Error('La bodega seleccionada no existe.');
+      if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
+      preflightProject = projectSnapshot.data() as ProjectRecord;
+      preflightWarehouse = warehouseSnapshot.data() as WarehouseRecord;
+      preflightItem = itemSnapshot.data() as InventoryItemRecord;
+      if (preflightWarehouse.companyId !== companyId || !preflightWarehouse.active) {
+        throw new Error('La bodega no está activa o no pertenece a la empresa.');
+      }
+      if (preflightWarehouse.type === 'project' && preflightWarehouse.projectId !== projectId) {
+        throw new Error('La bodega pertenece a otro proyecto.');
+      }
+      if (preflightItem.companyId !== companyId || !preflightItem.active) {
+        throw new Error('El artículo no está activo o no pertenece a la empresa.');
+      }
+    }
+
     return await runTransaction(db, async (transaction: Transaction) => {
-      const [movementSnapshot, balanceSnapshot, warehouseSnapshot, itemSnapshot, projectSnapshot] =
-        await Promise.all([
-          transaction.get(movementRef),
-          transaction.get(balanceRef),
-          transaction.get(warehouseRef),
-          transaction.get(itemRef),
-          transaction.get(projectRef),
-        ]);
+      const [movementSnapshot, balanceSnapshot] = await Promise.all([
+        transaction.get(movementRef),
+        transaction.get(balanceRef),
+      ]);
 
       if (movementSnapshot.exists()) {
         const previous = movementSnapshot.data() as StockMovement;
@@ -590,22 +621,13 @@ export async function recordProjectStockIssueToFirestore(input: {
         throw new Error('La referencia de salida ya fue utilizada para otro movimiento.');
       }
 
-      if (!projectSnapshot.exists() || projectSnapshot.data().companyId !== companyId) {
-        throw new Error('El proyecto no existe o no pertenece a la empresa activa.');
+      // Reference documents were preflighted above. The transaction still
+      // atomically rereads the balance and deterministic movement; security
+      // rules revalidate project, warehouse, item and company ownership at commit.
+      if (!preflightProject || !preflightWarehouse || !preflightItem) {
+        throw new Error('No se pudieron validar las referencias de la salida.');
       }
-      if (!warehouseSnapshot.exists()) throw new Error('La bodega seleccionada no existe.');
-      const warehouse = warehouseSnapshot.data() as WarehouseRecord;
-      if (warehouse.companyId !== companyId || !warehouse.active) {
-        throw new Error('La bodega no está activa o no pertenece a la empresa.');
-      }
-      if (warehouse.type === 'project' && warehouse.projectId !== projectId) {
-        throw new Error('La bodega pertenece a otro proyecto.');
-      }
-      if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
-      const item = itemSnapshot.data() as InventoryItemRecord;
-      if (item.companyId !== companyId || !item.active) {
-        throw new Error('El artículo no está activo o no pertenece a la empresa.');
-      }
+      const item = preflightItem;
       if (!balanceSnapshot.exists()) {
         throw new Error('No hay saldo registrado para este artículo en la bodega. Registra una recepción antes de retirar material.');
       }
@@ -723,23 +745,53 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
   const now = new Date().toISOString();
 
   try {
+    // Existing deterministic transfer pairs are handled using only the two
+    // movements and two balances. For a new transfer, warehouse/item metadata
+    // is preflighted outside the transaction; Firestore rules remain the final
+    // authority and revalidate company, active state and warehouse ownership.
+    const [previousOutgoing, previousIncoming] = await Promise.all([
+      getDoc(outgoingRef),
+      getDoc(incomingRef),
+    ]);
+    let sourceWarehouse: WarehouseRecord | null = null;
+    let destinationWarehouse: WarehouseRecord | null = null;
+    let item: InventoryItemRecord | null = null;
+
+    if (!previousOutgoing.exists() && !previousIncoming.exists()) {
+      const [sourceWarehouseSnapshot, destinationWarehouseSnapshot, itemSnapshot] = await Promise.all([
+        getDoc(sourceWarehouseRef),
+        getDoc(destinationWarehouseRef),
+        getDoc(itemRef),
+      ]);
+      if (!sourceWarehouseSnapshot.exists() || !destinationWarehouseSnapshot.exists()) {
+        throw new Error('La bodega de origen o destino no existe.');
+      }
+      if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
+      sourceWarehouse = sourceWarehouseSnapshot.data() as WarehouseRecord;
+      destinationWarehouse = destinationWarehouseSnapshot.data() as WarehouseRecord;
+      item = itemSnapshot.data() as InventoryItemRecord;
+      if (
+        sourceWarehouse.companyId !== companyId || !sourceWarehouse.active ||
+        destinationWarehouse.companyId !== companyId || !destinationWarehouse.active
+      ) {
+        throw new Error('Ambas bodegas deben estar activas y pertenecer a la empresa.');
+      }
+      if (item.companyId !== companyId || !item.active) {
+        throw new Error('El artículo no está activo o no pertenece a la empresa.');
+      }
+    }
+
     return await runTransaction(db, async (transaction: Transaction) => {
       const [
         outgoingSnapshot,
         incomingSnapshot,
         sourceBalanceSnapshot,
         destinationBalanceSnapshot,
-        sourceWarehouseSnapshot,
-        destinationWarehouseSnapshot,
-        itemSnapshot,
       ] = await Promise.all([
         transaction.get(outgoingRef),
         transaction.get(incomingRef),
         transaction.get(sourceBalanceRef),
         transaction.get(destinationBalanceRef),
-        transaction.get(sourceWarehouseRef),
-        transaction.get(destinationWarehouseRef),
-        transaction.get(itemRef),
       ]);
 
       if (outgoingSnapshot.exists() || incomingSnapshot.exists()) {
@@ -797,21 +849,8 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
         };
       }
 
-      if (!sourceWarehouseSnapshot.exists() || !destinationWarehouseSnapshot.exists()) {
-        throw new Error('La bodega de origen o destino no existe.');
-      }
-      const sourceWarehouse = sourceWarehouseSnapshot.data() as WarehouseRecord;
-      const destinationWarehouse = destinationWarehouseSnapshot.data() as WarehouseRecord;
-      if (
-        sourceWarehouse.companyId !== companyId || !sourceWarehouse.active ||
-        destinationWarehouse.companyId !== companyId || !destinationWarehouse.active
-      ) {
-        throw new Error('Ambas bodegas deben estar activas y pertenecer a la empresa.');
-      }
-      if (!itemSnapshot.exists()) throw new Error('El artículo seleccionado no existe.');
-      const item = itemSnapshot.data() as InventoryItemRecord;
-      if (item.companyId !== companyId || !item.active) {
-        throw new Error('El artículo no está activo o no pertenece a la empresa.');
+      if (!sourceWarehouse || !destinationWarehouse || !item) {
+        throw new Error('No se pudieron validar las referencias del traslado.');
       }
       if (!sourceBalanceSnapshot.exists()) {
         throw new Error('No existe saldo disponible en la bodega de origen.');
