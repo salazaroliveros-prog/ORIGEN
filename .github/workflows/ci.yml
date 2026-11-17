@@ -34,6 +34,9 @@ jobs:
       - name: Validate privacy-first Service Worker
         run: node scripts/generate-service-worker.js
 
+      - name: Validate PWA manifest and local assets
+        run: node scripts/pwa-manifest-validator.js
+
       - name: Type check
         run: npm run type-check
 
