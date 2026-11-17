@@ -739,11 +739,7 @@ service cloud.firestore {
 
     // Field visits collection
     match /fieldVisits/{visitId} {
-      // Missing deterministic IDs can be read by signed-in callers so a
-      // transaction can safely check for collisions before creating a ledger row.
-      // Existing expense data remains private to company members / its author.
-      allow get: if (resource == null && isSignedIn()) ||
-        isCompanyMember(existing().companyId) ||
+      allow get: if isCompanyMember(existing().companyId) ||
         (isSignedIn() && existing().authorId == request.auth.uid);
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.authorId == request.auth.uid);
@@ -769,7 +765,10 @@ service cloud.firestore {
 
     // Expenses collection
     match /expenses/{expenseId} {
-      allow get: if isCompanyMember(existing().companyId) ||
+      // Permit a signed-in caller to check an empty deterministic ID before
+      // atomically creating a new ledger row; existing records remain private.
+      allow get: if (resource == null && isSignedIn()) ||
+        isCompanyMember(existing().companyId) ||
         (isSignedIn() && existing().authorId == request.auth.uid);
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.authorId == request.auth.uid);
