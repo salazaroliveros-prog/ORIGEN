@@ -882,4 +882,128 @@ describe('firebaseService CRUD contra el emulador', () => {
   });
 
 
+
+  it('recibe órdenes de dos renglones en entregas parciales independientes', async () => {
+    const projectId = await createProject('INV-MULTILINE', 'Proyecto para recepción multi-renglón');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor multi-renglón QA', nit: 'CF', active: true },
+      companyId,
+      userId
+    );
+    const cement = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Cemento multi-renglón QA', unit: 'saco', reorderLevel: 2, active: true },
+      companyId,
+      userId
+    );
+    const steel = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Acero multi-renglón QA', unit: 'quintal', reorderLevel: 1, active: true },
+      companyId,
+      userId
+    );
+    const warehouse = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega multi-renglón QA', type: 'project', projectId, active: true },
+      companyId,
+      userId
+    );
+
+    const order = await inventoryService.createPurchaseOrderToFirestore({
+      projectId,
+      supplierId: supplier.id,
+      number: uniqueId('OC-MULTILINE'),
+      status: 'draft',
+      currency: 'GTQ',
+      lines: [
+        {
+          itemId: cement.id,
+          description: cement.name,
+          unit: cement.unit,
+          quantity: 4,
+          unitPriceGTQ: 425,
+        },
+        {
+          itemId: steel.id,
+          description: steel.name,
+          unit: steel.unit,
+          quantity: 10,
+          unitPriceGTQ: 80,
+        },
+      ],
+      subtotalGTQ: 2500,
+      discountGTQ: 0,
+      taxPercent: 12,
+      taxGTQ: 300,
+      totalGTQ: 2800,
+    }, companyId, userId);
+
+    const approved = await inventoryService.approvePurchaseOrderToFirestore(
+      order.id,
+      companyId,
+      userId
+    );
+    expect(approved.status).toBe('approved');
+
+    const cementPartial = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 0, warehouseId: warehouse.id, quantity: 2,
+      receiptNumber: 'ML-CEMENT-01', companyId, userId,
+    });
+    expect(cementPartial.order.status).toBe('partially_received');
+    expect(cementPartial.order.lines.map((line) => line.receivedQuantity)).toEqual([2, 0]);
+    expect(cementPartial.balance.quantity).toBe(2);
+    expect(cementPartial.balance.averageUnitCostGTQ).toBe(425);
+
+    const steelPartial = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 5,
+      receiptNumber: 'ML-STEEL-01', companyId, userId,
+    });
+    expect(steelPartial.order.status).toBe('partially_received');
+    expect(steelPartial.order.lines.map((line) => line.receivedQuantity)).toEqual([2, 5]);
+    expect(steelPartial.balance.quantity).toBe(5);
+    expect(steelPartial.balance.averageUnitCostGTQ).toBe(80);
+
+    const cementComplete = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 0, warehouseId: warehouse.id, quantity: 2,
+      receiptNumber: 'ML-CEMENT-02', companyId, userId,
+    });
+    expect(cementComplete.order.status).toBe('partially_received');
+    expect(cementComplete.order.lines.map((line) => line.receivedQuantity)).toEqual([4, 5]);
+
+    const steelComplete = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 5,
+      receiptNumber: 'ML-STEEL-02', companyId, userId,
+    });
+    expect(steelComplete.order.status).toBe('received');
+    expect(steelComplete.order.lines.map((line) => line.receivedQuantity)).toEqual([4, 10]);
+    expect(steelComplete.balance.quantity).toBe(10);
+    expect(steelComplete.balance.averageUnitCostGTQ).toBe(80);
+
+    const retry = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 5,
+      receiptNumber: 'ML-STEEL-02', companyId, userId,
+    });
+    expect(retry.alreadyProcessed).toBe(true);
+    expect(retry.order.status).toBe('received');
+
+    await expect(inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 1,
+      receiptNumber: 'ML-STEEL-03', companyId, userId,
+    })).rejects.toThrow();
+
+    const cementBalanceId = `bal_${warehouse.id}_${cement.id}`;
+    const steelBalanceId = `bal_${warehouse.id}_${steel.id}`;
+    const storedCement = await expectPersisted('inventoryBalances', cementBalanceId, (callback) =>
+      inventoryService.subscribeInventoryBalances(companyId, callback)
+    );
+    const storedSteel = await expectPersisted('inventoryBalances', steelBalanceId, (callback) =>
+      inventoryService.subscribeInventoryBalances(companyId, callback)
+    );
+    expect(storedCement).toMatchObject({
+      companyId, warehouseId: warehouse.id, itemId: cement.id,
+      quantity: 4, averageUnitCostGTQ: 425,
+    });
+    expect(storedSteel).toMatchObject({
+      companyId, warehouseId: warehouse.id, itemId: steel.id,
+      quantity: 10, averageUnitCostGTQ: 80,
+    });
+  });
+
 });
