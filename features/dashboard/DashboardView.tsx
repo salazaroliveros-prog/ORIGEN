@@ -201,7 +201,7 @@ export function DashboardView({
               Tablero de Control Financiero & Avance de Obras
             </h1>
             <p className="mt-0.5 text-xs font-medium text-slate-300">
-              Monitoreo analítico en tiempo real de presupuestos proyectados, gastos ejecutados y descalces de obra en Guatemala.
+              Monitoreo analítico de presupuestos proyectados, gastos registrados (aprobados y pendientes) y descalces de obra en Guatemala.
             </p>
           </div>
         </div>
