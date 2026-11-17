@@ -44,7 +44,10 @@ jobs:
           java-version: '21'
 
       - name: Run Firebase emulator security tests
-        run: npx --yes firebase-tools emulators:exec --config firebase.emulators.json --project demo-origen-erp-test --only auth,firestore,storage "npx vitest run --config vitest.emulator.config.ts"
+        # Keep the emulator version reproducible: firebase-tools 15.25+ bundles
+      # Firestore Emulator v1.22.0, which has reported transaction/rules lock regressions.
+      # 15.24.0 uses the v1.21.0 emulator while the upstream regression is unresolved.
+      run: npm run test:firebase
 
       - name: Build
         env:
