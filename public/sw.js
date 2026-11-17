@@ -1,65 +1,66 @@
-// ConstructERP Guatemala - Service Worker for Offline Field Operations
-const CACHE_NAME = 'constructerp-v2';
-const STATIC_ASSETS = ['/', '/site.webmanifest'];
+// ORIGEN ERP — privacy-first Service Worker.
+// Never cache authenticated HTML, API responses, Firebase traffic or cross-origin data.
+const CACHE_NAME = 'origen-public-static-v3';
+const PRECACHE_ASSETS = ['/site.webmanifest', '/offline.html'];
+const PUBLIC_ASSET_PREFIXES = ['/_next/static/', '/assets/branding/'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('[SW] Cache addAll warning:', err);
-      });
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((name) => {
-          if (name !== CACHE_NAME) {
-            return caches.delete(name);
-          }
-        })
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+    )
   );
   self.clients.claim();
 });
 
-// Network-first strategy with cache fallback
+function isPublicStaticAsset(url) {
+  return url.origin === self.location.origin &&
+    (url.pathname === '/site.webmanifest' ||
+      PUBLIC_ASSET_PREFIXES.some((prefix) => url.pathname.startsWith(prefix)));
+}
+
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests and skip API or chrome-extension URLs
-  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
-    return;
-  }
+  const request = event.request;
+  if (request.method !== 'GET') return;
 
-  // Allow API routes to be handled by application/offline queue
-  if (event.request.url.includes('/api/')) {
-    return;
-  }
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/data/')) return;
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response && response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
+  if (request.mode === 'navigate') {
+    // Do not store authenticated pages. Offline navigation receives a static,
+    // non-sensitive explanation instead of a previous user's dashboard.
+    event.respondWith(
+      fetch(request).catch(async () => {
+        const offline = await caches.match('/offline.html');
+        return offline || new Response('Sin conexión', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
         });
       })
+    );
+    return;
+  }
+
+  if (!isPublicStaticAsset(url)) return;
+
+  event.respondWith(
+    caches.match(request).then(async (cached) => {
+      if (cached) return cached;
+      const response = await fetch(request);
+      const cacheControl = response.headers.get('Cache-Control') || '';
+      if (response.ok && !/private|no-store/i.test(cacheControl)) {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(request, response.clone());
+      }
+      return response;
+    })
   );
 });
