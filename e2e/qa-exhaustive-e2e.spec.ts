@@ -644,10 +644,15 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
       'Cotizaciones',
       'Gastos & Facturas',
       'Maquinaria',
+      'Inventario & Compras',
     ];
     for (const section of sections) {
       await openTab(page, section);
-      await expect(page.getByRole('button', { name: section }).first()).toBeVisible();
+      if (section === 'Inventario & Compras') {
+        await expect(page.getByRole('heading', { name: 'Inventario & Compras' })).toBeVisible();
+      } else {
+        await expect(page.getByRole('button', { name: section }).first()).toBeVisible();
+      }
     }
   });
 
@@ -672,6 +677,7 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
       'Cotizaciones',
       'Gastos & Facturas',
       'Maquinaria',
+      'Inventario & Compras',
       'Personal & IGSS',
       'Planillas Guate',
       'Reportes',
@@ -704,6 +710,22 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
     await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');
     await expect(page.getByText(projectData.code).first()).toBeVisible({ timeout: 20_000 });
+  });
+
+  test('PASO-5.09 — Inventario: historial, búsqueda y filtro de movimientos', async ({ page }) => {
+    await openTab(page, 'Inventario & Compras');
+    await expect(page.getByRole('heading', { name: 'Inventario & Compras' })).toBeVisible({
+      timeout: 20_000,
+    });
+
+    await page.getByRole('tab', { name: 'Movimientos' }).click();
+    await expect(page.getByRole('region', { name: 'Historial de movimientos' })).toBeVisible();
+    await expect(page.getByLabel('Buscar movimiento')).toBeVisible();
+    await expect(page.getByLabel('Tipo de movimiento')).toBeVisible();
+
+    await page.getByLabel('Buscar movimiento').fill('QA-HISTORIAL-NO-EXISTE');
+    await page.getByLabel('Tipo de movimiento').selectOption('project_issue');
+    await expect(page.getByLabel('Tipo de movimiento')).toHaveValue('project_issue');
   });
 });
 
