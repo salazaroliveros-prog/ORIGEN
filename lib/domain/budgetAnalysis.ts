@@ -291,7 +291,7 @@ export function calculateLaborRequirements(items: APUItem[], hoursPerShift = 8):
  *     POSITIVO = el presupuesto planificado supera al total APU (sobra cobertura).
  *     NEGATIVO = el total APU excede el presupuesto planificado (falta cobertura).
  *   - variancePercent: varianceGTQ expresado como % del plannedBudgetGTQ.
- *   - budgetUsagePercent: spentTotalGTQ / plannedBudgetGTQ (% del plan ejecutado).
+ *   - budgetUsagePercent: spentTotalGTQ / plannedBudgetGTQ (% del presupuesto comprometido).
  *   - apuCoveragePercent: apuTotalGTQ / plannedBudgetGTQ (% del plan cubierto por APU).
  *   - status: Clasificación de cobertura (sin-presupuesto, bajo-presupuesto, ajustado, sobre-presupuesto).
  *
