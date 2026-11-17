@@ -21,6 +21,7 @@ import {
   createSubcontractToFirestore,
   registerSubcontractPaymentToFirestore,
   receivePurchaseOrderToWarehouse,
+  recordOpeningStockToFirestore,
   recordProjectStockIssueToFirestore,
   transferInventoryBetweenWarehousesToFirestore,
   createSupplierToFirestore,
@@ -152,6 +153,12 @@ export function InventoryManager({
   const [transferQuantity, setTransferQuantity] = useState('1');
   const [transferReference, setTransferReference] = useState('');
   const [transferNotes, setTransferNotes] = useState('');
+  const [openingBalanceKey, setOpeningBalanceKey] = useState('');
+  const [openingQuantity, setOpeningQuantity] = useState('1');
+  const [openingUnitCost, setOpeningUnitCost] = useState('0');
+  const [openingReference, setOpeningReference] = useState(() => `INI-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
+  const [openingNotes, setOpeningNotes] = useState('');
+  const [openingMovementId, setOpeningMovementId] = useState('');
 
   useEffect(() => {
     setWarehouseProjectId((current) => current || activeProjectId);
@@ -249,6 +256,19 @@ export function InventoryManager({
 
   const pendingOrders = orders.filter((order) =>
     ['draft', 'submitted', 'approved', 'partially_received'].includes(order.status)
+  );
+
+  // Only combinations without a balance can receive an initial opening entry.
+  // Once a movement history exists, stock must be changed through an auditable adjustment.
+  const openingCandidates = useMemo(
+    () => activeWarehouses.flatMap((warehouse) =>
+      activeItems
+        .filter((item) => !balances.some((balance) =>
+          balance.itemId === item.id && balance.warehouseId === warehouse.id
+        ))
+        .map((item) => ({ item, warehouse, key: `${item.id}|${warehouse.id}` }))
+    ),
+    [activeItems, activeWarehouses, balances]
   );
 
   const handleSupplierSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -460,6 +480,63 @@ export function InventoryManager({
     }
   };
 
+  const handleOpeningStockSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canWriteInventory || submitting) return;
+
+    const candidate = openingCandidates.find((entry) => entry.key === openingBalanceKey);
+    const quantity = Number(openingQuantity);
+    const unitCostGTQ = Number(openingUnitCost);
+    if (!candidate) {
+      toast.error('Selecciona una combinación de artículo y bodega sin historial previo.');
+      return;
+    }
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      toast.error('La cantidad inicial debe ser mayor a cero.');
+      return;
+    }
+    if (!Number.isFinite(unitCostGTQ) || unitCostGTQ < 0) {
+      toast.error('El costo unitario inicial debe ser cero o mayor.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]{1,100}$/.test(openingReference.trim())) {
+      toast.error('La referencia debe contener de 1 a 100 letras, números, guion o guion bajo.');
+      return;
+    }
+
+    const movementId = openingMovementId || `open_${crypto.randomUUID()}`;
+    setOpeningMovementId(movementId);
+    setSubmitting(true);
+    try {
+      const result = await recordOpeningStockToFirestore({
+        movementId,
+        itemId: candidate.item.id,
+        warehouseId: candidate.warehouse.id,
+        quantity,
+        unitCostGTQ,
+        reference: openingReference.trim(),
+        notes: openingNotes.trim() || undefined,
+        companyId,
+        userId,
+      });
+      setOpeningBalanceKey('');
+      setOpeningQuantity('1');
+      setOpeningUnitCost('0');
+      setOpeningReference(`INI-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
+      setOpeningNotes('');
+      setOpeningMovementId('');
+      toast.success(result.alreadyProcessed
+        ? 'El inventario inicial ya estaba registrado; no se duplicó.'
+        : 'Inventario inicial registrado y saldo creado mediante transacción.');
+    } catch (cause) {
+      // Keep the same movement ID after a network/unknown outcome so a retry
+      // is idempotent. Editing any form field clears it for a new operation.
+      toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar el inventario inicial.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleStockIssueSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canWriteInventory || submitting) return;
@@ -654,7 +731,7 @@ export function InventoryManager({
     { id: 'subcontratos', label: 'Subcontratos' },
   ];
 
-  const visibleSections = sections.filter((item) => item.id !== 'movimientos' || canWriteInventory);
+  const visibleSections = sections;
 
   const projectOptions = projects.filter((project) => project.status !== 'Archivado');
 
@@ -1045,6 +1122,55 @@ export function InventoryManager({
                   </div>
                 )}
               </section>
+              {canWriteInventory && (
+                <form onSubmit={(event) => void handleOpeningStockSubmit(event)} className={`${cardClass} space-y-3`}>
+                  <h3 className="font-semibold text-white">Registrar inventario inicial</h3>
+                  <p className="text-xs text-slate-400">
+                    Carga el conteo físico de apertura por artículo y bodega. Solo se permite una apertura por combinación; correcciones posteriores deben quedar registradas como ajustes.
+                  </p>
+                  {openingCandidates.length === 0 ? (
+                    <EmptyState message="No hay combinaciones nuevas. Todas las bodegas y artículos ya tienen historial o aún no hay catálogo activo." />
+                  ) : (
+                    <>
+                      <label className="block">
+                        <span className={labelClass}>Artículo y bodega</span>
+                        <select
+                          className={fieldClass}
+                          value={openingBalanceKey}
+                          onChange={(event) => { setOpeningBalanceKey(event.target.value); setOpeningMovementId(''); }}
+                          required
+                        >
+                          <option value="">Selecciona artículo y bodega</option>
+                          {openingCandidates.map(({ item, warehouse, key }) => (
+                            <option key={key} value={key}>{item.name} · {warehouse.name} · {item.unit}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <label className="block">
+                          <span className={labelClass}>Existencia física inicial</span>
+                          <input className={fieldClass} type="number" min="0.0001" step="0.0001" value={openingQuantity} onChange={(event) => { setOpeningQuantity(event.target.value); setOpeningMovementId(''); }} required />
+                        </label>
+                        <label className="block">
+                          <span className={labelClass}>Costo unitario promedio (Q)</span>
+                          <input className={fieldClass} type="number" min="0" step="0.01" value={openingUnitCost} onChange={(event) => { setOpeningUnitCost(event.target.value); setOpeningMovementId(''); }} required />
+                        </label>
+                      </div>
+                      <label className="block">
+                        <span className={labelClass}>Acta / referencia de conteo</span>
+                        <input className={fieldClass} value={openingReference} onChange={(event) => { setOpeningReference(event.target.value); setOpeningMovementId(''); }} maxLength={100} pattern="[a-zA-Z0-9_-]{1,100}" required />
+                      </label>
+                      <label className="block">
+                        <span className={labelClass}>Observaciones</span>
+                        <textarea className={fieldClass} rows={2} value={openingNotes} onChange={(event) => { setOpeningNotes(event.target.value); setOpeningMovementId(''); }} maxLength={1000} />
+                      </label>
+                      <button type="submit" className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !openingBalanceKey}>
+                        {submitting ? 'Registrando…' : 'Confirmar inventario inicial'}
+                      </button>
+                    </>
+                  )}
+                </form>
+              )}
               {canWriteInventory && (
                 <form onSubmit={(event) => void handleStockIssueSubmit(event)} className={`${cardClass} space-y-3`}>
                   <h3 className="font-semibold text-white">Registrar salida de material a obra</h3>
