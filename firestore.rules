@@ -365,9 +365,8 @@ service cloud.firestore {
         );
     }
 
-    function isValidTransferOutBalance(data, balanceId) {
+    function isValidTransferOutBalance(data, balanceId, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let movement = getAfter(movementPath).data;
       let incomingPath = receiptMovementPath('tr_' + movement.referenceId + '_in');
       let incoming = getAfter(incomingPath).data;
       return !exists(movementPath) && !exists(incomingPath) &&
@@ -385,9 +384,8 @@ service cloud.firestore {
         data.reorderLevel == existing().reorderLevel;
     }
 
-    function isValidTransferInBalance(data, balanceId, creating) {
+    function isValidTransferInBalance(data, balanceId, creating, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let movement = getAfter(movementPath).data;
       let outgoingPath = receiptMovementPath('tr_' + movement.referenceId + '_out');
       let outgoing = getAfter(outgoingPath).data;
       let previousQuantity = creating ? 0 : existing().quantity;
@@ -416,9 +414,8 @@ service cloud.firestore {
         data.reorderLevel == previousReorder;
     }
 
-    function isValidIssueBalance(data, balanceId) {
+    function isValidIssueBalance(data, balanceId, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let movement = getAfter(movementPath).data;
       return !exists(movementPath) && existsAfter(movementPath) &&
         movement.kind == 'project_issue' &&
         movement.balanceId == balanceId &&
@@ -435,25 +432,31 @@ service cloud.firestore {
     function isValidInventoryBalanceCreate(data, balanceId) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let movement = getAfter(movementPath).data;
-      return existsAfter(movementPath) && (
-        (movement.kind == 'purchase_receipt' && isValidReceiptBalance(data, balanceId, true)) ||
-        (movement.kind == 'transfer_in' && isValidTransferInBalance(data, balanceId, true))
-      );
+      return existsAfter(movementPath) &&
+        (movement.kind == 'purchase_receipt'
+          ? isValidReceiptBalance(data, balanceId, true, movement)
+          : (movement.kind == 'transfer_in'
+            ? isValidTransferInBalance(data, balanceId, true, movement)
+            : false));
     }
 
     function isValidInventoryBalanceUpdate(data, balanceId) {
       let movementPath = receiptMovementPath(data.lastMovementId);
       let movement = getAfter(movementPath).data;
-      return existsAfter(movementPath) && (
-        (movement.kind == 'purchase_receipt' && data.quantity > existing().quantity &&
-          isValidReceiptBalance(data, balanceId, false)) ||
-        (movement.kind == 'transfer_in' && data.quantity > existing().quantity &&
-          isValidTransferInBalance(data, balanceId, false)) ||
-        (movement.kind == 'project_issue' && data.quantity < existing().quantity &&
-          isValidIssueBalance(data, balanceId)) ||
-        (movement.kind == 'transfer_out' && data.quantity < existing().quantity &&
-          isValidTransferOutBalance(data, balanceId))
-      );
+      return existsAfter(movementPath) &&
+        (movement.kind == 'purchase_receipt'
+          ? (data.quantity > existing().quantity &&
+            isValidReceiptBalance(data, balanceId, false, movement))
+          : (movement.kind == 'transfer_in'
+            ? (data.quantity > existing().quantity &&
+              isValidTransferInBalance(data, balanceId, false, movement))
+            : (movement.kind == 'project_issue'
+              ? (data.quantity < existing().quantity &&
+                isValidIssueBalance(data, balanceId, movement))
+              : (movement.kind == 'transfer_out'
+                ? (data.quantity < existing().quantity &&
+                  isValidTransferOutBalance(data, balanceId, movement))
+                : false))));
     }
 
     function isValidProjectIssueMovement(data, movementId) {
@@ -494,9 +497,8 @@ service cloud.firestore {
         isActiveInventoryItem(data.itemId, data.companyId);
     }
 
-    function isValidReceiptBalance(data, balanceId, creating) {
+    function isValidReceiptBalance(data, balanceId, creating, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
-      let movement = getAfter(movementPath).data;
       let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
       return data.id == balanceId &&
         data.id == 'bal_' + data.warehouseId + '_' + data.itemId &&
@@ -1175,10 +1177,13 @@ service cloud.firestore {
     match /stockMovements/{movementId} {
       allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
-      allow create: if
-        (incoming().kind == 'purchase_receipt' && isValidReceiptMovement(incoming(), movementId)) ||
-        (incoming().kind == 'project_issue' && isValidProjectIssueMovement(incoming(), movementId)) ||
-        ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in') && isValidTransferMovement(incoming(), movementId));
+      allow create: if incoming().kind == 'purchase_receipt'
+        ? isValidReceiptMovement(incoming(), movementId)
+        : (incoming().kind == 'project_issue'
+          ? isValidProjectIssueMovement(incoming(), movementId)
+          : ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in')
+            ? isValidTransferMovement(incoming(), movementId)
+            : false));
       allow update, delete: if false;
     }
 
