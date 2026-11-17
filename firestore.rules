@@ -345,13 +345,20 @@ service cloud.firestore {
       let transferId = data.referenceId;
       let outgoingPath = receiptMovementPath('tr_' + transferId + '_out');
       let incomingPath = receiptMovementPath('tr_' + transferId + '_in');
-      let outgoing = getAfter(outgoingPath).data;
-      let incoming = getAfter(incomingPath).data;
       return transferId is string &&
         transferId.size() > 0 && transferId.size() <= 75 &&
         !exists(outgoingPath) && !exists(incomingPath) &&
         existsAfter(outgoingPath) && existsAfter(incomingPath) &&
-        isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
+        isValidTransferOutPairAfter(data, movementId, outgoingPath, incomingPath);
+    }
+
+    // Read post-write documents only after confirming that both sides exist.
+    // This keeps malformed/incomplete batches on a clean deny path instead of
+    // dereferencing .data from a missing getAfter() result in the emulator.
+    function isValidTransferOutPairAfter(data, movementId, outgoingPath, incomingPath) {
+      let outgoing = getAfter(outgoingPath).data;
+      let incoming = getAfter(incomingPath).data;
+      return isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
         canManageInventory(outgoing.companyId) &&
         isTransferBalancePairPresent(outgoing, incoming) &&
         isTransferWarehousesValid(outgoing, incoming) &&
@@ -364,7 +371,6 @@ service cloud.firestore {
     function isValidTransferInMovement(data, movementId) {
       let transferId = data.referenceId;
       let outgoingPath = receiptMovementPath('tr_' + transferId + '_out');
-      let outgoing = getAfter(outgoingPath).data;
       return transferId is string &&
         transferId.size() > 0 && transferId.size() <= 75 &&
         data.id == movementId &&
@@ -372,7 +378,12 @@ service cloud.firestore {
         data.kind == 'transfer_in' &&
         data.createdBy == request.auth.uid &&
         existsAfter(outgoingPath) &&
-        outgoing.id == 'tr_' + transferId + '_out' &&
+        isValidTransferInPairAfter(transferId, outgoingPath);
+    }
+
+    function isValidTransferInPairAfter(transferId, outgoingPath) {
+      let outgoing = getAfter(outgoingPath).data;
+      return outgoing.id == 'tr_' + transferId + '_out' &&
         outgoing.kind == 'transfer_out' &&
         outgoing.referenceId == transferId &&
         outgoing.createdBy == request.auth.uid;
