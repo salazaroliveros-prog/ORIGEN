@@ -98,8 +98,12 @@ describe('useCompanyWorkspace', () => {
     const firstUser = { uid: 'user-one', email: 'one@example.com' } as any;
     const secondUser = { uid: 'user-two', email: 'two@example.com' } as any;
     let resolveSecond: (value: any) => void = () => {};
-    const secondResult = new Promise((resolve) => {
-      resolveSecond = resolve as (value: any) => void;
+    const secondResult = new Promise<{
+      workspace: any;
+      membership: any;
+      availableWorkspaces: any[];
+    }>((resolve) => {
+      resolveSecond = resolve;
     });
 
     vi.mocked(ensureCompanyWorkspace).mockImplementation((user: any) =>
