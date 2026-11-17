@@ -285,7 +285,7 @@ export function calculateLaborRequirements(items: APUItem[], hoursPerShift = 8):
  * @returns Objeto con:
  *   - plannedBudgetGTQ: Presupuesto total planificado del proyecto.
  *   - apuTotalGTQ: Suma de totalPriceGTQ de todas las partidas APU.
- *   - spentTotalGTQ: Gasto total ejecutado del proyecto.
+ *   - spentTotalGTQ: Gastos registrados no rechazados (incluye pendientes de aprobación).
  *   - remainingBudgetGTQ: plannedBudgetGTQ - spentTotalGTQ.
  *   - varianceGTQ: plannedBudgetGTQ - apuTotalGTQ.
  *     POSITIVO = el presupuesto planificado supera al total APU (sobra cobertura).
