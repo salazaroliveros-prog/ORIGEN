@@ -81,9 +81,9 @@ const KPICardsComponent = memo(function KPICardsComponent({ projects, totals }: 
         valueColor="#34d399"
       />
       <KPICard
-        title="Gasto Real Acumulado"
+        title="Gastos Registrados"
         value={formatGTQ(totals.totalSpent)}
-        subtitle={`${totals.spentPercentage}% del presupuesto ejercido`}
+        subtitle={`${totals.spentPercentage}% del presupuesto · aprobados + pendientes`}
         icon={TrendingUp}
         iconBg="bg-sky-500/10"
         iconColor="text-sky-400"
