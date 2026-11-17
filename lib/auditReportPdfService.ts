@@ -1,5 +1,6 @@
 import { Project, ExpenseRecord, FieldVisit, CompanySettings } from './types';
 import { formatGTQ } from './data';
+import { buildProjectAuditMetrics } from './domain/auditMetrics';
 
 export interface ExportConstructionAuditPdfOptions {
   project: Project;
@@ -98,18 +99,23 @@ export async function exportConstructionAuditPdf(
   };
 
   // 1. Calculate Core Financial & Audit Metrics
-  const totalBudget = project.budgetTotal || 0;
-  const projectExpenses = expenses.filter((e) => e.projectId === project.id);
-  const totalExpenses = projectExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const budgetBalance = totalBudget - totalExpenses;
-  const physicalProgress = Math.min(100, Math.max(0, project.progressPercent || 0));
-  const financialProgress =
-    totalBudget > 0 ? Number(((totalExpenses / totalBudget) * 100).toFixed(2)) : 0;
-  const progressDeviation = Number((physicalProgress - financialProgress).toFixed(2));
+  const auditMetrics = buildProjectAuditMetrics({ project, expenses });
+  const totalBudget = auditMetrics.budgetTotal;
+  // The detailed ledger keeps every status for traceability. Only approved and
+  // legacy-approved records are included in certified spend and category totals.
+  const projectExpenses = expenses.filter((expense) => expense.projectId === project.id);
+  const approvedExpenses = auditMetrics.approvedExpenses;
+  const totalExpenses = auditMetrics.totalExpenses;
+  const pendingAmount = auditMetrics.pendingAmount;
+  const pendingCount = auditMetrics.pendingCount;
+  const budgetBalance = auditMetrics.budgetBalance;
+  const physicalProgress = auditMetrics.physicalProgress;
+  const financialProgress = auditMetrics.financialProgress;
+  const progressDeviation = auditMetrics.progressDeviation;
 
-  // Categorical distribution
+  // Categorical distribution uses certified expenses only.
   const categories: Record<string, { total: number; count: number }> = {};
-  projectExpenses.forEach((exp) => {
+  approvedExpenses.forEach((exp) => {
     const cat = exp.category || 'Otros Insumos';
     if (!categories[cat]) {
       categories[cat] = { total: 0, count: 0 };
@@ -355,7 +361,7 @@ export async function exportConstructionAuditPdf(
     isBalancePositive ? 208 : 202
   );
   doc.roundedRect(kpi3X, y, cardW, cardH, 1, 1, 'FD');
-  addText('SALDO POR EJECUTAR', kpi3X + 3, y + 4, {
+  addText('SALDO TRAS COMPROMISOS', kpi3X + 3, y + 4, {
     fontSize: 6.5,
     fontStyle: 'bold',
     color: isBalancePositive ? [22, 101, 52] : [153, 27, 27],
@@ -707,7 +713,7 @@ export async function exportConstructionAuditPdf(
     doc.rect(margin, y, usableWidth, 7, 'D');
 
     addText(
-      `TOTAL EJECUTADO Y AUDITADO (${projectExpenses.length} COMPROBANTES)`,
+      `TOTAL APROBADO Y AUDITADO (${approvedExpenses.length} DE ${projectExpenses.length} COMPROBANTES)`,
       margin + 3,
       y + 4.8,
       {
@@ -817,9 +823,18 @@ export async function exportConstructionAuditPdf(
   doc.setDrawColor(203, 213, 225);
   doc.roundedRect(margin, y, usableWidth, 14, 1.5, 1.5, 'FD');
 
-  const defaultNotes =
+  const pendingNote = pendingCount > 0
+    ? `Hay ${pendingCount} solicitud(es) pendientes por ${formatGTQ(pendingAmount)}; no se certifican como gasto ejecutado, pero sí reducen el saldo disponible.`
+    : '';
+  const rejectionNote = auditMetrics.rejectedCount > 0
+    ? `Se excluyen ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatGTQ(auditMetrics.rejectedAmount)}.`
+    : '';
+  const baseNotes =
     auditNotes?.trim() ||
-    `Se hace constar que los gastos registrados por un monto acumulado de ${formatGTQ(totalExpenses)} cuentan con comprobantes de respaldo fiscal (Facturas DTE SAT) y se corresponden con el avance físico certificado de ${physicalProgress}%. El saldo presupuestario de ${formatGTQ(budgetBalance)} se encuentra disponible para la culminación de los renglones contractuales de la obra conforme al cronograma de ejecución vigente.`;
+    `Los gastos aprobados y auditados ascienden a ${formatGTQ(totalExpenses)} y se comparan con el avance físico certificado de ${physicalProgress}%. El saldo presupuestario después de compromisos es de ${formatGTQ(budgetBalance)}.`;
+  // These financial qualifications are mandatory even when custom audit notes
+  // are supplied by the auditor.
+  const defaultNotes = [baseNotes, pendingNote, rejectionNote].filter(Boolean).join(' ');
 
   addText(defaultNotes, margin + 3, y + 4.5, {
     fontSize: 7,
