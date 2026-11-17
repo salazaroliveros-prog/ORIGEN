@@ -1071,19 +1071,19 @@ describe('firebaseService CRUD contra el emulador', () => {
     const order = await inventoryService.createPurchaseOrderToFirestore({
       projectId, supplierId: supplier.id, number: uniqueId('OC-TRANSFER-RACE'),
       status: 'draft', currency: 'GTQ',
-      lines: [{ itemId: item.id, description: item.name, unit: item.unit, quantity: 1, unitPriceGTQ: 40 }],
-      subtotalGTQ: 40, discountGTQ: 0, taxPercent: 12, taxGTQ: 4.8, totalGTQ: 44.8,
+      lines: [{ itemId: item.id, description: item.name, unit: item.unit, quantity: 5, unitPriceGTQ: 50 }],
+      subtotalGTQ: 250, discountGTQ: 0, taxPercent: 12, taxGTQ: 30, totalGTQ: 280,
     }, companyId, userId);
     await inventoryService.approvePurchaseOrderToFirestore(order.id, companyId, userId);
     await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 0, warehouseId: source.id, quantity: 1,
-      receiptNumber: 'RACE-RECEIPT', companyId, userId,
+      orderId: order.id, lineIndex: 0, warehouseId: source.id, quantity: 5,
+      receiptNumber: uniqueId('RACE-RECEIPT'), companyId, userId,
     });
 
     const inputs = [destinationA, destinationB].map((destination, index) => ({
       transferId: uniqueId(`TRANSFER-RACE-${index}`),
       itemId: item.id, fromWarehouseId: source.id, toWarehouseId: destination.id,
-      quantity: 1, companyId, userId,
+      quantity: 4, companyId, userId,
     }));
     const results = await Promise.allSettled(
       inputs.map((input) => inventoryService.transferInventoryBetweenWarehousesToFirestore(input))
@@ -1099,7 +1099,7 @@ describe('firebaseService CRUD contra el emulador', () => {
       'inventoryBalances', `bal_${source.id}_${item.id}`,
       (callback) => inventoryService.subscribeInventoryBalances(companyId, callback)
     );
-    expect(sourceBalance).toMatchObject({ companyId, warehouseId: source.id, itemId: item.id, quantity: 0 });
+    expect(sourceBalance).toMatchObject({ companyId, warehouseId: source.id, itemId: item.id, quantity: 1 });
 
     const movements = await waitFor<StockMovement[]>(
       (callback) => inventoryService.subscribeStockMovements(companyId, callback),
@@ -1116,7 +1116,7 @@ describe('firebaseService CRUD contra el emulador', () => {
     );
     expect(destinationBalance).toMatchObject({
       companyId, warehouseId: successfulInput.toWarehouseId, itemId: item.id,
-      quantity: 1, averageUnitCostGTQ: 40,
+      quantity: 4, averageUnitCostGTQ: 50,
     });
   });
 
