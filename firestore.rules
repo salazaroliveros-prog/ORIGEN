@@ -393,6 +393,32 @@ service cloud.firestore {
         data.reorderLevel == existing().reorderLevel;
     }
 
+    // Dispatch by the authoritative movement kind before calling validators.
+    // This avoids evaluating receipt/issue rule branches for unrelated movement types.
+    function isValidInventoryBalanceCreate(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      let movement = getAfter(movementPath).data;
+      return existsAfter(movementPath) && (
+        (movement.kind == 'purchase_receipt' && isValidReceiptBalance(data, balanceId, true)) ||
+        (movement.kind == 'transfer_in' && isValidTransferInBalance(data, balanceId, true))
+      );
+    }
+
+    function isValidInventoryBalanceUpdate(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      let movement = getAfter(movementPath).data;
+      return existsAfter(movementPath) && (
+        (movement.kind == 'purchase_receipt' && data.quantity > existing().quantity &&
+          isValidReceiptBalance(data, balanceId, false)) ||
+        (movement.kind == 'transfer_in' && data.quantity > existing().quantity &&
+          isValidTransferInBalance(data, balanceId, false)) ||
+        (movement.kind == 'project_issue' && data.quantity < existing().quantity &&
+          isValidIssueBalance(data, balanceId)) ||
+        (movement.kind == 'transfer_out' && data.quantity < existing().quantity &&
+          isValidTransferOutBalance(data, balanceId))
+      );
+    }
+
     function isValidProjectIssueMovement(data, movementId) {
       let balancePath = receiptBalancePath(data.balanceId);
       let beforeBalance = get(balancePath).data;
@@ -1087,7 +1113,7 @@ service cloud.firestore {
         incoming().quantity is number && incoming().quantity > 0 &&
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
         incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
-        (isValidReceiptBalance(incoming(), balanceId, true) || isValidTransferInBalance(incoming(), balanceId, true));
+        isValidInventoryBalanceCreate(incoming(), balanceId);
       allow update: if isValidId(balanceId) &&
         incoming().id == existing().id &&
         incoming().id == balanceId &&
@@ -1104,10 +1130,7 @@ service cloud.firestore {
         incoming().quantity is number && incoming().quantity >= 0 &&
         incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
         incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
-        (
-          (incoming().quantity > existing().quantity && (isValidReceiptBalance(incoming(), balanceId, false) || isValidTransferInBalance(incoming(), balanceId, false))) ||
-          (incoming().quantity < existing().quantity && (isValidIssueBalance(incoming(), balanceId) || isValidTransferOutBalance(incoming(), balanceId)))
-        );
+        isValidInventoryBalanceUpdate(incoming(), balanceId);
       allow delete: if false;
     }
 
@@ -1115,7 +1138,10 @@ service cloud.firestore {
     match /stockMovements/{movementId} {
       allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
-      allow create: if isValidReceiptMovement(incoming(), movementId) || isValidProjectIssueMovement(incoming(), movementId) || isValidTransferMovement(incoming(), movementId);
+      allow create: if
+        (incoming().kind == 'purchase_receipt' && isValidReceiptMovement(incoming(), movementId)) ||
+        (incoming().kind == 'project_issue' && isValidProjectIssueMovement(incoming(), movementId)) ||
+        ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in') && isValidTransferMovement(incoming(), movementId);
       allow update, delete: if false;
     }
 
