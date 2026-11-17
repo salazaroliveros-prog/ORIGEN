@@ -1131,8 +1131,8 @@ service cloud.firestore {
         hasCompanyRole(existing().companyId, ['owner', 'admin']);
     }
 
-    // Balances only change as part of a verified purchase-receipt transaction.
-    // Inventory balances are writable only together with a valid purchase receipt.
+    // Balances change only in the same atomic transaction as a verified receipt,
+    // project issue, or paired warehouse transfer movement.
     match /inventoryBalances/{balanceId} {
       allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
