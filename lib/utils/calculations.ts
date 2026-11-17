@@ -100,7 +100,7 @@ export function validateAPUItem(item: Partial<APUItem>): APUItem {
  * @param totalSpent Monto registrado no rechazado (aprobados + pendientes).
  * @returns Objeto con:
  *   - budgetTotal: Suma de totalPriceGTQ de todas las partidas APU (presupuesto APU).
- *   - spentTotal: Monto total gastado ejecutado.
+ *   - spentTotal: Gastos registrados no rechazados (aprobados + pendientes).
  *   - remaining: budgetTotal - spentTotal (positivo = saldo a favor).
  *   - utilization: Porcentaje de presupuesto APU consumido (0-100%).
  *   - variance: spentTotal - budgetTotal.
