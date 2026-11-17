@@ -116,6 +116,31 @@ export function Sidebar({
         )}
       </div>
 
+      {/* Selector de proyecto activo: los módulos operativos usan activeProjectId. */}
+      {projects.length > 0 && (
+        <div className="px-4 py-3 border-b border-white/10">
+          <label
+            htmlFor="active-project-select"
+            className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2"
+          >
+            Proyecto activo
+          </label>
+          <select
+            id="active-project-select"
+            aria-label="Proyecto activo"
+            value={activeProject?.id ?? ''}
+            onChange={(event) => onSelectProject(event.target.value)}
+            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2 text-xs text-white focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.code} · {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Workspace selector (si hay múltiples empresas) */}
       {workspaces.length > 1 && (
         <div className="px-4 py-3">
