@@ -730,7 +730,7 @@ describe('firebaseService CRUD contra el emulador', () => {
 
     const input = {
       contractId: contract.id, amountGTQ: 350, paymentDate: '2026-11-16',
-      reference: 'BANK-TRANSFER-350', paymentMethod: 'Transferencia BI',
+      reference: 'BANK-TRANSFER-350', paymentMethod: 'Transferencia BI' as const,
       notes: 'Pago de prueba', companyId, userId,
     };
     const firstPayment = await inventoryService.registerSubcontractPaymentToFirestore(input);
