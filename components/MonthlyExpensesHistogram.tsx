@@ -350,7 +350,7 @@ export function MonthlyExpensesHistogram({
           </p>
         </div>
 
-        {/* Card 2: Gastos Reales */}
+        {/* Card 2: Gastos Registrados */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
           <div className="mb-1 flex items-center justify-between text-slate-400">
             <span className="text-[10px] font-bold uppercase tracking-wider">
