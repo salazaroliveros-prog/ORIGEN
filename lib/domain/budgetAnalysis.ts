@@ -296,7 +296,7 @@ export function calculateLaborRequirements(items: APUItem[], hoursPerShift = 8):
  *   - status: Clasificación de cobertura (sin-presupuesto, bajo-presupuesto, ajustado, sobre-presupuesto).
  *
  * @see {@link calculateBudgetSummary} en lib/utils/calculations.ts mide una
- * dimensión distinta: gasto real ejecutado vs presupuesto APU. No confundir
+ * dimensión distinta: gastos registrados no rechazados vs presupuesto APU. No confundir
  * ambos campos `variance` (signos opuestos y referentes distintos).
  */
 export function calculateBudgetCoverage(
