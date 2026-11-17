@@ -26,8 +26,8 @@ export interface ApuOverrun {
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 /**
- * Suma lo ejecutado en un renglón APU dentro de un proyecto.
- * Los gastos rechazados no consumen presupuesto.
+ * Suma los gastos no rechazados que comprometen un renglón APU.
+ * Incluye pendientes de aprobación y excluye los rechazados.
  */
 export function sumApuSpent(params: {
   expenses: ExpenseRecord[];
