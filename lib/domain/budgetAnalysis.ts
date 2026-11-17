@@ -274,7 +274,7 @@ export function calculateLaborRequirements(items: APUItem[], hoursPerShift = 8):
 }
 
 /**
- * Cobertura del presupuesto: planificado vs APU vs gasto ejecutado.
+ * Cobertura del presupuesto: planificado vs APU vs gastos registrados no rechazados.
  *
  * Dimensión medida: presupuesto planificado del proyecto (project.budgetTotal)
  * vs total de partidas APU. Evalúa si el presupuesto autorizado cubre las
