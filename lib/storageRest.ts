@@ -25,7 +25,6 @@ export interface StorageUploadParams {
 }
 
 export interface StorageUploadResult {
-  downloadUrl: string;
   storagePath: string;
 }
 
@@ -35,13 +34,6 @@ function storageApiBaseUrl(): string {
     return `http://${host}:9199`;
   }
   return 'https://firebasestorage.googleapis.com';
-}
-
-function buildDownloadUrl(bucket: string, storagePath: string, downloadToken?: string): string {
-  const base = `${storageApiBaseUrl()}/v0/b/${encodeURIComponent(bucket)}/o/${encodeURIComponent(
-    storagePath
-  )}?alt=media`;
-  return downloadToken ? `${base}&token=${encodeURIComponent(downloadToken)}` : base;
 }
 
 export async function uploadImageAsUser({
@@ -75,17 +67,10 @@ export async function uploadImageAsUser({
 
   const payload = (await response.json().catch(() => ({}))) as {
     name?: unknown;
-    downloadTokens?: unknown;
   };
 
   const storedPath = typeof payload.name === 'string' && payload.name ? payload.name : storagePath;
-  const token =
-    typeof payload.downloadTokens === 'string' ? payload.downloadTokens.split(',')[0] : undefined;
-
-  return {
-    downloadUrl: buildDownloadUrl(bucket, storedPath, token),
-    storagePath: storedPath,
-  };
+  return { storagePath: storedPath };
 }
 
 
