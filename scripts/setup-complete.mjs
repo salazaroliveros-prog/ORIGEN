@@ -252,7 +252,10 @@ async function main() {
 
   // Cargar variables de entorno
   const env = loadEnvFile(resolve(process.cwd(), '.env.local'));
-  // Shell/CI environment values take precedence over .env.local to avoid silently targeting another project.\n  for (const [key, value] of Object.entries(env)) {\n    if (process.env[key] === undefined) process.env[key] = value;\n  }
+  // Shell/CI environment values take precedence over .env.local to avoid silently targeting another project.
+  for (const [key, value] of Object.entries(env)) {
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
   ADMIN_EMAIL = process.env.SETUP_ADMIN_EMAIL || '';
   ADMIN_PASSWORD = process.env.SETUP_ADMIN_PASSWORD || '';
   COMPANY_ID = process.env.SETUP_COMPANY_ID || '';
