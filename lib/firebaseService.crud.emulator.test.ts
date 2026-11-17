@@ -571,6 +571,72 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(storedItem).toMatchObject({ companyId, createdBy: userId, unit: 'saco', reorderLevel: 12 });
   });
 
+  it('registra inventario inicial de forma atómica, inmutable e idempotente', async () => {
+    const warehouse = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega general apertura QA', type: 'general', active: true },
+      companyId,
+      userId
+    );
+    const item = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Block para apertura QA', unit: 'unidad', reorderLevel: 20, active: true },
+      companyId,
+      userId
+    );
+    const input = {
+      movementId: uniqueId('OPENING'),
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      quantity: 125,
+      unitCostGTQ: 4.75,
+      reference: 'INVENTARIO-INICIAL-2026',
+      notes: 'Conteo físico inicial de bodega',
+      companyId,
+      userId,
+    };
+
+    const opening = await inventoryService.recordOpeningStockToFirestore(input);
+    expect(opening.alreadyProcessed).toBe(false);
+    expect(opening.movement).toMatchObject({
+      kind: 'opening',
+      companyId,
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      quantity: 125,
+      unitCostGTQ: 4.75,
+      referenceId: input.reference,
+      createdBy: userId,
+    });
+    expect(opening.movement.projectId).toBeUndefined();
+    expect(opening.balance).toMatchObject({
+      companyId,
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      quantity: 125,
+      averageUnitCostGTQ: 4.75,
+      reorderLevel: 20,
+      lastMovementId: input.movementId,
+    });
+
+    const retry = await inventoryService.recordOpeningStockToFirestore(input);
+    expect(retry.alreadyProcessed).toBe(true);
+    expect(retry.balance.quantity).toBe(125);
+
+    await expect(inventoryService.recordOpeningStockToFirestore({
+      ...input,
+      quantity: 126,
+    })).rejects.toThrow('ID del movimiento inicial ya fue utilizado');
+
+    await expect(inventoryService.recordOpeningStockToFirestore({
+      ...input,
+      movementId: uniqueId('OPENING-SECOND'),
+    })).rejects.toThrow('ya tiene historial');
+
+    const stored = await expectPersisted<StockMovement>('stockMovements', input.movementId, (callback) =>
+      inventoryService.subscribeStockMovements(companyId, callback)
+    );
+    expect(stored).toMatchObject({ kind: 'opening', referenceId: input.reference, quantity: 125 });
+  });
+
   it('crea órdenes de compra y subcontratos solo con referencias existentes de la empresa', async () => {
     const projectId = await createProject('PROCUREMENT-CRUD', 'Proyecto para abastecimiento');
     const supplier = await inventoryService.createSupplierToFirestore(
