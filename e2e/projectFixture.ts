@@ -59,26 +59,23 @@ export async function createTestProject(page: Page, project: TestProject): Promi
  * contrario el gasto se imputa al primer proyecto de la lista.
  */
 export async function selectActiveProject(page: Page, code: string): Promise<void> {
-  // El overlay de un modal abierto tapa la cabecera: si sigue abierto, el
-  // clic en el selector no llega al botón.
+  // El selector forma parte de la barra lateral de escritorio y expone
+  // un nombre accesible estable; no depende de la estructura del header.
   const openDialog = page.getByRole('dialog');
   if (await openDialog.count()) {
     await expect(openDialog.first()).toBeHidden({ timeout: 20_000 });
   }
 
-  // El único botón con `aria-haspopup="listbox"` es el selector de proyecto
-  // de la cabecera (Navbar.tsx).
-  const trigger = page.locator('header button[aria-haspopup="listbox"]').first();
-  await trigger.click();
+  const selector = page.getByRole('combobox', { name: 'Proyecto activo' });
+  await expect(selector).toBeVisible({ timeout: 15_000 });
 
-  const menu = page.getByRole('menu', { name: 'Cambiar proyecto activo' });
-  await expect(menu).toBeVisible({ timeout: 15_000 });
-
-  // El proyecto recién creado llega por suscripción: hay que esperar a que
-  // aparezca en la lista para poder seleccionarlo.
-  const item = menu.getByRole('menuitem').filter({ hasText: code }).first();
-  await expect(item).toBeVisible({ timeout: 30_000 });
-  await item.click();
+  // El proyecto llega por la suscripción de Firestore: esperar la opción
+  // antes de seleccionarla evita carreras entre creación y cambio de contexto.
+  const option = selector.locator('option').filter({ hasText: code }).first();
+  await expect(option).toHaveCount(1, { timeout: 30_000 });
+  const projectId = await option.getAttribute('value');
+  if (!projectId) throw new Error(`No se encontró el ID del proyecto ${code}.`);
+  await selector.selectOption(projectId);
 }
 
 /**
