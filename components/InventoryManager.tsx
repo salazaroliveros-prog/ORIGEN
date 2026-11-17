@@ -66,6 +66,19 @@ function formatDate(value: string): string {
     : new Intl.DateTimeFormat('es-GT', { dateStyle: 'medium' }).format(date);
 }
 
+const movementLabels: Record<StockMovement['kind'], string> = {
+  opening: 'Inventario inicial',
+  purchase_receipt: 'Recepción de compra',
+  project_issue: 'Salida a obra',
+  transfer_in: 'Traslado recibido',
+  transfer_out: 'Traslado enviado',
+  adjustment_in: 'Ajuste de entrada',
+  adjustment_out: 'Ajuste de salida',
+  return: 'Devolución',
+};
+
+type MovementKindFilter = 'all' | StockMovement['kind'];
+
 function EmptyState({ message }: { message: string }) {
   return <p className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-slate-400">{message}</p>;
 }
@@ -88,6 +101,8 @@ export function InventoryManager({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [movementKindFilter, setMovementKindFilter] = useState<MovementKindFilter>('all');
+  const [movementSearch, setMovementSearch] = useState('');
 
   const [supplierName, setSupplierName] = useState('');
   const [supplierNit, setSupplierNit] = useState('');
@@ -210,6 +225,27 @@ export function InventoryManager({
       return [];
     }
   }, [contracts]);
+
+  const stockMovementRows = useMemo(() => {
+    const query = movementSearch.trim().toLocaleLowerCase('es-GT');
+    return movements
+      .filter((movement) => movementKindFilter === 'all' || movement.kind === movementKindFilter)
+      .filter((movement) => {
+        if (!query) return true;
+        const itemName = items.find((item) => item.id === movement.itemId)?.name ?? '';
+        const warehouseName = warehouses.find((warehouse) => warehouse.id === movement.warehouseId)?.name ?? '';
+        const projectName = projects.find((project) => project.id === movement.projectId)?.name ?? '';
+        return [
+          movementLabels[movement.kind], itemName, warehouseName, projectName,
+          movement.referenceId, movement.receiptNumber, movement.notes, movement.createdBy,
+        ].some((value) => typeof value === 'string' && value.toLocaleLowerCase('es-GT').includes(query));
+      })
+      .sort((left, right) => {
+        const leftTime = Date.parse(left.occurredAt);
+        const rightTime = Date.parse(right.occurredAt);
+        return (Number.isFinite(rightTime) ? rightTime : 0) - (Number.isFinite(leftTime) ? leftTime : 0);
+      });
+  }, [items, movementKindFilter, movementSearch, movements, projects, warehouses]);
 
   const pendingOrders = orders.filter((order) =>
     ['draft', 'submitted', 'approved', 'partially_received'].includes(order.status)
@@ -614,7 +650,7 @@ export function InventoryManager({
     { id: 'bodegas', label: 'Bodegas' },
     { id: 'proveedores', label: 'Proveedores' },
     { id: 'ordenes', label: 'Órdenes de compra' },
-    { id: 'movimientos', label: 'Salidas a obra' },
+    { id: 'movimientos', label: 'Movimientos' },
     { id: 'subcontratos', label: 'Subcontratos' },
   ];
 
@@ -916,6 +952,81 @@ export function InventoryManager({
 
           {section === 'movimientos' && (
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+              <section className={`${cardClass} xl:col-span-2`} aria-label="Historial de movimientos">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <h3 className="font-semibold text-white">Historial de movimientos</h3>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Registro de recepciones, salidas, traslados y ajustes, ordenado del más reciente al más antiguo.
+                    </p>
+                  </div>
+                  <span className="text-xs text-slate-400">{stockMovementRows.length} de {movements.length} movimientos</span>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className={labelClass}>Buscar movimiento</span>
+                    <input className={fieldClass} type="search" value={movementSearch} onChange={(event) => setMovementSearch(event.target.value)} maxLength={120} placeholder="Artículo, bodega, proyecto o referencia" />
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Tipo de movimiento</span>
+                    <select className={fieldClass} value={movementKindFilter} onChange={(event) => setMovementKindFilter(event.target.value as MovementKindFilter)}>
+                      <option value="all">Todos los movimientos</option>
+                      {Object.entries(movementLabels).map(([kind, label]) => <option key={kind} value={kind}>{label}</option>)}
+                    </select>
+                  </label>
+                </div>
+                {stockMovementRows.length === 0 ? (
+                  <div className="mt-3">
+                    <EmptyState message={movements.length === 0 ? 'Aún no hay movimientos registrados en esta empresa.' : 'No hay movimientos que coincidan con los filtros.'} />
+                  </div>
+                ) : (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full min-w-[1050px] text-left text-xs">
+                      <thead className="text-slate-400">
+                        <tr>
+                          <th className="pb-2 pr-3">Fecha</th>
+                          <th className="pb-2 pr-3">Movimiento</th>
+                          <th className="pb-2 pr-3">Artículo</th>
+                          <th className="pb-2 pr-3">Bodega</th>
+                          <th className="pb-2 pr-3">Proyecto</th>
+                          <th className="pb-2 pr-3 text-right">Cantidad</th>
+                          <th className="pb-2 pr-3 text-right">Costo unitario</th>
+                          <th className="pb-2 pr-3 text-right">Valor salida a obra</th>
+                          <th className="pb-2 pr-3">Referencia</th>
+                          <th className="pb-2">Registrado por</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stockMovementRows.map((movement) => {
+                          const item = items.find((record) => record.id === movement.itemId);
+                          const warehouse = warehouses.find((record) => record.id === movement.warehouseId);
+                          const project = projects.find((record) => record.id === movement.projectId);
+                          const issuedValue = movement.kind === 'project_issue'
+                            ? movement.quantity * movement.unitCostGTQ
+                            : null;
+                          return (
+                            <tr key={movement.id} className="border-t border-white/5 align-top">
+                              <td className="py-2 pr-3 whitespace-nowrap text-slate-300">{formatDate(movement.occurredAt)}</td>
+                              <td className="py-2 pr-3 text-white">{movementLabels[movement.kind]}</td>
+                              <td className="py-2 pr-3 text-white">{item?.name ?? movement.itemId}<span className="block text-slate-500">{item?.unit ?? ''}</span></td>
+                              <td className="py-2 pr-3 text-slate-300">{warehouse?.name ?? movement.warehouseId}</td>
+                              <td className="py-2 pr-3 text-slate-300">{project?.name ?? movement.projectId ?? '—'}</td>
+                              <td className="py-2 pr-3 text-right tabular-nums text-white">{movement.quantity.toLocaleString('es-GT', { maximumFractionDigits: 4 })} {item?.unit ?? ''}</td>
+                              <td className="py-2 pr-3 text-right tabular-nums text-slate-300">{currency.format(movement.unitCostGTQ)}</td>
+                              <td className="py-2 pr-3 text-right tabular-nums text-amber-200">{issuedValue === null ? '—' : currency.format(issuedValue)}</td>
+                              <td className="py-2 pr-3 text-slate-300">{movement.receiptNumber ?? movement.referenceId ?? '—'}{movement.notes && <span className="block max-w-[180px] truncate text-slate-500" title={movement.notes}>{movement.notes}</span>}</td>
+                              <td className="py-2 text-slate-400">{movement.createdBy}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                <p className="mt-3 text-xs text-slate-500">
+                  El valor de salida a obra es una valuación referencial (cantidad × costo promedio del inventario); no se registra como egreso de caja ni se suma automáticamente a los gastos del proyecto.
+                </p>
+              </section>
               <section className={cardClass}>
                 <h3 className="mb-3 font-semibold text-white">Existencias disponibles</h3>
                 {balances.length === 0 ? (
