@@ -727,6 +727,10 @@ beforeEach(async () => {
     });
     // The linked expense is an immutable accounting entry.
     await assertFails(deleteDoc(doc(finance, 'expenses', paymentExpense.id)));
+    await assertFails(setDoc(doc(finance, 'expenses', paymentExpense.id), {
+      ...paymentExpense,
+      amount: 26000,
+    }, { merge: true }));
     const excessivePayment = {
       ...payment,
       id: 'subpay_subcontract-qa_OVERPAY-001',
@@ -902,6 +906,10 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     await seedProject(makeProject('project-a'));
     await seedProject(makeProject('project-b', COMPANY_B));
     const database = testEnvironment.authenticatedContext(USERS.finance).firestore();
+
+    // A missing expense ID can be checked for transaction collision handling;
+    // the same permission does not expose any existing expense document.
+    await assertSucceeds(getDoc(doc(database, 'expenses', 'expense-not-yet-created')));
 
     await assertSucceeds(
       setDoc(
