@@ -47,7 +47,14 @@ export async function createTestProject(page: Page, project: TestProject): Promi
 
   // El diálogo se cierra solo cuando el guardado en Firestore fue exitoso.
   await expect(dialog).toBeHidden({ timeout: 20_000 });
-  await expect(page.getByText(project.code).first()).toBeVisible({ timeout: 20_000 });
+
+  // La sincronización se confirma en el selector accesible. No buscar el código
+  // en toda la página: la opción HTML del <select> existe en el DOM, pero no
+  // es texto visible y puede ser el primer resultado de getByText().
+  const projectSelector = page.getByRole('combobox', { name: 'Proyecto activo' });
+  await expect(projectSelector).toBeVisible({ timeout: 15_000 });
+  const projectOption = projectSelector.locator('option').filter({ hasText: project.code });
+  await expect(projectOption).toHaveCount(1, { timeout: 30_000 });
 }
 
 /**
@@ -93,8 +100,10 @@ export async function waitForProjectPersisted(page: Page, code: string): Promise
   const probe = await page.context().newPage();
   try {
     await probe.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await probe.getByRole('link', { name: 'Proyectos & Firmas' }).first().click();
-    await expect(probe.getByText(code).first()).toBeVisible({ timeout: 30_000 });
+    const projectSelector = probe.getByRole('combobox', { name: 'Proyecto activo' });
+    await expect(projectSelector).toBeVisible({ timeout: 30_000 });
+    const projectOption = projectSelector.locator('option').filter({ hasText: code });
+    await expect(projectOption).toHaveCount(1, { timeout: 30_000 });
   } finally {
     await probe.close();
   }
