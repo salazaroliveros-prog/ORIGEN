@@ -259,11 +259,19 @@ service cloud.firestore {
         outgoing.referenceId is string &&
         outgoing.referenceId.size() > 0 &&
         outgoing.referenceId == incoming.referenceId &&
+        outgoing.companyId is string &&
         outgoing.companyId == incoming.companyId &&
+        outgoing.itemId is string && isValidId(outgoing.itemId) &&
         outgoing.itemId == incoming.itemId &&
+        outgoing.warehouseId is string && isValidId(outgoing.warehouseId) &&
+        incoming.warehouseId is string && isValidId(incoming.warehouseId) &&
+        outgoing.quantity is number && outgoing.quantity > 0 &&
         outgoing.quantity == incoming.quantity &&
+        outgoing.unitCostGTQ is number && outgoing.unitCostGTQ >= 0 &&
         outgoing.unitCostGTQ == incoming.unitCostGTQ &&
+        outgoing.createdBy is string && outgoing.createdBy.size() > 0 &&
         outgoing.createdBy == incoming.createdBy &&
+        outgoing.occurredAt is string &&
         outgoing.occurredAt == incoming.occurredAt &&
         outgoing.warehouseId != incoming.warehouseId &&
         outgoing.balanceId == 'bal_' + outgoing.warehouseId + '_' + outgoing.itemId &&
