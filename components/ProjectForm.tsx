@@ -119,6 +119,13 @@ export function ProjectForm({
       role="dialog"
       aria-modal="true"
       aria-labelledby="project-form-title"
+      onKeyDownCapture={(event) => {
+        if (event.key === 'Escape' && !submitting) {
+          event.preventDefault();
+          event.stopPropagation();
+          onClose();
+        }
+      }}
       className={`fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-sm ${className}`}
     >
       <FocusTrap onEscape={onClose}>
