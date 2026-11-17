@@ -23,7 +23,7 @@ describe('uploadImageAsUser', () => {
     vi.unstubAllGlobals();
   });
 
-  it('uploads with the user ID token and returns a download URL with the token', async () => {
+  it('uploads with the user ID token and returns only the storage path', async () => {
     fetchMock.mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -44,9 +44,8 @@ describe('uploadImageAsUser', () => {
       Authorization: 'Bearer id-token',
       'Content-Type': 'image/jpeg',
     });
-    expect(result.downloadUrl).toContain('token-a');
-    expect(result.downloadUrl).not.toContain('token-b');
-    expect(result.storagePath).toBe('projects/OBRA-001/progress/123-abc.jpg');
+    expect(result).toEqual({ storagePath: 'projects/OBRA-001/progress/123-abc.jpg' });
+    expect(result).not.toHaveProperty('downloadUrl');
   });
 
   it('never places the raw path unencoded in the URL', async () => {
@@ -66,7 +65,7 @@ describe('uploadImageAsUser', () => {
     const result = await uploadImageAsUser(params);
 
     expect(String(fetchMock.mock.calls[0][0])).toContain('http://127.0.0.1:9199/v0/b/');
-    expect(result.downloadUrl).toContain('http://127.0.0.1:9199');
+    expect(result).toEqual({ storagePath: 'projects/OBRA-001/progress/123-abc.jpg' });
   });
 
   it('throws StorageUploadError with a clear message when rules deny the write', async () => {
