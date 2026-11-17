@@ -1293,7 +1293,9 @@ service cloud.firestore {
     }
 
     match /subcontractPayments/{paymentId} {
-      allow get: if isCompanyMember(existing().companyId);
+      // A signed-in caller may check an unused deterministic payment ID for idempotency.
+      // Existing payment data remains readable only by members of its company.
+      allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidSubcontractPayment(incoming(), paymentId);
       allow update, delete: if false;
