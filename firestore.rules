@@ -487,11 +487,9 @@ service cloud.firestore {
       let movement = getAfter(movementPath).data;
       let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
       let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
-      let item = get(itemPath).data;
-      let warehouse = get(warehousePath).data;
       return movement.kind == 'opening' &&
         movement.id == data.lastMovementId &&
-        movement.id is string && movement.id == movementPath.segments[6] &&
+        movement.id is string &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
         movement.itemId == data.itemId &&
@@ -502,7 +500,14 @@ service cloud.firestore {
         data.createdBy == request.auth.uid &&
         data.quantity == movement.quantity &&
         data.averageUnitCostGTQ == movement.unitCostGTQ &&
-        data.reorderLevel == item.reorderLevel &&
+        exists(itemPath) && exists(warehousePath) &&
+        isValidOpeningBalanceReferences(data, movement, itemPath, warehousePath);
+    }
+
+    function isValidOpeningBalanceReferences(data, movement, itemPath, warehousePath) {
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return data.reorderLevel == item.reorderLevel &&
         item.companyId == data.companyId &&
         item.active == true &&
         isOpeningWarehouseValid(movement, warehouse);
@@ -518,8 +523,6 @@ service cloud.firestore {
       let balance = getAfter(balancePath).data;
       let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
       let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
-      let item = get(itemPath).data;
-      let warehouse = get(warehousePath).data;
       return data.keys().hasAll([
           'id', 'companyId', 'itemId', 'warehouseId', 'kind', 'quantity',
           'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId', 'createdBy'
@@ -552,7 +555,14 @@ service cloud.firestore {
         balance.createdBy == request.auth.uid &&
         balance.quantity == data.quantity &&
         balance.averageUnitCostGTQ == data.unitCostGTQ &&
-        balance.reorderLevel == item.reorderLevel &&
+        exists(itemPath) && exists(warehousePath) &&
+        isValidOpeningMovementReferences(data, balance, itemPath, warehousePath);
+    }
+
+    function isValidOpeningMovementReferences(data, balance, itemPath, warehousePath) {
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return balance.reorderLevel == item.reorderLevel &&
         item.companyId == data.companyId &&
         item.active == true &&
         isOpeningWarehouseValid(data, warehouse);
