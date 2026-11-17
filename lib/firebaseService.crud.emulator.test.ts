@@ -796,6 +796,44 @@ describe('firebaseService CRUD contra el emulador', () => {
     })).rejects.toThrow('supera el saldo pendiente');
   });
 
+  it('admite órdenes de cinco renglones y recibe correctamente el quinto', async () => {
+    const projectId = await createProject('INV-FIVE-LINES', 'Proyecto OC cinco renglones');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor cinco renglones QA', nit: 'CF', active: true }, companyId, userId
+    );
+    const items = await Promise.all(Array.from({ length: 5 }, (_, index) =>
+      inventoryService.createInventoryItemToFirestore(
+        { name: `Material OC cinco ${index + 1}`, unit: 'unidad', reorderLevel: 0, active: true },
+        companyId, userId
+      )
+    ));
+    const warehouse = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega OC cinco renglones', type: 'project', projectId, active: true },
+      companyId, userId
+    );
+    const lines = items.map((item, index) => ({
+      itemId: item.id, description: item.name, unit: item.unit,
+      quantity: 2, unitPriceGTQ: 10 + index,
+    }));
+    const subtotalGTQ = lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0);
+    const taxGTQ = Math.round(subtotalGTQ * 0.12 * 100) / 100;
+    const order = await inventoryService.createPurchaseOrderToFirestore({
+      projectId, supplierId: supplier.id, number: uniqueId('OC-FIVE-LINES'),
+      status: 'draft', currency: 'GTQ', lines, subtotalGTQ, discountGTQ: 0,
+      taxPercent: 12, taxGTQ, totalGTQ: subtotalGTQ + taxGTQ,
+    }, companyId, userId);
+    await inventoryService.approvePurchaseOrderToFirestore(order.id, companyId, userId);
+
+    const receipt = await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 4, warehouseId: warehouse.id, quantity: 1,
+      receiptNumber: uniqueId('RECEIPT-FIVE'), companyId, userId,
+    });
+    expect(receipt.alreadyProcessed).toBe(false);
+    expect(receipt.order.status).toBe('partially_received');
+    expect(receipt.order.lines[4].receivedQuantity).toBe(1);
+    expect(receipt.movement.itemId).toBe(items[4].id);
+  });
+
   it('aprueba y recibe una OC con saldo atómico, costo promedio e idempotencia', async () => {
     const projectId = await createProject('INV-RECEIPT', 'Proyecto para recepción atómica');
     const supplier = await inventoryService.createSupplierToFirestore(
