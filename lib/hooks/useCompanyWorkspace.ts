@@ -37,13 +37,19 @@ export function useCompanyWorkspace(user: User | null) {
   const [availableWorkspaces, setAvailableWorkspaces] = useState<CompanyWorkspaceOption[]>([]);
   const [loading, setLoading] = useState(Boolean(user));
   const [error, setError] = useState<string | null>(null);
+  const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
   const selectionRequestId = useRef(0);
 
   const selectWorkspace = useCallback(
     async (companyId: string) => {
       if (!user) return false;
       const requestId = ++selectionRequestId.current;
+      const requestId = ++selectionRequestId.current;
       setLoading(true);
+      setResolvedUserId(null);
+      setWorkspace(null);
+      setMembership(null);
+      setAvailableWorkspaces([]);
       setError(null);
       try {
         const result = await ensureCompanyWorkspace(user, companyId);
@@ -56,9 +62,15 @@ export function useCompanyWorkspace(user: User | null) {
         setWorkspace(result.workspace);
         setMembership(result.membership);
         setAvailableWorkspaces(result.availableWorkspaces);
+        setResolvedUserId(user.uid);
+        setError(null);
         return true;
       } catch (cause) {
         if (requestId !== selectionRequestId.current) return true;
+        setWorkspace(null);
+        setMembership(null);
+        setAvailableWorkspaces([]);
+        setResolvedUserId(user.uid);
         setError(describeWorkspaceError(cause));
         return false;
       } finally {
@@ -70,17 +82,22 @@ export function useCompanyWorkspace(user: User | null) {
 
   useEffect(() => {
     let isCurrent = true;
-    selectionRequestId.current += 1;
+    const requestId = ++selectionRequestId.current;
     if (!user) {
       setWorkspace(null);
       setMembership(null);
       setAvailableWorkspaces([]);
+      setResolvedUserId(null);
       setLoading(false);
       setError(null);
       return;
     }
 
     setLoading(true);
+    setResolvedUserId(null);
+    setWorkspace(null);
+    setMembership(null);
+    setAvailableWorkspaces([]);
     setError(null);
     const parameters = new URLSearchParams(window.location.search);
     const invitationId = parameters.get('invite');
@@ -137,23 +154,38 @@ export function useCompanyWorkspace(user: User | null) {
 
     void prepareWorkspace()
       .then((result) => {
-        if (!isCurrent) return;
+        if (!isCurrent || requestId !== selectionRequestId.current) return;
         setWorkspace(result.workspace);
         setMembership(result.membership);
         setAvailableWorkspaces(result.availableWorkspaces);
+        setResolvedUserId(user.uid);
       })
       .catch((cause: unknown) => {
-        if (!isCurrent) return;
+        if (!isCurrent || requestId !== selectionRequestId.current) return;
+        setWorkspace(null);
+        setMembership(null);
+        setAvailableWorkspaces([]);
+        setResolvedUserId(user.uid);
         setError(describeWorkspaceError(cause));
       })
       .finally(() => {
-        if (isCurrent) setLoading(false);
+        if (isCurrent && requestId === selectionRequestId.current) setLoading(false);
       });
 
     return () => {
       isCurrent = false;
+      if (requestId === selectionRequestId.current) selectionRequestId.current += 1;
     };
   }, [user]);
 
-  return { workspace, membership, availableWorkspaces, loading, error, selectWorkspace };
+  const resolvedForCurrentUser = Boolean(user && resolvedUserId === user.uid);
+
+  return {
+    workspace: resolvedForCurrentUser ? workspace : null,
+    membership: resolvedForCurrentUser ? membership : null,
+    availableWorkspaces: resolvedForCurrentUser ? availableWorkspaces : [],
+    loading: Boolean(user) && (!resolvedForCurrentUser || loading),
+    error: resolvedForCurrentUser ? error : null,
+    selectWorkspace,
+  };
 }

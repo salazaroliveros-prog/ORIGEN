@@ -94,6 +94,56 @@ describe('useCompanyWorkspace', () => {
     expect(result.current.loading).toBe(false);
   });
 
+  it('hides the previous user workspace immediately while the next identity is resolving', async () => {
+    const firstUser = { uid: 'user-one', email: 'one@example.com' } as any;
+    const secondUser = { uid: 'user-two', email: 'two@example.com' } as any;
+    let resolveSecond: (value: any) => void = () => {};
+    const secondResult = new Promise((resolve) => {
+      resolveSecond = resolve as (value: any) => void;
+    });
+
+    vi.mocked(ensureCompanyWorkspace).mockImplementation((user: any) =>
+      user.uid === firstUser.uid
+        ? Promise.resolve({
+            workspace: { id: 'company-one', name: 'Empresa uno' },
+            membership: { role: 'owner', companyId: 'company-one', uid: firstUser.uid },
+            availableWorkspaces: [{ id: 'company-one', name: 'Empresa uno' }],
+          })
+        : secondResult
+    );
+
+    const { result, rerender } = renderHook((user: any) => useCompanyWorkspace(user), {
+      initialProps: firstUser,
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(result.current.workspace?.id).toBe('company-one');
+    expect(result.current.membership?.uid).toBe(firstUser.uid);
+
+    rerender(secondUser);
+
+    // The render caused by the identity change must never expose the old company.
+    expect(result.current.workspace).toBeNull();
+    expect(result.current.membership).toBeNull();
+    expect(result.current.availableWorkspaces).toEqual([]);
+    expect(result.current.loading).toBe(true);
+
+    await act(async () => {
+      resolveSecond({
+        workspace: { id: 'company-two', name: 'Empresa dos' },
+        membership: { role: 'field_worker', companyId: 'company-two', uid: secondUser.uid },
+        availableWorkspaces: [{ id: 'company-two', name: 'Empresa dos' }],
+      });
+      await secondResult;
+    });
+
+    expect(result.current.workspace?.id).toBe('company-two');
+    expect(result.current.membership?.uid).toBe(secondUser.uid);
+    expect(result.current.loading).toBe(false);
+  });
+
   it('should return false when no user', async () => {
     const { result } = renderHook(() => useCompanyWorkspace(null));
 
