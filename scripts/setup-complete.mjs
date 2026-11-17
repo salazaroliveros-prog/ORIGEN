@@ -61,33 +61,38 @@ function loadEnvFile(filePath) {
   }
 }
 
-function initFirebaseAdmin() {
-  // Intentar inicializar con credenciales del proyecto
+function initFirebaseAdmin(expectedProjectId) {
+  // Never reuse credentials for a different Firebase project.
   if (getApps().length > 0) {
-    return getApp();
+    const existingApp = getApp();
+    if (existingApp.options.projectId !== expectedProjectId) {
+      throw new Error('La instancia de Firebase Admin no coincide con NEXT_PUBLIC_FIREBASE_PROJECT_ID.');
+    }
+    return existingApp;
   }
 
-  // Opción 1: Intentar con service account desde variable de entorno
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
   if (serviceAccountJson) {
+    let serviceAccount;
     try {
-      const serviceAccount = JSON.parse(serviceAccountJson);
-      return initializeApp({
-        credential: cert(serviceAccount),
-        projectId: serviceAccount.project_id,
-      });
+      serviceAccount = JSON.parse(serviceAccountJson);
     } catch {
-      // Ignorar y probar siguiente opción
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY no contiene JSON válido.');
     }
+    if (serviceAccount.project_id !== expectedProjectId) {
+      throw new Error('La cuenta de servicio pertenece a otro proyecto Firebase. Se canceló el bootstrap.');
+    }
+    return initializeApp({
+      credential: cert(serviceAccount),
+      projectId: expectedProjectId,
+    });
   }
 
-  // Opción 2: credenciales ADC (por ejemplo, entorno seguro de Google Cloud)
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  if (projectId) {
-    return initializeApp({ credential: applicationDefault(), projectId });
-  }
-
-  throw new Error('No se pudo inicializar Firebase Admin. Falta configuración.');
+  // ADC is accepted only for the explicitly selected Firebase project.
+  return initializeApp({
+    credential: applicationDefault(),
+    projectId: expectedProjectId,
+  });
 }
 
 async function createAdminUser(auth) {
@@ -247,7 +252,7 @@ async function main() {
 
   // Cargar variables de entorno
   const env = loadEnvFile(resolve(process.cwd(), '.env.local'));
-  Object.assign(process.env, env);
+  // Shell/CI environment values take precedence over .env.local to avoid silently targeting another project.\n  for (const [key, value] of Object.entries(env)) {\n    if (process.env[key] === undefined) process.env[key] = value;\n  }
   ADMIN_EMAIL = process.env.SETUP_ADMIN_EMAIL || '';
   ADMIN_PASSWORD = process.env.SETUP_ADMIN_PASSWORD || '';
   COMPANY_ID = process.env.SETUP_COMPANY_ID || '';
@@ -256,7 +261,7 @@ async function main() {
     console.error('Faltan SETUP_ADMIN_EMAIL, SETUP_ADMIN_PASSWORD, SETUP_COMPANY_ID o SETUP_COMPANY_NAME.');
     process.exit(1);
   }
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(ADMIN_EMAIL)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ADMIN_EMAIL)) {
     console.error('SETUP_ADMIN_EMAIL no tiene un formato válido.');
     process.exit(1);
   }
@@ -284,7 +289,11 @@ async function main() {
 
   try {
     // Inicializar Firebase Admin
-    const app = initFirebaseAdmin();
+    const expectedProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID.trim();
+    const app = initFirebaseAdmin(expectedProjectId);
+    if (app.options.projectId !== expectedProjectId) {
+      throw new Error('El proyecto Firebase inicializado no coincide con el proyecto confirmado. Se canceló el bootstrap.');
+    }
     console.log(`✅ Firebase Admin inicializado (proyecto: ${app.options.projectId})`);
 
     const auth = getAuth(app);
