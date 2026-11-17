@@ -50,7 +50,7 @@ export function resolveProjectProgress(
  * Aplica una edición de proyecto sin permitir que el formulario sobrescriba
  * los campos derivados (`spentTotal`, `progressPercent`).
  *
- * - `spentTotal` se conserva del registro existente: el gasto ejecutado solo
+ * - `spentTotal` se conserva del registro existente: el compromiso presupuestario solo
  *   cambia cuando cambian los gastos, nunca al editar datos del proyecto.
  * - `progressPercent` se recalcula desde el cronograma si existe; si no, se
  *   respeta el avance manual capturado en el formulario.
@@ -100,7 +100,7 @@ const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 /**
  * Deriva los campos de proyecto que NUNCA deben persistirse desde el formulario:
- * - `spentTotal`: suma de gastos registrados para el proyecto (fuente única de verdad).
+ * - `spentTotal`: suma de compromisos registrados (aprobados + pendientes, sin rechazados).
  * - `progressPercent`: avance real del cronograma (ponderado por peso de tarea/hito).
  *
  * Se aplica en la capa de datos (`useProjectData`) para que tableros, reportes y
@@ -138,7 +138,7 @@ export function isProjectOverBudget(project: Project, spentTotal: number): boole
 }
 
 /**
- * Calcula el porcentaje de presupuesto ejercido
+ * Calcula el porcentaje de presupuesto comprometido (aprobados + pendientes, sin rechazados).
  */
 export function calculateBudgetUtilizationPercent(project: Project, spentTotal: number): number {
   if ((project.budgetTotal || 0) <= 0) return 0;

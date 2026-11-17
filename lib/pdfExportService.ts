@@ -2,6 +2,7 @@ import { Project, ExpenseRecord, CompanySettings, FieldVisit } from './types';
 import { formatGTQ, formatUSD } from './data';
 import { loadReportLetterheadLogo } from './pdfBranding';
 import { buildProjectAuditMetrics } from './domain/auditMetrics';
+import { isBudgetCommitmentExpense } from './domain/expenseRecognition';
 
 export interface MonthlyHistogramItem {
   mes: string;
@@ -48,9 +49,12 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   const progressPercent = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
   // Filter expenses for target projects
-  const relevantExpenses = selectedProject
+  // This is a budget-control report: show approved + pending commitments,
+  // while excluding rejected expenses. Certified audit spend is in the audit PDFs.
+  const relevantExpenses = (selectedProject
     ? expenses.filter((e) => e.projectId === selectedProject.id)
-    : expenses;
+    : expenses
+  ).filter(isBudgetCommitmentExpense);
 
   // Header helper
   const drawHeader = (isFirstPage = true) => {
@@ -168,21 +172,21 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
       border: [191, 219, 254], // blue-200
     },
     {
-      label: 'GASTOS REALES',
+      label: 'GASTOS REGISTRADOS',
       val: formatMoney(totalSpent),
       color: [180, 83, 9], // amber-700
       bg: [254, 243, 199], // amber-50
       border: [253, 230, 138], // amber-200
     },
     {
-      label: 'SALDO DISPONIBLE',
+      label: 'SALDO TRAS COMPROMISOS',
       val: formatMoney(balance),
       color: balance >= 0 ? [5, 150, 105] : [225, 29, 72], // emerald / rose
       bg: balance >= 0 ? [236, 253, 245] : [255, 241, 242],
       border: balance >= 0 ? [167, 243, 208] : [254, 205, 211],
     },
     {
-      label: 'EJECUCIÓN FINANCIERA',
+      label: 'PRESUPUESTO COMPROMETIDO',
       val: `${progressPercent.toFixed(1)}%`,
       color: [15, 23, 42],
       bg: [248, 250, 252],
@@ -208,7 +212,16 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     doc.text(card.val, cx + 3, y + 12);
   });
 
-  y += cardHeight + 6;
+  y += cardHeight + 5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(
+    'Incluye gastos aprobados y pendientes; excluye rechazados. Los pendientes son compromisos presupuestarios, no gasto aprobado.',
+    margin,
+    y
+  );
+  y += 5;
 
   // 2. Section: Proyectos Desglose
   checkPageBreak(30);
@@ -220,7 +233,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
 
   // Project Table Header
   const projColWidths = [24, 48, 30, 28, 28, 24];
-  const projHeaders = ['Código', 'Proyecto', 'Presupuesto', 'Gastos Reales', 'Saldo', 'Avance'];
+  const projHeaders = ['Código', 'Proyecto', 'Presupuesto', 'Comprometido', 'Saldo', '% Comprometido'];
 
   doc.setFillColor(30, 41, 59); // slate-800
   doc.rect(margin, y, usableWidth, 6, 'F');
@@ -261,7 +274,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     // Presupuesto
     doc.text(formatMoney(proj.budgetTotal), rx + projColWidths[2] - 2, y + 4.2, { align: 'right' });
     rx += projColWidths[2];
-    // Gastos Reales
+    // Compromiso presupuestario
     doc.text(formatMoney(proj.spentTotal), rx + projColWidths[3] - 2, y + 4.2, { align: 'right' });
     rx += projColWidths[3];
     // Saldo
@@ -336,7 +349,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9.5);
   doc.setTextColor(15, 23, 42);
-  doc.text('3. DESGLOSE DE GASTOS EJECUTADOS POR CATEGORÍA', margin, y);
+  doc.text('3. DESGLOSE DE COMPROMISOS POR CATEGORÍA', margin, y);
   y += 4;
 
   const categories = [
@@ -345,6 +358,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     'Maquinaria y Combustible',
     'Permisos & Licencias',
     'Imprevistos',
+    'Subcontratos',
   ] as const;
 
   const catTotals = categories.map((cat) => {
@@ -357,7 +371,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   const sumAllCats = catTotals.reduce((a, b) => a + b.total, 0) || 1;
 
   const catColWidths = [80, 52, 50];
-  const catHeaders = ['Categoría APU', 'Monto Ejecutado', '% de Distribución'];
+  const catHeaders = ['Categoría APU', 'Monto Comprometido', '% de Distribución'];
 
   doc.setFillColor(30, 41, 59);
   doc.rect(margin, y, usableWidth, 6, 'F');
@@ -404,16 +418,17 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9.5);
   doc.setTextColor(15, 23, 42);
-  doc.text('4. MUESTRA DE FACTURAS Y COMPROBANTES DE GASTO EN CAMPO (FEL)', margin, y);
+  doc.text('4. COMPROBANTES REGISTRADOS (APROBADOS Y PENDIENTES)', margin, y);
   y += 4;
 
-  const expColWidths = [22, 26, 52, 44, 38];
+  const expColWidths = [18, 24, 40, 34, 28, 38];
   const expHeaders = [
     'Fecha',
     'Factura FEL',
-    'Proveedor / Contratista',
+    'Proveedor',
     'Categoría',
-    'Monto Total',
+    'Estado',
+    'Monto',
   ];
 
   doc.setFillColor(30, 41, 59);
@@ -424,7 +439,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
 
   let exX = margin;
   expHeaders.forEach((h, i) => {
-    const align = i === 4 ? 'right' : 'left';
+    const align = i === 5 ? 'right' : 'left';
     const textX = align === 'right' ? exX + expColWidths[i] - 2 : exX + 2;
     doc.text(h, textX, y + 4.2, { align });
     exX += expColWidths[i];
@@ -439,7 +454,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
-    doc.text('No hay comprobantes de gasto registrados para este criterio.', margin + 2, y + 4.2);
+    doc.text('No hay compromisos de gasto registrados para este criterio.', margin + 2, y + 4.2);
     y += 6;
   } else {
     displayExpenses.forEach((exp, idx) => {
@@ -459,15 +474,22 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
       cx += expColWidths[0];
       doc.text(exp.facturaNumber || 'S/N', cx + 2, y + 4.2);
       cx += expColWidths[1];
-      const truncSup =
-        exp.supplier.length > 28 ? exp.supplier.substring(0, 26) + '…' : exp.supplier;
+      const supplier = exp.supplier || 'Varios';
+      const truncSup = supplier.length > 21 ? supplier.substring(0, 19) + '…' : supplier;
       doc.text(truncSup, cx + 2, y + 4.2);
       cx += expColWidths[2];
-      const truncCat =
-        exp.category.length > 24 ? exp.category.substring(0, 22) + '…' : exp.category;
+      const category = exp.category || 'Otros';
+      const truncCat = category.length > 21 ? category.substring(0, 19) + '…' : category;
       doc.text(truncCat, cx + 2, y + 4.2);
       cx += expColWidths[3];
-      doc.text(formatMoney(exp.amount), cx + expColWidths[4] - 2, y + 4.2, { align: 'right' });
+      const expenseStatus = exp.approvalStatus || 'Histórico';
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(expenseStatus === 'Pendiente' ? 180 : 22, expenseStatus === 'Pendiente' ? 83 : 101, expenseStatus === 'Pendiente' ? 9 : 52);
+      doc.text(expenseStatus, cx + 2, y + 4.2);
+      cx += expColWidths[4];
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(15, 23, 42);
+      doc.text(formatMoney(exp.amount), cx + expColWidths[5] - 2, y + 4.2, { align: 'right' });
 
       y += 6;
     });

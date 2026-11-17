@@ -159,9 +159,9 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   const widgetLabels: Record<string, string> = {
     cashFlow: 'Proyección de Flujo de Caja Semestral',
     laborCosts: 'Costos de Mano de Obra Activa & Productividad',
-    progressComparison: 'Avance Físico vs. Ejecución Financiera (%) [Líneas Recharts]',
-    stackedBudget: 'Presupuesto Asignado vs. Gasto Real (Apilados)',
-    expensesHistogram: 'Histórico de Gastos Mensuales',
+    progressComparison: 'Avance Físico vs. Presupuesto Comprometido (%) [Líneas Recharts]',
+    stackedBudget: 'Presupuesto Asignado vs. Compromisos Registrados (Apilados)',
+    expensesHistogram: 'Histórico de Gastos Registrados (Aprobados + Pendientes)',
     budgetUtilization: 'Utilización de Presupuesto APU (D3)',
     projectBreakdown: 'Tarjetas Resumen por Proyecto',
   };
@@ -201,7 +201,7 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
 
   // Table Header
   const colWidths = [20, 50, 30, 30, 25, 27];
-  const tableHeaders = ['Código', 'Proyecto', 'Presupuesto', 'Gasto Real', '% Ejercido', 'Estado'];
+  const tableHeaders = ['Código', 'Proyecto', 'Presupuesto', 'Comprometido', '% Comprometido', 'Estado'];
 
   doc.setFillColor(30, 41, 59); // slate-800
   doc.rect(margin, y, usableWidth, 7, 'F');
@@ -226,7 +226,7 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
       y = margin;
     }
 
-    const spent = item.spent;
+    const spent = item.committed;
     const budget = item.budgetTotal;
     const isOver = item.isOverBudget;
     const pct = item.budgetUsagePercent;
@@ -263,7 +263,7 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
 
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(isOver ? 225 : 16, isOver ? 29 : 185, isOver ? 72 : 129);
-    doc.text(isOver ? 'SOBRECOSTO' : 'EN RANGO', xPos + 2, y + 5);
+    doc.text(isOver ? 'SOBRECOMPROMISO' : 'EN RANGO', xPos + 2, y + 5);
 
     y += 7;
   });

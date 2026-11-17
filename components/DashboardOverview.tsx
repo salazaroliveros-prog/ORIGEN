@@ -311,7 +311,7 @@ export function DashboardOverview() {
                   strokeWidth={2}
                   dot={{ fill: '#ef4444', r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Gastado"
+                  name="Comprometido"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -386,7 +386,7 @@ export function DashboardOverview() {
                   <div className="flex-1">
                     <p className="font-medium text-slate-900">{project.name}</p>
                     <p className="mt-1 text-xs text-slate-500">
-                      Q{project.spentTotal.toLocaleString()} / Q
+                      Comprometido: Q{project.spentTotal.toLocaleString()} / Q
                       {project.budgetTotal.toLocaleString()}
                     </p>
                   </div>
