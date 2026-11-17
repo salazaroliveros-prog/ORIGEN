@@ -31,6 +31,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Validate privacy-first Service Worker
+        run: node scripts/generate-service-worker.js
+
       - name: Type check
         run: npm run type-check
 
