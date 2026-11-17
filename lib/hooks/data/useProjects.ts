@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Project, ProjectStatus, ExpenseRecord, APUItem, QuoteRecord, AttendanceRecord, MachineryLog } from '@/lib/types';
 import {
   subscribeProjects,
@@ -64,8 +64,6 @@ export interface UseProjectsReturn {
 export function useProjects({ companyId, currentUserId }: UseProjectsOptions): UseProjectsReturn {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   const activeProjects = useMemo(
     () => projects.filter((project) => project.status !== 'Archivado'),
@@ -79,21 +77,14 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
   // Subscribe to projects
   useEffect(() => {
     if (!companyId || !currentUserId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing projects');
       setProjects([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting projects subscription', { companyId });
+    setProjects([]);
     setLoading(true);
 
     const unsubProjects = subscribeProjects(companyId, (nextProjects) => {

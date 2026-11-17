@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AttendanceRecord, CompanyRole } from '@/lib/types';
 import {
   subscribeAttendance,
@@ -39,31 +39,23 @@ export function useAttendance({
 }: UseAttendanceOptions): UseAttendanceReturn {
   const [allAttendance, setAllAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!companyId || !currentUserId || !role) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing attendance');
       setAllAttendance([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
     if (!canReadAttendance(role)) {
       setAllAttendance([]);
+      setLoading(false);
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting attendance subscription', { companyId, role });
+    setAllAttendance([]);
     setLoading(true);
 
     const unsubAttendance = subscribeAttendance(companyId, (data) => {

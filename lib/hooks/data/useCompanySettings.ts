@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { CompanySettings } from '@/lib/types';
 import {
   subscribeCompanySettings,
@@ -25,26 +25,17 @@ export interface UseCompanySettingsReturn {
 export function useCompanySettings({ companyId }: UseCompanySettingsOptions): UseCompanySettingsReturn {
   const [company, setCompany] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!companyId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing companyId, clearing company settings');
       setCompany(null);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting company settings subscription', { companyId });
+    setCompany(null);
     setLoading(true);
 
     const unsubCompany = subscribeCompanySettings(companyId, (data) => {

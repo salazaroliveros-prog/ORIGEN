@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Employee, EmployeeDirectoryEntry, CompanyRole } from '@/lib/types';
 import {
   subscribeEmployees,
@@ -34,8 +34,6 @@ export interface UseEmployeesReturn {
 export function useEmployees({ companyId, currentUserId, role }: UseEmployeesOptions): UseEmployeesReturn {
   const [employees, setEmployees] = useState<Array<Employee | EmployeeDirectoryEntry>>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   const fullEmployees = useMemo(
     () => employees.filter((employee): employee is Employee => 'dailyRateGTQ' in employee),
@@ -44,21 +42,14 @@ export function useEmployees({ companyId, currentUserId, role }: UseEmployeesOpt
 
   useEffect(() => {
     if (!companyId || !currentUserId || !role) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing employees');
       setEmployees([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting employees subscription', { companyId, role });
+    setEmployees([]);
     setLoading(true);
 
     let unsubEmployees: () => void;

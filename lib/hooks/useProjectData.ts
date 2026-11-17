@@ -82,10 +82,6 @@ const log = createLogger('useProjectData');
 
 export function useProjectData(companyId?: string, currentUserId?: string, role?: CompanyRole) {
   // Refs para evitar limpiezas prematuras y closures stale (por instancia del componente)
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
-  const companyIdRef = useRef<string | undefined>(undefined);
-  const currentUserIdRef = useRef<string | undefined>(undefined);
   const [projects, setProjects] = useState<Project[]>([]);
   const [fieldVisits, setFieldVisits] = useState<FieldVisit[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
@@ -137,14 +133,9 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
   // ========== CACHED SUBSCRIPTIONS ==========
   useEffect(() => {
     // Mantener refs actualizados para evitar closures stale en funciones de guardado
-    companyIdRef.current = companyId;
-    currentUserIdRef.current = currentUserId;
 
     if (!companyId || !currentUserId || !role) {
       // Si nunca se ha inicializado, no limpiar datos (evita parpadeo en carga inicial)
-      if (!hasInitializedRef.current) {
-        return;
-      }
       // Si se había inicializado pero ahora falta auth, limpiar
       log.debug('Missing auth context, clearing data');
       setProjects([]);
@@ -159,22 +150,23 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       setMachineryLogs([]);
       setCompany(null);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
     // Si ya se ha inicializado con el mismo companyId, no repetir suscripciones
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) {
-      return;
-    }
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting data subscriptions', { companyId, role });
 
     // NO limpiar datos existentes al cambiar companyId - preservar hasta que lleguen nuevos datos
+    setProjects([]);
+    setFieldVisits([]);
+    setExpenses([]);
+    setAttendance([]);
+    setEmployees([]);
+    setQuotes([]);
+    setApuItems([]);
+    setMachinery([]);
+    setMachineryLogs([]);
+    setCompany(null);
     setLoading(true);
     setApuItemsLoading(true);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Machinery, MachineryLog } from '@/lib/types';
 import {
   subscribeMachinery,
@@ -42,27 +42,19 @@ export function useMachinery({
   const [machinery, setMachinery] = useState<Machinery[]>([]);
   const [machineryLogs, setMachineryLogs] = useState<MachineryLog[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!companyId || !currentUserId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing machinery');
       setMachinery([]);
       setMachineryLogs([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting machinery subscription', { companyId });
+    setMachinery([]);
+    setMachineryLogs([]);
     setLoading(true);
 
     const unsubMachinery = subscribeMachinery(companyId, (data) => {

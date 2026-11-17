@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { APUItem, Project } from '@/lib/types';
 import {
   subscribeAPUItems,
@@ -30,26 +30,17 @@ export interface UseAPUItemsReturn {
 export function useAPUItems({ companyId, currentUserId, projects = [] }: UseAPUItemsOptions): UseAPUItemsReturn {
   const [apuItems, setApuItems] = useState<APUItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!companyId || !currentUserId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing APU items');
       setApuItems([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting APU items subscription', { companyId });
+    setApuItems([]);
     setLoading(true);
 
     const unsubAPUItems = subscribeAPUItems(companyId, (nextItems) => {

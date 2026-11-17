@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ExpenseRecord } from '@/lib/types';
 import {
   subscribeExpenses,
@@ -39,8 +39,6 @@ export function useExpenses({
 }: UseExpensesOptions): UseExpensesReturn {
   const [allExpenses, setAllExpenses] = useState<ExpenseRecord[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   const projectExpenses = useMemo(() => {
     const map = new Map<string, ExpenseRecord[]>();
@@ -64,21 +62,14 @@ export function useExpenses({
 
   useEffect(() => {
     if (!companyId || !currentUserId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing expenses');
       setAllExpenses([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting expenses subscription', { companyId });
+    setAllExpenses([]);
     setLoading(true);
 
     const unsubExpenses = subscribeExpenses(companyId, (data) => {

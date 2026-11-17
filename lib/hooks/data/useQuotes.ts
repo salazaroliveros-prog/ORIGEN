@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { QuoteRecord } from '@/lib/types';
 import {
   subscribeQuotes,
@@ -31,26 +31,17 @@ export interface UseQuotesReturn {
 export function useQuotes({ companyId, currentUserId }: UseQuotesOptions): UseQuotesReturn {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!companyId || !currentUserId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing quotes');
       setQuotes([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting quotes subscription', { companyId });
+    setQuotes([]);
     setLoading(true);
 
     const unsubQuotes = subscribeQuotes(companyId, (data) => {

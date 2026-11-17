@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { FieldVisit } from '@/lib/types';
 import {
   subscribeFieldVisits,
@@ -26,26 +26,17 @@ export interface UseFieldVisitsReturn {
 export function useFieldVisits({ companyId, currentUserId }: UseFieldVisitsOptions): UseFieldVisitsReturn {
   const [fieldVisits, setFieldVisits] = useState<FieldVisit[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!companyId || !currentUserId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing field visits');
       setFieldVisits([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting field visits subscription', { companyId });
+    setFieldVisits([]);
     setLoading(true);
 
     const unsubFieldVisits = subscribeFieldVisits(companyId, (data) => {
