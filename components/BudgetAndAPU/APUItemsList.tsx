@@ -280,11 +280,11 @@ export function APUItemsList({
 
         {/* Spent */}
         <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm font-medium text-slate-600">Gastado</p>
+          <p className="text-sm font-medium text-slate-600">Comprometido</p>
           <p className="mt-2 text-2xl font-bold text-slate-900">
             Q{budgetSummary.spentTotal.toLocaleString()}
           </p>
-          <p className="mt-1 text-xs text-slate-500">Gastos registrados</p>
+          <p className="mt-1 text-xs text-slate-500">Aprobados + pendientes; excluye rechazados</p>
         </div>
 
         {/* Remaining */}

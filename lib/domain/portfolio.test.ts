@@ -91,6 +91,42 @@ describe('aggregatePortfolio', () => {
     expect(result.projects[0].alerts).not.toContain('Proyecto sin partidas APU registradas');
   });
 
+  it('counts approved and pending expenses as commitments while excluding rejected expenses', () => {
+    const result = aggregatePortfolio(
+      [project({ budgetTotal: 100000 })],
+      [
+        expense({ id: 'approved', amount: 20000, approvalStatus: 'Aprobado' }),
+        expense({ id: 'pending', amount: 5000, approvalStatus: 'Pendiente' }),
+        expense({ id: 'rejected', amount: 90000, approvalStatus: 'Rechazado' }),
+      ],
+      [],
+      [],
+      '2026-06-01'
+    );
+
+    expect(result.spentTotalGTQ).toBe(25000);
+    expect(result.remainingBudgetGTQ).toBe(75000);
+    expect(result.budgetUsagePercent).toBe(25);
+    expect(result.projects[0].alerts).not.toContain('Compromiso presupuestario supera el presupuesto');
+  });
+
+  it('flags a portfolio commitment overrun when pending approvals are included', () => {
+    const result = aggregatePortfolio(
+      [project({ budgetTotal: 100000 })],
+      [
+        expense({ id: 'approved', amount: 20000, approvalStatus: 'Aprobado' }),
+        expense({ id: 'pending', amount: 90000, approvalStatus: 'Pendiente' }),
+      ],
+      [],
+      [],
+      '2026-06-01'
+    );
+
+    expect(result.spentTotalGTQ).toBe(110000);
+    expect(result.remainingBudgetGTQ).toBe(-10000);
+    expect(result.projects[0].alerts).toContain('Compromiso presupuestario supera el presupuesto');
+  });
+
   it('excludes rejected quotes from the pipeline', () => {
     const result = aggregatePortfolio(
       [project({})],
@@ -209,7 +245,7 @@ describe('portfolio edge cases', () => {
       [],
       '2026-01-15'
     );
-    expect(result.projects[0].alerts).toContain('Consumo de presupuesto mayor al 80%');
+    expect(result.projects[0].alerts).toContain('Compromiso presupuestario mayor al 80%');
     expect(result.budgetUsagePercent).toBe(85);
   });
 

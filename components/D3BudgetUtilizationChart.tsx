@@ -452,15 +452,15 @@ export function D3BudgetUtilizationChart({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-bold text-white">
-                Monitoreo D3.js: Utilización Presupuestaria & Gasto Real
+                Monitoreo D3.js: Utilización Presupuestaria & Compromisos Registrados
               </h3>
               <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-400">
                 D3 v7 Live
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Análisis comparativo en tiempo real del presupuesto asignado vs. desembolsos
-              ejecutados
+              Análisis comparativo del presupuesto asignado frente a gastos registrados
+              (aprobados y pendientes; excluye rechazados)
             </p>
           </div>
         </div>
@@ -508,7 +508,7 @@ export function D3BudgetUtilizationChart({
 
         <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
           <span className="block font-mono text-[10px] uppercase text-slate-400">
-            Gasto Real Ejecutado
+            Gastos Registrados
           </span>
           <div className="mt-0.5 text-sm font-bold text-sky-400 sm:text-base">
             {formatMoney(totalSpent)}
@@ -580,7 +580,7 @@ export function D3BudgetUtilizationChart({
                 <span className="font-mono">{formatMoney(tooltipData.budget)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Inversión Real:</span>
+                <span className="text-slate-400">Gastos Registrados:</span>
                 <span className="font-mono font-bold text-sky-300">
                   {formatMoney(tooltipData.spent)}
                 </span>
@@ -614,7 +614,7 @@ export function D3BudgetUtilizationChart({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded bg-sky-400" />
-            <span>Gasto Real Ejecutado</span>
+            <span>Gastos Registrados</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded bg-rose-500" />

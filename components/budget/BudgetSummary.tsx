@@ -54,7 +54,7 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
 
           {/* Spent */}
           <div className="rounded-lg bg-slate-800/50 p-4">
-            <p className="text-xs text-slate-400">Gastado</p>
+            <p className="text-xs text-slate-400">Comprometido</p>
             <p className="mt-2 text-xl font-bold text-white">
               Q{budgetSummary.spentTotal.toLocaleString('es-GT', { maximumFractionDigits: 2 })}
             </p>
@@ -84,7 +84,7 @@ export const BudgetSummary = React.memo<BudgetSummaryProps>(
         {/* Utilization Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-400">Progreso de gasto</span>
+            <span className="text-slate-400">Progreso del compromiso</span>
             <span className={`font-semibold ${isOverBudget ? 'text-red-300' : 'text-white'}`}>
               {utilizationPercent}%
             </span>

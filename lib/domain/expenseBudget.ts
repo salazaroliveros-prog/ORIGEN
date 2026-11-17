@@ -7,7 +7,7 @@
  */
 
 import type { APUItem, ExpenseRecord } from '@/lib/types';
-import { isCountableExpense } from '@/lib/projectCalculations';
+import { isBudgetCommitmentExpense } from './expenseRecognition';
 
 export interface ApuOverrun {
   isOver: true;
@@ -43,7 +43,7 @@ export function sumApuSpent(params: {
           expense.projectId === projectId &&
           expense.assignedApuId === apuId &&
           expense.id !== excludeExpenseId &&
-          isCountableExpense(expense)
+          isBudgetCommitmentExpense(expense)
       )
       .reduce((sum, expense) => sum + expense.amount, 0)
   );

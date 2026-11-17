@@ -86,9 +86,9 @@ export function BudgetView({
           tone="text-sky-400"
         />
         <KpiCard
-          label="Gastos Ejecutados"
+          label="Gastos Registrados"
           value={formatGTQ(portfolio.spentTotalGTQ)}
-          hint={`${portfolio.budgetUsagePercent}% del presupuesto`}
+          hint={`${portfolio.budgetUsagePercent}% comprometido · aprobados + pendientes`}
           tone={
             portfolio.budgetUsagePercent >= BUDGET_CRITICAL_USAGE_PERCENT
               ? 'text-amber-400'
@@ -168,7 +168,7 @@ export function BudgetView({
                   <th className="py-2 pr-3 font-bold">Proyecto</th>
                   <th className="py-2 pr-3 font-bold">Presupuesto</th>
                   <th className="py-2 pr-3 font-bold">APU</th>
-                  <th className="py-2 pr-3 font-bold">Gastado</th>
+                  <th className="py-2 pr-3 font-bold">Comprometido</th>
                   <th className="py-2 pr-3 font-bold">Saldo</th>
                   <th className="py-2 pr-3 font-bold">Avance</th>
                   <th className="py-2 font-bold">Cotizaciones</th>

@@ -24,7 +24,8 @@ import { useMachinery, UseMachineryReturn } from './useMachinery';
 import { useCompanySettings, UseCompanySettingsReturn } from './useCompanySettings';
 import { useFieldVisits, UseFieldVisitsReturn } from './useFieldVisits';
 import { calculateBudgetSummary, BudgetSummary } from '@/lib/utils/calculations';
-import { deriveProjectsFinancials, sumCountableExpenses } from '@/lib/projectCalculations';
+import { deriveProjectsFinancials } from '@/lib/projectCalculations';
+import { sumBudgetCommitments } from '@/lib/domain/expenseRecognition';
 
 interface UseProjectDataOptions {
   companyId?: string;
@@ -149,7 +150,7 @@ export function useProjectData({
   );
 
   const budgetSummary = useMemo(() => {
-    const totalSpent = sumCountableExpenses(expensesHook.allExpenses);
+    const totalSpent = sumBudgetCommitments(expensesHook.allExpenses);
     if (apuItemsHook.apuItems.length === 0 && totalSpent === 0) {
       return {
         budgetTotal: 0,

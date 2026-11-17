@@ -3,7 +3,7 @@
 import { formatGTQ, formatUSD } from '@/lib/data';
 import { exportExpensesBudgetPdf, MonthlyHistogramItem } from '@/lib/pdfExportService';
 import { buildMonthlyExpenseSeries, MonthlyExpenseRange } from '@/lib/domain/monthlyExpenses';
-import { isCountableExpense } from '@/lib/projectCalculations';
+import { isBudgetCommitmentExpense } from '@/lib/domain/expenseRecognition';
 import { CompanySettings, ExpenseRecord, Project } from '@/lib/types';
 import {
   AlertTriangle,
@@ -78,8 +78,8 @@ export function MonthlyExpensesHistogram({
 
   // Breakdown by Category for the selected project
   const categoryData = useMemo(() => {
-    // Los gastos rechazados no son gasto ejecutado (misma regla que el tablero).
-    const countableExpenses = expenses.filter(isCountableExpense);
+    // El histograma mide compromisos registrados: aprobados + pendientes; excluye rechazados.
+    const countableExpenses = expenses.filter(isBudgetCommitmentExpense);
     const targetExpenses =
       selectedProjectId === 'all'
         ? countableExpenses
@@ -109,7 +109,7 @@ export function MonthlyExpensesHistogram({
     () =>
       selectedProjectId === 'all' ||
       expenses.some(
-        (expense) => expense.projectId === selectedProjectId && isCountableExpense(expense)
+        (expense) => expense.projectId === selectedProjectId && isBudgetCommitmentExpense(expense)
       ),
     [expenses, selectedProjectId]
   );

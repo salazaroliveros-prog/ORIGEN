@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import type { APUItem, ExpenseRecord } from '@/lib/types';
 import { createLogger } from '@/lib/utils/logger';
 import { calculateBudgetSummary } from '@/lib/utils/calculations';
-import { sumCountableExpenses } from '@/lib/projectCalculations';
+import { sumBudgetCommitments } from '@/lib/domain/expenseRecognition';
 
 const log = createLogger('useBudgetSummary');
 
@@ -39,7 +39,7 @@ export function useBudgetSummary(
     try {
       return calculateBudgetSummary(
         apuItems,
-        sumCountableExpenses(expenses)
+        sumBudgetCommitments(expenses)
       );
     } catch (error) {
       log.error('Budget summary calculation failed', error as Error, {

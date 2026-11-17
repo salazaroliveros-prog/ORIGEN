@@ -2,6 +2,7 @@ import type { APUItem, ExpenseRecord, Project, QuoteRecord } from '@/lib/types';
 import { calculateBudgetCoverage } from './budgetAnalysis';
 import { calculateExecutionTimeline, type TimelineStatus } from './executionTimeline';
 import { BUDGET_CRITICAL_USAGE_PERCENT } from './projectFinance';
+import { isBudgetCommitmentExpense } from './expenseRecognition';
 
 export interface ProjectPortfolioRow {
   projectId: string;
@@ -12,6 +13,7 @@ export interface ProjectPortfolioRow {
   status: Project['status'];
   budgetTotalGTQ: number;
   apuTotalGTQ: number;
+  /** Budget commitments (approved + pending, excluding rejected). */
   spentTotalGTQ: number;
   remainingBudgetGTQ: number;
   budgetUsagePercent: number;
@@ -30,6 +32,7 @@ export interface DepartmentAggregate {
   projectCount: number;
   budgetTotalGTQ: number;
   apuTotalGTQ: number;
+  /** Budget commitments (approved + pending, excluding rejected). */
   spentTotalGTQ: number;
   remainingBudgetGTQ: number;
 }
@@ -41,6 +44,7 @@ export interface PortfolioSummary {
   archivedProjectCount: number;
   budgetTotalGTQ: number;
   apuTotalGTQ: number;
+  /** Budget commitments (approved + pending, excluding rejected). */
   spentTotalGTQ: number;
   remainingBudgetGTQ: number;
   budgetUsagePercent: number;
@@ -84,7 +88,8 @@ export function aggregatePortfolio(
   quotes: QuoteRecord[],
   now?: string | Date
 ): PortfolioSummary {
-  const spentByProject = sumByProject(expenses, (expense) => Number(expense.amount) || 0);
+  const committedExpenses = expenses.filter(isBudgetCommitmentExpense);
+  const spentByProject = sumByProject(committedExpenses, (expense) => Number(expense.amount) || 0);
   const apuByProject = sumByProject(apuItems, (item) => Number(item.totalPriceGTQ) || 0);
 
   const apuItemsByProject = new Map<string, APUItem[]>();
@@ -132,9 +137,9 @@ export function aggregatePortfolio(
         alerts.push('Presupuesto APU superior al presupuesto del proyecto');
       }
       if (coverage.budgetUsagePercent >= 100) {
-        alerts.push('Gasto ejecutado supera el presupuesto');
+        alerts.push('Compromiso presupuestario supera el presupuesto');
       } else if (coverage.budgetUsagePercent >= BUDGET_CRITICAL_USAGE_PERCENT) {
-        alerts.push(`Consumo de presupuesto mayor al ${BUDGET_CRITICAL_USAGE_PERCENT}%`);
+        alerts.push(`Compromiso presupuestario mayor al ${BUDGET_CRITICAL_USAGE_PERCENT}%`);
       }
       if (apuTotalGTQ <= 0) {
         alerts.push('Proyecto sin partidas APU registradas');
@@ -215,7 +220,7 @@ export function aggregatePortfolio(
   );
   if (overBudget.length > 0) {
     alerts.push(
-      `${overBudget.length} proyecto(s) con gasto por encima del presupuesto: ${overBudget
+      `${overBudget.length} proyecto(s) con compromisos por encima del presupuesto: ${overBudget
         .map((row) => row.code || row.name)
         .join(', ')}`
     );
