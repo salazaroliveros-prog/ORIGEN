@@ -342,14 +342,26 @@ service cloud.firestore {
         transferId.size() > 0 && transferId.size() <= 75 &&
         !exists(outgoingPath) && !exists(incomingPath) &&
         existsAfter(outgoingPath) && existsAfter(incomingPath) &&
-        isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
-        canManageInventory(data.companyId) &&
         (
-          data.kind == 'transfer_in' ||
-          (
+          (data.kind == 'transfer_out' &&
+            isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
+            canManageInventory(outgoing.companyId) &&
             isTransferWarehousesValid(outgoing, incoming) &&
-            isActiveInventoryItem(outgoing.itemId, outgoing.companyId)
-          )
+            isActiveInventoryItem(outgoing.itemId, outgoing.companyId)) ||
+          (data.kind == 'transfer_in' &&
+            data.id == movementId &&
+            incoming.id == movementId &&
+            incoming.kind == 'transfer_in' &&
+            incoming.referenceId == transferId &&
+            incoming.companyId == outgoing.companyId &&
+            incoming.itemId == outgoing.itemId &&
+            incoming.quantity is number && incoming.quantity > 0 &&
+            incoming.unitCostGTQ is number && incoming.unitCostGTQ >= 0 &&
+            incoming.createdBy == request.auth.uid &&
+            outgoing.id == 'tr_' + transferId + '_out' &&
+            outgoing.kind == 'transfer_out' &&
+            outgoing.referenceId == transferId &&
+            outgoing.createdBy == incoming.createdBy)
         );
     }
 
@@ -359,14 +371,15 @@ service cloud.firestore {
       let incomingPath = receiptMovementPath('tr_' + movement.referenceId + '_in');
       let incoming = getAfter(incomingPath).data;
       return !exists(movementPath) && !exists(incomingPath) &&
-        existsAfter(movementPath) &&
-        existsAfter(incomingPath) &&
+        existsAfter(movementPath) && existsAfter(incomingPath) &&
         movement.kind == 'transfer_out' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
         movement.itemId == data.itemId &&
         movement.warehouseId == data.warehouseId &&
-        isTransferPairLinked(movement, incoming) &&
+        incoming.kind == 'transfer_in' &&
+        incoming.referenceId == movement.referenceId &&
+        incoming.quantity == movement.quantity &&
         data.quantity == existing().quantity - movement.quantity &&
         data.averageUnitCostGTQ == (data.quantity == 0 ? 0 : existing().averageUnitCostGTQ) &&
         data.reorderLevel == existing().reorderLevel;
@@ -383,14 +396,15 @@ service cloud.firestore {
         ? get(/databases/$(database)/documents/inventoryItems/$(movement.itemId)).data.reorderLevel
         : existing().reorderLevel;
       return !exists(movementPath) && !exists(outgoingPath) &&
-        existsAfter(movementPath) &&
-        existsAfter(outgoingPath) &&
+        existsAfter(movementPath) && existsAfter(outgoingPath) &&
         movement.kind == 'transfer_in' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
         movement.itemId == data.itemId &&
         movement.warehouseId == data.warehouseId &&
-        isTransferPairLinked(outgoing, movement) &&
+        outgoing.kind == 'transfer_out' &&
+        outgoing.referenceId == movement.referenceId &&
+        outgoing.quantity == movement.quantity &&
         data.quantity == previousQuantity + movement.quantity &&
         isWithinOneCent(
           data.averageUnitCostGTQ,
