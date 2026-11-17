@@ -79,7 +79,7 @@ describe('useEmployees subscription lifecycle', () => {
       companyId: 'company-1',
       name: 'Empleado',
       role: 'Operario',
-    } as EmployeeDirectoryEntry;
+    } as unknown as EmployeeDirectoryEntry;
     act(() => directoryCallback?.([directoryEntry]));
 
     expect(result.current.employees).toEqual([directoryEntry]);

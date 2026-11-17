@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { FelInvoice } from '@/lib/types';
 import {
   subscribeFelInvoices,
@@ -34,26 +34,17 @@ export function useFelInvoices({
 }: UseFelInvoicesOptions): UseFelInvoicesReturn {
   const [invoices, setInvoices] = useState<FelInvoice[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!companyId || !currentUserId) {
-      if (!hasInitializedRef.current) return;
       log.debug('Missing auth context, clearing invoices');
       setInvoices([]);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
 
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) return;
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
-
     log.info('Starting FEL invoices subscription', { companyId });
+    setInvoices([]);
     setLoading(true);
 
     const unsubInvoices = subscribeFelInvoices(companyId, (data) => {

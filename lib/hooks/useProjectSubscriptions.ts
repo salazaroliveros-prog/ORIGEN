@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import type {
   CompanyRole,
   Project,
@@ -73,14 +73,8 @@ export function useProjectSubscriptions({
   setCompany,
   setLoading,
 }: UseProjectSubscriptionsParams) {
-  const hasInitializedRef = useRef(false);
-  const lastCompanyIdRef = useRef<string | null>(null);
-
   useEffect(() => {
     if (!companyId || !currentUserId || !role) {
-      if (!hasInitializedRef.current) {
-        return;
-      }
       log.debug('Missing auth context, clearing data');
       setProjects([]);
       setFieldVisits([]);
@@ -94,20 +88,22 @@ export function useProjectSubscriptions({
       setMachineryLogs([]);
       setCompany(null);
       setLoading(false);
-      hasInitializedRef.current = false;
-      lastCompanyIdRef.current = null;
       return;
     }
-
-    if (hasInitializedRef.current && lastCompanyIdRef.current === companyId) {
-      return;
-    }
-
-    hasInitializedRef.current = true;
-    lastCompanyIdRef.current = companyId;
 
     log.info('Starting data subscriptions', { companyId, role });
 
+    setProjects([]);
+    setFieldVisits([]);
+    setExpenses([]);
+    setAttendance([]);
+    setEmployees([]);
+    setQuotes([]);
+    setApuItems([]);
+    setApuItemsLoading(true);
+    setMachinery([]);
+    setMachineryLogs([]);
+    setCompany(null);
     setLoading(true);
     setApuItemsLoading(true);
     const unsubProjects = subscribeProjects(companyId, (nextProjects) => {
