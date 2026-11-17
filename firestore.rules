@@ -1219,7 +1219,7 @@ service cloud.firestore {
         canManagePurchasing(data.companyId) &&
         data.createdBy == request.auth.uid &&
         data.amountGTQ is number && data.amountGTQ > 0 &&
-        data.paymentDate is string && data.paymentDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}
+        data.paymentDate is string && data.paymentDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
         data.reference is string && data.reference.size() > 0 && data.reference.size() <= 60 &&
         data.createdAt is string &&
         exists(contractPath) &&
@@ -1270,7 +1270,7 @@ service cloud.firestore {
         isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
         incoming().contractNumber is string && incoming().contractNumber.size() > 0 && incoming().contractNumber.size() <= 80 &&
         incoming().description is string && incoming().description.size() > 0 && incoming().description.size() <= 1000 &&
-        incoming().startDate is string && incoming().startDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}
+        incoming().startDate is string && incoming().startDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
         incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
         incoming().paidGTQ == 0 &&
         incoming().status in ['draft', 'active'];
@@ -1545,7 +1545,7 @@ service cloud.firestore {
   }
 }
 ) &&
-        incoming().endDate is string && incoming().endDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}
+        incoming().endDate is string && incoming().endDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
         incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
         incoming().paidGTQ == 0 &&
         incoming().status in ['draft', 'active'];
