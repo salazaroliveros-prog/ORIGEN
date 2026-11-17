@@ -2,7 +2,7 @@
 
 /**
  * Hook de cálculo de resumen de presupuesto.
- * Encapsula la lógica de presupuesto APU vs gasto ejecutado.
+ * Encapsula la lógica de presupuesto APU vs gastos registrados no rechazados.
  */
 import { useMemo } from 'react';
 import type { APUItem, ExpenseRecord } from '@/lib/types';
