@@ -383,11 +383,12 @@ service cloud.firestore {
     function isValidTransferOutPairAfter(data, movementId, incomingPath) {
       let outgoing = data;
       let incoming = getAfter(incomingPath).data;
+      // The destination balance rule validates the shared item record while
+      // calculating its weighted average, avoiding a second item lookup here.
       return isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
         canManageInventory(outgoing.companyId) &&
         isTransferBalancePairPresent(outgoing, incoming) &&
-        isTransferWarehousesValid(outgoing, incoming) &&
-        isActiveInventoryItem(outgoing.itemId, outgoing.companyId);
+        isTransferWarehousesValid(outgoing, incoming);
     }
 
     // The outgoing movement is the authoritative validator for the complete
@@ -439,14 +440,25 @@ service cloud.firestore {
 
     function isValidTransferInBalance(data, balanceId, creating, movement) {
       let movementPath = receiptMovementPath(data.lastMovementId);
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        isValidTransferInBalanceWithItem(data, balanceId, creating, movement);
+    }
+
+    function isValidTransferInBalanceWithItem(data, balanceId, creating, movement) {
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(movement.itemId);
+      return exists(itemPath) &&
+        isValidTransferInBalanceForActiveItem(data, balanceId, creating, movement, itemPath);
+    }
+
+    function isValidTransferInBalanceForActiveItem(data, balanceId, creating, movement, itemPath) {
+      let item = get(itemPath).data;
       let previousQuantity = creating ? 0 : existing().quantity;
       let previousAverage = creating ? 0 : existing().averageUnitCostGTQ;
-      let previousReorder = creating
-        ? get(/databases/$(database)/documents/inventoryItems/$(movement.itemId)).data.reorderLevel
-        : existing().reorderLevel;
-      // The transfer_out movement validator requires the complete pair and
-      // both post-transfer balances. This rule validates this side's arithmetic.
-      return !exists(movementPath) && existsAfter(movementPath) &&
+      let previousReorder = creating ? item.reorderLevel : existing().reorderLevel;
+      // This is the only transfer helper that reads the item. It verifies the
+      // company and active flag and reuses the same read for its reorder level.
+      return item.companyId == data.companyId &&
+        item.active == true &&
         movement.kind == 'transfer_in' &&
         movement.balanceId == balanceId &&
         movement.companyId == data.companyId &&
