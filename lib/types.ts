@@ -405,6 +405,8 @@ export interface ExpenseRecord {
   machineryLogId?: string;
   /** Enlace inmutable al pago de subcontrato que originó este egreso. */
   subcontractPaymentId?: string;
+  /** Referencia de transferencia, cheque o comprobante de un pago de subcontrato. */
+  paymentReference?: string;
 }
 
 export interface QuoteRecord {
