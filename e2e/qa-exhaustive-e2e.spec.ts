@@ -95,7 +95,9 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
     }
 
     await expect(page.getByRole('link', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByText(ADMIN_EMAIL)).toBeVisible();
+    await expect(
+      page.getByRole('complementary', { name: 'Navegación principal' }).getByText(ADMIN_EMAIL, { exact: true })
+    ).toBeVisible();
   });
 
   test('PASO-1.02 — Login con email inválido → error de validación', async ({ page }) => {
