@@ -782,17 +782,13 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
     }
 
     return await runTransaction(db, async (transaction: Transaction) => {
-      const [
-        outgoingSnapshot,
-        incomingSnapshot,
-        sourceBalanceSnapshot,
-        destinationBalanceSnapshot,
-      ] = await Promise.all([
-        transaction.get(outgoingRef),
-        transaction.get(incomingRef),
-        transaction.get(sourceBalanceRef),
-        transaction.get(destinationBalanceRef),
-      ]);
+      // Read transaction documents sequentially. This preserves Firestore's
+      // all-reads-before-writes guarantee while avoiding concurrent lock
+      // acquisition in the local emulator and keeping deterministic ordering.
+      const outgoingSnapshot = await transaction.get(outgoingRef);
+      const incomingSnapshot = await transaction.get(incomingRef);
+      const sourceBalanceSnapshot = await transaction.get(sourceBalanceRef);
+      const destinationBalanceSnapshot = await transaction.get(destinationBalanceRef);
 
       if (outgoingSnapshot.exists() || incomingSnapshot.exists()) {
         if (!outgoingSnapshot.exists() || !incomingSnapshot.exists() ||
