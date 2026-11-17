@@ -24,6 +24,7 @@ import {
 } from 'firebase/auth';
 import { connectFirestoreEmulator, doc, getDoc, getFirestore, setDoc } from 'firebase/firestore';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import type { StockMovement } from '@/lib/domain/inventory';
 import type {
   APUItem,
   AttendanceRecord,
@@ -1047,6 +1048,75 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(storedSteel).toMatchObject({
       companyId, warehouseId: warehouse.id, itemId: steel.id,
       quantity: 10, averageUnitCostGTQ: 80,
+    });
+  });
+
+  it('evita el doble gasto de existencias en traslados concurrentes', async () => {
+    const projectId = await createProject('INV-TRANSFER-RACE', 'Proyecto para concurrencia de traslados');
+    const supplier = await inventoryService.createSupplierToFirestore(
+      { name: 'Proveedor concurrencia QA', nit: 'CF', active: true }, companyId, userId
+    );
+    const item = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Material concurrencia QA', unit: 'unidad', reorderLevel: 0, active: true }, companyId, userId
+    );
+    const source = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega origen concurrencia QA', type: 'project', projectId, active: true }, companyId, userId
+    );
+    const destinationA = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega destino A concurrencia QA', type: 'general', active: true }, companyId, userId
+    );
+    const destinationB = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega destino B concurrencia QA', type: 'general', active: true }, companyId, userId
+    );
+    const order = await inventoryService.createPurchaseOrderToFirestore({
+      projectId, supplierId: supplier.id, number: uniqueId('OC-TRANSFER-RACE'),
+      status: 'draft', currency: 'GTQ',
+      lines: [{ itemId: item.id, description: item.name, unit: item.unit, quantity: 1, unitPriceGTQ: 40 }],
+      subtotalGTQ: 40, discountGTQ: 0, taxPercent: 12, taxGTQ: 4.8, totalGTQ: 44.8,
+    }, companyId, userId);
+    await inventoryService.approvePurchaseOrderToFirestore(order.id, companyId, userId);
+    await inventoryService.receivePurchaseOrderToWarehouse({
+      orderId: order.id, lineIndex: 0, warehouseId: source.id, quantity: 1,
+      receiptNumber: 'RACE-RECEIPT', companyId, userId,
+    });
+
+    const inputs = [destinationA, destinationB].map((destination, index) => ({
+      transferId: uniqueId(`TRANSFER-RACE-${index}`),
+      itemId: item.id, fromWarehouseId: source.id, toWarehouseId: destination.id,
+      quantity: 1, companyId, userId,
+    }));
+    const results = await Promise.allSettled(
+      inputs.map((input) => inventoryService.transferInventoryBetweenWarehousesToFirestore(input))
+    );
+    const successfulIndex = results.findIndex((result) => result.status === 'fulfilled');
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1);
+    expect(successfulIndex).toBeGreaterThanOrEqual(0);
+
+    const successfulInput = inputs[successfulIndex];
+    const rejectedInput = inputs[1 - successfulIndex];
+    const sourceBalance = await expectPersisted(
+      'inventoryBalances', `bal_${source.id}_${item.id}`,
+      (callback) => inventoryService.subscribeInventoryBalances(companyId, callback)
+    );
+    expect(sourceBalance).toMatchObject({ companyId, warehouseId: source.id, itemId: item.id, quantity: 0 });
+
+    const movements = await waitFor<StockMovement[]>(
+      (callback) => inventoryService.subscribeStockMovements(companyId, callback),
+      (records) => records.filter((movement) => movement.referenceId === successfulInput.transferId).length === 2
+    );
+    expect(movements.filter((movement) => movement.referenceId === successfulInput.transferId)).toHaveLength(2);
+    expect(movements.some((movement) => movement.referenceId === rejectedInput.transferId)).toBe(false);
+    expect(movements.filter((movement) => movement.referenceId === successfulInput.transferId).map((movement) => movement.kind).sort())
+      .toEqual(['transfer_in', 'transfer_out']);
+
+    const destinationBalance = await expectPersisted(
+      'inventoryBalances', `bal_${successfulInput.toWarehouseId}_${item.id}`,
+      (callback) => inventoryService.subscribeInventoryBalances(companyId, callback)
+    );
+    expect(destinationBalance).toMatchObject({
+      companyId, warehouseId: successfulInput.toWarehouseId, itemId: item.id,
+      quantity: 1, averageUnitCostGTQ: 40,
     });
   });
 
