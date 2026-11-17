@@ -38,8 +38,7 @@ const AUTH_OK = {
 };
 
 const STORAGE_RESULT = {
-  downloadUrl: 'https://firebasestorage.googleapis.com/v0/b/test/o/photo.jpg?alt=media&token=t',
-  storagePath: 'projects/OBRA-001/progress/photo.jpg',
+  storagePath: 'projects/proj-1/progress/photo.jpg',
 };
 
 const JPEG_BYTES = [0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10];
@@ -164,7 +163,9 @@ describe('app/api/upload-project-photo', () => {
 
     const data = await res.json();
     expect(data.success).toBe(true);
-    expect(data.url).toBe(STORAGE_RESULT.downloadUrl);
+    expect(data.storagePath).toBe(STORAGE_RESULT.storagePath);
+    expect(data).not.toHaveProperty('url');
+    expect(data).not.toHaveProperty('downloadUrl');
     expect(data.filename).toMatch(/\.jpg$/);
 
     expect(uploadImageAsUser).toHaveBeenCalledWith(
