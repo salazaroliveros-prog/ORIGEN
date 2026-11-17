@@ -144,7 +144,7 @@ export function ProjectBudgetSummary({
       calculateBudgetCoverage(
         {
           budgetTotal: project.budgetTotal,
-          spentTotal: projectExpenses.reduce((total, expense) => total + expense.amount, 0),
+          spentTotal: sumCountableExpenses(projectExpenses),
         },
         apuItems
       ),
