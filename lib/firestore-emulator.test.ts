@@ -681,6 +681,9 @@ beforeEach(async () => {
       amount: payment.amountGTQ,
       currency: 'GTQ',
       paymentMethod: payment.paymentMethod,
+      approvalStatus: 'Aprobado',
+      approvedBy: payment.createdBy,
+      approvedAt: payment.createdAt,
     };
     await assertFails(setDoc(doc(finance, 'subcontracts', contract.id), {
       paidGTQ: 25000,
