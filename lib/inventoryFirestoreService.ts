@@ -254,10 +254,10 @@ export async function createPurchaseOrderToFirestore(
     await runTransaction(db, async (transaction: Transaction) => {
       await assertCompanyReference(transaction, 'projects', order.projectId, companyId, 'Proyecto');
       await assertCompanyReference(transaction, 'suppliers', order.supplierId, companyId, 'Proveedor');
-      const uniqueItemIds = [...new Set(order.lines.map((line) => line.itemId))];
-      for (const itemId of uniqueItemIds) {
-        await assertCompanyReference(transaction, 'inventoryItems', itemId, companyId, 'Artículo');
-      }
+      // Firestore rules validate that every distinct line item exists and belongs
+      // to this company as part of the same atomic create. Avoid reading the same
+      // item documents here as well: duplicated rule evaluation can exceed the
+      // Firestore expression budget for multi-line orders.
       transaction.set(ref, stripUndefined(order));
     });
   } catch (error) {
