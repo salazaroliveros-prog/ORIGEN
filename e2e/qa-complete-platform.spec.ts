@@ -599,11 +599,15 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
     await openTab(page, 'Tablero');
     await page.waitForTimeout(2000);
 
-    await expect(page.getByText(/Presupuesto|Budget|Proyectos/i).first()).toBeVisible({
-      timeout: 15_000,
-    });
-    await expect(page.getByText(/GASTO|Ejecutado|Gastado/i).first()).toBeVisible({
-      timeout: 15_000,
-    });
+    // Restringir la búsqueda al contenido principal y usar los títulos
+    // reales de KPICards. El selector de proyecto de la barra lateral tiene
+    // <option> ocultas con códigos/nombres similares y no representa un KPI.
+    const dashboard = page.locator('#main-content');
+    await expect(
+      dashboard.getByText('Presupuesto Proyectado', { exact: true })
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(
+      dashboard.getByText('Gasto Real Acumulado', { exact: true })
+    ).toBeVisible({ timeout: 15_000 });
   });
 });
