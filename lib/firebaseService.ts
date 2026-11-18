@@ -507,7 +507,7 @@ export function subscribeProjects(
     );
   } catch (err) {
     notifySyncEnd();
-    onError?.(toError(err));
+    onError?.(err instanceof Error ? err : new Error(String(err)));
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -696,7 +696,8 @@ export async function deleteFieldVisitFromFirestore(visitId: string): Promise<bo
 
 export function subscribeFieldVisits(
   companyId: string,
-  callback: (visits: FieldVisit[]) => void
+  callback: (visits: FieldVisit[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'fieldVisits';
   try {
@@ -711,10 +712,12 @@ export function subscribeFieldVisits(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
+    if (err instanceof Error) onError?.(err);
     notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
@@ -902,7 +905,8 @@ export async function updateAttendanceToFirestore(
 
 export function subscribeAttendance(
   companyId: string,
-  callback: (records: AttendanceRecord[]) => void
+  callback: (records: AttendanceRecord[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'attendance';
   try {
@@ -917,10 +921,12 @@ export function subscribeAttendance(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
+    if (err instanceof Error) onError?.(err);
     notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
@@ -1046,7 +1052,8 @@ async function createMissingEmployeeDirectoryEntries(
 
 export function subscribeEmployees(
   companyId: string,
-  callback: (employees: Employee[]) => void
+  callback: (employees: Employee[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'employees';
   try {
@@ -1064,10 +1071,12 @@ export function subscribeEmployees(
         });
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
+    if (err instanceof Error) onError?.(err);
     notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
@@ -1076,7 +1085,8 @@ export function subscribeEmployees(
 
 export function subscribeEmployeeDirectory(
   companyId: string,
-  callback: (employees: EmployeeDirectoryEntry[]) => void
+  callback: (employees: EmployeeDirectoryEntry[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'employeeDirectory';
   try {
@@ -1088,9 +1098,13 @@ export function subscribeEmployeeDirectory(
             (item: QueryDocumentSnapshot<DocumentData>) => item.data() as EmployeeDirectoryEntry
           )
         ),
-      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
+      (error: Error) => {
+        onError?.(error);
+        handleFirestoreError(error, OperationType.LIST, path);
+      }
     );
   } catch (error) {
+    if (error instanceof Error) onError?.(error);
     notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
@@ -1177,7 +1191,8 @@ export function subscribeQuotes(
 }
 export function subscribeAPUItems(
   companyId: string,
-  callback: (items: APUItem[]) => void
+  callback: (items: APUItem[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'apuItems';
   try {
@@ -1187,9 +1202,13 @@ export function subscribeAPUItems(
         callback(
           snapshot.docs.map((item: QueryDocumentSnapshot<DocumentData>) => item.data() as APUItem)
         ),
-      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
+      (error: Error) => {
+        onError?.(error);
+        handleFirestoreError(error, OperationType.LIST, path);
+      }
     );
   } catch (error) {
+    if (error instanceof Error) onError?.(error);
     notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
@@ -1690,7 +1709,8 @@ export async function deleteFelInvoiceFromFirestore(invoiceId: string): Promise<
  */
 export function subscribeFelInvoices(
   companyId: string,
-  callback: (invoices: FelInvoice[]) => void
+  callback: (invoices: FelInvoice[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'felInvoices';
   try {
@@ -1704,10 +1724,12 @@ export function subscribeFelInvoices(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (error) {
+    if (error instanceof Error) onError?.(error);
     notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
