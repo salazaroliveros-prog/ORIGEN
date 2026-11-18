@@ -63,7 +63,12 @@ export function SyncLogPanel({
 
   return (
     <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md duration-200">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col space-y-6 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sync-log-panel-title"
+        className="flex max-h-[90vh] w-full max-w-2xl flex-col space-y-6 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl"
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
           <div className="flex items-center gap-3">
@@ -80,7 +85,7 @@ export function SyncLogPanel({
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-extrabold tracking-tight text-white">
+                <h3 id="sync-log-panel-title" className="text-lg font-extrabold tracking-tight text-white">
                   Historial de Sincronización Firestore
                 </h3>
                 <span

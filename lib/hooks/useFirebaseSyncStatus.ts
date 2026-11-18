@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { enableNetwork, waitForPendingWrites } from 'firebase/firestore';
 
 export type SyncStatus = 'online' | 'syncing' | 'offline';
@@ -168,9 +168,9 @@ export function useFirebaseSyncStatus() {
     };
   }, []);
 
-  const clearSyncLogs = () => {
+  const clearSyncLogs = useCallback(() => {
     setSyncLogs([]);
-  };
+  }, []);
 
   const forceResync = async () => {
     const logId = `log-${Date.now()}`;

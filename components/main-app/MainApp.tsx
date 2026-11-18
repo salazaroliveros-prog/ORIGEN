@@ -10,6 +10,8 @@ import { useCompanyWorkspace } from '@/lib/hooks/useCompanyWorkspace';
 import { useProjectData } from '@/lib/hooks/data';
 import { MainAppHeader } from './MainAppHeader';
 import { MainAppContent } from './MainAppContent';
+import { useFirebaseSyncStatus } from '@/lib/hooks/useFirebaseSyncStatus';
+import { SyncLogPanel } from '@/components/SyncLogPanel';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import toast from 'react-hot-toast';
 
@@ -121,6 +123,27 @@ export default function MainApp() {
     loading: workspaceLoading,
     error: workspaceError,
   } = useCompanyWorkspace(currentUser);
+
+  const {
+    status: syncStatus,
+    lastSyncedAt,
+    syncLogs,
+    clearSyncLogs,
+    forceResync,
+  } = useFirebaseSyncStatus();
+  const [isSyncLogOpen, setIsSyncLogOpen] = useState(false);
+  const lastSyncScopeRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const nextScope = currentUser && workspace
+      ? `${currentUser.uid}:${workspace.id}`
+      : null;
+    if (lastSyncScopeRef.current !== nextScope) {
+      clearSyncLogs();
+      setIsSyncLogOpen(false);
+      lastSyncScopeRef.current = nextScope;
+    }
+  }, [clearSyncLogs, currentUser?.uid, workspace?.id]);
 
   const data = useProjectData({
     companyId: workspace?.id,
@@ -331,6 +354,26 @@ export default function MainApp() {
           Saltar al contenido principal
         </a>
 
+        <div className="mx-auto flex w-full max-w-7xl justify-end px-4 pt-3 sm:px-6 lg:ml-[280px] lg:mr-0 lg:max-w-[calc(100%-280px)] lg:px-8">
+          <button
+            type="button"
+            onClick={() => setIsSyncLogOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={isSyncLogOpen}
+            className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/10 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400/40 hover:text-white"
+          >
+            <span
+              aria-hidden="true"
+              className={`h-2 w-2 rounded-full ${
+                syncStatus === 'offline' ? 'bg-rose-400' :
+                syncStatus === 'syncing' ? 'animate-pulse bg-amber-400' : 'bg-emerald-400'
+              }`}
+            />
+            {syncStatus === 'offline' ? 'Sin conexión' : syncStatus === 'syncing' ? 'Sincronizando' : 'Firestore en línea'}
+            <span className="text-slate-400">·</span>
+            <span className="text-slate-400">{syncLogs.length} eventos</span>
+          </button>
+        </div>
         <MainAppHeader
           company={company}
           activeTab={activeTab}
@@ -457,6 +500,15 @@ export default function MainApp() {
             />
           )}
         </main>
+        <SyncLogPanel
+          isOpen={isSyncLogOpen}
+          onClose={() => setIsSyncLogOpen(false)}
+          status={syncStatus}
+          lastSyncedAt={lastSyncedAt}
+          syncLogs={syncLogs}
+          onClearLogs={clearSyncLogs}
+          onForceResync={() => void forceResync()}
+        />
       </div>
     </ErrorBoundary>
   );
