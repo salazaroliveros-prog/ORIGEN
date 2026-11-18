@@ -224,7 +224,7 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     await ensureAuthenticated(page);
 
     // Navegar a módulo de maquinaria
-    const macTab = page.getByRole('link', { name: /Maquinaria|Equipo/i }).first();
+    const macTab = page.getByRole('button', { name: /Maquinaria|Equipo/i }).first();
     if (!(await macTab.isVisible().catch(() => false))) return;
     await macTab.click();
     await page.waitForTimeout(1500);
@@ -254,7 +254,7 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
   test('registra asistencia de empleado con GPS', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const staffTab = page.getByRole('link', { name: /Personal & IGSS/ }).first();
+    const staffTab = page.getByRole('button', { name: /Personal & IGSS/ }).first();
     await expect(staffTab).toBeVisible({ timeout: 20_000 });
     await staffTab.click();
     await page.waitForTimeout(1500);
@@ -301,7 +301,7 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
   test('asistente IA responde en contexto del proyecto', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const aiTab = page.getByRole('link', { name: /Asistente|IA|AI/i }).first();
+    const aiTab = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
     if (!(await aiTab.isVisible().catch(() => false))) return;
     await aiTab.click();
     await page.waitForTimeout(1500);
