@@ -258,6 +258,7 @@ export const MachinerySchema = z.object({
     .min(0, 'Tarifa por hora no puede ser negativa')
     .max(999999, 'Tarifa excede límite'),
   currentHorometer: z.number().min(0, 'El horómetro no puede ser negativo'),
+  lastMachineryLogId: z.string().min(1).max(128).optional(),
   currentProjectId: z.string().optional(),
 });
 
