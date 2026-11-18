@@ -258,9 +258,15 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
     await expect(equipo).toBeVisible({ timeout: 20_000 });
   });
 
-  test('PASO-2.09 — Configuración / Branding visible', async ({ page }) => {
+  test('PASO-2.09 — Configuración de empresa accesible desde escritorio', async ({ page }) => {
     const config = page.getByRole('button', { name: /Configuración|Marca|Branding/i }).first();
     await expect(config).toBeVisible({ timeout: 20_000 });
+    await config.click();
+    await expect(page.getByRole('dialog', { name: 'Marca y Personalización' })).toBeVisible({
+      timeout: 10_000,
+    });
+    await page.getByRole('button', { name: 'Cerrar configuración de marca' }).click();
+    await expect(page.getByRole('dialog', { name: 'Marca y Personalización' })).toBeHidden();
   });
 });
 
