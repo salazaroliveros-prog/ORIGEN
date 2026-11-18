@@ -170,22 +170,11 @@ service cloud.firestore {
 
     function arePurchaseOrderLineReferencesValid(order) {
       return order.lines is list &&
-        order.lines.size() >= 1 && order.lines.size() <= 4 &&
+        order.lines.size() >= 1 && order.lines.size() <= 2 &&
         isMatchingPurchaseOrderLineReference(order, 0, '_0') &&
         (order.lines.size() < 2 || (
           isMatchingPurchaseOrderLineReference(order, 1, '_1') &&
           order.lines[1].itemId != order.lines[0].itemId
-        )) &&
-        (order.lines.size() < 3 || (
-          isMatchingPurchaseOrderLineReference(order, 2, '_2') &&
-          order.lines[2].itemId != order.lines[0].itemId &&
-          order.lines[2].itemId != order.lines[1].itemId
-        )) &&
-        (order.lines.size() < 4 || (
-          isMatchingPurchaseOrderLineReference(order, 3, '_3') &&
-          order.lines[3].itemId != order.lines[0].itemId &&
-          order.lines[3].itemId != order.lines[1].itemId &&
-          order.lines[3].itemId != order.lines[2].itemId
         ));
     }
 
@@ -196,12 +185,8 @@ service cloud.firestore {
         data.id == referenceId &&
         isValidId(referenceId) &&
         data.orderId is string && isValidId(data.orderId) &&
-        data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < 4 &&
-        referenceId == 'pol_' + data.orderId + (
-          data.lineIndex == 0 ? '_0' :
-          (data.lineIndex == 1 ? '_1' :
-          (data.lineIndex == 2 ? '_2' : '_3'))
-        ) &&
+        data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < 2 &&
+        referenceId == 'pol_' + data.orderId + (data.lineIndex == 0 ? '_0' : '_1') &&
         data.companyId is string &&
         data.itemId is string && isValidId(data.itemId) &&
         data.createdBy == request.auth.uid &&
@@ -215,17 +200,13 @@ service cloud.firestore {
 
     function purchaseOrderLinesSubtotal(lines) {
       return lines[0].quantity * lines[0].unitPriceGTQ +
-        (lines.size() > 1 ? lines[1].quantity * lines[1].unitPriceGTQ : 0) +
-        (lines.size() > 2 ? lines[2].quantity * lines[2].unitPriceGTQ : 0) +
-        (lines.size() > 3 ? lines[3].quantity * lines[3].unitPriceGTQ : 0);
+        (lines.size() > 1 ? lines[1].quantity * lines[1].unitPriceGTQ : 0);
     }
 
     function isPurchaseOrderFullyReceived(lines) {
-      return lines is list && lines.size() >= 1 && lines.size() <= 4 &&
+      return lines is list && lines.size() >= 1 && lines.size() <= 2 &&
         lines[0].receivedQuantity == lines[0].quantity &&
-        (lines.size() < 2 || lines[1].receivedQuantity == lines[1].quantity) &&
-        (lines.size() < 3 || lines[2].receivedQuantity == lines[2].quantity) &&
-        (lines.size() < 4 || lines[3].receivedQuantity == lines[3].quantity);
+        (lines.size() < 2 || lines[1].receivedQuantity == lines[1].quantity);
     }
 
     function isReceiptLine(beforeLine, afterLine, quantity) {
@@ -239,32 +220,16 @@ service cloud.firestore {
 
     function isPurchaseOrderReceiptLinesUpdated(beforeLines, afterLines, lineIndex, quantity) {
       return beforeLines is list && afterLines is list &&
-        beforeLines.size() >= 1 && beforeLines.size() <= 4 &&
+        beforeLines.size() >= 1 && beforeLines.size() <= 2 &&
         afterLines.size() == beforeLines.size() &&
         (
           (lineIndex == 0 &&
             isReceiptLine(beforeLines[0], afterLines[0], quantity) &&
-            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1]) &&
-            (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3])) ||
+            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1])) ||
           (lineIndex == 1 &&
             beforeLines.size() > 1 &&
             isReceiptLine(beforeLines[1], afterLines[1], quantity) &&
-            afterLines[0] == beforeLines[0] &&
-            (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3])) ||
-          (lineIndex == 2 &&
-            beforeLines.size() > 2 &&
-            isReceiptLine(beforeLines[2], afterLines[2], quantity) &&
-            afterLines[0] == beforeLines[0] &&
-            afterLines[1] == beforeLines[1] &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3])) ||
-          (lineIndex == 3 &&
-            beforeLines.size() > 3 &&
-            isReceiptLine(beforeLines[3], afterLines[3], quantity) &&
-            afterLines[0] == beforeLines[0] &&
-            afterLines[1] == beforeLines[1] &&
-            afterLines[2] == beforeLines[2])
+            afterLines[0] == beforeLines[0])
         );
     }
 
@@ -314,7 +279,7 @@ service cloud.firestore {
         order.projectId == data.projectId &&
         order.status in ['approved', 'partially_received'] &&
         order.approvedBy is string &&
-        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 4 &&
+        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 2 &&
         data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < order.lines.size() &&
         data.itemId == order.lines[data.lineIndex].itemId &&
         data.quantity is number && data.quantity > 0 &&
@@ -1615,9 +1580,9 @@ service cloud.firestore {
         incoming().totalGTQ == existing().totalGTQ &&
         incoming().createdAt == existing().createdAt &&
         incoming().lines is list &&
-        incoming().lines.size() >= 1 && incoming().lines.size() <= 4 &&
+        incoming().lines.size() >= 1 && incoming().lines.size() <= 2 &&
         existing().lines is list &&
-        existing().lines.size() >= 1 && existing().lines.size() <= 4 &&
+        existing().lines.size() >= 1 && existing().lines.size() <= 2 &&
         (
           (
             canManagePurchasing(existing().companyId) &&
@@ -1658,9 +1623,7 @@ service cloud.firestore {
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
         existing().status == 'draft' &&
         !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_0')) &&
-        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_1')) &&
-        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_2')) &&
-        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_3'));
+        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_1'));
     }
 
     // Immutable line references each authorize a single validated item line.
