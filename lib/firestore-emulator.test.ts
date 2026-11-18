@@ -1046,6 +1046,32 @@ beforeEach(async () => {
         updatedAt: malformedDatePayment.createdAt,
       });
     }));
+    // A payment and its expense must not introduce fractions of a GTQ cent,
+    // even when a client attempts to bypass the app and write directly.
+    const fractionalPayment = {
+      ...payment,
+      id: 'subpay_subcontract-qa_FRACTIONAL-001',
+      amountGTQ: 25000.005,
+      reference: 'FRACTIONAL-001',
+      createdAt: '2026-11-16T10:15:00.000Z',
+    };
+    const fractionalExpense = {
+      ...paymentExpense,
+      id: fractionalPayment.id,
+      subcontractPaymentId: fractionalPayment.id,
+      paymentReference: fractionalPayment.reference,
+      amount: fractionalPayment.amountGTQ,
+      approvedAt: fractionalPayment.createdAt,
+    };
+    await assertFails(runTransaction(finance, async (transaction: Transaction) => {
+      transaction.set(doc(finance, 'subcontractPayments', fractionalPayment.id), fractionalPayment);
+      transaction.set(doc(finance, 'expenses', fractionalExpense.id), fractionalExpense);
+      transaction.update(doc(finance, 'subcontracts', contract.id), {
+        paidGTQ: 25000.005,
+        lastPaymentId: fractionalPayment.id,
+        updatedAt: fractionalPayment.createdAt,
+      });
+    }));
     await assertSucceeds(runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', payment.id), payment);
       transaction.set(doc(finance, 'expenses', paymentExpense.id), paymentExpense);
