@@ -192,7 +192,7 @@ export function canDeleteMachinery(
 export const MACHINERY_MAINTENANCE_INTERVAL_HOURS = 250;
 export const MACHINERY_MAINTENANCE_WARNING_HOURS = 200;
 
-export type MachineryMaintenanceUrgency = 'critical' | 'warning' | 'ok';
+export type MachineryMaintenanceUrgency = 'critical' | 'warning' | 'ok' | 'invalid';
 
 export interface MachineryMaintenanceStatus {
   horometer: number;
@@ -215,12 +215,29 @@ export function evaluateMachineryMaintenance(input: {
   currentHorometer: number;
   lastServiceHorometer?: number;
 }): MachineryMaintenanceStatus {
-  const horometer = Number.isFinite(input.currentHorometer)
-    ? Math.max(0, input.currentHorometer)
-    : 0;
-  const baseline = Number.isFinite(input.lastServiceHorometer)
-    ? Math.max(0, input.lastServiceHorometer ?? 0)
-    : 0;
+  const validCurrentHorometer =
+    Number.isFinite(input.currentHorometer) && input.currentHorometer >= 0;
+  const serviceValueProvided = input.lastServiceHorometer !== undefined;
+  const validLastServiceHorometer =
+    !serviceValueProvided ||
+    (Number.isFinite(input.lastServiceHorometer) &&
+      (input.lastServiceHorometer as number) >= 0 &&
+      (input.lastServiceHorometer as number) <= input.currentHorometer);
+
+  // Never turn corrupt or impossible readings into zero: that could incorrectly
+  // clear a maintenance warning and allow an unverified machine to keep working.
+  if (!validCurrentHorometer || !validLastServiceHorometer) {
+    return {
+      horometer: validCurrentHorometer ? input.currentHorometer : 0,
+      hoursSinceService: 0,
+      hoursUntilService: 0,
+      urgency: 'invalid',
+      message: 'Lectura de horómetro inválida o inconsistente. No registrar uso hasta revisar el equipo y corregir la lectura.',
+    };
+  }
+
+  const horometer = input.currentHorometer;
+  const baseline = input.lastServiceHorometer ?? 0;
   const hoursSinceService = round2(Math.max(0, horometer - baseline));
   const hoursUntilService = round2(
     Math.max(0, MACHINERY_MAINTENANCE_INTERVAL_HOURS - hoursSinceService)
