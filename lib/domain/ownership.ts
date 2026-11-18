@@ -66,7 +66,9 @@ export function buildAttendanceRecord(
   return {
     ...record,
     companyId,
-    authorId: userId,
+    // En creación el formulario no trae autor y se usa la sesión. En edición
+    // se conserva el autor original que exigen `firestore.rules`.
+    authorId: record.authorId ?? userId,
   };
 }
 
