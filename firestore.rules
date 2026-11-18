@@ -960,7 +960,55 @@ service cloud.firestore {
         data.hourlyRateGTQ is number && data.hourlyRateGTQ >= 0 &&
         data.currentHorometer is number && data.currentHorometer >= 0 &&
         data.status in ['Disponible', 'En Obra', 'Mantenimiento'] &&
+        (!data.keys().hasAny(['lastMachineryLogId']) ||
+          (data.lastMachineryLogId is string && data.lastMachineryLogId.size() > 0 && data.lastMachineryLogId.size() <= 128)) &&
         data.createdBy is string && data.createdBy.size() > 0;
+    }
+
+    // The meter is initialized with the machine, but every later increase must
+    // be paired atomically with an immutable usage log for this same machine.
+    function isMachineryMeterAdvanceLinkedToLog(data, machineryId) {
+      let logPath = /databases/$(database)/documents/machineryLogs/$(data.lastMachineryLogId);
+      return data.lastMachineryLogId is string &&
+        data.lastMachineryLogId.size() > 0 &&
+        data.lastMachineryLogId.size() <= 128 &&
+        existsAfter(logPath) &&
+        getAfter(logPath).data.id == data.lastMachineryLogId &&
+        getAfter(logPath).data.machineryId == machineryId &&
+        getAfter(logPath).data.companyId == data.companyId &&
+        getAfter(logPath).data.createdBy == request.auth.uid &&
+        getAfter(logPath).data.hoursWorked is number &&
+        getAfter(logPath).data.hoursWorked > 0 &&
+        data.currentHorometer == existing().currentHorometer + getAfter(logPath).data.hoursWorked &&
+        data.currentProjectId == getAfter(logPath).data.projectId &&
+        data.status == 'En Obra';
+    }
+
+    function isMachineryMeterUpdateValid(data, machineryId) {
+      let newLogPresent = data.keys().hasAny(['lastMachineryLogId']);
+      let oldLogPresent = existing().keys().hasAny(['lastMachineryLogId']);
+      return (
+        data.currentHorometer == existing().currentHorometer &&
+        newLogPresent == oldLogPresent &&
+        (!newLogPresent || data.lastMachineryLogId == existing().lastMachineryLogId)
+      ) || (
+        data.currentHorometer > existing().currentHorometer &&
+        existing().status != 'Mantenimiento' &&
+        isMachineryMeterAdvanceLinkedToLog(data, machineryId)
+      );
+    }
+
+    function isMachineryLogMeterTransitionValid(data, logId) {
+      let machinePath = /databases/$(database)/documents/machinery/$(data.machineryId);
+      return exists(machinePath) &&
+        existsAfter(machinePath) &&
+        get(machinePath).data.companyId == data.companyId &&
+        get(machinePath).data.status != 'Mantenimiento' &&
+        getAfter(machinePath).data.lastMachineryLogId == logId &&
+        getAfter(machinePath).data.currentHorometer ==
+          get(machinePath).data.currentHorometer + data.hoursWorked &&
+        getAfter(machinePath).data.currentProjectId == data.projectId &&
+        getAfter(machinePath).data.status == 'En Obra';
     }
 
     function isValidAPUItem(data) {
@@ -1384,7 +1432,8 @@ service cloud.firestore {
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
         incoming().companyId == existing().companyId &&
         incoming().createdBy == existing().createdBy &&
-        isValidMachinery(incoming());
+        isValidMachinery(incoming()) &&
+        isMachineryMeterUpdateValid(incoming(), machineryId);
       allow delete: if isValidId(machineryId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
     }
@@ -1416,9 +1465,10 @@ service cloud.firestore {
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
         incoming().id == logId &&
         incoming().createdBy == request.auth.uid &&
-        incoming().expenseId is string &&
+        incoming().expenseId == 'machine-' + logId &&
         isMachineryInCompany(incoming().machineryId, incoming().companyId) &&
         isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isMachineryLogMeterTransitionValid(incoming(), logId) &&
         incoming().machineryName is string &&
         incoming().date is string &&
         incoming().operatorName is string &&
