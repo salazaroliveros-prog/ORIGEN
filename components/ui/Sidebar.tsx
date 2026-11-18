@@ -22,6 +22,7 @@ import {
   Phone,
   LogOut,
   Building2,
+  Settings,
 } from 'lucide-react';
 import type { CompanySettings, CompanyWorkspaceOption, Project } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
@@ -41,6 +42,7 @@ interface SidebarProps {
   workspaces?: CompanyWorkspaceOption[];
   activeWorkspaceId?: string;
   onSelectWorkspace?: (companyId: string) => void;
+  onOpenBranding?: () => void;
   canViewPersonnel?: boolean;
   canViewPayroll?: boolean;
   canViewExpenses?: boolean;
@@ -62,6 +64,7 @@ export function Sidebar({
   workspaces = [],
   activeWorkspaceId = '',
   onSelectWorkspace,
+  onOpenBranding,
   canViewPersonnel = false,
   canViewPayroll = false,
   canViewExpenses = false,
@@ -206,8 +209,21 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Footer con usuario y cerrar sesión */}
+      {/* Footer con acceso a configuración, usuario y cerrar sesión */}
       <div className="p-4 border-t border-white/10">
+        {canManageCompany && onOpenBranding && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onOpenBranding}
+            aria-label="Configuración de Marca"
+            className="mb-3 flex w-full items-center justify-center gap-2"
+          >
+            <Settings className="h-4 w-4" aria-hidden="true" />
+            <span>Configuración</span>
+          </Button>
+        )}
         <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] cursor-pointer transition-colors">
           <div className="h-8 w-8 rounded-full bg-brand-400/20 flex items-center justify-center text-amber-400 font-bold text-xs">
             {currentUser?.email?.charAt(0)?.toUpperCase() || 'U'}
