@@ -8,6 +8,12 @@ on:
     branches:
       - main
 
+# Cancel obsolete validations for the same PR so only the latest source revision
+# consumes emulator/build resources and provides the authoritative check result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   actions: read
