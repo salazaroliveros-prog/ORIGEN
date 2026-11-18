@@ -146,6 +146,7 @@ export function Navbar({
           workspaces={workspaces}
           activeWorkspaceId={activeWorkspaceId}
           onSelectWorkspace={onSelectWorkspace}
+          onOpenBranding={onOpenBranding}
           canViewPersonnel={canViewPersonnel}
           canViewPayroll={canViewPayroll}
           canViewExpenses={canViewExpenses}
