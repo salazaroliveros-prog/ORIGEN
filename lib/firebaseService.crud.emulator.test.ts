@@ -917,7 +917,7 @@ describe('firebaseService CRUD contra el emulador', () => {
   });
 
   it('crea una orden de cuatro renglones y recibe cualquier índice sin modificar los demás', async () => {
-    const projectId = await createProject('PROCUREMENT-SEVEN', 'Proyecto para orden de siete materiales');
+    const projectId = await createProject('PROCUREMENT-FOUR', 'Proyecto para orden de cuatro materiales');
     const supplier = await inventoryService.createSupplierToFirestore(
       { name: 'Proveedor cuatro renglones QA', nit: 'CF', active: true },
       companyId,
@@ -929,9 +929,9 @@ describe('firebaseService CRUD contra el emulador', () => {
       userId
     );
     const items = [];
-    for (let index = 0; index < 7; index++) {
+    for (let index = 0; index < 4; index++) {
       items.push(await inventoryService.createInventoryItemToFirestore(
-        { name: `Material OC siete ${index + 1}`, unit: 'unidad', reorderLevel: 1, active: true },
+        { name: `Material OC cuatro ${index + 1}`, unit: 'unidad', reorderLevel: 1, active: true },
         companyId,
         userId
       ));
@@ -960,7 +960,7 @@ describe('firebaseService CRUD contra el emulador', () => {
       totalGTQ: subtotalGTQ + taxGTQ,
     }, companyId, userId);
 
-    expect(order.lines).toHaveLength(7);
+    expect(order.lines).toHaveLength(4);
     const approved = await inventoryService.approvePurchaseOrderToFirestore(order.id, companyId, userId);
     expect(approved.status).toBe('approved');
 
