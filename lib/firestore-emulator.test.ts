@@ -118,7 +118,7 @@ async function seedProject(project: ReturnType<typeof makeProject>) {
   });
 }
 
-async function writePurchaseOrderWithLineReferences<
+async function writePurchaseOrderWithLineProof<
   T extends {
     id: string;
     companyId: string;
@@ -131,16 +131,15 @@ async function writePurchaseOrderWithLineReferences<
 ): Promise<void> {
   await runTransaction(database, async (transaction: Transaction) => {
     transaction.set(doc(database, 'purchaseOrders', order.id), order);
-    order.lines.forEach((line, lineIndex) => {
-      const id = `pol_${order.id}_${lineIndex}`;
-      transaction.set(doc(database, 'purchaseOrderLineRefs', id), {
-        id,
-        companyId: order.companyId,
-        orderId: order.id,
+    transaction.set(doc(database, 'purchaseOrderLineProofs', order.id), {
+      id: order.id,
+      companyId: order.companyId,
+      orderId: order.id,
+      lines: order.lines.map((line, lineIndex) => ({
         lineIndex,
         itemId: line.itemId,
-        createdBy: order.requestedBy,
-      });
+      })),
+      createdBy: order.requestedBy,
     });
   });
 }
@@ -839,17 +838,17 @@ beforeEach(async () => {
       requestedBy: USERS.finance, createdAt: '2026-11-16T08:00:00.000Z',
       updatedAt: '2026-11-16T08:00:00.000Z',
     };
-    await assertSucceeds(writePurchaseOrderWithLineReferences(finance, order));
+    await assertSucceeds(writePurchaseOrderWithLineProof(finance, order));
     await assertFails(setDoc(doc(finance, 'purchaseOrders', 'missing-line-refs'), {
       ...order, id: 'missing-line-refs',
     }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+    await assertFails(writePurchaseOrderWithLineProof(finance, {
       ...order, id: 'wrong-subtotal', subtotalGTQ: 900, taxGTQ: 108, totalGTQ: 1008,
     }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+    await assertFails(writePurchaseOrderWithLineProof(finance, {
       ...order, id: 'wrong-tax', taxGTQ: 120, totalGTQ: 870,
     }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+    await assertFails(writePurchaseOrderWithLineProof(finance, {
       ...order, id: 'discount-over-subtotal', discountGTQ: 800, taxGTQ: 0, totalGTQ: -50,
     }));
     await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), {
@@ -875,7 +874,7 @@ beforeEach(async () => {
       taxGTQ: 198,
       totalGTQ: 1848,
     };
-    await assertSucceeds(writePurchaseOrderWithLineReferences(finance, multiLineOrder));
+    await assertSucceeds(writePurchaseOrderWithLineProof(finance, multiLineOrder));
     await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', multiLineOrder.id), {
       status: 'approved',
       approvedBy: USERS.finance,
@@ -970,7 +969,7 @@ beforeEach(async () => {
       });
     }));
 
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+    await assertFails(writePurchaseOrderWithLineProof(finance, {
       ...multiLineOrder,
       id: 'too-many-lines',
       number: 'OC-QA-003',
@@ -1091,10 +1090,10 @@ beforeEach(async () => {
         reorderLevel: 0, active: true, createdBy: USERS.otherCompanyOwner,
       });
     });
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+    await assertFails(writePurchaseOrderWithLineProof(finance, {
       ...order, id: 'foreign-order', projectId: 'foreign-project',
     }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+    await assertFails(writePurchaseOrderWithLineProof(finance, {
       ...order,
       id: 'foreign-item-order',
       lines: [{ ...order.lines[0], itemId: 'foreign-cement' }],
