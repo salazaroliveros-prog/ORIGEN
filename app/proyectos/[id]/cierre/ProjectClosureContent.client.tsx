@@ -45,7 +45,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     expensesLoading,
     expensesError,
     loading: projectsLoading,
-  } = useProjectData(companyId, currentUserId, role);
+  } = useProjectData({ companyId, currentUserId, role });
 
   const [formData, setFormData] = useState<ClosureFormData>({
     closureNotes: '',
