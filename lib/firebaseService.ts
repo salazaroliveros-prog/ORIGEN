@@ -381,13 +381,31 @@ export async function saveProjectToFirestore(project: Project, companyId: string
   notifySyncStart();
   try {
     const docRef = doc(db, 'projects', project.id);
+    // La propiedad no cambia al editar: si el documento ya existe se conservan
+    // `ownerId`/`createdBy`. La lectura es best-effort: las reglas deniegan el
+    // `get` de un documento inexistente, así que un fallo aquí significa
+    // simplemente que el proyecto es nuevo.
+    let existingProject: Project | null = null;
+    try {
+      const existingSnapshot = await getDoc(docRef);
+      if (existingSnapshot.exists()) {
+        existingProject = existingSnapshot.data() as Project;
+      }
+    } catch {
+      existingProject = null;
+    }
+
     await setDoc(
       docRef,
       stripUndefined({
         ...project,
         companyId,
-        ownerId: project.ownerId ?? userId,
-        createdBy: project.createdBy ?? userId,
+        // La propiedad no cambia al editar: `firestore.rules` exige que
+        // `ownerId` y `createdBy` conserven su valor original. Sobrescribirlos
+        // con el usuario que edita hacía fallar cualquier actualización hecha
+        // por alguien distinto del creador.
+        ownerId: existingProject?.ownerId ?? project.ownerId ?? userId,
+        createdBy: existingProject?.createdBy ?? project.createdBy ?? userId,
       }),
       { merge: true }
     );
@@ -425,15 +443,35 @@ export async function saveProjectScheduleToFirestore(
 ): Promise<boolean> {
   const path = `projects/${projectId}`;
   try {
-    await setDoc(
-      doc(db, 'projects', projectId),
-      stripUndefined({
-        ...schedule,
-        companyId,
-        updatedBy: userId,
-      }),
-      { merge: true }
-    );
+    const docRef = doc(db, 'projects', projectId);
+    const existing = await getDoc(docRef);
+
+    if (existing.exists()) {
+      // `updateDoc` sólo toca los campos del cronograma: así `ownerId`,
+      // `createdBy` y `companyId` conservan su valor y las reglas aceptan la
+      // escritura aunque la haga un PM o un administrador distinto del dueño.
+      await updateDoc(
+        docRef,
+        stripUndefined({
+          ...schedule,
+          updatedBy: userId,
+        })
+      );
+    } else {
+      // El proyecto aún no existe en Firestore (p. ej. datos locales): se crea
+      // con los campos de propiedad, que las reglas exigen en la creación.
+      await setDoc(
+        docRef,
+        stripUndefined({
+          ...schedule,
+          companyId,
+          ownerId: userId,
+          createdBy: userId,
+          updatedBy: userId,
+        }),
+        { merge: true }
+      );
+    }
     return true;
   } catch (err) {
     notifySyncEnd();
@@ -444,7 +482,8 @@ export async function saveProjectScheduleToFirestore(
 
 export function subscribeProjects(
   companyId: string,
-  callback: (projects: Project[]) => void
+  callback: (projects: Project[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'projects';
   try {
@@ -458,15 +497,17 @@ export function subscribeProjects(
           list.push(docSnap.data() as Project)
         );
         callback(list);
-        notifySyncEnd(true);
+        notifySyncEnd();
       },
       (error: Error) => {
-        notifySyncEnd(false);
+        onError?.(error);
+        notifySyncEnd();
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
     notifySyncEnd();
+    onError?.(toError(err));
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
