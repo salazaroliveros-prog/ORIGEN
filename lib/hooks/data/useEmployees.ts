@@ -31,7 +31,11 @@ export interface UseEmployeesReturn {
   deleteEmployee: (employeeId: string) => Promise<boolean>;
 }
 
-export function useEmployees({ companyId, currentUserId, role }: UseEmployeesOptions): UseEmployeesReturn {
+export function useEmployees({
+  companyId,
+  currentUserId,
+  role,
+}: UseEmployeesOptions): UseEmployeesReturn {
   const [employees, setEmployees] = useState<Array<Employee | EmployeeDirectoryEntry>>([]);
   const [loading, setLoading] = useState(false);
 
@@ -55,21 +59,35 @@ export function useEmployees({ companyId, currentUserId, role }: UseEmployeesOpt
     let unsubEmployees: () => void;
 
     if (canReadFullPersonnel(role)) {
-      unsubEmployees = subscribeEmployees(companyId, (data) => {
-        log.debug('Employees updated', { count: data.length });
-        const cacheKey = createCacheKey('employees', { companyId });
-        queryCache.set(cacheKey, data, 5 * 60 * 1000);
-        setEmployees(data);
-        setLoading(false);
-      });
+      unsubEmployees = subscribeEmployees(
+        companyId,
+        (data) => {
+          log.debug('Employees updated', { count: data.length });
+          const cacheKey = createCacheKey('employees', { companyId });
+          queryCache.set(cacheKey, data, 5 * 60 * 1000);
+          setEmployees(data);
+          setLoading(false);
+        },
+        (error) => {
+          log.error('Employees subscription failed', error);
+          setLoading(false);
+        }
+      );
     } else if (canReadEmployeeDirectory(role)) {
-      unsubEmployees = subscribeEmployeeDirectory(companyId, (data) => {
-        log.debug('Employee directory updated', { count: data.length });
-        const cacheKey = createCacheKey('employees', { companyId });
-        queryCache.set(cacheKey, data, 5 * 60 * 1000);
-        setEmployees(data);
-        setLoading(false);
-      });
+      unsubEmployees = subscribeEmployeeDirectory(
+        companyId,
+        (data) => {
+          log.debug('Employee directory updated', { count: data.length });
+          const cacheKey = createCacheKey('employees', { companyId });
+          queryCache.set(cacheKey, data, 5 * 60 * 1000);
+          setEmployees(data);
+          setLoading(false);
+        },
+        (error) => {
+          log.error('Employee directory subscription failed', error);
+          setLoading(false);
+        }
+      );
     } else {
       setEmployees([]);
       setLoading(false);
