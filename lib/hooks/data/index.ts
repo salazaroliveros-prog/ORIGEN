@@ -50,6 +50,7 @@ interface UseProjectDataReturn {
   expenses: ExpenseRecord[];
   allExpenses: ExpenseRecord[];
   expensesLoading: boolean;
+  expensesError: string | null;
   projectExpenses: Map<string, ExpenseRecord[]>;
   addExpense: UseExpensesReturn['addExpense'];
   updateExpense: UseExpensesReturn['updateExpense'];
@@ -193,6 +194,7 @@ export function useProjectData({
     expenses: expensesHook.expenses,
     allExpenses: expensesHook.allExpenses,
     expensesLoading: expensesHook.loading,
+    expensesError: expensesHook.error,
     projectExpenses: expensesHook.projectExpenses,
     addExpense: expensesHook.addExpense,
     updateExpense: expensesHook.updateExpense,
