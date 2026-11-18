@@ -90,6 +90,14 @@ export interface ContractExpiryAlert {
 }
 
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
+
+/** Normalize a GTQ amount to the two decimal places used by the ledger. */
+export function normalizeMoneyGTQ(value: number): number {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error('El monto en GTQ debe ser un número válido igual o mayor a cero.');
+  }
+  return money(value);
+}
 const roundQuantity = (value: number) => Math.round((value + Number.EPSILON) * 10_000) / 10_000;
 
 function requireText(value: string, label: string): void {
