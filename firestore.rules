@@ -24,7 +24,10 @@ service cloud.firestore {
     }
 
     function hasCompanyRole(companyId, roles) {
-      return isCompanyMember(companyId) &&
+      // A missing membership makes this lookup fail closed. Reading it once
+      // avoids the previous exists()+get() pair for every role check.
+      return isSignedIn() &&
+        companyId is string &&
         get(companyMemberPath(companyId)).data.role in roles;
     }
 
@@ -67,7 +70,8 @@ service cloud.firestore {
     }
 
     function isProjectInCompany(projectId, companyId) {
-      return exists(/databases/$(database)/documents/projects/$(projectId)) &&
+      return projectId is string &&
+        companyId is string &&
         get(/databases/$(database)/documents/projects/$(projectId)).data.companyId == companyId;
     }
 
@@ -77,7 +81,8 @@ service cloud.firestore {
     }
 
     function isSupplierInCompany(supplierId, companyId) {
-      return exists(/databases/$(database)/documents/suppliers/$(supplierId)) &&
+      return supplierId is string &&
+        companyId is string &&
         get(/databases/$(database)/documents/suppliers/$(supplierId)).data.companyId == companyId;
     }
 
