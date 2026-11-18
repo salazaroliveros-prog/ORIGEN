@@ -371,8 +371,8 @@ export function InventoryManager({
   const handleOrderSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canWritePurchasing || submitting) return;
-    if (orderLines.length < 1 || orderLines.length > 2) {
-      toast.error('Una orden debe contener entre 1 y 2 renglones.');
+    if (orderLines.length < 1 || orderLines.length > 7) {
+      toast.error('Una orden debe contener entre 1 y 7 renglones.');
       return;
     }
 
@@ -1075,8 +1075,8 @@ export function InventoryManager({
                   </label>
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="text-sm font-semibold text-white">Renglones de la orden</h4>
-                    <button type="button" disabled={submitting || orderLines.length >= 2} onClick={() => setOrderLines((current) => [...current, { itemId: '', quantity: '1', unitPriceGTQ: '0' }])} className="rounded-lg border border-amber-400/30 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-50">
-                      Agregar renglón ({orderLines.length}/2)
+                    <button type="button" disabled={submitting || orderLines.length >= 7} onClick={() => setOrderLines((current) => [...current, { itemId: '', quantity: '1', unitPriceGTQ: '0' }])} className="rounded-lg border border-amber-400/30 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-50">
+                      Agregar renglón ({orderLines.length}/7)
                     </button>
                   </div>
                   {orderLines.map((line, index) => (
@@ -1107,7 +1107,7 @@ export function InventoryManager({
                     <div className="mt-2 flex justify-between border-t border-white/10 pt-2 font-semibold text-white"><span>Total</span><span>{currency.format(orderLines.reduce((sum, line) => sum + Math.max(0, Number(line.quantity) * Number(line.unitPriceGTQ) || 0), 0) * 1.12)}</span></div>
                   </div>
                   <button className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !projectOptions.length || !activeSuppliers.length || !activeItems.length}>{submitting ? 'Guardando…' : 'Crear borrador de OC'}</button>
-                  <p className="text-xs text-slate-500">Máximo 2 renglones únicos. La recepción es independiente por artículo y actualiza el saldo mediante transacción.</p>
+                  <p className="text-xs text-slate-500">Máximo 7 renglones únicos. La recepción es independiente por artículo y actualiza el saldo mediante transacción.</p>
                 </form>
               )}
             </div>

@@ -49,6 +49,40 @@ describe('procurement domain', () => {
     expect(() => validatePurchaseOrder({ ...order, approvedBy: undefined })).toThrow('autorizó');
   });
 
+  it('supports up to seven unique purchase-order lines and rejects eight', () => {
+    const lines = Array.from({ length: 7 }, (_, index) => ({
+      itemId: `item-${index + 1}`,
+      description: `Material ${index + 1}`,
+      unit: 'unidad',
+      quantity: 1,
+      receivedQuantity: 0,
+      unitPriceGTQ: 100 + index,
+    }));
+    const subtotalGTQ = lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0);
+    const taxGTQ = Math.round(subtotalGTQ * 0.12 * 100) / 100;
+    const sevenLineOrder: PurchaseOrderRecord = {
+      ...order,
+      lines,
+      subtotalGTQ,
+      taxGTQ,
+      totalGTQ: subtotalGTQ + taxGTQ,
+    };
+
+    expect(validatePurchaseOrder(sevenLineOrder)).toEqual(sevenLineOrder);
+    expect(() => validatePurchaseOrder({
+      ...sevenLineOrder,
+      lines: [...lines, { ...lines[0], itemId: 'item-8' }],
+      subtotalGTQ: subtotalGTQ + 107,
+      taxGTQ: Math.round((subtotalGTQ + 107) * 0.12 * 100) / 100,
+      totalGTQ: Math.round((subtotalGTQ + 107) * 1.12 * 100) / 100,
+    })).toThrow('entre 1 y 7');
+
+    expect(() => validatePurchaseOrder({
+      ...sevenLineOrder,
+      lines: [lines[0], { ...lines[1], itemId: lines[0].itemId }, ...lines.slice(2)],
+    })).toThrow('No repitas artículos');
+  });
+
   it('rejects invalid tax rates, negative subtotals and unknown order states', () => {
     expect(() => validatePurchaseOrder({ ...order, subtotalGTQ: -1 })).toThrow('Subtotal');
     expect(() => validatePurchaseOrder({ ...order, taxPercent: 101 })).toThrow('porcentaje de IVA');
