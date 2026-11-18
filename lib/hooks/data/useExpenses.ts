@@ -72,13 +72,20 @@ export function useExpenses({
     setAllExpenses([]);
     setLoading(true);
 
-    const unsubExpenses = subscribeExpenses(companyId, (data) => {
-      log.debug('Expenses updated', { count: data.length });
-      const cacheKey = createCacheKey('expenses', { companyId });
-      queryCache.set(cacheKey, data, 5 * 60 * 1000);
-      setAllExpenses(data);
-      setLoading(false);
-    });
+    const unsubExpenses = subscribeExpenses(
+      companyId,
+      (data) => {
+        log.debug('Expenses updated', { count: data.length });
+        const cacheKey = createCacheKey('expenses', { companyId });
+        queryCache.set(cacheKey, data, 5 * 60 * 1000);
+        setAllExpenses(data);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('Expenses subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from expenses');
