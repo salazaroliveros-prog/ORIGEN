@@ -972,6 +972,8 @@ service cloud.firestore {
       return data.lastMachineryLogId is string &&
         data.lastMachineryLogId.size() > 0 &&
         data.lastMachineryLogId.size() <= 128 &&
+        data.lastMachineryLogId != existing().lastMachineryLogId &&
+        !exists(logPath) &&
         existsAfter(logPath) &&
         getAfter(logPath).data.id == data.lastMachineryLogId &&
         getAfter(logPath).data.machineryId == machineryId &&
