@@ -682,9 +682,7 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
     expect(hasProjects || (await emptyState.isVisible().catch(() => false))).toBe(true);
   });
 
-  test('PASO-5.07 — Validación 100%: Todos los módulos accesibles sin errores críticos', async ({
-    page,
-  }) => {
+  test('PASO-5.07 — Navegación de módulos críticos y selección real', async ({ page }) => {
     const criticalSections = [
       'Tablero',
       'Proyectos & Firmas',
@@ -695,22 +693,27 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
       'Inventario & Compras',
       'Personal & IGSS',
       'Planillas Guate',
-      'Reportes',
+      'Reportes Finales',
       'Asistente IA',
-      'Correo',
+      'Correo & Avisos',
       'Equipo de la empresa',
-      'Configuración',
     ];
 
-    let accessibleCount = 0;
     for (const section of criticalSections) {
-      await openTab(page, section);
-      await page.waitForTimeout(1000);
-      // Si la sección carga sin lanzar error, cuenta como accesible
-      accessibleCount++;
+      const navigationButton = page.getByRole('button', { name: section }).first();
+      await expect(navigationButton).toBeVisible({ timeout: 20_000 });
+      await navigationButton.click();
+      await expect(navigationButton).toHaveAttribute('aria-current', 'page');
+      await expect(page.locator('#main-content')).toBeVisible();
     }
 
-    expect(accessibleCount).toBeGreaterThanOrEqual(criticalSections.length * 0.8);
+    const brandingButton = page.getByRole('button', { name: /Configuración de Marca/i }).first();
+    await expect(brandingButton).toBeVisible({ timeout: 20_000 });
+    await brandingButton.click();
+    const brandingDialog = page.getByRole('dialog', { name: 'Marca y Personalización' });
+    await expect(brandingDialog).toBeVisible();
+    await page.getByRole('button', { name: 'Cerrar configuración de marca' }).click();
+    await expect(brandingDialog).toBeHidden();
   });
 
   test('PASO-5.08 — Validación 100%: Persistencia de datos tras recarga', async ({ page }) => {
