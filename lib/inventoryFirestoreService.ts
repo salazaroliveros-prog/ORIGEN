@@ -1453,7 +1453,7 @@ export async function registerSubcontractPaymentToFirestore(input: {
             expense.subcontractPaymentId !== paymentId ||
             expense.companyId !== companyId ||
             expense.projectId !== contract.projectId ||
-            expense.amount !== amountGTQ ||
+            expense.amount !== normalizedAmountGTQ ||
             expense.date !== paymentDate ||
             expense.paymentMethod !== paymentMethod
           ) {
