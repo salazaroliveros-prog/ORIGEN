@@ -16,6 +16,7 @@ import {
   query,
   runTransaction,
   setDoc,
+  updateDoc,
   where,
   writeBatch,
   type DocumentData,
@@ -1358,9 +1359,20 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     };
 
     const batch = writeBatch(database);
+    batch.update(doc(database, 'machinery', 'machine-1'), {
+      currentHorometer: 102,
+      currentProjectId: log.projectId,
+      status: 'En Obra',
+      lastMachineryLogId: log.id,
+    });
     batch.set(doc(database, 'machineryLogs', log.id), log);
     batch.set(doc(database, 'expenses', expense.id), expense);
     await assertSucceeds(batch.commit());
+
+    // The meter cannot be edited directly without a matching new usage log.
+    await assertFails(updateDoc(doc(database, 'machinery', 'machine-1'), {
+      currentHorometer: 103,
+    }));
 
     await assertFails(
       setDoc(doc(database, 'expenses', 'forged-machine-expense'), {
