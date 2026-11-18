@@ -256,16 +256,16 @@ export async function createPurchaseOrderToFirestore(
   try {
     await runTransaction(db, async (transaction: Transaction) => {
       transaction.set(ref, stripUndefined(order));
-      const proofRef = doc(db, 'purchaseOrderLineProofs', order.id);
-      transaction.set(proofRef, {
-        id: order.id,
-        companyId,
-        orderId: order.id,
-        lines: order.lines.map((line, lineIndex) => ({
+      order.lines.forEach((line, lineIndex) => {
+        const lineReferenceId = `pol_${order.id}_${lineIndex}`;
+        transaction.set(doc(db, 'purchaseOrderLineRefs', lineReferenceId), {
+          id: lineReferenceId,
+          companyId,
+          orderId: order.id,
           lineIndex,
           itemId: line.itemId,
-        })),
-        createdBy: userId,
+          createdBy: userId,
+        });
       });
     });
   } catch (error) {

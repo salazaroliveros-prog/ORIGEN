@@ -141,63 +141,70 @@ service cloud.firestore {
       return /databases/$(database)/documents/inventoryBalances/$(balanceId);
     }
 
-    function purchaseOrderLineProofPath(orderId) {
-      return /databases/$(database)/documents/purchaseOrderLineProofs/$(orderId);
+    function purchaseOrderLineReferencePath(lineReferenceId) {
+      return /databases/$(database)/documents/purchaseOrderLineRefs/$(lineReferenceId);
     }
 
-    function isValidPurchaseOrderLineProofLine(line, orderLine, lineIndex, companyId) {
-      let item = get(/databases/$(database)/documents/inventoryItems/$(orderLine.itemId)).data;
-      return line.keys().hasAll(['lineIndex', 'itemId']) &&
-        line.keys().hasOnly(['lineIndex', 'itemId']) &&
-        line.lineIndex is int && line.lineIndex == lineIndex &&
-        line.itemId is string && isValidId(line.itemId) &&
-        orderLine.keys().hasAll([
+    function isValidPurchaseOrderLine(line) {
+      return line.keys().hasAll([
           'itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ'
         ]) &&
-        orderLine.itemId is string && isValidId(orderLine.itemId) &&
-        line.itemId == orderLine.itemId &&
-        orderLine.description is string &&
-        orderLine.description.size() > 0 && orderLine.description.size() <= 200 &&
-        orderLine.unit is string &&
-        orderLine.unit.size() > 0 && orderLine.unit.size() <= 32 &&
-        orderLine.quantity is number && orderLine.quantity > 0 &&
-        orderLine.receivedQuantity == 0 &&
-        orderLine.unitPriceGTQ is number && orderLine.unitPriceGTQ >= 0 &&
-        item.companyId == companyId;
+        line.itemId is string && isValidId(line.itemId) &&
+        line.description is string && line.description.size() > 0 && line.description.size() <= 200 &&
+        line.unit is string && line.unit.size() > 0 && line.unit.size() <= 32 &&
+        line.quantity is number && line.quantity > 0 &&
+        line.receivedQuantity == 0 &&
+        line.unitPriceGTQ is number && line.unitPriceGTQ >= 0;
     }
 
-    function isMatchingPurchaseOrderLineProof(order) {
-      let proof = getAfter(purchaseOrderLineProofPath(order.id)).data;
-      return proof.id == order.id &&
-        proof.orderId == order.id &&
-        proof.companyId == order.companyId &&
-        proof.createdBy == order.requestedBy &&
-        proof.lines is list &&
-        proof.lines.size() == order.lines.size() &&
-        proof.lines[0].lineIndex == 0 &&
-        proof.lines[0].itemId == order.lines[0].itemId &&
+    function isMatchingPurchaseOrderLineReference(order, lineIndex, suffix) {
+      let referenceId = 'pol_' + order.id + suffix;
+      let reference = getAfter(purchaseOrderLineReferencePath(referenceId)).data;
+      return reference.id == referenceId &&
+        reference.orderId == order.id &&
+        reference.companyId == order.companyId &&
+        reference.createdBy == order.requestedBy &&
+        reference.lineIndex == lineIndex &&
+        reference.itemId == order.lines[lineIndex].itemId;
+    }
+
+    function arePurchaseOrderLineReferencesValid(order) {
+      return order.lines is list &&
+        order.lines.size() >= 1 && order.lines.size() <= 4 &&
+        isMatchingPurchaseOrderLineReference(order, 0, '_0') &&
         (order.lines.size() < 2 || (
-          proof.lines[1].lineIndex == 1 &&
-          proof.lines[1].itemId == order.lines[1].itemId
+          isMatchingPurchaseOrderLineReference(order, 1, '_1') &&
+          order.lines[1].itemId != order.lines[0].itemId
         )) &&
         (order.lines.size() < 3 || (
-          proof.lines[2].lineIndex == 2 &&
-          proof.lines[2].itemId == order.lines[2].itemId
+          isMatchingPurchaseOrderLineReference(order, 2, '_2') &&
+          order.lines[2].itemId != order.lines[0].itemId &&
+          order.lines[2].itemId != order.lines[1].itemId
         )) &&
         (order.lines.size() < 4 || (
-          proof.lines[3].lineIndex == 3 &&
-          proof.lines[3].itemId == order.lines[3].itemId
+          isMatchingPurchaseOrderLineReference(order, 3, '_3') &&
+          order.lines[3].itemId != order.lines[0].itemId &&
+          order.lines[3].itemId != order.lines[1].itemId &&
+          order.lines[3].itemId != order.lines[2].itemId
         ));
     }
 
-    function isValidPurchaseOrderLineProof(data, proofId) {
+    function isValidPurchaseOrderLineReference(data, referenceId) {
       let order = getAfter(receiptOrderPath(data.orderId)).data;
-      return data.keys().hasAll(['id', 'companyId', 'orderId', 'lines', 'createdBy']) &&
-        data.keys().hasOnly(['id', 'companyId', 'orderId', 'lines', 'createdBy']) &&
-        data.id == proofId &&
-        data.orderId == proofId &&
-        isValidId(proofId) &&
+      let item = get(/databases/$(database)/documents/inventoryItems/$(data.itemId)).data;
+      return data.keys().hasAll(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
+        data.keys().hasOnly(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
+        data.id == referenceId &&
+        isValidId(referenceId) &&
+        data.orderId is string && isValidId(data.orderId) &&
+        data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < 4 &&
+        referenceId == 'pol_' + data.orderId + (
+          data.lineIndex == 0 ? '_0' :
+          (data.lineIndex == 1 ? '_1' :
+          (data.lineIndex == 2 ? '_2' : '_3'))
+        ) &&
         data.companyId is string &&
+        data.itemId is string && isValidId(data.itemId) &&
         data.createdBy == request.auth.uid &&
         canManagePurchasing(data.companyId) &&
         order.id == data.orderId &&
@@ -205,25 +212,11 @@ service cloud.firestore {
         order.status == 'draft' &&
         order.requestedBy == data.createdBy &&
         order.lines is list &&
-        data.lines is list &&
-        data.lines.size() >= 1 && data.lines.size() <= 4 &&
-        data.lines.size() == order.lines.size() &&
-        isValidPurchaseOrderLineProofLine(data.lines[0], order.lines[0], 0, data.companyId) &&
-        (data.lines.size() < 2 || (
-          isValidPurchaseOrderLineProofLine(data.lines[1], order.lines[1], 1, data.companyId) &&
-          order.lines[1].itemId != order.lines[0].itemId
-        )) &&
-        (data.lines.size() < 3 || (
-          isValidPurchaseOrderLineProofLine(data.lines[2], order.lines[2], 2, data.companyId) &&
-          order.lines[2].itemId != order.lines[0].itemId &&
-          order.lines[2].itemId != order.lines[1].itemId
-        )) &&
-        (data.lines.size() < 4 || (
-          isValidPurchaseOrderLineProofLine(data.lines[3], order.lines[3], 3, data.companyId) &&
-          order.lines[3].itemId != order.lines[0].itemId &&
-          order.lines[3].itemId != order.lines[1].itemId &&
-          order.lines[3].itemId != order.lines[2].itemId
-        ));
+        order.lines.size() >= 1 && order.lines.size() <= 4 &&
+        data.lineIndex < order.lines.size() &&
+        isValidPurchaseOrderLine(order.lines[data.lineIndex]) &&
+        order.lines[data.lineIndex].itemId == data.itemId &&
+        item.companyId == data.companyId;
     }
 
     function isWithinOneCent(actual, expected) {
@@ -1594,7 +1587,7 @@ service cloud.firestore {
         incoming().currency == 'GTQ' &&
         incoming().status == 'draft' &&
         !incoming().keys().hasAny(['approvedBy', 'lastReceiptMovementId']) &&
-        isMatchingPurchaseOrderLineProof(incoming()) &&
+        arePurchaseOrderLineReferencesValid(incoming()) &&
         incoming().number is string &&
         incoming().number.size() > 0 &&
         incoming().number.size() <= 80 &&
@@ -1674,17 +1667,20 @@ service cloud.firestore {
       allow delete: if isValidId(orderId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
         existing().status == 'draft' &&
-        !existsAfter(purchaseOrderLineProofPath(orderId));
+        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_0')) &&
+        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_1')) &&
+        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_2')) &&
+        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_3'));
     }
 
-    // Immutable proof binds each purchase-order line to an item in the same company.
-    // The proof and draft order are created atomically and deleted together.
-    match /purchaseOrderLineProofs/{proofId} {
+    // Immutable line references each authorize a single validated item line.
+    // The references and order header are created/deleted in the same transaction.
+    match /purchaseOrderLineRefs/{lineReferenceId} {
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
-      allow create: if isValidPurchaseOrderLineProof(incoming(), proofId);
+      allow create: if isValidPurchaseOrderLineReference(incoming(), lineReferenceId);
       allow update: if false;
-      allow delete: if isValidId(proofId) &&
+      allow delete: if isValidId(lineReferenceId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
         !existsAfter(receiptOrderPath(existing().orderId));
     }
