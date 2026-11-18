@@ -242,13 +242,20 @@ describe('evaluateMachineryMaintenance', () => {
     ).toBe('critical');
   });
 
-  it('never returns negative hours', () => {
-    const status = evaluateMachineryMaintenance({
+  it('flags invalid or impossible hour meter readings instead of clearing alerts', () => {
+    expect(evaluateMachineryMaintenance({ currentHorometer: Number.NaN }).urgency).toBe('invalid');
+    expect(evaluateMachineryMaintenance({ currentHorometer: -1 }).urgency).toBe('invalid');
+    expect(evaluateMachineryMaintenance({
+      currentHorometer: 100,
+      lastServiceHorometer: Number.NaN,
+    }).urgency).toBe('invalid');
+    expect(evaluateMachineryMaintenance({
+      currentHorometer: 100,
+      lastServiceHorometer: -1,
+    }).urgency).toBe('invalid');
+    expect(evaluateMachineryMaintenance({
       currentHorometer: 100,
       lastServiceHorometer: 150,
-    });
-
-    expect(status.hoursSinceService).toBe(0);
-    expect(status.urgency).toBe('ok');
+    }).urgency).toBe('invalid');
   });
 });
