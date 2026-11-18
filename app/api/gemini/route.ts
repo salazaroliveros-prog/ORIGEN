@@ -15,6 +15,7 @@ import {
 } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
 import { requireApiUser } from '@/lib/apiAuth';
+import { buildRequestOrigins, isAllowedOriginValue } from '@/lib/originAllowlist';
 import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
@@ -32,13 +33,16 @@ export async function POST(req: NextRequest) {
     const rateLimitResponse = await rateLimitMiddleware(req, `gemini:${auth.user.uid}`);
     if (rateLimitResponse) return applySecurityHeaders(rateLimitResponse);
 
-    // Validate origin for security
+    // Validar el origen con la misma lista que el middleware: en Vercel el
+    // host real viene en `x-forwarded-host`, así que una lista hardcodeada
+    // rechazaba previews y dominios personalizados.
     const origin = req.headers.get('origin');
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-      'http://localhost:3000',
-      'https://origen-one-kohl.vercel.app',
-    ];
-    if (origin && !allowedOrigins.includes(origin)) {
+    const requestOrigins = buildRequestOrigins({
+      requestUrl: req.url,
+      host: req.headers.get('x-forwarded-host') ?? req.headers.get('host'),
+      protocol: req.headers.get('x-forwarded-proto'),
+    });
+    if (origin && !isAllowedOriginValue(origin, requestOrigins)) {
       return applySecurityHeaders(jsonError('Origen no autorizado.', 403));
     }
 
