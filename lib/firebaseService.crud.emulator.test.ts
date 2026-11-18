@@ -33,6 +33,7 @@ import type {
   FelInvoice,
   FelInvoiceItem,
   Machinery,
+  MachineryLog,
   Project,
   QuoteRecord,
 } from '@/lib/types';
@@ -448,6 +449,84 @@ describe('firebaseService CRUD contra el emulador', () => {
 
     await expect(service.deleteEmployeeFromFirestore(employeeId, companyId)).resolves.toBe(true);
     await expectRemoved('employees', employeeId);
+  });
+
+  it('registra el uso de maquinaria con transacción, rechaza lecturas obsoletas y evita duplicados', async () => {
+    const projectId = await createProject('CRUD-MACH-USE', 'Proyecto para uso de maquinaria');
+    const machineryId = uniqueId('mach');
+    const equipment: Machinery = {
+      id: machineryId,
+      name: 'Excavadora transaccional',
+      model: 'CAT-320',
+      plateOrCode: 'CRUD-MACH-TX',
+      hourlyRateGTQ: 300,
+      currentHorometer: 10,
+      status: 'Disponible',
+    };
+
+    await expect(
+      service.saveMachineryToFirestore(equipment, companyId, userId)
+    ).resolves.toBe(true);
+
+    const logId = uniqueId('ml');
+    const log: MachineryLog = {
+      id: logId,
+      machineryId,
+      machineryName: equipment.name,
+      projectId,
+      date: '2026-11-18',
+      hoursWorked: 5,
+      operatorName: 'Operador de prueba',
+      fuelGallons: 2,
+      // Este costo enviado desde el cliente es intencionalmente incorrecto:
+      // el servicio debe recalcularlo con la tarifa persistida del equipo.
+      costGTQ: 1,
+    };
+
+    await expect(service.recordMachineryUse(log, equipment, companyId, userId)).resolves.toBe(true);
+
+    const storedMachine = await expectPersisted<Machinery>('machinery', machineryId, (cb) =>
+      service.subscribeMachinery(companyId, cb)
+    );
+    expect(storedMachine.currentHorometer).toBe(15);
+    expect(storedMachine.lastMachineryLogId).toBe(logId);
+    expect(storedMachine.status).toBe('En Obra');
+    expect(storedMachine.currentProjectId).toBe(projectId);
+
+    const storedLog = await expectPersisted<MachineryLog>('machineryLogs', logId, (cb) =>
+      service.subscribeMachineryLogs(companyId, cb)
+    );
+    expect(storedLog.hoursWorked).toBe(5);
+    expect(storedLog.costGTQ).toBe(1500);
+    expect(storedLog.expenseId).toBe(`machine-${logId}`);
+
+    const storedExpense = await expectPersisted<ExpenseRecord>('expenses', `machine-${logId}`, (cb) =>
+      service.subscribeExpenses(companyId, cb)
+    );
+    expect(storedExpense.amount).toBe(1500);
+    expect(storedExpense.machineryLogId).toBe(logId);
+    expect(storedExpense.projectId).toBe(projectId);
+
+    // A repeated immutable ID cannot post the same hours or expense twice.
+    await expect(service.recordMachineryUse(log, equipment, companyId, userId)).resolves.toBe(false);
+
+    // A second use based on the old UI snapshot is rejected; the stored
+    // horometer and financial entry remain unchanged.
+    const staleLog: MachineryLog = {
+      ...log,
+      id: uniqueId('ml-stale'),
+      hoursWorked: 3,
+      costGTQ: 0,
+    };
+    await expect(service.recordMachineryUse(staleLog, equipment, companyId, userId)).resolves.toBe(false);
+
+    const finalMachine = await expectPersisted<Machinery>('machinery', machineryId, (cb) =>
+      service.subscribeMachinery(companyId, cb)
+    );
+    expect(finalMachine.currentHorometer).toBe(15);
+    expect(finalMachine.lastMachineryLogId).toBe(logId);
+    await expectRemoved('machineryLogs', staleLog.id);
+    await expectRemoved('expenses', `machine-${staleLog.id}`);
   });
 
   it('guarda maquinaria y cambia su estado', async () => {
