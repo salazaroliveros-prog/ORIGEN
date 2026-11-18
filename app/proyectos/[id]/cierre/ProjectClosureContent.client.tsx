@@ -39,11 +39,13 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     loading: workspaceLoading,
     error: workspaceError,
   } = useActiveWorkspace();
-  const { projects, allExpenses, expensesLoading, loading: projectsLoading } = useProjectData({
-    companyId,
-    currentUserId,
-    role,
-  });
+  const {
+    projects,
+    expenses: allExpenses,
+    expensesLoading,
+    expensesError,
+    loading: projectsLoading,
+  } = useProjectData(companyId, currentUserId, role);
 
   const [formData, setFormData] = useState<ClosureFormData>({
     closureNotes: '',
@@ -116,6 +118,10 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     }
     if (expensesLoading) {
       toast.error('Espera a que termine de cargar el historial financiero antes de cerrar la obra.');
+      return;
+    }
+    if (expensesError) {
+      toast.error('No se puede cerrar la obra porque no fue posible verificar su historial financiero.');
       return;
     }
     const financialGate = calculateProjectClosureFinancialSummary({
@@ -280,7 +286,11 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
           </div>
         </div>
 
-        {closureFinancials.pendingExpenseCount > 0 ? (
+        {expensesError ? (
+          <div role="alert" className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+            {expensesError} El cierre permanece bloqueado hasta recuperar una lectura válida.
+          </div>
+        ) : closureFinancials.pendingExpenseCount > 0 ? (
           <div role="alert" className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
             No es posible cerrar esta obra mientras existan gastos pendientes de aprobación. Resuelve las {closureFinancials.pendingExpenseCount} solicitud(es) por {formatGTQ(pendingExpenseTotal)}.
           </div>
@@ -338,7 +348,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
               variant="primary"
               size="lg"
               isLoading={isLoading}
-              disabled={isLoading || expensesLoading || !closureFinancials.canClose}
+              disabled={isLoading || expensesLoading || Boolean(expensesError) || !closureFinancials.canClose}
               className="w-full"
             >
               {isLoading ? 'Cerrando proyecto…' : 'Cerrar Proyecto Definitivamente'}
