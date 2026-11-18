@@ -916,15 +916,15 @@ describe('firebaseService CRUD contra el emulador', () => {
 
   });
 
-  it('crea una orden de siete renglones y recibe cualquier índice sin modificar los demás', async () => {
+  it('crea una orden de cuatro renglones y recibe cualquier índice sin modificar los demás', async () => {
     const projectId = await createProject('PROCUREMENT-SEVEN', 'Proyecto para orden de siete materiales');
     const supplier = await inventoryService.createSupplierToFirestore(
-      { name: 'Proveedor siete renglones QA', nit: 'CF', active: true },
+      { name: 'Proveedor cuatro renglones QA', nit: 'CF', active: true },
       companyId,
       userId
     );
     const warehouse = await inventoryService.createWarehouseToFirestore(
-      { name: 'Bodega siete renglones QA', type: 'project', projectId, active: true },
+      { name: 'Bodega cuatro renglones QA', type: 'project', projectId, active: true },
       companyId,
       userId
     );
@@ -949,7 +949,7 @@ describe('firebaseService CRUD contra el emulador', () => {
     const order = await inventoryService.createPurchaseOrderToFirestore({
       projectId,
       supplierId: supplier.id,
-      number: uniqueId('OC-SEVEN'),
+      number: uniqueId('OC-FOUR'),
       status: 'draft',
       currency: 'GTQ',
       lines,
@@ -966,15 +966,15 @@ describe('firebaseService CRUD contra el emulador', () => {
 
     const lastLineReceipt = await inventoryService.receivePurchaseOrderToWarehouse({
       orderId: order.id,
-      lineIndex: 6,
+      lineIndex: 3,
       warehouseId: warehouse.id,
       quantity: 1,
-      receiptNumber: 'OC-SEVEN-LAST',
+      receiptNumber: 'OC-FOUR-LAST',
       companyId,
       userId,
     });
     expect(lastLineReceipt.order.status).toBe('partially_received');
-    expect(lastLineReceipt.order.lines.map((line) => line.receivedQuantity)).toEqual([0, 0, 0, 0, 0, 0, 1]);
+    expect(lastLineReceipt.order.lines.map((line) => line.receivedQuantity)).toEqual([0, 0, 0, 1]);
     expect(lastLineReceipt.balance.quantity).toBe(1);
 
     const firstLineReceipt = await inventoryService.receivePurchaseOrderToWarehouse({
@@ -982,25 +982,25 @@ describe('firebaseService CRUD contra el emulador', () => {
       lineIndex: 0,
       warehouseId: warehouse.id,
       quantity: 2,
-      receiptNumber: 'OC-SEVEN-FIRST',
+      receiptNumber: 'OC-FOUR-FIRST',
       companyId,
       userId,
     });
-    expect(firstLineReceipt.order.lines.map((line) => line.receivedQuantity)).toEqual([2, 0, 0, 0, 0, 0, 1]);
+    expect(firstLineReceipt.order.lines.map((line) => line.receivedQuantity)).toEqual([2, 0, 0, 1]);
 
     await expect(inventoryService.createPurchaseOrderToFirestore({
       projectId,
       supplierId: supplier.id,
-      number: uniqueId('OC-EIGHT'),
+      number: uniqueId('OC-FIVE'),
       status: 'draft',
       currency: 'GTQ',
-      lines: [...lines, { ...lines[0], itemId: uniqueId('ITEM-EIGHT') }],
+      lines: [...lines, { ...lines[0], itemId: uniqueId('ITEM-FIVE') }],
       subtotalGTQ: subtotalGTQ + 20,
       discountGTQ: 0,
       taxPercent: 12,
       taxGTQ: Math.round((subtotalGTQ + 20) * 0.12 * 100) / 100,
       totalGTQ: Math.round((subtotalGTQ + 20) * 1.12 * 100) / 100,
-    }, companyId, userId)).rejects.toThrow('entre 1 y 7');
+    }, companyId, userId)).rejects.toThrow('entre 1 y 4');
   });
 
   it('registra pagos de subcontratos con fecha real, atomicidad, idempotencia y límite de saldo', async () => {

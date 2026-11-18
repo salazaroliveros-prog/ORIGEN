@@ -234,8 +234,8 @@ export async function createPurchaseOrderToFirestore(
   const now = new Date().toISOString();
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario solicitante', 128);
-  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 7) {
-    throw new Error('Cada orden debe contener entre 1 y 7 renglones.');
+  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 4) {
+    throw new Error('Cada orden debe contener entre 1 y 4 renglones.');
   }
   const order = validatePurchaseOrder({
     ...input,
@@ -346,7 +346,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
       if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
       const order = orderSnapshot.data() as PurchaseOrderRecord;
       if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 7 || lineIndex >= order.lines.length) {
+      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 4 || lineIndex >= order.lines.length) {
         throw new Error('El renglón seleccionado no existe en esta orden.');
       }
 

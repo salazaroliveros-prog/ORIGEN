@@ -49,8 +49,8 @@ describe('procurement domain', () => {
     expect(() => validatePurchaseOrder({ ...order, approvedBy: undefined })).toThrow('autorizó');
   });
 
-  it('supports up to seven unique purchase-order lines and rejects eight', () => {
-    const lines = Array.from({ length: 7 }, (_, index) => ({
+  it('supports up to four unique purchase-order lines and rejects five', () => {
+    const lines = Array.from({ length: 4 }, (_, index) => ({
       itemId: `item-${index + 1}`,
       description: `Material ${index + 1}`,
       unit: 'unidad',
@@ -60,7 +60,7 @@ describe('procurement domain', () => {
     }));
     const subtotalGTQ = lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0);
     const taxGTQ = Math.round(subtotalGTQ * 0.12 * 100) / 100;
-    const sevenLineOrder: PurchaseOrderRecord = {
+    const fourLineOrder: PurchaseOrderRecord = {
       ...order,
       lines,
       subtotalGTQ,
@@ -68,17 +68,17 @@ describe('procurement domain', () => {
       totalGTQ: subtotalGTQ + taxGTQ,
     };
 
-    expect(validatePurchaseOrder(sevenLineOrder)).toEqual(sevenLineOrder);
+    expect(validatePurchaseOrder(fourLineOrder)).toEqual(fourLineOrder);
     expect(() => validatePurchaseOrder({
-      ...sevenLineOrder,
-      lines: [...lines, { ...lines[0], itemId: 'item-8' }],
-      subtotalGTQ: subtotalGTQ + 107,
-      taxGTQ: Math.round((subtotalGTQ + 107) * 0.12 * 100) / 100,
-      totalGTQ: Math.round((subtotalGTQ + 107) * 1.12 * 100) / 100,
-    })).toThrow('entre 1 y 7');
+      ...fourLineOrder,
+      lines: [...lines, { ...lines[0], itemId: 'item-5' }],
+      subtotalGTQ: subtotalGTQ + 104,
+      taxGTQ: Math.round((subtotalGTQ + 104) * 0.12 * 100) / 100,
+      totalGTQ: Math.round((subtotalGTQ + 104) * 1.12 * 100) / 100,
+    })).toThrow('entre 1 y 4');
 
     expect(() => validatePurchaseOrder({
-      ...sevenLineOrder,
+      ...fourLineOrder,
       lines: [lines[0], { ...lines[1], itemId: lines[0].itemId }, ...lines.slice(2)],
     })).toThrow('No repitas artículos');
   });

@@ -149,14 +149,23 @@ service cloud.firestore {
 
     function isValidPurchaseOrderLines(lines, companyId) {
       return lines is list &&
-        lines.size() >= 1 && lines.size() <= 7 &&
+        lines.size() >= 1 && lines.size() <= 4 &&
         isValidPurchaseOrderLine(lines[0], companyId) &&
-        (lines.size() < 2 || (isValidPurchaseOrderLine(lines[1], companyId) && lines[1].itemId != lines[0].itemId)) &&
-        (lines.size() < 3 || (isValidPurchaseOrderLine(lines[2], companyId) && lines[2].itemId != lines[0].itemId && lines[2].itemId != lines[1].itemId)) &&
-        (lines.size() < 4 || (isValidPurchaseOrderLine(lines[3], companyId) && lines[3].itemId != lines[0].itemId && lines[3].itemId != lines[1].itemId && lines[3].itemId != lines[2].itemId)) &&
-        (lines.size() < 5 || (isValidPurchaseOrderLine(lines[4], companyId) && lines[4].itemId != lines[0].itemId && lines[4].itemId != lines[1].itemId && lines[4].itemId != lines[2].itemId && lines[4].itemId != lines[3].itemId)) &&
-        (lines.size() < 6 || (isValidPurchaseOrderLine(lines[5], companyId) && lines[5].itemId != lines[0].itemId && lines[5].itemId != lines[1].itemId && lines[5].itemId != lines[2].itemId && lines[5].itemId != lines[3].itemId && lines[5].itemId != lines[4].itemId)) &&
-        (lines.size() < 7 || (isValidPurchaseOrderLine(lines[6], companyId) && lines[6].itemId != lines[0].itemId && lines[6].itemId != lines[1].itemId && lines[6].itemId != lines[2].itemId && lines[6].itemId != lines[3].itemId && lines[6].itemId != lines[4].itemId && lines[6].itemId != lines[5].itemId));
+        (lines.size() < 2 || (
+          isValidPurchaseOrderLine(lines[1], companyId) &&
+          lines[1].itemId != lines[0].itemId
+        )) &&
+        (lines.size() < 3 || (
+          isValidPurchaseOrderLine(lines[2], companyId) &&
+          lines[2].itemId != lines[0].itemId &&
+          lines[2].itemId != lines[1].itemId
+        )) &&
+        (lines.size() < 4 || (
+          isValidPurchaseOrderLine(lines[3], companyId) &&
+          lines[3].itemId != lines[0].itemId &&
+          lines[3].itemId != lines[1].itemId &&
+          lines[3].itemId != lines[2].itemId
+        ));
     }
 
     function isWithinOneCent(actual, expected) {
@@ -167,21 +176,15 @@ service cloud.firestore {
       return lines[0].quantity * lines[0].unitPriceGTQ +
         (lines.size() > 1 ? lines[1].quantity * lines[1].unitPriceGTQ : 0) +
         (lines.size() > 2 ? lines[2].quantity * lines[2].unitPriceGTQ : 0) +
-        (lines.size() > 3 ? lines[3].quantity * lines[3].unitPriceGTQ : 0) +
-        (lines.size() > 4 ? lines[4].quantity * lines[4].unitPriceGTQ : 0) +
-        (lines.size() > 5 ? lines[5].quantity * lines[5].unitPriceGTQ : 0) +
-        (lines.size() > 6 ? lines[6].quantity * lines[6].unitPriceGTQ : 0);
+        (lines.size() > 3 ? lines[3].quantity * lines[3].unitPriceGTQ : 0);
     }
 
     function isPurchaseOrderFullyReceived(lines) {
-      return lines is list && lines.size() >= 1 && lines.size() <= 7 &&
+      return lines is list && lines.size() >= 1 && lines.size() <= 4 &&
         lines[0].receivedQuantity == lines[0].quantity &&
         (lines.size() < 2 || lines[1].receivedQuantity == lines[1].quantity) &&
         (lines.size() < 3 || lines[2].receivedQuantity == lines[2].quantity) &&
-        (lines.size() < 4 || lines[3].receivedQuantity == lines[3].quantity) &&
-        (lines.size() < 5 || lines[4].receivedQuantity == lines[4].quantity) &&
-        (lines.size() < 6 || lines[5].receivedQuantity == lines[5].quantity) &&
-        (lines.size() < 7 || lines[6].receivedQuantity == lines[6].quantity);
+        (lines.size() < 4 || lines[3].receivedQuantity == lines[3].quantity);
     }
 
     function isReceiptLine(beforeLine, afterLine, quantity) {
@@ -195,72 +198,32 @@ service cloud.firestore {
 
     function isPurchaseOrderReceiptLinesUpdated(beforeLines, afterLines, lineIndex, quantity) {
       return beforeLines is list && afterLines is list &&
-        beforeLines.size() >= 1 && beforeLines.size() <= 7 &&
+        beforeLines.size() >= 1 && beforeLines.size() <= 4 &&
         afterLines.size() == beforeLines.size() &&
         (
           (lineIndex == 0 &&
-            beforeLines.size() > 0 &&
             isReceiptLine(beforeLines[0], afterLines[0], quantity) &&
             (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1]) &&
             (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3]) &&
-            (beforeLines.size() <= 4 || afterLines[4] == beforeLines[4]) &&
-            (beforeLines.size() <= 5 || afterLines[5] == beforeLines[5]) &&
-            (beforeLines.size() <= 6 || afterLines[6] == beforeLines[6])) ||
+            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3])) ||
           (lineIndex == 1 &&
             beforeLines.size() > 1 &&
             isReceiptLine(beforeLines[1], afterLines[1], quantity) &&
-            (beforeLines.size() <= 0 || afterLines[0] == beforeLines[0]) &&
+            afterLines[0] == beforeLines[0] &&
             (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3]) &&
-            (beforeLines.size() <= 4 || afterLines[4] == beforeLines[4]) &&
-            (beforeLines.size() <= 5 || afterLines[5] == beforeLines[5]) &&
-            (beforeLines.size() <= 6 || afterLines[6] == beforeLines[6])) ||
+            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3])) ||
           (lineIndex == 2 &&
             beforeLines.size() > 2 &&
             isReceiptLine(beforeLines[2], afterLines[2], quantity) &&
-            (beforeLines.size() <= 0 || afterLines[0] == beforeLines[0]) &&
-            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3]) &&
-            (beforeLines.size() <= 4 || afterLines[4] == beforeLines[4]) &&
-            (beforeLines.size() <= 5 || afterLines[5] == beforeLines[5]) &&
-            (beforeLines.size() <= 6 || afterLines[6] == beforeLines[6])) ||
+            afterLines[0] == beforeLines[0] &&
+            afterLines[1] == beforeLines[1] &&
+            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3])) ||
           (lineIndex == 3 &&
             beforeLines.size() > 3 &&
             isReceiptLine(beforeLines[3], afterLines[3], quantity) &&
-            (beforeLines.size() <= 0 || afterLines[0] == beforeLines[0]) &&
-            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1]) &&
-            (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 4 || afterLines[4] == beforeLines[4]) &&
-            (beforeLines.size() <= 5 || afterLines[5] == beforeLines[5]) &&
-            (beforeLines.size() <= 6 || afterLines[6] == beforeLines[6])) ||
-          (lineIndex == 4 &&
-            beforeLines.size() > 4 &&
-            isReceiptLine(beforeLines[4], afterLines[4], quantity) &&
-            (beforeLines.size() <= 0 || afterLines[0] == beforeLines[0]) &&
-            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1]) &&
-            (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3]) &&
-            (beforeLines.size() <= 5 || afterLines[5] == beforeLines[5]) &&
-            (beforeLines.size() <= 6 || afterLines[6] == beforeLines[6])) ||
-          (lineIndex == 5 &&
-            beforeLines.size() > 5 &&
-            isReceiptLine(beforeLines[5], afterLines[5], quantity) &&
-            (beforeLines.size() <= 0 || afterLines[0] == beforeLines[0]) &&
-            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1]) &&
-            (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3]) &&
-            (beforeLines.size() <= 4 || afterLines[4] == beforeLines[4]) &&
-            (beforeLines.size() <= 6 || afterLines[6] == beforeLines[6])) ||
-          (lineIndex == 6 &&
-            beforeLines.size() > 6 &&
-            isReceiptLine(beforeLines[6], afterLines[6], quantity) &&
-            (beforeLines.size() <= 0 || afterLines[0] == beforeLines[0]) &&
-            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1]) &&
-            (beforeLines.size() <= 2 || afterLines[2] == beforeLines[2]) &&
-            (beforeLines.size() <= 3 || afterLines[3] == beforeLines[3]) &&
-            (beforeLines.size() <= 4 || afterLines[4] == beforeLines[4]) &&
-            (beforeLines.size() <= 5 || afterLines[5] == beforeLines[5]))
+            afterLines[0] == beforeLines[0] &&
+            afterLines[1] == beforeLines[1] &&
+            afterLines[2] == beforeLines[2])
         );
     }
 
@@ -1611,9 +1574,9 @@ service cloud.firestore {
         incoming().totalGTQ == existing().totalGTQ &&
         incoming().createdAt == existing().createdAt &&
         incoming().lines is list &&
-        incoming().lines.size() >= 1 && incoming().lines.size() <= 7 &&
+        incoming().lines.size() >= 1 && incoming().lines.size() <= 4 &&
         existing().lines is list &&
-        existing().lines.size() >= 1 && existing().lines.size() <= 7 &&
+        existing().lines.size() >= 1 && existing().lines.size() <= 4 &&
         (
           (
             canManagePurchasing(existing().companyId) &&
