@@ -30,10 +30,14 @@ import type {
   AttendanceRecord,
   Employee,
   ExpenseRecord,
+  FelInvoice,
+  FelInvoiceItem,
   Machinery,
   Project,
   QuoteRecord,
 } from '@/lib/types';
+
+type FelInvoiceStored = FelInvoice & { items: FelInvoiceItem[] };
 
 const PROJECT_ID = 'demo-origen-erp-test';
 const EMULATOR_HOST = '127.0.0.1';
@@ -1268,5 +1272,87 @@ describe('firebaseService CRUD contra el emulador', () => {
     });
   });
 
+
+
+  it('guarda, actualiza y elimina una factura FEL', async () => {
+      const projectId = await createProject('CRUD-FEL', 'Proyecto para facturas FEL');
+      const invoiceId = uniqueId('fel');
+  
+      // La tasa viaja en porcentaje (12), como la ingresa el formulario, y debe
+      // normalizarse a fracción (0.12) antes de calcular: el IVA es el 12 %.
+      const invoice = {
+        id: invoiceId,
+        projectId,
+        dteNumber: 'FAC-001-000000001',
+        serie: 'F',
+        correlativo: '000000001',
+        date: '2026-06-15',
+        status: 'Emitida' as const,
+        paymentMethod: 'Transferencia BI' as const,
+        emisor: {
+          nit: '123456789',
+          nombre: 'Materiales La Unión',
+          direccion: 'Zona 1, Guatemala',
+          correo: 'ventas@launion.com',
+        },
+        receptor: {
+          nit: 'CF',
+          nombre: 'Constructora Origen',
+          direccion: 'Zona 10, Guatemala',
+          correo: 'compras@origen.gt',
+        },
+        items: [
+          {
+            id: 'item-1',
+            description: 'Block de concreto',
+            quantity: 10,
+            unit: 'Und',
+            unitPriceGTQ: 25,
+            totalPriceGTQ: 0,
+            taxRate: 12,
+            taxAmountGTQ: 0,
+          },
+        ],
+        subtotalGTQ: 0,
+        taxAmountGTQ: 0,
+        totalGTQ: 0,
+      };
+  
+      await expect(service.saveFelInvoiceToFirestore(invoice, companyId, userId)).resolves.toBe(true);
+  
+      const stored = await expectPersisted<FelInvoiceStored>('felInvoices', invoiceId, (cb) =>
+        service.subscribeFelInvoices(companyId, cb)
+      );
+      expect(stored.companyId).toBe(companyId);
+      expect(stored.authorId).toBe(userId);
+      expect(stored.subtotalGTQ).toBe(250);
+      expect(stored.taxAmountGTQ).toBe(30);
+      expect(stored.totalGTQ).toBe(280);
+      const storedItems = stored.items as unknown as FelInvoiceItem[];
+      expect(storedItems[0]?.taxRate).toBe(0.12);
+  
+      // Anular la factura: la regla exige que id, companyId y authorId no cambien.
+      await expect(
+        service.updateFelInvoiceToFirestore(
+          {
+            ...(stored as unknown as FelInvoice),
+            status: 'Anulada',
+          },
+          companyId,
+          userId
+        )
+      ).resolves.toBe(true);
+  
+      const updated = await expectPersisted<FelInvoiceStored>('felInvoices', invoiceId, (cb) =>
+        service.subscribeFelInvoices(companyId, cb)
+      );
+      expect(updated.status).toBe('Anulada');
+      expect(updated.authorId).toBe(userId);
+      expect(updated.companyId).toBe(companyId);
+      expect(updated.totalGTQ).toBe(280);
+  
+      await expect(service.deleteFelInvoiceFromFirestore(invoiceId)).resolves.toBe(true);
+      await expectRemoved('felInvoices', invoiceId);
+    }
 
 });
