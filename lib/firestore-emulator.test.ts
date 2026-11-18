@@ -118,14 +118,16 @@ async function seedProject(project: ReturnType<typeof makeProject>) {
   });
 }
 
-async function writePurchaseOrderWithLineReferences(
-  database: Firestore,
-  order: {
+async function writePurchaseOrderWithLineReferences<
+  T extends {
     id: string;
     companyId: string;
     requestedBy: string;
     lines: Array<{ itemId: string }>;
-  }
+  },
+>(
+  database: Firestore,
+  order: T
 ): Promise<void> {
   await runTransaction(database, async (transaction: Transaction) => {
     transaction.set(doc(database, 'purchaseOrders', order.id), order);
