@@ -21,6 +21,7 @@ import {
   onSnapshot,
   getDocs,
   getDoc,
+  runTransaction,
   writeBatch,
   Unsubscribe,
   type DocumentData,
@@ -1540,37 +1541,78 @@ export async function recordMachineryUse(
 ): Promise<boolean> {
   const logPath = `machineryLogs/${log.id}`;
   try {
-    const batch = writeBatch(db);
-    // Horas y monto se recalculan contra la tarifa real del equipo.
-    const normalized = resolveMachineryUse(log, machinery);
+    if (!companyId || !userId || !log.id || !machinery.id) {
+      throw new Error('Falta el contexto de empresa, usuario, equipo o bitácora.');
+    }
 
-    const expense: ExpenseRecord = normalized.expense;
-    const normalizedLog: MachineryLog = {
-      ...log,
-      ...normalized.log,
-      expenseId: normalized.expense.id,
-    };
+    const machineRef = doc(db, 'machinery', machinery.id);
+    const logRef = doc(db, 'machineryLogs', log.id);
+    const expenseId = `machine-${log.id}`;
+    const expenseRef = doc(db, 'expenses', expenseId);
 
-    batch.set(doc(db, 'machineryLogs', log.id), {
-      ...normalizedLog,
-      companyId,
-      createdBy: userId,
-    });
-    batch.set(
-      doc(db, 'machinery', machinery.id),
-      {
-        ...machinery,
+    // Read the authoritative meter and reserve both immutable IDs before
+    // writing. Firestore retries the transaction if another use updates the
+    // meter concurrently; a stale UI snapshot is rejected instead of winning.
+    await runTransaction(db, async (transaction) => {
+      const [machineSnapshot, logSnapshot, expenseSnapshot] = await Promise.all([
+        transaction.get(machineRef),
+        transaction.get(logRef),
+        transaction.get(expenseRef),
+      ]);
+
+      if (!machineSnapshot.exists()) {
+        throw new Error('La maquinaria ya no existe. Actualiza la lista e intenta nuevamente.');
+      }
+      const currentMachinery = machineSnapshot.data() as Machinery;
+      if (currentMachinery.companyId !== companyId || currentMachinery.id !== machinery.id) {
+        throw new Error('La maquinaria no pertenece a la empresa activa.');
+      }
+      if (currentMachinery.status === 'Mantenimiento') {
+        throw new Error('No se puede registrar uso mientras el equipo está en mantenimiento.');
+      }
+      if (currentMachinery.currentHorometer !== machinery.currentHorometer) {
+        throw new Error('El horómetro cambió desde que abriste el formulario. Actualiza los datos e intenta nuevamente.');
+      }
+      if (currentMachinery.status === 'En Obra' && currentMachinery.currentProjectId !== log.projectId) {
+        throw new Error('La maquinaria sigue asignada a otro proyecto. Finaliza su uso antes de cambiarla de obra.');
+      }
+      if (log.machineryId !== currentMachinery.id) {
+        throw new Error('La bitácora no corresponde al equipo seleccionado.');
+      }
+      if (logSnapshot.exists() || expenseSnapshot.exists()) {
+        throw new Error('La bitácora o el gasto ya existen. No se repetirá el registro de esta operación.');
+      }
+
+      // Hours, amount and next meter reading are derived only from the
+      // persisted equipment, never from a potentially stale client object.
+      const normalized = resolveMachineryUse(log, currentMachinery);
+      if (normalized.expense.id !== expenseId) {
+        throw new Error('El identificador del gasto no coincide con la bitácora.');
+      }
+
+      const normalizedLog: MachineryLog = {
+        ...log,
+        ...normalized.log,
+        expenseId,
         companyId,
-        ...normalized.machineryUpdate,
-      },
-      { merge: true }
-    );
-    batch.set(doc(db, 'expenses', expense.id), {
-      ...expense,
-      companyId,
-      authorId: userId,
+        createdBy: userId,
+      };
+      const expense: ExpenseRecord = {
+        ...normalized.expense,
+        companyId,
+        authorId: userId,
+      };
+
+      transaction.update(machineRef, {
+        currentHorometer: normalized.nextHorometer,
+        currentProjectId: normalized.machineryUpdate.currentProjectId,
+        status: normalized.machineryUpdate.status,
+        lastMachineryLogId: log.id,
+        updatedBy: userId,
+      });
+      transaction.set(logRef, stripUndefined(normalizedLog));
+      transaction.set(expenseRef, stripUndefined(expense));
     });
-    await batch.commit();
     return true;
   } catch (error) {
     notifySyncEnd();
