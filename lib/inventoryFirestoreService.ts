@@ -250,19 +250,11 @@ export async function createPurchaseOrderToFirestore(
     throw new Error('Una orden nueva debe crearse como borrador; la aprobación se habilitará con el flujo auditable.');
   }
 
-  try {
-    await runTransaction(db, async (transaction: Transaction) => {
-      await assertCompanyReference(transaction, 'projects', order.projectId, companyId, 'Proyecto');
-      await assertCompanyReference(transaction, 'suppliers', order.supplierId, companyId, 'Proveedor');
-      const uniqueItemIds = [...new Set(order.lines.map((line) => line.itemId))];
-      for (const itemId of uniqueItemIds) {
-        await assertCompanyReference(transaction, 'inventoryItems', itemId, companyId, 'Artículo');
-      }
-      transaction.set(ref, stripUndefined(order));
-    });
-  } catch (error) {
-    throw handleFirestoreError(error, OperationType.CREATE, `purchaseOrders/${ref.id}`);
-  }
+  // Firestore Rules comprueba la pertenencia del proyecto, proveedor y artículos
+  // dentro de la autorización de la escritura. Repetir esas seis lecturas en una
+  // transacción cliente duplica trabajo y agota el presupuesto de evaluación de
+  // reglas para órdenes completas; la escritura sigue siendo atómica y segura.
+  await persistNewRecord('purchaseOrders', order);
   return order;
 }
 
