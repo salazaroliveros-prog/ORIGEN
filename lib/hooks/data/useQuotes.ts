@@ -44,13 +44,20 @@ export function useQuotes({ companyId, currentUserId }: UseQuotesOptions): UseQu
     setQuotes([]);
     setLoading(true);
 
-    const unsubQuotes = subscribeQuotes(companyId, (data) => {
-      log.debug('Quotes updated', { count: data.length });
-      const cacheKey = createCacheKey('quotes', { companyId });
-      queryCache.set(cacheKey, data, 5 * 60 * 1000);
-      setQuotes(data);
-      setLoading(false);
-    });
+    const unsubQuotes = subscribeQuotes(
+      companyId,
+      (data) => {
+        log.debug('Quotes updated', { count: data.length });
+        const cacheKey = createCacheKey('quotes', { companyId });
+        queryCache.set(cacheKey, data, 5 * 60 * 1000);
+        setQuotes(data);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('Quotes subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from quotes');
