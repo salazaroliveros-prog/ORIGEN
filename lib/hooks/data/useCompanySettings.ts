@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { CompanySettings } from '@/lib/types';
-import {
-  subscribeCompanySettings,
-  saveCompanySettingsToFirestore,
-} from '@/lib/firebaseService';
+import { subscribeCompanySettings, saveCompanySettingsToFirestore } from '@/lib/firebaseService';
 import { toast } from 'react-hot-toast';
 import { createLogger } from '@/lib/utils/logger';
 import { queryCache, createCacheKey } from '@/lib/utils/cacheManager';
@@ -22,7 +19,9 @@ export interface UseCompanySettingsReturn {
   saveCompanySettings: (settings: CompanySettings) => Promise<boolean>;
 }
 
-export function useCompanySettings({ companyId }: UseCompanySettingsOptions): UseCompanySettingsReturn {
+export function useCompanySettings({
+  companyId,
+}: UseCompanySettingsOptions): UseCompanySettingsReturn {
   const [company, setCompany] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -38,13 +37,20 @@ export function useCompanySettings({ companyId }: UseCompanySettingsOptions): Us
     setCompany(null);
     setLoading(true);
 
-    const unsubCompany = subscribeCompanySettings(companyId, (data) => {
-      log.debug('Company settings updated', { companyId });
-      const cacheKey = createCacheKey('companySettings', { companyId });
-      queryCache.set(cacheKey, data, 10 * 60 * 1000);
-      setCompany(data ?? null);
-      setLoading(false);
-    });
+    const unsubCompany = subscribeCompanySettings(
+      companyId,
+      (data) => {
+        log.debug('Company settings updated', { companyId });
+        const cacheKey = createCacheKey('companySettings', { companyId });
+        queryCache.set(cacheKey, data, 10 * 60 * 1000);
+        setCompany(data ?? null);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('Company settings subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from company settings');
