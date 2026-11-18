@@ -1688,6 +1688,16 @@ service cloud.firestore {
         !existsAfter(receiptOrderPath(existing().orderId));
     }
 
+    // GTQ ledger values must be cent-aligned. The tolerance only absorbs
+    // IEEE-754 representation noise around exact cent values.
+    function isGTQAmountInCents(value) {
+      let scaled = value * 100;
+      let remainder = scaled % 1;
+      return value is number &&
+        value >= 0 &&
+        (remainder < 0.000001 || remainder > 0.999999);
+    }
+
     // Subcontracts remain linked to the project and supplier that own them.
     function isValidSubcontractPayment(data, paymentId) {
       let contractPath = /databases/$(database)/documents/subcontracts/$(data.contractId);
@@ -1702,6 +1712,7 @@ service cloud.firestore {
         canManagePurchasing(data.companyId) &&
         data.createdBy == request.auth.uid &&
         data.amountGTQ is number && data.amountGTQ > 0 &&
+        isGTQAmountInCents(data.amountGTQ) &&
         data.paymentDate is string && data.paymentDate.size() == 10 && data.paymentDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}') &&
         data.reference is string && data.reference.size() > 0 && data.reference.size() <= 60 &&
         data.paymentMethod in ['Efectivo', 'Cheque', 'Transferencia BI', 'Tarjeta'] &&
@@ -1712,6 +1723,8 @@ service cloud.firestore {
         beforeContract.projectId == data.projectId &&
         beforeContract.supplierId == data.supplierId &&
         beforeContract.status == 'active' &&
+        isGTQAmountInCents(beforeContract.paidGTQ) &&
+        isGTQAmountInCents(afterContract.paidGTQ) &&
         afterContract.companyId == beforeContract.companyId &&
         afterContract.paidGTQ == beforeContract.paidGTQ + data.amountGTQ &&
         afterContract.paidGTQ <= beforeContract.amountGTQ &&
@@ -1793,6 +1806,8 @@ service cloud.firestore {
         incoming().startDate is string && incoming().startDate.size() == 10 && incoming().startDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}') &&
         incoming().endDate is string && incoming().endDate.size() == 10 && incoming().endDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}') && incoming().endDate >= incoming().startDate &&
         incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
+        isGTQAmountInCents(incoming().amountGTQ) &&
+        isGTQAmountInCents(incoming().paidGTQ) &&
         incoming().paidGTQ == 0 &&
         incoming().status in ['draft', 'active'];
       allow update: if isValidId(contractId) &&
