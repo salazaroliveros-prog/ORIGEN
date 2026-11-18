@@ -82,7 +82,7 @@ describe('useCompanyWorkspace', () => {
 
   it('should return false when selectWorkspace fails', async () => {
     vi.mocked(ensureCompanyWorkspace).mockReset();
-    vi.mocked(ensureCompanyWorkspace).mockRejectedValueOnce(new Error('permission-denied'));
+    vi.mocked(ensureCompanyWorkspace).mockRejectedValue(new Error('permission-denied'));
     const { result } = renderHook(() => useCompanyWorkspace(mockUser));
 
     const success = await act(async () => {
@@ -161,7 +161,7 @@ describe('useCompanyWorkspace', () => {
 
   it('should describe network error', async () => {
     vi.mocked(ensureCompanyWorkspace).mockReset();
-    vi.mocked(ensureCompanyWorkspace).mockRejectedValueOnce(new Error('unavailable'));
+    vi.mocked(ensureCompanyWorkspace).mockRejectedValue(new Error('unavailable'));
     const { result } = renderHook(() => useCompanyWorkspace(mockUser));
 
     await act(async () => {
