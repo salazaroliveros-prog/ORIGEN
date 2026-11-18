@@ -7,6 +7,7 @@ import {
   HardHat,
   Calculator,
   FileText,
+  FileCheck2,
   CalendarDays,
   Truck,
   Users,
@@ -77,6 +78,7 @@ export function Sidebar({
     { id: 'personal', label: 'Personal & IGSS', icon: Users },
     { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
     { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
+    { id: 'fel_invoices', label: 'Facturas FEL', icon: FileCheck2 },
     { id: 'inventario', label: 'Inventario & Compras', icon: Boxes },
     { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
     { id: 'ai', label: 'Asistente IA', icon: Sparkles },
@@ -166,17 +168,9 @@ export function Sidebar({
       <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-0.5 px-3 py-4" aria-label="Navegación">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
-          return (
-            <Link
-              key={tab.id}
-              href={`/${tab.id}`}
-              className={`w-full flex items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`}
-              aria-current={isActive ? 'page' : undefined}
-              onClick={(event) => {
-                event.preventDefault();
-                onSelectTab(tab.id);
-              }}
-            >
+          const itemClassName = `w-full flex items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
+          const content = (
+            <>
               <div className="flex items-center gap-3">
                 <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? 'stroke-[2.5] text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
                 <span className="truncate">{tab.label}</span>
@@ -187,7 +181,27 @@ export function Sidebar({
                 )}
               </div>
               {isActive && <ChevronRight className="h-3 w-3 shrink-0 text-slate-950" />}
-            </Link>
+            </>
+          );
+
+          if (tab.id === 'fel_invoices') {
+            return (
+              <Link key={tab.id} href="/fel-invoices" className={itemClassName} aria-current={isActive ? 'page' : undefined}>
+                {content}
+              </Link>
+            );
+          }
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onSelectTab(tab.id)}
+              className={`${itemClassName} text-left`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {content}
+            </button>
           );
         })}
       </nav>
