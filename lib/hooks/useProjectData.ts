@@ -85,6 +85,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
   const [projects, setProjects] = useState<Project[]>([]);
   const [fieldVisits, setFieldVisits] = useState<FieldVisit[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
+  const [expensesLoading, setExpensesLoading] = useState(false);
+  const [expensesError, setExpensesError] = useState<string | null>(null);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [employees, setEmployees] = useState<Array<Employee | EmployeeDirectoryEntry>>([]);
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
@@ -141,6 +143,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       setProjects([]);
       setFieldVisits([]);
       setExpenses([]);
+      setExpensesLoading(false);
+      setExpensesError(null);
       setAttendance([]);
       setEmployees([]);
       setQuotes([]);
@@ -160,6 +164,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     setProjects([]);
     setFieldVisits([]);
     setExpenses([]);
+    setExpensesLoading(true);
+    setExpensesError(null);
     setAttendance([]);
     setEmployees([]);
     setQuotes([]);
@@ -186,12 +192,22 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
       setFieldVisits(data);
     });
 
-    const unsubExpenses = subscribeExpenses(companyId, (data) => {
-      log.debug('Expenses updated', { count: data.length });
-      const cacheKey = createCacheKey('expenses', { companyId });
-      queryCache.set(cacheKey, data, 5 * 60 * 1000);
-      setExpenses(data);
-    });
+    const unsubExpenses = subscribeExpenses(
+      companyId,
+      (data) => {
+        log.debug('Expenses updated', { count: data.length });
+        const cacheKey = createCacheKey('expenses', { companyId });
+        queryCache.set(cacheKey, data, 5 * 60 * 1000);
+        setExpenses(data);
+        setExpensesLoading(false);
+        setExpensesError(null);
+      },
+      (error) => {
+        log.error('Expenses subscription failed', error);
+        setExpensesLoading(false);
+        setExpensesError('No se pudo verificar el historial de gastos de esta empresa.');
+      }
+    );
 
     const unsubAttendance = canReadAttendance(role)
       ? subscribeAttendance(companyId, (data) => {
@@ -1114,6 +1130,8 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
     projects: projectsWithCalculations,
     fieldVisits,
     expenses,
+    expensesLoading,
+    expensesError,
     attendance,
     employees,
     quotes,
