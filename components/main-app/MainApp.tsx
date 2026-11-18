@@ -452,6 +452,8 @@ export default function MainApp() {
               }
               workspace={workspace}
               userRole={membership?.role ?? null}
+              gmailAccess={gmailAccess}
+              onAuthorizeGmail={authorizeGmail}
             />
           )}
         </main>

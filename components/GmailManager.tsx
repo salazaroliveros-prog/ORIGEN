@@ -14,7 +14,7 @@ interface GmailManagerProps {
   userEmail?: string | null;
   accessToken?: string | null;
   tokenExpiresAt?: number | null;
-  onAuthorize: () => Promise<{ accessToken: string; expiresAt: number }>;
+  onAuthorize: () => Promise<{ accessToken: string; expiresAt: number } | null>;
 }
 
 export function GmailManager({
@@ -86,7 +86,10 @@ export function GmailManager({
     setIsAuthorizing(true);
     setError(null);
     try {
-      await onAuthorize();
+      const grant = await onAuthorize();
+      if (!grant?.accessToken || !Number.isFinite(grant.expiresAt) || grant.expiresAt <= Date.now()) {
+        throw new Error('No se obtuvo un permiso temporal válido de Gmail.');
+      }
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : 'No se pudo autorizar Gmail.';
       setError(message);
