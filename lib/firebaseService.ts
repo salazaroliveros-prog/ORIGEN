@@ -801,7 +801,8 @@ export async function updateExpenseToFirestore(
 
 export function subscribeExpenses(
   companyId: string,
-  callback: (expenses: ExpenseRecord[]) => void
+  callback: (expenses: ExpenseRecord[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'expenses';
   try {
@@ -816,10 +817,12 @@ export function subscribeExpenses(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
+    if (err instanceof Error) onError?.(err);
     notifySyncEnd();
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
