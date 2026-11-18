@@ -95,7 +95,7 @@ export function MachineryManager({
       machineryName: string;
       currentHours: number;
       threshold: number;
-      urgency: 'critical' | 'warning' | 'info';
+      urgency: 'critical' | 'warning' | 'info' | 'invalid';
       message: string;
     }> = [];
 
@@ -114,13 +114,13 @@ export function MachineryManager({
           urgency: 'critical',
           message: maintenance.message,
         });
-      } else if (maintenance.urgency === 'warning') {
+      } else if (maintenance.urgency === 'warning' || maintenance.urgency === 'invalid') {
         alerts.push({
           machineryId: mach.id,
           machineryName: mach.name,
           currentHours: maintenance.hoursSinceService,
           threshold: MACHINERY_MAINTENANCE_INTERVAL_HOURS,
-          urgency: 'warning',
+          urgency: maintenance.urgency,
           message: maintenance.message,
         });
       }
@@ -213,6 +213,14 @@ export function MachineryManager({
     }
     if (selectedMachine.status === 'Mantenimiento') {
       toast.error('No se puede registrar uso mientras el equipo está en mantenimiento.');
+      return;
+    }
+    const maintenanceStatus = evaluateMachineryMaintenance({
+      currentHorometer: selectedMachine.currentHorometer,
+      lastServiceHorometer: selectedMachine.lastServiceHorometer,
+    });
+    if (maintenanceStatus.urgency === 'invalid') {
+      toast.error(maintenanceStatus.message);
       return;
     }
     const gallons = Number(fuelGallons);
@@ -313,14 +321,14 @@ export function MachineryManager({
               <div
                 key={alert.machineryId}
                 className={`flex items-start gap-3 rounded-xl border p-4 ${
-                  alert.urgency === 'critical'
+                  alert.urgency === 'critical' || alert.urgency === 'invalid'
                     ? 'border-red-300 bg-red-50'
                     : 'border-amber-300 bg-amber-50'
                 }`}
               >
                 <div
                   className={`rounded-full p-2 ${
-                    alert.urgency === 'critical'
+                    alert.urgency === 'critical' || alert.urgency === 'invalid'
                       ? 'bg-red-100 text-red-600'
                       : 'bg-amber-100 text-amber-600'
                   }`}
@@ -345,7 +353,7 @@ export function MachineryManager({
                   }}
                   className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                 >
-                  Enviar a Mantenimiento
+                  {alert.urgency === 'invalid' ? 'Revisar lectura' : 'Enviar a Mantenimiento'}
                 </button>
               </div>
             ))}
@@ -359,7 +367,8 @@ export function MachineryManager({
             currentHorometer: mach.currentHorometer,
             lastServiceHorometer: mach.lastServiceHorometer,
           });
-          const needsMaintenance = maintenance.urgency === 'critical';
+          const invalidMaintenanceData = maintenance.urgency === 'invalid';
+          const needsMaintenance = maintenance.urgency === 'critical' || invalidMaintenanceData;
           const maintenanceWarning = maintenance.urgency === 'warning';
 
           return (
@@ -408,7 +417,9 @@ export function MachineryManager({
                     <Clock className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                     Desde último servicio: {maintenance.hoursSinceService}h
                   </span>
-                  {needsMaintenance ? (
+                  {invalidMaintenanceData ? (
+                    <span className="font-bold text-red-600">Lectura inválida</span>
+                  ) : needsMaintenance ? (
                     <span className="font-bold text-red-600">¡Mantenimiento!</span>
                   ) : maintenanceWarning ? (
                     <span className="font-bold text-amber-600">Próximo</span>
