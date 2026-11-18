@@ -642,7 +642,7 @@ export async function recordOpeningStockToFirestore(input: {
           warehouseId,
           quantity: 0,
           averageUnitCostGTQ: 0,
-          reorderLevel: current.reorderLevel,
+          reorderLevel: item.reorderLevel,
         },
         movement
       );
@@ -839,7 +839,7 @@ export async function adjustInventoryStockToFirestore(input: {
           warehouseId,
           quantity: current.quantity,
           averageUnitCostGTQ: current.averageUnitCostGTQ,
-          reorderLevel: item.reorderLevel,
+          reorderLevel: current.reorderLevel,
         },
         movement
       );
