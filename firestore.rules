@@ -142,7 +142,8 @@ service cloud.firestore {
     }
 
     function purchaseOrderLineReferencePath(orderId, lineIndex) {
-      return /databases/$(database)/documents/purchaseOrderLineRefs/pol_$(orderId)_$(lineIndex);
+      let lineRefId = 'pol_' + orderId + '_' + lineIndex;
+      return /databases/$(database)/documents/purchaseOrderLineRefs/$(lineRefId);
     }
 
     function isMatchingPurchaseOrderLineReference(order, lineIndex) {
