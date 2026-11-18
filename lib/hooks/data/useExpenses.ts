@@ -26,6 +26,7 @@ export interface UseExpensesReturn {
   expenses: ExpenseRecord[];
   allExpenses: ExpenseRecord[];
   loading: boolean;
+  error: string | null;
   projectExpenses: Map<string, ExpenseRecord[]>;
   addExpense: (expense: ExpenseRecord) => Promise<boolean>;
   updateExpense: (expense: ExpenseRecord) => Promise<boolean>;
@@ -39,6 +40,7 @@ export function useExpenses({
 }: UseExpensesOptions): UseExpensesReturn {
   const [allExpenses, setAllExpenses] = useState<ExpenseRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
 
   const projectExpenses = useMemo(() => {
     const map = new Map<string, ExpenseRecord[]>();
@@ -65,12 +67,14 @@ export function useExpenses({
       log.debug('Missing auth context, clearing expenses');
       setAllExpenses([]);
       setLoading(false);
+      setSubscriptionError(null);
       return;
     }
 
     log.info('Starting expenses subscription', { companyId });
     setAllExpenses([]);
     setLoading(true);
+    setSubscriptionError(null);
 
     const unsubExpenses = subscribeExpenses(
       companyId,
@@ -80,10 +84,12 @@ export function useExpenses({
         queryCache.set(cacheKey, data, 5 * 60 * 1000);
         setAllExpenses(data);
         setLoading(false);
+        setSubscriptionError(null);
       },
       (error) => {
         log.error('Expenses subscription failed', error);
         setLoading(false);
+        setSubscriptionError('No se pudo verificar el historial de gastos de esta empresa.');
       }
     );
 
@@ -196,6 +202,7 @@ export function useExpenses({
     expenses: filteredExpenses,
     allExpenses,
     loading,
+    error: subscriptionError,
     projectExpenses,
     addExpense,
     updateExpense,
