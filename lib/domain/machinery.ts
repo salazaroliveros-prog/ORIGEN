@@ -148,6 +148,22 @@ export function resolveMachineryUse(
   submitted: MachineryLog,
   machinery: Machinery
 ): NormalizedMachineryUse {
+  const maintenance = evaluateMachineryMaintenance({
+    currentHorometer: machinery.currentHorometer,
+    lastServiceHorometer: machinery.lastServiceHorometer,
+  });
+  if (maintenance.urgency === 'invalid') {
+    throw new Error(maintenance.message);
+  }
+  if (machinery.status === 'Mantenimiento') {
+    throw new Error('No se puede registrar uso mientras el equipo está en mantenimiento.');
+  }
+  if (machinery.status === 'En Obra' && machinery.currentProjectId !== submitted.projectId) {
+    throw new Error('La maquinaria sigue asignada a otro proyecto. Finaliza su uso antes de cambiarla de obra.');
+  }
+  if (submitted.machineryId !== machinery.id) {
+    throw new Error('La bitácora no corresponde al equipo seleccionado.');
+  }
   const nextHorometer = round2(machinery.currentHorometer + submitted.hoursWorked);
   return buildMachineryUseRecord(
     {
