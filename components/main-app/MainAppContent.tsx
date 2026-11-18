@@ -137,7 +137,8 @@ interface MainAppContentProps {
   workspace: { id: string } | null;
   /** Rol del usuario en la empresa (para auditoría y permisos). */
   userRole?: string | null;
-  gmailAccess: { accessToken: string; expiresAt: number } | null;
+  /** Token OAuth de Gmail de la sesión activa (null si aún no se autorizó). */
+  gmailAccess?: { accessToken: string; expiresAt: number } | null;
   onAuthorizeGmail: () => Promise<{ accessToken: string; expiresAt: number } | null>;
 }
 
