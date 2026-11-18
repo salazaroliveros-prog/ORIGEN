@@ -23,6 +23,8 @@ export interface UseFelInvoicesOptions {
 export interface UseFelInvoicesReturn {
   invoices: FelInvoice[];
   loading: boolean;
+  /** `true` después de recibir el primer snapshot del servidor. */
+  loaded: boolean;
   addInvoice: (invoice: FelInvoice) => Promise<boolean>;
   updateInvoice: (invoice: FelInvoice) => Promise<boolean>;
   deleteInvoice: (invoiceId: string) => Promise<boolean>;
@@ -34,26 +36,37 @@ export function useFelInvoices({
 }: UseFelInvoicesOptions): UseFelInvoicesReturn {
   const [invoices, setInvoices] = useState<FelInvoice[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!companyId || !currentUserId) {
       log.debug('Missing auth context, clearing invoices');
       setInvoices([]);
       setLoading(false);
+      setLoaded(false);
       return;
     }
 
     log.info('Starting FEL invoices subscription', { companyId });
     setInvoices([]);
     setLoading(true);
+    setLoaded(false);
 
-    const unsubInvoices = subscribeFelInvoices(companyId, (data) => {
-      log.debug('FEL invoices updated', { count: data.length });
-      const cacheKey = createCacheKey('felInvoices', { companyId });
-      queryCache.set(cacheKey, data, 5 * 60 * 1000);
-      setInvoices(data);
-      setLoading(false);
-    });
+    const unsubInvoices = subscribeFelInvoices(
+      companyId,
+      (data) => {
+        log.debug('FEL invoices updated', { count: data.length });
+        const cacheKey = createCacheKey('felInvoices', { companyId });
+        queryCache.set(cacheKey, data, 5 * 60 * 1000);
+        setInvoices(data);
+        setLoaded(true);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('FEL invoices subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from FEL invoices');
@@ -75,11 +88,7 @@ export function useFelInvoices({
           dteNumber: invoice.dteNumber,
           totalGTQ: invoice.totalGTQ,
         });
-        const ok = await saveFelInvoiceToFirestore(
-          invoice,
-          companyId,
-          currentUserId
-        );
+        const ok = await saveFelInvoiceToFirestore(invoice, companyId, currentUserId);
         if (ok) {
           log.info('FEL invoice created successfully', { invoiceId: invoice.id });
           toast.success('Factura FEL guardada correctamente');
@@ -115,11 +124,7 @@ export function useFelInvoices({
 
       try {
         log.info('Updating FEL invoice', { invoiceId: invoice.id });
-        const ok = await updateFelInvoiceToFirestore(
-          invoice,
-          companyId,
-          currentUserId
-        );
+        const ok = await updateFelInvoiceToFirestore(invoice, companyId, currentUserId);
         if (ok) {
           log.info('FEL invoice updated successfully', {
             invoiceId: invoice.id,
@@ -184,6 +189,7 @@ export function useFelInvoices({
   return {
     invoices,
     loading,
+    loaded,
     addInvoice,
     updateInvoice,
     deleteInvoice,
