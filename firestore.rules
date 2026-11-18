@@ -273,7 +273,7 @@ service cloud.firestore {
         order.projectId == data.projectId &&
         order.status in ['approved', 'partially_received'] &&
         order.approvedBy is string &&
-        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 2 &&
+        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 4 &&
         data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < order.lines.size() &&
         data.itemId == order.lines[data.lineIndex].itemId &&
         data.quantity is number && data.quantity > 0 &&
