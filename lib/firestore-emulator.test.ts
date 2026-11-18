@@ -19,6 +19,7 @@ import {
   where,
   writeBatch,
   type DocumentData,
+  type Firestore,
   type QueryDocumentSnapshot,
   type Transaction,
 } from 'firebase/firestore';
@@ -114,6 +115,31 @@ async function seedCompany(companyId: string, members: Record<string, string>) {
 async function seedProject(project: ReturnType<typeof makeProject>) {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), 'projects', project.id), project);
+  });
+}
+
+async function writePurchaseOrderWithLineReferences(
+  database: Firestore,
+  order: {
+    id: string;
+    companyId: string;
+    requestedBy: string;
+    lines: Array<{ itemId: string }>;
+  }
+): Promise<void> {
+  await runTransaction(database, async (transaction: Transaction) => {
+    transaction.set(doc(database, 'purchaseOrders', order.id), order);
+    order.lines.forEach((line, lineIndex) => {
+      const id = `pol_${order.id}_${lineIndex}`;
+      transaction.set(doc(database, 'purchaseOrderLineRefs', id), {
+        id,
+        companyId: order.companyId,
+        orderId: order.id,
+        lineIndex,
+        itemId: line.itemId,
+        createdBy: order.requestedBy,
+      });
+    });
   });
 }
 
@@ -811,14 +837,17 @@ beforeEach(async () => {
       requestedBy: USERS.finance, createdAt: '2026-11-16T08:00:00.000Z',
       updatedAt: '2026-11-16T08:00:00.000Z',
     };
-    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), order));
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'wrong-subtotal'), {
+    await assertSucceeds(writePurchaseOrderWithLineReferences(finance, order));
+    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'missing-line-refs'), {
+      ...order, id: 'missing-line-refs',
+    }));
+    await assertFails(writePurchaseOrderWithLineReferences(finance, {
       ...order, id: 'wrong-subtotal', subtotalGTQ: 900, taxGTQ: 108, totalGTQ: 1008,
     }));
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'wrong-tax'), {
+    await assertFails(writePurchaseOrderWithLineReferences(finance, {
       ...order, id: 'wrong-tax', taxGTQ: 120, totalGTQ: 870,
     }));
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'discount-over-subtotal'), {
+    await assertFails(writePurchaseOrderWithLineReferences(finance, {
       ...order, id: 'discount-over-subtotal', discountGTQ: 800, taxGTQ: 0, totalGTQ: -50,
     }));
     await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), {
@@ -844,7 +873,7 @@ beforeEach(async () => {
       taxGTQ: 198,
       totalGTQ: 1848,
     };
-    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', multiLineOrder.id), multiLineOrder));
+    await assertSucceeds(writePurchaseOrderWithLineReferences(finance, multiLineOrder));
     await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', multiLineOrder.id), {
       status: 'approved',
       approvedBy: USERS.finance,
@@ -939,7 +968,7 @@ beforeEach(async () => {
       });
     }));
 
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'too-many-lines'), {
+    await assertFails(writePurchaseOrderWithLineReferences(finance, {
       ...multiLineOrder,
       id: 'too-many-lines',
       number: 'OC-QA-003',
@@ -1053,8 +1082,20 @@ beforeEach(async () => {
         updatedAt: excessivePayment.createdAt,
       });
     }));
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'foreign-order'), {
+    await seedProject(makeProject('foreign-project', COMPANY_B));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'inventoryItems', 'foreign-cement'), {
+        id: 'foreign-cement', companyId: COMPANY_B, name: 'Cemento ajeno', unit: 'saco',
+        reorderLevel: 0, active: true, createdBy: USERS.otherCompanyOwner,
+      });
+    });
+    await assertFails(writePurchaseOrderWithLineReferences(finance, {
       ...order, id: 'foreign-order', projectId: 'foreign-project',
+    }));
+    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+      ...order,
+      id: 'foreign-item-order',
+      lines: [{ ...order.lines[0], itemId: 'foreign-cement' }],
     }));
   });
 

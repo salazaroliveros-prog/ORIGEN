@@ -141,14 +141,56 @@ service cloud.firestore {
       return /databases/$(database)/documents/inventoryBalances/$(balanceId);
     }
 
+    function purchaseOrderLineReferencePath(orderId, lineIndex) {
+      return /databases/$(database)/documents/purchaseOrderLineRefs/pol_$(orderId)_$(lineIndex);
+    }
+
+    function isMatchingPurchaseOrderLineReference(order, lineIndex) {
+      let reference = getAfter(purchaseOrderLineReferencePath(order.id, lineIndex)).data;
+      return reference.id == 'pol_' + order.id + '_' + lineIndex &&
+        reference.companyId == order.companyId &&
+        reference.orderId == order.id &&
+        reference.lineIndex == lineIndex &&
+        reference.itemId == order.lines[lineIndex].itemId &&
+        reference.createdBy == order.requestedBy;
+    }
+
+    function arePurchaseOrderLineReferencesValid(order) {
+      return order.lines is list &&
+        order.lines.size() >= 1 && order.lines.size() <= 4 &&
+        isMatchingPurchaseOrderLineReference(order, 0) &&
+        (order.lines.size() < 2 || isMatchingPurchaseOrderLineReference(order, 1)) &&
+        (order.lines.size() < 3 || isMatchingPurchaseOrderLineReference(order, 2)) &&
+        (order.lines.size() < 4 || isMatchingPurchaseOrderLineReference(order, 3));
+    }
+
+    function isValidPurchaseOrderLineReference(data, lineRefId) {
+      let order = getAfter(receiptOrderPath(data.orderId)).data;
+      let item = get(/databases/$(database)/documents/inventoryItems/$(data.itemId)).data;
+      return data.keys().hasAll(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
+        data.keys().hasOnly(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
+        data.id == lineRefId &&
+        isValidId(lineRefId) &&
+        data.orderId is string && isValidId(data.orderId) &&
+        data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < 4 &&
+        lineRefId == 'pol_' + data.orderId + '_' + data.lineIndex &&
+        data.companyId is string &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.createdBy == request.auth.uid &&
+        canManagePurchasing(data.companyId) &&
+        order.id == data.orderId &&
+        order.companyId == data.companyId &&
+        order.status == 'draft' &&
+        order.requestedBy == data.createdBy &&
+        order.lines is list &&
+        data.lineIndex < order.lines.size() &&
+        order.lines[data.lineIndex].itemId == data.itemId &&
+        item.companyId == data.companyId;
+    }
+
     function isValidPurchaseOrderLine(line, companyId) {
-      // get() fails closed when the referenced item does not exist. Avoid a
-      // separate exists() call for every line while still enforcing company
-      // ownership on the referenced catalog item.
-      let item = get(/databases/$(database)/documents/inventoryItems/$(line.itemId)).data;
       return line.keys().hasAll(['itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ']) &&
         line.itemId is string && isValidId(line.itemId) &&
-        item.companyId == companyId &&
         line.description is string && line.description.size() > 0 && line.description.size() <= 200 &&
         line.unit is string && line.unit.size() > 0 && line.unit.size() <= 32 &&
         line.quantity is number && line.quantity > 0 &&
@@ -1546,6 +1588,7 @@ service cloud.firestore {
         incoming().status == 'draft' &&
         !incoming().keys().hasAny(['approvedBy', 'lastReceiptMovementId']) &&
         isValidPurchaseOrderLines(incoming().lines, incoming().companyId) &&
+        arePurchaseOrderLineReferencesValid(incoming()) &&
         incoming().number is string &&
         incoming().number.size() > 0 &&
         incoming().number.size() <= 80 &&
@@ -1624,7 +1667,24 @@ service cloud.firestore {
 
       allow delete: if isValidId(orderId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
-        existing().status == 'draft';
+        existing().status == 'draft' &&
+        !existsAfter(purchaseOrderLineReferencePath(orderId, 0)) &&
+        !existsAfter(purchaseOrderLineReferencePath(orderId, 1)) &&
+        !existsAfter(purchaseOrderLineReferencePath(orderId, 2)) &&
+        !existsAfter(purchaseOrderLineReferencePath(orderId, 3));
+    }
+
+    // Immutable line references bind every ordered item to the same company.
+    // They are created in the same batch as the draft order and removed only
+    // in the same transaction that deletes that draft order.
+    match /purchaseOrderLineRefs/{lineRefId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidPurchaseOrderLineReference(incoming(), lineRefId);
+      allow update: if false;
+      allow delete: if isValidId(lineRefId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        !existsAfter(receiptOrderPath(existing().orderId));
     }
 
     // Subcontracts remain linked to the project and supplier that own them.
