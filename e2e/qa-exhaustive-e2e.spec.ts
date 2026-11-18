@@ -208,7 +208,9 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
 
     for (const section of sections) {
       await openTab(page, section);
-      await expect(page.getByRole('button', { name: section }).first()).toBeVisible();
+      const activeNavigationLink = page.getByRole('link', { name: section }).first();
+      await expect(activeNavigationLink).toBeVisible();
+      await expect(activeNavigationLink).toHaveAttribute('aria-current', 'page');
     }
   });
 
@@ -227,8 +229,9 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
   });
 
   test('PASO-2.04 — Planillas Guate visible para administrador', async ({ page }) => {
-    const planillas = page.getByRole('button', { name: 'Planillas Guate' }).first();
+    const planillas = page.getByRole('link', { name: 'Planillas Guate' }).first();
     await expect(planillas).toBeVisible({ timeout: 20_000 });
+    await expect(planillas).toHaveAttribute('aria-current', 'page');
   });
 
   test('PASO-2.05 — Reportes visible', async ({ page }) => {
@@ -651,7 +654,9 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
       if (section === 'Inventario & Compras') {
         await expect(page.getByRole('heading', { name: 'Inventario & Compras' })).toBeVisible();
       } else {
-        await expect(page.getByRole('button', { name: section }).first()).toBeVisible();
+        const activeNavigationLink = page.getByRole('link', { name: section }).first();
+      await expect(activeNavigationLink).toBeVisible();
+      await expect(activeNavigationLink).toHaveAttribute('aria-current', 'page');
       }
     }
   });
