@@ -7,6 +7,7 @@ import {
   HardHat,
   Calculator,
   FileText,
+  FileCheck2,
   CalendarDays,
   Truck,
   Users,
@@ -69,6 +70,7 @@ const TABS = [
   { id: 'personal', label: 'Personal & IGSS', icon: Users },
   { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
   { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
+  { id: 'fel_invoices', label: 'Facturas FEL', icon: FileCheck2 },
   { id: 'inventario', label: 'Inventario & Compras', icon: Boxes },
   { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
   { id: 'ai', label: 'Asistente IA', icon: Sparkles },
@@ -80,6 +82,7 @@ const MOBILE_TABS = [
   { id: 'proyectos', label: 'Obras', icon: HardHat },
   { id: 'cronograma_gantt', label: 'Seguimiento', icon: CalendarDays },
   { id: 'personal', label: 'Personal', icon: Users },
+  { id: 'fel_invoices', label: 'FEL', icon: FileCheck2 },
   { id: 'inventario', label: 'Inventario', icon: Boxes },
 ];
 
@@ -171,12 +174,12 @@ export function Navbar({
 
         <BottomNav
           items={mobileTabs.map((tab) => ({
-            href: `/${tab.id}`,
+            key: tab.id,
+            ...(tab.id === 'fel_invoices' ? { href: '/fel-invoices' } : { onSelect: () => onSelectTab(tab.id) }),
             label: tab.label,
             icon: <tab.icon className="h-5 w-5" />,
             activeIcon: <tab.icon className="h-5 w-5" />,
             active: activeTab === tab.id,
-            onSelect: () => onSelectTab(tab.id),
           }))}
         />
 
@@ -206,24 +209,38 @@ export function Navbar({
           <nav className="flex-1 space-y-0.5 px-3 py-4" aria-label="Navegación principal">
             {mobileTabs.map((tab) => {
               const isActive = activeTab === tab.id;
-              return (
-                <Link
-                  key={tab.id}
-                  href={`/${tab.id}`}
-                  className={`flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`}
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    onSelectTab(tab.id);
-                    onToggleMobileSidebar?.();
-                  }}
-                >
+              const itemClassName = `flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
+              const content = (
+                <>
                   <div className="flex items-center gap-3">
                     <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
                     <span className="truncate">{tab.label}</span>
                   </div>
                   {isActive && <ChevronRight className="h-3 w-3 text-slate-950" />}
-                </Link>
+                </>
+              );
+
+              if (tab.id === 'fel_invoices') {
+                return (
+                  <Link key={tab.id} href="/fel-invoices" className={itemClassName} aria-current={isActive ? 'page' : undefined}>
+                    {content}
+                  </Link>
+                );
+              }
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  className={`${itemClassName} text-left`}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => {
+                    onSelectTab(tab.id);
+                    onToggleMobileSidebar?.();
+                  }}
+                >
+                  {content}
+                </button>
               );
             })}
           </nav>
