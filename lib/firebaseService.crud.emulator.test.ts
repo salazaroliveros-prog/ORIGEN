@@ -637,6 +637,103 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(stored).toMatchObject({ kind: 'opening', referenceId: input.reference, quantity: 125 });
   });
 
+  it('registra ajustes de inventario de entrada y salida con promedio, atomicidad e idempotencia', async () => {
+    const warehouse = await inventoryService.createWarehouseToFirestore(
+      { name: 'Bodega ajustes QA', type: 'general', active: true },
+      companyId,
+      userId
+    );
+    const item = await inventoryService.createInventoryItemToFirestore(
+      { name: 'Cemento ajustes QA', unit: 'saco', reorderLevel: 3, active: true },
+      companyId,
+      userId
+    );
+    await inventoryService.recordOpeningStockToFirestore({
+      movementId: uniqueId('OPEN-ADJ'),
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      quantity: 10,
+      unitCostGTQ: 75,
+      reference: 'APERTURA-AJUSTES',
+      companyId,
+      userId,
+    });
+
+    const incomingInput = {
+      movementId: uniqueId('ADJ-IN'),
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      kind: 'adjustment_in' as const,
+      quantity: 5,
+      unitCostGTQ: 90,
+      reference: 'CONTEO-MAYOR-001',
+      reason: 'Conteo físico encontró cinco sacos adicionales',
+      companyId,
+      userId,
+    };
+    const incoming = await inventoryService.adjustInventoryStockToFirestore(incomingInput);
+    expect(incoming.alreadyProcessed).toBe(false);
+    expect(incoming.movement).toMatchObject({
+      kind: 'adjustment_in',
+      quantity: 5,
+      unitCostGTQ: 90,
+      referenceId: incomingInput.reference,
+      notes: incomingInput.reason,
+    });
+    expect(incoming.balance).toMatchObject({
+      quantity: 15,
+      averageUnitCostGTQ: 80,
+      reorderLevel: 3,
+      lastMovementId: incomingInput.movementId,
+    });
+
+    const incomingRetry = await inventoryService.adjustInventoryStockToFirestore(incomingInput);
+    expect(incomingRetry.alreadyProcessed).toBe(true);
+    expect(incomingRetry.balance.quantity).toBe(15);
+
+    const outgoingInput = {
+      movementId: uniqueId('ADJ-OUT'),
+      itemId: item.id,
+      warehouseId: warehouse.id,
+      kind: 'adjustment_out' as const,
+      quantity: 3,
+      reference: 'CONTEO-MENOR-001',
+      reason: 'Conteo físico encontró tres sacos dañados no utilizables',
+      companyId,
+      userId,
+    };
+    const outgoing = await inventoryService.adjustInventoryStockToFirestore(outgoingInput);
+    expect(outgoing.alreadyProcessed).toBe(false);
+    expect(outgoing.movement).toMatchObject({
+      kind: 'adjustment_out',
+      quantity: 3,
+      unitCostGTQ: 80,
+      referenceId: outgoingInput.reference,
+      notes: outgoingInput.reason,
+    });
+    expect(outgoing.balance).toMatchObject({
+      quantity: 12,
+      averageUnitCostGTQ: 80,
+      reorderLevel: 3,
+      lastMovementId: outgoingInput.movementId,
+    });
+
+    const outgoingRetry = await inventoryService.adjustInventoryStockToFirestore(outgoingInput);
+    expect(outgoingRetry.alreadyProcessed).toBe(true);
+    expect(outgoingRetry.balance.quantity).toBe(12);
+
+    await expect(inventoryService.adjustInventoryStockToFirestore({
+      ...outgoingInput,
+      quantity: 4,
+    })).rejects.toThrow('ID del movimiento de ajuste ya fue utilizado');
+
+    await expect(inventoryService.adjustInventoryStockToFirestore({
+      ...outgoingInput,
+      movementId: uniqueId('ADJ-OVERDRAW'),
+      quantity: 99,
+    })).rejects.toThrow('Existencia insuficiente');
+  });
+
   it('crea órdenes de compra y subcontratos solo con referencias existentes de la empresa', async () => {
     const projectId = await createProject('PROCUREMENT-CRUD', 'Proyecto para abastecimiento');
     const supplier = await inventoryService.createSupplierToFirestore(

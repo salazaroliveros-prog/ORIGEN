@@ -98,6 +98,28 @@ describe('inventory domain', () => {
     expect(() => applyWarehouseTransfer(source, destination, { ...input, notes: 'x'.repeat(1001) })).toThrow('notas del traslado');
   });
 
+  it('recalculates weighted-average cost for positive adjustments', () => {
+    const result = applyStockMovement(
+      { ...openingBalance, quantity: 10, averageUnitCostGTQ: 75 },
+      movement({ kind: 'adjustment_in', quantity: 5, unitCostGTQ: 90 })
+    );
+    expect(result.quantity).toBe(15);
+    expect(result.averageUnitCostGTQ).toBe(80);
+  });
+
+  it('preserves average cost for negative adjustments and rejects overdraws', () => {
+    const adjusted = applyStockMovement(
+      { ...openingBalance, quantity: 10, averageUnitCostGTQ: 75 },
+      movement({ kind: 'adjustment_out', quantity: 4, unitCostGTQ: 75 })
+    );
+    expect(adjusted.quantity).toBe(6);
+    expect(adjusted.averageUnitCostGTQ).toBe(75);
+    expect(() => applyStockMovement(
+      { ...openingBalance, quantity: 3 },
+      movement({ kind: 'adjustment_out', quantity: 4 })
+    )).toThrow('Existencia insuficiente');
+  });
+
   it('rejects issue above available stock', () => {
     expect(() =>
       applyStockMovement(openingBalance, movement({ kind: 'project_issue', quantity: 11 }))

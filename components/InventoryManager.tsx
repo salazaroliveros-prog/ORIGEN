@@ -22,6 +22,7 @@ import {
   registerSubcontractPaymentToFirestore,
   receivePurchaseOrderToWarehouse,
   recordOpeningStockToFirestore,
+  adjustInventoryStockToFirestore,
   recordProjectStockIssueToFirestore,
   transferInventoryBetweenWarehousesToFirestore,
   createSupplierToFirestore,
@@ -159,6 +160,13 @@ export function InventoryManager({
   const [openingReference, setOpeningReference] = useState(() => `INI-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
   const [openingNotes, setOpeningNotes] = useState('');
   const [openingMovementId, setOpeningMovementId] = useState('');
+  const [adjustmentBalanceKey, setAdjustmentBalanceKey] = useState('');
+  const [adjustmentKind, setAdjustmentKind] = useState<'adjustment_in' | 'adjustment_out'>('adjustment_in');
+  const [adjustmentQuantity, setAdjustmentQuantity] = useState('1');
+  const [adjustmentUnitCost, setAdjustmentUnitCost] = useState('0');
+  const [adjustmentReference, setAdjustmentReference] = useState(() => `AJU-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
+  const [adjustmentReason, setAdjustmentReason] = useState('');
+  const [adjustmentMovementId, setAdjustmentMovementId] = useState('');
 
   useEffect(() => {
     setWarehouseProjectId((current) => current || activeProjectId);
@@ -260,6 +268,17 @@ export function InventoryManager({
 
   // Only combinations without a balance can receive an initial opening entry.
   // Once a movement history exists, stock must be changed through an auditable adjustment.
+  const adjustmentCandidates = useMemo(
+    () => balances.flatMap((balance) => {
+      const item = activeItems.find((entry) => entry.id === balance.itemId);
+      const warehouse = activeWarehouses.find((entry) => entry.id === balance.warehouseId);
+      return item && warehouse
+        ? [{ item, warehouse, balance, key: `${item.id}|${warehouse.id}` }]
+        : [];
+    }),
+    [activeItems, activeWarehouses, balances]
+  );
+
   const openingCandidates = useMemo(
     () => activeWarehouses.flatMap((warehouse) =>
       activeItems
@@ -532,6 +551,73 @@ export function InventoryManager({
       // Keep the same movement ID after a network/unknown outcome so a retry
       // is idempotent. Editing any form field clears it for a new operation.
       toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar el inventario inicial.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleStockAdjustmentSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canWriteInventory || submitting) return;
+
+    const candidate = adjustmentCandidates.find((entry) => entry.key === adjustmentBalanceKey);
+    const quantity = Number(adjustmentQuantity);
+    const incoming = adjustmentKind === 'adjustment_in';
+    const unitCostGTQ = Number(adjustmentUnitCost);
+    if (!candidate) {
+      toast.error('Selecciona un artículo y bodega con saldo registrado.');
+      return;
+    }
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      toast.error('La cantidad del ajuste debe ser mayor a cero.');
+      return;
+    }
+    if (!incoming && quantity > candidate.balance.quantity) {
+      toast.error(`La salida no puede superar las existencias disponibles (${candidate.balance.quantity}).`);
+      return;
+    }
+    if (incoming && (!Number.isFinite(unitCostGTQ) || unitCostGTQ < 0)) {
+      toast.error('El costo unitario debe ser cero o mayor.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]{1,100}$/.test(adjustmentReference.trim())) {
+      toast.error('Ingresa una referencia válida para el ajuste.');
+      return;
+    }
+    if (!adjustmentReason.trim() || adjustmentReason.trim().length > 1000) {
+      toast.error('Es obligatorio documentar el motivo del ajuste (máximo 1000 caracteres).');
+      return;
+    }
+
+    const movementId = adjustmentMovementId || `adj_${crypto.randomUUID()}`;
+    setAdjustmentMovementId(movementId);
+    setSubmitting(true);
+    try {
+      const result = await adjustInventoryStockToFirestore({
+        movementId,
+        itemId: candidate.item.id,
+        warehouseId: candidate.warehouse.id,
+        kind: adjustmentKind,
+        quantity,
+        ...(incoming ? { unitCostGTQ } : {}),
+        reference: adjustmentReference.trim(),
+        reason: adjustmentReason.trim(),
+        companyId,
+        userId,
+      });
+      setAdjustmentBalanceKey('');
+      setAdjustmentKind('adjustment_in');
+      setAdjustmentQuantity('1');
+      setAdjustmentUnitCost('0');
+      setAdjustmentReference(`AJU-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
+      setAdjustmentReason('');
+      setAdjustmentMovementId('');
+      toast.success(result.alreadyProcessed
+        ? 'El ajuste ya estaba registrado; no se duplicó.'
+        : 'Ajuste registrado y existencias recalculadas con costo promedio.');
+    } catch (cause) {
+      // Keep the same ID after uncertain network outcomes so the retry is idempotent.
+      toast.error(cause instanceof Error ? cause.message : 'No se pudo registrar el ajuste de inventario.');
     } finally {
       setSubmitting(false);
     }
@@ -1166,6 +1252,113 @@ export function InventoryManager({
                       </label>
                       <button type="submit" className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={submitting || !openingBalanceKey}>
                         {submitting ? 'Registrando…' : 'Confirmar inventario inicial'}
+                      </button>
+                    </>
+                  )}
+                </form>
+              )}
+              {canWriteInventory && (
+                <form onSubmit={(event) => void handleStockAdjustmentSubmit(event)} className={`${cardClass} space-y-3`}>
+                  <h3 className="font-semibold text-white">Conciliación y ajustes de inventario</h3>
+                  <p className="text-xs text-slate-400">
+                    Registra diferencias del conteo físico. Las entradas recalculan el costo promedio; las salidas conservan el costo promedio vigente y nunca pueden dejar saldo negativo.
+                  </p>
+                  {adjustmentCandidates.length === 0 ? (
+                    <EmptyState message="No existen saldos de inventario para conciliar. Registra una apertura o recepción primero." />
+                  ) : (
+                    <>
+                      <label className="block">
+                        <span className={labelClass}>Artículo y bodega</span>
+                        <select
+                          className={fieldClass}
+                          value={adjustmentBalanceKey}
+                          onChange={(event) => { setAdjustmentBalanceKey(event.target.value); setAdjustmentMovementId(''); }}
+                          required
+                        >
+                          <option value="">Selecciona un saldo existente</option>
+                          {adjustmentCandidates.map(({ item, warehouse, balance, key }) => (
+                            <option key={key} value={key}>
+                              {item.name} · {warehouse.name} · Disponible: {balance.quantity} {item.unit}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="block">
+                        <span className={labelClass}>Tipo de ajuste</span>
+                        <select
+                          className={fieldClass}
+                          value={adjustmentKind}
+                          onChange={(event) => {
+                            setAdjustmentKind(event.target.value as 'adjustment_in' | 'adjustment_out');
+                            setAdjustmentMovementId('');
+                          }}
+                        >
+                          <option value="adjustment_in">Ajuste de entrada (sobrante físico)</option>
+                          <option value="adjustment_out">Ajuste de salida (faltante / daño)</option>
+                        </select>
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <label className="block">
+                          <span className={labelClass}>Cantidad del ajuste</span>
+                          <input
+                            className={fieldClass}
+                            type="number"
+                            min="0.0001"
+                            step="0.0001"
+                            value={adjustmentQuantity}
+                            onChange={(event) => { setAdjustmentQuantity(event.target.value); setAdjustmentMovementId(''); }}
+                            required
+                          />
+                        </label>
+                        {adjustmentKind === 'adjustment_in' ? (
+                          <label className="block">
+                            <span className={labelClass}>Costo unitario (Q)</span>
+                            <input
+                              className={fieldClass}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={adjustmentUnitCost}
+                              onChange={(event) => { setAdjustmentUnitCost(event.target.value); setAdjustmentMovementId(''); }}
+                              required
+                            />
+                          </label>
+                        ) : (
+                          <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 text-xs text-slate-400">
+                            Se utilizará el costo promedio vigente de la bodega: <strong className="text-white">{currency.format(
+                              adjustmentCandidates.find((entry) => entry.key === adjustmentBalanceKey)?.balance.averageUnitCostGTQ ?? 0
+                            )}</strong>
+                          </div>
+                        )}
+                      </div>
+                      <label className="block">
+                        <span className={labelClass}>Referencia / acta de conciliación</span>
+                        <input
+                          className={fieldClass}
+                          value={adjustmentReference}
+                          onChange={(event) => { setAdjustmentReference(event.target.value); setAdjustmentMovementId(''); }}
+                          maxLength={100}
+                          pattern="[a-zA-Z0-9_-]{1,100}"
+                          required
+                        />
+                      </label>
+                      <label className="block">
+                        <span className={labelClass}>Motivo documentado del ajuste</span>
+                        <textarea
+                          className={fieldClass}
+                          rows={2}
+                          value={adjustmentReason}
+                          onChange={(event) => { setAdjustmentReason(event.target.value); setAdjustmentMovementId(''); }}
+                          maxLength={1000}
+                          required
+                        />
+                      </label>
+                      <button
+                        type="submit"
+                        className="w-full rounded-xl bg-violet-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
+                        disabled={submitting || !adjustmentBalanceKey}
+                      >
+                        {submitting ? 'Registrando…' : 'Registrar ajuste auditado'}
                       </button>
                     </>
                   )}

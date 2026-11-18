@@ -349,6 +349,120 @@ beforeEach(async () => {
     }));
   });
 
+  it('requires audited stock adjustments to update the balance atomically and rejects overdraws', async () => {
+    await seedProject(makeProject('adjustment-project'));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      const database = context.firestore();
+      await setDoc(doc(database, 'inventoryItems', 'adjustment-cement'), {
+        id: 'adjustment-cement',
+        companyId: COMPANY_A,
+        name: 'Cemento de ajuste',
+        unit: 'saco',
+        reorderLevel: 2,
+        active: true,
+        createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'warehouses', 'adjustment-warehouse'), {
+        id: 'adjustment-warehouse',
+        companyId: COMPANY_A,
+        projectId: 'adjustment-project',
+        name: 'Bodega de ajuste',
+        type: 'project',
+        active: true,
+        createdBy: USERS.owner,
+      });
+      await setDoc(doc(database, 'inventoryBalances', 'bal_adjustment-warehouse_adjustment-cement'), {
+        id: 'bal_adjustment-warehouse_adjustment-cement',
+        companyId: COMPANY_A,
+        warehouseId: 'adjustment-warehouse',
+        itemId: 'adjustment-cement',
+        quantity: 10,
+        averageUnitCostGTQ: 75,
+        reorderLevel: 2,
+        createdBy: USERS.owner,
+        createdAt: '2026-11-16T08:00:00.000Z',
+        updatedAt: '2026-11-16T08:00:00.000Z',
+        lastMovementId: 'adjustment-opening-seed',
+      });
+    });
+
+    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+    const balanceId = 'bal_adjustment-warehouse_adjustment-cement';
+    const balanceRef = doc(database, 'inventoryBalances', balanceId);
+    const incoming = {
+      id: 'adjustment-in-001',
+      companyId: COMPANY_A,
+      projectId: 'adjustment-project',
+      itemId: 'adjustment-cement',
+      warehouseId: 'adjustment-warehouse',
+      kind: 'adjustment_in',
+      quantity: 5,
+      unitCostGTQ: 90,
+      occurredAt: '2026-11-17T09:00:00.000Z',
+      referenceId: 'CONTEO-MAYOR-001',
+      balanceId,
+      notes: 'Conteo físico encontró cinco sacos adicionales',
+      createdBy: USERS.warehouseManager,
+    };
+    const incomingBalance = {
+      quantity: 15,
+      averageUnitCostGTQ: 80,
+      updatedAt: incoming.occurredAt,
+      lastMovementId: incoming.id,
+    };
+    const incomingRef = doc(database, 'stockMovements', incoming.id);
+
+    await assertFails(setDoc(incomingRef, incoming));
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(incomingRef, incoming);
+      transaction.update(balanceRef, { ...incomingBalance, averageUnitCostGTQ: 90 });
+    }));
+    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(incomingRef, incoming);
+      transaction.update(balanceRef, incomingBalance);
+    }));
+
+    const outgoing = {
+      ...incoming,
+      id: 'adjustment-out-001',
+      kind: 'adjustment_out',
+      quantity: 3,
+      unitCostGTQ: 80,
+      occurredAt: '2026-11-17T10:00:00.000Z',
+      referenceId: 'CONTEO-MENOR-001',
+      notes: 'Tres sacos dañados no utilizables',
+    };
+    const outgoingBalance = {
+      quantity: 12,
+      averageUnitCostGTQ: 80,
+      updatedAt: outgoing.occurredAt,
+      lastMovementId: outgoing.id,
+    };
+    const outgoingRef = doc(database, 'stockMovements', outgoing.id);
+
+    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(outgoingRef, outgoing);
+      transaction.update(balanceRef, outgoingBalance);
+    }));
+
+    const overdraw = {
+      ...outgoing,
+      id: 'adjustment-out-overdraw',
+      quantity: 99,
+      occurredAt: '2026-11-17T11:00:00.000Z',
+      referenceId: 'CONTEO-ERROR-001',
+    };
+    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+      transaction.set(doc(database, 'stockMovements', overdraw.id), overdraw);
+      transaction.update(balanceRef, {
+        quantity: -87,
+        averageUnitCostGTQ: 0,
+        updatedAt: overdraw.occurredAt,
+        lastMovementId: overdraw.id,
+      });
+    }));
+  });
+
   it('requires project stock issues and reduced balances in one atomic write and rejects overdrafts', async () => {
     await seedProject(makeProject('issue-project'));
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
