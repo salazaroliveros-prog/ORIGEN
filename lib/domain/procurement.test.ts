@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getSubcontractExpiryAlerts,
+  normalizeMoneyGTQ,
   recordPurchaseReceipt,
   validatePurchaseOrder,
   validateSubcontract,
@@ -38,6 +39,14 @@ const subcontract = (overrides: Partial<SubcontractRecord> = {}): SubcontractRec
 });
 
 describe('procurement domain', () => {
+  it('normalizes GTQ money to cents and rejects values that round to zero', () => {
+    expect(normalizeMoneyGTQ(1.005)).toBe(1.01);
+    expect(normalizeMoneyGTQ(10.004)).toBe(10);
+    expect(normalizeMoneyGTQ(0)).toBe(0);
+    expect(() => normalizeMoneyGTQ(-0.01)).toThrow('monto en GTQ');
+    expect(() => normalizeMoneyGTQ(Number.NaN)).toThrow('monto en GTQ');
+  });
+
   it('validates and normalizes supplier identity fields', () => {
     expect(validateSupplier(supplier).name).toBe('Materiales del Norte');
     expect(() => validateSupplier({ ...supplier, email: 'correo-invalido' })).toThrow('Correo');
