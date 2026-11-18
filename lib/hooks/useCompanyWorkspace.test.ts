@@ -178,7 +178,7 @@ describe('useCompanyWorkspace', () => {
       resolvePromise = resolve as (val: any) => void;
     }) as Promise<{ workspace: any; membership: any; availableWorkspaces: any[] }>;
     vi.mocked(ensureCompanyWorkspace).mockReset();
-    vi.mocked(ensureCompanyWorkspace).mockImplementationOnce(() => promise);
+    vi.mocked(ensureCompanyWorkspace).mockImplementation(() => promise);
 
     const { result } = renderHook(() => useCompanyWorkspace(mockUser));
 
