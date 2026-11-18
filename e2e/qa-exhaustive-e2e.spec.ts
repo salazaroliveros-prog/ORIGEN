@@ -228,10 +228,14 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
     }
   });
 
-  test('PASO-2.04 — Planillas Guate visible para administrador', async ({ page }) => {
+  test('PASO-2.04 — Planillas Guate visible y navegable para administrador', async ({ page }) => {
     const planillas = page.getByRole('button', { name: 'Planillas Guate' }).first();
     await expect(planillas).toBeVisible({ timeout: 20_000 });
+    await planillas.click();
     await expect(planillas).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('heading', { name: 'Estimación de planilla' })).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('PASO-2.05 — Reportes visible', async ({ page }) => {
