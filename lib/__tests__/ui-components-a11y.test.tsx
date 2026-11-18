@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { FocusTrap } from '@/components/a11y/FocusTrap';
 
 afterEach(cleanup);
 
@@ -98,5 +99,88 @@ describe('Modal y tecla Escape', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+describe('FocusTrap y tecla Escape', () => {
+  it('cierra con Escape cuando el foco está dentro del diálogo', () => {
+    const onEscape = vi.fn();
+    render(
+      h(FocusTrap, {
+        onEscape,
+        children: [
+          h('input', { key: 'campo', 'aria-label': 'Campo' }),
+          h('button', { key: 'cerrar' }, 'Cerrar'),
+        ],
+      })
+    );
+
+    // El foco entra en el primer elemento enfocable del diálogo.
+    const input = screen.getByLabelText('Campo');
+    input.focus();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onEscape).toHaveBeenCalledTimes(1);
+  });
+
+  it('cierra con Escape cuando el foco salió del diálogo', () => {
+    // En el navegador, `preventDefault` de la trampa de Tab y el foco manual
+    // pueden dejar `document.activeElement` fuera del contenedor; el handler
+    // de Escape escucha en `document`, así que debe seguir funcionando.
+    const onEscape = vi.fn();
+    render(
+      h(FocusTrap, {
+        onEscape,
+        children: [
+          h('input', { key: 'campo', 'aria-label': 'Campo' }),
+          h('button', { key: 'cerrar' }, 'Cerrar'),
+        ],
+      })
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onEscape).toHaveBeenCalledTimes(1);
+  });
+
+  it('no llama a onEscape cuando isActive es false', () => {
+    const onEscape = vi.fn();
+    render(
+      h(FocusTrap, {
+        isActive: false,
+        onEscape,
+        children: h('input', { key: 'campo', 'aria-label': 'Campo' }),
+      })
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onEscape).not.toHaveBeenCalled();
+  });
+
+  it('usa el onEscape vigente aunque el padre re-renderice con otro callback', () => {
+    // Regresión: el efecto dependía de `onEscape`, así que cada render del
+    // padre (lambda nueva) re-suscribía el listener y dejaba un handler con
+    // el cierre anterior. El diálogo dejaba de cerrarse con Escape.
+    const primero = vi.fn();
+    const segundo = vi.fn();
+
+    const { rerender } = render(
+      h(FocusTrap, {
+        onEscape: primero,
+        children: h('input', { key: 'campo', 'aria-label': 'Campo' }),
+      })
+    );
+
+    // El padre se re-renderiza con un callback distinto para el mismo ítem.
+    rerender(
+      h(FocusTrap, {
+        onEscape: segundo,
+        children: h('input', { key: 'campo', 'aria-label': 'Campo' }),
+      })
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(segundo).toHaveBeenCalledTimes(1);
+    expect(primero).not.toHaveBeenCalled();
   });
 });

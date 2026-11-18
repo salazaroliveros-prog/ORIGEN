@@ -65,4 +65,26 @@ test.describe('Sección Proyectos & Firmas', () => {
     await expect(dialog.getByLabel('Presupuesto Total (Q)')).toBeVisible();
     await expect(dialog.getByRole('button', { name: 'Crear Proyecto' })).toBeVisible();
   });
+
+  test('el listado expone la acción de cierre y abre el formulario de cierre', async ({ page }) => {
+    // La ruta /proyectos/[id]/cierre existía pero la UI no la enlazaba: era
+    // inalcanzable. Cada proyecto activo debe ofrecer "Cerrar proyecto {code}".
+    const closeActions = page.getByRole('button', { name: /^Cerrar proyecto/ });
+
+    if ((await closeActions.count()) === 0) {
+      // Base de datos vacía: no hay nada que cerrar y la acción no debe existir.
+      await expect(page.getByText(/No hay proyectos activos/).first()).toBeVisible();
+      return;
+    }
+
+    await closeActions.first().click();
+
+    // Navega al formulario real de cierre (fuera del shell de MainApp).
+    await expect(page).toHaveURL(/\/proyectos\/.+\/cierre$/, { timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'Cierre de Proyecto' }).first()).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByLabel('Observaciones de Cierre')).toBeVisible();
+    await expect(page.getByLabel(/Balance Final/)).toBeVisible();
+  });
 });

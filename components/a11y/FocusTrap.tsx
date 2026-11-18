@@ -66,16 +66,24 @@ export function FocusTrap({
     };
   }, [isActive, returnFocus, getFocusableElements, trapFocus]);
 
+  // El callback se mantiene en un ref para que el listener del documento
+  // sea estable y no se re-suscriba en cada render: si `onEscape` cambia de
+  // identidad (lambda nuevo en el padre), el efecto se re-ejecutaba y el
+  // handler viejo quedaba registrado con un cierre obsoleto que ya no
+  // apuntaba al `onEscape` vigente, dejando el diálogo sin cierre por teclado.
+  const onEscapeRef = useRef(onEscape);
+  onEscapeRef.current = onEscape;
+
   useEffect(() => {
     if (!isActive) return;
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onEscape?.();
+        onEscapeRef.current?.();
       }
     };
     document.addEventListener('keydown', handleKeydown);
     return () => document.removeEventListener('keydown', handleKeydown);
-  }, [isActive, onEscape]);
+  }, [isActive]);
 
   return (
     <div ref={containerRef} tabIndex={-1}>

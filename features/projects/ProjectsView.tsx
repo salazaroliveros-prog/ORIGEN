@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useMemo, useState, startTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Edit2,
   Archive,
   ArchiveRestore,
+  ClipboardCheck,
   Download,
   Calendar,
   Building,
@@ -56,6 +58,7 @@ export function ProjectsView({
   onRestoreProject,
   canManageProjects,
 }: ProjectsViewProps) {
+  const router = useRouter();
   const [formOpen, setFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectFormProject | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -337,6 +340,16 @@ export function ProjectsView({
                             title={`Editar proyecto ${p.code}`}
                           >
                             <Edit2 className="h-4 w-4" aria-hidden="true" />
+                          </TouchTarget>
+                        )}
+                        {canManageProjects && p.status !== 'Archivado' && (
+                          <TouchTarget
+                            onPress={() => router.push(`/proyectos/${p.id}/cierre`)}
+                            className="rounded-lg border border-white/10 bg-white/[0.05] p-2 text-slate-300 duration-200 hover:bg-brand-secondary/20 hover:text-brand-secondary"
+                            aria-label={`Cerrar proyecto ${p.code}`}
+                            title={`Cerrar proyecto y registrar el balance final`}
+                          >
+                            <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
                           </TouchTarget>
                         )}
                         {canManageProjects &&

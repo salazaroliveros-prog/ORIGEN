@@ -15,7 +15,7 @@ Next.js 15 (App Router) + strict TypeScript + React 19 ERP for construction/proj
 - Lint/format/typecheck: `npm run lint` (`eslint .`), `npm run lint:fix`, `npm run format` / `format:check`, `npm run type-check` (`tsc --noEmit`).
 - Tests (Vitest, jsdom): `npm run test` / `test:watch` / `test:coverage`. Focused: `npm run test -- <pattern|path>` (e.g. `npm run test -- calculations`, `npm run test -- crud.integration`, `npm run test -- lib/utils/foo.test.ts`).
 - Firestore emulator tests: `npm run test:firebase` (excluded from default `vitest` run; runs `lib/firestore-emulator.test.ts` via `firebase emulators:exec`).
-- E2E (Playwright): `npm run test:e2e` / `test:e2e:ui` / `test:e2e:headed` (base `http://localhost:3000` or `E2E_BASE_URL`; projects chromium/firefox/webkit/mobile).
+- E2E (Playwright): `npm run test:e2e` / `test:e2e:ui` / `test:e2e:headed` (base `http://localhost:3000` or `E2E_BASE_URL`; projects chromium/firefox/webkit/mobile). **Requisito**: el `globalSetup` hace login con `E2E_ADMIN_EMAIL/PASSWORD` y falla si la cuenta no existe. En emuladores nuevos hay que sembrarla primero: `npm run e2e:seed` (crea usuario + empresa + membresía owner).
 
 ## Toolchain & quirks
 
