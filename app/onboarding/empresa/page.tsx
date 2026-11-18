@@ -8,10 +8,11 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useCompanyOnboarding } from '@/lib/hooks/useCompanyOnboarding';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -31,6 +32,7 @@ interface OnboardingFormData {
 
 export default function OnboardingEmpresaPage() {
   const router = useRouter();
+  const { status } = useAuthSession();
   const { createCompany, loading, hasCompany } = useCompanyOnboarding();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<OnboardingFormData>({
@@ -45,12 +47,31 @@ export default function OnboardingEmpresaPage() {
     exchangeRate: '7.85',
   });
 
-  // Si ya tiene empresa, redirigir al dashboard (fuera del render).
+  // Sin sesión no hay empresa que crear.
+  useEffect(() => {
+    if (status === 'unauthenticated' || status === 'error') {
+      router.replace('/login');
+    }
+  }, [status, router]);
+
+  // Si ya tiene empresa, redirigir al dashboard (nunca durante el render:
+  // llamar a `router.replace` en el cuerpo rompe la hidratación de React).
   useEffect(() => {
     if (hasCompany) {
       router.replace('/');
     }
   }, [hasCompany, router]);
+
+  if (status === 'loading' || hasCompany) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="text-center">
+          <div className="mb-4 flex h-8 w-8 animate-spin items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary" />
+          <p className="text-slate-400">Cargando empresa…</p>
+        </div>
+      </div>
+    );
+  }
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -129,8 +150,8 @@ export default function OnboardingEmpresaPage() {
         <Card variant="glass" padding="lg" className="mx-auto w-full shadow-glass-xl">
           <div className="mb-8 text-center">
             <div className="mb-4 flex items-center justify-center gap-2">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 flex items-center justify-center shadow-glass">
-                <span className="text-white font-bold">O</span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-glass">
+                <span className="font-bold text-white">O</span>
               </div>
               <div>
                 <h1 className="mb-0 text-2xl font-bold text-white">ORIGEN ERP</h1>
@@ -146,9 +167,9 @@ export default function OnboardingEmpresaPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Nombre Comercial
                 </label>
                 <Input
@@ -166,7 +187,7 @@ export default function OnboardingEmpresaPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Razón Social
                 </label>
                 <Input
@@ -184,9 +205,9 @@ export default function OnboardingEmpresaPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   NIT
                 </label>
                 <Input
@@ -202,7 +223,7 @@ export default function OnboardingEmpresaPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Teléfono
                 </label>
                 <Input
@@ -218,9 +239,9 @@ export default function OnboardingEmpresaPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Dirección
                 </label>
                 <Input
@@ -232,13 +253,11 @@ export default function OnboardingEmpresaPage() {
                   required
                   variant={errors.address ? 'error' : 'default'}
                 />
-                {errors.address && (
-                  <p className="mt-1 text-xs text-red-400">{errors.address}</p>
-                )}
+                {errors.address && <p className="mt-1 text-xs text-red-400">{errors.address}</p>}
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Correo Electrónico
                 </label>
                 <Input
@@ -254,9 +273,9 @@ export default function OnboardingEmpresaPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Arquitecto Responsable
                 </label>
                 <Input
@@ -274,7 +293,7 @@ export default function OnboardingEmpresaPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   No. Colegiado
                 </label>
                 <Input
@@ -293,7 +312,7 @@ export default function OnboardingEmpresaPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Tipo de Cambio (GTQ por USD)
               </label>
               <div className="flex items-center gap-2">
