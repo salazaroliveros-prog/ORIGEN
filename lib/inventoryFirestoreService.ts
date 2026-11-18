@@ -23,6 +23,7 @@ import {
 import { getDbOrThrow, handleFirestoreError, OperationType } from './firebaseService';
 import {
   getSubcontractExpiryAlerts,
+  normalizeMoneyGTQ,
   recordPurchaseReceipt,
   validatePurchaseOrder,
   validateSubcontract,
@@ -1391,7 +1392,10 @@ export async function registerSubcontractPaymentToFirestore(input: {
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario que registra', 128);
   assertFiniteNonNegative(amountGTQ, 'Monto del pago');
-  if (amountGTQ <= 0) throw new Error('El monto del pago debe ser mayor a cero.');
+  const normalizedAmountGTQ = normalizeMoneyGTQ(amountGTQ);
+  if (normalizedAmountGTQ <= 0) {
+    throw new Error('El monto del pago debe ser mayor a cero después de redondearlo a centavos.');
+  }
   if (!isValidCalendarDate(paymentDate)) {
     throw new Error('La fecha de pago debe ser una fecha real en formato AAAA-MM-DD.');
   }
@@ -1435,7 +1439,7 @@ export async function registerSubcontractPaymentToFirestore(input: {
         if (
           previous.companyId === companyId &&
           previous.contractId === contractId &&
-          previous.amountGTQ === amountGTQ &&
+          previous.amountGTQ === normalizedAmountGTQ &&
           previous.paymentDate === paymentDate &&
           previous.reference === normalizedReference &&
           previous.paymentMethod === paymentMethod &&
@@ -1466,7 +1470,7 @@ export async function registerSubcontractPaymentToFirestore(input: {
       if (contract.status !== 'active') {
         throw new Error('Solo se pueden registrar pagos de subcontratos activos.');
       }
-      const paidGTQ = Math.round((contract.paidGTQ + amountGTQ + Number.EPSILON) * 100) / 100;
+      const paidGTQ = Math.round((contract.paidGTQ + normalizedAmountGTQ + Number.EPSILON) * 100) / 100;
       if (paidGTQ > contract.amountGTQ + 0.000001) {
         throw new Error('El pago supera el saldo pendiente del subcontrato.');
       }
@@ -1483,7 +1487,7 @@ export async function registerSubcontractPaymentToFirestore(input: {
         contractId,
         projectId: contract.projectId,
         supplierId: contract.supplierId,
-        amountGTQ,
+        amountGTQ: normalizedAmountGTQ,
         paymentDate,
         reference: normalizedReference,
         paymentMethod,
@@ -1504,7 +1508,7 @@ export async function registerSubcontractPaymentToFirestore(input: {
         supplier: supplier.name,
         nitSupplier: supplier.nit,
         facturaNumber: '',
-        amount: amountGTQ,
+        amount: normalizedAmountGTQ,
         currency: 'GTQ',
         paymentMethod,
         approvalStatus: 'Aprobado',
