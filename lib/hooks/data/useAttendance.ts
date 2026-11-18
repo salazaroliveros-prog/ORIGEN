@@ -58,13 +58,20 @@ export function useAttendance({
     setAllAttendance([]);
     setLoading(true);
 
-    const unsubAttendance = subscribeAttendance(companyId, (data) => {
-      log.debug('Attendance updated', { count: data.length });
-      const cacheKey = createCacheKey('attendance', { companyId });
-      queryCache.set(cacheKey, data, 5 * 60 * 1000);
-      setAllAttendance(data);
-      setLoading(false);
-    });
+    const unsubAttendance = subscribeAttendance(
+      companyId,
+      (data) => {
+        log.debug('Attendance updated', { count: data.length });
+        const cacheKey = createCacheKey('attendance', { companyId });
+        queryCache.set(cacheKey, data, 5 * 60 * 1000);
+        setAllAttendance(data);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('Attendance subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from attendance');
