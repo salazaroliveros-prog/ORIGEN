@@ -354,7 +354,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
       if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
       const order = orderSnapshot.data() as PurchaseOrderRecord;
       if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 4 || lineIndex >= order.lines.length) {
+      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 2 || lineIndex >= order.lines.length) {
         throw new Error('El renglón seleccionado no existe en esta orden.');
       }
 
