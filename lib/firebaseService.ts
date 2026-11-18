@@ -27,6 +27,7 @@ import {
   type DocumentData,
   type QueryDocumentSnapshot,
   type QuerySnapshot,
+  type Transaction,
 } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getFirebaseConfig, hasFirebaseRuntimeConfig } from './config';
@@ -1553,7 +1554,7 @@ export async function recordMachineryUse(
     // Read the authoritative meter and reserve both immutable IDs before
     // writing. Firestore retries the transaction if another use updates the
     // meter concurrently; a stale UI snapshot is rejected instead of winning.
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async (transaction: Transaction) => {
       const [machineSnapshot, logSnapshot, expenseSnapshot] = await Promise.all([
         transaction.get(machineRef),
         transaction.get(logRef),
