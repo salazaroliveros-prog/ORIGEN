@@ -2,6 +2,8 @@
 contentType: Reference
 title: Reporte de validación completa del sistema — ORIGEN ERP
 ---
+> **AVISO DE VIGENCIA — 18 de noviembre de 2026:** este documento es un registro histórico, no una aprobación actual de producción. Sus porcentajes, declaraciones de “100 % completo” o frases “listo para producción” no acreditan el estado del código actual. Consultar `PRODUCTION_READINESS_STATUS.md` antes de cualquier fusión o despliegue.
+
 
 # Reporte de validación completa del sistema — ORIGEN ERP
 
