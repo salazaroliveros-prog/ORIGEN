@@ -207,7 +207,7 @@ service cloud.firestore {
         data.companyId is string &&
         data.itemId is string && isValidId(data.itemId) &&
         data.createdBy == request.auth.uid &&
-        !exists(orderPath) && existsAfter(orderPath) &&
+        canManagePurchasing(data.companyId) &&
         order.id == data.orderId &&
         order.companyId == data.companyId &&
         order.status == 'draft' &&
