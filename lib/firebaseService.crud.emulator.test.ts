@@ -1353,6 +1353,5 @@ describe('firebaseService CRUD contra el emulador', () => {
   
       await expect(service.deleteFelInvoiceFromFirestore(invoiceId)).resolves.toBe(true);
       await expectRemoved('felInvoices', invoiceId);
-    }
-
+  });
 });
