@@ -14,7 +14,7 @@ test.describe('Sección Proyectos & Firmas', () => {
   test.beforeEach(async ({ page }) => {
     await ensureAuthenticated(page);
     // Navegar a la sección de proyectos
-    await page.getByRole('link', { name: 'Proyectos & Firmas' }).first().click();
+    await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
     await page.waitForTimeout(1500);
   });
 

@@ -42,7 +42,7 @@ test.describe.serial('Sección Gastos & Facturas', () => {
     await ensureAuthenticated(page);
 
     // Navegar a la sección de gastos
-    await page.getByRole('link', { name: 'Gastos & Facturas' }).first().click();
+    await page.getByRole('button', { name: 'Gastos & Facturas' }).first().click();
     await page.waitForTimeout(2000);
   });
 

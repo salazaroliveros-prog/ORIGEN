@@ -27,8 +27,8 @@ test.describe('Autenticación', () => {
   });
 
   test('la navegación principal con enlace real de la app es visible', async ({ page }) => {
-    // 'Tablero' es un enlace de navegación de la barra lateral según Sidebar.tsx
-    await expect(page.getByRole('link', { name: 'Tablero' }).first()).toBeVisible({
+    // 'Tablero' es un botón de navegación de la barra lateral según Sidebar.tsx
+    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
       timeout: 30_000,
     });
   });
