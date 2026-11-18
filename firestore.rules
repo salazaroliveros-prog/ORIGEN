@@ -488,6 +488,134 @@ service cloud.firestore {
         data.reorderLevel == existing().reorderLevel;
     }
 
+    function isValidAdjustmentWarehouse(data, warehouse) {
+      return warehouse.companyId == data.companyId &&
+        warehouse.active == true &&
+        (
+          (warehouse.type == 'general' && !data.keys().hasAny(['projectId'])) ||
+          (warehouse.type == 'project' &&
+            data.keys().hasAny(['projectId']) &&
+            data.projectId == warehouse.projectId &&
+            isProjectInCompany(data.projectId, data.companyId))
+        );
+    }
+
+    function isValidStockAdjustmentMovement(data, movementId) {
+      let balancePath = receiptBalancePath(data.balanceId);
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
+      let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
+      return data.keys().hasAll([
+          'id', 'companyId', 'itemId', 'warehouseId', 'kind', 'quantity',
+          'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId', 'notes', 'createdBy'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId',
+          'notes', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.kind in ['adjustment_in', 'adjustment_out'] &&
+        data.companyId is string &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number && data.unitCostGTQ >= 0 &&
+        data.occurredAt is string &&
+        data.referenceId is string && data.referenceId.size() > 0 && data.referenceId.size() <= 100 &&
+        data.notes is string && data.notes.size() > 0 && data.notes.size() <= 1000 &&
+        exists(balancePath) &&
+        existsAfter(balancePath) &&
+        exists(itemPath) &&
+        exists(warehousePath) &&
+        isValidStockAdjustmentMovementReferences(data, movementId, balancePath, itemPath, warehousePath);
+    }
+
+    function isValidStockAdjustmentMovementReferences(data, movementId, balancePath, itemPath, warehousePath) {
+      let previousBalance = get(balancePath).data;
+      let nextBalance = getAfter(balancePath).data;
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return previousBalance.id == data.balanceId &&
+        previousBalance.companyId == data.companyId &&
+        previousBalance.itemId == data.itemId &&
+        previousBalance.warehouseId == data.warehouseId &&
+        previousBalance.quantity is number &&
+        previousBalance.quantity >= 0 &&
+        previousBalance.averageUnitCostGTQ is number &&
+        previousBalance.averageUnitCostGTQ >= 0 &&
+        nextBalance.id == data.balanceId &&
+        nextBalance.companyId == data.companyId &&
+        nextBalance.itemId == data.itemId &&
+        nextBalance.warehouseId == data.warehouseId &&
+        nextBalance.lastMovementId == movementId &&
+        nextBalance.createdBy == previousBalance.createdBy &&
+        nextBalance.createdAt == previousBalance.createdAt &&
+        nextBalance.reorderLevel == previousBalance.reorderLevel &&
+        nextBalance.updatedAt == data.occurredAt &&
+        item.companyId == data.companyId &&
+        item.active == true &&
+        (data.kind != 'adjustment_out' || data.unitCostGTQ == previousBalance.averageUnitCostGTQ) &&
+        isValidAdjustmentWarehouse(data, warehouse) &&
+        isValidAdjustmentBalanceTransition(data, previousBalance, nextBalance);
+    }
+
+    function isValidAdjustmentBalanceTransition(data, previousBalance, nextBalance) {
+      return data.kind == 'adjustment_in'
+        ? (
+          nextBalance.quantity == previousBalance.quantity + data.quantity &&
+          isWithinOneCent(
+            nextBalance.averageUnitCostGTQ,
+            (
+              previousBalance.quantity * previousBalance.averageUnitCostGTQ +
+              data.quantity * data.unitCostGTQ
+            ) / nextBalance.quantity
+          )
+        )
+        : (
+          previousBalance.quantity >= data.quantity &&
+          nextBalance.quantity == previousBalance.quantity - data.quantity &&
+          nextBalance.averageUnitCostGTQ == (
+            nextBalance.quantity == 0 ? 0 : previousBalance.averageUnitCostGTQ
+          )
+        );
+    }
+
+    function isValidAdjustmentBalance(data, balanceId, movement) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        movement.kind in ['adjustment_in', 'adjustment_out'] &&
+        movement.id == data.lastMovementId &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        (
+          movement.kind == 'adjustment_in'
+            ? (
+              data.quantity == existing().quantity + movement.quantity &&
+              isWithinOneCent(
+                data.averageUnitCostGTQ,
+                (
+                  existing().quantity * existing().averageUnitCostGTQ +
+                  movement.quantity * movement.unitCostGTQ
+                ) / data.quantity
+              )
+            )
+            : (
+              existing().quantity >= movement.quantity &&
+              data.quantity == existing().quantity - movement.quantity &&
+              data.averageUnitCostGTQ == (
+                data.quantity == 0 ? 0 : existing().averageUnitCostGTQ
+              )
+            )
+        ) &&
+        data.reorderLevel == existing().reorderLevel;
+    }
+
     function isOpeningWarehouseValid(data, warehouse) {
       return warehouse.companyId == data.companyId &&
         warehouse.active == true &&
@@ -630,7 +758,9 @@ service cloud.firestore {
             : (movement.kind == 'transfer_out'
               ? (data.quantity < existing().quantity &&
                 isValidTransferOutBalance(data, balanceId, movement))
-              : false)));
+              : ((movement.kind == 'adjustment_in' || movement.kind == 'adjustment_out')
+                ? isValidAdjustmentBalance(data, balanceId, movement)
+                : false))));
     }
 
     function isValidProjectIssueMovement(data, movementId) {
@@ -1355,9 +1485,11 @@ service cloud.firestore {
           ? isValidReceiptMovement(incoming(), movementId)
           : (incoming().kind == 'project_issue'
             ? isValidProjectIssueMovement(incoming(), movementId)
-            : ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in')
-              ? isValidTransferMovement(incoming(), movementId)
-              : false)));
+             : ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in')
+               ? isValidTransferMovement(incoming(), movementId)
+               : ((incoming().kind == 'adjustment_in' || incoming().kind == 'adjustment_out')
+                 ? isValidStockAdjustmentMovement(incoming(), movementId)
+                 : false))));
       allow update, delete: if false;
     }
 
