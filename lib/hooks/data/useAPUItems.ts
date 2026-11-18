@@ -27,7 +27,11 @@ export interface UseAPUItemsReturn {
   deleteAPUItem: (itemId: string) => Promise<boolean>;
 }
 
-export function useAPUItems({ companyId, currentUserId, projects = [] }: UseAPUItemsOptions): UseAPUItemsReturn {
+export function useAPUItems({
+  companyId,
+  currentUserId,
+  projects = [],
+}: UseAPUItemsOptions): UseAPUItemsReturn {
   const [apuItems, setApuItems] = useState<APUItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -43,13 +47,20 @@ export function useAPUItems({ companyId, currentUserId, projects = [] }: UseAPUI
     setApuItems([]);
     setLoading(true);
 
-    const unsubAPUItems = subscribeAPUItems(companyId, (nextItems) => {
-      log.debug('APU items updated', { count: nextItems.length });
-      const cacheKey = createCacheKey('apuItems', { companyId });
-      queryCache.set(cacheKey, nextItems, 5 * 60 * 1000);
-      setApuItems(nextItems);
-      setLoading(false);
-    });
+    const unsubAPUItems = subscribeAPUItems(
+      companyId,
+      (nextItems) => {
+        log.debug('APU items updated', { count: nextItems.length });
+        const cacheKey = createCacheKey('apuItems', { companyId });
+        queryCache.set(cacheKey, nextItems, 5 * 60 * 1000);
+        setApuItems(nextItems);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('APU items subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from APU items');
@@ -82,7 +93,12 @@ export function useAPUItems({ companyId, currentUserId, projects = [] }: UseAPUI
         });
 
         log.info('Saving APU items', { projectId, count: validatedItems.length });
-        const saved = await saveAPUItemsToFirestore(validatedItems, projectId, companyId, currentUserId);
+        const saved = await saveAPUItemsToFirestore(
+          validatedItems,
+          projectId,
+          companyId,
+          currentUserId
+        );
 
         if (!saved) {
           log.error('APU items save failed in Firestore', { projectId });
