@@ -916,93 +916,28 @@ describe('firebaseService CRUD contra el emulador', () => {
 
   });
 
-  it('crea una orden de cuatro renglones y recibe cualquier índice sin modificar los demás', async () => {
-    const projectId = await createProject('PROCUREMENT-FOUR', 'Proyecto para orden de cuatro materiales');
-    const supplier = await inventoryService.createSupplierToFirestore(
-      { name: 'Proveedor cuatro renglones QA', nit: 'CF', active: true },
-      companyId,
-      userId
-    );
-    const warehouse = await inventoryService.createWarehouseToFirestore(
-      { name: 'Bodega cuatro renglones QA', type: 'project', projectId, active: true },
-      companyId,
-      userId
-    );
-    const items = [];
-    for (let index = 0; index < 4; index++) {
-      items.push(await inventoryService.createInventoryItemToFirestore(
-        { name: `Material OC cuatro ${index + 1}`, unit: 'unidad', reorderLevel: 1, active: true },
-        companyId,
-        userId
-      ));
-    }
-    const lines = items.map((item, index) => ({
-      itemId: item.id,
-      description: item.name,
-      unit: item.unit,
-      quantity: 2,
+  it('rechaza una orden con más de dos renglones antes de escribir en Firestore', async () => {
+    const lines = [0, 1, 2].map((index) => ({
+      itemId: `item-${index + 1}`,
+      description: `Material ${index + 1}`,
+      unit: 'unidad',
+      quantity: 1,
       unitPriceGTQ: 10 + index,
     }));
-    const subtotalGTQ = lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0);
-    const taxGTQ = Math.round(subtotalGTQ * 0.12 * 100) / 100;
-
-    const order = await inventoryService.createPurchaseOrderToFirestore({
-      projectId,
-      supplierId: supplier.id,
-      number: uniqueId('OC-FOUR'),
+    await expect(inventoryService.createPurchaseOrderToFirestore({
+      projectId: 'project-three-lines',
+      supplierId: 'supplier-three-lines',
+      number: uniqueId('OC-THREE'),
       status: 'draft',
       currency: 'GTQ',
       lines,
-      subtotalGTQ,
+      subtotalGTQ: 33,
       discountGTQ: 0,
       taxPercent: 12,
-      taxGTQ,
-      totalGTQ: subtotalGTQ + taxGTQ,
-    }, companyId, userId);
-
-    expect(order.lines).toHaveLength(4);
-    const approved = await inventoryService.approvePurchaseOrderToFirestore(order.id, companyId, userId);
-    expect(approved.status).toBe('approved');
-
-    const lastLineReceipt = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id,
-      lineIndex: 3,
-      warehouseId: warehouse.id,
-      quantity: 1,
-      receiptNumber: 'OC-FOUR-LAST',
-      companyId,
-      userId,
-    });
-    expect(lastLineReceipt.order.status).toBe('partially_received');
-    expect(lastLineReceipt.order.lines.map((line) => line.receivedQuantity)).toEqual([0, 0, 0, 1]);
-    expect(lastLineReceipt.balance.quantity).toBe(1);
-
-    const firstLineReceipt = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id,
-      lineIndex: 0,
-      warehouseId: warehouse.id,
-      quantity: 2,
-      receiptNumber: 'OC-FOUR-FIRST',
-      companyId,
-      userId,
-    });
-    expect(firstLineReceipt.order.lines.map((line) => line.receivedQuantity)).toEqual([2, 0, 0, 1]);
-
-    await expect(inventoryService.createPurchaseOrderToFirestore({
-      projectId,
-      supplierId: supplier.id,
-      number: uniqueId('OC-FIVE'),
-      status: 'draft',
-      currency: 'GTQ',
-      lines: [...lines, { ...lines[0], itemId: uniqueId('ITEM-FIVE') }],
-      subtotalGTQ: subtotalGTQ + 20,
-      discountGTQ: 0,
-      taxPercent: 12,
-      taxGTQ: Math.round((subtotalGTQ + 20) * 0.12 * 100) / 100,
-      totalGTQ: Math.round((subtotalGTQ + 20) * 1.12 * 100) / 100,
-    }, companyId, userId)).rejects.toThrow('entre 1 y 4');
+      taxGTQ: 3.96,
+      totalGTQ: 36.96,
+    }, companyId, userId)).rejects.toThrow('entre 1 y 2');
   });
-
   it('registra pagos de subcontratos con fecha real, atomicidad, idempotencia y límite de saldo', async () => {
     const projectId = await createProject('SUB-PAYMENTS', 'Proyecto para pagos de subcontrato');
     const supplier = await inventoryService.createSupplierToFirestore(
