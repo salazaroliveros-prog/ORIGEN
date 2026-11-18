@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { FieldVisit } from '@/lib/types';
-import {
-  subscribeFieldVisits,
-  saveFieldVisitToFirestore,
-} from '@/lib/firebaseService';
+import { subscribeFieldVisits, saveFieldVisitToFirestore } from '@/lib/firebaseService';
 import { toast } from 'react-hot-toast';
 import { createLogger } from '@/lib/utils/logger';
 import { queryCache, createCacheKey } from '@/lib/utils/cacheManager';
@@ -23,7 +20,10 @@ export interface UseFieldVisitsReturn {
   saveFieldVisit: (visit: FieldVisit) => Promise<boolean>;
 }
 
-export function useFieldVisits({ companyId, currentUserId }: UseFieldVisitsOptions): UseFieldVisitsReturn {
+export function useFieldVisits({
+  companyId,
+  currentUserId,
+}: UseFieldVisitsOptions): UseFieldVisitsReturn {
   const [fieldVisits, setFieldVisits] = useState<FieldVisit[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -39,13 +39,20 @@ export function useFieldVisits({ companyId, currentUserId }: UseFieldVisitsOptio
     setFieldVisits([]);
     setLoading(true);
 
-    const unsubFieldVisits = subscribeFieldVisits(companyId, (data) => {
-      log.debug('Field visits updated', { count: data.length });
-      const cacheKey = createCacheKey('fieldVisits', { companyId });
-      queryCache.set(cacheKey, data, 5 * 60 * 1000);
-      setFieldVisits(data);
-      setLoading(false);
-    });
+    const unsubFieldVisits = subscribeFieldVisits(
+      companyId,
+      (data) => {
+        log.debug('Field visits updated', { count: data.length });
+        const cacheKey = createCacheKey('fieldVisits', { companyId });
+        queryCache.set(cacheKey, data, 5 * 60 * 1000);
+        setFieldVisits(data);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('Field visits subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from field visits');
