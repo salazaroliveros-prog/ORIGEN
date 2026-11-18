@@ -8,6 +8,7 @@ import {
   saveCompanySettingsToFirestore,
 } from '@/lib/firebaseService';
 import { subscribeToAuthState } from '@/lib/firebaseAuth';
+import { ensureCompanyWorkspace } from '@/lib/companyWorkspace';
 import { toast } from 'react-hot-toast';
 import { createLogger } from '@/lib/utils/logger';
 
@@ -139,6 +140,10 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
           logoSquareUrl: undefined,
           bannerUrl: undefined,
         };
+
+        // Crear primero el workspace y la membresía owner: las reglas de
+        // Firestore exigen ambos registros antes de guardar la configuración.
+        await ensureCompanyWorkspace(user);
 
         const saved = await saveCompanySettingsToFirestore(companyData, companyId);
         if (saved) {
