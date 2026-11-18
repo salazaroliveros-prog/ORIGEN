@@ -1459,7 +1459,10 @@ service cloud.firestore {
     }
 
     match /machineryLogs/{logId} {
-      allow get: if isCompanyMember(existing().companyId);
+      // Allow a signed-in caller to check a deterministic log ID before an
+      // atomic create; existing log contents remain company-private.
+      allow get: if (resource == null && isSignedIn()) ||
+        isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(logId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
