@@ -137,9 +137,13 @@ service cloud.firestore {
     }
 
     function isValidPurchaseOrderLine(line, companyId) {
+      // get() fails closed when the referenced item does not exist. Avoid a
+      // separate exists() call for every line while still enforcing company
+      // ownership on the referenced catalog item.
+      let item = get(/databases/$(database)/documents/inventoryItems/$(line.itemId)).data;
       return line.keys().hasAll(['itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ']) &&
         line.itemId is string && isValidId(line.itemId) &&
-        isInventoryItemInCompany(line.itemId, companyId) &&
+        item.companyId == companyId &&
         line.description is string && line.description.size() > 0 && line.description.size() <= 200 &&
         line.unit is string && line.unit.size() > 0 && line.unit.size() <= 32 &&
         line.quantity is number && line.quantity > 0 &&
