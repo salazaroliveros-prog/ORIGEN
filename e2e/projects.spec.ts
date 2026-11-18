@@ -85,6 +85,6 @@ test.describe('Sección Proyectos & Firmas', () => {
       timeout: 20_000,
     });
     await expect(page.getByLabel('Observaciones de Cierre')).toBeVisible();
-    await expect(page.getByLabel(/Balance Final/)).toBeVisible();
+    await expect(page.getByLabel(/Saldo final tras compromisos/)).toBeVisible();
   });
 });
