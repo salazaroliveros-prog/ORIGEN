@@ -146,12 +146,23 @@ service cloud.firestore {
     }
 
     function isValidPurchaseOrderLineProofLine(line, orderLine, lineIndex, companyId) {
-      let item = get(/databases/$(database)/documents/inventoryItems/$(line.itemId)).data;
+      let item = get(/databases/$(database)/documents/inventoryItems/$(orderLine.itemId)).data;
       return line.keys().hasAll(['lineIndex', 'itemId']) &&
         line.keys().hasOnly(['lineIndex', 'itemId']) &&
         line.lineIndex is int && line.lineIndex == lineIndex &&
         line.itemId is string && isValidId(line.itemId) &&
+        orderLine.keys().hasAll([
+          'itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ'
+        ]) &&
+        orderLine.itemId is string && isValidId(orderLine.itemId) &&
         line.itemId == orderLine.itemId &&
+        orderLine.description is string &&
+        orderLine.description.size() > 0 && orderLine.description.size() <= 200 &&
+        orderLine.unit is string &&
+        orderLine.unit.size() > 0 && orderLine.unit.size() <= 32 &&
+        orderLine.quantity is number && orderLine.quantity > 0 &&
+        orderLine.receivedQuantity == 0 &&
+        orderLine.unitPriceGTQ is number && orderLine.unitPriceGTQ >= 0 &&
         item.companyId == companyId;
     }
 
@@ -198,39 +209,20 @@ service cloud.firestore {
         data.lines.size() >= 1 && data.lines.size() <= 4 &&
         data.lines.size() == order.lines.size() &&
         isValidPurchaseOrderLineProofLine(data.lines[0], order.lines[0], 0, data.companyId) &&
-        (data.lines.size() < 2 || isValidPurchaseOrderLineProofLine(data.lines[1], order.lines[1], 1, data.companyId)) &&
-        (data.lines.size() < 3 || isValidPurchaseOrderLineProofLine(data.lines[2], order.lines[2], 2, data.companyId)) &&
-        (data.lines.size() < 4 || isValidPurchaseOrderLineProofLine(data.lines[3], order.lines[3], 3, data.companyId));
-    }
-
-    function isValidPurchaseOrderLine(line, companyId) {
-      return line.keys().hasAll(['itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ']) &&
-        line.itemId is string && isValidId(line.itemId) &&
-        line.description is string && line.description.size() > 0 && line.description.size() <= 200 &&
-        line.unit is string && line.unit.size() > 0 && line.unit.size() <= 32 &&
-        line.quantity is number && line.quantity > 0 &&
-        line.receivedQuantity == 0 &&
-        line.unitPriceGTQ is number && line.unitPriceGTQ >= 0;
-    }
-
-    function isValidPurchaseOrderLines(lines, companyId) {
-      return lines is list &&
-        lines.size() >= 1 && lines.size() <= 4 &&
-        isValidPurchaseOrderLine(lines[0], companyId) &&
-        (lines.size() < 2 || (
-          isValidPurchaseOrderLine(lines[1], companyId) &&
-          lines[1].itemId != lines[0].itemId
+        (data.lines.size() < 2 || (
+          isValidPurchaseOrderLineProofLine(data.lines[1], order.lines[1], 1, data.companyId) &&
+          order.lines[1].itemId != order.lines[0].itemId
         )) &&
-        (lines.size() < 3 || (
-          isValidPurchaseOrderLine(lines[2], companyId) &&
-          lines[2].itemId != lines[0].itemId &&
-          lines[2].itemId != lines[1].itemId
+        (data.lines.size() < 3 || (
+          isValidPurchaseOrderLineProofLine(data.lines[2], order.lines[2], 2, data.companyId) &&
+          order.lines[2].itemId != order.lines[0].itemId &&
+          order.lines[2].itemId != order.lines[1].itemId
         )) &&
-        (lines.size() < 4 || (
-          isValidPurchaseOrderLine(lines[3], companyId) &&
-          lines[3].itemId != lines[0].itemId &&
-          lines[3].itemId != lines[1].itemId &&
-          lines[3].itemId != lines[2].itemId
+        (data.lines.size() < 4 || (
+          isValidPurchaseOrderLineProofLine(data.lines[3], order.lines[3], 3, data.companyId) &&
+          order.lines[3].itemId != order.lines[0].itemId &&
+          order.lines[3].itemId != order.lines[1].itemId &&
+          order.lines[3].itemId != order.lines[2].itemId
         ));
     }
 
@@ -1602,7 +1594,6 @@ service cloud.firestore {
         incoming().currency == 'GTQ' &&
         incoming().status == 'draft' &&
         !incoming().keys().hasAny(['approvedBy', 'lastReceiptMovementId']) &&
-        isValidPurchaseOrderLines(incoming().lines, incoming().companyId) &&
         isMatchingPurchaseOrderLineProof(incoming()) &&
         incoming().number is string &&
         incoming().number.size() > 0 &&
