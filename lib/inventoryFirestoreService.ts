@@ -1,10 +1,9 @@
 /**
  * Persistencia Firestore para inventario y abastecimiento de ORIGEN.
  *
- * Este módulo crea los documentos base y suscripciones por empresa. Las
- * recepciones de compra y los movimientos que cambian existencias se mantienen
- * fuera de este módulo hasta contar con una operación transaccional que los
- * registre conjuntamente.
+ * Este módulo mantiene catálogos, órdenes de compra, recepciones y movimientos
+ * de existencias. Las operaciones que afectan saldos se escriben en transacciones
+ * atómicas junto con sus movimientos auditables.
  */
 import {
   collection,
@@ -318,9 +317,9 @@ export async function approvePurchaseOrderToFirestore(
 }
 
 /**
- * Recibe una entrega de una OC de un solo renglón. El movimiento, el saldo
- * ponderado y la cantidad recibida de la OC se confirman en una sola
- * transacción. El número de recepción es la clave de idempotencia por orden.
+ * Recibe una entrega de cualquiera de los hasta cuatro renglones de una OC.
+ * El movimiento, el saldo ponderado y la cantidad recibida se confirman en una
+ * sola transacción. El número de recepción es la clave de idempotencia por orden.
  */
 export async function receivePurchaseOrderToWarehouse(input: {
   orderId: string;
@@ -336,7 +335,7 @@ export async function receivePurchaseOrderToWarehouse(input: {
   assertSafeDocumentId(warehouseId, 'Bodega');
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario que recibe', 128);
-  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex > 1) {
+  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex > 3) {
     throw new Error('El renglón de la orden no es válido.');
   }
   assertFiniteNonNegative(quantity, 'Cantidad recibida');
