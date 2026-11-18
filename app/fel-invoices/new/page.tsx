@@ -8,12 +8,14 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useActiveWorkspace } from '@/lib/hooks/useActiveWorkspace';
 import { useFelInvoices } from '@/lib/hooks/data/useFelInvoices';
+import { canWriteFelInvoices } from '@/lib/permissions';
 import {
+  IVA_RATE_GT,
   normalizeFelInvoiceItems,
   calculateFelInvoiceTotals,
   formatFelDteNumber,
@@ -46,11 +48,23 @@ interface NewInvoiceFormData {
 
 export default function NewFelInvoicePage() {
   const router = useRouter();
-  const { currentUser } = useAuthSession();
-  const { addInvoice, loading } = useFelInvoices({
-    companyId: '', // se resolverá desde el contexto
-    currentUserId: '',
-  });
+  const {
+    status,
+    companyId,
+    currentUserId,
+    role,
+    ready,
+    loading: workspaceLoading,
+    error: workspaceError,
+  } = useActiveWorkspace();
+  const { addInvoice, loading } = useFelInvoices({ companyId, currentUserId });
+  const canWrite = canWriteFelInvoices(role);
+
+  useEffect(() => {
+    if (status === 'unauthenticated' || status === 'error') {
+      router.replace('/login');
+    }
+  }, [status, router]);
 
   const [formData, setFormData] = useState<NewInvoiceFormData>({
     dteNumber: '',
@@ -80,7 +94,8 @@ export default function NewFelInvoicePage() {
       unit: 'Und',
       unitPriceGTQ: 0,
       totalPriceGTQ: 0,
-      taxRate: 12,
+      // Fracción (0.12 = 12 % de IVA Guatemala), no porcentaje.
+      taxRate: IVA_RATE_GT,
       taxAmountGTQ: 0,
     },
   ]);
@@ -95,8 +110,12 @@ export default function NewFelInvoicePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Recalcular totales cuando cambian los ítems
-  const { subtotalGTQ, taxAmountGTQ, totalGTQ } = calculateFelInvoiceTotals(items);
+  // Totales en vivo: se normalizan los ítems antes de sumar, igual que al
+  // guardar. Sin esto el resumen mostraba Q 0 mientras se digitaban los ítems.
+  const { subtotalGTQ, taxAmountGTQ, totalGTQ } = useMemo(
+    () => calculateFelInvoiceTotals(normalizeFelInvoiceItems(items)),
+    [items]
+  );
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -159,7 +178,7 @@ export default function NewFelInvoicePage() {
       unit: 'Und',
       unitPriceGTQ: 0,
       totalPriceGTQ: 0,
-      taxRate: 12,
+      taxRate: IVA_RATE_GT,
       taxAmountGTQ: 0,
     };
     setItems([...items, newItem]);
@@ -170,9 +189,7 @@ export default function NewFelInvoicePage() {
   };
 
   const updateItem = (id: string, field: keyof FelInvoiceItem, value: any) => {
-    setItems(
-      items.map((i) => (i.id === id ? { ...i, [field]: value } : i))
-    );
+    setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 
   const startEditItem = (id: string) => {
@@ -219,7 +236,7 @@ export default function NewFelInvoicePage() {
       return;
     }
 
-    if (!currentUser) {
+    if (!currentUserId || !companyId) {
       toast.error('No hay sesión activa');
       return;
     }
@@ -229,8 +246,8 @@ export default function NewFelInvoicePage() {
 
     const invoice: FelInvoice = {
       id: `fel-${Date.now()}`,
-      companyId: '', // se resolverá en el hook
-      authorId: currentUser.uid,
+      companyId,
+      authorId: currentUserId,
       dteNumber: formData.dteNumber.trim(),
       serie: formData.serie.trim(),
       correlativo: formData.correlativo.trim(),
@@ -270,12 +287,55 @@ export default function NewFelInvoicePage() {
     });
   };
 
+  if (status === 'loading' || workspaceLoading || (!ready && !workspaceError)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="text-center">
+          <div className="mb-4 flex h-8 w-8 animate-spin items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary" />
+          <p className="text-slate-400">Preparando el formulario…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (workspaceError || !ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
+        <Card variant="glass" padding="lg" className="max-w-md text-center">
+          <h1 className="mb-2 text-xl font-bold text-white">No se pudo cargar la empresa</h1>
+          <p className="mb-4 text-sm text-slate-400">
+            {workspaceError ?? 'Inicia sesión para emitir facturas FEL.'}
+          </p>
+          <Button variant="primary" onClick={() => router.replace('/login')}>
+            Ir a iniciar sesión
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!canWrite) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
+        <Card variant="glass" padding="lg" className="max-w-md text-center">
+          <h1 className="mb-2 text-xl font-bold text-white">Permiso insuficiente</h1>
+          <p className="mb-4 text-sm text-slate-400">
+            Solo los roles de propietario, administrador o finanzas pueden emitir facturas FEL.
+          </p>
+          <Button variant="outline" onClick={() => router.replace('/fel-invoices')}>
+            Volver al listado
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="mx-auto max-w-4xl p-4">
       <Card variant="glass" padding="lg">
         <div className="mb-6 flex items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 flex items-center justify-center shadow-glass">
-            <span className="text-white font-bold">🧾</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-glass">
+            <span className="font-bold text-white">🧾</span>
           </div>
           <div>
             <h1 className="mb-0 text-2xl font-bold text-white">Nueva Factura FEL</h1>
@@ -287,26 +347,23 @@ export default function NewFelInvoicePage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* DTE Information */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Número de DTE
               </label>
               <Input
                 type="text"
                 placeholder="FAC-001-000000001"
                 value={formData.dteNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, dteNumber: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, dteNumber: e.target.value })}
                 required
                 variant={errors.dteNumber ? 'error' : 'default'}
               />
-              {errors.dteNumber && (
-                <p className="mt-1 text-xs text-danger">{errors.dteNumber}</p>
-              )}
+              {errors.dteNumber && <p className="mt-1 text-xs text-danger">{errors.dteNumber}</p>}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Serie
               </label>
               <Input
@@ -319,16 +376,14 @@ export default function NewFelInvoicePage() {
               {errors.serie && <p className="mt-1 text-xs text-red-400">{errors.serie}</p>}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Correlativo
               </label>
               <Input
                 type="text"
                 placeholder="000000001"
                 value={formData.correlativo}
-                onChange={(e) =>
-                  setFormData({ ...formData, correlativo: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, correlativo: e.target.value })}
                 required
                 variant={errors.correlativo ? 'error' : 'default'}
               />
@@ -337,7 +392,7 @@ export default function NewFelInvoicePage() {
               )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Fecha de Emisión
               </label>
               <Input
@@ -352,36 +407,30 @@ export default function NewFelInvoicePage() {
           </div>
 
           {/* Emisor */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 NIT Emisor
               </label>
               <Input
                 type="text"
                 placeholder="1234567-8"
                 value={formData.emisorNit}
-                onChange={(e) =>
-                  setFormData({ ...formData, emisorNit: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, emisorNit: e.target.value })}
                 required
                 variant={errors.emisorNit ? 'error' : 'default'}
               />
-              {errors.emisorNit && (
-                <p className="mt-1 text-xs text-red-400">{errors.emisorNit}</p>
-              )}
+              {errors.emisorNit && <p className="mt-1 text-xs text-red-400">{errors.emisorNit}</p>}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Nombre Emisor
               </label>
               <Input
                 type="text"
                 placeholder="Nombre de la empresa emisora"
                 value={formData.emisorNombre}
-                onChange={(e) =>
-                  setFormData({ ...formData, emisorNombre: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, emisorNombre: e.target.value })}
                 required
                 variant={errors.emisorNombre ? 'error' : 'default'}
               />
@@ -391,18 +440,16 @@ export default function NewFelInvoicePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Dirección Emisor
               </label>
               <Input
                 type="text"
                 placeholder="Dirección completa"
                 value={formData.emisorDireccion}
-                onChange={(e) =>
-                  setFormData({ ...formData, emisorDireccion: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, emisorDireccion: e.target.value })}
                 required
                 variant={errors.emisorDireccion ? 'error' : 'default'}
               />
@@ -411,49 +458,43 @@ export default function NewFelInvoicePage() {
               )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Correo Emisor
               </label>
               <Input
                 type="email"
                 placeholder="empresa@correo.com"
                 value={formData.emisorCorreo}
-                onChange={(e) =>
-                  setFormData({ ...formData, emisorCorreo: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, emisorCorreo: e.target.value })}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Teléfono Emisor
               </label>
               <Input
                 type="tel"
                 placeholder="+502 1234-5678"
                 value={formData.emisorTelefono}
-                onChange={(e) =>
-                  setFormData({ ...formData, emisorTelefono: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, emisorTelefono: e.target.value })}
               />
             </div>
           </div>
 
           {/* Receptor */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 NIT Receptor
               </label>
               <Input
                 type="text"
                 placeholder="1234567-8"
                 value={formData.receptorNit}
-                onChange={(e) =>
-                  setFormData({ ...formData, receptorNit: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, receptorNit: e.target.value })}
                 required
                 variant={errors.receptorNit ? 'error' : 'default'}
               />
@@ -462,16 +503,14 @@ export default function NewFelInvoicePage() {
               )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Nombre Receptor
               </label>
               <Input
                 type="text"
                 placeholder="Nombre del cliente"
                 value={formData.receptorNombre}
-                onChange={(e) =>
-                  setFormData({ ...formData, receptorNombre: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, receptorNombre: e.target.value })}
                 required
                 variant={errors.receptorNombre ? 'error' : 'default'}
               />
@@ -481,18 +520,16 @@ export default function NewFelInvoicePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Dirección Receptor
               </label>
               <Input
                 type="text"
                 placeholder="Dirección completa"
                 value={formData.receptorDireccion}
-                onChange={(e) =>
-                  setFormData({ ...formData, receptorDireccion: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, receptorDireccion: e.target.value })}
                 required
                 variant={errors.receptorDireccion ? 'error' : 'default'}
               />
@@ -501,59 +538,50 @@ export default function NewFelInvoicePage() {
               )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Correo Receptor
               </label>
               <Input
                 type="email"
                 placeholder="cliente@correo.com"
                 value={formData.receptorCorreo}
-                onChange={(e) =>
-                  setFormData({ ...formData, receptorCorreo: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, receptorCorreo: e.target.value })}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Teléfono Receptor
               </label>
               <Input
                 type="tel"
                 placeholder="+502 1234-5678"
                 value={formData.receptorTelefono}
-                onChange={(e) =>
-                  setFormData({ ...formData, receptorTelefono: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, receptorTelefono: e.target.value })}
               />
             </div>
           </div>
 
           {/* Items Table */}
           <div>
-            <div className="flex justify-between items-end mb-2">
+            <div className="mb-2 flex items-end justify-between">
               <h3 className="text-sm font-semibold text-white">Ítems de la Factura</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addItem}
-                className="text-xs"
-              >
+              <Button variant="outline" size="sm" onClick={addItem} className="text-xs">
                 + Agregar Ítem
               </Button>
             </div>
             <table className="w-full text-sm">
               <thead className="bg-white/[0.05]">
                 <tr>
-                  <th className="text-left pb-2">Descripción</th>
-                  <th className="text-right pb-2">Cantidad</th>
-                  <th className="text-right pb-2">Unidad</th>
-                  <th className="text-right pb-2">Precio Unit. (Q)</th>
-                  <th className="text-right pb-2">Total (Q)</th>
-                  <th className="text-right pb-2">IVA (Q)</th>
-                  <th className="text-center pb-2">Acciones</th>
+                  <th className="pb-2 text-left">Descripción</th>
+                  <th className="pb-2 text-right">Cantidad</th>
+                  <th className="pb-2 text-right">Unidad</th>
+                  <th className="pb-2 text-right">Precio Unit. (Q)</th>
+                  <th className="pb-2 text-right">Total (Q)</th>
+                  <th className="pb-2 text-right">IVA (Q)</th>
+                  <th className="pb-2 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -630,18 +658,16 @@ export default function NewFelInvoicePage() {
                     ) : (
                       <>
                         <td className="py-2">{item.description}</td>
-                        <td className="text-right py-2">{item.quantity}</td>
-                        <td className="text-right py-2">{item.unit}</td>
-                        <td className="text-right py-2">
-                          {formatFelCurrency(item.unitPriceGTQ)}
-                        </td>
-                        <td className="text-right py-2 font-medium">
+                        <td className="py-2 text-right">{item.quantity}</td>
+                        <td className="py-2 text-right">{item.unit}</td>
+                        <td className="py-2 text-right">{formatFelCurrency(item.unitPriceGTQ)}</td>
+                        <td className="py-2 text-right font-medium">
                           {formatFelCurrency(item.totalPriceGTQ)}
                         </td>
-                        <td className="text-right py-2">
+                        <td className="py-2 text-right">
                           {formatFelCurrency(item.taxAmountGTQ ?? 0)}
                         </td>
-                        <td className="text-center py-2">
+                        <td className="py-2 text-center">
                           <Button
                             variant="outline"
                             size="sm"
@@ -668,64 +694,59 @@ export default function NewFelInvoicePage() {
           </div>
 
           {/* Totals */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="text-right">
               <div className="text-xs text-slate-400">Subtotal</div>
-              <div className="text-lg font-mono font-bold text-white">
+              <div className="font-mono text-lg font-bold text-white">
                 {formatFelCurrency(subtotalGTQ)}
               </div>
             </div>
             <div className="text-right">
               <div className="text-xs text-slate-400">IVA (12%)</div>
-              <div className="text-lg font-mono font-bold text-white">
+              <div className="font-mono text-lg font-bold text-white">
                 {formatFelCurrency(taxAmountGTQ)}
               </div>
             </div>
             <div className="text-right">
               <div className="text-xs font-semibold text-slate-400">Total</div>
-              <div className="text-2xl font-mono font-bold text-amber-400">
+              <div className="font-mono text-2xl font-bold text-amber-400">
                 {formatFelCurrency(totalGTQ)}
               </div>
             </div>
           </div>
 
           {/* Payment Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Método de Pago
               </label>
               <Input
                 type="text"
                 value={formData.paymentMethod}
-                onChange={(e) =>
-                  setFormData({ ...formData, paymentMethod: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                 required
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Fecha de Pago
               </label>
               <Input
                 type="date"
                 value={formData.paymentDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, paymentDate: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, paymentDate: e.target.value })}
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
               Observaciones
             </label>
             <textarea
               value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
               className="w-full rounded-xl border border-white/10 bg-slate-800/50 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-secondary/50"
               placeholder="Observaciones adicionales de la factura…"
