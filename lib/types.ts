@@ -277,6 +277,8 @@ export interface Machinery {
   plateOrCode: string;
   hourlyRateGTQ: number;
   currentHorometer: number;
+  /** Última bitácora que avanzó el horómetro (vínculo transaccional). */
+  lastMachineryLogId?: string;
   /** Horómetro del último servicio de mantenimiento (opcional). */
   lastServiceHorometer?: number;
   status: 'Disponible' | 'En Obra' | 'Mantenimiento';
