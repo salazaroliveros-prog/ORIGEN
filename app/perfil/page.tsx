@@ -45,7 +45,7 @@ const EMPTY_FORM: ProfileFormData = {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, status: authStatus, signOut } = useAuthSession();
+  const { currentUser, status, signOut } = useAuthSession();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<ProfileFormData>(EMPTY_FORM);
@@ -78,15 +78,12 @@ export default function ProfilePage() {
     };
   }, [currentUser]);
 
-  // Si la sesión no está autenticada (y ya terminó de cargar), redirigir a login.
+  // Página privada: si la sesión terminó sin usuario o falló, volver al login.
   useEffect(() => {
-    if (authStatus !== 'loading' && !currentUser) {
-      const timer = setTimeout(() => {
-        router.replace('/login');
-      }, 2000);
-      return () => clearTimeout(timer);
+    if (status === 'unauthenticated' || status === 'error') {
+      router.replace('/login');
     }
-  }, [authStatus, currentUser, router]);
+  }, [status, router]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -174,7 +171,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (authStatus === 'loading') {
+  if (status === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="text-center">
