@@ -109,6 +109,18 @@ describe('buildAttendanceRecord', () => {
     expect(record.employeeName).toBe('Albañil de prueba');
     expect(record.gpsCoords).toEqual({ lat: 14.6, lng: -90.4 });
   });
+
+  it('conserva el authorId original al editar un registro existente', () => {
+    // `firestore.rules` exige que `authorId` no cambie: si un administrador
+    // edita la asistencia de otra persona, el autor original se mantiene.
+    const record = buildAttendanceRecord(
+      { ...draftAttendance, authorId: 'autor-original' },
+      COMPANY_ID,
+      USER_ID
+    );
+
+    expect(record.authorId).toBe('autor-original');
+  });
 });
 
 describe('buildEmployeeRecord', () => {

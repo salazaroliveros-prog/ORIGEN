@@ -14,7 +14,7 @@ interface GmailManagerProps {
   userEmail?: string | null;
   accessToken?: string | null;
   tokenExpiresAt?: number | null;
-  onAuthorize: () => Promise<{ accessToken: string; expiresAt: number }>;
+  onAuthorize: () => Promise<{ accessToken: string; expiresAt: number } | null>;
 }
 
 export function GmailManager({

@@ -22,8 +22,10 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
+// Credenciales del administrador: se leen del entorno (nunca del código).
+// Configura ADMIN_EMAIL y ADMIN_PASSWORD en .env.local o en el entorno.
+let ADMIN_EMAIL = '';
+let ADMIN_PASSWORD = '';
 const COMPANY_ID = 'empresa-origen';
 const COMPANY_NAME = 'ConstructERP Guatemala';
 
@@ -327,6 +329,16 @@ async function main() {
   const env = loadEnvFile(envFilePath);
   Object.assign(process.env, env);
 
+  ADMIN_EMAIL =
+    process.env.ADMIN_EMAIL ?? env.ADMIN_EMAIL ?? process.env.PRIMARY_ADMIN_EMAIL ?? env.PRIMARY_ADMIN_EMAIL ?? '';
+  ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? env.ADMIN_PASSWORD ?? '';
+
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error('\n❌ Faltan credenciales del administrador.');
+    console.error('   Define ADMIN_EMAIL y ADMIN_PASSWORD en .env.local (o en el entorno).');
+    process.exit(1);
+  }
+
   const apiKey = env.NEXT_PUBLIC_FIREBASE_API_KEY;
   const projectId = env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const debugToken = env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN;
@@ -353,8 +365,8 @@ async function main() {
     console.log('║  ✅ CONFIGURACIÓN COMPLETADA                                 ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
     console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║  📧 Email:    salazaroliveros@gmail.com                       ║');
-    console.log('║  🔑 Password: AngelDarioJose.2026                             ║');
+    console.log('║  📧 Email:    ' + ADMIN_EMAIL);
+    console.log('║  🔑 Password: la definida en ADMIN_PASSWORD                   ║');
     console.log('║                                                               ║');
     console.log('║  Para iniciar:                                                 ║');
     console.log('║  npm run dev                                                    ║');

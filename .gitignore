@@ -55,6 +55,7 @@ firestore-debug.log
 test-results/
 playwright-report/
 playwright/.cache/
+.playwright-mcp/
 
 # Generated assets
 public/assets/branding/optimized/
@@ -70,3 +71,7 @@ e2e/login-debug.spec.ts
 scripts/create-e2e-company.mjs
 scripts/create-e2e-user.mjs
 scripts/validate-all.ps1
+
+# Herramientas locales del agente / navegador
+.opencode/
+.playwright-mcp/

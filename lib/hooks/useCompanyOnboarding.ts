@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CompanySettings } from '@/lib/types';
-import {
-  subscribeCompanySettings,
-  saveCompanySettingsToFirestore,
-} from '@/lib/firebaseService';
+import { subscribeCompanySettings, saveCompanySettingsToFirestore } from '@/lib/firebaseService';
 import { getAuthOrThrow } from '@/lib/firebaseService';
+import { ensureCompanyWorkspace } from '@/lib/companyWorkspace';
 import { toast } from 'react-hot-toast';
 import { createLogger } from '@/lib/utils/logger';
 
@@ -20,7 +18,12 @@ export interface UseCompanyOnboardingReturn {
   /** Indica si el usuario tiene empresa creada */
   hasCompany: boolean;
   /** Crea la empresa inicial para el usuario autenticado */
-  createCompany: (settings: Omit<CompanySettings, 'companyId' | 'ownerId' | 'logoUrl' | 'logoSmallUrl' | 'logoSquareUrl' | 'bannerUrl'>) => Promise<boolean>;
+  createCompany: (
+    settings: Omit<
+      CompanySettings,
+      'companyId' | 'ownerId' | 'logoUrl' | 'logoSmallUrl' | 'logoSquareUrl' | 'bannerUrl'
+    >
+  ) => Promise<boolean>;
 }
 
 export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
@@ -43,23 +46,36 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
     const companyId = user.uid;
     setLoading(true);
 
-    const unsubscribe = subscribeCompanySettings(companyId, (data) => {
-      setLoading(false);
-      checkedRef.current = true;
-      if (data && data.legalName) {
-        setCompany(data);
-        setHasCompany(true);
-      } else {
-        setCompany(null);
-        setHasCompany(false);
+    const unsubscribe = subscribeCompanySettings(
+      companyId,
+      (data) => {
+        setLoading(false);
+        checkedRef.current = true;
+        if (data && data.legalName) {
+          setCompany(data);
+          setHasCompany(true);
+        } else {
+          setCompany(null);
+          setHasCompany(false);
+        }
+      },
+      (error) => {
+        log.error('Company settings subscription failed', error);
+        setLoading(false);
+        checkedRef.current = true;
       }
-    });
+    );
 
     return () => unsubscribe();
   }, []);
 
   const createCompany = useCallback(
-    async (settings: Omit<CompanySettings, 'companyId' | 'ownerId' | 'logoUrl' | 'logoSmallUrl' | 'logoSquareUrl' | 'bannerUrl'>): Promise<boolean> => {
+    async (
+      settings: Omit<
+        CompanySettings,
+        'companyId' | 'ownerId' | 'logoUrl' | 'logoSmallUrl' | 'logoSquareUrl' | 'bannerUrl'
+      >
+    ): Promise<boolean> => {
       const auth = getAuthOrThrow();
       const user = auth.currentUser;
       if (!user) {
@@ -79,6 +95,13 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
           logoSquareUrl: undefined,
           bannerUrl: undefined,
         };
+
+        // Orden obligatorio para que `firestore.rules` lo permita:
+        // 1) `companies/{uid}` (la regla de creación exige ownerId == auth.uid)
+        // 2) `companies/{uid}/members/{uid}` con rol owner (la creación del
+        //    perfil de empresa exige que ya exista una membresía con rol).
+        // Sin este paso el registro falla siempre con `permission-denied`.
+        await ensureCompanyWorkspace(user);
 
         const saved = await saveCompanySettingsToFirestore(companyData, companyId);
         if (saved) {

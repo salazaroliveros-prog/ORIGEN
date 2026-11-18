@@ -15,37 +15,54 @@ export const IVA_RATE_GT = 0.12; // 12% IVA Guatemala
 /**
  * Calcula el total de un ítem (quantity * unitPriceGTQ).
  */
-export function calculateItemTotal(
-  qty: number,
-  unitPriceGTQ: number
-): number {
+export function calculateItemTotal(qty: number, unitPriceGTQ: number): number {
   return round2(qty * unitPriceGTQ);
 }
 
 /**
- * Calcula el impuesto (IVA) de un ítem.
+ * Porcentaje de IVA de Guatemala expresado como porcentaje (12, no 0.12).
+ * Es el valor que entiende un usuario que lee una factura del SAT.
  */
-export function calculateItemTax(
-  totalPriceGTQ: number,
-  taxRate: number = IVA_RATE_GT
-): number {
-  return round2(totalPriceGTQ * taxRate);
+export const IVA_RATE_PERCENT_GT = 12;
+
+/**
+ * Normaliza una tasa de IVA a fracción (0.12).
+ *
+ * En el sistema conviven dos convenciones: los formularios y las facturas
+ * impresas hablan en porcentaje ("12") y los cálculos usan fracción ("0.12").
+ * Pasar 12 directo a `calculateItemTax` producía un IVA de 1200 %, así que
+ * cualquier valor mayor que 1 se interpreta como porcentaje.
+ */
+export function toTaxFraction(taxRate: number): number {
+  if (!Number.isFinite(taxRate) || taxRate <= 0) return 0;
+  const fraction = taxRate > 1 ? taxRate / 100 : taxRate;
+  // Máximo permitido: 100 % de IVA.
+  return Math.min(fraction, 1);
+}
+
+/**
+ * Calcula el impuesto (IVA) de un ítem.
+ *
+ * `taxRate` acepta porcentaje (12) o fracción (0.12); ver `toTaxFraction`.
+ */
+export function calculateItemTax(totalPriceGTQ: number, taxRate: number = IVA_RATE_GT): number {
+  return round2(totalPriceGTQ * toTaxFraction(taxRate));
 }
 
 /**
  * Valida y normaliza un ítem de factura: recalcula totalPriceGTQ y taxAmountGTQ.
  */
 export function normalizeFelInvoiceItem(item: FelInvoiceItem): FelInvoiceItem {
-  const totalPriceGTQ = calculateItemTotal(
-    item.quantity,
-    item.unitPriceGTQ
-  );
+  const totalPriceGTQ = calculateItemTotal(item.quantity, item.unitPriceGTQ);
   const taxRate = item.taxRate ?? IVA_RATE_GT;
   const taxAmountGTQ = calculateItemTax(totalPriceGTQ, taxRate);
 
   return {
     ...item,
     totalPriceGTQ,
+    // La tasa se persiste como fracción para que los cálculos y las
+    // impresiones usen una sola convención.
+    taxRate: toTaxFraction(taxRate),
     taxAmountGTQ,
   };
 }
@@ -60,19 +77,13 @@ export function normalizeFelInvoiceItems(items: FelInvoiceItem[]): FelInvoiceIte
 /**
  * Calcula los totales de la factura (subtotal, IVA, total).
  */
-export function calculateFelInvoiceTotals(
-  items: FelInvoiceItem[]
-): {
+export function calculateFelInvoiceTotals(items: FelInvoiceItem[]): {
   subtotalGTQ: number;
   taxAmountGTQ: number;
   totalGTQ: number;
 } {
-  const subtotalGTQ = round2(
-    items.reduce((sum, item) => sum + item.totalPriceGTQ, 0)
-  );
-  const taxAmountGTQ = round2(
-    items.reduce((sum, item) => sum + (item.taxAmountGTQ ?? 0), 0)
-  );
+  const subtotalGTQ = round2(items.reduce((sum, item) => sum + item.totalPriceGTQ, 0));
+  const taxAmountGTQ = round2(items.reduce((sum, item) => sum + (item.taxAmountGTQ ?? 0), 0));
   const totalGTQ = round2(subtotalGTQ + taxAmountGTQ);
 
   return { subtotalGTQ, taxAmountGTQ, totalGTQ };
@@ -134,10 +145,7 @@ export function validateFelInvoice(invoice: FelInvoice): string[] {
 /**
  * Formatea un número de DTE para impresión: "FAC-001-000000001"
  */
-export function formatFelDteNumber(
-  serie: string,
-  correlativo: string
-): string {
+export function formatFelDteNumber(serie: string, correlativo: string): string {
   return `${serie}-${correlativo.padStart(9, '0')}`;
 }
 
@@ -145,10 +153,7 @@ export function formatFelDteNumber(
  * Genera un número de DTE provisional si el usuario aún no tiene el del SAT.
  * Formato: "MANUAL-{serie}-{correlativo}"
  */
-export function generateProvisionalDteNumber(
-  serie: string,
-  correlativo: string
-): string {
+export function generateProvisionalDteNumber(serie: string, correlativo: string): string {
   return `MANUAL-${serie}-${correlativo.padStart(9, '0')}`;
 }
 

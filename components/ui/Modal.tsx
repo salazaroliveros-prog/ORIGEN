@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useId } from 'react';
+import React, { useEffect, useId } from 'react';
 import { X } from 'lucide-react';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
 import { MODALS } from '@/lib/design/constants';
@@ -34,25 +34,14 @@ export function Modal({
 }: ModalProps) {
   const titleId = useId();
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && closeOnEscape) {
-        onClose();
-      }
-    },
-    [onClose, closeOnEscape]
-  );
-
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     }
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [isOpen, handleKeyDown]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -64,7 +53,7 @@ export function Modal({
         role="presentation"
       />
       <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
-        <FocusTrap isActive onEscape={onClose} returnFocus>
+        <FocusTrap isActive onEscape={closeOnEscape ? onClose : undefined} returnFocus>
           <div
             className={`pointer-events-auto w-full ${maxWidthMap[maxWidth]} rounded-2xl border border-white/15 bg-white/[0.03] shadow-lg backdrop-blur-sm ${className}`}
             role="dialog"

@@ -19,8 +19,10 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
+// Credenciales del administrador: se leen del entorno (nunca del código).
+// Configura ADMIN_EMAIL y ADMIN_PASSWORD en .env.local o en el entorno.
+let ADMIN_EMAIL = '';
+let ADMIN_PASSWORD = '';
 
 function loadEnvFile(filePath) {
   try {
@@ -144,11 +146,21 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('📋 Paso 1: Configurando variables de entorno...');
-  await ensurePrimaryAdminEmail(envFilePath);
-
   const env = loadEnvFile(envFilePath);
   Object.assign(process.env, env);
+
+  ADMIN_EMAIL =
+    process.env.ADMIN_EMAIL ?? env.ADMIN_EMAIL ?? process.env.PRIMARY_ADMIN_EMAIL ?? env.PRIMARY_ADMIN_EMAIL ?? '';
+  ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? env.ADMIN_PASSWORD ?? '';
+
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error('\n❌ Faltan credenciales del administrador.');
+    console.error('   Define ADMIN_EMAIL y ADMIN_PASSWORD en .env.local (o en el entorno).');
+    process.exit(1);
+  }
+
+  console.log('📋 Paso 1: Configurando variables de entorno...');
+  await ensurePrimaryAdminEmail(envFilePath);
 
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
@@ -172,8 +184,8 @@ async function main() {
     console.log('║  ✅ CONFIGURACIÓN AUTOMÁTICA COMPLETADA                       ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
     console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║  📧 Email:    salazaroliveros@gmail.com                       ║');
-    console.log('║  🔑 Password: AngelDarioJose.2026                             ║');
+    console.log('║  📧 Email:    ' + ADMIN_EMAIL);
+    console.log('║  🔑 Password: la definida en ADMIN_PASSWORD                   ║');
     console.log('║                                                               ║');
     console.log('║  Configuración:                                                ║');
     console.log('║  📁 PRIMARY_ADMIN_EMAIL configurado en .env.local              ║');

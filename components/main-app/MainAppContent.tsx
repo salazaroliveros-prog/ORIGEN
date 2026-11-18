@@ -130,6 +130,10 @@ interface MainAppContentProps {
   workspace: { id: string } | null;
   /** Rol del usuario en la empresa (para auditoría y permisos). */
   userRole?: string | null;
+  /** Token OAuth de Gmail de la sesión activa (null si aún no se autorizó). */
+  gmailAccess?: { accessToken: string; expiresAt: number } | null;
+  /** Solicita (y devuelve) un token OAuth con permiso para enviar correo. */
+  onAuthorizeGmail: () => Promise<{ accessToken: string; expiresAt: number } | null>;
 }
 
 function usePermissions(role?: string) {
@@ -189,6 +193,8 @@ export function MainAppContent({
   currentUser,
   workspace,
   userRole,
+  gmailAccess,
+  onAuthorizeGmail,
 }: MainAppContentProps) {
   const tabConfig = TAB_CONFIG[activeTab];
   const activeProject =
@@ -403,9 +409,9 @@ export function MainAppContent({
         activeProjectId={activeProject?.id ?? ''}
         onSelectProject={onSelectProject}
         userEmail={currentUser?.email}
-        accessToken={null}
-        tokenExpiresAt={null}
-        onAuthorize={async () => ({ accessToken: '', expiresAt: 0 })}
+        accessToken={gmailAccess?.accessToken ?? null}
+        tokenExpiresAt={gmailAccess?.expiresAt ?? null}
+        onAuthorize={onAuthorizeGmail}
       />
     );
   }

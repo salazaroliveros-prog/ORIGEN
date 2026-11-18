@@ -7,6 +7,7 @@ import {
   HardHat,
   Calculator,
   FileText,
+  FileCheck2,
   CalendarDays,
   Truck,
   Users,
@@ -74,6 +75,7 @@ export function Sidebar({
     { id: 'personal', label: 'Personal & IGSS', icon: Users },
     { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
     { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
+    { id: 'fel_invoices', label: 'Facturas FEL', icon: FileCheck2 },
     { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
     { id: 'ai', label: 'Asistente IA', icon: Sparkles },
     { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
@@ -89,24 +91,26 @@ export function Sidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-slate-950/90 border-r border-white/10 backdrop-blur-xl ${className}`}
+      className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-white/10 bg-slate-950/90 backdrop-blur-xl ${className}`}
       aria-label="Navegación principal"
     >
       {/* Header de empresa */}
-      <div className="flex flex-col items-center gap-3 px-5 py-6 border-b border-white/10">
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-br from-amber-400/20 to-sky-500/20 shadow-[0_8px_24px_rgba(245,158,11,0.2)]">
+      <div className="flex flex-col items-center gap-3 border-b border-white/10 px-5 py-6">
+        <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-amber-400/20 to-sky-500/20 p-3 shadow-[0_8px_24px_rgba(245,158,11,0.2)]">
           <div className="flex items-center justify-center rounded-lg bg-white/20 p-1">
-            <Building2 className="h-6 w-6 text-amber-400 stroke-[2.5]" />
+            <Building2 className="h-6 w-6 stroke-[2.5] text-amber-400" />
           </div>
           <div className="flex flex-col">
-            <h2 className="text-sm font-bold text-white truncate">{company.commercialName || company.companyName || company.legalName || 'ORIGEN ERP'}</h2>
-            <p className="text-[10px] text-slate-400 leading-tight">Construcción y Arquitectura</p>
+            <h2 className="truncate text-sm font-bold text-white">
+              {company.commercialName || company.companyName || company.legalName || 'ORIGEN ERP'}
+            </h2>
+            <p className="text-[10px] leading-tight text-slate-400">Construcción y Arquitectura</p>
           </div>
         </div>
         {company.phone && (
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-xs text-slate-300 hover:bg-white/[0.1] hover:text-white transition-colors">
+          <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/[0.1] hover:text-white">
             <Phone className="h-4 w-4" />
-            <span className="truncate max-w-[140px]">{company.phone}</span>
+            <span className="max-w-[140px] truncate">{company.phone}</span>
           </button>
         )}
       </div>
@@ -114,7 +118,7 @@ export function Sidebar({
       {/* Workspace selector (si hay múltiples empresas) */}
       {workspaces.length > 1 && (
         <div className="px-4 py-3">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+          <label className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Empresa
           </label>
           <select
@@ -136,39 +140,78 @@ export function Sidebar({
       <nav className="flex-1 space-y-0.5 px-3 py-4" aria-label="Navegación">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
-          return (
-            <Link
-              key={tab.id}
-              href={`/${tab.id}`}
-              className={`w-full flex items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`}
-              aria-current={isActive ? 'page' : undefined}
-            >
+          const isExternalRoute = tab.id === 'fel_invoices';
+          const itemClassName = `w-full flex items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
+          const content = (
+            <>
               <div className="flex items-center gap-3">
-                <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? 'stroke-[2.5] text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
+                <tab.icon
+                  className={`h-4 w-4 shrink-0 ${isActive ? 'stroke-[2.5] text-slate-950' : 'text-slate-400'}`}
+                  aria-hidden="true"
+                />
                 <span className="truncate">{tab.label}</span>
                 {tab.badge && (
-                  <Badge variant="primary" size="sm" className={isActive ? 'border-slate-950/30 bg-slate-950/20 text-slate-950' : ''}>
+                  <Badge
+                    variant="primary"
+                    size="sm"
+                    className={isActive ? 'border-slate-950/30 bg-slate-950/20 text-slate-950' : ''}
+                  >
                     {tab.badge}
                   </Badge>
                 )}
               </div>
               {isActive && <ChevronRight className="h-3 w-3 shrink-0 text-slate-950" />}
-            </Link>
+            </>
+          );
+
+          if (isExternalRoute) {
+            return (
+              <Link
+                key={tab.id}
+                href={`/${tab.id === 'fel_invoices' ? 'fel-invoices' : tab.id}`}
+                className={itemClassName}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {content}
+              </Link>
+            );
+          }
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onSelectTab(tab.id)}
+              className={`${itemClassName} text-left`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {content}
+            </button>
           );
         })}
       </nav>
 
       {/* Footer con usuario y cerrar sesión */}
-      <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] cursor-pointer transition-colors">
-          <div className="h-8 w-8 rounded-full bg-brand-400/20 flex items-center justify-center text-amber-400 font-bold text-xs">
+      <div className="border-t border-white/10 p-4">
+        <div className="flex cursor-pointer items-center gap-3 rounded-xl bg-white/[0.05] px-2 py-2 transition-colors hover:bg-white/[0.1]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-400/20 text-xs font-bold text-amber-400">
             {currentUser?.email?.charAt(0)?.toUpperCase() || 'U'}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate">{currentUser?.email || 'Usuario'}</p>
-            <p className="text-[10px] text-slate-400 truncate">{canManageCompany ? 'Administrador' : 'Usuario'}</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-white">
+              {currentUser?.email || 'Usuario'}
+            </p>
+            <p className="truncate text-[10px] text-slate-400">
+              {canManageCompany ? 'Administrador' : 'Usuario'}
+            </p>
           </div>
-          <Button variant="outline" size="sm" onClick={onSignOut} disabled={isSigningOut} className="h-7 w-7 p-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onSignOut}
+            disabled={isSigningOut}
+            className="h-7 w-7 p-0"
+          >
             <LogOut className="h-3.5 w-3.5" />
           </Button>
         </div>

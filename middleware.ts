@@ -1,22 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
-const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'https://origen-one-kohl.vercel.app',
-  'https://origen-duw1ejjo3-proyectoswm.vercel.app',
-];
+import {
+  buildRequestOrigins,
+  getConfiguredOrigins as readConfiguredOrigins,
+  isAllowedOriginValue,
+} from '@/lib/originAllowlist';
 
 const SENSITIVE_PATHS = ['/api/'];
-
-/**
- * Orígenes de loopback (desarrollo local).
- *
- * El servidor puede levantarse en cualquier puerto (`localhost:3001`) o
- * dirección (`127.0.0.1`), así que no se puede usar una lista fija de
- * puertos como en producción.
- */
-const LOOPBACK_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])$/;
 
 const FIREBASE_EMULATOR_HOSTS = [
   'http://127.0.0.1:9099',
@@ -27,21 +17,26 @@ const FIREBASE_EMULATOR_HOSTS = [
   'http://localhost:9199',
 ];
 
+/** Orígenes configurados por entorno (`ALLOWED_ORIGINS`, `NEXT_PUBLIC_SITE_URL`). */
+export function getConfiguredOrigins(): string[] {
+  return readConfiguredOrigins();
+}
+
+function getRequestOrigins(request: NextRequest): string[] {
+  return buildRequestOrigins({
+    requestUrl: request.nextUrl.origin,
+    host: request.headers.get('x-forwarded-host') ?? request.headers.get('host'),
+    protocol: request.headers.get('x-forwarded-proto') ?? request.nextUrl.protocol,
+  });
+}
+
 /**
- * Indica si un valor (`Origin` o `Referer`) pertenece a un origen permitido.
- *
- * Acepta los orígenes de producción, los preview desplegados y cualquier
- * loopback local.
+ * Indica si un valor (`Origin` o `Referer`) apunta a un origen permitido:
+ * loopback local, la lista de `ALLOWED_ORIGINS`/`NEXT_PUBLIC_SITE_URL` o el
+ * mismo host que atendió la petición.
  */
-function isAllowedOrigin(candidate: string): boolean {
-  if (!candidate) return false;
-  if (ALLOWED_ORIGINS.includes(candidate)) return true;
-  try {
-    const { origin } = new URL(candidate);
-    return ALLOWED_ORIGINS.includes(origin) || LOOPBACK_ORIGIN.test(origin);
-  } catch {
-    return false;
-  }
+export function isAllowedOrigin(candidate: string, request?: NextRequest): boolean {
+  return isAllowedOriginValue(candidate, request ? getRequestOrigins(request) : []);
 }
 
 /**
@@ -57,9 +52,10 @@ export function buildContentSecurityPolicy(useFirebaseEmulators: boolean): strin
     'https://www.gstatic.com',
     'https://www.recaptcha.com',
     'https://recaptcha.net',
-    'https://vercel.com',
-    'https://origen-duw1ejjo3-proyectoswm.vercel.app',
+    // Cualquier preview de Vercel puede hacer peticiones al mismo backend.
+    'https://*.vercel.app',
     'wss:',
+    ...getConfiguredOrigins(),
     ...(useFirebaseEmulators ? FIREBASE_EMULATOR_HOSTS : []),
   ].join(' ');
 
@@ -84,17 +80,24 @@ export function buildContentSecurityPolicy(useFirebaseEmulators: boolean): strin
 }
 
 export function middleware(request: NextRequest) {
-  const origin = request.headers.get('origin') || '';
-  const referer = request.headers.get('referer') || '';
-  const isApiPath = SENSITIVE_PATHS.some((p) => request.nextUrl.pathname.startsWith(p));
+  const origin = request.headers.get('origin') ?? '';
+  const referer = request.headers.get('referer') ?? '';
+  const isApiPath = SENSITIVE_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
 
   // CSRF protection for state-changing API methods
   if (isApiPath && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
-    // El navegador siempre envía `Origin` (y `Referer`) en peticiones que
-    // modifican estado, así que basta con que uno de los dos apunte a un
-    // origen permitido. Se revisan ambos porque `Referer` sí lo envían los
-    // formularios y navegaciones.
-    const isSameOrigin = isAllowedOrigin(origin) || isAllowedOrigin(referer);
+    // El navegador envía `Origin` (y `Referer`) en peticiones que modifican
+    // estado, así que se acepta si cualquiera de los dos apunta a un origen
+    // permitido (incluido el mismo host que atendió la petición).
+    //
+    // Un request sin `Origin` ni `Referer` no puede ser un CSRF de navegador:
+    // son clientes server-to-server (curl, jobs, scripts de despliegue).
+    const hasOriginMetadata = origin !== '' || referer !== '';
+    const requestOrigins = getRequestOrigins(request);
+    const isSameOrigin =
+      !hasOriginMetadata ||
+      isAllowedOriginValue(origin, requestOrigins) ||
+      isAllowedOriginValue(referer, requestOrigins);
 
     if (!isSameOrigin) {
       return new NextResponse('Forbidden: CSRF origin check failed', { status: 403 });
@@ -104,9 +107,9 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Content Security Policy
-  const csp = buildContentSecurityPolicy(process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true');
-
   const isEmulator = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true';
+  const csp = buildContentSecurityPolicy(isEmulator);
+
   response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Content-Type-Options', 'nosniff');
   if (isEmulator) {
@@ -122,6 +125,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.webmanifest$|.*\\.sw\.js$|.*\\.ico$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.webmanifest$|.*\\.sw\\.js$|.*\\.ico$).*)',
   ],
 };

@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useAuthSession } from '@/lib/hooks/useAuthSession';
@@ -27,7 +27,7 @@ interface ProfileFormData {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, signOut } = useAuthSession();
+  const { currentUser, status, signOut } = useAuthSession();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<ProfileFormData>({
@@ -37,6 +37,23 @@ export default function ProfilePage() {
     newPassword: '',
     confirmPassword: '',
   });
+
+  // Página privada: sin sesión no se puede editar el perfil.
+  useEffect(() => {
+    if (status === 'unauthenticated' || status === 'error') {
+      router.replace('/login');
+    }
+  }, [status, router]);
+
+  // Rellenar el formulario cuando la sesión termine de resolverse.
+  useEffect(() => {
+    if (!currentUser) return;
+    setFormData((prev) => ({
+      ...prev,
+      displayName: prev.displayName || currentUser.displayName || '',
+      phoneNumber: prev.phoneNumber || currentUser.phoneNumber || '',
+    }));
+  }, [currentUser]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -96,22 +113,30 @@ export default function ProfilePage() {
     }
   };
 
-  if (!currentUser) {
+  if (status === 'loading' || !currentUser) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <div className="text-center">
-          <p className="text-slate-400">Cargando perfil…</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
+        <Card variant="glass" padding="lg" className="max-w-md text-center">
+          <div className="mx-auto mb-4 flex h-8 w-8 animate-spin items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary" />
+          <p className="text-slate-400">
+            {status === 'loading' ? 'Cargando perfil…' : 'Redirigiendo al inicio de sesión…'}
+          </p>
+          {status !== 'loading' && (
+            <Button variant="primary" className="mt-4" onClick={() => router.replace('/login')}>
+              Ir a iniciar sesión
+            </Button>
+          )}
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="mx-auto max-w-2xl p-4">
       <Card variant="glass" padding="lg">
         <div className="mb-6 flex items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 flex items-center justify-center shadow-glass">
-            <span className="text-white font-bold">👤</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-glass">
+            <span className="font-bold text-white">👤</span>
           </div>
           <div>
             <h1 className="mb-0 text-2xl font-bold text-white">Perfil de Usuario</h1>
@@ -121,7 +146,7 @@ export default function ProfilePage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
               Nombre Completo
             </label>
             <Input
@@ -139,7 +164,7 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
               Teléfono
             </label>
             <Input
@@ -155,13 +180,13 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className="pt-6 border-t border-white/10 pt-6">
-            <h3 className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-wider">
+          <div className="border-t border-white/10 pt-6">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
               Cambiar Contraseña
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Contraseña Actual
                 </label>
                 <Input
@@ -173,7 +198,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Contraseña Nueva
                 </label>
                 <Input
@@ -189,7 +214,7 @@ export default function ProfilePage() {
                 )}
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Confirmar Contraseña Nueva
                 </label>
                 <Input

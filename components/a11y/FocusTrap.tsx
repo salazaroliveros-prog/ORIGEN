@@ -36,9 +36,12 @@ export function FocusTrap({
       e.preventDefault();
       const currentIndex = elements.indexOf(document.activeElement as HTMLElement);
       if (e.shiftKey) {
-        elements[currentIndex === 0 ? elements.length - 1 : currentIndex - 1].focus();
+        const target = currentIndex <= 0 ? elements.length - 1 : currentIndex - 1;
+        elements[target]?.focus();
       } else {
-        elements[currentIndex === elements.length - 1 ? 0 : currentIndex + 1].focus();
+        const target =
+          currentIndex === -1 || currentIndex === elements.length - 1 ? 0 : currentIndex + 1;
+        elements[target]?.focus();
       }
     },
     [getFocusableElements]

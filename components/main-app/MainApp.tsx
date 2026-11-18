@@ -441,6 +441,12 @@ export default function MainApp() {
               }
               workspace={workspace}
               userRole={membership?.role ?? null}
+              gmailAccess={gmailAccess}
+              onAuthorizeGmail={async () => {
+                const result = await authorizeGmail();
+                if (!result) throw new Error('No se pudo autorizar Gmail.');
+                return result;
+              }}
             />
           )}
         </main>

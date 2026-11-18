@@ -7,6 +7,7 @@ import {
   HardHat,
   Calculator,
   FileText,
+  FileCheck2,
   CalendarDays,
   Truck,
   Users,
@@ -67,6 +68,7 @@ const TABS = [
   { id: 'personal', label: 'Personal & IGSS', icon: Users },
   { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
   { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
+  { id: 'fel_invoices', label: 'Facturas FEL', icon: FileCheck2 },
   { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
   { id: 'ai', label: 'Asistente IA', icon: Sparkles },
   { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
@@ -77,6 +79,7 @@ const MOBILE_TABS = [
   { id: 'proyectos', label: 'Obras', icon: HardHat },
   { id: 'cronograma_gantt', label: 'Seguimiento', icon: CalendarDays },
   { id: 'personal', label: 'Personal', icon: Users },
+  { id: 'fel_invoices', label: 'FEL', icon: FileCheck2 },
 ];
 
 export function Navbar({
@@ -118,9 +121,9 @@ export function Navbar({
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0] || null;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* ================= MOBILE SHELL ================= */}
-      <div className="hidden lg:flex flex-col h-full">
+      <div className="hidden h-full flex-col lg:flex">
         {/* Desktop Sidebar */}
         <Sidebar
           company={company}
@@ -142,13 +145,11 @@ export function Navbar({
         />
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto bg-slate-950">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto bg-slate-950">{children}</div>
       </div>
 
       {/* ================= MOBILE SHELL ================= */}
-      <div className="lg:hidden flex flex-col h-full">
+      <div className="flex h-full flex-col lg:hidden">
         <MobileHeader
           title={tabs.find((t) => t.id === activeTab)?.label || 'Tablero'}
           onMenuToggle={onToggleMobileSidebar}
@@ -157,16 +158,18 @@ export function Navbar({
           userEmail={currentUser?.email || undefined}
         />
 
-        <div className="flex-1 overflow-y-auto pb-20">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto pb-20">{children}</div>
 
         <BottomNav
           items={mobileTabs.map((tab) => ({
-            href: `/${tab.id}`,
+            key: tab.id,
             label: tab.label,
             icon: <tab.icon className="h-5 w-5" />,
             activeIcon: <tab.icon className="h-5 w-5" />,
+            active: activeTab === tab.id,
+            ...(tab.id === 'fel_invoices'
+              ? { href: '/fel-invoices' }
+              : { onSelect: () => onSelectTab(tab.id) }),
           }))}
         />
 
@@ -174,13 +177,15 @@ export function Navbar({
           isOpen={isMobileSidebarOpen}
           onClose={onToggleMobileSidebar ?? (() => {})}
           header={
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-400/20 text-amber-400">
                   <Building2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">{company.commercialName || company.companyName}</p>
+                  <p className="text-sm font-bold text-white">
+                    {company.commercialName || company.companyName}
+                  </p>
                   <p className="text-[10px] text-slate-400">Construcción y Arquitectura</p>
                 </div>
               </div>
@@ -196,31 +201,62 @@ export function Navbar({
           <nav className="flex-1 space-y-0.5 px-3 py-4" aria-label="Navegación principal">
             {mobileTabs.map((tab) => {
               const isActive = activeTab === tab.id;
-              return (
-                <Link
-                  key={tab.id}
-                  href={`/${tab.id}`}
-                  className={`flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
+              const isExternalRoute = tab.id === 'fel_invoices';
+              const itemClassName = `flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
+              const content = (
+                <>
                   <div className="flex items-center gap-3">
-                    <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
+                    <tab.icon
+                      className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`}
+                      aria-hidden="true"
+                    />
                     <span className="truncate">{tab.label}</span>
                   </div>
                   {isActive && <ChevronRight className="h-3 w-3 text-slate-950" />}
-                </Link>
+                </>
+              );
+
+              if (isExternalRoute) {
+                return (
+                  <Link
+                    key={tab.id}
+                    href="/fel-invoices"
+                    className={itemClassName}
+                    onClick={onToggleMobileSidebar}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {content}
+                  </Link>
+                );
+              }
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    onSelectTab(tab.id);
+                    onToggleMobileSidebar?.();
+                  }}
+                  className={`${itemClassName} text-left`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {content}
+                </button>
               );
             })}
           </nav>
 
-          <div className="px-4 py-4 border-t border-white/10">
+          <div className="border-t border-white/10 px-4 py-4">
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <span className="flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]" />
                 CONTROL DE OBRA
               </span>
               <span className="font-bold text-amber-400">
-                {company.exchangeRate > 0 ? `Q ${company.exchangeRate.toFixed(2)}/USD` : 'Sin tipo de cambio'}
+                {company.exchangeRate > 0
+                  ? `Q ${company.exchangeRate.toFixed(2)}/USD`
+                  : 'Sin tipo de cambio'}
               </span>
             </div>
           </div>

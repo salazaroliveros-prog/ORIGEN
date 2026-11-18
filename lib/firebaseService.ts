@@ -268,6 +268,10 @@ export interface FirestoreErrorInfo {
   };
 }
 
+function toError(value: unknown): Error {
+  return value instanceof Error ? value : new Error(String(value));
+}
+
 export function handleFirestoreError(
   error: unknown,
   operationType: OperationType,
@@ -344,13 +348,31 @@ export async function saveProjectToFirestore(project: Project, companyId: string
   notifySyncStart();
   try {
     const docRef = doc(db, 'projects', project.id);
+    // La propiedad no cambia al editar: si el documento ya existe se conservan
+    // `ownerId`/`createdBy`. La lectura es best-effort: las reglas deniegan el
+    // `get` de un documento inexistente, así que un fallo aquí significa
+    // simplemente que el proyecto es nuevo.
+    let existingProject: Project | null = null;
+    try {
+      const existingSnapshot = await getDoc(docRef);
+      if (existingSnapshot.exists()) {
+        existingProject = existingSnapshot.data() as Project;
+      }
+    } catch {
+      existingProject = null;
+    }
+
     await setDoc(
       docRef,
       stripUndefined({
         ...project,
         companyId,
-        ownerId: userId,
-        createdBy: project.createdBy ?? userId,
+        // La propiedad no cambia al editar: `firestore.rules` exige que
+        // `ownerId` y `createdBy` conserven su valor original. Sobrescribirlos
+        // con el usuario que edita hacía fallar cualquier actualización hecha
+        // por alguien distinto del creador.
+        ownerId: existingProject?.ownerId ?? project.ownerId ?? userId,
+        createdBy: existingProject?.createdBy ?? project.createdBy ?? userId,
       }),
       { merge: true }
     );
@@ -388,16 +410,35 @@ export async function saveProjectScheduleToFirestore(
 ): Promise<boolean> {
   const path = `projects/${projectId}`;
   try {
-    await setDoc(
-      doc(db, 'projects', projectId),
-      stripUndefined({
-        ...schedule,
-        companyId,
-        ownerId: userId,
-        updatedBy: userId,
-      }),
-      { merge: true }
-    );
+    const docRef = doc(db, 'projects', projectId);
+    const existing = await getDoc(docRef);
+
+    if (existing.exists()) {
+      // `updateDoc` sólo toca los campos del cronograma: así `ownerId`,
+      // `createdBy` y `companyId` conservan su valor y las reglas aceptan la
+      // escritura aunque la haga un PM o un administrador distinto del dueño.
+      await updateDoc(
+        docRef,
+        stripUndefined({
+          ...schedule,
+          updatedBy: userId,
+        })
+      );
+    } else {
+      // El proyecto aún no existe en Firestore (p. ej. datos locales): se crea
+      // con los campos de propiedad, que las reglas exigen en la creación.
+      await setDoc(
+        docRef,
+        stripUndefined({
+          ...schedule,
+          companyId,
+          ownerId: userId,
+          createdBy: userId,
+          updatedBy: userId,
+        }),
+        { merge: true }
+      );
+    }
     return true;
   } catch (err) {
     notifySyncEnd();
@@ -408,7 +449,8 @@ export async function saveProjectScheduleToFirestore(
 
 export function subscribeProjects(
   companyId: string,
-  callback: (projects: Project[]) => void
+  callback: (projects: Project[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'projects';
   try {
@@ -425,12 +467,14 @@ export function subscribeProjects(
         notifySyncEnd();
       },
       (error: Error) => {
+        onError?.(error);
         notifySyncEnd();
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
     notifySyncEnd();
+    onError?.(toError(err));
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -543,11 +587,13 @@ export async function updateFieldVisitToFirestore(
       return false;
     }
 
+    const existingVisit = existing.data() as FieldVisit;
     const mergedVisit: FieldVisit = {
-      ...(existing.data() as FieldVisit),
+      ...existingVisit,
       ...visit,
       companyId,
-      authorId: userId,
+      // Conservar el autor original: las reglas exigen que `authorId` no cambie.
+      authorId: existingVisit.authorId ?? visit.authorId ?? userId,
     };
 
     const docRef = doc(db, 'fieldVisits', visit.id);
@@ -574,7 +620,8 @@ export async function deleteFieldVisitFromFirestore(visitId: string): Promise<bo
 
 export function subscribeFieldVisits(
   companyId: string,
-  callback: (visits: FieldVisit[]) => void
+  callback: (visits: FieldVisit[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'fieldVisits';
   try {
@@ -589,11 +636,13 @@ export function subscribeFieldVisits(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
     notifySyncEnd();
+    onError?.(toError(err));
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -679,7 +728,8 @@ export async function updateExpenseToFirestore(
 
 export function subscribeExpenses(
   companyId: string,
-  callback: (expenses: ExpenseRecord[]) => void
+  callback: (expenses: ExpenseRecord[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'expenses';
   try {
@@ -694,11 +744,13 @@ export function subscribeExpenses(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
     notifySyncEnd();
+    onError?.(toError(err));
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -749,14 +801,20 @@ export async function updateAttendanceToFirestore(
       return false;
     }
 
+    const existingRecord = existing.data() as AttendanceRecord;
     const mergedRecord: AttendanceRecord = {
-      ...(existing.data() as AttendanceRecord),
+      ...existingRecord,
       ...record,
       updatedBy: userId,
       updatedAt: new Date().toISOString(),
     };
 
-    const recordWithOwnership = buildAttendanceRecord(mergedRecord, companyId, userId);
+    // Conservar el autor original: las reglas exigen que `authorId` no cambie.
+    const recordWithOwnership = buildAttendanceRecord(
+      mergedRecord,
+      companyId,
+      existingRecord.authorId ?? userId
+    );
 
     // Validar datos antes de guardar
     const validation = validateAttendanceRecord(recordWithOwnership);
@@ -779,7 +837,8 @@ export async function updateAttendanceToFirestore(
 
 export function subscribeAttendance(
   companyId: string,
-  callback: (records: AttendanceRecord[]) => void
+  callback: (records: AttendanceRecord[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'attendance';
   try {
@@ -794,11 +853,13 @@ export function subscribeAttendance(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
     notifySyncEnd();
+    onError?.(toError(err));
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -923,7 +984,8 @@ async function createMissingEmployeeDirectoryEntries(
 
 export function subscribeEmployees(
   companyId: string,
-  callback: (employees: Employee[]) => void
+  callback: (employees: Employee[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'employees';
   try {
@@ -937,15 +999,18 @@ export function subscribeEmployees(
         );
         callback(list);
         void createMissingEmployeeDirectoryEntries(list, companyId).catch((error: unknown) => {
+          onError?.(toError(error));
           handleFirestoreError(error, OperationType.WRITE, `employeeDirectory/${companyId}`);
         });
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (err) {
     notifySyncEnd();
+    onError?.(toError(err));
     handleFirestoreError(err, OperationType.LIST, path);
     return () => {};
   }
@@ -953,7 +1018,8 @@ export function subscribeEmployees(
 
 export function subscribeEmployeeDirectory(
   companyId: string,
-  callback: (employees: EmployeeDirectoryEntry[]) => void
+  callback: (employees: EmployeeDirectoryEntry[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'employeeDirectory';
   try {
@@ -969,6 +1035,7 @@ export function subscribeEmployeeDirectory(
     );
   } catch (error) {
     notifySyncEnd();
+    onError?.(toError(error));
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -997,7 +1064,8 @@ export async function saveCompanySettingsToFirestore(settings: CompanySettings, 
 
 export function subscribeCompanySettings(
   companyId: string,
-  callback: (settings: CompanySettings | null) => void
+  callback: (settings: CompanySettings | null) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = `companySettings/${companyId}`;
   try {
@@ -1012,11 +1080,13 @@ export function subscribeCompanySettings(
         }
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.GET, path);
       }
     );
   } catch (err) {
     notifySyncEnd();
+    onError?.(toError(err));
     handleFirestoreError(err, OperationType.GET, path);
     return () => {};
   }
@@ -1024,7 +1094,8 @@ export function subscribeCompanySettings(
 
 export function subscribeQuotes(
   companyId: string,
-  callback: (quotes: QuoteRecord[]) => void
+  callback: (quotes: QuoteRecord[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'quotes';
   try {
@@ -1040,6 +1111,7 @@ export function subscribeQuotes(
     );
   } catch (error) {
     notifySyncEnd();
+    onError?.(toError(error));
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -1047,7 +1119,8 @@ export function subscribeQuotes(
 
 export function subscribeAPUItems(
   companyId: string,
-  callback: (items: APUItem[]) => void
+  callback: (items: APUItem[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'apuItems';
   try {
@@ -1061,6 +1134,7 @@ export function subscribeAPUItems(
     );
   } catch (error) {
     notifySyncEnd();
+    onError?.(toError(error));
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -1184,8 +1258,15 @@ export async function saveQuoteToFirestore(
 ): Promise<boolean> {
   const path = `quotes/${quote.id}`;
 
-  // Agregar metadatos antes de validar (los campos son requeridos por el schema)
-  const quoteWithMeta = { ...quote, companyId, createdBy: userId, updatedBy: userId };
+  // Agregar metadatos antes de validar (los campos son requeridos por el schema).
+  // `createdBy` solo se fija al crear: las reglas exigen que no cambie al
+  // actualizar (por ejemplo al aprobar/rechazar una cotización).
+  const quoteWithMeta = {
+    ...quote,
+    companyId,
+    createdBy: quote.createdBy ?? userId,
+    updatedBy: userId,
+  };
 
   // Validar datos antes de guardar
   const validation = validateQuoteRecord(quoteWithMeta);
@@ -1229,7 +1310,8 @@ export async function deleteQuoteFromFirestore(quoteId: string): Promise<boolean
 
 export function subscribeMachinery(
   companyId: string,
-  callback: (machinery: Machinery[]) => void
+  callback: (machinery: Machinery[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'machinery';
   try {
@@ -1243,6 +1325,7 @@ export function subscribeMachinery(
     );
   } catch (error) {
     notifySyncEnd();
+    onError?.(toError(error));
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -1354,7 +1437,8 @@ export async function updateMachineryInFirestore(
 
 export function subscribeMachineryLogs(
   companyId: string,
-  callback: (logs: MachineryLog[]) => void
+  callback: (logs: MachineryLog[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'machineryLogs';
   try {
@@ -1370,6 +1454,7 @@ export function subscribeMachineryLogs(
     );
   } catch (error) {
     notifySyncEnd();
+    onError?.(toError(error));
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
@@ -1465,7 +1550,8 @@ export async function saveFelInvoiceToFirestore(
     ...invoice,
     ...(normalizedItems.length > 0 && { items: normalizedItems }),
     companyId,
-    authorId: userId,
+    // En creación el autor es la sesión; en un `merge` posterior se conserva.
+    authorId: invoice.authorId ?? userId,
     subtotalGTQ: totals.subtotalGTQ,
     taxAmountGTQ: totals.taxAmountGTQ,
     totalGTQ: totals.totalGTQ,
@@ -1552,7 +1638,8 @@ export async function deleteFelInvoiceFromFirestore(invoiceId: string): Promise<
  */
 export function subscribeFelInvoices(
   companyId: string,
-  callback: (invoices: FelInvoice[]) => void
+  callback: (invoices: FelInvoice[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'felInvoices';
   try {
@@ -1566,11 +1653,13 @@ export function subscribeFelInvoices(
         callback(list);
       },
       (error: Error) => {
+        onError?.(error);
         handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   } catch (error) {
     notifySyncEnd();
+    onError?.(toError(error));
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }

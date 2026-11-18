@@ -47,6 +47,14 @@ export function canReadExpenses(role?: CompanyRole | null): boolean {
   return role !== undefined && role !== null && EXPENSE_READ_ROLES.includes(role);
 }
 
+/**
+ * Emitir/editar/anular facturas FEL: mismas reglas que las escrituras
+ * financieras (`firestore.rules` exige owner/admin/finance).
+ */
+export function canWriteFelInvoices(role?: CompanyRole | null): boolean {
+  return canWriteExpenses(role);
+}
+
 const ROLE_LABELS: Record<CompanyRole, string> = {
   owner: 'Propietario',
   admin: 'Administrador',

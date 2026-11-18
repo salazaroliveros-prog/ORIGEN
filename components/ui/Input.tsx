@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 
 interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   variant?: 'default' | 'error' | 'success' | 'disabled';
@@ -25,8 +25,15 @@ export function Input({
   className = '',
   disabled,
   formTheme = 'dark',
+  id,
+  'aria-describedby': ariaDescribedBy,
   ...props
 }: InputProps) {
+  const generatedId = useId();
+  const inputId = id ?? `input-${generatedId}`;
+  const errorId = `${inputId}-error`;
+  const helperId = `${inputId}-helper`;
+  const describedBy = errorText ? errorId : helperText ? helperId : ariaDescribedBy;
   const isError = variant === 'error' || !!errorText;
   const isSuccess = variant === 'success';
   const isDisabled = variant === 'disabled' || disabled;
@@ -65,25 +72,44 @@ export function Input({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className={labelStyles}>
+        <label htmlFor={inputId} className={labelStyles}>
           {label}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>{leftIcon}</div>
+          <div
+            className={`absolute left-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}
+          >
+            {leftIcon}
+          </div>
         )}
         {rightIcon && (
-          <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>{rightIcon}</div>
+          <div
+            className={`absolute right-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}
+          >
+            {rightIcon}
+          </div>
         )}
         <input
+          id={inputId}
           className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[inputSize]} ${className}`}
           disabled={isDisabled}
+          aria-invalid={isError || undefined}
+          aria-describedby={describedBy}
           {...props}
         />
       </div>
-      {errorText && <p className="text-danger text-danger text-xs">{errorText}</p>}
-      {helperText && !errorText && <p className={helperStyles}>{helperText}</p>}
+      {errorText && (
+        <p id={errorId} className="text-xs text-danger">
+          {errorText}
+        </p>
+      )}
+      {helperText && !errorText && (
+        <p id={helperId} className={helperStyles}>
+          {helperText}
+        </p>
+      )}
     </div>
   );
 }

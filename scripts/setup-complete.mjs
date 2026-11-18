@@ -27,8 +27,10 @@ import { resolve } from 'path';
 // ============================================================
 // CONFIGURACIÓN
 // ============================================================
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ADMIN_PASSWORD = 'AngelDarioJose.2026';
+// Credenciales del administrador: se leen del entorno (nunca del código).
+// Configura ADMIN_EMAIL y ADMIN_PASSWORD en .env.local o en el entorno.
+let ADMIN_EMAIL = '';
+let ADMIN_PASSWORD = '';
 const COMPANY_ID = 'empresa-origen';
 const COMPANY_NAME = 'ConstructERP Guatemala';
 
@@ -110,8 +112,8 @@ const EXPENSES = [
     nitSupplier: '1234567-8',
     facturaNumber: 'FEL-001-2026',
     amount: 45000,
-    currency: 'GTQ' as const,
-    paymentMethod: 'Transferencia BI' as const,
+    currency: 'GTQ',
+    paymentMethod: 'Transferencia BI',
     assignedApuId: 'apu-cemento-001',
     assignedApuDescription: 'Cemento estructural',
   },
@@ -123,8 +125,8 @@ const EXPENSES = [
     nitSupplier: 'CF',
     facturaNumber: 'FEL-002-2026',
     amount: 25000,
-    currency: 'GTQ' as const,
-    paymentMethod: 'Efectivo' as const,
+    currency: 'GTQ',
+    paymentMethod: 'Efectivo',
   },
   {
     projectId: 'proj-edificio-002',
@@ -134,8 +136,8 @@ const EXPENSES = [
     nitSupplier: '8765432-1',
     facturaNumber: 'FEL-003-2026',
     amount: 120000,
-    currency: 'GTQ' as const,
-    paymentMethod: 'Cheque' as const,
+    currency: 'GTQ',
+    paymentMethod: 'Cheque',
   },
 ];
 
@@ -143,10 +145,10 @@ const EXPENSES = [
 // FUNCIONES
 // ============================================================
 
-function loadEnvFile(filePath: string): Record<string, string> {
+function loadEnvFile(filePath) {
   try {
     const content = readFileSync(filePath, 'utf8');
-    const env: Record<string, string> = {};
+    const env = {};
     for (const rawLine of content.split(/\r?\n/)) {
       const line = rawLine.trim();
       if (!line || line.startsWith('#')) continue;
@@ -197,7 +199,7 @@ function initFirebaseAdmin() {
   throw new Error('No se pudo inicializar Firebase Admin. Falta configuración.');
 }
 
-async function createAdminUser(auth: ReturnType<typeof getAuth>) {
+async function createAdminUser(auth) {
   console.log('\n👤 Creando usuario administrador en Firebase Auth...');
   console.log(`   Email: ${ADMIN_EMAIL}`);
 
@@ -207,7 +209,7 @@ async function createAdminUser(auth: ReturnType<typeof getAuth>) {
       const existingUser = await getAuth().getUserByEmail(ADMIN_EMAIL);
       console.log(`   ⚠️  El usuario ya existe (UID: ${existingUser.uid})`);
       return existingUser;
-    } catch (err: any) {
+    } catch (err) {
       if (err.code !== 'auth/user-not-found') throw err;
     }
 
@@ -222,7 +224,7 @@ async function createAdminUser(auth: ReturnType<typeof getAuth>) {
 
     console.log(`   ✅ Usuario creado exitosamente (UID: ${userRecord.uid})`);
     return userRecord;
-  } catch (error: any) {
+  } catch (error) {
     console.error(`   ❌ Error creando usuario: ${error.message}`);
     if (error.code === 'auth/project-not-found') {
       console.error('   💡 El proyecto Firebase no existe. Crea el proyecto en Firebase Console.');
@@ -234,7 +236,7 @@ async function createAdminUser(auth: ReturnType<typeof getAuth>) {
   }
 }
 
-async function seedFirestore(db: ReturnType<typeof getFirestore>, adminUid: string) {
+async function seedFirestore(db, adminUid) {
   console.log('\n🌱 Sembrando base de datos Firestore...');
 
   const batch = db.batch();
@@ -345,14 +347,14 @@ async function seedFirestore(db: ReturnType<typeof getFirestore>, adminUid: stri
   console.log('\n✅ Base de datos sembrada exitosamente');
 }
 
-async function verifySetup(auth: ReturnType<typeof getAuth>, db: ReturnType<typeof getFirestore>) {
+async function verifySetup(auth, db) {
   console.log('\n🔍 Verificando configuración...');
 
   // Verificar usuario
   try {
     const user = await getAuth().getUserByEmail(ADMIN_EMAIL);
     console.log(`   ✅ Usuario Auth: ${user.email} (UID: ${user.uid})`);
-  } catch (error: any) {
+  } catch (error) {
     console.error(`   ❌ Error verificando usuario: ${error.message}`);
   }
 
@@ -364,7 +366,7 @@ async function verifySetup(auth: ReturnType<typeof getAuth>, db: ReturnType<type
     } else {
       console.error(`   ❌ Empresa no encontrada`);
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error(`   ❌ Error verificando empresa: ${error.message}`);
   }
 
@@ -372,7 +374,7 @@ async function verifySetup(auth: ReturnType<typeof getAuth>, db: ReturnType<type
   try {
     const projectsSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('projects').get();
     console.log(`   ✅ Proyectos: ${projectsSnapshot.size} encontrados`);
-  } catch (error: any) {
+  } catch (error) {
     console.error(`   ❌ Error verificando proyectos: ${error.message}`);
   }
 
@@ -380,7 +382,7 @@ async function verifySetup(auth: ReturnType<typeof getAuth>, db: ReturnType<type
   try {
     const expensesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('expenses').get();
     console.log(`   ✅ Gastos: ${expensesSnapshot.size} encontrados`);
-  } catch (error: any) {
+  } catch (error) {
     console.error(`   ❌ Error verificando gastos: ${error.message}`);
   }
 }
@@ -393,7 +395,7 @@ async function main() {
   console.log('╔═══════════════════════════════════════════════════════════════╗');
   console.log('║  ORIGEN ERP - CONFIGURACIÓN AUTOMÁTICA COMPLETA              ║');
   console.log('╠═══════════════════════════════════════════════════════════════╣');
-  console.log('║  Usuario admin: salazaroliveros@gmail.com                    ║');
+  console.log('║  Usuario admin configurado por ADMIN_EMAIL.                  ║');
   console.log('║  Empresa: ConstructERP Guatemala                             ║');
   console.log('║  Proyecto Firebase: origen-erp-guatemala                     ║');
   console.log('╚═══════════════════════════════════════════════════════════════╝\n');
@@ -401,6 +403,16 @@ async function main() {
   // Cargar variables de entorno
   const env = loadEnvFile(resolve(process.cwd(), '.env.local'));
   Object.assign(process.env, env);
+
+  ADMIN_EMAIL =
+    process.env.ADMIN_EMAIL ?? env.ADMIN_EMAIL ?? process.env.PRIMARY_ADMIN_EMAIL ?? env.PRIMARY_ADMIN_EMAIL ?? '';
+  ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? env.ADMIN_PASSWORD ?? '';
+
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error('❌ Faltan credenciales del administrador.');
+    console.error('   Define ADMIN_EMAIL y ADMIN_PASSWORD en .env.local (o en el entorno).');
+    process.exit(1);
+  }
 
   // Verificar variables críticas
   const requiredEnv = ['NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'NEXT_PUBLIC_FIREBASE_API_KEY'];
@@ -432,14 +444,14 @@ async function main() {
     console.log('║  ✅ CONFIGURACIÓN COMPLETADA EXITOSAMENTE                     ║');
     console.log('╠═══════════════════════════════════════════════════════════════╣');
     console.log('║  Credenciales de acceso:                                       ║');
-    console.log('║  📧 Email:    salazaroliveros@gmail.com                       ║');
-    console.log('║  🔑 Password: AngelDarioJose.2026                             ║');
+    console.log('║  📧 Email:    ' + ADMIN_EMAIL);
+    console.log('║  🔑 Password: la definida en ADMIN_PASSWORD                   ║');
     console.log('║                                                               ║');
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝\n');
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('\n╔═══════════════════════════════════════════════════════════════╗');
     console.error('║  ❌ ERROR EN LA CONFIGURACIÓN                                   ║');
     console.error('╠═══════════════════════════════════════════════════════════════╣');
