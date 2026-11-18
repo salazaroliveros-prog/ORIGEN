@@ -300,10 +300,11 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <label htmlFor="closure-notes" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
               Observaciones de Cierre
             </label>
             <textarea
+              id="closure-notes"
               value={formData.closureNotes}
               onChange={(e) => setFormData({ ...formData, closureNotes: e.target.value })}
               rows={4}
@@ -318,10 +319,11 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <label htmlFor="closure-final-balance" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
               Saldo final tras compromisos (GTQ)
             </label>
             <Input
+              id="closure-final-balance"
               type="number"
               step="0.01"
               value={formData.finalBalanceGTQ}
