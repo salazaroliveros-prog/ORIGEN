@@ -1,7 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Project, ProjectStatus, ExpenseRecord, APUItem, QuoteRecord, AttendanceRecord, MachineryLog } from '@/lib/types';
+import type {
+  Project,
+  ProjectStatus,
+  ExpenseRecord,
+  APUItem,
+  QuoteRecord,
+  AttendanceRecord,
+  MachineryLog,
+} from '@/lib/types';
 import {
   subscribeProjects,
   saveProjectToFirestore,
@@ -87,13 +95,20 @@ export function useProjects({ companyId, currentUserId }: UseProjectsOptions): U
     setProjects([]);
     setLoading(true);
 
-    const unsubProjects = subscribeProjects(companyId, (nextProjects) => {
-      log.debug('Projects updated', { count: nextProjects.length });
-      const cacheKey = createCacheKey('projects', { companyId });
-      queryCache.set(cacheKey, nextProjects, 5 * 60 * 1000);
-      setProjects(nextProjects);
-      setLoading(false);
-    });
+    const unsubProjects = subscribeProjects(
+      companyId,
+      (nextProjects) => {
+        log.debug('Projects updated', { count: nextProjects.length });
+        const cacheKey = createCacheKey('projects', { companyId });
+        queryCache.set(cacheKey, nextProjects, 5 * 60 * 1000);
+        setProjects(nextProjects);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('Projects subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from projects');
