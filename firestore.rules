@@ -190,8 +190,6 @@ service cloud.firestore {
     }
 
     function isValidPurchaseOrderLineReference(data, referenceId) {
-      let orderPath = receiptOrderPath(data.orderId);
-      let order = getAfter(orderPath).data;
       let item = get(/databases/$(database)/documents/inventoryItems/$(data.itemId)).data;
       return data.keys().hasAll(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
         data.keys().hasOnly(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
@@ -208,15 +206,6 @@ service cloud.firestore {
         data.itemId is string && isValidId(data.itemId) &&
         data.createdBy == request.auth.uid &&
         canManagePurchasing(data.companyId) &&
-        order.id == data.orderId &&
-        order.companyId == data.companyId &&
-        order.status == 'draft' &&
-        order.requestedBy == data.createdBy &&
-        order.lines is list &&
-        order.lines.size() >= 1 && order.lines.size() <= 4 &&
-        data.lineIndex < order.lines.size() &&
-        isValidPurchaseOrderLine(order.lines[data.lineIndex]) &&
-        order.lines[data.lineIndex].itemId == data.itemId &&
         item.companyId == data.companyId;
     }
 
