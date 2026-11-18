@@ -1150,7 +1150,8 @@ export function subscribeCompanySettings(
 
 export function subscribeQuotes(
   companyId: string,
-  callback: (quotes: QuoteRecord[]) => void
+  callback: (quotes: QuoteRecord[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'quotes';
   try {
@@ -1162,15 +1163,18 @@ export function subscribeQuotes(
             (item: QueryDocumentSnapshot<DocumentData>) => item.data() as QuoteRecord
           )
         ),
-      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
+      (error: Error) => {
+        onError?.(error);
+        handleFirestoreError(error, OperationType.LIST, path);
+      }
     );
   } catch (error) {
+    if (error instanceof Error) onError?.(error);
     notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
 }
-
 export function subscribeAPUItems(
   companyId: string,
   callback: (items: APUItem[]) => void
@@ -1355,7 +1359,8 @@ export async function deleteQuoteFromFirestore(quoteId: string): Promise<boolean
 
 export function subscribeMachinery(
   companyId: string,
-  callback: (machinery: Machinery[]) => void
+  callback: (machinery: Machinery[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'machinery';
   try {
@@ -1365,15 +1370,18 @@ export function subscribeMachinery(
         callback(
           snapshot.docs.map((item: QueryDocumentSnapshot<DocumentData>) => item.data() as Machinery)
         ),
-      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
+      (error: Error) => {
+        onError?.(error);
+        handleFirestoreError(error, OperationType.LIST, path);
+      }
     );
   } catch (error) {
+    if (error instanceof Error) onError?.(error);
     notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
 }
-
 export async function saveMachineryToFirestore(
   machinery: Machinery,
   companyId: string,
@@ -1480,7 +1488,8 @@ export async function updateMachineryInFirestore(
 
 export function subscribeMachineryLogs(
   companyId: string,
-  callback: (logs: MachineryLog[]) => void
+  callback: (logs: MachineryLog[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const path = 'machineryLogs';
   try {
@@ -1492,15 +1501,18 @@ export function subscribeMachineryLogs(
             (item: QueryDocumentSnapshot<DocumentData>) => item.data() as MachineryLog
           )
         ),
-      (error: Error) => handleFirestoreError(error, OperationType.LIST, path)
+      (error: Error) => {
+        onError?.(error);
+        handleFirestoreError(error, OperationType.LIST, path);
+      }
     );
   } catch (error) {
+    if (error instanceof Error) onError?.(error);
     notifySyncEnd();
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
   }
 }
-
 export async function recordMachineryUse(
   log: MachineryLog,
   machinery: Machinery,
