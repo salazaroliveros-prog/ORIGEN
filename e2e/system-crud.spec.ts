@@ -39,11 +39,11 @@ test.describe('CRUD completo de módulos ERP', () => {
     await test.step('autenticación', async () => {
       await ensureAuthenticated(page);
       // La cabecera debe mostrar la sesión activa (correo del usuario en turno).
-      await expect(page.getByRole('link', { name: 'Tablero' }).first()).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible();
     });
 
     await test.step('proyectos: crear, leer, actualizar, archivar y restaurar', async () => {
-      await page.getByRole('link', { name: 'Proyectos & Firmas' }).click();
+      await page.getByRole('button', { name: 'Proyectos & Firmas' }).click();
       // ProjectsView renderiza el botón 'Nuevo Proyecto' en el header una vez cargada.
       // Puede estar el botón 'Nuevo Proyecto' o 'Crear su primer proyecto' si está vacío.
       await page
@@ -69,7 +69,7 @@ test.describe('CRUD completo de módulos ERP', () => {
       await expect(projectRow).toContainText(originalProjectName);
 
       // El proyecto debe seguir visible al volver a la lista.
-      await page.getByRole('link', { name: 'Proyectos & Firmas' }).click();
+      await page.getByRole('button', { name: 'Proyectos & Firmas' }).click();
       await expect(page.locator('li').filter({ hasText: projectCode })).toContainText(
         originalProjectName
       );
@@ -96,7 +96,7 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('APU: crear renglón manual y verificar el total', async () => {
-      await page.getByRole('link', { name: 'Presupuestos APU' }).click();
+      await page.getByRole('button', { name: 'Presupuestos APU' }).click();
       await page.getByRole('button', { name: 'Renglón Manual' }).click();
 
       const apuModal = page.locator('div.fixed.inset-0').filter({
@@ -120,7 +120,7 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('gastos: registrar gasto y verificarlo en la tabla', async () => {
-      await page.getByRole('link', { name: 'Gastos & Facturas' }).click();
+      await page.getByRole('button', { name: 'Gastos & Facturas' }).click();
       await page.getByRole('button', { name: 'Registrar Gasto / Factura' }).click();
 
       const expenseModal = page.locator('div.fixed.inset-0').filter({
@@ -144,7 +144,7 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('personal: crear empleado', async () => {
-      await page.getByRole('link', { name: 'Personal & IGSS' }).click();
+      await page.getByRole('button', { name: 'Personal & IGSS' }).click();
       await page.getByRole('button', { name: /Cuadrillas/ }).click();
       await page.getByRole('button', { name: 'Nuevo Empleado' }).click();
 
@@ -178,7 +178,7 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('cotizaciones: crear borrador y marcar como ganada', async () => {
-      await page.getByRole('link', { name: 'Cotizaciones' }).click();
+      await page.getByRole('button', { name: 'Cotizaciones' }).click();
       await page.getByRole('button', { name: 'Nueva Cotización Rápida' }).click();
 
       const quoteModal = page.locator('div.fixed.inset-0').filter({
@@ -203,7 +203,7 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('maquinaria: registrar y cambiar estado', async () => {
-      await page.getByRole('link', { name: 'Maquinaria' }).click();
+      await page.getByRole('button', { name: 'Maquinaria' }).click();
       await page.getByRole('button', { name: 'Registrar Maquinaria' }).click();
 
       const machineryDialog = page.getByRole('dialog', { name: 'Registrar Nueva Maquinaria' });

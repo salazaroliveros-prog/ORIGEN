@@ -11,7 +11,7 @@ test.setTimeout(300_000);
  */
 
 async function openTab(page: Page, name: RegExp | string) {
-  await page.getByRole('link', { name }).first().click();
+  await page.getByRole('button', { name }).first().click();
   await page.waitForTimeout(1500);
 }
 
@@ -537,7 +537,7 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
   test('asistente IA responde en contexto del proyecto', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const aiTab = page.getByRole('link', { name: /Asistente|IA|AI/i }).first();
+    const aiTab = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
     if (!(await aiTab.isVisible().catch(() => false))) return;
 
     await aiTab.click();
@@ -559,7 +559,7 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
     await ensureAuthenticated(page);
 
     const gmailNavigation = page.getByRole('navigation', { name: 'Navegación' });
-    const gmailTab = gmailNavigation.getByRole('link', { name: /Correo\s*&\s*Avisos/i });
+    const gmailTab = gmailNavigation.getByRole('button', { name: /Correo\s*&\s*Avisos/i });
     if (!(await gmailTab.isVisible().catch(() => false))) return;
 
     await gmailTab.scrollIntoViewIfNeeded({ timeout: 10_000 });
@@ -581,7 +581,7 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
   test('gestión de equipo de la empresa (solo si el rol lo permite)', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const equipoTab = page.getByRole('link', { name: 'Equipo de la empresa' }).first();
+    const equipoTab = page.getByRole('button', { name: 'Equipo de la empresa' }).first();
     const equipoVisible = await equipoTab.isVisible().catch(() => false);
     if (equipoVisible) {
       await equipoTab.click();

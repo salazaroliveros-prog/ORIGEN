@@ -29,7 +29,7 @@ export async function createTestProject(page: Page, project: TestProject): Promi
     );
   }
 
-  await page.getByRole('link', { name: 'Proyectos & Firmas' }).first().click();
+  await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
   const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
