@@ -812,7 +812,7 @@ export interface FelInvoiceItem {
   unit: string; // ej. "Und", "Kg", "Glb", "Mts"
   unitPriceGTQ: number;
   totalPriceGTQ: number;
-  taxRate?: number; // ej. 12 para IVA
+  taxRate?: number; // Fracción de IVA (0.12); se acepta porcentaje (12) y se normaliza
   taxAmountGTQ?: number;
 }
 
