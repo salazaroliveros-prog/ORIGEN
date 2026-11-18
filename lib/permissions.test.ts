@@ -4,6 +4,8 @@ import {
   canReadEmployeeDirectory,
   canManagePersonnel,
   canReadAttendance,
+  canWriteFelInvoices,
+  canWriteExpenses,
   canReadInventory,
   canManageInventory,
   canReadPurchasing,
@@ -71,6 +73,31 @@ describe('canReadAttendance', () => {
   it('returns false for null/undefined', () => {
     expect(canReadAttendance(null)).toBe(false);
     expect(canReadAttendance(undefined)).toBe(false);
+  });
+});
+
+describe('canWriteFelInvoices', () => {
+  it('grants owner, admin and finance (mismos roles que los gastos)', () => {
+    expect(canWriteFelInvoices('owner')).toBe(true);
+    expect(canWriteFelInvoices('admin')).toBe(true);
+    expect(canWriteFelInvoices('finance')).toBe(true);
+  });
+
+  it('denies project_manager, field_worker and viewer', () => {
+    expect(canWriteFelInvoices('project_manager')).toBe(false);
+    expect(canWriteFelInvoices('field_worker')).toBe(false);
+    expect(canWriteFelInvoices('viewer')).toBe(false);
+  });
+
+  it('returns false for null/undefined', () => {
+    expect(canWriteFelInvoices(null)).toBe(false);
+    expect(canWriteFelInvoices(undefined)).toBe(false);
+  });
+
+  it('keeps the same roles as financial writes', () => {
+    for (const role of ALL_ROLES) {
+      expect(canWriteFelInvoices(role)).toBe(canWriteExpenses(role));
+    }
   });
 });
 
