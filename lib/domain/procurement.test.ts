@@ -49,8 +49,8 @@ describe('procurement domain', () => {
     expect(() => validatePurchaseOrder({ ...order, approvedBy: undefined })).toThrow('autorizó');
   });
 
-  it('supports up to four unique purchase-order lines and rejects five', () => {
-    const lines = Array.from({ length: 4 }, (_, index) => ({
+  it('supports up to two unique purchase-order lines and rejects three', () => {
+    const lines = Array.from({ length: 2 }, (_, index) => ({
       itemId: `item-${index + 1}`,
       description: `Material ${index + 1}`,
       unit: 'unidad',
@@ -60,7 +60,7 @@ describe('procurement domain', () => {
     }));
     const subtotalGTQ = lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0);
     const taxGTQ = Math.round(subtotalGTQ * 0.12 * 100) / 100;
-    const fourLineOrder: PurchaseOrderRecord = {
+    const twoLineOrder: PurchaseOrderRecord = {
       ...order,
       lines,
       subtotalGTQ,
@@ -68,18 +68,25 @@ describe('procurement domain', () => {
       totalGTQ: subtotalGTQ + taxGTQ,
     };
 
-    expect(validatePurchaseOrder(fourLineOrder)).toEqual(fourLineOrder);
+    expect(validatePurchaseOrder(twoLineOrder)).toEqual(twoLineOrder);
     expect(() => validatePurchaseOrder({
-      ...fourLineOrder,
-      lines: [...lines, { ...lines[0], itemId: 'item-5' }],
-      subtotalGTQ: subtotalGTQ + 104,
-      taxGTQ: Math.round((subtotalGTQ + 104) * 0.12 * 100) / 100,
-      totalGTQ: Math.round((subtotalGTQ + 104) * 1.12 * 100) / 100,
-    })).toThrow('entre 1 y 4');
+      ...twoLineOrder,
+      lines: [...lines, {
+        itemId: 'item-3',
+        description: 'Material 3',
+        unit: 'unidad',
+        quantity: 1,
+        receivedQuantity: 0,
+        unitPriceGTQ: 102,
+      }],
+      subtotalGTQ: subtotalGTQ + 102,
+      taxGTQ: Math.round((subtotalGTQ + 102) * 0.12 * 100) / 100,
+      totalGTQ: Math.round((subtotalGTQ + 102) * 1.12 * 100) / 100,
+    })).toThrow('entre 1 y 2');
 
     expect(() => validatePurchaseOrder({
-      ...fourLineOrder,
-      lines: [lines[0], { ...lines[1], itemId: lines[0].itemId }, ...lines.slice(2)],
+      ...twoLineOrder,
+      lines: [lines[0], { ...lines[1], itemId: lines[0].itemId }],
     })).toThrow('No repitas artículos');
   });
 
