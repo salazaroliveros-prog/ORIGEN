@@ -1373,6 +1373,10 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     await assertFails(updateDoc(doc(database, 'machinery', 'machine-1'), {
       currentHorometer: 103,
     }));
+    // Reusing the previous log ID must not let a caller add its hours twice.
+    await assertFails(updateDoc(doc(database, 'machinery', 'machine-1'), {
+      currentHorometer: 104,
+    }));
 
     await assertFails(
       setDoc(doc(database, 'expenses', 'forged-machine-expense'), {
