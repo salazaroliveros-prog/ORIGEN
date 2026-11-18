@@ -233,8 +233,8 @@ export async function createPurchaseOrderToFirestore(
   const now = new Date().toISOString();
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario solicitante', 128);
-  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 4) {
-    throw new Error('Cada orden debe contener entre 1 y 4 renglones.');
+  if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 2) {
+    throw new Error('Cada orden debe contener entre 1 y 2 renglones.');
   }
   const order = validatePurchaseOrder({
     ...input,
@@ -316,7 +316,7 @@ export async function approvePurchaseOrderToFirestore(
 }
 
 /**
- * Recibe una entrega de cualquiera de los hasta cuatro renglones de una OC.
+ * Recibe una entrega de cualquiera de los hasta dos renglones de una OC.
  * El movimiento, el saldo ponderado y la cantidad recibida se confirman en una
  * sola transacción. El número de recepción es la clave de idempotencia por orden.
  */
