@@ -57,18 +57,32 @@ export function useMachinery({
     setMachineryLogs([]);
     setLoading(true);
 
-    const unsubMachinery = subscribeMachinery(companyId, (data) => {
-      log.debug('Machinery updated', { count: data.length });
-      const cacheKey = createCacheKey('machinery', { companyId });
-      queryCache.set(cacheKey, data, 5 * 60 * 1000);
-      setMachinery(data);
-    });
+    const unsubMachinery = subscribeMachinery(
+      companyId,
+      (data) => {
+        log.debug('Machinery updated', { count: data.length });
+        const cacheKey = createCacheKey('machinery', { companyId });
+        queryCache.set(cacheKey, data, 5 * 60 * 1000);
+        setMachinery(data);
+      },
+      (error) => {
+        log.error('Machinery subscription failed', error);
+        setLoading(false);
+      }
+    );
 
-    const unsubMachineryLogs = subscribeMachineryLogs(companyId, (data) => {
-      log.debug('Machinery logs updated', { count: data.length });
-      setMachineryLogs(data);
-      setLoading(false);
-    });
+    const unsubMachineryLogs = subscribeMachineryLogs(
+      companyId,
+      (data) => {
+        log.debug('Machinery logs updated', { count: data.length });
+        setMachineryLogs(data);
+        setLoading(false);
+      },
+      (error) => {
+        log.error('Machinery logs subscription failed', error);
+        setLoading(false);
+      }
+    );
 
     return () => {
       log.info('Unsubscribing from machinery');
