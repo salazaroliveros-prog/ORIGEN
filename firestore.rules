@@ -944,7 +944,7 @@ service cloud.firestore {
         data.items is list && data.items.size() <= 500 &&
         data.totalGTQ is number && data.totalGTQ >= 0 &&
         data.status in ['Aceptada', 'Enviada', 'Borrador', 'Rechazada'] &&
-        data.createdBy == request.auth.uid;
+        data.createdBy is string && data.createdBy.size() > 0;
     }
 
     function isValidMachinery(data) {
@@ -960,7 +960,7 @@ service cloud.firestore {
         data.hourlyRateGTQ is number && data.hourlyRateGTQ >= 0 &&
         data.currentHorometer is number && data.currentHorometer >= 0 &&
         data.status in ['Disponible', 'En Obra', 'Mantenimiento'] &&
-        data.createdBy == request.auth.uid;
+        data.createdBy is string && data.createdBy.size() > 0;
     }
 
     function isValidAPUItem(data) {
@@ -982,6 +982,32 @@ service cloud.firestore {
         data.totalUnitCostGTQ is number && data.totalUnitCostGTQ >= 0 &&
         data.totalPriceGTQ is number && data.totalPriceGTQ >= 0 &&
         data.createdBy is string;
+    }
+
+    function isValidFelInvoice(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'authorId', 'dteNumber', 'serie', 'correlativo',
+          'date', 'status', 'emisor', 'receptor', 'items',
+          'subtotalGTQ', 'taxAmountGTQ', 'totalGTQ'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.authorId is string &&
+        data.dteNumber is string && data.dteNumber.size() <= 80 &&
+        data.serie is string && data.serie.size() <= 20 &&
+        data.correlativo is string && data.correlativo.size() <= 40 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.status in ['Borrador', 'Emitida', 'Anulada'] &&
+        data.emisor is map &&
+        data.emisor.nit is string && data.emisor.nit.size() <= 30 &&
+        data.emisor.nombre is string && data.emisor.nombre.size() <= 250 &&
+        data.receptor is map &&
+        data.receptor.nit is string && data.receptor.nit.size() <= 30 &&
+        data.receptor.nombre is string && data.receptor.nombre.size() <= 250 &&
+        data.items is list && data.items.size() <= 200 &&
+        data.subtotalGTQ is number && data.subtotalGTQ >= 0 &&
+        data.taxAmountGTQ is number && data.taxAmountGTQ >= 0 &&
+        data.totalGTQ is number && data.totalGTQ >= 0;
     }
 
     // Projects collection
@@ -1312,6 +1338,7 @@ service cloud.firestore {
       allow create: if isValidId(quoteId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
         incoming().id == quoteId &&
+        incoming().createdBy == request.auth.uid &&
         isProjectInCompany(incoming().projectId, incoming().companyId) &&
         isValidQuote(incoming());
       allow update: if isValidId(quoteId) &&
@@ -1324,12 +1351,35 @@ service cloud.firestore {
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']);
     }
 
+    // Electronic invoices (FEL). Data is entered manually from SAT-issued
+    // invoices; the app never calls SAT APIs. Financial document: any company
+    // member can read, finance-level roles can write.
+    match /felInvoices/{invoiceId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(invoiceId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().id == invoiceId &&
+        incoming().authorId == request.auth.uid &&
+        isValidFelInvoice(incoming());
+      allow update: if isValidId(invoiceId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().id == existing().id &&
+        incoming().companyId == existing().companyId &&
+        incoming().authorId == existing().authorId &&
+        isValidFelInvoice(incoming());
+      allow delete: if isValidId(invoiceId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+    }
+
     match /machinery/{machineryId} {
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(machineryId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
-        incoming().id == machineryId && isValidMachinery(incoming());
+        incoming().id == machineryId &&
+        incoming().createdBy == request.auth.uid &&
+        isValidMachinery(incoming());
       allow update: if isValidId(machineryId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
         incoming().companyId == existing().companyId &&
