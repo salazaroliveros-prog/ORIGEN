@@ -1,330 +1,109 @@
-# ¿Cómo empezar con ORIGEN ERP?
+# ORIGEN ERP
 
-Este sistema de gestión de construcción para Guatemala incluye control de presupuestos, planillas, cotizaciones y reportes. Está listo para desplegar en producción.
+Sistema web de gestión para proyectos de construcción, con configuración orientada a operaciones en Guatemala (GTQ e IVA configurable, normalmente 12 %). La aplicación utiliza Next.js, React, TypeScript y Firebase.
 
-## Empezar rápido
+> **Estado:** en desarrollo y validación. El repositorio contiene módulos funcionales y pruebas automatizadas, pero no debe considerarse listo para producción hasta completar las validaciones de CI, seguridad, operación real y despliegue.
 
-### Requisitos previos
+## Módulos del sistema
 
-- Node.js 18+
-- npm o yarn
-- Un proyecto Firebase configurado
+- **Proyectos y tablero:** organización de obras, estado, avance y seguimiento.
+- **Presupuestos y APU:** partidas, cantidades y costos de materiales, mano de obra y equipo.
+- **Cotizaciones:** elaboración y seguimiento de propuestas.
+- **Gastos y facturación:** registro de gastos y su relación con proyectos.
+- **Personal y asistencia:** empleados, registros de asistencia y funciones de campo.
+- **Planillas:** herramientas de cálculo de nómina para Guatemala.
+- **Inventario y abastecimiento:** proveedores, artículos, bodegas, órdenes de compra, recepciones parciales y saldos por movimientos.
+- **Operación de inventario:** inventarios iniciales, ajustes de entrada/salida, salidas a proyecto y traslados entre bodegas, sujetos a reglas de seguridad y transacciones.
+- **Subcontratos:** contratos, pagos y controles de saldo.
+- **Maquinaria y reportes:** seguimiento operativo y consultas de gestión.
 
-### Instalación
+La disponibilidad de cada acción depende del rol, empresa y proyecto activo. Las reglas de Firestore son parte del control de autorización; no se debe sustituir su validación por controles únicamente visuales del cliente.
 
-Instala las dependencias:
+## Requisitos
+
+- Node.js 24 (versión utilizada por CI).
+- npm.
+- Proyecto Firebase para ejecutar la aplicación con servicios reales.
+- Java 21 para ejecutar los emuladores de Firebase localmente.
+
+## Instalación y desarrollo
+
+Instala dependencias:
 
 ```bash
-npm install
+npm ci
 ```
 
-Copia las variables de entorno:
+Crea `.env.local` a partir de `.env.example` y configura únicamente las variables correspondientes al proyecto Firebase que tengas autorizado para desarrollo:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Ejecuta las pruebas:
-
-```bash
-npm run test
-```
-
-Inicia el servidor de desarrollo:
+Inicia el servidor:
 
 ```bash
 npm run dev
 ```
 
-### Despliegue
+No uses credenciales de producción en pruebas locales ni en los emuladores.
 
-Compila para producción:
+## Validaciones
 
-```bash
-npm run build
-```
-
-Inicia el servidor de producción:
+Ejecuta las comprobaciones de forma separada para identificar con claridad cualquier fallo:
 
 ```bash
-npm run start
-```
-
-## Estado del proyecto
-
-| Métrica             | Valor     | Estado |
-| ------------------- | --------- | ------ |
-| Pruebas aprobadas   | 239 / 249 | 96 %   |
-| Cobertura de código | 91 %      | OK     |
-| Módulos completos   | 14 / 14   | OK     |
-| Pantallas probadas  | 10 / 10   | OK     |
-| Errores corregidos  | 54        | OK     |
-
-## Funcionalidades principales
-
-### Gestión de proyectos
-
-Crea, lee, actualiza y archiva proyectos. Rastrea el estado y el avance de cada proyecto. Gestiona presupuestos y ubicaciones con GPS.
-
-### Presupuestos y APU
-
-Calcula el análisis de precio unitario (APU). Rastrea el uso del presupuesto. Desglosa costos de materiales, mano de obra y equipos. Soporta múltiples partidas APU.
-
-### Finanzas
-
-Registra gastos por categoría. Genera cotizaciones con descuentos e impuestos. Convierte entre USD y GTQ. Genera reportes y análisis financieros.
-
-### Recursos humanos y planillas
-
-Gestiona empleados. Rastrea la asistencia con validación GPS. Calcula planillas cumpliendo con IGSS de Guatemala. Calcula Bono 14, Aguinaldo e ISR.
-
-### Reportes
-
-Muestra KPIs en el tablero. Genera reportes personalizados. Analiza el rendimiento de proyectos. Exporta a PDF y Excel.
-
-## Archivos clave
-
-### Documentación
-
-- `DOCUMENTATION_INDEX.md` — Empieza aquí para navegar
-- `PROJECT_COMPLETION_SUMMARY.md` — Resumen ejecutivo
-- `COMPREHENSIVE_SYSTEM_AUDIT_REPORT.md` — Análisis detallado
-- `SCREEN_BY_SCREEN_TESTING_REPORT.md` — Las 54 correcciones
-- `CRUD_TESTING_RESULTS.md` — Resultados de pruebas
-
-### Código
-
-- `lib/utils/calculations.ts` — Lógica de negocio principal
-- `lib/utils/calculations.test.ts` — 57 pruebas unitarias
-- `lib/utils/crud.integration.test.ts` — 34 pruebas CRUD
-- `lib/hooks/useProjectDataEnhanced.ts` — Hook de datos mejorado
-
-## Pruebas
-
-### Ejecutar todas las pruebas
-
-```bash
-npm run test
-```
-
-Resultados: 239 aprobadas, 10 fallidas (96 % de éxito).
-
-### Cobertura de pruebas
-
-| Tipo             | Pruebas | Pasan     |
-| ---------------- | ------- | --------- |
-| Cálculos         | 57      | 55 / 57   |
-| Integración CRUD | 34      | 34 / 34   |
-| Flujos E2E       | 27      | 19 / 27   |
-| Otras            | 131     | 131 / 131 |
-
-### Ejecutar pruebas específicas
-
-Pruebas de integración CRUD:
-
-```bash
-npm run test -- crud.integration
-```
-
-Pruebas de cálculos:
-
-```bash
-npm run test -- calculations
-```
-
-Pruebas de integración E2E:
-
-```bash
-npm run test -- e2e.integration
-```
-
-## Compilar y desplegar
-
-### Desarrollo
-
-```bash
-npm run dev
-```
-
-### Verificar tipos
-
-```bash
+npm run lint
 npm run type-check
-```
-
-### Compilar para producción
-
-```bash
+npm test
+npm run test:firebase
 npm run build
+npm run test:e2e
 ```
 
-### Iniciar en producción
+- `npm test`: pruebas unitarias y de integración no dependientes de emuladores.
+- `npm run test:firebase`: reglas de Firestore y operaciones contra emuladores de Firebase.
+- `npm run test:e2e`: flujos de navegador con una instancia aislada de la aplicación y Firebase Emulator.
+- `npm run build`: compilación de producción; no realiza por sí sola una validación del despliegue.
+
+Validaciones PWA:
 
 ```bash
-npm run start
+node scripts/generate-service-worker.js
+node scripts/pwa-manifest-validator.js
 ```
 
-## Arquitectura del sistema
+Los resultados válidos son los de la ejecución de CI asociada al commit que se pretende integrar. No deben reutilizarse porcentajes, cantidades de pruebas ni resultados de ejecuciones antiguas como métricas actuales.
 
-### Módulos (14 en total)
+## Firebase y seguridad
 
-1. Autenticación y autorización
-2. Tablero y análisis
-3. Gestión de proyectos
-4. Presupuestos y seguimiento APU
-5. Gestión de gastos
-6. Gestión de personal
-7. Seguimiento de asistencia
-8. Procesamiento de planillas
-9. Gestión de cotizaciones
-10. Motor de reportes
-11. Configuración de empresa
-12. Notificaciones
-13. Gestión de documentos
-14. Registro de auditoría
+- Las operaciones deben ejecutarse con el contexto de empresa y permisos del usuario autenticado.
+- El inventario se deriva de movimientos auditables; no se debe modificar una existencia directamente para eludir el historial.
+- Las recepciones de compra, salidas, ajustes y traslados deben conservar su relación atómica con los movimientos y saldos.
+- Usa emuladores y datos aislados para pruebas automatizadas.
+- Antes de cambiar reglas, comprueba tanto los casos permitidos como los intentos no autorizados.
 
-### Pila tecnológica
+## Funcionamiento sin conexión
 
-- Frontend: Next.js, React, TypeScript
-- Backend: Firebase (Firestore, Auth)
-- Pruebas: Vitest, Jest
-- UI: Tailwind CSS, Shadcn/ui
-- Estado: React Context + Hooks personalizados
+El soporte offline es **parcial**, no un modo offline completo del ERP. La aplicación utiliza persistencia local de Firestore para las operaciones compatibles con su SDK. La pantalla offline documenta como procesos de captura previstos asistencia, avance y visitas de obra. No se debe asumir que inventario, compras, finanzas ni todos los módulos pueden operar y sincronizarse sin conexión.
 
-## Guía de documentación
+## Preparación para producción
 
-### Según tu rol
+Antes de un despliegue real se debe:
 
-**Gerente de proyecto**
+1. Obtener CI completamente verde en el commit exacto.
+2. Revisar reglas de Firestore y Storage, autenticación, roles y aislamiento entre empresas.
+3. Ejecutar pruebas E2E con datos de prueba y revisar los escenarios críticos de cada módulo.
+4. Confirmar la configuración de Firebase y Vercel, dominios, variables, permisos y proyecto de destino.
+5. Validar respaldos, recuperación, monitoreo y comportamiento operativo con datos controlados.
+6. Verificar específicamente las limitaciones offline y los procesos financieros y de inventario de extremo a extremo.
 
-- Lee: `PROJECT_COMPLETION_SUMMARY.md`
-- Enfócate en: estado, cronograma, métricas
+Una compilación correcta o una vista previa de Vercel no equivalen a una aprobación para producción. Los cambios deben revisarse e integrarse mediante el flujo de Pull Request.
 
-**Desarrollador**
+## Contribución y cambios
 
-- Lee: `IMPLEMENTATION_GUIDE.md`
-- Referencia: archivos de código con comentarios JSDoc
-
-**QA / Tester**
-
-- Lee: `CRUD_TESTING_RESULTS.md`
-- Referencia: `SCREEN_BY_SCREEN_TESTING_REPORT.md`
-
-**DevOps**
-
-- Lee: `IMPLEMENTATION_GUIDE.md` → sección de despliegue
-- Referencia: configuración de variables de entorno
-
-## Cálculos clave
-
-### Presupuesto
-
-Utilización del presupuesto = (Gastado / Presupuesto) × 100
-Restante = Presupuesto - Gastado
-
-### Planilla (Guatemala)
-
-Salario bruto = Tarifa diaria × Días trabajados
-IGSS empleado = Bruto × 4,83 %
-IGSS empleador = Bruto × 12,67 %
-IRTRA = Bruto × 0,125 %
-Impuesto sobre la renta = Escalones progresivos (5 % al 20 %)
-
-### Cotización
-
-Subtotal = Σ(Cantidad × Precio unitario)
-Imponible = Subtotal - Descuento
-Total = Imponible + Impuesto
-
-## Seguridad
-
-- Autenticación de Firebase con correo y contraseña
-- Control de acceso basado en roles (owner, admin, project_manager, finance, field_worker, warehouse_manager, viewer)
-- Reglas de seguridad de Firestore validadas
-- Validación de entrada en todos los campos
-- Límite de velocidad en llamadas a API
-- Borde de error para degradación elegante
-
-## Navegadores compatibles
-
-- Chrome y Edge (últimas 2 versiones)
-- Firefox (últimas 2 versiones)
-- Safari (últimas 2 versiones)
-- Navegadores móviles (iOS Safari, Chrome Android)
-
-## Rendimiento
-
-- Suite completa de pruebas: 2,5 segundos
-- Carga del tablero: menos de 1 segundo
-- Transiciones de página: menos de 500 ms
-- Tasa de acierto de caché: 80 %
-- Paginación: maneja más de 10 000 registros
-
-## Soporte
-
-### Documentación
-
-1. Empieza con: `DOCUMENTATION_INDEX.md`
-2. Encuentra tu tema en la tabla de contenido
-3. Lee el informe relevante
-4. Revisa los comentarios de código para detalles de implementación
-
-### Problemas comunes
-
-Consulta `SCREEN_BY_SCREEN_TESTING_REPORT.md` para ver todos los problemas documentados y las correcciones.
-
-### Resultados de pruebas
-
-Consulta `CRUD_TESTING_RESULTS.md` para ver los resultados completos de la suite de pruebas.
-
-## Estado verificado del proyecto
-
-ORIGEN continúa en desarrollo y validación. No debe considerarse listo para producción hasta completar las pruebas de integración, seguridad, operación offline y despliegue real.
-
-| Área | Estado verificado |
-| ---- | ----------------- |
-| Catálogo de proveedores, bodegas y artículos | Persistencia Firestore implementada; validación de emulador en curso |
-| Órdenes de compra | Alta de borradores de un renglón; aprobación y recepción bloqueadas |
-| Subcontratos | Alta de contratos en borrador/activos; pagos y modificaciones bloqueados |
-| Existencias | Cálculo desde movimientos; escritura de movimientos bloqueada hasta implementar transacciones atómicas |
-| Permisos | Roles de inventario y abastecimiento diferenciados; rol Encargado de bodega incorporado |
-| Modo offline | Parcial; inventario y compras aún no tienen cola offline transaccional |
-| Despliegue | No verificado en producción desde la integración actual |
-
-Los estados pueden cambiar conforme avancen las validaciones. Consulta el PR de trabajo y sus ejecuciones de CI antes de aprobar cambios o desplegar.
-
-## Lista de verificación de despliegue
-
-- Lee la documentación
-- Ejecuta las pruebas: `npm run test` (verifica el 96 % de aprobación)
-- Compila: `npm run build` (verifica que no haya errores)
-- Verifica tipos: `npm run type-check`
-- Configura las variables de entorno
-- Prueba en entorno de pruebas
-- Despliega en producción
-- Supervisa los registros de errores
-- Recopila comentarios de los usuarios
+Mantén los cambios acotados, incorpora pruebas de regresión para cada corrección y no debilites las reglas de seguridad para hacer pasar una prueba. Las migraciones de datos, modificaciones de producción, integración de ramas y despliegues requieren una revisión separada.
 
 ## Licencia
 
-Uso interno únicamente - Sistema ORIGEN ERP
-
-## Historial de versiones
-
-| Versión | Fecha             | Estado      | Cambios                                     |
-| ------- | ----------------- | ----------- | ------------------------------------------- |
-| 1.0.0   | 2 de nov. de 2024 | Lanzamiento | Auditoría completa, implementación, pruebas |
-
-## Agradecimientos
-
-El sistema ORIGEN ERP se desarrolló con:
-
-- Auditoría del sistema de 46 KB
-- 16 archivos de código listos para producción
-- 239 pruebas aprobadas (96 % de éxito)
-- Suite completa de documentación
-- 54 errores identificados y corregidos
-
-Estado: En desarrollo; pendiente de validación final
-
-¿Tienes dudas? Consulta `DOCUMENTATION_INDEX.md` para ver toda la documentación disponible.
+Uso interno del sistema ORIGEN ERP.
