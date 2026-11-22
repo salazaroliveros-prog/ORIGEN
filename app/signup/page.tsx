@@ -5,12 +5,13 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, Eye, EyeOff, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createEmailAccount } from '@/lib/firebaseAuth';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -42,13 +43,32 @@ const EMPTY_FORM: SignUpFormData = {
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { currentUser, status } = useAuthSession();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const mounted = typeof window !== 'undefined';
 
   const [formData, setFormData] = useState<SignUpFormData>(EMPTY_FORM);
+
+  // Redireccionar si ya hay sesión activa
+  useEffect(() => {
+    if (!mounted) return;
+    if (status === 'authenticated' && currentUser) {
+      router.replace('/');
+    }
+  }, [status, currentUser, mounted, router]);
+
+  // Mientras se resuelve el estado de auth, mostrar esqueleto ligero
+  if (!mounted || status === 'loading') {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-950">
+        <div className="flex h-8 w-8 animate-spin items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary" />
+      </div>
+    );
+  }
 
   const calculatePasswordStrength = (password: string): PasswordStrength => {
     let score = 0;
