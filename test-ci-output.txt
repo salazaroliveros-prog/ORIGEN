@@ -1,0 +1,727 @@
+Debugger listening on ws://127.0.0.1:57002/ece26bcc-6d5c-4a3c-9d33-d8d4f7021f63
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+
+> constructerp-guatemala@0.1.0 test
+> vitest run
+
+Debugger listening on ws://127.0.0.1:57016/76657b7d-c408-40a0-a90e-2ccb12bd13f8
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90mC:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN[39m
+
+Debugger listening on ws://127.0.0.1:57056/188a40fe-0f60-4c50-8b89-ba8bb8547984
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:57057/06dd90aa-bdb4-4764-92f4-6d9a77c75b4e
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:57058/f321a956-97ec-4f00-8208-4de6af570e14
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57059/29551960-ab08-4730-8379-4a980ed66ee4
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57060/609c0e97-263f-4099-83d1-5ef898948445
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57061/b5756d69-d5c0-43b4-ab3b-09e13f4b2a84
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57063/a18a888e-7887-4da5-a739-4a218809026f
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57065/889b25f7-61cb-41f2-be69-312e262abeac
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57067/ca3eea36-c619-4bc4-ba82-761fe82ad563
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57068/e33eb0ae-2211-4927-bbf8-525ee37dd7c4
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57069/ef52b955-cef7-4c14-8176-72bd43101543
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57072/8a764a81-fffd-42b9-af75-0dec914be991
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57073/9385f803-1434-4d68-bf19-b39e45f85acd
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57074/a3f63ff3-4fe7-4415-852d-b8a205348a81
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57077/cd628964-e51a-49de-8882-0ae9f6941b6e
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger listening on ws://127.0.0.1:57079/0b7098df-f1fb-4371-ab3e-cc17b9855f19
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57080/0e2c59ef-334b-45df-86ce-9171cdbc61f5
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57082/c0f84084-2105-45e1-9e60-e3102625153a
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:57084/9c045eec-819e-46f5-99b1-3df7aca41302
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+[90mstdout[2m | lib/__tests__/data-import-export-integration.test.ts
+[22m[39m✓ Data import/export integration tests completed
+
+[90mstdout[2m | lib/__tests__/e2e.test.ts
+[22m[39m✓ All E2E and Performance tests completed
+
+ [32m✓[39m lib/__tests__/data-import-export-integration.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+stderr | lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > should handle handler exceptions
+Failed to sync item: {
+  id: 'queue-1',
+  type: 'attendance',
+  timestamp: '2024-01-01',
+  description: 'Test',
+  payload: {},
+  synced: false
+} Error: sync failed
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/offlineStorage.test.ts:238:15
+    at Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:353:40)
+    at processOfflineQueue (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/offlineStorage.ts:92:31)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/offlineStorage.test.ts:240:28
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+
+ [32m✓[39m lib/__tests__/e2e.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32m✓[39m lib/offlineStorage.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m lib/domain/felInvoice.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m lib/domain/monthlyExpenses.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57158/01235045-8ac6-46bd-9041-7a6ae23125ed
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57159/92057114-3def-4668-a738-49df7ebeabe1
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57161/b4eabe48-394c-42f4-a6d8-489f6edce744
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57163/28bcfc50-2a46-46c4-b010-a2899899ea5f
+For help, see: https://nodejs.org/en/docs/inspector
+stderr | lib/utils/validation.test.ts > lib/utils/validation > safeJSONParse > should return fallback for invalid JSON
+JSON parse error: SyntaxError: Unexpected token 'o', "not json" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at safeJSONParse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/validation.ts:165:17)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/validation.test.ts:135:22
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+    at new Promise (<anonymous>)
+
+ [32m✓[39m lib/utils/validation.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m app/api/project-photos/[projectId]/[photoId]/route.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m lib/firebaseService.validation.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57164/771bb873-7e78-4452-af46-5aeb01da21c9
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/validation/entity.schemas.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57166/5494ba64-6b3f-495f-a4b1-2a1b407c6660
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57167/7334eaad-f2a4-431e-ae26-60000ab6c291
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57169/cc0504e6-f68a-40e2-9020-4cf96adf803d
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57168/c5882301-f4db-4d0e-a147-f0dec85fad0d
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+ [32m✓[39m lib/hooks/useEmployeeManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m lib/hooks/useQuoteManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m lib/hooks/useExpenseManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m lib/hooks/useMachineryManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m lib/hooks/useCompanyWorkspace.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m lib/hooks/useAuthSession.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m lib/hooks/useAttendanceManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m lib/hooks/useAPUManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:57191/709461b4-ce21-479b-addf-7eed1fcd0cce
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/hooks/useProjectData.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 85[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57192/43c4382c-2f73-416c-8c89-d60afd17d73f
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57193/5da4b703-cefe-4450-b44a-a42c8252d2fa
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57194/8f3c661c-ff17-4078-a98a-2c02d0ea6c10
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57196/e282a9ba-c49f-4365-b7db-60bb86bdc061
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57197/e28669d0-18eb-4f5d-aa71-84b2c3de3fa7
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57198/4f46a289-e0e7-4338-afb2-3ef8263c2fba
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57199/6db47fe9-7531-4e45-8342-58ea340fb152
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57200/e281bf8d-56c2-4900-ad86-ccdb7a725988
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/__tests__/ui-components-a11y.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57205/d3484950-c405-471f-9032-78bbe4f4f26c
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+[90mstdout[2m | lib/__tests__/layout-components-integration.test.ts
+[22m[39m✓ Layout components integration tests completed
+
+ [32m✓[39m lib/__tests__/layout-components-integration.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/branding.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m lib/domain/inventory.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57242/60af00c0-5529-43ad-b6d0-45f217267015
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/data.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+stderr | app/api/gemini.test.ts > app/api/gemini > should return 200 for chat with default message
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+Gemini chat error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/gemini/route.ts:624:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/gemini.test.ts:136:17
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+ [32m✓[39m app/api/gemini.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > GET > should return 200 for valid coordinates
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > GET > should return 200 for valid coordinates
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.GET (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:179:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:78:19
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return 200 for valid request
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return 200 for valid request
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:144:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:134:19
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return fallback when API call fails
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return fallback when API call fails
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:144:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:150:19
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+ [32m✓[39m app/api/weather/safety-alerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57243/74aa6174-fadd-49e8-93b9-84cb81608962
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57244/02fb0265-4be3-4988-abb8-eed01f817009
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57245/d55ffc19-3705-4e3b-bc6f-ea6c59ef6dab
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57247/0f31064b-3eed-4344-a6fc-dad13ff10c77
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57249/4879e1ff-e66b-4c6a-ad1e-180df7db96b9
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/hooks/useActiveWorkspace.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [31m❯[39m lib/hooks/useCompanyOnboarding.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 34[2mms[22m[39m
+   [31m❯[39m useCompanyOnboarding [2m(4)[22m
+[31m     [31m×[31m waits for Firebase Auth restoration before checking the company[39m[32m 23[2mms[22m[39m
+[31m     [31m×[31m cleans up the previous company subscription when the auth user changes[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m surfaces Firestore lookup errors instead of leaving onboarding loading forever[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m clears company state after signing out and unsubscribes on unmount[39m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/hooks/data/useEmployees.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 29[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57252/8251fffc-52a7-4326-8087-3dc70b2c416e
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57253/804a009f-7503-4082-9d47-d185eba80ae2
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57254/39bba36e-5755-437f-87e8-3cca66c739c3
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/services-integration.test.ts
+[22m[39m✓ Services integration tests completed
+
+ [32m✓[39m lib/__tests__/services-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/api-routes-integration.test.ts
+[22m[39m✓ API routes integration tests completed
+
+ [32m✓[39m lib/storageRest.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m lib/__tests__/api-routes-integration.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/configuration-integration.test.ts
+[22m[39m✓ Configuration integration tests completed
+
+ [32m✓[39m lib/utils/calculations.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m lib/firebaseAuth.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m lib/__tests__/configuration-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57262/56800c02-d82e-49eb-92a5-45cf57db69b3
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/apiAuth.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57263/d2366270-f2ed-4bd3-84c9-825d33bed4f0
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57264/6212f32d-b814-443d-a6bf-9f8b50730601
+For help, see: https://nodejs.org/en/docs/inspector
+stderr | lib/config.test.ts > lib/config > hasFirebaseRuntimeConfig > should return false when required config is missing
+[config] Firebase configuration incomplete. Check the public Firebase environment variables.
+
+ [32m✓[39m lib/config.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m lib/utils/e2e.integration.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57265/313a72d0-2c83-4cda-b279-2357c3e391a1
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57266/1736e1fb-b9cd-4ef1-aa6b-f8e883e6ed51
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57267/c4c351ea-a9ca-4cb2-8259-d8da86d9ad00
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57268/bc5ed8e0-2c8d-48e3-9317-db6113dd7a05
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57269/e3b9f5b8-3e51-45c8-91f7-4fdec1abfe00
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57271/722098bf-8243-46eb-8234-3143554c7750
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+ [32m✓[39m lib/hooks/useBudgetSummary.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger listening on ws://127.0.0.1:57285/35f55cd1-e7bb-48ee-9dff-b5f3d18fe7de
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+[90mstdout[2m | lib/__tests__/error-handling-integration.test.ts
+[22m[39m✓ Error handling integration tests completed
+
+ [32m✓[39m lib/__tests__/error-handling-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m lib/security.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/utils/crud.integration.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57334/68cb3821-38fb-4f62-a668-9802c6d5e564
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m app/api/upload-project-photo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57335/eab88500-ca81-4667-a7b3-bd67fdb9a017
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/field-operations-integration.test.ts
+[22m[39m✓ Field operations integration tests completed
+
+Debugger listening on ws://127.0.0.1:57336/4e62b9aa-1061-4017-92e8-0ebf73b64d4a
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/__tests__/field-operations-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m lib/domain/ownership.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/security-integration.test.ts
+[22m[39m✓ Security integration tests completed
+
+stderr | app/api/firebase-config.test.ts > app/api/firebase-config > should return 500 on error
+Firebase config route error: Error: IP error
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.test.ts:77:13
+    at Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:353:40)
+    at Module.GET (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.js/route.ts:9:22)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.test.ts:81:23
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+
+ [32m✓[39m app/api/firebase-config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m lib/__tests__/security-integration.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/utils/cacheManager.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57339/dc5d3b9e-d8d2-475e-9fc9-0ff1aa3e51c5
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/components.test.ts
+[22m[39m✓ All tests completed
+
+Debugger listening on ws://127.0.0.1:57340/ae5eae94-c3c5-46cc-8168-2554a41ea2b5
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57341/9d9eaad2-187c-4923-acee-af740c2790ae
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/__tests__/components.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/permissions.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/additional-ui-components-integration.test.ts
+[22m[39m✓ Additional UI components integration tests completed
+
+[90mstdout[2m | lib/__tests__/accessibility-integration.test.ts
+[22m[39m✓ Accessibility integration tests completed
+
+ [32m✓[39m lib/__tests__/additional-ui-components-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/accessibility-integration.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/gmail.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/domain/portfolio.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m lib/domain/budgetAnalysis.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57342/2f5b8f00-8587-481b-a02d-fd2859837640
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould log info messages
+[22m[39m[test-module] test message
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should log error messages with error object
+[test-module] error happened
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by log level
+[22m[39m[mod] debug msg
+[mod] info msg
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should filter by log level
+[mod] warn msg
+[mod] error msg
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by module
+[22m[39m[mod-a] msg a
+[mod-b] msg b
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould clear logs
+[22m[39m[mod] msg
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould export logs as JSON
+[22m[39m[mod] test
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should set minimum log level
+[mod] warn
+[mod] error
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould respect maxLogs limit
+[22m[39m[mod] msg 0
+[mod] msg 1
+[mod] msg 2
+[mod] msg 3
+[mod] msg 4
+[mod] msg 5
+[mod] msg 6
+[mod] msg 7
+[mod] msg 8
+[mod] msg 9
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mcreateLogger[2m > [22m[2mshould log with module name
+[22m[39m[my-module] hello
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > createLogger > should pass data to logger
+[my-module] failed { code: 500 }
+
+Debugger listening on ws://127.0.0.1:57343/ac1f17fa-2600-409c-93a7-7befdaf00235
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/utils/logger.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57344/f8949bf1-f2be-4070-8a24-ece320bb3bec
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57345/b8fcc599-87be-4d03-905f-277b4ff11a70
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/domain/procurement.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57346/0451abad-46d4-431b-a7b3-c89ff139a8d1
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57347/15630ef7-2833-49cd-bc57-77b7339f80ce
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57348/d514021a-20f4-4bb9-ba23-82735e2937b5
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57349/b7a1d801-5c03-4b64-8d22-dd2bd1c30a21
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57350/26a80316-ff19-493e-a7e1-cee62432577f
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57352/e11edce5-6766-4668-8845-8cbb71efd0d2
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57353/2d0a9c97-02b9-4a8f-b3ab-30dcd67960f3
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/validation/project.schema.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:57355/ede5c707-3059-49ad-bb75-259317fbb650
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:57356/f68c4317-496f-4a74-ab24-1e70ae059528
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+[90mstdout[2m | lib/__tests__/critical-modules-integration.test.ts
+[22m[39m✓ Critical modules integration tests completed
+
+ [32m✓[39m lib/__tests__/critical-modules-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/team-management-integration.test.ts
+[22m[39m✓ Team management integration tests completed
+
+ [32m✓[39m lib/__tests__/team-management-integration.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/apiClient.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/dashboard-components-integration.test.ts
+[22m[39m✓ Dashboard components integration tests completed
+
+ [32m✓[39m lib/__tests__/dashboard-components-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/domain/executionTimeline.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56163/b62f8f31-ee7a-4716-9190-53508622fb28
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56164/aa9e1254-90c4-4801-98e0-bc4a585992c7
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/projectCalculations.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56167/e0fd74ad-8d0b-4c28-9659-3978174a6ca0
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56168/343f3674-5d7b-4b44-87ab-2fc9142bc5a4
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/__tests__/middlewareOrigin.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56169/aea7f412-78ee-4cdb-8962-c812ec337e0b
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/guatemalanPayroll.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56170/178e59a4-4a8b-4572-b5a3-d524ffffb47f
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/custom-hooks-integration.test.ts
+[22m[39m✓ Custom hooks integration tests completed
+
+ [32m✓[39m lib/__tests__/custom-hooks-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/financial-components-integration.test.ts
+[22m[39m✓ Financial components integration tests completed
+
+ [32m✓[39m lib/guatemalaMarketData.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/financial-components-integration.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56172/31c78a74-4424-4586-a7d0-5eb7006f5fd1
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/performance-integration.test.ts
+[22m[39m✓ Performance integration tests completed
+
+Debugger listening on ws://127.0.0.1:56173/42e9f1a7-cb5b-4d62-9ba9-d74c701cb13f
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/__tests__/performance-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m lib/services/projectAlerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/domain/machinery.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56174/9633ad20-0743-46af-9986-c5d5397a5a60
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56175/c7b611e8-87c6-44b3-94a4-f948c3603078
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/payroll-integration.test.ts
+[22m[39m✓ Payroll integration tests completed
+
+[90mstdout[2m | lib/__tests__/projects-components-integration.test.ts
+[22m[39m✓ Projects components integration tests completed
+
+[90mstdout[2m | lib/__tests__/auth-ui-integration.test.ts
+[22m[39m✓ Auth UI integration tests completed
+
+ [32m✓[39m lib/__tests__/payroll-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56176/329db177-d47a-4c6b-9751-05c61920c08e
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56177/244c56c3-a539-43df-af30-4709260b89b2
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/app-routes-integration.test.ts
+[22m[39m✓ App routes integration tests completed
+
+ [32m✓[39m lib/__tests__/projects-components-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/auth-ui-integration.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/__tests__/app-routes-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56178/1af93206-3140-4002-bac8-b15e395b25be
+For help, see: https://nodejs.org/en/docs/inspector
+[90mstdout[2m | lib/__tests__/ai-assistant-integration.test.ts
+Debugger listening on ws://127.0.0.1:56181/786ea774-f59b-4362-85bf-9242a9ed7ca2
+[22m[39m✓ AI assistant integration tests completed
+For help, see: https://nodejs.org/en/docs/inspector
+
+ [32m✓[39m lib/__tests__/ai-assistant-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56182/d8bec55c-4e63-4e45-9ac5-49857a616d2d
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56183/45e1f08c-ad70-4f32-b143-ad03d1236d20
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56184/f45ed30b-1738-4429-b780-1b3d3731d3c6
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56185/56391322-2f62-4744-957b-9cf5648c5f87
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger listening on ws://127.0.0.1:56186/b31806c4-3bc0-43b4-a34b-b4fc8c7d5d21
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+ [32m✓[39m lib/domain/expenseBudget.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/budget/demoProjects.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/domain/apu.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/domain/auditMetrics.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/domain/payrollEstimate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/authErrors.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/geofencing.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:56255/5bbf0fbc-ec49-4704-a8e1-a7b24da04550
+For help, see: https://nodejs.org/en/docs/inspector
+ [32m✓[39m lib/design-tokens.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/cashFlowService.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/domain/finance.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/domain/projectClosure.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/quotationUtils.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/domain/expenseRecognition.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/utils/firestorePayload.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/logger.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/domain/alerts.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/domain/projectFinance.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/api.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/hooks/useFirebaseSyncStatus.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+Debugger attached.
+ [32m✓[39m lib/__tests__/middlewareCsp.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/hooks/useCompanyOnboarding.test.ts > useCompanyOnboarding > waits for Firebase Auth restoration before checking the company
+TypeError: Cannot read properties of undefined (reading 'loading')
+ ❯ lib/hooks/useCompanyOnboarding.test.ts:73:27
+     71|     expect(mocks.authSubscriber).toHaveBeenCalledTimes(1);
+     72|     expect(mocks.settingsSubscriber).not.toHaveBeenCalled();
+     73|     expect(result.current.loading).toBe(true);
+       |                           ^
+     74|     expect(result.current.hasCompany).toBe(false);
+     75|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  lib/hooks/useCompanyOnboarding.test.ts > useCompanyOnboarding > cleans up the previous company subscription when the auth user changes
+Error: [vitest] No "subscribeCompany" export is defined on the "@/lib/firebaseService" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lib/firebaseService"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ lib/hooks/useCompanyOnboarding.ts:71:31
+     69|         // Changed from subscribeCompanySettings to subscribeCompany t…
+     70|         // This aligns with the seed script which creates data in comp…
+     71|         unsubscribeSettings = subscribeCompany(
+       |                               ^
+     72|           userId,
+     73|           (data) => {
+ ❯ lib/hooks/useCompanyOnboarding.test.ts:99:15
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:890:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ lib/hooks/useCompanyOnboarding.test.ts:99:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  lib/hooks/useCompanyOnboarding.test.ts > useCompanyOnboarding > surfaces Firestore lookup errors instead of leaving onboarding loading forever
+Error: [vitest] No "subscribeCompany" export is defined on the "@/lib/firebaseService" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lib/firebaseService"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ lib/hooks/useCompanyOnboarding.ts:71:31
+     69|         // Changed from subscribeCompanySettings to subscribeCompany t…
+     70|         // This aligns with the seed script which creates data in comp…
+     71|         unsubscribeSettings = subscribeCompany(
+       |                               ^
+     72|           userId,
+     73|           (data) => {
+ ❯ lib/hooks/useCompanyOnboarding.test.ts:121:15
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:890:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ lib/hooks/useCompanyOnboarding.test.ts:121:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  lib/hooks/useCompanyOnboarding.test.ts > useCompanyOnboarding > clears company state after signing out and unsubscribes on unmount
+Error: [vitest] No "subscribeCompany" export is defined on the "@/lib/firebaseService" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lib/firebaseService"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ lib/hooks/useCompanyOnboarding.ts:71:31
+     69|         // Changed from subscribeCompanySettings to subscribeCompany t…
+     70|         // This aligns with the seed script which creates data in comp…
+     71|         unsubscribeSettings = subscribeCompany(
+       |                               ^
+     72|           userId,
+     73|           (data) => {
+ ❯ lib/hooks/useCompanyOnboarding.test.ts:134:15
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:47:24
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:890:22
+ ❯ Proxy.<anonymous> node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ lib/hooks/useCompanyOnboarding.test.ts:134:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m95 passed[39m[22m[90m (96)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m1575 passed[39m[22m[90m (1579)[39m
+[2m   Start at [22m 07:03:39
+[2m   Duration [22m 39.94s[2m (environment 92%, import 5%, transform 1%)[22m
+
+[2mEnvironment [22m [33mjsdom was created 96 times[39m[2m · 443.40s total, 92% of tracked time[22m
+[2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+[2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

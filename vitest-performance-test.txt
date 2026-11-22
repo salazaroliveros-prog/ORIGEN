@@ -1,0 +1,454 @@
+Debugger listening on ws://127.0.0.1:55465/ca837ccb-86af-4d43-99a3-0697854fd9c3
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+npm notice run constructerp-guatemala@0.1.0 npx
+npm notice run vitest run
+Debugger listening on ws://127.0.0.1:55485/ef5edaf4-80c7-4653-ad73-d2575908e86e
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90mC:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN[39m
+
+ [31m❯[39m lib/offlineStorage.test.ts [2m([22m[2m17 tests[22m[2m | [22m[31m17 failed[39m[2m)[22m[32m 39[2mms[22m[39m
+   [31m❯[39m lib/offlineStorage [2m(17)[22m
+     [31m❯[39m saveOfflineData / loadOfflineData [2m(4)[22m
+[31m       [31m×[31m should save and load data[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m should return fallback for missing key[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should return fallback for corrupted data[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should do nothing when window is undefined[39m[32m 2[2mms[22m[39m
+     [31m❯[39m getOfflineQueue [2m(3)[22m
+[31m       [31m×[31m should return valid queue items[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should filter out invalid items[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return empty array for missing queue[39m[32m 1[2mms[22m[39m
+     [31m❯[39m addOfflineAction [2m(2)[22m
+[31m       [31m×[31m should add action to queue[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should prepend to existing queue[39m[32m 1[2mms[22m[39m
+     [31m❯[39m removeOfflineAction [2m(1)[22m
+[31m       [31m×[31m should remove action from queue[39m[32m 2[2mms[22m[39m
+     [31m❯[39m clearOfflineQueue [2m(1)[22m
+[31m       [31m×[31m should clear the queue[39m[32m 1[2mms[22m[39m
+     [31m❯[39m processOfflineQueue [2m(6)[22m
+[31m       [31m×[31m should process all successful items[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should keep failed items[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should handle handler exceptions[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m preserves actions added while an existing action is syncing[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m does not run a second queue processor concurrently[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should return empty for empty queue[39m[32m 3[2mms[22m[39m
+ [31m❯[39m lib/hooks/useCompanyWorkspace.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 17[2mms[22m[39m
+   [31m❯[39m useCompanyWorkspace [2m(6)[22m
+[31m     [31m×[31m should select workspace successfully[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m should return false when selectWorkspace fails[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m hides the previous user workspace immediately while the next identity is resolving[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m should return false when no user[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m should describe network error[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m should set loading state during selectWorkspace[39m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/hooks/useAPUManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m lib/__tests__/ui-components-a11y.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 212[2mms[22m[39m
+ [32m✓[39m app/api/project-photos/[projectId]/[photoId]/route.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m lib/hooks/useMachineryManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > GET > should return 200 for valid coordinates
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > GET > should return 200 for valid coordinates
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.GET (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:179:18)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:78:19
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return 200 for valid request
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return 200 for valid request
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:144:18)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:134:19
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return fallback when API call fails
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return fallback when API call fails
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:144:18)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:150:19
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+ [32m✓[39m app/api/weather/safety-alerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m lib/firebaseService.validation.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m lib/domain/inventory.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m lib/hooks/useExpenseManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m lib/hooks/useAuthSession.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32m✓[39m lib/hooks/useProjectData.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m lib/data.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/hooks/data/useEmployees.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 20[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/data-import-export-integration.test.ts
+[22m[39m✓ Data import/export integration tests completed
+
+ [32m✓[39m lib/hooks/useAttendanceManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m lib/__tests__/data-import-export-integration.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/e2e.test.ts
+[22m[39m✓ All E2E and Performance tests completed
+
+stderr | app/api/gemini.test.ts > app/api/gemini > should return 200 for chat with default message
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+Gemini chat error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/gemini/route.ts:624:22)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/gemini.test.ts:136:17
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+ [32m✓[39m app/api/gemini.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m lib/domain/monthlyExpenses.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m lib/apiAuth.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m lib/__tests__/e2e.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [31m❯[39m lib/branding.test.ts [2m([22m[2m23 tests[22m[2m | [22m[31m23 failed[39m[2m)[22m[32m 50[2mms[22m[39m
+   [31m❯[39m lib/branding [2m(23)[22m
+     [31m❯[39m DEFAULT_BRANDING [2m(1)[22m
+[31m       [31m×[31m should have expected default values[39m[32m 8[2mms[22m[39m
+     [31m❯[39m KNOWN_LOGO_PATHS [2m(1)[22m
+[31m       [31m×[31m should contain known logo paths[39m[32m 2[2mms[22m[39m
+     [31m❯[39m loadBranding [2m(4)[22m
+[31m       [31m×[31m should return DEFAULT_BRANDING when window is undefined[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should return DEFAULT_BRANDING when no stored data[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should merge stored branding with defaults[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should handle corrupted stored data[39m[32m 2[2mms[22m[39m
+     [31m❯[39m saveBranding [2m(2)[22m
+[31m       [31m×[31m should save to localStorage and dispatch event[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should do nothing when window is undefined[39m[32m 2[2mms[22m[39m
+     [31m❯[39m detectUploadedLogo [2m(2)[22m
+[31m       [31m×[31m should return default URL for invalid file[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should create blob URL for valid file[39m[32m 2[2mms[22m[39m
+     [31m❯[39m revokeLogoUrl [2m(2)[22m
+[31m       [31m×[31m should revoke blob URLs[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should not revoke non-blob URLs[39m[32m 2[2mms[22m[39m
+     [31m❯[39m isCustomLogo [2m(3)[22m
+[31m       [31m×[31m should return false for known paths[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should return true for blob URLs not in known paths[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should return false for non-blob URLs not in known paths[39m[32m 1[2mms[22m[39m
+     [31m❯[39m mergeBrandingIntoCompanySettings [2m(1)[22m
+[31m       [31m×[31m should merge branding into company settings[39m[32m 2[2mms[22m[39m
+     [31m❯[39m applyBrandingToDocument [2m(2)[22m
+[31m       [31m×[31m should do nothing when document is undefined[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should set CSS custom properties[39m[32m 1[2mms[22m[39m
+     [31m❯[39m subscribeToBrandingUpdates [2m(2)[22m
+[31m       [31m×[31m should return no-op when window is undefined[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should add and remove event listener[39m[32m 1[2mms[22m[39m
+     [31m❯[39m getResponsiveLogoUrl [2m(3)[22m
+[31m       [31m×[31m should return banner variant by default[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return small variant[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return square variant[39m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/utils/e2e.integration.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+stderr | lib/config.test.ts > lib/config > hasFirebaseRuntimeConfig > should return false when required config is missing
+[config] Firebase configuration incomplete. Check the public Firebase environment variables.
+
+ [32m✓[39m lib/config.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m lib/hooks/useActiveWorkspace.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 76[2mms[22m[39m
+ [32m✓[39m lib/utils/calculations.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/custom-hooks-integration.test.ts
+[22m[39m✓ Custom hooks integration tests completed
+
+ [32m✓[39m lib/__tests__/custom-hooks-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m lib/hooks/useBudgetSummary.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/layout-components-integration.test.ts
+[22m[39m✓ Layout components integration tests completed
+
+ [32m✓[39m lib/__tests__/layout-components-integration.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m lib/firebaseAuth.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m lib/storageRest.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m app/api/upload-project-photo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m lib/utils/cacheManager.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m lib/utils/crud.integration.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m lib/domain/felInvoice.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/accessibility-integration.test.ts
+[22m[39m✓ Accessibility integration tests completed
+
+stderr | app/api/firebase-config.test.ts > app/api/firebase-config > should return 500 on error
+Firebase config route error: Error: IP error
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.test.ts:77:13
+    at Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:353:40)
+    at Module.GET (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.js/route.ts:9:22)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.test.ts:81:23
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+
+ [32m✓[39m app/api/firebase-config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/security.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m lib/__tests__/accessibility-integration.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m lib/domain/ownership.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m lib/validation/project.schema.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/components.test.ts
+[22m[39m✓ All tests completed
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould log info messages
+[22m[39m[test-module] test message
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should log error messages with error object
+[test-module] error happened
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by log level
+[22m[39m[mod] debug msg
+[mod] info msg
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should filter by log level
+[mod] warn msg
+[mod] error msg
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by module
+[22m[39m[mod-a] msg a
+[mod-b] msg b
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould clear logs
+[22m[39m[mod] msg
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould export logs as JSON
+[22m[39m[mod] test
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should set minimum log level
+[mod] warn
+[mod] error
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould respect maxLogs limit
+[22m[39m[mod] msg 0
+[mod] msg 1
+[mod] msg 2
+[mod] msg 3
+[mod] msg 4
+[mod] msg 5
+[mod] msg 6
+[mod] msg 7
+[mod] msg 8
+[mod] msg 9
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mcreateLogger[2m > [22m[2mshould log with module name
+[22m[39m[my-module] hello
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > createLogger > should pass data to logger
+[my-module] failed { code: 500 }
+
+ [32m✓[39m lib/utils/logger.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m lib/__tests__/components.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/security-integration.test.ts
+[22m[39m✓ Security integration tests completed
+
+[90mstdout[2m | lib/__tests__/additional-ui-components-integration.test.ts
+[22m[39m✓ Additional UI components integration tests completed
+
+ [32m✓[39m lib/__tests__/security-integration.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m lib/gmail.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/error-handling-integration.test.ts
+[22m[39m✓ Error handling integration tests completed
+
+ [32m✓[39m lib/__tests__/additional-ui-components-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m lib/__tests__/error-handling-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/performance-integration.test.ts
+[22m[39m✓ Performance integration tests completed
+
+ [32m✓[39m lib/hooks/useEmployeeManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m lib/domain/budgetAnalysis.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m lib/hooks/useQuoteManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/critical-modules-integration.test.ts
+[22m[39m✓ Critical modules integration tests completed
+
+ [32m✓[39m lib/domain/procurement.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m lib/domain/machinery.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m lib/__tests__/performance-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m lib/__tests__/critical-modules-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m lib/domain/portfolio.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+stderr | lib/hooks/useCompanyOnboarding.test.ts > useCompanyOnboarding > surfaces Firestore lookup errors instead of leaving onboarding loading forever
+[useCompanyOnboarding] No se pudo consultar la configuración de empresa.
+
+ [32m✓[39m lib/domain/executionTimeline.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m lib/hooks/useCompanyOnboarding.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/api-routes-integration.test.ts
+[22m[39m✓ API routes integration tests completed
+
+ [32m✓[39m lib/projectCalculations.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m lib/__tests__/api-routes-integration.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/configuration-integration.test.ts
+[22m[39m✓ Configuration integration tests completed
+
+[90mstdout[2m | lib/__tests__/payroll-integration.test.ts
+[22m[39m✓ Payroll integration tests completed
+
+ [32m✓[39m lib/__tests__/configuration-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m lib/__tests__/payroll-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/auth-ui-integration.test.ts
+[22m[39m✓ Auth UI integration tests completed
+
+[90mstdout[2m | lib/__tests__/field-operations-integration.test.ts
+[22m[39m✓ Field operations integration tests completed
+
+ [32m✓[39m lib/__tests__/auth-ui-integration.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m lib/__tests__/field-operations-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/app-routes-integration.test.ts
+[22m[39m✓ App routes integration tests completed
+
+[90mstdout[2m | lib/__tests__/projects-components-integration.test.ts
+[22m[39m✓ Projects components integration tests completed
+
+ [32m✓[39m lib/__tests__/middlewareOrigin.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+stderr | lib/utils/validation.test.ts > lib/utils/validation > safeJSONParse > should return fallback for invalid JSON
+JSON parse error: SyntaxError: Unexpected token 'o', "not json" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at safeJSONParse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/validation.ts:165:17)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/validation.test.ts:135:22
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+    at new Promise (<anonymous>)
+
+ [32m✓[39m lib/utils/validation.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m lib/__tests__/projects-components-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/financial-components-integration.test.ts
+[22m[39m✓ Financial components integration tests completed
+
+[90mstdout[2m | lib/__tests__/services-integration.test.ts
+[22m[39m✓ Services integration tests completed
+
+ [32m✓[39m lib/__tests__/app-routes-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/team-management-integration.test.ts
+[22m[39m✓ Team management integration tests completed
+
+ [32m✓[39m lib/permissions.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m lib/__tests__/financial-components-integration.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m lib/__tests__/services-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m lib/__tests__/team-management-integration.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/ai-assistant-integration.test.ts
+[22m[39m✓ AI assistant integration tests completed
+
+[90mstdout[2m | lib/__tests__/dashboard-components-integration.test.ts
+[22m[39m✓ Dashboard components integration tests completed
+
+ [32m✓[39m lib/__tests__/ai-assistant-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m lib/guatemalaMarketData.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m lib/__tests__/dashboard-components-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m lib/guatemalanPayroll.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m lib/apiClient.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m lib/domain/expenseBudget.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m lib/domain/apu.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/cashFlowService.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/domain/auditMetrics.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/design-tokens.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/domain/payrollEstimate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/domain/expenseRecognition.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/geofencing.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/utils/firestorePayload.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/budget/demoProjects.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/authErrors.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m lib/services/projectAlerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m lib/api.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m lib/domain/projectFinance.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/domain/alerts.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/validation/entity.schemas.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m lib/domain/finance.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/domain/projectClosure.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/logger.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/quotationUtils.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m lib/__tests__/middlewareCsp.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/hooks/useFirebaseSyncStatus.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 46 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/branding.test.ts > lib/branding > DEFAULT_BRANDING > should have expected default values
+ FAIL  lib/branding.test.ts > lib/branding > KNOWN_LOGO_PATHS > should contain known logo paths
+ FAIL  lib/branding.test.ts > lib/branding > loadBranding > should return DEFAULT_BRANDING when window is undefined
+ FAIL  lib/branding.test.ts > lib/branding > loadBranding > should return DEFAULT_BRANDING when no stored data
+ FAIL  lib/branding.test.ts > lib/branding > loadBranding > should merge stored branding with defaults
+ FAIL  lib/branding.test.ts > lib/branding > loadBranding > should handle corrupted stored data
+ FAIL  lib/branding.test.ts > lib/branding > saveBranding > should save to localStorage and dispatch event
+ FAIL  lib/branding.test.ts > lib/branding > saveBranding > should do nothing when window is undefined
+ FAIL  lib/branding.test.ts > lib/branding > detectUploadedLogo > should return default URL for invalid file
+ FAIL  lib/branding.test.ts > lib/branding > detectUploadedLogo > should create blob URL for valid file
+ FAIL  lib/branding.test.ts > lib/branding > revokeLogoUrl > should revoke blob URLs
+ FAIL  lib/branding.test.ts > lib/branding > revokeLogoUrl > should not revoke non-blob URLs
+ FAIL  lib/branding.test.ts > lib/branding > isCustomLogo > should return false for known paths
+ FAIL  lib/branding.test.ts > lib/branding > isCustomLogo > should return true for blob URLs not in known paths
+ FAIL  lib/branding.test.ts > lib/branding > isCustomLogo > should return false for non-blob URLs not in known paths
+ FAIL  lib/branding.test.ts > lib/branding > mergeBrandingIntoCompanySettings > should merge branding into company settings
+ FAIL  lib/branding.test.ts > lib/branding > applyBrandingToDocument > should do nothing when document is undefined
+ FAIL  lib/branding.test.ts > lib/branding > applyBrandingToDocument > should set CSS custom properties
+ FAIL  lib/branding.test.ts > lib/branding > subscribeToBrandingUpdates > should return no-op when window is undefined
+ FAIL  lib/branding.test.ts > lib/branding > subscribeToBrandingUpdates > should add and remove event listener
+ FAIL  lib/branding.test.ts > lib/branding > getResponsiveLogoUrl > should return banner variant by default
+ FAIL  lib/branding.test.ts > lib/branding > getResponsiveLogoUrl > should return small variant
+ FAIL  lib/branding.test.ts > lib/branding > getResponsiveLogoUrl > should return square variant
+TypeError: Cannot redefine property: window
+ ❯ lib/branding.test.ts:39:12
+     37|   beforeEach(() => {
+     38|     Object.defineProperty(global, 'localStorage', { value: localStorag…
+     39|     Object.defineProperty(global, 'window', {
+       |            ^
+     40|       value: { ...originalWindow, localStorage: localStorageMock, disp…
+     41|       writable: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/46]⎯
+
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > saveOfflineData / loadOfflineData > should save and load data
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > saveOfflineData / loadOfflineData > should return fallback for missing key
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > saveOfflineData / loadOfflineData > should return fallback for corrupted data
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > saveOfflineData / loadOfflineData > should do nothing when window is undefined
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > getOfflineQueue > should return valid queue items
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > getOfflineQueue > should filter out invalid items
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > getOfflineQueue > should return empty array for missing queue
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > addOfflineAction > should add action to queue
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > addOfflineAction > should prepend to existing queue
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > removeOfflineAction > should remove action from queue
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > clearOfflineQueue > should clear the queue
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > should process all successful items
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > should keep failed items
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > should handle handler exceptions
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > preserves actions added while an existing action is syncing
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > does not run a second queue processor concurrently
+ FAIL  lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > should return empty for empty queue
+TypeError: Cannot redefine property: window
+ ❯ lib/offlineStorage.test.ts:51:12
+     49|   beforeEach(() => {
+     50|     Object.defineProperty(global, 'localStorage', { value: localStorag…
+     51|     Object.defineProperty(global, 'window', {
+       |            ^
+     52|       value: { ...originalWindow, localStorage: localStorageMock },
+     53|       writable: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/46]⎯
+
+ FAIL  lib/hooks/useCompanyWorkspace.test.ts > useCompanyWorkspace > should select workspace successfully
+ FAIL  lib/hooks/useCompanyWorkspace.test.ts > useCompanyWorkspace > should return false when selectWorkspace fails
+ FAIL  lib/hooks/useCompanyWorkspace.test.ts > useCompanyWorkspace > hides the previous user workspace immediately while the next identity is resolving
+ FAIL  lib/hooks/useCompanyWorkspace.test.ts > useCompanyWorkspace > should return false when no user
+ FAIL  lib/hooks/useCompanyWorkspace.test.ts > useCompanyWorkspace > should describe network error
+ FAIL  lib/hooks/useCompanyWorkspace.test.ts > useCompanyWorkspace > should set loading state during selectWorkspace
+TypeError: Cannot redefine property: location
+ ❯ setupWindowMocks lib/hooks/useCompanyWorkspace.test.ts:45:10
+     43|     writable: true,
+     44|   });
+     45|   Object.defineProperty(window, 'location', {
+       |          ^
+     46|     value: { search: '', pathname: '/', hash: '' },
+     47|     writable: true,
+ ❯ lib/hooks/useCompanyWorkspace.test.ts:58:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/46]⎯
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m93 passed[39m[22m[90m (96)[39m
+[2m      Tests [22m [1m[31m46 failed[39m[22m[2m | [22m[1m[32m1533 passed[39m[22m[90m (1579)[39m
+[2m   Start at [22m 02:28:43
+[2m   Duration [22m 8.39s[2m (environment 31%, import 21%, worker 20%, transform 17%, setup 7%, tests 4%)[22m
+
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

@@ -119,4 +119,18 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
       unsubscribeAuth();
     };
   }, []);
+
+  return {
+    company,
+    loading,
+    hasCompany,
+    error,
+    createCompany: async (settings: CompanySettings): Promise<boolean> => {
+      // Placeholder implementation - pass companyId separately as required by the function signature
+      const companyId = settings.companyId || '';
+      return saveCompanySettingsToFirestore(settings, companyId)
+        .then(() => true)
+        .catch(() => false);
+    },
+  } as UseCompanyOnboardingReturn;
 }

@@ -14,6 +14,7 @@ vi.mock('@/lib/firebaseAuth', () => ({
 
 vi.mock('@/lib/firebaseService', () => ({
   subscribeCompanySettings: (...args: unknown[]) => mocks.settingsSubscriber(...args),
+  subscribeCompany: (...args: unknown[]) => mocks.settingsSubscriber(...args),
   saveCompanySettingsToFirestore: (...args: unknown[]) => mocks.saveSettings(...args),
   getAuthOrThrow: () => mocks.getAuth(),
 }));
@@ -46,15 +47,17 @@ beforeEach(() => {
     return vi.fn();
   });
 
-  mocks.settingsSubscriber.mockImplementation((companyId: unknown, callback: unknown, onError?: unknown) => {
-    settingsCallbacks.set(String(companyId), callback as SettingsCallback);
-    if (typeof onError === 'function') {
-      settingsErrorCallbacks.set(String(companyId), onError as (error: Error) => void);
+  mocks.settingsSubscriber.mockImplementation(
+    (companyId: unknown, callback: unknown, onError?: unknown) => {
+      settingsCallbacks.set(String(companyId), callback as SettingsCallback);
+      if (typeof onError === 'function') {
+        settingsErrorCallbacks.set(String(companyId), onError as (error: Error) => void);
+      }
+      const unsubscribe = vi.fn();
+      settingsUnsubscribers.set(String(companyId), unsubscribe);
+      return unsubscribe;
     }
-    const unsubscribe = vi.fn();
-    settingsUnsubscribers.set(String(companyId), unsubscribe);
-    return unsubscribe;
-  });
+  );
 
   mocks.saveSettings.mockResolvedValue(true);
   mocks.getAuth.mockReturnValue({ currentUser: null });

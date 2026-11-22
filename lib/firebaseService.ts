@@ -525,7 +525,12 @@ export async function saveProjectPhotoToFirestore(
   }
   const userId = auth?.currentUser?.uid;
   if (!userId) throw new Error('Debes iniciar sesión para guardar la foto del proyecto.');
-  if (!companyId || !Number.isFinite(input.size) || input.size <= 0 || input.size > 10 * 1024 * 1024) {
+  if (
+    !companyId ||
+    !Number.isFinite(input.size) ||
+    input.size <= 0 ||
+    input.size > 10 * 1024 * 1024
+  ) {
     throw new Error('Los metadatos de la foto no son válidos.');
   }
   if (input.storagePath !== `projects/${projectId}/progress/${input.filename}`) {
@@ -533,7 +538,10 @@ export async function saveProjectPhotoToFirestore(
   }
 
   const record: ProjectPhotoRecord = { ...input, projectId, companyId, uploadedBy: userId };
-  await setDoc(doc(getDbOrThrow(), 'projects', projectId, 'photos', input.id), stripUndefined(record));
+  await setDoc(
+    doc(getDbOrThrow(), 'projects', projectId, 'photos', input.id),
+    stripUndefined(record)
+  );
   return record;
 }
 
@@ -547,7 +555,11 @@ export function subscribeProjectPhotos(
     return onSnapshot(
       collection(getDbOrThrow(), 'projects', projectId, 'photos'),
       (snapshot: QuerySnapshot<DocumentData>) =>
-        callback(snapshot.docs.map((photo: QueryDocumentSnapshot<DocumentData>) => photo.data() as ProjectPhotoRecord)),
+        callback(
+          snapshot.docs.map(
+            (photo: QueryDocumentSnapshot<DocumentData>) => photo.data() as ProjectPhotoRecord
+          )
+        ),
       (error: Error) => {
         const normalized = handleFirestoreError(error, OperationType.LIST, path);
         onError?.(normalized instanceof Error ? normalized : error);
@@ -555,7 +567,7 @@ export function subscribeProjectPhotos(
     );
   } catch (error) {
     const normalized = handleFirestoreError(error, OperationType.LIST, path);
-    onError?.(normalized instanceof Error ? normalized : error as Error);
+    onError?.(normalized instanceof Error ? normalized : (error as Error));
     return () => {};
   }
 }
@@ -1164,6 +1176,37 @@ export function subscribeCompanySettings(
   }
 }
 
+/** Suscribe a user's company settings from the `companies/{uid}` document */
+export function subscribeCompany(
+  userId: string,
+  callback: (company: CompanySettings | null) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const path = `companies/${userId}`;
+  try {
+    const docRef = doc(db, 'companies', userId);
+    return onSnapshot(
+      docRef,
+      (docSnap: QueryDocumentSnapshot<DocumentData>) => {
+        if (docSnap.exists()) {
+          callback(docSnap.data() as CompanySettings);
+        } else {
+          callback(null);
+        }
+      },
+      (error: Error) => {
+        const normalized = handleFirestoreError(error, OperationType.GET, path);
+        onError?.(normalized);
+      }
+    );
+  } catch (err) {
+    notifySyncEnd();
+    const normalized = handleFirestoreError(err, OperationType.GET, path);
+    onError?.(normalized);
+    return () => {};
+  }
+}
+
 export function subscribeQuotes(
   companyId: string,
   callback: (quotes: QuoteRecord[]) => void,
@@ -1572,16 +1615,25 @@ export async function recordMachineryUse(
         throw new Error('No se puede registrar uso mientras el equipo está en mantenimiento.');
       }
       if (currentMachinery.currentHorometer !== machinery.currentHorometer) {
-        throw new Error('El horómetro cambió desde que abriste el formulario. Actualiza los datos e intenta nuevamente.');
+        throw new Error(
+          'El horómetro cambió desde que abriste el formulario. Actualiza los datos e intenta nuevamente.'
+        );
       }
-      if (currentMachinery.status === 'En Obra' && currentMachinery.currentProjectId !== log.projectId) {
-        throw new Error('La maquinaria sigue asignada a otro proyecto. Finaliza su uso antes de cambiarla de obra.');
+      if (
+        currentMachinery.status === 'En Obra' &&
+        currentMachinery.currentProjectId !== log.projectId
+      ) {
+        throw new Error(
+          'La maquinaria sigue asignada a otro proyecto. Finaliza su uso antes de cambiarla de obra.'
+        );
       }
       if (log.machineryId !== currentMachinery.id) {
         throw new Error('La bitácora no corresponde al equipo seleccionado.');
       }
       if (logSnapshot.exists() || expenseSnapshot.exists()) {
-        throw new Error('La bitácora o el gasto ya existen. No se repetirá el registro de esta operación.');
+        throw new Error(
+          'La bitácora o el gasto ya existen. No se repetirá el registro de esta operación.'
+        );
       }
 
       // Hours, amount and next meter reading are derived only from the
@@ -1779,7 +1831,6 @@ export function subscribeFelInvoices(
   }
 }
 
-
 /** Datos de contacto privados asociados exclusivamente al UID autenticado. */
 export interface UserProfileRecord {
   uid: string;
@@ -1787,7 +1838,9 @@ export interface UserProfileRecord {
   updatedAt: string;
 }
 
-export async function getUserProfileFromFirestore(userId: string): Promise<UserProfileRecord | null> {
+export async function getUserProfileFromFirestore(
+  userId: string
+): Promise<UserProfileRecord | null> {
   if (!/^[a-zA-Z0-9_-]{1,128}$/.test(userId)) {
     throw new Error('El identificador del usuario no es válido.');
   }
@@ -1816,6 +1869,8 @@ export async function saveUserProfileToFirestore(
     phoneNumber: input.phoneNumber.trim(),
     updatedAt: new Date().toISOString(),
   };
-  await setDoc(doc(getDbOrThrow(), 'userProfiles', userId), stripUndefined(profile), { merge: true });
+  await setDoc(doc(getDbOrThrow(), 'userProfiles', userId), stripUndefined(profile), {
+    merge: true,
+  });
   return profile;
 }

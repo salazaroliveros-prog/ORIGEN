@@ -1,0 +1,38 @@
+Debugger listening on ws://127.0.0.1:57330/77eb1482-eb24-433f-806b-55240da9c386
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+
+> constructerp-guatemala@0.1.0 emulators
+> npx --yes firebase-tools@15.24.0 emulators:start --config firebase.emulators.json --project demo-origen-erp-test --only auth,firestore,storage
+
+Debugger listening on ws://127.0.0.1:57342/2e99da39-1deb-4f77-abc0-10e08771401f
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:52352/2fe56f9c-75fc-44fc-9543-e578af2f451b
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+[36m[1mi  emulators:[22m[39m Starting emulators: auth, firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-origen-erp-test", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator was started in standard edition.
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌────────────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator       [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├────────────────[39m[90m┼────────────────┤[39m
+[90m│[39m Authentication [90m│[39m 127.0.0.1:9099 [90m│[39m
+[90m├────────────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore      [90m│[39m 127.0.0.1:8080 [90m│[39m
+[90m├────────────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage        [90m│[39m 127.0.0.1:9199 [90m│[39m
+[90m└────────────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+ 

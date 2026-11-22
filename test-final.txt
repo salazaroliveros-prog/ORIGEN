@@ -1,0 +1,62 @@
+Debugger listening on ws://127.0.0.1:52592/18793567-18c6-4331-a467-86819adbf6cc
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:52611/57b3ae33-f600-4089-97e5-9ce33a6db342
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:52627/3d8b3325-d787-4830-a797-3a9ddc8948f0
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] 
+[WebServer] > constructerp-guatemala@0.1.0 dev:emulated
+[WebServer] > cross-env NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-origen-erp-test NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=localhost NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:demo NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=demo-origen-erp-test.appspot.com NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000 npm run dev -- --port 3000 --hostname 127.0.0.1
+[WebServer] 
+[WebServer] Debugger listening on ws://127.0.0.1:59393/3f280124-87f7-44b7-bb34-904eb855df8b
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:59400/8a333617-1229-4170-b1f8-e5b3881c8c2f
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] 
+[WebServer] > constructerp-guatemala@0.1.0 dev
+[WebServer] > node scripts/dev.mjs --port 3000 --hostname 127.0.0.1
+[WebServer] 
+[WebServer] Debugger listening on ws://127.0.0.1:59408/47ea4492-b5a4-4979-9e1d-abe8c6fc8440
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:59413/7dd30905-41c1-420f-be6e-d45211d9dce4
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:59430/96c48b00-2f04-455f-8ee6-486bddaf60b9
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer]    ▲ Next.js 15.5.29
+[WebServer]    - Local:        http://127.0.0.1:3000
+[WebServer]    - Network:      http://127.0.0.1:3000
+[WebServer]    - Environments: .env.local, .env
+[WebServer]    - Experiments (use with caution):
+[WebServer]      · optimizePackageImports
+[WebServer]      ⨯ devtoolSegmentExplorer
+[WebServer] 
+[WebServer]  ✓ Starting...
+[WebServer]  ✓ Ready in 2.6s
+[WebServer]  ✓ Compiled /middleware in 220ms (166 modules)
+[WebServer]  ○ Compiling /api/firebase-config.js ...
+[WebServer]  ✓ Compiled /api/firebase-config.js in 1110ms (397 modules)
+[WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+TypeError: Duplicate declaration "chromium"
+  102 |   }
+  103 | }
+> 104 | import { chromium, expect } from '@playwright/test';
+      |          ^^^^^^^^
+  105 |
+  106 |
+[WebServer]  GET /api/firebase-config.js 200 in 1317ms
+
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report playwright-report\local[39m
+[36m[39m
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

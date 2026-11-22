@@ -1,0 +1,1277 @@
+Debugger listening on ws://127.0.0.1:55768/84d7de8e-5534-47ee-bac1-1f54ab58aff4
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+npm notice run constructerp-guatemala@0.1.0 npx
+npm notice run vitest run
+Debugger listening on ws://127.0.0.1:55793/f9a22a76-6cbd-47c7-bb9d-9d487f80863a
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90mC:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN[39m
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 96 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/branding.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/offlineStorage.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useCompanyWorkspace.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/ui-components-a11y.test.tsx.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useProjectData.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/e2e.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/data-import-export-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useAuthSession.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useActiveWorkspace.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/config.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/calculations.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useExpenseManagement.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useCompanyOnboarding.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/validation/entity.schemas.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useAttendanceManagement.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useAPUManagement.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useEmployeeManagement.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/accessibility-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useMachineryManagement.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/crud.integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/upload-project-photo.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useQuoteManagement.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/security-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/firebaseService.validation.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/felInvoice.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/machinery.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/firebaseAuth.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/executionTimeline.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/cacheManager.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/project-photos/[projectId]/[photoId]/route.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/components.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/storageRest.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/gemini.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/additional-ui-components-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/auth-ui-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/budgetAnalysis.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/validation.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/portfolio.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/procurement.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/layout-components-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/apiAuth.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/e2e.integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/payroll-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/performance-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/security.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/inventory.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/authErrors.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/api-routes-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/error-handling-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/quotationUtils.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/validation/project.schema.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/services/projectAlerts.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/logger.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/dashboard-components-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/projectCalculations.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/critical-modules-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/ai-assistant-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/monthlyExpenses.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/guatemalaMarketData.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/configuration-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/custom-hooks-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/app-routes-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/guatemalanPayroll.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/ownership.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/services-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/field-operations-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/data/useEmployees.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/projects-components-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/apiClient.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/gmail.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/financial-components-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/team-management-integration.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/middlewareOrigin.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/permissions.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/finance.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/payrollEstimate.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/projectFinance.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/geofencing.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/auditMetrics.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/data.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/logger.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/design-tokens.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/expenseBudget.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/api.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useBudgetSummary.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/projectClosure.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/firestorePayload.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/expenseRecognition.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/budget/demoProjects.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/alerts.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/cashFlowService.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/domain/apu.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/hooks/useFirebaseSyncStatus.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Runner isolate is not supported. Test files: C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/__tests__/middlewareCsp.test.ts.
+ ❯ Pool.getPoolRunner node_modules/vitest/dist/chunks/index.Di8au7q4.js:6011:9
+ ❯ Pool.schedule node_modules/vitest/dist/chunks/index.Di8au7q4.js:5896:24
+ ❯ Pool.run node_modules/vitest/dist/chunks/index.Di8au7q4.js:5888:8
+ ❯ node_modules/vitest/dist/chunks/index.Di8au7q4.js:6180:17
+ ❯ executeTests node_modules/vitest/dist/chunks/index.Di8au7q4.js:6177:27
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13415:7
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14572:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m     Errors [22m [1m[31m96 errors[39m[22m
+[2m   Start at [22m 02:29:15
+[2m   Duration [22m 11ms
+
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

@@ -1,0 +1,15 @@
+Debugger listening on ws://127.0.0.1:56840/d19ddebb-1de6-4d23-b843-04afc513ec9f
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger listening on ws://127.0.0.1:56850/67c5bbfb-e1fa-4a0d-95a9-4fa43d76f6e9
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Faltan E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD. Usa: node --env-file=.env.e2e scripts/seed-e2e-emulator.mjs
+Waiting for the debugger to disconnect...
+[e2e] Falló la preparación o ejecución de Playwright: Error: El seed E2E terminó con código 1.
+    at main (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/scripts/run-e2e-inside.mjs:46:11)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/scripts/run-e2e-inside.mjs:74:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:633:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+Waiting for the debugger to disconnect...

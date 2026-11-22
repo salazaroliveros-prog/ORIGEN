@@ -1,0 +1,637 @@
+Debugger listening on ws://127.0.0.1:58367/1f343efc-a406-46bd-b866-883092fd14e6
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+npm notice run constructerp-guatemala@0.1.0 npx
+npm notice run vitest run
+Debugger listening on ws://127.0.0.1:58391/2bd389b3-c638-448f-8920-fa1e9366740d
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90mC:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN[39m
+
+Debugger listening on ws://127.0.0.1:58424/fb376ce6-4b94-4394-b195-88880e0fd6fd
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58425/b1707e19-9a78-40a2-9bec-2effcff050e1
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58426/88e38442-932f-4035-84c7-bd806227ce0b
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58427/ea2cacd3-bd0b-4609-bd8e-9bce7118b01a
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58428/700878f4-8ea2-4b73-84ed-c0de95157b3f
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58429/3e0a1852-ed70-4411-8265-931c4c139385
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58430/b0009ca7-f0ac-4de6-a353-edba77058d19
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58431/71dca3a9-ecce-4f27-905e-6f799eaf36d4
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58432/9b2b9968-af2a-407b-8c9d-5d90f60d907c
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58434/95ee22c2-176a-4ee0-aaed-fc2feb99aab2
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58435/e2a10ad5-da1d-437d-ae41-73a34a7a3612
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58436/aceaaf03-4e2d-456e-b502-4a04061df8cb
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58438/e1770d59-9aed-441b-8201-d48946f00b2e
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58439/73f6c6f3-9656-422c-aaa2-b62f323b84ca
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger attached.
+Debugger listening on ws://127.0.0.1:58443/fe4bb044-43b6-4866-979b-e5f537a81e1f
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58444/e4dd3a5e-3eed-48fc-9b86-ff2b6634db1d
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58445/8a0d6620-d1c8-4563-8119-5e24e7d123c1
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58448/d3d42921-ecdd-4316-b76f-58436ac3e698
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58449/897f3bfa-9d88-4544-9ce0-7e6ee1f06c76
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+[90mstdout[2m | lib/__tests__/e2e.test.ts
+[22m[39m✓ All E2E and Performance tests completed
+
+ [32m✓[39m lib/__tests__/e2e.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+Waiting for the debugger to disconnect...
+stderr | lib/offlineStorage.test.ts > lib/offlineStorage > processOfflineQueue > should handle handler exceptions
+Failed to sync item: {
+  id: 'queue-1',
+  type: 'attendance',
+  timestamp: '2024-01-01',
+  description: 'Test',
+  payload: {},
+  synced: false
+} Error: sync failed
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/offlineStorage.test.ts:238:15
+    at Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:353:40)
+    at processOfflineQueue (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/offlineStorage.ts:92:31)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/offlineStorage.test.ts:240:28
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+
+ [32m✓[39m lib/offlineStorage.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58483/f822bb71-afdf-4a0d-9541-f4d54ebfda7d
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/hooks/useProjectData.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/data-import-export-integration.test.ts
+[22m[39m✓ Data import/export integration tests completed
+
+ [32m✓[39m lib/__tests__/data-import-export-integration.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58486/f6b09984-82d3-4fa4-a2b9-9cc97a931da3
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58487/92e85c23-41fd-4af5-a4ae-7d0f2a4a23d3
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/hooks/useCompanyWorkspace.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58488/cbec27dc-2e96-4f11-8bd6-2e9a8f1ac982
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/__tests__/ui-components-a11y.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 355[2mms[22m[39m
+ [32m✓[39m lib/hooks/useAuthSession.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58490/d8a72538-d9e5-4381-aeed-0f3b9a419766
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58491/a58bb822-7b44-48d6-afaa-acb2d5479271
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58492/72484851-54d5-4b20-84ab-a7ccc5f1c9e9
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/hooks/useEmployeeManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m lib/hooks/useAttendanceManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m lib/validation/entity.schemas.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m lib/hooks/useExpenseManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m lib/hooks/useMachineryManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58495/7d08913f-eae7-4ffb-b356-9431f4363cf6
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58496/220c81e5-aa82-4297-87b6-9fd2d1d09315
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/hooks/useQuoteManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58497/90ad5ec0-eddd-458e-a59f-b5cd112c5c14
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58498/344c424d-b8d0-47c2-8dbc-98035e7429cc
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58499/56f2cb97-f8b2-4dbf-83b8-e038200c5993
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58500/58c7fdea-f7a3-4415-8fb9-2e1b96ab3c47
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/firebaseService.validation.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m lib/branding.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+stderr | lib/hooks/useCompanyOnboarding.test.ts > useCompanyOnboarding > surfaces Firestore lookup errors instead of leaving onboarding loading forever
+[useCompanyOnboarding] No se pudo consultar la configuración de empresa.
+
+ [32m✓[39m lib/hooks/useCompanyOnboarding.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m lib/domain/monthlyExpenses.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58504/33b609ad-ea55-4e75-bb54-cbcf709e9274
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58505/e6621707-969e-4e24-89e2-ffb5bfff0b69
+For help, see: https://nodejs.org/learn/getting-started/debugging
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > GET > should return 200 for valid coordinates
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > GET > should return 200 for valid coordinates
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.GET (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:179:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:78:19
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return 200 for valid request
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return 200 for valid request
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:144:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:134:19
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return fallback when API call fails
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+stderr | app/api/weather/safety-alerts.test.ts > app/api/weather/safety-alerts > POST > should return fallback when API call fails
+Weather safety alerts route error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at buildResponse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:62:14)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts/route.ts:144:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/weather/safety-alerts.test.ts:150:19
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+ [32m✓[39m app/api/weather/safety-alerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58506/b07d3db8-6db6-46c1-a514-4e2f9a7613f6
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58508/de4f1a56-22db-4d2e-b2ee-2be21ad4bf6a
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/hooks/useAPUManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58510/3eaf06e8-c20a-4aae-91f6-add71461b06a
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58511/7702673d-c819-4ecf-9379-f367507fd109
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+ [32m✓[39m lib/utils/calculations.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m lib/firebaseAuth.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58559/1487b5d9-964a-4dac-971f-06e2d6769296
+For help, see: https://nodejs.org/learn/getting-started/debugging
+stderr | lib/config.test.ts > lib/config > hasFirebaseRuntimeConfig > should return false when required config is missing
+[config] Firebase configuration incomplete. Check the public Firebase environment variables.
+
+ [32m✓[39m lib/config.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m lib/apiAuth.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/ai-assistant-integration.test.ts
+[22m[39m✓ AI assistant integration tests completed
+
+stderr | app/api/firebase-config.test.ts > app/api/firebase-config > should return 500 on error
+Firebase config route error: Error: IP error
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.test.ts:77:13
+    at Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:353:40)
+    at Module.GET (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.js/route.ts:9:22)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/firebase-config.test.ts:81:23
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+
+ [32m✓[39m app/api/firebase-config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m lib/__tests__/ai-assistant-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58560/38972c65-aee7-45d5-99b0-5b17811a9cb2
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:58563/5b47f831-934f-42b5-9fc6-06d0ffbcdd23
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[90mstdout[2m | lib/__tests__/configuration-integration.test.ts
+[22m[39m✓ Configuration integration tests completed
+
+ [32m✓[39m lib/__tests__/configuration-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+stderr | app/api/gemini.test.ts > app/api/gemini > should return 200 for chat with default message
+[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+Gemini chat error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+    at new Mock (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/spy.DDMXghXv.js:333:27)
+    at Module.POST (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/gemini/route.ts:624:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/app/api/gemini.test.ts:136:17
+    at async file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20
+
+Debugger listening on ws://127.0.0.1:58564/045b3699-97ca-49a1-9e1b-01a86e12447e
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58565/5254f03a-dfb3-4759-81ed-2df4b18ef06f
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m app/api/project-photos/[projectId]/[photoId]/route.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m lib/hooks/data/useEmployees.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m lib/domain/inventory.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m app/api/gemini.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:58566/935707a4-ad5b-4c3a-a3ab-4561f39ce7d2
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:58567/6cfd397f-b8c2-4696-82d9-94b062894baa
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/data.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m lib/utils/e2e.integration.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58568/e7bad1d3-760c-4176-8cd3-71de7d9796c5
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58569/f8447ddf-410e-4552-b5e1-1ee733e15412
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/domain/felInvoice.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58570/f4747b07-184e-49d7-ae78-f341033c72bc
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:58571/b713b5bd-6577-48b7-bca3-0da3f78f00ef
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/domain/ownership.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/security.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m lib/hooks/useActiveWorkspace.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58572/e6df53b9-d564-4ce4-9426-7ec064a3acbc
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:58573/c60e89ab-88d4-4431-9f57-4598d0c7c0a4
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m app/api/upload-project-photo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58574/0e2dc0bd-afd7-4dd0-82ea-8e5664025cc3
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/hooks/useBudgetSummary.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58577/8b5904eb-c5d7-4e9e-b3bb-989b2ab88bda
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58578/878f64aa-5cef-4917-84be-4d0ceac01d9d
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58579/ce6b58cf-4627-48cc-bfdf-2c1778777d30
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58580/923ce3a9-4821-47bc-81bd-32147dfd2682
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58581/4f584ef8-8875-4b51-b602-7d3f2fc66767
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+ [32m✓[39m lib/domain/procurement.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/api.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/error-handling-integration.test.ts
+[22m[39m✓ Error handling integration tests completed
+
+[90mstdout[2m | lib/__tests__/api-routes-integration.test.ts
+[22m[39m✓ API routes integration tests completed
+
+[90mstdout[2m | lib/__tests__/field-operations-integration.test.ts
+[22m[39m✓ Field operations integration tests completed
+
+ [32m✓[39m lib/__tests__/error-handling-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/__tests__/field-operations-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/api-routes-integration.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m lib/gmail.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/domain/budgetAnalysis.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/components.test.ts
+[22m[39m✓ All tests completed
+
+Debugger listening on ws://127.0.0.1:58632/431c5514-0f63-4296-83ba-e416352a2065
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:58633/db991d9f-678f-4a21-9cc0-c07364c8f32b
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/__tests__/components.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/layout-components-integration.test.ts
+[22m[39m✓ Layout components integration tests completed
+
+Debugger listening on ws://127.0.0.1:58634/9a25b5aa-d2a2-40b0-936a-87c68ab04dcc
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58635/53ee5527-9ebb-4f6a-ad83-4ccbb87dd789
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/domain/executionTimeline.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould log info messages
+[22m[39m[test-module] test message
+
+[90mstdout[2m | lib/__tests__/accessibility-integration.test.ts
+[22m[39m✓ Accessibility integration tests completed
+
+Debugger listening on ws://127.0.0.1:58636/ecbd63a0-c0fe-441d-b8d7-e9f977fb2adc
+For help, see: https://nodejs.org/learn/getting-started/debugging
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should log error messages with error object
+[test-module] error happened
+
+ [32m✓[39m lib/permissions.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m lib/utils/crud.integration.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m lib/__tests__/layout-components-integration.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by log level
+[22m[39m[mod] debug msg
+[mod] info msg
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should filter by log level
+[mod] warn msg
+[mod] error msg
+
+Debugger listening on ws://127.0.0.1:58637/826aafc7-acd0-490f-9ba1-2a204591b94e
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58638/bdbf771e-e107-4e28-8712-93858503ed9d
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by module
+[22m[39m[mod-a] msg a
+[mod-b] msg b
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould clear logs
+[22m[39m[mod] msg
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould export logs as JSON
+[22m[39m[mod] test
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > Logger class > should set minimum log level
+[mod] warn
+[mod] error
+
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould respect maxLogs limit
+[22m[39m[mod] msg 0
+[mod] msg 1
+[mod] msg 2
+[mod] msg 3
+[mod] msg 4
+[mod] msg 5
+[mod] msg 6
+[mod] msg 7
+[mod] msg 8
+[mod] msg 9
+
+ [32m✓[39m lib/__tests__/accessibility-integration.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+[90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mcreateLogger[2m > [22m[2mshould log with module name
+[22m[39m[my-module] hello
+
+stderr | lib/utils/logger.test.ts > lib/utils/logger > createLogger > should pass data to logger
+[my-module] failed { code: 500 }
+
+ [32m✓[39m lib/utils/cacheManager.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m lib/utils/logger.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58642/b93c5873-ccd8-44e3-b4ec-c5847b649fa9
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58641/36162043-2dde-4225-96e3-c1d504a7d6d6
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/storageRest.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m lib/domain/portfolio.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58643/f62ddf29-a2e9-4c24-85b0-61de3ba04d95
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58644/fbadf648-dcde-4e77-b274-f3190fb671af
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/validation/project.schema.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58645/32b50542-776c-40a7-bad5-f349cc66bf0c
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/domain/machinery.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58646/7c35bf50-0329-4d4e-80c6-f76dc03ad051
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58647/70e1f900-2b00-4973-b35b-83bfcbc7d8de
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58648/11408141-ab2c-48dd-a7c6-cde87757a782
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58649/6ca5093e-5057-4af8-aca6-129e3a3b5cef
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58650/6e800239-37b0-4b56-8784-9b24d6bc0493
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58651/604ece36-60a1-4aba-8639-e83d7daedbf2
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58652/4f136ea3-5a5e-4a30-86f6-6521fa2a8d80
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+[90mstdout[2m | lib/__tests__/services-integration.test.ts
+[22m[39m✓ Services integration tests completed
+
+ [32m✓[39m lib/guatemalaMarketData.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/performance-integration.test.ts
+[22m[39m✓ Performance integration tests completed
+
+ [32m✓[39m lib/__tests__/services-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m lib/__tests__/performance-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/payroll-integration.test.ts
+[22m[39m✓ Payroll integration tests completed
+
+[90mstdout[2m | lib/__tests__/app-routes-integration.test.ts
+[22m[39m✓ App routes integration tests completed
+
+[90mstdout[2m | lib/__tests__/auth-ui-integration.test.ts
+[22m[39m✓ Auth UI integration tests completed
+
+[90mstdout[2m | lib/__tests__/dashboard-components-integration.test.ts
+[22m[39m✓ Dashboard components integration tests completed
+
+ [32m✓[39m lib/__tests__/payroll-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/app-routes-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/dashboard-components-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/__tests__/auth-ui-integration.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58702/03c947d5-a4bd-4130-ac57-ccaa49ebc7fc
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58703/5afe9ebe-640d-4426-bcc4-bc8d22bc8779
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/projectCalculations.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/financial-components-integration.test.ts
+[22m[39m✓ Financial components integration tests completed
+
+[90mstdout[2m | lib/__tests__/critical-modules-integration.test.ts
+[22m[39m✓ Critical modules integration tests completed
+
+ [32m✓[39m lib/guatemalanPayroll.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/projects-components-integration.test.ts
+[22m[39m✓ Projects components integration tests completed
+
+[90mstdout[2m | lib/__tests__/additional-ui-components-integration.test.ts
+[22m[39m✓ Additional UI components integration tests completed
+
+ [32m✓[39m lib/domain/expenseBudget.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m lib/__tests__/critical-modules-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/__tests__/financial-components-integration.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58704/29b5cc6d-c9b7-4b6b-ae8c-1e7a018bb5cc
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/__tests__/projects-components-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/additional-ui-components-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Debugger listening on ws://127.0.0.1:58705/98d89918-388f-4855-9a0f-0288757ad6d6
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58706/1b111083-ac67-4606-bca9-56c9220111e2
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58707/912b32b5-2f69-495e-bdef-6c4ba2a913a9
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58708/3961337e-e330-4e97-ad3f-c47df1f5023f
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[90mstdout[2m | lib/__tests__/security-integration.test.ts
+[22m[39m✓ Security integration tests completed
+
+ [32m✓[39m lib/services/projectAlerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/apiClient.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/__tests__/security-integration.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58709/8171458c-d37b-4414-b19e-026a14fe9337
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58710/fc49a348-8063-4703-a7d2-17aa7a194175
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/__tests__/middlewareOrigin.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58711/a9e6e010-dbed-43b7-9cf8-e0de8ad8b773
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58712/2ab2b05e-1b7d-4567-8639-0e47a429c635
+For help, see: https://nodejs.org/learn/getting-started/debugging
+stderr | lib/utils/validation.test.ts > lib/utils/validation > safeJSONParse > should return fallback for invalid JSON
+JSON parse error: SyntaxError: Unexpected token 'o', "not json" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at safeJSONParse (C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/validation.ts:165:17)
+    at C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/lib/utils/validation.test.ts:135:22
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:1632:35
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:26
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3338:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3333:10)
+    at file:///C:/Users/wilso/Documents/APPS/origen_app_erp/ORIGEN/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:3318:20
+    at new Promise (<anonymous>)
+
+ [32m✓[39m lib/utils/validation.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58713/d489e721-7903-4638-80e9-946b21444c75
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58714/b8a5d2f8-baff-4096-a8c1-b8a6573526bd
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58715/e076cb30-d2fb-4779-871e-637d8ca02ad9
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58716/b649f83c-22a9-4fc4-b465-8afe1e0a10a8
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58717/e27fddab-618e-4da3-8645-4bf6d08321e5
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58718/aae8b3c3-d272-47ca-a741-ff3b1629c462
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58719/ed3bfe7a-2891-4041-83cb-a4cb74faf56e
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:58722/5a99927d-865a-40ec-8cd6-7033114f2617
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+Debugger attached.
+ [32m✓[39m lib/cashFlowService.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/custom-hooks-integration.test.ts
+[22m[39m✓ Custom hooks integration tests completed
+
+ [32m✓[39m lib/__tests__/custom-hooks-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | lib/__tests__/team-management-integration.test.ts
+[22m[39m✓ Team management integration tests completed
+
+ [32m✓[39m lib/__tests__/team-management-integration.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/domain/alerts.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/utils/firestorePayload.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/quotationUtils.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/domain/projectClosure.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/logger.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/domain/finance.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/domain/auditMetrics.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/budget/demoProjects.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/authErrors.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/domain/apu.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/design-tokens.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+Debugger listening on ws://127.0.0.1:58769/aedbb23f-dee1-4694-bb57-5d3061747834
+For help, see: https://nodejs.org/learn/getting-started/debugging
+ [32m✓[39m lib/domain/projectFinance.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/geofencing.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/domain/payrollEstimate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/__tests__/middlewareCsp.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/domain/expenseRecognition.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+Debugger attached.
+ [32m✓[39m lib/hooks/useFirebaseSyncStatus.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m96 passed[39m[22m[90m (96)[39m
+[2m      Tests [22m [1m[32m1579 passed[39m[22m[90m (1579)[39m
+[2m   Start at [22m 02:22:27
+[2m   Duration [22m 33.37s[2m (environment 86%, import 7%, transform 4%, setup 1%, tests 1%)[22m
+
+[2mEnvironment [22m [33mjsdom was created 96 times[39m[2m · 218.94s total, 86% of tracked time[22m
+[2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+[2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

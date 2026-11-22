@@ -1,0 +1,55 @@
+Debugger listening on ws://127.0.0.1:55365/a11f8d85-d8ba-4d67-9efb-a4090920c13a
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:55386/04e91981-512a-430d-9f3b-d61d721d4d6b
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:55399/b9f9cac6-5168-4b50-8df7-c40a7cceb9a6
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] 
+[WebServer] > constructerp-guatemala@0.1.0 dev:emulated
+[WebServer] > cross-env NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-origen-erp-test NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=localhost NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:demo NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=demo-origen-erp-test.appspot.com NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000 npm run dev -- --port 3000 --hostname 127.0.0.1
+[WebServer] 
+[WebServer] Debugger listening on ws://127.0.0.1:55429/a1bee139-00a2-45de-b618-dc9afc266ec0
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:55434/6c0e9ce8-faab-4b86-8637-b757df1858eb
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] 
+[WebServer] > constructerp-guatemala@0.1.0 dev
+[WebServer] > node scripts/dev.mjs --port 3000 --hostname 127.0.0.1
+[WebServer] 
+[WebServer] Debugger listening on ws://127.0.0.1:55442/cff350f7-4705-4a4c-bcbd-5d6f6c9c404a
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:55447/fdc5a3ed-6b0d-47cc-b8e3-d9af018df061
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:55465/4ba7fb57-d675-4b41-832d-22b8e6319231
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer]    ▲ Next.js 15.5.29
+[WebServer]    - Local:        http://127.0.0.1:3000
+[WebServer]    - Network:      http://127.0.0.1:3000
+[WebServer]    - Environments: .env.local, .env
+[WebServer]    - Experiments (use with caution):
+[WebServer]      · optimizePackageImports
+[WebServer]      ⨯ devtoolSegmentExplorer
+[WebServer] 
+[WebServer]  ✓ Starting...
+[WebServer]  ✓ Ready in 2.4s
+[WebServer]  ✓ Compiled /middleware in 173ms (166 modules)
+[WebServer]  ✓ Compiled /api/firebase-config.js in 459ms (397 modules)
+[WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+Error: e2e\global-setup.ts: file must export a single function.
+[WebServer]  GET /api/firebase-config.js 200 in 668ms
+
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report playwright-report\local[39m
+[36m[39m
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

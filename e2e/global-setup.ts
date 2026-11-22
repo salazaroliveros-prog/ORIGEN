@@ -107,4 +107,3 @@ export default async function warmUpSession(config: any): Promise<void> {
     await browser.close();
   }
 }
-import { chromium, expect } from '@playwright/test';

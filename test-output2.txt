@@ -1,0 +1,86 @@
+Debugger listening on ws://127.0.0.1:54222/c5a9bcce-afbe-4b75-a4da-3b579be4bc45
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:54260/0f86bce4-3fc5-4c14-bcb6-85c4c097b24b
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:54293/06e521f1-33b6-4463-a149-931fa6000d58
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] 
+[WebServer] > constructerp-guatemala@0.1.0 dev:emulated
+[WebServer] > cross-env NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-origen-erp-test NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=localhost NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:demo NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=demo-origen-erp-test.appspot.com NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000 npm run dev -- --port 3000 --hostname 127.0.0.1
+[WebServer] 
+[WebServer] Debugger listening on ws://127.0.0.1:54314/33e4213e-7df2-4a62-94a5-6641f474ec73
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:54319/176542e1-cd75-4368-a768-bead5dc21f30
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] 
+[WebServer] > constructerp-guatemala@0.1.0 dev
+[WebServer] > node scripts/dev.mjs --port 3000 --hostname 127.0.0.1
+[WebServer] 
+[WebServer] Debugger listening on ws://127.0.0.1:54328/4341607b-1fd7-48c8-8c88-09b8c187ba7f
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:54345/0c97b109-85c5-4846-b25e-178727fe70db
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer] Debugger listening on ws://127.0.0.1:54379/c2becec9-2ae7-4d48-af16-6409ce7f12ca
+[WebServer] For help, see: https://nodejs.org/en/docs/inspector
+[WebServer] Debugger attached.
+[WebServer]    ▲ Next.js 15.5.29
+[WebServer]    - Local:        http://127.0.0.1:3000
+[WebServer]    - Network:      http://127.0.0.1:3000
+[WebServer]    - Environments: .env.local, .env
+[WebServer]    - Experiments (use with caution):
+[WebServer]      · optimizePackageImports
+[WebServer]      ⨯ devtoolSegmentExplorer
+[WebServer] 
+[WebServer]  ✓ Starting...
+[WebServer]  ✓ Ready in 2.7s
+[WebServer]  ✓ Compiled /middleware in 196ms (166 modules)
+[WebServer]  ○ Compiling /api/firebase-config.js ...
+[WebServer]  ✓ Compiled /api/firebase-config.js in 529ms (397 modules)
+[WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+[WebServer]  GET /api/firebase-config.js 200 in 769ms
+[WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+[WebServer]  GET /api/firebase-config.js 200 in 14ms
+[WebServer]  ○ Compiling / ...
+[WebServer]  ✓ Compiled / in 4.1s (2802 modules)
+[WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+[WebServer]  GET / 200 in 5778ms
+[WebServer]  ○ Compiling /login ...
+[WebServer]  ✓ Compiled /login in 3.9s (3640 modules)
+[WebServer]  GET /login 200 in 4158ms
+[WebServer]  GET /login 200 in 34ms
+[WebServer]  GET / 200 in 187ms
+Error: La autenticación E2E no llegó al tablero.\nURL: http://localhost:3000/\nCorreo visible: false; contraseña visible: false\nContenido visible: No se pudo verificar tu empresa
+
+No se pudo consultar la configuración de tu empresa. Inténtalo de nuevo.
+
+Reintentar\nErrores del navegador: Firestore Error:  {"error":"Error compiling rules:\nL931:1 missing '}' at 'function'\nL1997:1 Unexpected '}'.","authInfo":{"userId":"HeT0ejBQZ8Wdt4edDZPw5X43LyMK","email":"salazaroliveros@gmail.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"salazaroliveros@gmail.com"}]},"operationType":"get","path":"companySettings/HeT0ejBQZ8Wdt4edDZPw5X43LyMK"} | [useCompanyOnboarding] No se pudo consultar la configuración de empresa.\nError original: locator.waitFor: Timeout 180000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Tablero' }).first() to be visible
+
+
+   at global-setup.ts:57
+
+  55 |         const emailVisible = await emailField.isVisible().catch(() => false);
+  56 |         const passwordVisible = await passwordField.isVisible().catch(() => false);
+> 57 |         throw new Error(
+     |               ^
+  58 |           [
+  59 |             'La autenticación E2E no llegó al tablero.',
+  60 |             `URL: ${page.url()}`,
+    at warmUpSession (C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\e2e\global-setup.ts:57:15)
+    at globalSetup (C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\e2e\global-setup.ts:136:3)
+
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report playwright-report\local[39m
+[36m[39m
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

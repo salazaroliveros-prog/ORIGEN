@@ -193,7 +193,7 @@ describe('lib/utils/validation', () => {
       const items = [1, 2, 3, 4, 5];
       const result = validateBatch(items, (item) => ({
         valid: item > 2,
-        errors: item <= 2 ? { value: 'too small' as const } : ({} as const),
+        errors: item <= 2 ? { value: 'too small' as const } : ({} as Record<string, string>),
       }));
       expect(result.validItems).toEqual([3, 4, 5]);
       expect(result.invalidItems).toEqual([
