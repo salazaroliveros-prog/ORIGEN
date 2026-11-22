@@ -125,7 +125,7 @@ async function main() {
       executable,
       [
         '--yes',
-        'firebase-tools',
+        'firebase-tools@15.24.0',
         'emulators:exec',
         '--config',
         'firebase.emulators.json',
