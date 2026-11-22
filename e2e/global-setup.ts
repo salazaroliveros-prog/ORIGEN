@@ -11,7 +11,7 @@ import { chromium, expect } from '@playwright/test';
  */
 
 export default async function warmUpSession(config: any): Promise<void> {
-  const baseURL = config.use?.baseURL || 'http://127.0.0.1:3000';
+  const baseURL = config.use?.baseURL || process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
   const email = process.env.E2E_ADMIN_EMAIL ?? '';
   const password = process.env.E2E_ADMIN_PASSWORD ?? '';
   const browser = await chromium.launch();
