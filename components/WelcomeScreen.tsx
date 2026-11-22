@@ -3,7 +3,7 @@
 import { Building2, Mail, Clock, CheckCircle, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { TouchTarget } from '@/components/ui/TouchTarget';
-import { signOut } from '@/lib/firebaseAuth';
+import { signOutUser } from '@/lib/firebaseAuth';
 import type { User } from 'firebase/auth';
 import toast from 'react-hot-toast';
 
@@ -15,7 +15,7 @@ interface WelcomeScreenProps {
 export function WelcomeScreen({ user, pendingInvitations = 0 }: WelcomeScreenProps) {
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await signOutUser();
       toast.success('Sesión cerrada');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al cerrar sesión';
