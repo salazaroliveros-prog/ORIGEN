@@ -106,7 +106,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await expect(rowContainer).toContainText('12,000');
 
     await openTab(page, /Tablero/);
-    await expect(page.getByText('GASTO REAL ACUMULADO')).toBeVisible();
+    await expect(page.getByText('Gastos Registrados')).toBeVisible();
     await expect(page.getByText('12,000').first()).toBeVisible({ timeout: 20_000 });
   });
 
