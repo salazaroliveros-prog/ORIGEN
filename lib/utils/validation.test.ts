@@ -63,9 +63,9 @@ describe('lib/utils/validation', () => {
     });
 
     it('should validate GPS coordinates', () => {
-      expect(validationSchemas.gpsCoordinates.safeParse({ lat: 14.6349, lng: -90.5069 }).success).toBe(
-        true
-      );
+      expect(
+        validationSchemas.gpsCoordinates.safeParse({ lat: 14.6349, lng: -90.5069 }).success
+      ).toBe(true);
       expect(validationSchemas.gpsCoordinates.safeParse({ lat: 91, lng: 0 }).success).toBe(false);
       expect(validationSchemas.gpsCoordinates.safeParse({ lat: 0, lng: 181 }).success).toBe(false);
     });
@@ -139,7 +139,7 @@ describe('lib/utils/validation', () => {
 
   describe('validateCurrencyAmount', () => {
     it('should validate positive amounts', () => {
-      const result = validateCurrencyAmount(100.50);
+      const result = validateCurrencyAmount(100.5);
       expect(result.valid).toBe(true);
       expect(result.amount).toBe(100.5);
     });
@@ -193,7 +193,7 @@ describe('lib/utils/validation', () => {
       const items = [1, 2, 3, 4, 5];
       const result = validateBatch(items, (item) => ({
         valid: item > 2,
-        errors: item <= 2 ? { value: 'too small' } : ({} as Record<string, string>),
+        errors: item <= 2 ? { value: 'too small' as const } : ({} as const),
       }));
       expect(result.validItems).toEqual([3, 4, 5]);
       expect(result.invalidItems).toEqual([

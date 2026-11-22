@@ -930,6 +930,20 @@ service cloud.firestore {
         data.ownerId == data.companyId;
     }
 
+    // Allow reading company settings for the company owner or company members
+    function canReadCompanySettings(companyId) {
+      return isSignedIn() &&
+        (companyId is string &&
+          (exists(/databases/$(database)/documents/companies/$(companyId)) &&
+            (existing().ownerId == request.auth.uid ||
+              isCompanyMember(companyId))));
+    }
+
+    match /companySettings/{docId} {
+      allow read: if canReadCompanySettings(docId);
+      allow write: if isSignedIn() && request.auth.uid == get(/databases/$(database)/documents/companies/$(docId)).data.ownerId;
+    }
+
     function isValidQuote(data) {
       return data.keys().hasAll([
           'id', 'companyId', 'projectId', 'clientName', 'clientNit',
