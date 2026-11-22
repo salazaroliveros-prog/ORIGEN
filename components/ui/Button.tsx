@@ -31,8 +31,7 @@ export function Button({
     secondary:
       'bg-neutral-800/50 text-neutral-50 hover:bg-neutral-800/70 border border-neutral-700/50',
     ghost: 'text-neutral-300 hover:bg-neutral-800/30 hover:text-slate-50',
-    danger:
-      'bg-danger/20 text-danger-400 hover:bg-danger/30 hover:text-danger-200 border border-danger/30',
+    danger: 'bg-danger-500 text-white hover:bg-danger-600 border border-danger-600',
     outline:
       'border border-neutral-500 text-neutral-300 hover:border-secondary-400 hover:bg-white/[0.04]',
     glass:

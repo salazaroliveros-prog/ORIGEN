@@ -128,6 +128,22 @@
   --touch-comfortable: 56px;
   --touch-target: 44px;
 
+  /* Typography tokens */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+
+  /* Interaction tokens */
+  --activeScale: 0.95;
+  --activeOpacity: 0.8;
+
   /* Breakpoints */
   --breakpoint-xs: 320px;
   --breakpoint-sm: 640px;

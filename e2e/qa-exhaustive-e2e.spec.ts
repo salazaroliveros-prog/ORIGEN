@@ -96,7 +96,9 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
 
     await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
     await expect(
-      page.getByRole('complementary', { name: 'Navegación principal' }).getByText(ADMIN_EMAIL, { exact: true })
+      page
+        .getByRole('complementary', { name: 'Navegación principal' })
+        .getByText(ADMIN_EMAIL, { exact: true })
     ).toBeVisible();
   });
 
@@ -285,8 +287,11 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     await openTab(page, 'Proyectos & Firmas');
     const projectData = await fillProjectForm(page);
 
-    // Verificar creación
-    await expect(page.getByText(projectData.code).first()).toBeVisible({ timeout: 20_000 });
+    // Verificar creación - el botón de editar contiene el código del proyecto
+    await expect(
+      page.getByRole('button', { name: `Editar proyecto ${projectData.code}` })
+    ).toBeVisible({ timeout: 20_000 });
+    // El nombre debería estar visible en la página (el botón de editar ya confirma creación)
     await expect(page.getByText(projectData.name).first()).toBeVisible();
 
     // Editar
@@ -665,8 +670,8 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
         await expect(page.getByRole('heading', { name: 'Inventario & Compras' })).toBeVisible();
       } else {
         const activeNavigationLink = page.getByRole('button', { name: section }).first();
-      await expect(activeNavigationLink).toBeVisible();
-      await expect(activeNavigationLink).toHaveAttribute('aria-current', 'page');
+        await expect(activeNavigationLink).toBeVisible();
+        await expect(activeNavigationLink).toHaveAttribute('aria-current', 'page');
       }
     }
   });
