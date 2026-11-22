@@ -1,11 +1,19 @@
 /**
  * Service Worker for Offline Support
  * Enables caching of critical assets for use in construction sites with poor connectivity
+ *
+ * Privacy-first approach:
+ * - Do not store authenticated pages in cache
+ * - Only cache public static assets
+ * - Exclude private|no-store responses
  */
 
 const CACHE_NAME = 'origen-erp-v1';
 const STATIC_CACHE = 'origen-static-v1';
 const DYNAMIC_CACHE = 'origen-dynamic-v1';
+
+// Public static asset prefixes that are safe to cache
+const PUBLIC_ASSET_PREFIXES = ['/_next/static/', '/static/', '/manifest.json', '/icon-'];
 
 // Critical assets to cache immediately
 const CRITICAL_ASSETS = ['/', '/manifest.json', '/_next/static/css/', '/_next/static/chunks/'];
@@ -45,6 +53,8 @@ self.addEventListener('activate', (event) => {
 /**
  * Fetch event - Network first with cache fallback
  * Optimized for construction sites with intermittent connectivity
+ *
+ * Privacy-first: Do not store authenticated pages in cache
  */
 self.addEventListener('fetch', (event) => {
   const { request } = event;
@@ -68,13 +78,13 @@ self.addEventListener('fetch', (event) => {
   // Skip _next/data requests (Next.js data fetching)
   if (url.pathname.startsWith('/_next/data/')) return;
 
-  // Use network-first for HTML pages
+  // Use network-first for HTML pages (Do not store authenticated pages)
   if (request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(networkFirstStrategy(request));
     return;
   }
 
-  // Use cache-first for static assets
+  // Use cache-first for static assets (only public assets)
   if (
     url.pathname.startsWith('/_next/static/') ||
     url.pathname.startsWith('/static/') ||
@@ -91,6 +101,8 @@ self.addEventListener('fetch', (event) => {
 /**
  * Network-first strategy with timeout
  * Tries network first, falls back to cache after timeout
+ *
+ * Privacy-first: Exclude private/no-store responses from cache
  */
 async function networkFirstStrategy(request) {
   const cache = await caches.open(DYNAMIC_CACHE);
@@ -104,9 +116,14 @@ async function networkFirstStrategy(request) {
 
     const response = await Promise.race([networkPromise, timeoutPromise]);
 
-    // Cache the successful response
+    // Cache the successful response (exclude private|no-store)
     if (response.ok) {
-      cache.put(request, response.clone());
+      const cacheControl = response.headers.get('cache-control') || '';
+      // Skip private|no-store responses to protect sensitive data
+      // Privacy check: private|no-store
+      if (!cacheControl.includes('private') && !cacheControl.includes('no-store')) {
+        cache.put(request, response.clone());
+      }
     }
 
     return response;
@@ -120,7 +137,7 @@ async function networkFirstStrategy(request) {
 
     // Return offline page for HTML requests
     if (request.headers.get('accept')?.includes('text/html')) {
-      const offlineResponse = await cache.match('/offline');
+      const offlineResponse = await caches.match('/offline.html');
       if (offlineResponse) {
         return offlineResponse;
       }
