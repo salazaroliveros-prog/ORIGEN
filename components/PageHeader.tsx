@@ -91,9 +91,9 @@ export function MobileHeader({
     <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-white/10 bg-slate-950/80 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden">
       <Button
         variant="ghost"
-        size="md"
+        size="icon"
         onClick={onMenu}
-        className="rounded-xl p-2 text-slate-300 backdrop-blur-sm hover:bg-white/[0.1]"
+        className="rounded-xl text-slate-300 backdrop-blur-sm hover:bg-white/[0.1]"
         aria-label={menuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
         aria-expanded={menuOpen}
         aria-controls="mobile-navigation"

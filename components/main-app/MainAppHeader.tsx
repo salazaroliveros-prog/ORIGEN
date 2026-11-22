@@ -26,6 +26,8 @@ import {
   canReadEmployeeDirectory,
   canReadExpenses,
   canReadFullPersonnel,
+  canManageMachinery,
+  canManageAttendance,
 } from '@/lib/permissions';
 
 type TabKey =
@@ -322,19 +324,22 @@ function usePermissions(role?: string) {
       canManageProjects: ['owner', 'admin', 'project_manager'].includes(role ?? ''),
       canManageQuotes: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
       canManageBudget: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-      canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
-        role ?? ''
-      ),
+      canManageMachinery: canManageMachinery(role as any),
       canManageExpenses: ['owner', 'admin', 'finance'].includes(role ?? ''),
       canViewExpenses: canReadExpenses(role as any),
       canManageEmployees: canManagePersonnel(role as any),
-      canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
-        role ?? ''
-      ),
+      canManageAttendance: canManageAttendance(role as any),
       canViewPersonnel: canReadEmployeeDirectory(role as any),
       canViewFullPersonnel: canReadFullPersonnel(role as any),
       canManageCompany: ['owner', 'admin'].includes(role ?? ''),
-      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+      canViewSupplyChain: [
+        'owner',
+        'admin',
+        'project_manager',
+        'finance',
+        'warehouse_manager',
+        'viewer',
+      ].includes(role ?? ''),
     }),
     [role]
   );

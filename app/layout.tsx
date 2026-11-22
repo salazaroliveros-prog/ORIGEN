@@ -3,6 +3,9 @@ import { Toaster } from 'react-hot-toast';
 import './globals.css';
 import './design-system.css';
 import './polyfills';
+import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
+import { WebVitalsIndicator, WebVitalsBadge } from '@/components/WebVitalsIndicator';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -105,6 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="mx-auto h-full min-h-screen max-w-7xl overflow-x-hidden bg-bg-ambient text-slate-100 antialiased selection:bg-brand-primary selection:text-slate-950">
+        <OfflineIndicator />
         <Toaster
           position="bottom-right"
           toastOptions={{
@@ -123,6 +127,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         {children}
+        <ServiceWorkerRegister />
+        {process.env.NODE_ENV === 'development' && (
+          <>
+            <WebVitalsIndicator />
+            <WebVitalsBadge />
+          </>
+        )}
       </body>
     </html>
   );

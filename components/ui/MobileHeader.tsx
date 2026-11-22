@@ -30,16 +30,17 @@ export function MobileHeader({
 
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-3 bg-white/[0.05] border-b border-white/10 sticky top-0 z-50 ${className}`}
+      className={`sticky top-0 z-50 flex items-center gap-3 border-b border-white/10 bg-white/[0.05] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] ${className}`}
     >
       {onBack && (
         <Button
           variant="outline"
           size="sm"
           onClick={onBack}
-          className="h-8 w-8 p-0"
+          className="h-10 min-h-[44px] w-10 min-w-[44px] p-0"
+          aria-label="Regresar"
         >
-          <ChevronDown size={18} />
+          <ChevronDown size={20} />
         </Button>
       )}
 
@@ -48,30 +49,32 @@ export function MobileHeader({
           variant="outline"
           size="sm"
           onClick={onMenuToggle}
-          className="h-8 w-8 p-0"
+          className="h-10 min-h-[44px] w-10 min-w-[44px] p-0"
+          aria-label="Abrir menú"
         >
           <Menu size={20} />
         </Button>
       )}
 
-      <div className="flex-1 flex items-center justify-between">
-        <h1 className="text-sm font-semibold text-white truncate">{title}</h1>
+      <div className="flex min-w-0 flex-1 items-center justify-between">
+        <h1 className="truncate text-base font-semibold leading-tight text-white">{title}</h1>
 
         {showSearch && (
           <Input
             type="text"
             placeholder="Buscar..."
-            className="w-32 py-2 px-3 text-xs border border-white/10 bg-white/[0.05] focus-visible:ring-brand-400/30"
+            className="w-32 border border-white/10 bg-white/[0.05] px-3 py-2.5 text-sm focus-visible:ring-brand-400/30"
+            aria-label="Buscar"
           />
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="ml-2 flex items-center gap-2">
           {userEmail && (
-            <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/10">
-              <User size={16} className="text-slate-400" />
-              <div className="hidden sm:flex flex-col items-end">
-                <span className="text-xs font-medium text-white">{userName}</span>
-                <span className="text-[10px] text-slate-500">{userEmail}</span>
+            <div className="flex min-h-[44px] items-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2">
+              <User size={18} className="text-slate-400" aria-hidden="true" />
+              <div className="hidden min-w-0 flex-col items-end sm:flex">
+                <span className="truncate text-xs font-medium text-white">{userName}</span>
+                <span className="truncate text-[11px] text-slate-500">{userEmail}</span>
               </div>
             </div>
           )}

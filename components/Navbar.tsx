@@ -23,6 +23,7 @@ import {
   LogOut,
   Building2,
   X,
+  Menu,
 } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { AuthSessionStatus } from '@/lib/firebaseAuth';
@@ -33,6 +34,7 @@ import { Sidebar } from '@/components/ui/Sidebar';
 import { MobileHeader } from '@/components/ui/MobileHeader';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { MobileSheet } from '@/components/ui/MobileSheet';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface NavbarProps {
   company: CompanySettings;
@@ -128,9 +130,9 @@ export function Navbar({
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0] || null;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* ================= MOBILE SHELL ================= */}
-      <div className="hidden lg:flex flex-col h-full">
+      <div className="hidden h-full flex-col lg:flex">
         {/* Desktop Sidebar */}
         <Sidebar
           company={company}
@@ -154,76 +156,108 @@ export function Navbar({
         />
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto bg-slate-950">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto bg-slate-950">{children}</div>
       </div>
 
       {/* ================= MOBILE SHELL ================= */}
-      <div className="lg:hidden flex flex-col h-full">
-        <MobileHeader
-          title={tabs.find((t) => t.id === activeTab)?.label || 'Tablero'}
-          onMenuToggle={onToggleMobileSidebar}
-          onBack={() => {}}
-          userName={currentUser?.email?.split('@')[0] || 'Usuario'}
-          userEmail={currentUser?.email || undefined}
-        />
+      <div className="flex h-full flex-col lg:hidden">
+        <div className="sticky top-0 z-50 flex items-center gap-3 border-b border-white/10 bg-white/[0.05] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleMobileSidebar}
+            className="rounded-xl text-slate-300 backdrop-blur-sm hover:bg-white/[0.1]"
+            aria-label={
+              isMobileSidebarOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
+            }
+            aria-expanded={isMobileSidebarOpen}
+          >
+            {isMobileSidebarOpen ? (
+              <X className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            )}
+          </Button>
 
-        <div className="flex-1 overflow-y-auto pb-20">
-          {children}
+          <span className="flex-1 truncate text-base font-semibold leading-tight text-white">
+            {tabs.find((t) => t.id === activeTab)?.label || 'Tablero'}
+          </span>
+
+          <ThemeToggle />
         </div>
+
+        <div className="flex-1 overflow-y-auto pb-20">{children}</div>
 
         <BottomNav
           items={mobileTabs.map((tab) => ({
             key: tab.id,
-            ...(tab.id === 'fel_invoices' ? { href: '/fel-invoices' } : { onSelect: () => onSelectTab(tab.id) }),
+            ...(tab.id === 'fel_invoices'
+              ? { href: '/fel-invoices' }
+              : { onSelect: () => onSelectTab(tab.id) }),
             label: tab.label,
             icon: <tab.icon className="h-5 w-5" />,
             activeIcon: <tab.icon className="h-5 w-5" />,
             active: activeTab === tab.id,
+            ariaLabel: `Ir a ${tab.label}`,
           }))}
         />
 
         <MobileSheet
           isOpen={isMobileSidebarOpen}
           onClose={onToggleMobileSidebar ?? (() => {})}
+          swipeToClose={true}
           header={
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-400/20 text-amber-400">
                   <Building2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">{company.commercialName || company.companyName}</p>
-                  <p className="text-[10px] text-slate-400">Construcción y Arquitectura</p>
+                  <p className="text-sm font-bold text-white">
+                    {company.commercialName || company.companyName}
+                  </p>
+                  <p className="text-[11px] text-slate-400">Construcción y Arquitectura</p>
                 </div>
               </div>
-              <button
-                onClick={onToggleMobileSidebar}
-                className="rounded-lg p-2 text-slate-400 hover:bg-white/[0.05] hover:text-white"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <button
+                  onClick={onToggleMobileSidebar}
+                  className="min-h-[44px] min-w-[44px] rounded-lg p-2 text-slate-400 hover:bg-white/[0.05] hover:text-white"
+                  aria-label="Cerrar menú"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
           }
         >
-          <nav className="flex-1 space-y-0.5 px-3 py-4" aria-label="Navegación principal">
+          <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Navegación principal">
             {mobileTabs.map((tab) => {
               const isActive = activeTab === tab.id;
-              const itemClassName = `flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
+              const itemClassName = `flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-3 text-sm min-h-[48px] ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
               const content = (
                 <>
                   <div className="flex items-center gap-3">
-                    <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
+                    <tab.icon
+                      className={`h-5 w-5 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`}
+                      aria-hidden="true"
+                    />
                     <span className="truncate">{tab.label}</span>
                   </div>
-                  {isActive && <ChevronRight className="h-3 w-3 text-slate-950" />}
+                  {isActive && <ChevronRight className="h-4 w-4 text-slate-950" />}
                 </>
               );
 
               if (tab.id === 'fel_invoices') {
                 return (
-                  <Link key={tab.id} href="/fel-invoices" className={itemClassName} aria-current={isActive ? 'page' : undefined}>
+                  <Link
+                    key={tab.id}
+                    href="/fel-invoices"
+                    className={itemClassName}
+                    aria-current={isActive ? 'page' : undefined}
+                    aria-label={`Ir a ${tab.label}`}
+                  >
                     {content}
                   </Link>
                 );
@@ -235,6 +269,7 @@ export function Navbar({
                   type="button"
                   className={`${itemClassName} text-left`}
                   aria-current={isActive ? 'page' : undefined}
+                  aria-label={`Ir a ${tab.label}`}
                   onClick={() => {
                     onSelectTab(tab.id);
                     onToggleMobileSidebar?.();
@@ -246,14 +281,16 @@ export function Navbar({
             })}
           </nav>
 
-          <div className="px-4 py-4 border-t border-white/10">
+          <div className="border-t border-white/10 px-4 py-4">
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <span className="flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#4ade80]" />
                 CONTROL DE OBRA
               </span>
               <span className="font-bold text-amber-400">
-                {company.exchangeRate > 0 ? `Q ${company.exchangeRate.toFixed(2)}/USD` : 'Sin tipo de cambio'}
+                {company.exchangeRate > 0
+                  ? `Q ${company.exchangeRate.toFixed(2)}/USD`
+                  : 'Sin tipo de cambio'}
               </span>
             </div>
           </div>

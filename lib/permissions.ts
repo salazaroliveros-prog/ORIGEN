@@ -19,17 +19,28 @@ const ATTENDANCE_ROLES: CompanyRole[] = [
 ];
 const EXPENSE_WRITE_ROLES: CompanyRole[] = ['owner', 'admin', 'finance'];
 const INVENTORY_READ_ROLES: CompanyRole[] = [
-  'owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer',
+  'owner',
+  'admin',
+  'project_manager',
+  'finance',
+  'warehouse_manager',
+  'viewer',
 ];
 const INVENTORY_WRITE_ROLES: CompanyRole[] = [
-  'owner', 'admin', 'project_manager', 'warehouse_manager',
+  'owner',
+  'admin',
+  'project_manager',
+  'warehouse_manager',
 ];
 const PURCHASING_READ_ROLES: CompanyRole[] = [
-  'owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer',
+  'owner',
+  'admin',
+  'project_manager',
+  'finance',
+  'warehouse_manager',
+  'viewer',
 ];
-const PURCHASING_WRITE_ROLES: CompanyRole[] = [
-  'owner', 'admin', 'project_manager', 'finance',
-];
+const PURCHASING_WRITE_ROLES: CompanyRole[] = ['owner', 'admin', 'project_manager', 'finance'];
 const EXPENSE_READ_ROLES: CompanyRole[] = [
   'owner',
   'admin',
@@ -94,6 +105,20 @@ export function canReadExpenses(role?: CompanyRole | null): boolean {
  */
 export function canWriteFelInvoices(role?: CompanyRole | null): boolean {
   return canWriteExpenses(role);
+}
+
+/**
+ * Gestión de maquinaria: owner, admin, project_manager, field_worker
+ */
+export function canManageMachinery(role?: CompanyRole | null): boolean {
+  return role != null && ['owner', 'admin', 'project_manager', 'field_worker'].includes(role);
+}
+
+/**
+ * Gestión de asistencia: owner, admin, project_manager, field_worker
+ */
+export function canManageAttendance(role?: CompanyRole | null): boolean {
+  return role != null && ['owner', 'admin', 'project_manager', 'field_worker'].includes(role);
 }
 
 const ROLE_LABELS: Record<CompanyRole, string> = {

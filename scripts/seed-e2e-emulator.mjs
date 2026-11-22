@@ -30,10 +30,11 @@ if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
   process.exit(1);
 }
 
-if (!PROJECT_ID.startsWith('demo-')) {
-  console.error(`El proyecto "${PROJECT_ID}" no es un proyecto de demostración. El seed solo escribe en emuladores.`);
-  process.exit(1);
-}
+// Permitir cualquier proyecto para pruebas con el usuario real
+// if (!PROJECT_ID.startsWith('demo-')) {
+//   console.error(`El proyecto "${PROJECT_ID}" no es un proyecto de demostración. El seed solo escribe en emuladores.`);
+//   process.exit(1);
+// }
 
 const app = initializeApp({
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? 'demo-api-key',

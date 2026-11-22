@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { startTransition } from 'react';
 import type { CompanySettings, Employee, Project, CompanyRole } from '@/lib/types';
 import { initialCompanySettings } from '@/lib/data';
@@ -14,6 +14,7 @@ import { useFirebaseSyncStatus } from '@/lib/hooks/useFirebaseSyncStatus';
 import { SyncLogPanel } from '@/components/SyncLogPanel';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import toast from 'react-hot-toast';
+import { canManageMachinery, canManageAttendance } from '@/lib/permissions';
 
 type TabKey =
   | 'dashboard'
@@ -135,9 +136,7 @@ export default function MainApp() {
   const lastSyncScopeRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const nextScope = currentUser && workspace
-      ? `${currentUser.uid}:${workspace.id}`
-      : null;
+    const nextScope = currentUser && workspace ? `${currentUser.uid}:${workspace.id}` : null;
     if (lastSyncScopeRef.current !== nextScope) {
       clearSyncLogs();
       setIsSyncLogOpen(false);
@@ -162,17 +161,13 @@ export default function MainApp() {
       canManageProjects: ['owner', 'admin', 'project_manager'].includes(role ?? ''),
       canManageQuotes: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
       canManageBudget: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-      canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
-        role ?? ''
-      ),
+      canManageMachinery: canManageMachinery(role),
       canManageExpenses: ['owner', 'admin', 'finance'].includes(role ?? ''),
       canViewExpenses: ['owner', 'admin', 'project_manager', 'finance', 'viewer'].includes(
         role ?? ''
       ),
       canManageEmployees: ['owner', 'admin', 'finance'].includes(role ?? ''),
-      canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(
-        role ?? ''
-      ),
+      canManageAttendance: canManageAttendance(role),
       canViewPersonnel: [
         'owner',
         'admin',
@@ -183,11 +178,34 @@ export default function MainApp() {
       ].includes(role ?? ''),
       canViewFullPersonnel: ['owner', 'admin', 'finance'].includes(role ?? ''),
       canManageCompany: ['owner', 'admin'].includes(role ?? ''),
-      canViewInventory: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
-      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),
-      canViewPurchasing: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+      canViewInventory: [
+        'owner',
+        'admin',
+        'project_manager',
+        'finance',
+        'warehouse_manager',
+        'viewer',
+      ].includes(role ?? ''),
+      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(
+        role ?? ''
+      ),
+      canViewPurchasing: [
+        'owner',
+        'admin',
+        'project_manager',
+        'finance',
+        'warehouse_manager',
+        'viewer',
+      ].includes(role ?? ''),
       canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+      canViewSupplyChain: [
+        'owner',
+        'admin',
+        'project_manager',
+        'finance',
+        'warehouse_manager',
+        'viewer',
+      ].includes(role ?? ''),
     };
   }, [membership?.role]);
 
@@ -198,6 +216,37 @@ export default function MainApp() {
   const [activeProjectId, setActiveProjectId] = useState<string>('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const pendingProjectIdRef = useRef<string | null>(null);
+
+  // Memoize event handlers to prevent unnecessary re-renders
+  const handleSelectProject = useCallback((projectId: string) => {
+    pendingProjectIdRef.current = null;
+    setActiveProjectId(projectId);
+  }, []);
+
+  const handleProjectCreated = useCallback((projectId: string) => {
+    pendingProjectIdRef.current = projectId;
+    setActiveProjectId(projectId);
+  }, []);
+
+  const handleSelectTab = useCallback((tabId: string) => {
+    setActiveTab(tabId as TabKey);
+    setIsMobileSidebarOpen(false);
+  }, []);
+
+  const handleSelectWorkspace = useCallback(
+    async (companyId: string) => {
+      const changed = await selectWorkspace(companyId);
+      if (!changed) {
+        toast.error('No se pudo cambiar de empresa. Revisa tu acceso e inténtalo de nuevo.');
+        return;
+      }
+      pendingProjectIdRef.current = null;
+      setActiveProjectId('');
+      setActiveTab('dashboard');
+      toast.success('Espacio de trabajo cambiado.');
+    },
+    [selectWorkspace]
+  );
 
   useEffect(() => {
     startTransition(() => {});
@@ -311,33 +360,6 @@ export default function MainApp() {
     }
   };
 
-  const handleSelectProject = (projectId: string) => {
-    pendingProjectIdRef.current = null;
-    setActiveProjectId(projectId);
-  };
-
-  const handleProjectCreated = (projectId: string) => {
-    pendingProjectIdRef.current = projectId;
-    setActiveProjectId(projectId);
-  };
-
-  const handleSelectWorkspace = async (companyId: string) => {
-    const changed = await selectWorkspace(companyId);
-    if (!changed) {
-      toast.error('No se pudo cambiar de empresa. Revisa tu acceso e inténtalo de nuevo.');
-      return;
-    }
-    pendingProjectIdRef.current = null;
-    setActiveProjectId('');
-    setActiveTab('dashboard');
-    toast.success('Espacio de trabajo cambiado.');
-  };
-
-  const handleSelectTab = (tabId: string) => {
-    setActiveTab(tabId as TabKey);
-    if (isMobileSidebarOpen) setIsMobileSidebarOpen(false);
-  };
-
   return (
     <ErrorBoundary
       fallback={(error, reset) => (
@@ -365,11 +387,18 @@ export default function MainApp() {
             <span
               aria-hidden="true"
               className={`h-2 w-2 rounded-full ${
-                syncStatus === 'offline' ? 'bg-rose-400' :
-                syncStatus === 'syncing' ? 'animate-pulse bg-amber-400' : 'bg-emerald-400'
+                syncStatus === 'offline'
+                  ? 'bg-rose-400'
+                  : syncStatus === 'syncing'
+                    ? 'animate-pulse bg-amber-400'
+                    : 'bg-emerald-400'
               }`}
             />
-            {syncStatus === 'offline' ? 'Sin conexión' : syncStatus === 'syncing' ? 'Sincronizando' : 'Firestore en línea'}
+            {syncStatus === 'offline'
+              ? 'Sin conexión'
+              : syncStatus === 'syncing'
+                ? 'Sincronizando'
+                : 'Firestore en línea'}
             <span className="text-slate-400">·</span>
             <span className="text-slate-400">{syncLogs.length} eventos</span>
           </button>

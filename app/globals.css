@@ -34,7 +34,7 @@
   /* ---------- Texto - Alto contraste para modo oscuro (WCAG 2.1 AA) ---------- */
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
+  --text-muted: #94a3b8;
 
   /* ---------- Bordes ---------- */
   --border-strong: rgba(255, 255, 255, 0.2);

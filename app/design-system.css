@@ -1,12 +1,12 @@
 /**
- * ORIGEN ERP - Design System CSS
- * Variables y utilidades modernas para Desktop y Mobile
- * Diseño móvil primero (Mobile-First) con neumorfismo sutil y glassmorphism
+ * ORIGEN ERP - Mobile-First Design System
+ * Sistema de diseño unificado para Android/iOS y Desktop
+ * Optimizado para accesibilidad WCAG 2.1 AA y usabilidad táctil
  */
 
 :root {
   /* ============================================================
-     DESIGN TOKENS - ORIGEN ERP (Modernized)
+     DESIGN TOKENS - ORIGEN ERP (Mobile-First Unified)
      ============================================================ */
 
   /* Brand Colors - Construcción Guatemala */
@@ -71,10 +71,10 @@
   --surface-input-hover: rgba(255, 255, 255, 0.05);
   --surface-input-focus: rgba(255, 255, 255, 0.08);
 
-  /* Text */
+  /* Text - Improved contrast for WCAG 2.1 AA */
   --text-primary: #f8fafc;
-  --text-secondary: rgba(248, 250, 252, 0.7);
-  --text-muted: rgba(248, 250, 252, 0.45);
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
 
   /* Borders */
   --border-strong: rgba(255, 255, 255, 0.2);
@@ -164,6 +164,8 @@
   --sheet-blur: 20px;
   --sheet-corner-radius: 1.5rem;
   --ripple-duration: 600ms;
+  --sheet-handle-width: 48px;
+  --sheet-handle-height: 5px;
 }
 
 /* ============================================================
@@ -225,25 +227,32 @@ html.theme-light {
   }
 }
 
-/* Bottom Navigation - Mobile */
+/* Bottom Navigation - Mobile - Optimized */
 .mobile-bottom-nav {
   position: fixed;
-  bottom: env(safe-area-inset-bottom);
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 2rem);
-  max-width: 720px;
-  height: var(--bottom-nav-height);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
   background: var(--surface-modal);
   backdrop-filter: blur(var(--sheet-blur));
   -webkit-backdrop-filter: blur(var(--sheet-blur));
-  border: 1px solid var(--border-weak);
-  border-radius: var(--sheet-corner-radius);
-  box-shadow: var(--shadow-2xl);
+  border-top: 1px solid var(--border-weak);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: var(--z-toast);
+}
+
+/* Tablet-specific bottom nav styling */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .mobile-bottom-nav {
+    max-width: 100%;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
 }
 
 .bottom-nav-item {
@@ -310,10 +319,18 @@ html.theme-light {
 }
 
 .mobile-sheet-handle {
-  width: var(--sheet-handle-width);
-  height: var(--sheet-handle-height);
-  background: rgba(255, 255, 255, 0.3);
+  width: 48px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.4);
   border-radius: var(--radius-full);
+  margin: 0 auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.mobile-sheet-handle:active {
+  background: rgba(255, 255, 255, 0.6);
+  cursor: grabbing;
 }
 
 .mobile-sheet-body {
@@ -618,5 +635,392 @@ html.theme-light {
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
     --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.3);
+  }
+}
+
+/* ============================================================
+   OVERFLOW HANDLING - Mobile Optimization
+   ============================================================ */
+
+/* Scrollable container with touch indicators */
+.scrollable-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.scrollable-x::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollable-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-x::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 2px;
+}
+
+/* Table wrapper for horizontal scroll */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+.table-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 32px;
+  background: linear-gradient(to left, var(--surface-card), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.table-wrapper:hover::after,
+.table-wrapper.overflowing::after {
+  opacity: 1;
+}
+
+/* Prevent text truncation in important content */
+.no-truncate {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Safe modal max-height accounting for landscape */
+@media (orientation: landscape) {
+  .mobile-sheet {
+    max-height: 95vh !important;
+  }
+}
+
+/* Tab overflow with scroll indicators */
+.tab-scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tab-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-scroll-container {
+  position: relative;
+}
+
+.tab-scroll-container::before,
+.tab-scroll-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.tab-scroll-container::before {
+  left: 0;
+  background: linear-gradient(to right, var(--surface-card), transparent);
+}
+
+.tab-scroll-container::after {
+  right: 0;
+  background: linear-gradient(to left, var(--surface-card), transparent);
+}
+
+.tab-scroll-container.scrollable-left::before,
+.tab-scroll-container.scrollable-right::after {
+  opacity: 1;
+}
+
+/* ============================================================
+   HIGH CONTRAST MODE - Outdoor/Field Use
+   ============================================================ */
+
+html.theme-high-contrast {
+  --text-primary: #000000;
+  --text-secondary: #1a1a1a;
+  --text-muted: #333333;
+  --surface-card: #ffffff;
+  --surface-card-hover: #f5f5f5;
+  --surface-elevated: #ffffff;
+  --surface-modal: #ffffff;
+  --surface-input: #ffffff;
+  --surface-input-hover: #f0f0f0;
+  --surface-input-focus: #ffffff;
+  --border-strong: #000000;
+  --border-weak: #333333;
+  --border-focus: #0000ff;
+  --brand-400: #ff6600;
+  --brand-500: #cc5200;
+  --brand-600: #993d00;
+  --brand-glow: rgba(255, 102, 0, 0.6);
+  --brand-glow-weak: rgba(255, 102, 0, 0.3);
+  --bg-deep: #ffffff;
+  --bg-ambient: #f5f5f5;
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(255, 102, 0, 0.6);
+}
+
+html.theme-high-contrast body {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+html.theme-high-contrast .glass-l1,
+html.theme-high-contrast .glass-l2,
+html.theme-high-contrast .glass-l3,
+html.theme-high-contrast .glass-panel,
+html.theme-high-contrast .stat-card {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.theme-high-contrast .mobile-bottom-nav {
+  background: #ffffff !important;
+  border-top: 2px solid #000000 !important;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.theme-high-contrast .bottom-nav-item {
+  color: #000000 !important;
+}
+
+html.theme-high-contrast .bottom-nav-item.active {
+  color: #ff6600 !important;
+  background: #ffcc99 !important;
+  border-top: 3px solid #ff6600 !important;
+}
+
+html.theme-high-contrast button,
+html.theme-high-contrast .touch-target {
+  border: 2px solid #000000 !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+html.theme-high-contrast button:hover,
+html.theme-high-contrast .touch-target:hover {
+  background: #f0f0f0 !important;
+}
+
+html.theme-high-contrast button:focus-visible,
+html.theme-high-contrast .touch-target:focus-visible {
+  outline: 3px solid #0000ff !important;
+  outline-offset: 2px !important;
+}
+
+html.theme-high-contrast input,
+html.theme-high-contrast select,
+html.theme-high-contrast textarea {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+}
+
+html.theme-high-contrast input:focus,
+html.theme-high-contrast select:focus,
+html.theme-high-contrast textarea:focus {
+  outline: 3px solid #0000ff !important;
+  outline-offset: 2px !important;
+}
+
+/* ============================================================
+   IMPROVED FOCUS INDICATORS - Keyboard Navigation
+   ============================================================ */
+
+*:focus-visible {
+  outline: 3px solid var(--brand-400);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip link enhancement */
+a[href='#main-content']:focus {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 9999;
+  padding: 12px 24px;
+  background: var(--brand-400);
+  color: #000000;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Touch feedback enhancements */
+@media (hover: none) and (pointer: coarse) {
+  button:active,
+  .touch-target:active,
+  a:active {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    transform: scale(0.96) !important;
+  }
+}
+
+/* Larger touch targets for outdoor use with gloves */
+@media (hover: none) {
+  .touch-target-large {
+    min-width: 56px !important;
+    min-height: 56px !important;
+  }
+}
+
+/* ============================================================
+   CLS PREVENTION - Cumulative Layout Shift Prevention
+   ============================================================ */
+
+/* Placeholder dimensions for image loading */
+.img-placeholder {
+  background-color: var(--surface-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.img-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--surface-1) 0%,
+    var(--surface-2) 50%,
+    var(--surface-1) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Content placeholder with explicit dimensions */
+.content-placeholder {
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-weak);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.content-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Aspect ratio helpers for images and cards */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.aspect-poster {
+  aspect-ratio: 2 / 3;
+}
+
+/* Reserve space for dynamic content */
+.reserve-space-xs {
+  min-height: 8px;
+}
+
+.reserve-space-sm {
+  min-height: 16px;
+}
+
+.reserve-space-md {
+  min-height: 24px;
+}
+
+.reserve-space-lg {
+  min-height: 32px;
+}
+
+.reserve-space-xl {
+  min-height: 48px;
+}
+
+.reserve-space-2xl {
+  min-height: 64px;
+}
+
+.reserve-space-3xl {
+  min-height: 96px;
+}
+
+/* Mobile-specific space reservation */
+@media (max-width: 768px) {
+  .mobile-reserve-card {
+    min-height: 140px;
+  }
+
+  .mobile-reserve-list-item {
+    min-height: 72px;
+  }
+
+  .mobile-reserve-header {
+    min-height: 56px;
   }
 }

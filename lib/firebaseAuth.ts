@@ -158,6 +158,17 @@ export function isPrimaryAdministrator(email: string | null | undefined): boolea
   return email?.trim().toLowerCase() === adminEmail;
 }
 
+/**
+ * Obtiene el rol que debe asignarse automáticamente al usuario basado en su email.
+ * El administrador principal recibe rol 'owner' automáticamente.
+ */
+export function getAutoAssignedRole(email: string | null | undefined): 'owner' | null {
+  if (isPrimaryAdministrator(email)) {
+    return 'owner';
+  }
+  return null;
+}
+
 export async function authorizeGmailSend(): Promise<{ accessToken: string; expiresAt: number }> {
   const user = getAuthOrThrow().currentUser;
   if (!user) throw new Error('Inicia sesión antes de autorizar el envío de correo.');
@@ -179,9 +190,10 @@ export async function authorizeGmailSend(): Promise<{ accessToken: string; expir
   return { accessToken: credential.accessToken, expiresAt: Date.now() + 55 * 60 * 1000 };
 }
 
-export async function updateProfileData(
-  updates: { displayName?: string; phoneNumber?: string }
-): Promise<void> {
+export async function updateProfileData(updates: {
+  displayName?: string;
+  phoneNumber?: string;
+}): Promise<void> {
   const user = getAuthOrThrow().currentUser;
   if (!user) throw new Error('No hay sesión activa');
   await updateProfile(user, updates);

@@ -659,8 +659,8 @@ export function ExpensesManager({
           </div>
 
           {/* Expenses Table */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
-            <div className="overflow-x-auto">
+          <div className="table-wrapper overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+            <div className="scrollable-x">
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-300">
                   <tr>
@@ -696,7 +696,8 @@ export function ExpensesManager({
                       <tr key={ex.id} className="transition hover:bg-slate-50/80">
                         <td className="p-3.5">
                           <span className="font-bold text-slate-900">
-                            {ex.facturaNumber || (ex.paymentReference ? `Ref. ${ex.paymentReference}` : 'Interno')}
+                            {ex.facturaNumber ||
+                              (ex.paymentReference ? `Ref. ${ex.paymentReference}` : 'Interno')}
                           </span>
                           <p className="text-[10px] text-slate-300">{ex.date}</p>
                         </td>
@@ -950,7 +951,7 @@ export function ExpensesManager({
                   onChange={(e) => setApprovalNote(e.target.value)}
                   placeholder="Ej. Verificado físicamente contra entrega en obra y renglón APU correspondiente."
                   rows={3}
-                  className="focus:ring-brand-400 w-full resize-none rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-xs text-white focus:ring-2"
+                  className="w-full resize-none rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-xs text-white focus:ring-2 focus:ring-brand-400"
                 />
               </div>
 

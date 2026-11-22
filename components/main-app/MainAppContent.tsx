@@ -27,7 +27,7 @@ import { InventoryManager } from '@/components/InventoryManager';
 import { GanttSchedule } from '@/components/GanttSchedule';
 import { PageHeader } from '@/components/PageHeader';
 import { saveProjectScheduleToFirestore } from '@/lib/firebaseService';
-import { roleLabel } from '@/lib/permissions';
+import { roleLabel, canManageMachinery, canManageAttendance } from '@/lib/permissions';
 import { useProjectData } from '@/lib/hooks/data';
 import { Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -147,13 +147,13 @@ function usePermissions(role?: string) {
     canManageProjects: ['owner', 'admin', 'project_manager'].includes(role ?? ''),
     canManageQuotes: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
     canManageBudget: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-    canManageMachinery: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
+    canManageMachinery: canManageMachinery(role as any),
     canManageExpenses: ['owner', 'admin', 'finance'].includes(role ?? ''),
     canViewExpenses: ['owner', 'admin', 'project_manager', 'finance', 'viewer'].includes(
       role ?? ''
     ),
     canManageEmployees: ['owner', 'admin', 'finance'].includes(role ?? ''),
-    canManageAttendance: ['owner', 'admin', 'project_manager', 'field_worker'].includes(role ?? ''),
+    canManageAttendance: canManageAttendance(role as any),
     canViewPersonnel: [
       'owner',
       'admin',
@@ -164,11 +164,34 @@ function usePermissions(role?: string) {
     ].includes(role ?? ''),
     canViewFullPersonnel: ['owner', 'admin', 'finance'].includes(role ?? ''),
     canManageCompany: ['owner', 'admin'].includes(role ?? ''),
-    canViewInventory: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
-    canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),
-    canViewPurchasing: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+    canViewInventory: [
+      'owner',
+      'admin',
+      'project_manager',
+      'finance',
+      'warehouse_manager',
+      'viewer',
+    ].includes(role ?? ''),
+    canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(
+      role ?? ''
+    ),
+    canViewPurchasing: [
+      'owner',
+      'admin',
+      'project_manager',
+      'finance',
+      'warehouse_manager',
+      'viewer',
+    ].includes(role ?? ''),
     canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-    canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'].includes(role ?? ''),
+    canViewSupplyChain: [
+      'owner',
+      'admin',
+      'project_manager',
+      'finance',
+      'warehouse_manager',
+      'viewer',
+    ].includes(role ?? ''),
   };
 }
 
