@@ -1,5 +1,8 @@
 import { chromium, expect } from '@playwright/test';
 
+// Use global fetch from node if available, otherwise use a simple check
+const isBrowser = typeof window !== 'undefined';
+
 /**
  * E2E Test Warm-up for Firebase Emulators.
  *
