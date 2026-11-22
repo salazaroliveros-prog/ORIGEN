@@ -12,9 +12,30 @@ import { chromium, expect } from '@playwright/test';
 
 export default async function warmUpSession(config: any): Promise<void> {
   const baseURL = config.use?.baseURL || process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
-  const email = process.env.E2E_ADMIN_EMAIL ?? '';
-  const password = process.env.E2E_ADMIN_PASSWORD ?? '';
-  const browser = await chromium.launch();
+  const email = process.env.E2E_ADMIN_EMAIL ?? 'admin@origen.com';
+  const password = process.env.E2E_ADMIN_PASSWORD ?? 'admin123';
+
+  // Wait for emulators to be ready - check if app is accessible
+  const maxEmulatorWait = Date.now() + 60_000;
+  let emulatorsReady = false;
+
+  while (Date.now() < maxEmulatorWait && !emulatorsReady) {
+    try {
+      const fetch = (await import('node-fetch')).default;
+      const response = await fetch.fetch(`${baseURL}/_ health`, { timeout: 3_000 });
+      if (response.ok) {
+        emulatorsReady = true;
+      }
+    } catch {
+      // Emulators not ready yet, wait and retry
+    }
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+  }
+
+  if (!emulatorsReady) {
+    console.warn('[warmUp] Emulators not ready after 60s, proceeding anyway');
+  }
+  const browser = await chromium.launch({ headless: process.env.CI === 'true' });
 
   try {
     const page = await browser.newPage();
@@ -28,12 +49,14 @@ export default async function warmUpSession(config: any): Promise<void> {
 
     // UI Elements
     const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
-    const emailField = page.getByLabel('Correo electrón');
-    const passwordField = page.getByLabel('Contraseña', { exact: true });
-    const loginButton = page.getByRole('button', { name: /Iniciar Sesi/ });
-    const onboardingHeading = page.getByRole('heading', {
-      name: 'Configuración inicial de empresa',
-    });
+    const emailField = page.getByLabel('Correo electrón').first();
+    const passwordField = page.getByLabel('Contraseña', { exact: true }).first();
+    const loginButton = page.getByRole('button', { name: /Iniciar Sesi/ }).first();
+    const onboardingHeading = page
+      .getByRole('heading', {
+        name: 'Configuración inicial de empresa',
+      })
+      .first();
 
     // Step 1: Check if already at dashboard
     if (await dashboard.isVisible().catch(() => false)) {
@@ -44,17 +67,31 @@ export default async function warmUpSession(config: any): Promise<void> {
 
     // Step 2: Login
     console.log('[warmUp] Logging in...');
-    await emailField.waitFor({ state: 'visible', timeout: 30_000 });
-    await emailField.fill(email);
-    await passwordField.fill(password);
-    await loginButton.click();
+
+    // Wait for login form to be visible
+    try {
+      await emailField.waitFor({ state: 'visible', timeout: 30_000 });
+      await emailField.fill(email);
+      await passwordField.fill(password);
+      await loginButton.click();
+    } catch (err) {
+      console.error('[warmUp] Login form not found, checking page content...');
+      const bodyText = await page
+        .locator('body')
+        .innerText()
+        .catch(() => '');
+      throw new Error(
+        `Login form not found. URL: ${page.url()}. Content: ${bodyText.slice(0, 1000)}`
+      );
+    }
 
     // Step 3: Wait for redirect after login (dashboard or onboarding)
     console.log('[warmUp] Waiting for post-login redirect...');
     const deadline = Date.now() + 120_000;
     let done = false;
+    let loginAttempts = 0;
 
-    while (Date.now() < deadline && !done) {
+    while (Date.now() < deadline && !done && loginAttempts < 3) {
       const currentUrl = page.url();
       const atDashboard = await dashboard.isVisible().catch(() => false);
       const atOnboarding = await onboardingHeading.isVisible().catch(() => false);
@@ -70,7 +107,11 @@ export default async function warmUpSession(config: any): Promise<void> {
       // navigate directly to dashboard (skip onboarding form)
       if (atOnboarding) {
         console.log('[warmUp] Onboarding page showing - navigating to dashboard...');
-        await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+        try {
+          await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+        } catch (err) {
+          console.warn('[warmUp] Navigation to / failed, retrying...');
+        }
         if (await dashboard.isVisible().catch(() => false)) {
           console.log('[warmUp] Dashboard visible after navigation');
           done = true;
@@ -79,6 +120,7 @@ export default async function warmUpSession(config: any): Promise<void> {
       }
 
       await page.waitForTimeout(1_000);
+      loginAttempts++;
     }
 
     // Step 4: If still not done, error

@@ -80,4 +80,7 @@ jobs:
         env:
           CI: 'true'
           NEXT_TELEMETRY_DISABLED: '1'
+          E2E_BASE_URL: 'http://127.0.0.1:3000'
+          E2E_ADMIN_EMAIL: 'admin@origen.com'
+          E2E_ADMIN_PASSWORD: 'admin123'
         run: npm run test:e2e
