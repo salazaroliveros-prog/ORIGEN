@@ -156,6 +156,7 @@ export function Pagination({
       <div className="flex items-center gap-2 text-xs">
         <span className="text-slate-400">Elementos por página:</span>
         <select
+          aria-label="Elementos por página"
           value={pageSize}
           onChange={(e) => {
             const newSize = parseInt(e.target.value, 10);

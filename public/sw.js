@@ -13,10 +13,15 @@ const STATIC_CACHE = 'origen-static-v1';
 const DYNAMIC_CACHE = 'origen-dynamic-v1';
 
 // Public static asset prefixes that are safe to cache
-const PUBLIC_ASSET_PREFIXES = ['/_next/static/', '/static/', '/manifest.json', '/icon-'];
+const PUBLIC_ASSET_PREFIXES = [
+  '/_next/static/',
+  '/static/',
+  '/site.webmanifest',
+  '/assets/branding/',
+];
 
 // Critical assets to cache immediately
-const CRITICAL_ASSETS = ['/', '/manifest.json', '/_next/static/css/', '/_next/static/chunks/'];
+const CRITICAL_ASSETS = ['/', '/site.webmanifest', '/offline.html'];
 
 // Network timeout for poor connectivity scenarios
 const NETWORK_TIMEOUT = 3000;

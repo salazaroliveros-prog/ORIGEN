@@ -1203,6 +1203,23 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     });
   });
 
+  it('rechaza una configuración de empresa con tipos inválidos', async () => {
+    const database = testEnvironment.authenticatedContext(USERS.owner).firestore();
+
+    await assertFails(
+      setDoc(
+        doc(database, 'companySettings', COMPANY_A),
+        {
+          companyId: COMPANY_A,
+          ownerId: COMPANY_A,
+          legalName: 123,
+          commercialName: 'Empresa inválida',
+        },
+        { merge: true }
+      )
+    );
+  });
+
   it('impide que un administrador elimine el documento raíz de su empresa', async () => {
     const database = testEnvironment.authenticatedContext(USERS.owner).firestore();
     const companyRef = doc(database, 'companies', COMPANY_A);

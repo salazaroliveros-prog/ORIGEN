@@ -86,16 +86,6 @@ service cloud.firestore {
         get(/databases/$(database)/documents/suppliers/$(supplierId)).data.companyId == companyId;
     }
 
-    function isWarehouseInCompany(warehouseId, companyId) {
-      return exists(/databases/$(database)/documents/warehouses/$(warehouseId)) &&
-        get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.companyId == companyId;
-    }
-
-    function isInventoryItemInCompany(itemId, companyId) {
-      return exists(/databases/$(database)/documents/inventoryItems/$(itemId)) &&
-        get(/databases/$(database)/documents/inventoryItems/$(itemId)).data.companyId == companyId;
-    }
-
     function canManageInventory(companyId) {
       return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager', 'warehouse_manager']);
     }
@@ -143,18 +133,6 @@ service cloud.firestore {
 
     function purchaseOrderLineReferencePath(lineReferenceId) {
       return /databases/$(database)/documents/purchaseOrderLineRefs/$(lineReferenceId);
-    }
-
-    function isValidPurchaseOrderLine(line) {
-      return line.keys().hasAll([
-          'itemId', 'description', 'unit', 'quantity', 'receivedQuantity', 'unitPriceGTQ'
-        ]) &&
-        line.itemId is string && isValidId(line.itemId) &&
-        line.description is string && line.description.size() > 0 && line.description.size() <= 200 &&
-        line.unit is string && line.unit.size() > 0 && line.unit.size() <= 32 &&
-        line.quantity is number && line.quantity > 0 &&
-        line.receivedQuantity == 0 &&
-        line.unitPriceGTQ is number && line.unitPriceGTQ >= 0;
     }
 
     function isMatchingPurchaseOrderLineReference(order, lineIndex, suffix) {
@@ -928,20 +906,6 @@ service cloud.firestore {
         data.commercialName is string && data.commercialName.size() <= 250 &&
         data.companyId is string &&
         data.ownerId == data.companyId;
-    }
-
-    // Allow reading company settings for the company owner or company members
-    function canReadCompanySettings(companyId) {
-      return isSignedIn() &&
-        (companyId is string &&
-          (exists(/databases/$(database)/documents/companies/$(companyId)) &&
-            (existing().ownerId == request.auth.uid ||
-              isCompanyMember(companyId))));
-    }
-
-    match /companySettings/{docId} {
-      allow read: if canReadCompanySettings(docId);
-      allow write: if isSignedIn() && request.auth.uid == get(/databases/$(database)/documents/companies/$(docId)).data.ownerId;
     }
 
     function isValidQuote(data) {

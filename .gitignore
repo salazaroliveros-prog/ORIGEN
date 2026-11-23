@@ -48,6 +48,9 @@ firebase-applet-config.json
 # vercel
 .vercel
 
+# local linked worktrees
+.worktrees/
+
 # typescript
 *.tsbuildinfo
 .firebase/logs/vsce-debug.log

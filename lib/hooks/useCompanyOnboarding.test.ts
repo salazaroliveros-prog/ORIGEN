@@ -36,6 +36,13 @@ const companySettings = {
   commercialName: 'Empresa de prueba',
 } as any;
 
+const companyWorkspace = {
+  id: 'user-1',
+  name: 'Empresa de workspace',
+  ownerId: 'user-1',
+  createdAt: '2026-11-22T00:00:00.000Z',
+} as any;
+
 beforeEach(() => {
   vi.clearAllMocks();
   settingsCallbacks.clear();
@@ -114,6 +121,18 @@ describe('useCompanyOnboarding', () => {
     act(() => settingsCallbacks.get('user-2')?.({ ...companySettings, companyId: 'user-2' }));
     expect(result.current.hasCompany).toBe(true);
     expect(result.current.company?.companyId).toBe('user-2');
+
+    unmount();
+  });
+
+  it('recognizes the workspace document stored in companies/{uid}', () => {
+    const { result, unmount } = renderHook(() => useCompanyOnboarding());
+
+    act(() => authCallback({ uid: 'user-1' }));
+    act(() => settingsCallbacks.get('user-1')?.(companyWorkspace));
+
+    expect(result.current.hasCompany).toBe(true);
+    expect(result.current.company).toEqual(companyWorkspace);
 
     unmount();
   });

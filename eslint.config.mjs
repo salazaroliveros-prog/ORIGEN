@@ -14,6 +14,7 @@ export default [
       'public/',
       'next-env.d.ts',
       '.vercel/',
+      '.worktrees/**',
       // Salidas generadas: `npm run test:coverage` produce JS ajeno al proyecto.
       'coverage/**',
       'test-results/**',

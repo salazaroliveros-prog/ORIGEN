@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import type { CompanySettings } from '@/lib/types';
+import type { CompanySettings, CompanyWorkspace } from '@/lib/types';
 import {
   getAuthOrThrow,
   subscribeCompany,
@@ -85,7 +85,15 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
             setLoading(false);
             setError(null);
 
-            if (data && data.legalName) {
+            const record = data as (CompanySettings & Partial<CompanyWorkspace>) | null;
+            const hasCompanyIdentity = Boolean(
+              record &&
+                [record.legalName, record.companyName, record.commercialName, record.name].some(
+                  (value) => typeof value === 'string' && value.trim().length > 0
+                )
+            );
+
+            if (record && hasCompanyIdentity) {
               setCompany(data);
               setHasCompany(true);
             } else {

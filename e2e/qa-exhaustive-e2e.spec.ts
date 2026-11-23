@@ -72,7 +72,23 @@ async function fillProjectForm(page: any, overrides: any = {}) {
   await dialog.getByLabel('Fecha de Finalización').fill(defaults.endDate);
   await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
   await expect(dialog).toBeHidden({ timeout: 20_000 });
+
+  // La lista pagina a 10 registros por defecto. Las corridas E2E comparten
+  // una empresa emulada y pueden superar ese límite antes de buscar el nuevo
+  // proyecto.
+  const pageSizeSelector = page.getByLabel('Elementos por página');
+  await expect(pageSizeSelector).toBeVisible({ timeout: 15_000 });
+  await pageSizeSelector.selectOption('50');
+  await expect(
+    page.getByRole('button', { name: `Editar proyecto ${defaults.code}` })
+  ).toBeVisible({ timeout: 30_000 });
   return defaults;
+}
+
+async function showAllProjects(page: any) {
+  const pageSizeSelector = page.getByLabel('Elementos por página');
+  await expect(pageSizeSelector).toBeVisible({ timeout: 15_000 });
+  await pageSizeSelector.selectOption('50');
 }
 
 // ============================================================
@@ -339,7 +355,7 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
 
     // Propagación al tablero
     await openTab(page, 'Tablero');
-    await expect(page.getByText('Gastos Registrados', { exact: true })).toBeVisible();
+    await expect(page.getByText('Gastos Registrados', { exact: true }).first()).toBeVisible();
     await expect(page.getByText('15,000').first()).toBeVisible({ timeout: 20_000 });
   });
 
@@ -496,13 +512,16 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
 
     // Ver en proyecto
     await openTab(page, 'Proyectos & Firmas');
+    await showAllProjects(page);
     const row = page.locator('main li').filter({ hasText: projectData.code });
     await expect(row).toBeVisible({ timeout: 20_000 });
     await expect(row).toContainText('8,000');
 
     // Ver en tablero
     await openTab(page, 'Tablero');
-    await expect(page.getByText('Gastos Registrados', { exact: true })).toBeVisible();
+    await expect(
+      page.locator('main p').filter({ hasText: /^Gastos Registrados$/ }).first()
+    ).toBeVisible();
     await expect(page.getByText('8,000').first()).toBeVisible({ timeout: 20_000 });
   });
 
@@ -528,6 +547,7 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
     await page.waitForTimeout(3500);
 
     await openTab(page, 'Proyectos & Firmas');
+    await showAllProjects(page);
     const row = page.locator('main li').filter({ hasText: projectData.code });
     await expect(row).toBeVisible({ timeout: 20_000 });
     await expect(row).toContainText('Cot. 1');

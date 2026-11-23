@@ -18,6 +18,7 @@ const requiredSafetyChecks = [
   ['offline fallback', /caches\.match\('\/offline\.html'\)/],
   ['public static allowlist', /PUBLIC_ASSET_PREFIXES/],
   ['private/no-store exclusion', /private\|no-store/],
+  ['canonical manifest path', /\/site\.webmanifest/],
 ];
 
 const missing = requiredSafetyChecks

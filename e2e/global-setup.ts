@@ -1,7 +1,4 @@
-import { chromium, expect } from '@playwright/test';
-
-// Use global fetch from node if available, otherwise use a simple check
-const isBrowser = typeof window !== 'undefined';
+import { chromium, expect, type FullConfig } from '@playwright/test';
 
 /**
  * E2E Test Warm-up for Firebase Emulators.
@@ -13,8 +10,9 @@ const isBrowser = typeof window !== 'undefined';
  * 4. Verify dashboard is visible
  */
 
-export default async function warmUpSession(config: any): Promise<void> {
-  const baseURL = config.use?.baseURL || process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
+export default async function warmUpSession(config: FullConfig): Promise<void> {
+  const baseURL =
+    config.projects[0]?.use.baseURL || process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
   const email = process.env.E2E_ADMIN_EMAIL ?? 'admin@origen.com';
   const password = process.env.E2E_ADMIN_PASSWORD ?? 'admin123';
 
@@ -24,8 +22,9 @@ export default async function warmUpSession(config: any): Promise<void> {
 
   while (Date.now() < maxEmulatorWait && !emulatorsReady) {
     try {
-      const fetch = (await import('node-fetch')).default;
-      const response = await fetch.fetch(`${baseURL}/_ health`, { timeout: 3_000 });
+      const response = await fetch(baseURL, {
+        signal: AbortSignal.timeout(3_000),
+      });
       if (response.ok) {
         emulatorsReady = true;
       }
@@ -52,9 +51,9 @@ export default async function warmUpSession(config: any): Promise<void> {
 
     // UI Elements
     const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
-    const emailField = page.getByLabel('Correo electrón').first();
-    const passwordField = page.getByLabel('Contraseña', { exact: true }).first();
-    const loginButton = page.getByRole('button', { name: /Iniciar Sesi/ }).first();
+    const emailField = page.locator('form input').nth(0);
+    const passwordField = page.locator('form input').nth(1);
+    const loginButton = page.getByRole('button', { name: /Iniciar sesión/i }).first();
     const onboardingHeading = page
       .getByRole('heading', {
         name: 'Configuración inicial de empresa',
@@ -68,6 +67,16 @@ export default async function warmUpSession(config: any): Promise<void> {
       return;
     }
 
+    // A fresh emulator may redirect the unauthenticated landing page to the
+    // company onboarding route. Return to the login route before locating the
+    // credentials form; onboarding is handled again after authentication.
+    if (page.url().includes('/onboarding/empresa')) {
+      await page.goto(`${baseURL}/login`, {
+        waitUntil: 'domcontentloaded',
+        timeout: 30_000,
+      });
+    }
+
     // Step 2: Login
     console.log('[warmUp] Logging in...');
 
@@ -78,13 +87,24 @@ export default async function warmUpSession(config: any): Promise<void> {
       await passwordField.fill(password);
       await loginButton.click();
     } catch (err) {
-      console.error('[warmUp] Login form not found, checking page content...');
+      console.error('[warmUp] Login interaction failed, checking page content...');
       const bodyText = await page
         .locator('body')
         .innerText()
         .catch(() => '');
+      const inputSummary = await page
+        .locator('input')
+        .evaluateAll((inputs) =>
+          inputs.map((input) => ({
+            type: input.getAttribute('type'),
+            id: input.getAttribute('id'),
+            name: input.getAttribute('name'),
+            visible: Boolean((input as HTMLElement).offsetParent),
+          }))
+        )
+        .catch(() => []);
       throw new Error(
-        `Login form not found. URL: ${page.url()}. Content: ${bodyText.slice(0, 1000)}`
+        `Login interaction failed. URL: ${page.url()}. Inputs: ${JSON.stringify(inputSummary)}. Content: ${bodyText.slice(0, 1000)}`
       );
     }
 

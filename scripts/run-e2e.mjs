@@ -67,6 +67,8 @@ async function main() {
   const htmlDirectory = path.join(repositoryRoot, 'playwright-report', runId);
   const tsconfigFileName = `.tsconfig.e2e-${runId}.json`;
   const tsconfigPath = path.join(repositoryRoot, tsconfigFileName);
+  const nextEnvPath = path.join(repositoryRoot, 'next-env.d.ts');
+  const originalNextEnv = readFileSync(nextEnvPath, 'utf8');
 
   let exitCode = 1;
   try {
@@ -121,6 +123,10 @@ async function main() {
     console.log(`[e2e] Firebase project: ${projectId} (emuladores desechables)`);
 
     const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    const emulatorScript =
+      process.platform === 'win32'
+        ? '"node scripts/run-e2e-inside.mjs"'
+        : 'node scripts/run-e2e-inside.mjs';
     exitCode = await run(
       executable,
       [
@@ -133,18 +139,22 @@ async function main() {
         projectId,
         '--only',
         'auth,firestore,storage',
-        'node scripts/run-e2e-inside.mjs',
+        emulatorScript,
       ],
       {
         cwd: repositoryRoot,
         env,
         stdio: 'inherit',
+        // `npx.cmd` is a shell shim on Windows. Quote the script argument
+        // above so cmd.exe preserves it as one Firebase positional argument.
         shell: process.platform === 'win32',
       }
     );
   } finally {
-    // Next.js solo modifica el tsconfig temporal de esta corrida. El original
-    // del proyecto permanece intacto incluso cuando el emulador o Playwright falla.
+    // Next.js modifica el tsconfig temporal y la referencia de next-env.d.ts
+    // durante el arranque. Restaura ambos artefactos aunque falle el emulador
+    // o Playwright, para que una corrida no contamine la siguiente.
+    await writeFile(nextEnvPath, originalNextEnv, 'utf8');
     await rm(tsconfigPath, { force: true });
   }
 

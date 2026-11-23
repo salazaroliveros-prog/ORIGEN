@@ -39,15 +39,6 @@ export function ProjectsList() {
   });
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  // Pagination
-  const {
-    currentPage,
-    itemsPerPage: pageSize,
-    totalPages,
-    paginatedItems,
-    goToPage,
-  } = usePagination(projects || [], { itemsPerPage: 10 });
-
   // FEATURE 2.3.3: Load sort preference from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('projectSort');
@@ -80,6 +71,17 @@ export function ProjectsList() {
 
     return sorted;
   }, [projects, sortBy]);
+
+  // Paginate the same ordered collection that is rendered. Keeping these
+  // operations together prevents a project from disappearing from the
+  // visible page after sorting or a refresh.
+  const {
+    currentPage,
+    itemsPerPage: pageSize,
+    totalPages,
+    paginatedItems,
+    goToPage,
+  } = usePagination(sortedProjects, { itemsPerPage: 10 });
 
   // Handle sort change with localStorage persistence
   const handleSort = useCallback((field: SortBy) => {

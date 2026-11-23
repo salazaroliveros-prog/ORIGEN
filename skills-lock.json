@@ -5,49 +5,57 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/code-review/SKILL.md",
-      "computedHash": "ce86b40a3d1648a0018b712f0c70704e6c2316b2a9b9e915ab116916a31273dc"
+      "computedHash": "ce86b40a3d1648a0018b712f0c70704e6c2316b2a9b9e915ab116916a31273dc",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "codebase-design": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/codebase-design/SKILL.md",
-      "computedHash": "d40f025dc1b0f2020663260f38f2bcb8d6ed3523afb11e5fda624b01238677e8"
+      "computedHash": "d40f025dc1b0f2020663260f38f2bcb8d6ed3523afb11e5fda624b01238677e8",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "design-mobile-apps": {
       "source": "designed-by-ai/skills",
       "sourceType": "github",
       "skillPath": "skills/design-mobile-apps/SKILL.md",
-      "computedHash": "eec6dae3f26f8f154fe190a53387f0b2eab39aa120932d5c33af7f3284f04b10"
+      "computedHash": "eec6dae3f26f8f154fe190a53387f0b2eab39aa120932d5c33af7f3284f04b10",
+      "commit": "03c20aec6dcedb5fabfb03dc37982eb52ef19ed6"
     },
     "diagnosing-bugs": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
-      "computedHash": "87c78ae966e591f9ceb177789cc5cc9de69277cd26679ffd36ca5300f430d513"
+      "computedHash": "87c78ae966e591f9ceb177789cc5cc9de69277cd26679ffd36ca5300f430d513",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
       "skillPath": "skills/find-skills/SKILL.md",
-      "computedHash": "7bc223e2aafbdbf6e50ea243ba6ef67fe432bb069ab439fea0390795dac0bf7f"
+      "computedHash": "7bc223e2aafbdbf6e50ea243ba6ef67fe432bb069ab439fea0390795dac0bf7f",
+      "commit": "57217cf86ba38148a57af9e90d14a4c049558330"
     },
     "firebase-auth-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-auth-basics/SKILL.md",
-      "computedHash": "3ef272cfc3d28b4dfff7d05a6eb6893d4882c97021bd8d721a12fe92ecd2a50e"
+      "computedHash": "3ef272cfc3d28b4dfff7d05a6eb6893d4882c97021bd8d721a12fe92ecd2a50e",
+      "commit": "99954a30898bb5ddc8152ee10e124dc3b4106bf7"
     },
     "firebase-basics": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-basics/SKILL.md",
-      "computedHash": "13a496dfb9130cbb273e44f521e78106c2e59787af92d8c06eb225839d346bbf"
+      "computedHash": "13a496dfb9130cbb273e44f521e78106c2e59787af92d8c06eb225839d346bbf",
+      "commit": "99954a30898bb5ddc8152ee10e124dc3b4106bf7"
     },
     "firebase-firestore": {
       "source": "firebase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/firebase-firestore/SKILL.md",
-      "computedHash": "2d69073a1488d4f1b0df2f39f46fae21382acb466c9b6139ecd0215966765129"
+      "computedHash": "2d69073a1488d4f1b0df2f39f46fae21382acb466c9b6139ecd0215966765129",
+      "commit": "99954a30898bb5ddc8152ee10e124dc3b4106bf7"
     },
     "firebase-security-rules-auditor": {
       "source": "firebase/agent-skills",
@@ -77,7 +85,8 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
-      "computedHash": "f0820b18426a7d9a6c823a890988ba0ac70bf0fd596d30d7ef07c88558728c23"
+      "computedHash": "f0820b18426a7d9a6c823a890988ba0ac70bf0fd596d30d7ef07c88558728c23",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "ios-design": {
       "source": "uizze.sh",
@@ -90,31 +99,36 @@
       "source": "wshobson/agents",
       "sourceType": "github",
       "skillPath": "plugins/frontend-mobile-development/skills/nextjs-app-router-patterns/SKILL.md",
-      "computedHash": "39b84480d3a62355fd1199173dc70b97efe1daf6dbfae560cc7b85e127934a98"
+      "computedHash": "39b84480d3a62355fd1199173dc70b97efe1daf6dbfae560cc7b85e127934a98",
+      "commit": "51b9ae3ac68d9c236549a9b57f5dca7e6c0c168c"
     },
     "playwright-cli": {
       "source": "microsoft/playwright-cli",
       "sourceType": "github",
       "skillPath": "skills/playwright-cli/SKILL.md",
-      "computedHash": "d3c50339092b670cdda1ba2bed0bdee1c34247cdf70df475e8b7d83983a39e79"
+      "computedHash": "54c3f1e47b2566ecc3a2c1515823f77f4609edfe8029351924311dafc0d2ba66",
+      "commit": "c872a33cec77fa03c28fa7c6d1ad99d15d04ce42"
     },
     "tailwind-design-system": {
       "source": "wshobson/agents",
       "sourceType": "github",
       "skillPath": "plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
-      "computedHash": "c807f0c9619e8c389879f55846c2e395956f1073ab6d01a93fbb30b340015ab1"
+      "computedHash": "c807f0c9619e8c389879f55846c2e395956f1073ab6d01a93fbb30b340015ab1",
+      "commit": "51b9ae3ac68d9c236549a9b57f5dca7e6c0c168c"
     },
     "triage": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/triage/SKILL.md",
-      "computedHash": "4342a07c9ebe0696713ec93a883c46e56503a587a34d824fabab5ca61e3bdfbb"
+      "computedHash": "4342a07c9ebe0696713ec93a883c46e56503a587a34d824fabab5ca61e3bdfbb",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "typescript-advanced-types": {
       "source": "wshobson/agents",
       "sourceType": "github",
       "skillPath": "plugins/javascript-typescript/skills/typescript-advanced-types/SKILL.md",
-      "computedHash": "34c5b3863fde1fc85981ac583ecaf0140471b374d0b7002ac5bc0bea2cf38b24"
+      "computedHash": "34c5b3863fde1fc85981ac583ecaf0140471b374d0b7002ac5bc0bea2cf38b24",
+      "commit": "51b9ae3ac68d9c236549a9b57f5dca7e6c0c168c"
     },
     "ui-taste": {
       "source": "uizze.sh",
@@ -125,29 +139,32 @@
     },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
-      "commit": "e59ff376a41f7ca47b7541ad5c116495cbade3ee",
+      "commit": "281e4537afb11333ac9947783779aaf314ebfbf2",
       "sourceType": "github",
       "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
-      "computedHash": "9700c4f6c9460810a4158f3a6d3238d8ee58bc682e0aa7190c2c333cf6c666b1",
+      "computedHash": "d140f58b44b7dced02b0772db01f801990b4416a29410ef4ce1f48e266f62f99",
       "installMode": "copy"
     },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/composition-patterns/SKILL.md",
-      "computedHash": "f711ed8b16162eaa712abbcdbbae6c926f86c57e60127735fecc3ad0dd85b3fa"
+      "computedHash": "f711ed8b16162eaa712abbcdbbae6c926f86c57e60127735fecc3ad0dd85b3fa",
+      "commit": "5a37a6329fbad3666c3207392a6a7c0110e92efb"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/react-best-practices/SKILL.md",
-      "computedHash": "7991ed4fbecdac23f47c1a40c243e00a212a9e7f3604db93959b3ae11dffe299"
+      "computedHash": "7991ed4fbecdac23f47c1a40c243e00a212a9e7f3604db93959b3ae11dffe299",
+      "commit": "5a37a6329fbad3666c3207392a6a7c0110e92efb"
     },
     "vitest": {
       "source": "antfu/skills",
       "sourceType": "github",
       "skillPath": "skills/vitest/SKILL.md",
-      "computedHash": "bd95e41d66d76da9008893c9bc48c30f0a68f352cd2b00017767f5e4c129501d"
+      "computedHash": "bd95e41d66d76da9008893c9bc48c30f0a68f352cd2b00017767f5e4c129501d",
+      "commit": "4a6bb39e7b45e26402eb215393c51ccf5df1ca4c"
     },
     "webapp-testing": {
       "source": "anthropics/skills",
