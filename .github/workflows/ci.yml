@@ -73,8 +73,10 @@ jobs:
           NEXT_PUBLIC_FIRESTORE_DATABASE_ID: ${{ secrets.NEXT_PUBLIC_FIRESTORE_DATABASE_ID }}
         run: npm run build
 
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright browsers
+        # playwright.config.ts includes Chromium and WebKit projects.
+        # Install every engine declared by the current E2E matrix.
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Run browser E2E against a fresh Firebase emulator
         env:

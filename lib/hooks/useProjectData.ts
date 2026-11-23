@@ -351,7 +351,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         return false;
       }
 
-      setLoading(true);
       try {
         log.info('Creating project', { companyId });
         const projectId = `proj-${crypto.randomUUID()}`;
@@ -382,8 +381,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         log.error('Project creation error', err as Error, { companyId });
         toast.error('Error inesperado al crear el proyecto');
         return false;
-      } finally {
-        setLoading(false);
       }
     },
     [companyId, currentUserId]
@@ -398,7 +395,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         return false;
       }
 
-      setLoading(true);
       try {
         const existing = projects.find((p) => p.id === projectId);
         if (!existing) {
@@ -433,8 +429,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         log.error('Project update error', err as Error, { projectId });
         toast.error('Error inesperado al actualizar el proyecto');
         return false;
-      } finally {
-        setLoading(false);
       }
     },
     [companyId, currentUserId, projects]
@@ -462,7 +456,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         return false;
       }
 
-      setLoading(true);
       try {
         log.info('Archiving project', { projectId, companyId });
         const archived = await saveProjectToFirestore(
@@ -495,8 +488,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           'Error inesperado al archivar el proyecto. No se eliminó ningún dato relacionado.'
         );
         return false;
-      } finally {
-        setLoading(false);
       }
     },
     [companyId, currentUserId, projects]
@@ -518,7 +509,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         return false;
       }
 
-      setLoading(true);
       try {
         log.info('Restoring project', { projectId, companyId });
         const restored = await saveProjectToFirestore(
@@ -548,8 +538,6 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
         log.error('Project restoration error', error as Error, { projectId });
         toast.error('Error inesperado al restaurar el proyecto.');
         return false;
-      } finally {
-        setLoading(false);
       }
     },
     [companyId, currentUserId, projects]
