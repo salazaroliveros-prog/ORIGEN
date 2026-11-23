@@ -78,7 +78,16 @@ export function ProjectForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validation = validateProjectForm(formData);
+    // Read the numeric budget from the submitted control as the source of truth.
+    // This avoids submitting a stale React state snapshot when a number input is
+    // edited and the user immediately submits the form.
+    const budgetControl = e.currentTarget.elements.namedItem('budgetTotal');
+    const submittedBudget =
+      budgetControl instanceof HTMLInputElement ? budgetControl.valueAsNumber : formData.budgetTotal;
+    const validation = validateProjectForm({
+      ...formData,
+      budgetTotal: Number.isFinite(submittedBudget) ? submittedBudget : formData.budgetTotal,
+    });
     if (!validation.success) {
       const fieldErrors: Partial<Record<keyof ProjectFormValues, string>> = {};
       validation.error.issues.forEach((issue) => {
@@ -448,11 +457,12 @@ export function ProjectForm({
                   </label>
                   <input
                     id="project-budget-total"
+                    name="budgetTotal"
                     type="number"
                     aria-invalid={Boolean(errors.budgetTotal)}
                     aria-describedby={errors.budgetTotal ? 'project-budget-total-error' : undefined}
                     value={formData.budgetTotal}
-                    onChange={(e) => handleChange('budgetTotal', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => handleChange('budgetTotal', e.currentTarget.value === '' ? 0 : e.currentTarget.valueAsNumber)}
                     placeholder="0"
                     className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
                       errors.budgetTotal ? 'border-red-500 focus:ring-red-500/50' : ''
