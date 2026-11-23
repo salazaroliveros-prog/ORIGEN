@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, startTransition } from 'react';
+import React, { useState, useLayoutEffect, useCallback, startTransition } from 'react';
 import {
   ProjectFormValues,
   ProjectFormProject,
@@ -29,7 +29,9 @@ export function ProjectForm({
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof ProjectFormValues, string>>>({});
 
-  useEffect(() => {
+  // Hydrate the edit values before the dialog is painted, preventing an early
+  // interaction from being overwritten by the initial-project state.
+  useLayoutEffect(() => {
     if (isOpen && editingProject) {
       setFormData({
         code: editingProject.code,
