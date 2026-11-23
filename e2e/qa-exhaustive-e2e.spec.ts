@@ -765,9 +765,16 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
     await waitForProjectPersisted(page, projectData.code);
 
     await page.reload();
-    await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');
-    await expect(page.getByText(projectData.code).first()).toBeVisible({ timeout: 20_000 });
+
+    // Tras recargar, la vista vuelve al tamaño de página predeterminado.
+    // Ampliar el listado evita confundir un registro persistido en otra página
+    // con un registro ausente y validar el botón de edición confirma que la
+    // tarjeta real del proyecto se renderizó de forma visible.
+    await showAllProjects(page);
+    await expect(
+      page.getByRole('button', { name: `Editar proyecto ${projectData.code}`, exact: true })
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-5.09 — Inventario: historial, búsqueda y filtro de movimientos', async ({ page }) => {
