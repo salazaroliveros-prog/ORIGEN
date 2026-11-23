@@ -76,7 +76,7 @@ export function ProjectForm({
     [errors]
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Read the numeric budget from the submitted control as the source of truth.
     // This avoids submitting a stale React state snapshot when a number input is
