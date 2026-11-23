@@ -19,19 +19,13 @@ import {
   UserPlus,
   Boxes,
   ChevronRight,
-  Phone,
-  LogOut,
   Building2,
   X,
-  Menu,
 } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { AuthSessionStatus } from '@/lib/firebaseAuth';
 import type { CompanySettings, Project, CompanyWorkspaceOption } from '@/lib/types';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Sidebar } from '@/components/ui/Sidebar';
-import { MobileHeader } from '@/components/ui/MobileHeader';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { MobileSheet } from '@/components/ui/MobileSheet';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -161,31 +155,6 @@ export function Navbar({
 
       {/* ================= MOBILE SHELL ================= */}
       <div className="flex h-full flex-col lg:hidden">
-        <div className="sticky top-0 z-50 flex items-center gap-3 border-b border-white/10 bg-white/[0.05] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggleMobileSidebar}
-            className="rounded-xl text-slate-300 backdrop-blur-sm hover:bg-white/[0.1]"
-            aria-label={
-              isMobileSidebarOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
-            }
-            aria-expanded={isMobileSidebarOpen}
-          >
-            {isMobileSidebarOpen ? (
-              <X className="h-5 w-5" aria-hidden="true" />
-            ) : (
-              <Menu className="h-5 w-5" aria-hidden="true" />
-            )}
-          </Button>
-
-          <span className="flex-1 truncate text-base font-semibold leading-tight text-white">
-            {tabs.find((t) => t.id === activeTab)?.label || 'Tablero'}
-          </span>
-
-          <ThemeToggle />
-        </div>
-
         <div className="flex-1 overflow-y-auto pb-20">{children}</div>
 
         <BottomNav
@@ -203,6 +172,7 @@ export function Navbar({
         />
 
         <MobileSheet
+          id="mobile-navigation"
           isOpen={isMobileSidebarOpen}
           onClose={onToggleMobileSidebar ?? (() => {})}
           swipeToClose={true}
@@ -233,7 +203,7 @@ export function Navbar({
           }
         >
           <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Navegación principal">
-            {mobileTabs.map((tab) => {
+            {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               const itemClassName = `flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-3 text-sm min-h-[48px] ${isActive ? 'text-slate-950 bg-white/[0.05]' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
               const content = (
@@ -257,6 +227,7 @@ export function Navbar({
                     className={itemClassName}
                     aria-current={isActive ? 'page' : undefined}
                     aria-label={`Ir a ${tab.label}`}
+                    onClick={() => onToggleMobileSidebar?.()}
                   >
                     {content}
                   </Link>

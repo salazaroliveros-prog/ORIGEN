@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 interface MobileSheetProps {
+  id?: string;
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface MobileSheetProps {
 }
 
 export function MobileSheet({
+  id,
   isOpen,
   onClose,
   children,
@@ -83,6 +85,7 @@ export function MobileSheet({
       {isOpen && (
         <div
           ref={sheetRef}
+          id={id}
           className={`mobile-sheet ${className}`}
           role="dialog"
           aria-modal="true"

@@ -78,8 +78,14 @@ jobs:
         # CI ejecuta únicamente el caso E2E de navegación en Chromium.
         run: npx playwright install --with-deps chromium
 
-      - name: Run focused PASO-5.05 navigation E2E regression
+      - name: Run full desktop browser E2E suite against a fresh Firebase emulator
         env:
           CI: 'true'
           NEXT_TELEMETRY_DISABLED: '1'
-        run: npm run test:e2e -- e2e/qa-exhaustive-e2e.spec.ts --grep "PASO-5.05" --project=chromium
+        run: npm run test:e2e -- --project=chromium
+
+      - name: Run responsive mobile navigation checks
+        env:
+          CI: 'true'
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run test:e2e -- e2e/mobile-responsive.spec.ts --project=mobile-iphone --project=mobile-android --project=mobile-ipad --project=mobile-small
