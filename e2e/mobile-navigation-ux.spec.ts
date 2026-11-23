@@ -9,6 +9,7 @@ test.describe('Navegación móvil y shell responsive', () => {
 
   test('el drawer expone los módulos y acciones administrativas permitidos', async ({ page }) => {
     const menuToggle = page.locator('button[aria-controls="mobile-navigation"]');
+    await expect(menuToggle).toHaveCount(1);
     await expect(menuToggle).toBeVisible();
     await expect(menuToggle).toHaveAttribute('aria-expanded', 'false');
 

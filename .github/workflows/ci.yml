@@ -75,17 +75,12 @@ jobs:
         run: npm run build
 
       - name: Install Playwright Chromium
-        # CI ejecuta únicamente el caso E2E de navegación en Chromium.
+        # La suite completa de Chromium valida flujos de escritorio y navegación móvil.
         run: npx playwright install --with-deps chromium
 
-      - name: Run focused PASO-5.05 navigation E2E regression
+      - name: Run full Chromium browser E2E suite
         env:
           CI: 'true'
           NEXT_TELEMETRY_DISABLED: '1'
-        run: npm run test:e2e -- e2e/qa-exhaustive-e2e.spec.ts --grep "PASO-5.05" --project=chromium
-
-      - name: Run responsive mobile navigation E2E
-        env:
-          CI: 'true'
-          NEXT_TELEMETRY_DISABLED: '1'
-        run: npm run test:e2e -- e2e/mobile-navigation-ux.spec.ts --project=chromium
+        # Incluye las regresiones de navegación móvil y los breakpoints compactos.
+        run: npm run test:e2e -- --project=chromium
