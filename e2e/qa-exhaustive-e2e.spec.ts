@@ -483,7 +483,10 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');
-    await expect(page.getByText('200,000').first()).toBeVisible({ timeout: 20_000 });
+    await showAllProjects(page);
+    const row = page.locator('main li').filter({ hasText: projectData.code });
+    await expect(row).toBeVisible({ timeout: 20_000 });
+    await expect(row).toContainText('200,000');
   });
 
   test('PASO-4.02 — Profundidad: Gastos → Seleccionar proyecto → Registrar → Ver en proyecto y tablero', async ({
