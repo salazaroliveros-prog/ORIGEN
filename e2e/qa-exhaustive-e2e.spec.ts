@@ -693,7 +693,16 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
     for (const section of sections) {
       await openTab(page, section);
       if (section === 'Inventario & Compras') {
-        await expect(page.getByRole('heading', { name: 'Inventario & Compras' })).toBeVisible();
+        // The application shell also renders this label as an h1. Assert the
+        // module's actual content heading inside main, where it is a unique h2.
+        const inventoryHeading = page
+          .locator('#main-content')
+          .getByRole('heading', {
+            name: 'Inventario & Compras',
+            level: 2,
+            exact: true,
+          });
+        await expect(inventoryHeading).toBeVisible({ timeout: 15_000 });
       } else {
         const activeNavigationLink = page.getByRole('button', { name: section }).first();
         await expect(activeNavigationLink).toBeVisible();
