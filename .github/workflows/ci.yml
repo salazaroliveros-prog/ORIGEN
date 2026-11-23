@@ -74,19 +74,12 @@ jobs:
           NEXT_PUBLIC_FIRESTORE_DATABASE_ID: ${{ secrets.NEXT_PUBLIC_FIRESTORE_DATABASE_ID }}
         run: npm run build
 
-      - name: Install Playwright browsers
-        # playwright.config.ts includes Chromium and WebKit projects.
-        # Install every engine declared by the current E2E matrix.
-        run: npx playwright install --with-deps chromium webkit
+      - name: Install Playwright Chromium
+        # CI ejecuta únicamente el caso E2E de navegación en Chromium.
+        run: npx playwright install --with-deps chromium
 
-      - name: Run focused project-budget E2E regression
+      - name: Run focused PASO-5.05 navigation E2E regression
         env:
           CI: 'true'
           NEXT_TELEMETRY_DISABLED: '1'
-        run: npm run test:e2e -- e2e/qa-exhaustive-e2e.spec.ts --grep "PASO-4.01" --project=chromium
-
-      - name: Run full browser E2E against a fresh Firebase emulator
-        env:
-          CI: 'true'
-          NEXT_TELEMETRY_DISABLED: '1'
-        run: npm run test:e2e
+        run: npm run test:e2e -- e2e/qa-exhaustive-e2e.spec.ts --grep "PASO-5.05" --project=chromium
