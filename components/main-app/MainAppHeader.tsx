@@ -7,7 +7,7 @@ import type { CompanyWorkspaceOption, Project } from '@/lib/types';
 import { LogoUpload } from '@/components/LogoUpload';
 import { Navbar } from '@/components/Navbar';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
-import { MobileHeader, PageHeader } from '@/components/PageHeader';
+import { PageHeader } from '@/components/PageHeader';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
 import { Button } from '@/components/ui/Button';
 import { TouchTarget } from '@/components/ui/TouchTarget';
@@ -46,78 +46,6 @@ type TabKey =
   | 'equipo'
   | 'inventario';
 
-const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }> = {
-  dashboard: {
-    id: 'dashboard',
-    label: 'Tablero de Control',
-    subtitle: 'Resumen general de proyectos y estado del sistema',
-  },
-  proyectos: {
-    id: 'proyectos',
-    label: 'Proyectos y Firmas Digitales',
-    subtitle: 'Gestión de proyectos con trazabilidad completa',
-  },
-  apu_presupuestos: {
-    id: 'apu_presupuestos',
-    label: 'Presupuestos APU y Gastos',
-    subtitle: 'Control financiero con desglose por renglón y departamento',
-  },
-  personal: {
-    id: 'personal',
-    label: 'Personal y Asistencia IGSS',
-    subtitle: 'Control de cuadrillas, planillas y cumplimiento laboral',
-  },
-  reportes: {
-    id: 'reportes',
-    label: 'Reportes Finales y Actas',
-    subtitle: 'Generación de reportes ejecutivos y documentación de obra',
-  },
-  ai: {
-    id: 'ai',
-    label: 'Asistente Técnico IA',
-    subtitle: 'Consultas sobre presupuestos, normativas AGIES y COGUANOR',
-  },
-  cotizaciones: {
-    id: 'cotizaciones',
-    label: 'Cotizaciones',
-    subtitle: 'Gestión de cotizaciones y presupuestos de clientes',
-  },
-  cronograma_gantt: {
-    id: 'cronograma_gantt',
-    label: 'Seguimiento & Hitos',
-    subtitle: 'Cronograma de obra y seguimiento de hitos',
-  },
-  maquinaria: {
-    id: 'maquinaria',
-    label: 'Maquinaria',
-    subtitle: 'Control de flota de maquinaria y horómetros',
-  },
-  planillas: {
-    id: 'planillas',
-    label: 'Planillas Guate',
-    subtitle: 'Planillas laborales y cumplimiento IGSS',
-  },
-  gastos: {
-    id: 'gastos',
-    label: 'Gastos & Facturas',
-    subtitle: 'Registro y control de gastos operativos',
-  },
-  gmail: {
-    id: 'gmail',
-    label: 'Correo & Avisos',
-    subtitle: 'Comunicaciones y notificaciones del proyecto',
-  },
-  equipo: {
-    id: 'equipo',
-    label: 'Equipo de la empresa',
-    subtitle: 'Miembros, invitaciones y permisos de acceso',
-  },
-  inventario: {
-    id: 'inventario',
-    label: 'Inventario & Compras',
-    subtitle: 'Proveedores, bodegas, existencias y abastecimiento de obra',
-  },
-};
 
 export function MainAppHeader({
   company,
@@ -168,18 +96,8 @@ export function MainAppHeader({
   activeWorkspaceId: string;
   onSelectWorkspace: (companyId: string) => void;
 }) {
-  const tabConfig = TAB_CONFIG[activeTab];
-
   return (
     <>
-      <MobileHeader
-        title={tabConfig.label}
-        logoUrl={company.logoUrl}
-        companyName={company.companyName}
-        onMenu={() => setIsMobileSidebarOpen((isOpen) => !isOpen)}
-        menuOpen={isMobileSidebarOpen}
-      />
-
       <Navbar
         company={company}
         projects={projects}

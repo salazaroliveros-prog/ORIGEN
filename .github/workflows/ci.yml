@@ -83,3 +83,9 @@ jobs:
           CI: 'true'
           NEXT_TELEMETRY_DISABLED: '1'
         run: npm run test:e2e -- e2e/qa-exhaustive-e2e.spec.ts --grep "PASO-5.05" --project=chromium
+
+      - name: Run responsive mobile navigation E2E
+        env:
+          CI: 'true'
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run test:e2e -- e2e/mobile-navigation-ux.spec.ts --project=chromium

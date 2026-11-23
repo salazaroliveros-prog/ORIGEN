@@ -26,7 +26,7 @@ interface BottomNavProps {
 }
 
 const itemClass = (isActive: boolean) =>
-  `bottom-nav-item flex flex-col items-center justify-center gap-1.5 p-2 min-w-[72px] min-h-[72px] transition-all duration-200 touch-manipulation ${
+  `bottom-nav-item flex min-w-0 flex-1 flex-col items-center justify-center gap-1 px-0.5 py-2 min-h-[56px] transition-all duration-200 touch-manipulation ${
     isActive
       ? 'text-brand-400 bg-brand-500/10 border-t-2 border-brand-400'
       : 'text-slate-400 hover:text-slate-200 active:scale-95'
@@ -41,7 +41,7 @@ function ItemContent({ item, isActive }: { item: BottomNavItem; isActive: boolea
           <span className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-400" />
         )}
       </div>
-      <span className={`whitespace-nowrap font-medium ${isActive ? 'text-xs' : 'text-[11px]'}`}>
+      <span className={`block max-w-full truncate px-0.5 text-center font-medium ${isActive ? 'text-xs' : 'text-[11px]'}`}>
         {item.label}
       </span>
     </>
