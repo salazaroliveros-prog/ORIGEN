@@ -403,19 +403,49 @@ export function useProjectData(companyId?: string, currentUserId?: string, role?
           return false;
         }
 
-        log.info('Updating project', { projectId, companyId });
-        // mergeProjectUpdate conserva spentTotal (derivado de gastos) y recalcula
-        // progressPercent desde el cronograma, evitando sobrescribirlos desde el formulario.
-        const updated = mergeProjectUpdate(existing, data, {
-          companyId,
-          ownerId: currentUserId,
+        const requestedBudgetTotal =
+          data.budgetTotal === undefined ? existing.budgetTotal : Number(data.budgetTotal);
+
+        if (!Number.isFinite(requestedBudgetTotal) || requestedBudgetTotal < 0) {
+          toast.error('El presupuesto del proyecto no es válido');
+          return false;
+        }
+
+        // Keep the submitted numeric budget explicit in the complete record sent
+        // to Firestore. The calculated expense/progress fields remain protected.
+        const updated = mergeProjectUpdate(
+          existing,
+          { ...data, budgetTotal: requestedBudgetTotal },
+          {
+            companyId,
+            ownerId: currentUserId,
+          }
+        );
+
+        if (updated.budgetTotal !== requestedBudgetTotal) {
+          throw new Error('El presupuesto cambió durante la preparación de la actualización.');
+        }
+
+        log.info('Project update payload prepared', {
+          projectId,
+          submittedBudgetTotal: requestedBudgetTotal,
+          persistedBudgetTotal: updated.budgetTotal,
         });
 
         const success = await saveProjectToFirestore(updated, companyId, currentUserId);
         if (success) {
-          log.info('Project updated successfully', { projectId });
+          // Reflect the server-acknowledged update immediately. Firestore's
+          // subscription will subsequently provide the canonical document.
+          setProjects((currentProjects) =>
+            currentProjects.map((project) =>
+              project.id === projectId ? { ...project, ...updated } : project
+            )
+          );
+          log.info('Project updated successfully', {
+            projectId,
+            budgetTotal: updated.budgetTotal,
+          });
           toast.success('Proyecto actualizado correctamente');
-          // Clear cache
           const cacheKey = createCacheKey('projects', { companyId });
           queryCache.clear(cacheKey);
           return true;

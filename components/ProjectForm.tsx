@@ -78,16 +78,25 @@ export function ProjectForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Read the numeric budget from the submitted control as the source of truth.
-    // This avoids submitting a stale React state snapshot when a number input is
-    // edited and the user immediately submits the form.
-    const budgetControl = e.currentTarget.elements.namedItem('budgetTotal');
-    const submittedBudget =
-      budgetControl instanceof HTMLInputElement ? budgetControl.valueAsNumber : formData.budgetTotal;
-    const validation = validateProjectForm({
+    // Use the value serialized by the browser, not a possibly stale React render.
+    const submittedForm = new FormData(e.currentTarget);
+    const rawBudget = submittedForm.get('budgetTotal');
+    const submittedBudget = rawBudget === null ? formData.budgetTotal : Number(rawBudget);
+
+    if (!Number.isFinite(submittedBudget) || submittedBudget < 0) {
+      setErrors((current) => ({
+        ...current,
+        budgetTotal: 'Ingrese un presupuesto numérico válido.',
+      }));
+      toast.error('Corrija el presupuesto del proyecto');
+      return;
+    }
+
+    const submittedValues: ProjectFormValues = {
       ...formData,
-      budgetTotal: Number.isFinite(submittedBudget) ? submittedBudget : formData.budgetTotal,
-    });
+      budgetTotal: submittedBudget,
+    };
+    const validation = validateProjectForm(submittedValues);
     if (!validation.success) {
       const fieldErrors: Partial<Record<keyof ProjectFormValues, string>> = {};
       validation.error.issues.forEach((issue) => {
@@ -459,6 +468,9 @@ export function ProjectForm({
                     id="project-budget-total"
                     name="budgetTotal"
                     type="number"
+                    min={0}
+                    max={999999999}
+                    step="0.01"
                     aria-invalid={Boolean(errors.budgetTotal)}
                     aria-describedby={errors.budgetTotal ? 'project-budget-total-error' : undefined}
                     value={formData.budgetTotal}

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import type { Project } from '../types';
 
 // Mock de firebaseService (ya existe en lib/__mocks__)
 vi.mock('../firebaseService', () => import('../__mocks__/firebaseService'));
@@ -221,33 +222,54 @@ describe('useProjectData - Project CRUD', () => {
     expect(mockToast.error).toHaveBeenCalledWith('Usuario no autenticado');
   });
 
-  it('should update a project successfully', async () => {
+  it('persists the edited numeric budget from the projects subscription', async () => {
     const { result } = renderUseProjectData();
-    // Simular que hay proyectos
-    // createProject primero
-    await act(async () => {
-      await result.current.createProject({
-        code: 'PRY-001',
-        name: 'Casa Test',
-        client: 'Cliente',
-        location: 'Zona 10',
-        municipality: 'Guatemala',
-        department: 'Guatemala',
-        budgetTotal: 500000,
-        spentTotal: 0,
-        progressPercent: 0,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        status: 'Planificación',
-        lat: 14.6349,
-        lng: -90.5069,
-      });
+    const existingProject: Project = {
+      id: 'proj-budget-update',
+      companyId: mockCompanyId,
+      ownerId: mockUserId,
+      createdBy: mockUserId,
+      code: 'PRY-BUDGET',
+      name: 'Proyecto de presupuesto',
+      client: 'Cliente de prueba',
+      location: 'Zona 10',
+      municipality: 'Guatemala',
+      department: 'Guatemala',
+      budgetTotal: 100_000,
+      spentTotal: 0,
+      progressPercent: 0,
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+      status: 'Planificación',
+      lat: 14.6349,
+      lng: -90.5069,
+    };
+
+    act(() => {
+      invokeSubscribeCallback('projects:company-1', [existingProject]);
     });
 
-    // Ahora actualizar - necesito que el proyecto esté en la lista
-    // El mock de subscribeProjects no inyecta datos automáticamente,
-    // pero createProject debería funcionar
-    expect(saveProjectToFirestore).toHaveBeenCalled();
+    await act(async () => {
+      await expect(
+        result.current.updateProject(existingProject.id, { budgetTotal: 200_000 })
+      ).resolves.toBe(true);
+    });
+
+    expect(saveProjectToFirestore).toHaveBeenCalledTimes(1);
+    expect(saveProjectToFirestore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: existingProject.id,
+        budgetTotal: 200_000,
+        companyId: mockCompanyId,
+        ownerId: mockUserId,
+      }),
+      mockCompanyId,
+      mockUserId
+    );
+    expect(result.current.projects).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: existingProject.id, budgetTotal: 200_000 })])
+    );
+    expect(mockToast.success).toHaveBeenCalledWith('Proyecto actualizado correctamente');
   });
 
   it('should archive a project', async () => {

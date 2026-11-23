@@ -159,6 +159,19 @@ export function ProjectsView({
     toast.success(`Foto vinculada al proyecto ${selectedProjectForPhotos.name}`);
   };
 
+  const handleProjectSave = async (values: ProjectFormValues): Promise<boolean> => {
+    if (editingProject) {
+      const projectId = editingProject.id;
+      if (!projectId) {
+        toast.error('No se pudo identificar el proyecto que se quiere actualizar.');
+        return false;
+      }
+      return onUpdateProject(projectId, values);
+    }
+
+    return onCreateProject(values, onProjectCreated);
+  };
+
   const exportProjects = () => {
     const escapeCsv = (value: string | number) => {
       const text = String(value);
@@ -445,11 +458,7 @@ export function ProjectsView({
               setEditingProject(null);
             });
           }}
-          onSave={(values) =>
-            editingProject
-              ? onUpdateProject(editingProject.id ?? '', values)
-              : onCreateProject(values, onProjectCreated)
-          }
+          onSave={handleProjectSave}
           editingProject={editingProject}
         />
       )}

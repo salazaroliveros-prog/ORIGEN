@@ -483,13 +483,19 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
     await editDialog.getByRole('button', { name: 'Actualizar' }).click();
     await expect(editDialog).toBeHidden();
 
-    await page.reload();
-    await page.waitForTimeout(4000);
-    await openTab(page, 'Proyectos & Firmas');
-    await showAllProjects(page);
     const row = page.locator('main li').filter({ hasText: projectData.code });
     await expect(row).toBeVisible({ timeout: 20_000 });
-    await expect(row).toContainText('200,000');
+    await expect(row).toContainText('200,000', { timeout: 20_000 });
+
+    // Confirm persistence independently of the current React state.
+    await page.reload();
+    await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({
+      timeout: 30_000,
+    });
+    await openTab(page, 'Proyectos & Firmas');
+    await showAllProjects(page);
+    await expect(row).toBeVisible({ timeout: 20_000 });
+    await expect(row).toContainText('200,000', { timeout: 20_000 });
   });
 
   test('PASO-4.02 — Profundidad: Gastos → Seleccionar proyecto → Registrar → Ver en proyecto y tablero', async ({
