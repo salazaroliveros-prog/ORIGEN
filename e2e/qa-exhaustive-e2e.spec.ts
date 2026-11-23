@@ -765,9 +765,16 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
     await waitForProjectPersisted(page, projectData.code);
 
     await page.reload();
-    await page.waitForTimeout(4000);
     await openTab(page, 'Proyectos & Firmas');
-    await expect(page.getByText(projectData.code).first()).toBeVisible({ timeout: 20_000 });
+
+    // La recarga restablece el tamaño de página (10). Mostrar los 50 registros
+    // antes de verificar el proyecto evita falsos negativos cuando hay más de
+    // 10 proyectos en el emulador y evita coincidir con la opción oculta del
+    // selector "Proyecto activo".
+    await showAllProjects(page);
+    await expect(
+      page.getByRole('button', { name: `Editar proyecto ${projectData.code}` })
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-5.09 — Inventario: historial, búsqueda y filtro de movimientos', async ({ page }) => {
