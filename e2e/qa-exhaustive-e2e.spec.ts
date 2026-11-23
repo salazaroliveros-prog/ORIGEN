@@ -479,6 +479,7 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
     const budgetInput = editDialog.getByLabel('Presupuesto Total (Q)');
     await expect(budgetInput).toHaveValue(String(projectData.budgetTotal));
     await budgetInput.fill('200000');
+    await expect(budgetInput).toHaveValue('200000');
     await editDialog.getByRole('button', { name: 'Actualizar' }).click();
     await expect(editDialog).toBeHidden();
 
