@@ -44,7 +44,9 @@ test.describe('Navegación móvil y shell responsive', () => {
     ];
     for (const destination of destinations) {
       const role = destination === 'Facturas FEL' ? 'link' : 'button';
-      await expect(navigation.getByRole(role, { name: 'Ir a ' + destination, exact: true })).toBeVisible();
+      await expect(
+        navigation.getByRole(role, { name: 'Ir a ' + destination, exact: true })
+      ).toBeVisible();
     }
 
     await expect(drawer.getByRole('button', { name: 'Configuración de Marca' })).toBeVisible();
@@ -55,10 +57,12 @@ test.describe('Navegación móvil y shell responsive', () => {
       drawerZ: Number(getComputedStyle(document.querySelector('.mobile-sheet')!).zIndex),
       viewport: innerWidth,
       document: document.documentElement.scrollWidth,
-      items: [...document.querySelectorAll('.mobile-bottom-nav .bottom-nav-item')].map((element) => {
-        const rect = element.getBoundingClientRect();
-        return { left: rect.left, right: rect.right };
-      }),
+      items: [...document.querySelectorAll('.mobile-bottom-nav .bottom-nav-item')].map(
+        (element) => {
+          const rect = element.getBoundingClientRect();
+          return { left: rect.left, right: rect.right };
+        }
+      ),
     }));
     expect(metrics.bottomNavZ).toBeLessThan(metrics.drawerZ);
     expect(metrics.document).toBeLessThanOrEqual(metrics.viewport);
@@ -84,12 +88,16 @@ test.describe('Navegación móvil y shell responsive', () => {
       const metrics = await page.evaluate(() => ({
         document: document.documentElement.scrollWidth,
         nav: document.querySelector('.mobile-bottom-nav')?.getBoundingClientRect().width ?? 0,
-        items: [...document.querySelectorAll('.mobile-bottom-nav .bottom-nav-item')].map((element) => {
-          const rect = element.getBoundingClientRect();
-          return { left: rect.left, right: rect.right };
-        }),
+        items: [...document.querySelectorAll('.mobile-bottom-nav .bottom-nav-item')].map(
+          (element) => {
+            const rect = element.getBoundingClientRect();
+            return { left: rect.left, right: rect.right };
+          }
+        ),
       }));
-      expect(metrics.document, 'desbordamiento de página a ' + width + 'px').toBeLessThanOrEqual(width);
+      expect(metrics.document, 'desbordamiento de página a ' + width + 'px').toBeLessThanOrEqual(
+        width
+      );
       expect(metrics.nav).toBeLessThanOrEqual(width);
       expect(metrics.items.every((rect) => rect.left >= 0 && rect.right <= width)).toBe(true);
     }

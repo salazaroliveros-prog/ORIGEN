@@ -1,4 +1,5 @@
 # ⚡ QUICK START - UI/UX REFINEMENT CHECKLIST
+
 ## Implementación Rápida en 3 Fases
 
 ---
@@ -18,6 +19,7 @@
 ## 🎨 FASE 1: DASHBOARD (3-4 horas)
 
 ### Paso 1.1: Integración
+
 ```bash
 # El archivo ya existe: components/DashboardEnhanced.tsx
 # En MainApp.tsx o donde uses DashboardOverview:
@@ -30,6 +32,7 @@ import { DashboardEnhanced as DashboardOverview } from '@/components/DashboardEn
 ```
 
 ### Paso 1.2: Testing
+
 ```bash
 # En DevTools > Lighthouse
 npm run build
@@ -46,6 +49,7 @@ npm start
 ```
 
 ### Paso 1.3: Validación Visual
+
 ```
 Revisar en cada dispositivo:
 ☐ iPhone SE (375px)
@@ -65,6 +69,7 @@ Buscar:
 ## 🧭 FASE 2: NAVEGACIÓN (2-3 horas)
 
 ### Paso 2.1: Project Selector
+
 ```bash
 # En components/ui/Sidebar.tsx, buscar:
 <div className="border-b border-white/10 px-4 py-3">
@@ -84,6 +89,7 @@ import { ProjectSelectorEnhanced } from '@/components/ProjectSelectorEnhanced';
 ```
 
 ### Paso 2.2: Tabs Agrupadas
+
 ```bash
 # En components/ui/Sidebar.tsx, buscar:
 <nav className="min-h-0 flex-1 space-y-0.5">
@@ -103,6 +109,7 @@ import { TabsGrouped } from '@/components/TabsGrouped';
 ```
 
 ### Paso 2.3: Testing
+
 ```
 Verificar en Sidebar:
 ☐ Project selector con preview
@@ -121,19 +128,21 @@ En Bottom Nav (Mobile):
 ## 🎯 FASE 3: REFINAMIENTOS (2-3 horas)
 
 ### Paso 3.1: Colores (opcional - puedes saltarlo)
+
 ```css
 /* app/globals.css */
 /* Agregar o actualizar: */
 :root {
-  --color-primary: #0ea5e9;      /* Sky - Cambio de marca */
-  --color-accent: #f59e0b;       /* Amber - Alertas */
-  --color-success: #10b981;      /* Verde - Éxito */
-  --color-warning: #f59e0b;      /* Naranja - Warnings */
-  --color-error: #ef4444;        /* Rojo - Errores */
+  --color-primary: #0ea5e9; /* Sky - Cambio de marca */
+  --color-accent: #f59e0b; /* Amber - Alertas */
+  --color-success: #10b981; /* Verde - Éxito */
+  --color-warning: #f59e0b; /* Naranja - Warnings */
+  --color-error: #ef4444; /* Rojo - Errores */
 }
 ```
 
 ### Paso 3.2: Testing Accesibilidad
+
 ```bash
 # En DevTools > Lighthouse
 npm run build:analyze
@@ -152,6 +161,7 @@ npm run build:analyze
 ```
 
 ### Paso 3.3: Performance
+
 ```bash
 # Bundle size
 npm run build:analyze
@@ -213,6 +223,7 @@ SCENARIO 4: Responsive
 ## 📝 DEPLOYMENT CHECKLIST
 
 ### Pre-Deployment (30 min)
+
 ```
 ☐ Todos tests pasan
 ☐ Lighthouse ≥ 90 Performance, ≥ 95 Accessibility
@@ -223,6 +234,7 @@ SCENARIO 4: Responsive
 ```
 
 ### Deployment (Vercel/Production)
+
 ```bash
 # 1. Merge a main branch
 git add .
@@ -242,6 +254,7 @@ git push origin feature/ui-professional-refinement
 ```
 
 ### Post-Deployment (1 hour)
+
 ```
 ☐ Verificar en producción que todo funciona
 ☐ Revisar Sentry para errores
@@ -255,6 +268,7 @@ git push origin feature/ui-professional-refinement
 ## 🆘 TROUBLESHOOTING RÁPIDO
 
 ### Problema: Dashboard no renderiza
+
 ```
 Solución:
 1. Revisar imports de DashboardEnhanced
@@ -263,6 +277,7 @@ Solución:
 ```
 
 ### Problema: Project Selector no abre
+
 ```
 Solución:
 1. Verificar onClick handler
@@ -271,6 +286,7 @@ Solución:
 ```
 
 ### Problema: Tabs no agrupadas
+
 ```
 Solución:
 1. Verificar que TabsGrouped recibe 'group' prop
@@ -279,6 +295,7 @@ Solución:
 ```
 
 ### Problema: Mobile layout roto
+
 ```
 Solución:
 1. DevTools > Toggle device toolbar
@@ -288,6 +305,7 @@ Solución:
 ```
 
 ### Problema: Colors no cambian
+
 ```
 Solución:
 1. Verificar que CSS está en app/globals.css
@@ -345,7 +363,7 @@ Una vez termines:
 ✅ Navegación clara  
 ✅ Mobile responsive  
 ✅ Accesible WCAG AA  
-✅ Profesional & moderno  
+✅ Profesional & moderno
 
 **Tu ERP pasó de 53% → 87% profesionalismo en UI/UX**
 
@@ -359,13 +377,13 @@ Una vez termines:
 
 ## 📊 ESTIMADOS
 
-| Fase | Duración | Complejidad |
-|------|----------|-------------|
-| Dashboard | 3-4h | Media |
-| Navegación | 2-3h | Media |
-| Refinamientos | 2-3h | Baja |
-| Testing | 2h | Baja |
-| **TOTAL** | **9-12h** | **Media** |
+| Fase          | Duración  | Complejidad |
+| ------------- | --------- | ----------- |
+| Dashboard     | 3-4h      | Media       |
+| Navegación    | 2-3h      | Media       |
+| Refinamientos | 2-3h      | Baja        |
+| Testing       | 2h        | Baja        |
+| **TOTAL**     | **9-12h** | **Media**   |
 
 **Timeline recomendado:** 2-3 días de desarrollo intenso o 1 semana relajado.
 

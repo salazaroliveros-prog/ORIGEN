@@ -111,8 +111,8 @@ export function PhysicalVsFinancialChart({
             </span>
           </div>
           <p className="max-w-2xl text-xs leading-relaxed text-slate-400">
-            Comparativa entre avance físico en sitio (%) y presupuesto comprometido
-            (gastos aprobados + pendientes; excluye rechazados) para detectar descalces de costo.
+            Comparativa entre avance físico en sitio (%) y presupuesto comprometido (gastos
+            aprobados + pendientes; excluye rechazados) para detectar descalces de costo.
           </p>
         </div>
 
@@ -162,7 +162,9 @@ export function PhysicalVsFinancialChart({
               Promedio Presupuesto Comprometido
             </span>
             <span className="text-xl font-extrabold text-amber-400">{avgComprometido}%</span>
-            <span className="mt-0.5 block text-[10px] text-slate-400">Aprobados + pendientes; excluye rechazados</span>
+            <span className="mt-0.5 block text-[10px] text-slate-400">
+              Aprobados + pendientes; excluye rechazados
+            </span>
           </div>
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-amber-400">
             <DollarSign className="h-5 w-5" aria-hidden="true" />
@@ -204,9 +206,11 @@ export function PhysicalVsFinancialChart({
             data={chartData}
             margin={{ top: 20, right: 25, left: 0, bottom: 25 }}
             onClick={(state) => {
-              const activePayload = (state as unknown as {
-                activePayload?: Array<{ payload: { id: string } }>;
-              })?.activePayload;
+              const activePayload = (
+                state as unknown as {
+                  activePayload?: Array<{ payload: { id: string } }>;
+                }
+              )?.activePayload;
               if (activePayload?.length && onSelectProject) {
                 const projId = activePayload[0].payload.id;
                 onSelectProject(projId);

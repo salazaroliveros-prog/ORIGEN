@@ -169,8 +169,8 @@ El sistema espera las siguientes colecciones en Firestore (ya definidas en `fire
 | companySettings            | Configuración de empresa      | id, companyId, ownerId, legalName, commercialName, exchangeRate  |
 | fcm_tokens                 | Tokens de notificaciones push | id, ownerId, token, active                                       |
 | project_alerts             | Alertas de proyecto           | id, ownerId, projectId, title, message, timestamp                |
-| suppliers                  | Proveedores por empresa       | id, companyId, name, nit, active, createdBy                       |
-| warehouses                 | Bodegas generales o de obra   | id, companyId, projectId?, type, name, active, createdBy          |
+| suppliers                  | Proveedores por empresa       | id, companyId, name, nit, active, createdBy                      |
+| warehouses                 | Bodegas generales o de obra   | id, companyId, projectId?, type, name, active, createdBy         |
 | inventoryItems             | Catálogo de materiales        | id, companyId, name, unit, reorderLevel, active, createdBy       |
 | stockMovements             | Historial inmutable de stock  | id, companyId, warehouseId, itemId, kind, quantity, referenceId  |
 | purchaseOrders             | Órdenes de compra             | id, companyId, projectId, supplierId, status, lines, totalGTQ    |
@@ -178,15 +178,15 @@ El sistema espera las siguientes colecciones en Firestore (ya definidas en `fire
 
 ## Roles y permisos
 
-| Rol             | Puede hacer                                                  |
-| --------------- | ------------------------------------------------------------ |
-| owner           | Control total de la empresa, no se puede eliminar            |
-| admin           | Administración completa, gestión de usuarios y configuración |
-| project_manager | Gestión de proyectos, operaciones de campo, presupuestos     |
-| finance         | Presupuestos, gastos, cotizaciones, datos de personal        |
-| field_worker    | Operación de campo, asistencia, visitas, uso de maquinaria   |
+| Rol               | Puede hacer                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| owner             | Control total de la empresa, no se puede eliminar            |
+| admin             | Administración completa, gestión de usuarios y configuración |
+| project_manager   | Gestión de proyectos, operaciones de campo, presupuestos     |
+| finance           | Presupuestos, gastos, cotizaciones, datos de personal        |
+| field_worker      | Operación de campo, asistencia, visitas, uso de maquinaria   |
 | warehouse_manager | Gestión de bodegas, artículos y control de inventario        |
-| viewer          | Solo lectura de datos de la empresa                          |
+| viewer            | Solo lectura de datos de la empresa                          |
 
 ## Pruebas con datos reales (CRUD)
 
@@ -241,18 +241,18 @@ Una vez configurado Firebase con credenciales reales, los módulos que cuentan c
 
 ## Estado del sistema
 
-| Componente             | Estado                               |
-| ---------------------- | ------------------------------------ |
-| Firebase SDK           | Instalado (v12.19.0)                 |
+| Componente             | Estado                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Firebase SDK           | Instalado (v12.19.0)                                                                                         |
 | Reglas Firestore       | Reglas por colección; escrituras de stock y transiciones de compras bloqueadas hasta completar flujo atómico |
-| Índices Firestore      | 21 índices configurados              |
-| Validación Zod         | Esquemas para entidades principales; ampliar según módulos          |
-| Manejo de errores      | Con toast notifications              |
-| Cálculo automático     | Progreso y gasto de proyectos        |
-| Service Worker         | Soporte offline parcial; inventario/compras aún sin cola transaccional |
-| FCM Push Notifications | Configurado                          |
-| TypeScript             | Compilación sin errores              |
-| Script de verificación | scripts/setup-firebase-check.js      |
+| Índices Firestore      | 21 índices configurados                                                                                      |
+| Validación Zod         | Esquemas para entidades principales; ampliar según módulos                                                   |
+| Manejo de errores      | Con toast notifications                                                                                      |
+| Cálculo automático     | Progreso y gasto de proyectos                                                                                |
+| Service Worker         | Soporte offline parcial; inventario/compras aún sin cola transaccional                                       |
+| FCM Push Notifications | Configurado                                                                                                  |
+| TypeScript             | Compilación sin errores                                                                                      |
+| Script de verificación | scripts/setup-firebase-check.js                                                                              |
 
 ## Estado actual de inventario y abastecimiento
 

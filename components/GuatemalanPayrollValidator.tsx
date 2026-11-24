@@ -311,7 +311,7 @@ export function GuatemalanPayrollValidator({
     <div className="space-y-6">
       {/* Top Audit Scorecard */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="shadow-xs flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div
             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-extrabold ${
               complianceScore >= 90
@@ -340,7 +340,7 @@ export function GuatemalanPayrollValidator({
           </div>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Infracciones Críticas
@@ -351,7 +351,7 @@ export function GuatemalanPayrollValidator({
           <p className="mt-1 text-xs text-slate-500">Salario mínimo o prestaciones deficientes</p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Observaciones
@@ -362,7 +362,7 @@ export function GuatemalanPayrollValidator({
           <p className="mt-1 text-xs text-slate-500">Falta de DPI o carnet IGSS incompleto</p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Marco Legal Vigente
@@ -377,7 +377,7 @@ export function GuatemalanPayrollValidator({
       </div>
 
       {/* Control Bar */}
-      <div className="shadow-xs flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row">
+      <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row">
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search
@@ -397,7 +397,7 @@ export function GuatemalanPayrollValidator({
             <button
               onClick={() => setFilterSeverity('all')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
-                filterSeverity === 'all' ? 'shadow-xs bg-white text-slate-900' : 'text-slate-600'
+                filterSeverity === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
               Todos ({employees.length})
@@ -406,7 +406,7 @@ export function GuatemalanPayrollValidator({
               onClick={() => setFilterSeverity('errors')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
                 filterSeverity === 'errors'
-                  ? 'shadow-xs bg-rose-50 font-bold text-rose-700'
+                  ? 'bg-rose-50 font-bold text-rose-700 shadow-xs'
                   : 'text-slate-600'
               }`}
             >
@@ -416,7 +416,7 @@ export function GuatemalanPayrollValidator({
               onClick={() => setFilterSeverity('warnings')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
                 filterSeverity === 'warnings'
-                  ? 'shadow-xs bg-amber-50 font-bold text-amber-700'
+                  ? 'bg-amber-50 font-bold text-amber-700 shadow-xs'
                   : 'text-slate-600'
               }`}
             >
@@ -426,7 +426,7 @@ export function GuatemalanPayrollValidator({
               onClick={() => setFilterSeverity('valid')}
               className={`rounded-lg px-2.5 py-1.5 transition ${
                 filterSeverity === 'valid'
-                  ? 'shadow-xs bg-emerald-50 font-bold text-emerald-700'
+                  ? 'bg-emerald-50 font-bold text-emerald-700 shadow-xs'
                   : 'text-slate-600'
               }`}
             >
@@ -437,7 +437,7 @@ export function GuatemalanPayrollValidator({
 
         <button
           onClick={handleExportAuditCSV}
-          className="shadow-xs inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
+          className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
         >
           <Download className="h-4 w-4" aria-hidden="true" />
           <span>Exportar Informe de Auditoría</span>
@@ -456,7 +456,7 @@ export function GuatemalanPayrollValidator({
           return (
             <div
               key={emp.id}
-              className={`shadow-xs rounded-2xl border bg-white p-4 transition sm:p-5 ${
+              className={`rounded-2xl border bg-white p-4 shadow-xs transition sm:p-5 ${
                 hasError
                   ? 'border-rose-300 bg-rose-50/20'
                   : hasWarning

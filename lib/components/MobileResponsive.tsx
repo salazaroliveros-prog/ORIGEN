@@ -275,9 +275,7 @@ export function ResponsiveTable<TItem extends { id?: string | number }>({
                 ? renderRow(item)
                 : columns.map((col) => (
                     <td key={col.key} className={`px-4 py-3 text-${col.align || 'left'}`}>
-                      {String(
-                        (item as Record<string, unknown>)[col.key] ?? ''
-                      )}
+                      {String((item as Record<string, unknown>)[col.key] ?? '')}
                     </td>
                   ))}
             </tr>

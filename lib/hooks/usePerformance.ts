@@ -31,10 +31,7 @@ export function useRenderTime(componentName: string): void {
 /**
  * Hook to track when a component re-renders
  */
-export function useWhyDidYouUpdate(
-  name: string,
-  props: Record<string, unknown>
-): void {
+export function useWhyDidYouUpdate(name: string, props: Record<string, unknown>): void {
   const previousProps = useRef<Record<string, unknown> | undefined>(undefined);
 
   useEffect(() => {

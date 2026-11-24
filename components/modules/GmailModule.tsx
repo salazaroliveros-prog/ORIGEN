@@ -17,18 +17,35 @@ interface Email {
 /**
  * GMAIL MODULE - Módulo de Correos & Avisos Mejorado
  */
-export function GmailModuleExpanded({
-  emails = [],
-}: {
-  emails?: Email[];
-}) {
+export function GmailModuleExpanded({ emails = [] }: { emails?: Email[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('inbox');
 
   const dummyEmails: Email[] = [
-    { id: '1', from: 'cliente@ejemplo.com', subject: 'Consulta sobre proyecto', date: new Date(), read: false, starred: true },
-    { id: '2', from: 'proveedor@ejemplo.com', subject: 'Cotización disponible', date: new Date(Date.now() - 3600000), read: true, starred: false },
-    { id: '3', from: 'admin@sistema.com', subject: 'Reporte mensual', date: new Date(Date.now() - 86400000), read: true, starred: false },
+    {
+      id: '1',
+      from: 'cliente@ejemplo.com',
+      subject: 'Consulta sobre proyecto',
+      date: new Date(),
+      read: false,
+      starred: true,
+    },
+    {
+      id: '2',
+      from: 'proveedor@ejemplo.com',
+      subject: 'Cotización disponible',
+      date: new Date(Date.now() - 3600000),
+      read: true,
+      starred: false,
+    },
+    {
+      id: '3',
+      from: 'admin@sistema.com',
+      subject: 'Reporte mensual',
+      date: new Date(Date.now() - 86400000),
+      read: true,
+      starred: false,
+    },
   ];
 
   const allEmails = emails.length > 0 ? emails : dummyEmails;
@@ -38,7 +55,9 @@ export function GmailModuleExpanded({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white sm:text-3xl">Correo & Avisos</h1>
-          <p className="mt-1 text-sm text-slate-400">Comunicaciones y notificaciones del proyecto</p>
+          <p className="mt-1 text-sm text-slate-400">
+            Comunicaciones y notificaciones del proyecto
+          </p>
         </div>
         <Button variant="primary" className="flex items-center gap-2">
           <Send className="h-5 w-5" />
@@ -50,12 +69,17 @@ export function GmailModuleExpanded({
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
-          <input type="text" placeholder="Buscar correos..." value={searchTerm}
+          <input
+            type="text"
+            placeholder="Buscar correos..."
+            value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full rounded-lg border border-white/10 bg-white/[0.05] py-2 pl-10 pr-4 text-sm text-white focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
         </div>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
           className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white"
         >
           <option value="inbox">Recibidos</option>
@@ -70,7 +94,7 @@ export function GmailModuleExpanded({
         {allEmails.map((email) => (
           <div
             key={email.id}
-            className={`flex items-center gap-4 border-b border-white/5 p-4 transition-colors hover:bg-white/[0.05] cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-4 border-b border-white/5 p-4 transition-colors hover:bg-white/[0.05] ${
               !email.read ? 'bg-white/[0.03]' : ''
             }`}
           >
@@ -85,22 +109,20 @@ export function GmailModuleExpanded({
                 {email.from.charAt(0).toUpperCase()}
               </div>
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className={`text-sm ${email.read ? 'text-slate-400' : 'font-semibold text-white'}`}>
+                <p
+                  className={`text-sm ${email.read ? 'text-slate-400' : 'font-semibold text-white'}`}
+                >
                   {email.from}
                 </p>
                 <span className="text-xs text-slate-500">
                   {email.date.toLocaleDateString('es-ES')}
                 </span>
               </div>
-              <p className="mt-1 truncate text-sm text-slate-400">
-                {email.subject}
-              </p>
+              <p className="mt-1 truncate text-sm text-slate-400">{email.subject}</p>
             </div>
-            {email.starred && (
-              <div className="text-amber-400">★</div>
-            )}
+            {email.starred && <div className="text-amber-400">★</div>}
           </div>
         ))}
       </Card>

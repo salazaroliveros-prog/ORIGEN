@@ -161,9 +161,7 @@ describe('useAuthSession', () => {
     expect(access).toBeDefined();
     expect(access!.accessToken).toBe('token-123');
     expect(authorizeGmailSend).toHaveBeenCalled();
-    expect(mockToast.success).toHaveBeenCalledWith(
-      'Permiso temporal de envío de Gmail concedido.'
-    );
+    expect(mockToast.success).toHaveBeenCalledWith('Permiso temporal de envío de Gmail concedido.');
   });
 
   it('should handle gmail authorization error', async () => {

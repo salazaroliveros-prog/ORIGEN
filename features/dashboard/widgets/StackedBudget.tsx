@@ -22,7 +22,13 @@ interface StackedBudgetProps {
   onToggle: () => void;
 }
 
-const CustomStackedTooltip = memo(function CustomStackedTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: StackedChartDataPoint }> }) {
+const CustomStackedTooltip = memo(function CustomStackedTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: StackedChartDataPoint }>;
+}) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -58,11 +64,19 @@ const CustomStackedTooltip = memo(function CustomStackedTooltip({ active, payloa
   return null;
 });
 
-const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visible, onToggle }: StackedBudgetProps) {
+const StackedBudgetComponent = memo(function StackedBudgetComponent({
+  data,
+  visible,
+  onToggle,
+}: StackedBudgetProps) {
   if (!visible) return null;
 
   return (
-    <Card variant="elevated" padding="sm" className="border-slate-800 bg-slate-900/90 shadow-xl group relative">
+    <Card
+      variant="elevated"
+      padding="sm"
+      className="group relative border-slate-800 bg-slate-900/90 shadow-xl"
+    >
       <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
         <button
           onClick={onToggle}
@@ -73,7 +87,7 @@ const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visi
           <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
-      <div className="p-5 space-y-4">
+      <div className="space-y-4 p-5">
         <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
           <div>
             <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
@@ -81,19 +95,23 @@ const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visi
               Comparativa de Presupuesto Asignado vs. Gasto Acumulado (Barras Apiladas)
             </h3>
             <p className="mt-0.5 text-xs text-slate-400">
-              Gráfico apilado que visibiliza el saldo disponible frente a los gastos registrados (aprobados y pendientes) y sobrecostos excedidos.
+              Gráfico apilado que visibiliza el saldo disponible frente a los gastos registrados
+              (aprobados y pendientes) y sobrecostos excedidos.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs font-bold">
             <span className="flex items-center gap-1.5 text-blue-400">
-              <span className="inline-block h-3 w-3 rounded bg-blue-600" aria-hidden="true" /> Gastos Registrados
+              <span className="inline-block h-3 w-3 rounded bg-blue-600" aria-hidden="true" />{' '}
+              Gastos Registrados
             </span>
             <span className="flex items-center gap-1.5 text-slate-400">
-              <span className="inline-block h-3 w-3 rounded bg-slate-700" aria-hidden="true" /> Disponible
+              <span className="inline-block h-3 w-3 rounded bg-slate-700" aria-hidden="true" />{' '}
+              Disponible
             </span>
             <span className="flex items-center gap-1.5 text-rose-400">
-              <span className="inline-block h-3 w-3 rounded bg-rose-600" aria-hidden="true" /> Exceso
+              <span className="inline-block h-3 w-3 rounded bg-rose-600" aria-hidden="true" />{' '}
+              Exceso
             </span>
             <button
               onClick={onToggle}
@@ -118,11 +136,27 @@ const StackedBudgetComponent = memo(function StackedBudgetComponent({ data, visi
                 angle={-15}
                 textAnchor="end"
               />
-              <YAxis stroke="#94a3b8" fontSize={10} tickFormatter={(val) => `Q${(val / 1000).toFixed(0)}k`} />
+              <YAxis
+                stroke="#94a3b8"
+                fontSize={10}
+                tickFormatter={(val) => `Q${(val / 1000).toFixed(0)}k`}
+              />
               <Tooltip content={<CustomStackedTooltip />} />
               <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-              <Bar dataKey="gastoReal" name="Gasto Ejercido" stackId="a" fill="#2563eb" barSize={32} />
-              <Bar dataKey="saldoDisponible" name="Saldo Disponible" stackId="a" fill="#334155" barSize={32} />
+              <Bar
+                dataKey="gastoReal"
+                name="Gasto Ejercido"
+                stackId="a"
+                fill="#2563eb"
+                barSize={32}
+              />
+              <Bar
+                dataKey="saldoDisponible"
+                name="Saldo Disponible"
+                stackId="a"
+                fill="#334155"
+                barSize={32}
+              />
               <Bar
                 dataKey="sobrecostoExcedido"
                 name="Sobrecosto Excedido"

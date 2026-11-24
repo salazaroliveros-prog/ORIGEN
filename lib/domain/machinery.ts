@@ -159,7 +159,9 @@ export function resolveMachineryUse(
     throw new Error('No se puede registrar uso mientras el equipo está en mantenimiento.');
   }
   if (machinery.status === 'En Obra' && machinery.currentProjectId !== submitted.projectId) {
-    throw new Error('La maquinaria sigue asignada a otro proyecto. Finaliza su uso antes de cambiarla de obra.');
+    throw new Error(
+      'La maquinaria sigue asignada a otro proyecto. Finaliza su uso antes de cambiarla de obra.'
+    );
   }
   if (submitted.machineryId !== machinery.id) {
     throw new Error('La bitácora no corresponde al equipo seleccionado.');
@@ -248,7 +250,8 @@ export function evaluateMachineryMaintenance(input: {
       hoursSinceService: 0,
       hoursUntilService: 0,
       urgency: 'invalid',
-      message: 'Lectura de horómetro inválida o inconsistente. No registrar uso hasta revisar el equipo y corregir la lectura.',
+      message:
+        'Lectura de horómetro inválida o inconsistente. No registrar uso hasta revisar el equipo y corregir la lectura.',
     };
   }
 

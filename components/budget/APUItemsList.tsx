@@ -88,9 +88,7 @@ export const APUItemsList = React.memo<APUItemsListProps>(
           <div className="flex gap-2">
             <select
               value={sortBy}
-              onChange={(e) =>
-                setSortBy(e.target.value as 'code' | 'description' | 'total')
-              }
+              onChange={(e) => setSortBy(e.target.value as 'code' | 'description' | 'total')}
               className="rounded border border-white/10 bg-slate-950 px-2 py-1 text-xs text-white"
               aria-label="Ordenar por"
             >

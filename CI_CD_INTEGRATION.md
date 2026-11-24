@@ -292,6 +292,7 @@ http-server test-results/visual-html
 ### Métricas
 
 Track en:
+
 - Total de tests: `test-results/visual.json`
 - Pass rate: Dashboard CI
 - Duration: `test-results/*/config.json`

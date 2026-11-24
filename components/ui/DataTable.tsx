@@ -79,7 +79,7 @@ export function DataTable<T>({
       <table
         role="grid"
         aria-label={ariaLabel}
-        className="w-full text-left text-xs border-collapse"
+        className="w-full border-collapse text-left text-xs"
       >
         <caption className="sr-only">{ariaLabel}</caption>
         <thead>
@@ -88,7 +88,7 @@ export function DataTable<T>({
               <th
                 key={String(col.key)}
                 scope="col"
-                className={`py-3 px-4 font-semibold text-slate-300 uppercase tracking-wider text-[10px] ${col.className ?? ''}`}
+                className={`px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-300 ${col.className ?? ''}`}
               >
                 {col.header}
               </th>
@@ -97,11 +97,7 @@ export function DataTable<T>({
         </thead>
         <tbody className="divide-y divide-slate-700/30">
           {data.map((row) => (
-            <tr
-              key={String(getRowId(row))}
-              role="row"
-              className="hover:bg-slate-800/30 transition"
-            >
+            <tr key={String(getRowId(row))} role="row" className="transition hover:bg-slate-800/30">
               {columns.map((col) => {
                 const rowObj = row as unknown as Record<string, unknown>;
                 const key = String(col.key);
@@ -110,7 +106,7 @@ export function DataTable<T>({
                   <td
                     key={String(col.key)}
                     role="gridcell"
-                    className={`py-3 px-4 text-slate-200 ${col.className ?? ''}`}
+                    className={`px-4 py-3 text-slate-200 ${col.className ?? ''}`}
                   >
                     {col.cell ? col.cell(value, row) : String(value ?? '')}
                   </td>

@@ -4,11 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Project, CompanySettings } from '@/lib/types';
 import { formatGTQ, formatUSD } from '@/lib/data';
-import {
-  Activity,
-  CheckCircle2,
-  PieChart as PieChartIcon,
-} from 'lucide-react';
+import { Activity, CheckCircle2, PieChart as PieChartIcon } from 'lucide-react';
 
 interface ActiveProjectsProgressRingChartProps {
   projects: Project[];

@@ -11,13 +11,7 @@ describe('quotationUtils', () => {
   });
 
   it('calculates subtotal, discount, tax and total correctly', () => {
-    const result = calculateTotals(
-      [
-        { total: 1000 },
-        { total: 2000 },
-      ],
-      10
-    );
+    const result = calculateTotals([{ total: 1000 }, { total: 2000 }], 10);
 
     expect(result.subtotal).toBe(3000);
     expect(result.discountAmount).toBe(300);

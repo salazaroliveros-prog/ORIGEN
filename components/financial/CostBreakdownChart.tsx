@@ -1,15 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface CostBreakdownItem {
   name: string;
@@ -36,33 +28,20 @@ export function CostBreakdownChart({
   showYAxis = true,
 }: CostBreakdownChartProps) {
   if (!data || data.length === 0) {
-    return <p className="text-slate-500 text-sm py-8">No hay datos para la gráfica</p>;
+    return <p className="py-8 text-sm text-slate-500">No hay datos para la gráfica</p>;
   }
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart
-        data={data}
-        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-        dataKey="cost"
-      >
-        <XAxis
-          dataKey="name"
-          stroke="#8884d8"
-          strokeDasharray="5 5"
-          fill="#8884d8"
-          fontSize={12}
-        />
+      <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }} dataKey="cost">
+        <XAxis dataKey="name" stroke="#8884d8" strokeDasharray="5 5" fill="#8884d8" fontSize={12} />
         <YAxis
           fill="#8884d8"
           fontSize={12}
           tickFormatter={(value: number) => `Q${value.toLocaleString()}`}
         />
         <Tooltip />
-        <Legend
-          verticalAlign="bottom"
-          height={36}
-        />
+        <Legend verticalAlign="bottom" height={36} />
         <Bar
           dataKey="cost"
           name="Costo GTQ"

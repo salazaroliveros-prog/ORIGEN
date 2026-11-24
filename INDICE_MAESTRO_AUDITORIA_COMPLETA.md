@@ -12,15 +12,15 @@
 
 ### **¿Qué necesitas? Elige tu documento:**
 
-| Documento | Contenido | Tiempo | Usar si... |
-|-----------|-----------|--------|-----------|
-| **Quick Start** | Resumen 1 página | 5 min | Necesitas actualización rápida |
-| **Hallazgos** | Issues encontrados | 10 min | Quieres saber qué se encontró |
-| **Correcciones** | Issues resueltos | 10 min | Necesitas cambios aplicados |
-| **Validación** | Funciones verificadas | 15 min | Verificar cada característica |
-| **Checklist Deploy** | Pre-deploy checklist | 10 min | Vas a hacer deploy hoy |
-| **Interactivo** | Navegación simulada | 20 min | Quieres ver todo en acción |
-| **Certificación** | Firma del auditor | 5 min | Necesitas aprobación oficial |
+| Documento            | Contenido             | Tiempo | Usar si...                     |
+| -------------------- | --------------------- | ------ | ------------------------------ |
+| **Quick Start**      | Resumen 1 página      | 5 min  | Necesitas actualización rápida |
+| **Hallazgos**        | Issues encontrados    | 10 min | Quieres saber qué se encontró  |
+| **Correcciones**     | Issues resueltos      | 10 min | Necesitas cambios aplicados    |
+| **Validación**       | Funciones verificadas | 15 min | Verificar cada característica  |
+| **Checklist Deploy** | Pre-deploy checklist  | 10 min | Vas a hacer deploy hoy         |
+| **Interactivo**      | Navegación simulada   | 20 min | Quieres ver todo en acción     |
+| **Certificación**    | Firma del auditor     | 5 min  | Necesitas aprobación oficial   |
 
 ---
 
@@ -301,6 +301,7 @@ LECTURA MÍNIMA: 30 minutos (1, 7, 8)
 ## 🎯 GUÍA POR ROL
 
 ### **Si eres DESARROLLADOR:**
+
 ```
 LEER EN ESTE ORDEN:
 1. Resumen Ejecutivo (2 min) - Contexto
@@ -314,6 +315,7 @@ ACCIÓN: Revisar cambios + integrar en tu rama
 ```
 
 ### **Si eres QA/TESTER:**
+
 ```
 LEER EN ESTE ORDEN:
 1. Resumen Ejecutivo (2 min)
@@ -326,6 +328,7 @@ ACCIÓN: Ejecutar checklist + validar en ambiente
 ```
 
 ### **Si eres DEVOPS/INFRA:**
+
 ```
 LEER EN ESTE ORDEN:
 1. Resumen Ejecutivo (2 min)
@@ -338,6 +341,7 @@ ACCIÓN: Preparar infrastructure + configurar deploy
 ```
 
 ### **Si eres EJECUTIVO/STAKEHOLDER:**
+
 ```
 LEER EN ESTE ORDEN:
 1. Resumen Ejecutivo (2 min) - Rápido
@@ -349,6 +353,7 @@ ACCIÓN: Aprobar deploy
 ```
 
 ### **Si eres SECURITY/COMPLIANCE:**
+
 ```
 LEER EN ESTE ORDEN:
 1. Auditoría Exhaustiva § Seguridad (10 min)

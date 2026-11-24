@@ -1,25 +1,25 @@
 ╔═══════════════════════════════════════════════════════════════════════════╗
-║                                                                           ║
-║          🎯 MCPs, SKILLS & VALIDADORES INSTALADOS ✅                     ║
-║                   ORIGEN ERP GUATEMALA - SUITE COMPLETA                   ║
-║                                                                           ║
+║ ║
+║ 🎯 MCPs, SKILLS & VALIDADORES INSTALADOS ✅ ║
+║ ORIGEN ERP GUATEMALA - SUITE COMPLETA ║
+║ ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 
 ════════════════════════════════════════════════════════════════════════════
 
-🛠️  HERRAMIENTAS INSTALADAS Y ACTIVAS
+🛠️ HERRAMIENTAS INSTALADAS Y ACTIVAS
 
 1. GITHUB ACTIONS VALIDATOR
    ├─ Archivo: scripts/github-actions-validator.sh
    ├─ Función: Validación en tiempo real de CI/CD
    ├─ Requisitos: GitHub CLI (gh), autenticación
    ├─ Uso:
-   │  └─ bash scripts/github-actions-validator.sh origin-erp-team origen-erp
+   │ └─ bash scripts/github-actions-validator.sh origin-erp-team origen-erp
    ├─ Validaciones:
-   │  ├─ Estado del workflow
-   │  ├─ Estado de jobs
-   │  ├─ Duración de ejecución
-   │  └─ Resultados detallados
+   │ ├─ Estado del workflow
+   │ ├─ Estado de jobs
+   │ ├─ Duración de ejecución
+   │ └─ Resultados detallados
    └─ Status: ✅ INSTALADO
 
 2. VERCEL DEPLOYMENT MONITOR
@@ -27,12 +27,12 @@
    ├─ Función: Monitoreo de deployment en Vercel
    ├─ Requisitos: Vercel CLI (vercel), VERCEL_TOKEN
    ├─ Uso:
-   │  └─ bash scripts/vercel-deployment-monitor.sh origen-erp origen-erp.vercel.app
+   │ └─ bash scripts/vercel-deployment-monitor.sh origen-erp origen-erp.vercel.app
    ├─ Validaciones:
-   │  ├─ Estado del build
-   │  ├─ Deploy status
-   │  ├─ Health checks
-   │  └─ Response time
+   │ ├─ Estado del build
+   │ ├─ Deploy status
+   │ ├─ Health checks
+   │ └─ Response time
    └─ Status: ✅ INSTALADO
 
 3. PRODUCTION HEALTH CHECKS
@@ -40,17 +40,17 @@
    ├─ Función: Validación de salud del sistema
    ├─ Requisitos: curl, openssl, jq (opcional)
    ├─ Uso:
-   │  └─ bash scripts/production-health-checks.sh https://origen-erp.vercel.app
+   │ └─ bash scripts/production-health-checks.sh https://origen-erp.vercel.app
    ├─ Validaciones (9 checks):
-   │  ├─ HTTPS Connection
-   │  ├─ HTTP→HTTPS Redirect
-   │  ├─ Security Headers (7 total)
-   │  ├─ Health Endpoint
-   │  ├─ Response Time
-   │  ├─ Homepage Loading
-   │  ├─ Content-Type
-   │  ├─ SSL Certificate
-   │  └─ JSON Parsing
+   │ ├─ HTTPS Connection
+   │ ├─ HTTP→HTTPS Redirect
+   │ ├─ Security Headers (7 total)
+   │ ├─ Health Endpoint
+   │ ├─ Response Time
+   │ ├─ Homepage Loading
+   │ ├─ Content-Type
+   │ ├─ SSL Certificate
+   │ └─ JSON Parsing
    └─ Status: ✅ INSTALADO
 
 4. API ENDPOINT TESTER
@@ -58,16 +58,16 @@
    ├─ Función: Testing completo de endpoints
    ├─ Requisitos: curl, jq (opcional)
    ├─ Uso:
-   │  └─ bash scripts/api-endpoint-tester.sh https://origen-erp.vercel.app
+   │ └─ bash scripts/api-endpoint-tester.sh https://origen-erp.vercel.app
    ├─ Validaciones (15+ tests):
-   │  ├─ Health endpoints
-   │  ├─ Account endpoints (ARCO)
-   │  ├─ Alert endpoints
-   │  ├─ Static routes
-   │  ├─ Middleware tests
-   │  ├─ Headers validation
-   │  ├─ Content tests
-   │  └─ Performance tests
+   │ ├─ Health endpoints
+   │ ├─ Account endpoints (ARCO)
+   │ ├─ Alert endpoints
+   │ ├─ Static routes
+   │ ├─ Middleware tests
+   │ ├─ Headers validation
+   │ ├─ Content tests
+   │ └─ Performance tests
    └─ Status: ✅ INSTALADO
 
 5. PRODUCTION VALIDATION MASTER
@@ -75,12 +75,12 @@
    ├─ Función: Orquestador de todas las validaciones
    ├─ Requisitos: Todos los anteriores
    ├─ Uso:
-   │  └─ bash scripts/production-validation-master.sh https://origen-erp.vercel.app origin-erp-team/origen-erp
+   │ └─ bash scripts/production-validation-master.sh https://origen-erp.vercel.app origin-erp-team/origen-erp
    ├─ Fases (Secuencial):
-   │  ├─ Phase 1: GitHub Actions Validation
-   │  ├─ Phase 2: Vercel Deployment Validation
-   │  ├─ Phase 3: Production Health Checks
-   │  └─ Phase 4: API Endpoint Testing
+   │ ├─ Phase 1: GitHub Actions Validation
+   │ ├─ Phase 2: Vercel Deployment Validation
+   │ ├─ Phase 3: Production Health Checks
+   │ └─ Phase 4: API Endpoint Testing
    ├─ Salida: Reporte consolidado con métricas
    └─ Status: ✅ INSTALADO
 
@@ -136,35 +136,44 @@ API Functionality:
 
 Validación Individual:
 ─────────────────────────────────────────────
+
 # 1. Health Checks
+
 bash scripts/production-health-checks.sh https://origen-erp.vercel.app
 
 # 2. API Testing
+
 bash scripts/api-endpoint-tester.sh https://origen-erp.vercel.app
 
 # 3. Vercel Deployment
+
 export VERCEL_TOKEN=your_token
 bash scripts/vercel-deployment-monitor.sh origen-erp origen-erp.vercel.app
 
 # 4. GitHub Actions
+
 bash scripts/github-actions-validator.sh origin-erp-team origen-erp
 
 Validación Completa (Recomendada):
 ─────────────────────────────────────────────
 bash scripts/production-validation-master.sh \
-  https://origen-erp.vercel.app \
-  origin-erp-team/origen-erp
+https://origen-erp.vercel.app \
+origin-erp-team/origen-erp
 
 Validación Autom
 
 ática (Cron Job):
 ─────────────────────────────────────────────
+
 # Agregar a crontab (cada hora)
+
 0 * * * * bash /path/to/scripts/production-validation-master.sh >> /var/log/validation.log 2>&1
 
 Validación en CI/CD (GitHub Actions):
 ─────────────────────────────────────────────
+
 # Agregar a .github/workflows/production-validation.yml
+
 - name: Run Production Validation
   run: bash scripts/production-validation-master.sh ${{ env.PROD_URL }}
 
@@ -206,38 +215,38 @@ Vercel Deployment:
 🔧 CONFIGURACIÓN REQUERIDA
 
 Environment Variables (Vercel):
-├─ NEXT_PUBLIC_GA_ID               ✅ Configurado
-├─ NEXT_PUBLIC_SENTRY_DSN          ✅ Configurado
-├─ NEXT_PUBLIC_SITE_URL            ✅ Configurado
-├─ VERCEL_KV_REST_API_URL          ✅ Configurado
-├─ VERCEL_KV_REST_API_TOKEN        ✅ Configurado
-├─ SLACK_WEBHOOK_URL               ✅ Configurado
-└─ Firebase credentials            ✅ Configurado
+├─ NEXT_PUBLIC_GA_ID ✅ Configurado
+├─ NEXT_PUBLIC_SENTRY_DSN ✅ Configurado
+├─ NEXT_PUBLIC_SITE_URL ✅ Configurado
+├─ VERCEL_KV_REST_API_URL ✅ Configurado
+├─ VERCEL_KV_REST_API_TOKEN ✅ Configurado
+├─ SLACK_WEBHOOK_URL ✅ Configurado
+└─ Firebase credentials ✅ Configurado
 
 Local Setup (opcional para validadores):
-├─ GITHUB_TOKEN                    ✅ Configurado
-├─ VERCEL_TOKEN                    ✅ Configurado
-└─ PATH incluye scripts/           ✅ Configurado
+├─ GITHUB_TOKEN ✅ Configurado
+├─ VERCEL_TOKEN ✅ Configurado
+└─ PATH incluye scripts/ ✅ Configurado
 
 ════════════════════════════════════════════════════════════════════════════
 
 📈 MÉTRICAS Y ALERTAS
 
 Métricas Rastreadas:
-├─ Response Time              < 2s
-├─ Uptime                     > 99.9%
-├─ Error Rate                 < 1%
-├─ Build Time                 < 25m
-├─ Test Success Rate          100%
-└─ Security Score             95/100
+├─ Response Time < 2s
+├─ Uptime > 99.9%
+├─ Error Rate < 1%
+├─ Build Time < 25m
+├─ Test Success Rate 100%
+└─ Security Score 95/100
 
 Alertas Configuradas:
-├─ Slack #deployments         ✅ Activo
-├─ Slack #alerts              ✅ Activo
-├─ Email notifications        ✅ Activo
-├─ Sentry error tracking      ✅ Activo
-├─ Uptime Robot monitoring    ✅ Activo
-└─ GA4 analytics              ✅ Activo
+├─ Slack #deployments ✅ Activo
+├─ Slack #alerts ✅ Activo
+├─ Email notifications ✅ Activo
+├─ Sentry error tracking ✅ Activo
+├─ Uptime Robot monitoring ✅ Activo
+└─ GA4 analytics ✅ Activo
 
 ════════════════════════════════════════════════════════════════════════════
 

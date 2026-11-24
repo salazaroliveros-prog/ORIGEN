@@ -68,11 +68,7 @@ const projectScenarios = [
 
 let testEnvironment: RulesTestEnvironment;
 
-function makeProject(
-  id: string,
-  companyId = COMPANY_A,
-  overrides: Record<string, unknown> = {}
-) {
+function makeProject(id: string, companyId = COMPANY_A, overrides: Record<string, unknown> = {}) {
   return {
     id,
     code: `PR-${id}`,
@@ -126,10 +122,7 @@ async function writePurchaseOrderWithLineReferences<
     requestedBy: string;
     lines: Array<{ itemId: string }>;
   },
->(
-  database: Firestore,
-  order: T
-): Promise<void> {
+>(database: Firestore, order: T): Promise<void> {
   await runTransaction(database, async (transaction: Transaction) => {
     transaction.set(doc(database, 'purchaseOrders', order.id), order);
     order.lines.forEach((line, lineIndex) => {
@@ -162,10 +155,7 @@ function expenseRecord(id: string, projectId: string, authorId: string, companyI
 beforeAll(async () => {
   const emulatorAddress = process.env.FIRESTORE_EMULATOR_HOST;
   const configuredProject = process.env.GCLOUD_PROJECT;
-  if (
-    configuredProject !== PROJECT_ID ||
-    emulatorAddress !== '127.0.0.1:8080'
-  ) {
+  if (configuredProject !== PROJECT_ID || emulatorAddress !== '127.0.0.1:8080') {
     throw new Error(
       'Estas pruebas solo se ejecutan en Firestore Emulator con projectId demo-origen-erp-test.'
     );
@@ -194,294 +184,339 @@ beforeEach(async () => {
   await seedCompany(COMPANY_B, { [USERS.otherCompanyOwner]: 'owner' });
 });
 
-  it('isolates supplier records and restricts supplier maintenance to purchasing roles', async () => {
-    const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
-    const viewer = testEnvironment.authenticatedContext(USERS.viewer).firestore();
-    const supplier = {
-      id: 'supplier-secure', companyId: COMPANY_A, name: 'Proveedor de prueba',
-      nit: '1234567-8', active: true, createdBy: USERS.finance,
-    };
-    await assertSucceeds(setDoc(doc(finance, 'suppliers', supplier.id), supplier));
-    await assertFails(setDoc(doc(viewer, 'suppliers', 'supplier-viewer'), {
-      ...supplier, id: 'supplier-viewer',
-    }));
-    const foreignOwner = testEnvironment.authenticatedContext(USERS.otherCompanyOwner).firestore();
-    await assertFails(getDoc(doc(foreignOwner, 'suppliers', supplier.id)));
+it('isolates supplier records and restricts supplier maintenance to purchasing roles', async () => {
+  const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
+  const viewer = testEnvironment.authenticatedContext(USERS.viewer).firestore();
+  const supplier = {
+    id: 'supplier-secure',
+    companyId: COMPANY_A,
+    name: 'Proveedor de prueba',
+    nit: '1234567-8',
+    active: true,
+    createdBy: USERS.finance,
+  };
+  await assertSucceeds(setDoc(doc(finance, 'suppliers', supplier.id), supplier));
+  await assertFails(
+    setDoc(doc(viewer, 'suppliers', 'supplier-viewer'), {
+      ...supplier,
+      id: 'supplier-viewer',
+    })
+  );
+  const foreignOwner = testEnvironment.authenticatedContext(USERS.otherCompanyOwner).firestore();
+  await assertFails(getDoc(doc(foreignOwner, 'suppliers', supplier.id)));
+});
+
+it('allows warehouse managers to maintain catalogs but blocks stock movements pending atomic writes', async () => {
+  await seedProject(makeProject('inventory-project'));
+  const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const warehouse = {
+    id: 'warehouse-project',
+    companyId: COMPANY_A,
+    projectId: 'inventory-project',
+    name: 'Bodega de obra',
+    type: 'project',
+    active: true,
+    createdBy: USERS.warehouseManager,
+  };
+  const item = {
+    id: 'item-cement',
+    companyId: COMPANY_A,
+    name: 'Cemento 42.5 kg',
+    unit: 'saco',
+    reorderLevel: 10,
+    active: true,
+    createdBy: USERS.warehouseManager,
+  };
+  await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
+  await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
+  const movement = {
+    id: 'movement-opening',
+    companyId: COMPANY_A,
+    projectId: 'inventory-project',
+    warehouseId: warehouse.id,
+    itemId: item.id,
+    kind: 'opening',
+    quantity: 50,
+    unitCostGTQ: 78,
+    occurredAt: '2026-11-16T08:00:00.000Z',
+    createdBy: USERS.warehouseManager,
+  };
+  await assertFails(setDoc(doc(manager, 'stockMovements', movement.id), movement));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'stockMovements', movement.id), movement);
   });
+  await assertFails(
+    setDoc(doc(manager, 'stockMovements', movement.id), {
+      ...movement,
+      quantity: 500,
+    })
+  );
+  await assertFails(deleteDoc(doc(manager, 'stockMovements', movement.id)));
+});
 
-  it('allows warehouse managers to maintain catalogs but blocks stock movements pending atomic writes', async () => {
-    await seedProject(makeProject('inventory-project'));
-    const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const warehouse = {
-      id: 'warehouse-project', companyId: COMPANY_A, projectId: 'inventory-project',
-      name: 'Bodega de obra', type: 'project', active: true, createdBy: USERS.warehouseManager,
-    };
-    const item = {
-      id: 'item-cement', companyId: COMPANY_A, name: 'Cemento 42.5 kg',
-      unit: 'saco', reorderLevel: 10, active: true, createdBy: USERS.warehouseManager,
-    };
-    await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
-    await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
-    const movement = {
-      id: 'movement-opening', companyId: COMPANY_A, projectId: 'inventory-project',
-      warehouseId: warehouse.id, itemId: item.id, kind: 'opening',
-      quantity: 50, unitCostGTQ: 78, occurredAt: '2026-11-16T08:00:00.000Z',
-      createdBy: USERS.warehouseManager,
-    };
-    await assertFails(setDoc(doc(manager, 'stockMovements', movement.id), movement));
-    await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      await setDoc(doc(context.firestore(), 'stockMovements', movement.id), movement);
-    });
-    await assertFails(setDoc(doc(manager, 'stockMovements', movement.id), {
-      ...movement, quantity: 500,
-    }));
-    await assertFails(deleteDoc(doc(manager, 'stockMovements', movement.id)));
-  });
+it('requires an opening movement and first balance to be created atomically', async () => {
+  await seedProject(makeProject('opening-project'));
+  const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const warehouse = {
+    id: 'opening-warehouse',
+    companyId: COMPANY_A,
+    name: 'Bodega de inventario inicial',
+    type: 'general',
+    active: true,
+    createdBy: USERS.warehouseManager,
+  };
+  const item = {
+    id: 'opening-item',
+    companyId: COMPANY_A,
+    name: 'Block de inventario inicial',
+    unit: 'unidad',
+    reorderLevel: 15,
+    active: true,
+    createdBy: USERS.warehouseManager,
+  };
+  await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
+  await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
 
-  it('requires an opening movement and first balance to be created atomically', async () => {
-    await seedProject(makeProject('opening-project'));
-    const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const warehouse = {
-      id: 'opening-warehouse',
-      companyId: COMPANY_A,
-      name: 'Bodega de inventario inicial',
-      type: 'general',
-      active: true,
-      createdBy: USERS.warehouseManager,
-    };
-    const item = {
-      id: 'opening-item',
-      companyId: COMPANY_A,
-      name: 'Block de inventario inicial',
-      unit: 'unidad',
-      reorderLevel: 15,
-      active: true,
-      createdBy: USERS.warehouseManager,
-    };
-    await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
-    await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
+  const movement = {
+    id: 'opening-movement-001',
+    companyId: COMPANY_A,
+    itemId: item.id,
+    warehouseId: warehouse.id,
+    kind: 'opening',
+    quantity: 120,
+    unitCostGTQ: 4.5,
+    occurredAt: '2026-11-17T08:00:00.000Z',
+    referenceId: 'CONTEO-INICIAL-001',
+    balanceId: `bal_${warehouse.id}_${item.id}`,
+    createdBy: USERS.warehouseManager,
+  };
+  const balance = {
+    id: movement.balanceId,
+    companyId: COMPANY_A,
+    warehouseId: warehouse.id,
+    itemId: item.id,
+    quantity: movement.quantity,
+    averageUnitCostGTQ: movement.unitCostGTQ,
+    reorderLevel: item.reorderLevel,
+    createdBy: USERS.warehouseManager,
+    createdAt: movement.occurredAt,
+    updatedAt: movement.occurredAt,
+    lastMovementId: movement.id,
+  };
+  const movementRef = doc(manager, 'stockMovements', movement.id);
+  const balanceRef = doc(manager, 'inventoryBalances', movement.balanceId);
 
-    const movement = {
-      id: 'opening-movement-001',
-      companyId: COMPANY_A,
-      itemId: item.id,
-      warehouseId: warehouse.id,
-      kind: 'opening',
-      quantity: 120,
-      unitCostGTQ: 4.5,
-      occurredAt: '2026-11-17T08:00:00.000Z',
-      referenceId: 'CONTEO-INICIAL-001',
-      balanceId: `bal_${warehouse.id}_${item.id}`,
-      createdBy: USERS.warehouseManager,
-    };
-    const balance = {
-      id: movement.balanceId,
-      companyId: COMPANY_A,
-      warehouseId: warehouse.id,
-      itemId: item.id,
-      quantity: movement.quantity,
-      averageUnitCostGTQ: movement.unitCostGTQ,
-      reorderLevel: item.reorderLevel,
-      createdBy: USERS.warehouseManager,
-      createdAt: movement.occurredAt,
-      updatedAt: movement.occurredAt,
-      lastMovementId: movement.id,
-    };
-    const movementRef = doc(manager, 'stockMovements', movement.id);
-    const balanceRef = doc(manager, 'inventoryBalances', movement.balanceId);
-
-    await assertFails(setDoc(movementRef, movement));
-    await assertFails(setDoc(balanceRef, balance));
-    await assertSucceeds(runTransaction(manager, async (transaction: Transaction) => {
+  await assertFails(setDoc(movementRef, movement));
+  await assertFails(setDoc(balanceRef, balance));
+  await assertSucceeds(
+    runTransaction(manager, async (transaction: Transaction) => {
       transaction.set(movementRef, movement);
       transaction.set(balanceRef, balance);
-    }));
+    })
+  );
 
-    const replayMovement = { ...movement, id: 'opening-movement-replay', referenceId: 'CONTEO-INICIAL-REPETIDO' };
-    await assertFails(runTransaction(manager, async (transaction: Transaction) => {
+  const replayMovement = {
+    ...movement,
+    id: 'opening-movement-replay',
+    referenceId: 'CONTEO-INICIAL-REPETIDO',
+  };
+  await assertFails(
+    runTransaction(manager, async (transaction: Transaction) => {
       transaction.set(doc(manager, 'stockMovements', replayMovement.id), replayMovement);
       transaction.set(balanceRef, { ...balance, lastMovementId: replayMovement.id });
-    }));
-    await assertFails(setDoc(movementRef, { ...movement, quantity: 500 }));
-    await assertFails(deleteDoc(movementRef));
-  });
+    })
+  );
+  await assertFails(setDoc(movementRef, { ...movement, quantity: 500 }));
+  await assertFails(deleteDoc(movementRef));
+});
 
-  it('accepts an opening stock movement only with its first balance in the same transaction', async () => {
-    await seedProject(makeProject('opening-project-atomic'));
-    const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const warehouse = {
-      id: 'opening-warehouse-atomic',
-      companyId: COMPANY_A,
-      projectId: 'opening-project-atomic',
-      name: 'Bodega inicial de obra',
-      type: 'project',
-      active: true,
-      createdBy: USERS.warehouseManager,
-    };
-    const item = {
-      id: 'opening-item-atomic',
-      companyId: COMPANY_A,
-      name: 'Block inicial',
-      unit: 'unidad',
-      reorderLevel: 12,
-      active: true,
-      createdBy: USERS.warehouseManager,
-    };
-    await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
-    await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
+it('accepts an opening stock movement only with its first balance in the same transaction', async () => {
+  await seedProject(makeProject('opening-project-atomic'));
+  const manager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const warehouse = {
+    id: 'opening-warehouse-atomic',
+    companyId: COMPANY_A,
+    projectId: 'opening-project-atomic',
+    name: 'Bodega inicial de obra',
+    type: 'project',
+    active: true,
+    createdBy: USERS.warehouseManager,
+  };
+  const item = {
+    id: 'opening-item-atomic',
+    companyId: COMPANY_A,
+    name: 'Block inicial',
+    unit: 'unidad',
+    reorderLevel: 12,
+    active: true,
+    createdBy: USERS.warehouseManager,
+  };
+  await assertSucceeds(setDoc(doc(manager, 'warehouses', warehouse.id), warehouse));
+  await assertSucceeds(setDoc(doc(manager, 'inventoryItems', item.id), item));
 
-    const movement = {
-      id: 'opening-movement-atomic',
-      companyId: COMPANY_A,
-      projectId: 'opening-project-atomic',
-      itemId: item.id,
-      warehouseId: warehouse.id,
-      kind: 'opening',
-      quantity: 85,
-      unitCostGTQ: 4.25,
-      occurredAt: '2026-11-17T08:00:00.000Z',
-      referenceId: 'ACTA-CONTEO-001',
-      balanceId: `bal_${warehouse.id}_${item.id}`,
-      createdBy: USERS.warehouseManager,
-    };
-    const balance = {
-      id: movement.balanceId,
-      companyId: COMPANY_A,
-      warehouseId: warehouse.id,
-      itemId: item.id,
-      quantity: movement.quantity,
-      averageUnitCostGTQ: movement.unitCostGTQ,
-      reorderLevel: item.reorderLevel,
-      createdBy: USERS.warehouseManager,
-      createdAt: movement.occurredAt,
-      updatedAt: movement.occurredAt,
-      lastMovementId: movement.id,
-    };
-    const movementRef = doc(manager, 'stockMovements', movement.id);
-    const balanceRef = doc(manager, 'inventoryBalances', movement.balanceId);
+  const movement = {
+    id: 'opening-movement-atomic',
+    companyId: COMPANY_A,
+    projectId: 'opening-project-atomic',
+    itemId: item.id,
+    warehouseId: warehouse.id,
+    kind: 'opening',
+    quantity: 85,
+    unitCostGTQ: 4.25,
+    occurredAt: '2026-11-17T08:00:00.000Z',
+    referenceId: 'ACTA-CONTEO-001',
+    balanceId: `bal_${warehouse.id}_${item.id}`,
+    createdBy: USERS.warehouseManager,
+  };
+  const balance = {
+    id: movement.balanceId,
+    companyId: COMPANY_A,
+    warehouseId: warehouse.id,
+    itemId: item.id,
+    quantity: movement.quantity,
+    averageUnitCostGTQ: movement.unitCostGTQ,
+    reorderLevel: item.reorderLevel,
+    createdBy: USERS.warehouseManager,
+    createdAt: movement.occurredAt,
+    updatedAt: movement.occurredAt,
+    lastMovementId: movement.id,
+  };
+  const movementRef = doc(manager, 'stockMovements', movement.id);
+  const balanceRef = doc(manager, 'inventoryBalances', movement.balanceId);
 
-    await assertFails(setDoc(movementRef, movement));
-    await assertFails(setDoc(balanceRef, balance));
-    await assertSucceeds(runTransaction(manager, async (transaction: Transaction) => {
+  await assertFails(setDoc(movementRef, movement));
+  await assertFails(setDoc(balanceRef, balance));
+  await assertSucceeds(
+    runTransaction(manager, async (transaction: Transaction) => {
       transaction.set(movementRef, movement);
       transaction.set(balanceRef, balance);
-    }));
+    })
+  );
 
-    const replay = {
-      ...movement,
-      id: 'opening-movement-atomic-replay',
-      referenceId: 'ACTA-CONTEO-002',
-    };
-    await assertFails(runTransaction(manager, async (transaction: Transaction) => {
+  const replay = {
+    ...movement,
+    id: 'opening-movement-atomic-replay',
+    referenceId: 'ACTA-CONTEO-002',
+  };
+  await assertFails(
+    runTransaction(manager, async (transaction: Transaction) => {
       transaction.set(doc(manager, 'stockMovements', replay.id), replay);
       transaction.set(balanceRef, { ...balance, lastMovementId: replay.id });
-    }));
-  });
+    })
+  );
+});
 
-  it('requires audited stock adjustments to update the balance atomically and rejects overdraws', async () => {
-    await seedProject(makeProject('adjustment-project'));
-    await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      const database = context.firestore();
-      await setDoc(doc(database, 'inventoryItems', 'adjustment-cement'), {
-        id: 'adjustment-cement',
-        companyId: COMPANY_A,
-        name: 'Cemento de ajuste',
-        unit: 'saco',
-        reorderLevel: 2,
-        active: true,
-        createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'warehouses', 'adjustment-warehouse'), {
-        id: 'adjustment-warehouse',
-        companyId: COMPANY_A,
-        projectId: 'adjustment-project',
-        name: 'Bodega de ajuste',
-        type: 'project',
-        active: true,
-        createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'inventoryBalances', 'bal_adjustment-warehouse_adjustment-cement'), {
-        id: 'bal_adjustment-warehouse_adjustment-cement',
-        companyId: COMPANY_A,
-        warehouseId: 'adjustment-warehouse',
-        itemId: 'adjustment-cement',
-        quantity: 10,
-        averageUnitCostGTQ: 75,
-        reorderLevel: 2,
-        createdBy: USERS.owner,
-        createdAt: '2026-11-16T08:00:00.000Z',
-        updatedAt: '2026-11-16T08:00:00.000Z',
-        lastMovementId: 'adjustment-opening-seed',
-      });
+it('requires audited stock adjustments to update the balance atomically and rejects overdraws', async () => {
+  await seedProject(makeProject('adjustment-project'));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const database = context.firestore();
+    await setDoc(doc(database, 'inventoryItems', 'adjustment-cement'), {
+      id: 'adjustment-cement',
+      companyId: COMPANY_A,
+      name: 'Cemento de ajuste',
+      unit: 'saco',
+      reorderLevel: 2,
+      active: true,
+      createdBy: USERS.owner,
     });
-
-    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const balanceId = 'bal_adjustment-warehouse_adjustment-cement';
-    const balanceRef = doc(database, 'inventoryBalances', balanceId);
-    const incoming = {
-      id: 'adjustment-in-001',
+    await setDoc(doc(database, 'warehouses', 'adjustment-warehouse'), {
+      id: 'adjustment-warehouse',
       companyId: COMPANY_A,
       projectId: 'adjustment-project',
-      itemId: 'adjustment-cement',
+      name: 'Bodega de ajuste',
+      type: 'project',
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(database, 'inventoryBalances', 'bal_adjustment-warehouse_adjustment-cement'), {
+      id: 'bal_adjustment-warehouse_adjustment-cement',
+      companyId: COMPANY_A,
       warehouseId: 'adjustment-warehouse',
-      kind: 'adjustment_in',
-      quantity: 5,
-      unitCostGTQ: 90,
-      occurredAt: '2026-11-17T09:00:00.000Z',
-      referenceId: 'CONTEO-MAYOR-001',
-      balanceId,
-      notes: 'Conteo físico encontró cinco sacos adicionales',
-      createdBy: USERS.warehouseManager,
-    };
-    const incomingBalance = {
-      quantity: 15,
-      averageUnitCostGTQ: 80,
-      updatedAt: incoming.occurredAt,
-      lastMovementId: incoming.id,
-    };
-    const incomingRef = doc(database, 'stockMovements', incoming.id);
+      itemId: 'adjustment-cement',
+      quantity: 10,
+      averageUnitCostGTQ: 75,
+      reorderLevel: 2,
+      createdBy: USERS.owner,
+      createdAt: '2026-11-16T08:00:00.000Z',
+      updatedAt: '2026-11-16T08:00:00.000Z',
+      lastMovementId: 'adjustment-opening-seed',
+    });
+  });
 
-    await assertFails(setDoc(incomingRef, incoming));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+  const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const balanceId = 'bal_adjustment-warehouse_adjustment-cement';
+  const balanceRef = doc(database, 'inventoryBalances', balanceId);
+  const incoming = {
+    id: 'adjustment-in-001',
+    companyId: COMPANY_A,
+    projectId: 'adjustment-project',
+    itemId: 'adjustment-cement',
+    warehouseId: 'adjustment-warehouse',
+    kind: 'adjustment_in',
+    quantity: 5,
+    unitCostGTQ: 90,
+    occurredAt: '2026-11-17T09:00:00.000Z',
+    referenceId: 'CONTEO-MAYOR-001',
+    balanceId,
+    notes: 'Conteo físico encontró cinco sacos adicionales',
+    createdBy: USERS.warehouseManager,
+  };
+  const incomingBalance = {
+    quantity: 15,
+    averageUnitCostGTQ: 80,
+    updatedAt: incoming.occurredAt,
+    lastMovementId: incoming.id,
+  };
+  const incomingRef = doc(database, 'stockMovements', incoming.id);
+
+  await assertFails(setDoc(incomingRef, incoming));
+  await assertFails(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(incomingRef, incoming);
       transaction.update(balanceRef, { ...incomingBalance, averageUnitCostGTQ: 90 });
-    }));
-    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+    })
+  );
+  await assertSucceeds(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(incomingRef, incoming);
       transaction.update(balanceRef, incomingBalance);
-    }));
+    })
+  );
 
-    const outgoing = {
-      ...incoming,
-      id: 'adjustment-out-001',
-      kind: 'adjustment_out',
-      quantity: 3,
-      unitCostGTQ: 80,
-      occurredAt: '2026-11-17T10:00:00.000Z',
-      referenceId: 'CONTEO-MENOR-001',
-      notes: 'Tres sacos dañados no utilizables',
-    };
-    const outgoingBalance = {
-      quantity: 12,
-      averageUnitCostGTQ: 80,
-      updatedAt: outgoing.occurredAt,
-      lastMovementId: outgoing.id,
-    };
-    const outgoingRef = doc(database, 'stockMovements', outgoing.id);
+  const outgoing = {
+    ...incoming,
+    id: 'adjustment-out-001',
+    kind: 'adjustment_out',
+    quantity: 3,
+    unitCostGTQ: 80,
+    occurredAt: '2026-11-17T10:00:00.000Z',
+    referenceId: 'CONTEO-MENOR-001',
+    notes: 'Tres sacos dañados no utilizables',
+  };
+  const outgoingBalance = {
+    quantity: 12,
+    averageUnitCostGTQ: 80,
+    updatedAt: outgoing.occurredAt,
+    lastMovementId: outgoing.id,
+  };
+  const outgoingRef = doc(database, 'stockMovements', outgoing.id);
 
-    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+  await assertSucceeds(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(outgoingRef, outgoing);
       transaction.update(balanceRef, outgoingBalance);
-    }));
+    })
+  );
 
-    const overdraw = {
-      ...outgoing,
-      id: 'adjustment-out-overdraw',
-      quantity: 99,
-      occurredAt: '2026-11-17T11:00:00.000Z',
-      referenceId: 'CONTEO-ERROR-001',
-    };
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+  const overdraw = {
+    ...outgoing,
+    id: 'adjustment-out-overdraw',
+    quantity: 99,
+    occurredAt: '2026-11-17T11:00:00.000Z',
+    referenceId: 'CONTEO-ERROR-001',
+  };
+  await assertFails(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(doc(database, 'stockMovements', overdraw.id), overdraw);
       transaction.update(balanceRef, {
         quantity: -87,
@@ -489,475 +524,672 @@ beforeEach(async () => {
         updatedAt: overdraw.occurredAt,
         lastMovementId: overdraw.id,
       });
-    }));
-  });
+    })
+  );
+});
 
-  it('requires project stock issues and reduced balances in one atomic write and rejects overdrafts', async () => {
-    await seedProject(makeProject('issue-project'));
-    await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      const database = context.firestore();
-      await setDoc(doc(database, 'inventoryItems', 'issue-cement'), {
-        id: 'issue-cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
-        reorderLevel: 2, active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'warehouses', 'issue-warehouse'), {
-        id: 'issue-warehouse', companyId: COMPANY_A, projectId: 'issue-project',
-        name: 'Bodega de salida', type: 'project', active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'inventoryBalances', 'bal_issue-warehouse_issue-cement'), {
-        id: 'bal_issue-warehouse_issue-cement',
-        companyId: COMPANY_A,
-        warehouseId: 'issue-warehouse',
-        itemId: 'issue-cement',
-        quantity: 12,
-        averageUnitCostGTQ: 75,
-        reorderLevel: 2,
-        createdBy: USERS.owner,
-        createdAt: '2026-11-16T08:00:00.000Z',
-        updatedAt: '2026-11-16T08:00:00.000Z',
-        lastMovementId: 'opening-seed',
-      });
+it('requires project stock issues and reduced balances in one atomic write and rejects overdrafts', async () => {
+  await seedProject(makeProject('issue-project'));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const database = context.firestore();
+    await setDoc(doc(database, 'inventoryItems', 'issue-cement'), {
+      id: 'issue-cement',
+      companyId: COMPANY_A,
+      name: 'Cemento',
+      unit: 'saco',
+      reorderLevel: 2,
+      active: true,
+      createdBy: USERS.owner,
     });
-
-    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const movement = {
-      id: 'issue-out-001',
+    await setDoc(doc(database, 'warehouses', 'issue-warehouse'), {
+      id: 'issue-warehouse',
       companyId: COMPANY_A,
       projectId: 'issue-project',
-      itemId: 'issue-cement',
+      name: 'Bodega de salida',
+      type: 'project',
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(database, 'inventoryBalances', 'bal_issue-warehouse_issue-cement'), {
+      id: 'bal_issue-warehouse_issue-cement',
+      companyId: COMPANY_A,
       warehouseId: 'issue-warehouse',
-      kind: 'project_issue',
-      quantity: 3,
-      unitCostGTQ: 75,
-      occurredAt: '2026-11-16T10:00:00.000Z',
-      referenceId: 'VALE-001',
-      balanceId: 'bal_issue-warehouse_issue-cement',
-      createdBy: USERS.warehouseManager,
-    };
-    const balanceRef = doc(database, 'inventoryBalances', movement.balanceId);
-    const movementRef = doc(database, 'stockMovements', movement.id);
-    const balanceUpdate = {
-      quantity: 9,
+      itemId: 'issue-cement',
+      quantity: 12,
       averageUnitCostGTQ: 75,
-      updatedAt: '2026-11-16T10:00:00.000Z',
-      lastMovementId: movement.id,
-    };
+      reorderLevel: 2,
+      createdBy: USERS.owner,
+      createdAt: '2026-11-16T08:00:00.000Z',
+      updatedAt: '2026-11-16T08:00:00.000Z',
+      lastMovementId: 'opening-seed',
+    });
+  });
 
-    await assertFails(setDoc(movementRef, movement));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+  const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const movement = {
+    id: 'issue-out-001',
+    companyId: COMPANY_A,
+    projectId: 'issue-project',
+    itemId: 'issue-cement',
+    warehouseId: 'issue-warehouse',
+    kind: 'project_issue',
+    quantity: 3,
+    unitCostGTQ: 75,
+    occurredAt: '2026-11-16T10:00:00.000Z',
+    referenceId: 'VALE-001',
+    balanceId: 'bal_issue-warehouse_issue-cement',
+    createdBy: USERS.warehouseManager,
+  };
+  const balanceRef = doc(database, 'inventoryBalances', movement.balanceId);
+  const movementRef = doc(database, 'stockMovements', movement.id);
+  const balanceUpdate = {
+    quantity: 9,
+    averageUnitCostGTQ: 75,
+    updatedAt: '2026-11-16T10:00:00.000Z',
+    lastMovementId: movement.id,
+  };
+
+  await assertFails(setDoc(movementRef, movement));
+  await assertFails(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(movementRef, movement);
       transaction.update(balanceRef, { ...balanceUpdate, quantity: -1 });
-    }));
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+    })
+  );
+  await assertFails(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(movementRef, { ...movement, quantity: 99 });
       transaction.update(balanceRef, balanceUpdate);
-    }));
-    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+    })
+  );
+  await assertSucceeds(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(movementRef, movement);
       transaction.update(balanceRef, balanceUpdate);
-    }));
-    // A previously committed movement cannot be replayed to deduct stock again.
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+    })
+  );
+  // A previously committed movement cannot be replayed to deduct stock again.
+  await assertFails(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.update(balanceRef, {
         ...balanceUpdate,
         quantity: 6,
         updatedAt: '2026-11-16T11:00:00.000Z',
       });
-    }));
-  });
+    })
+  );
+});
 
-  it('requires both sides of a warehouse transfer and paired balances in one transaction', async () => {
-    await seedProject(makeProject('transfer-project'));
-    await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      const database = context.firestore();
-      await setDoc(doc(database, 'inventoryItems', 'transfer-cement'), {
-        id: 'transfer-cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
-        reorderLevel: 2, active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'warehouses', 'transfer-source'), {
-        id: 'transfer-source', companyId: COMPANY_A, name: 'Bodega general',
-        type: 'general', active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'warehouses', 'transfer-destination'), {
-        id: 'transfer-destination', companyId: COMPANY_A, projectId: 'transfer-project',
-        name: 'Bodega de obra', type: 'project', active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'inventoryBalances', 'bal_transfer-source_transfer-cement'), {
-        id: 'bal_transfer-source_transfer-cement',
-        companyId: COMPANY_A,
-        warehouseId: 'transfer-source',
-        itemId: 'transfer-cement',
-        quantity: 12,
-        averageUnitCostGTQ: 80,
-        reorderLevel: 2,
-        createdBy: USERS.owner,
-        createdAt: '2026-11-16T08:00:00.000Z',
-        updatedAt: '2026-11-16T08:00:00.000Z',
-        lastMovementId: 'opening-transfer-source',
-      });
+it('requires both sides of a warehouse transfer and paired balances in one transaction', async () => {
+  await seedProject(makeProject('transfer-project'));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const database = context.firestore();
+    await setDoc(doc(database, 'inventoryItems', 'transfer-cement'), {
+      id: 'transfer-cement',
+      companyId: COMPANY_A,
+      name: 'Cemento',
+      unit: 'saco',
+      reorderLevel: 2,
+      active: true,
+      createdBy: USERS.owner,
     });
-
-    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const outgoing = {
-      id: 'tr_transfer-001_out',
+    await setDoc(doc(database, 'warehouses', 'transfer-source'), {
+      id: 'transfer-source',
+      companyId: COMPANY_A,
+      name: 'Bodega general',
+      type: 'general',
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(database, 'warehouses', 'transfer-destination'), {
+      id: 'transfer-destination',
       companyId: COMPANY_A,
       projectId: 'transfer-project',
-      itemId: 'transfer-cement',
-      warehouseId: 'transfer-source',
-      kind: 'transfer_out',
-      quantity: 4,
-      unitCostGTQ: 80,
-      occurredAt: '2026-11-16T10:00:00.000Z',
-      referenceId: 'transfer-001',
-      balanceId: 'bal_transfer-source_transfer-cement',
-      createdBy: USERS.warehouseManager,
-    };
-    const incoming = {
-      ...outgoing,
-      id: 'tr_transfer-001_in',
-      warehouseId: 'transfer-destination',
-      kind: 'transfer_in',
-      balanceId: 'bal_transfer-destination_transfer-cement',
-    };
-    const sourceBalance = {
-      id: outgoing.balanceId,
+      name: 'Bodega de obra',
+      type: 'project',
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(database, 'inventoryBalances', 'bal_transfer-source_transfer-cement'), {
+      id: 'bal_transfer-source_transfer-cement',
       companyId: COMPANY_A,
       warehouseId: 'transfer-source',
       itemId: 'transfer-cement',
-      quantity: 8,
+      quantity: 12,
       averageUnitCostGTQ: 80,
       reorderLevel: 2,
       createdBy: USERS.owner,
       createdAt: '2026-11-16T08:00:00.000Z',
-      updatedAt: outgoing.occurredAt,
-      lastMovementId: outgoing.id,
-    };
-    const destinationBalance = {
-      id: incoming.balanceId,
-      companyId: COMPANY_A,
-      warehouseId: 'transfer-destination',
-      itemId: 'transfer-cement',
-      quantity: 4,
-      averageUnitCostGTQ: 80,
-      reorderLevel: 2,
-      createdBy: USERS.warehouseManager,
-      createdAt: incoming.occurredAt,
-      updatedAt: incoming.occurredAt,
-      lastMovementId: incoming.id,
-    };
+      updatedAt: '2026-11-16T08:00:00.000Z',
+      lastMovementId: 'opening-transfer-source',
+    });
+  });
 
-    const commitBatch = async (configure: (batch: ReturnType<typeof writeBatch>) => void) => {
-      const batch = writeBatch(database);
-      configure(batch);
-      await batch.commit();
-    };
+  const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const outgoing = {
+    id: 'tr_transfer-001_out',
+    companyId: COMPANY_A,
+    projectId: 'transfer-project',
+    itemId: 'transfer-cement',
+    warehouseId: 'transfer-source',
+    kind: 'transfer_out',
+    quantity: 4,
+    unitCostGTQ: 80,
+    occurredAt: '2026-11-16T10:00:00.000Z',
+    referenceId: 'transfer-001',
+    balanceId: 'bal_transfer-source_transfer-cement',
+    createdBy: USERS.warehouseManager,
+  };
+  const incoming = {
+    ...outgoing,
+    id: 'tr_transfer-001_in',
+    warehouseId: 'transfer-destination',
+    kind: 'transfer_in',
+    balanceId: 'bal_transfer-destination_transfer-cement',
+  };
+  const sourceBalance = {
+    id: outgoing.balanceId,
+    companyId: COMPANY_A,
+    warehouseId: 'transfer-source',
+    itemId: 'transfer-cement',
+    quantity: 8,
+    averageUnitCostGTQ: 80,
+    reorderLevel: 2,
+    createdBy: USERS.owner,
+    createdAt: '2026-11-16T08:00:00.000Z',
+    updatedAt: outgoing.occurredAt,
+    lastMovementId: outgoing.id,
+  };
+  const destinationBalance = {
+    id: incoming.balanceId,
+    companyId: COMPANY_A,
+    warehouseId: 'transfer-destination',
+    itemId: 'transfer-cement',
+    quantity: 4,
+    averageUnitCostGTQ: 80,
+    reorderLevel: 2,
+    createdBy: USERS.warehouseManager,
+    createdAt: incoming.occurredAt,
+    updatedAt: incoming.occurredAt,
+    lastMovementId: incoming.id,
+  };
 
-    await assertFails(setDoc(doc(database, 'stockMovements', outgoing.id), outgoing));
-    // A transfer cannot write only the movement pair or only one warehouse balance.
-    await assertFails(commitBatch((batch) => {
+  const commitBatch = async (configure: (batch: ReturnType<typeof writeBatch>) => void) => {
+    const batch = writeBatch(database);
+    configure(batch);
+    await batch.commit();
+  };
+
+  await assertFails(setDoc(doc(database, 'stockMovements', outgoing.id), outgoing));
+  // A transfer cannot write only the movement pair or only one warehouse balance.
+  await assertFails(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       batch.set(doc(database, 'stockMovements', incoming.id), incoming);
-    }));
-    await assertFails(commitBatch((batch) => {
+    })
+  );
+  await assertFails(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       batch.set(doc(database, 'stockMovements', incoming.id), incoming);
       batch.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
-    }));
-    await assertFails(commitBatch((batch) => {
+    })
+  );
+  await assertFails(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       batch.set(doc(database, 'stockMovements', incoming.id), incoming);
       batch.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
-    }));
-    await assertFails(commitBatch((batch) => {
+    })
+  );
+  await assertFails(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       batch.set(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
-    }));
-    await assertFails(commitBatch((batch) => {
+    })
+  );
+  await assertFails(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, quantity: -4 });
       batch.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: -4 });
-    }));
-    await assertFails(commitBatch((batch) => {
+    })
+  );
+  await assertFails(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), { ...outgoing, unitCostGTQ: -1 });
       batch.set(doc(database, 'stockMovements', incoming.id), { ...incoming, unitCostGTQ: -1 });
-    }));
-    await assertFails(commitBatch((batch) => {
+    })
+  );
+  await assertFails(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       batch.set(doc(database, 'stockMovements', incoming.id), { ...incoming, quantity: 9 });
       batch.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
       batch.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
-    }));
-    await assertSucceeds(commitBatch((batch) => {
+    })
+  );
+  await assertSucceeds(
+    commitBatch((batch) => {
       batch.set(doc(database, 'stockMovements', outgoing.id), outgoing);
       batch.set(doc(database, 'stockMovements', incoming.id), incoming);
       batch.update(doc(database, 'inventoryBalances', sourceBalance.id), sourceBalance);
       batch.set(doc(database, 'inventoryBalances', destinationBalance.id), destinationBalance);
-    }));
-    // Reusing the immutable outgoing movement must not debit the source a second time.
-    await assertFails(commitBatch((batch) => {
+    })
+  );
+  // Reusing the immutable outgoing movement must not debit the source a second time.
+  await assertFails(
+    commitBatch((batch) => {
       batch.update(doc(database, 'inventoryBalances', sourceBalance.id), {
         ...sourceBalance,
         quantity: 4,
         updatedAt: '2026-11-16T11:00:00.000Z',
       });
-    }));
-  }, 60_000);
+    })
+  );
+}, 60_000);
 
-  it('requires a purchase receipt movement, balance, and order update in one atomic write', async () => {
-    await seedProject(makeProject('receipt-project'));
-    await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      const database = context.firestore();
-      await setDoc(doc(database, 'suppliers', 'receipt-supplier'), {
-        id: 'receipt-supplier', companyId: COMPANY_A, name: 'Proveedor recepción',
-        nit: 'CF', active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'inventoryItems', 'receipt-cement'), {
-        id: 'receipt-cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
-        reorderLevel: 2, active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'warehouses', 'receipt-warehouse'), {
-        id: 'receipt-warehouse', companyId: COMPANY_A, projectId: 'receipt-project',
-        name: 'Bodega recepción', type: 'project', active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(database, 'purchaseOrders', 'receipt-order'), {
-        id: 'receipt-order', companyId: COMPANY_A, projectId: 'receipt-project',
-        supplierId: 'receipt-supplier', number: 'OC-REC-001', status: 'approved',
-        currency: 'GTQ',
-        lines: [{ itemId: 'receipt-cement', description: 'Cemento', unit: 'saco',
-          quantity: 10, receivedQuantity: 0, unitPriceGTQ: 75 }],
-        subtotalGTQ: 750, discountGTQ: 0, taxPercent: 12, taxGTQ: 90, totalGTQ: 840,
-        requestedBy: USERS.finance, approvedBy: USERS.finance,
-        createdAt: '2026-11-16T08:00:00.000Z', updatedAt: '2026-11-16T08:00:00.000Z',
-      });
+it('requires a purchase receipt movement, balance, and order update in one atomic write', async () => {
+  await seedProject(makeProject('receipt-project'));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const database = context.firestore();
+    await setDoc(doc(database, 'suppliers', 'receipt-supplier'), {
+      id: 'receipt-supplier',
+      companyId: COMPANY_A,
+      name: 'Proveedor recepción',
+      nit: 'CF',
+      active: true,
+      createdBy: USERS.owner,
     });
+    await setDoc(doc(database, 'inventoryItems', 'receipt-cement'), {
+      id: 'receipt-cement',
+      companyId: COMPANY_A,
+      name: 'Cemento',
+      unit: 'saco',
+      reorderLevel: 2,
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(database, 'warehouses', 'receipt-warehouse'), {
+      id: 'receipt-warehouse',
+      companyId: COMPANY_A,
+      projectId: 'receipt-project',
+      name: 'Bodega recepción',
+      type: 'project',
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(database, 'purchaseOrders', 'receipt-order'), {
+      id: 'receipt-order',
+      companyId: COMPANY_A,
+      projectId: 'receipt-project',
+      supplierId: 'receipt-supplier',
+      number: 'OC-REC-001',
+      status: 'approved',
+      currency: 'GTQ',
+      lines: [
+        {
+          itemId: 'receipt-cement',
+          description: 'Cemento',
+          unit: 'saco',
+          quantity: 10,
+          receivedQuantity: 0,
+          unitPriceGTQ: 75,
+        },
+      ],
+      subtotalGTQ: 750,
+      discountGTQ: 0,
+      taxPercent: 12,
+      taxGTQ: 90,
+      totalGTQ: 840,
+      requestedBy: USERS.finance,
+      approvedBy: USERS.finance,
+      createdAt: '2026-11-16T08:00:00.000Z',
+      updatedAt: '2026-11-16T08:00:00.000Z',
+    });
+  });
 
-    const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const movement = {
-      id: 'rec_receipt-order_receipt-1', companyId: COMPANY_A,
-      projectId: 'receipt-project', itemId: 'receipt-cement',
-      warehouseId: 'receipt-warehouse', kind: 'purchase_receipt',
-      quantity: 4, unitCostGTQ: 75, occurredAt: '2026-11-16T10:00:00.000Z',
-      referenceId: 'receipt-order', balanceId: 'bal_receipt-warehouse_receipt-cement',
-      receiptNumber: 'receipt-1', lineIndex: 0, createdBy: USERS.warehouseManager,
-    };
-    const balance = {
-      id: movement.balanceId, companyId: COMPANY_A, warehouseId: 'receipt-warehouse',
-      itemId: 'receipt-cement', quantity: 4, averageUnitCostGTQ: 75,
-      reorderLevel: 2, createdBy: USERS.warehouseManager,
-      createdAt: '2026-11-16T10:00:00.000Z',
-      updatedAt: '2026-11-16T10:00:00.000Z', lastMovementId: movement.id,
-    };
-    const orderRef = doc(database, 'purchaseOrders', 'receipt-order');
-    const movementRef = doc(database, 'stockMovements', movement.id);
-    const balanceRef = doc(database, 'inventoryBalances', balance.id);
+  const database = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const movement = {
+    id: 'rec_receipt-order_receipt-1',
+    companyId: COMPANY_A,
+    projectId: 'receipt-project',
+    itemId: 'receipt-cement',
+    warehouseId: 'receipt-warehouse',
+    kind: 'purchase_receipt',
+    quantity: 4,
+    unitCostGTQ: 75,
+    occurredAt: '2026-11-16T10:00:00.000Z',
+    referenceId: 'receipt-order',
+    balanceId: 'bal_receipt-warehouse_receipt-cement',
+    receiptNumber: 'receipt-1',
+    lineIndex: 0,
+    createdBy: USERS.warehouseManager,
+  };
+  const balance = {
+    id: movement.balanceId,
+    companyId: COMPANY_A,
+    warehouseId: 'receipt-warehouse',
+    itemId: 'receipt-cement',
+    quantity: 4,
+    averageUnitCostGTQ: 75,
+    reorderLevel: 2,
+    createdBy: USERS.warehouseManager,
+    createdAt: '2026-11-16T10:00:00.000Z',
+    updatedAt: '2026-11-16T10:00:00.000Z',
+    lastMovementId: movement.id,
+  };
+  const orderRef = doc(database, 'purchaseOrders', 'receipt-order');
+  const movementRef = doc(database, 'stockMovements', movement.id);
+  const balanceRef = doc(database, 'inventoryBalances', balance.id);
 
-    await assertFails(setDoc(movementRef, movement));
-    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+  await assertFails(setDoc(movementRef, movement));
+  await assertSucceeds(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(movementRef, movement);
       transaction.set(balanceRef, balance);
       transaction.update(orderRef, {
-        lines: [{ itemId: 'receipt-cement', description: 'Cemento', unit: 'saco',
-          quantity: 10, receivedQuantity: 4, unitPriceGTQ: 75 }],
+        lines: [
+          {
+            itemId: 'receipt-cement',
+            description: 'Cemento',
+            unit: 'saco',
+            quantity: 10,
+            receivedQuantity: 4,
+            unitPriceGTQ: 75,
+          },
+        ],
         status: 'partially_received',
         updatedAt: '2026-11-16T10:00:00.000Z',
         lastReceiptMovementId: movement.id,
       });
-    }));
+    })
+  );
 
-    const secondMovement = {
-      ...movement,
-      id: 'rec_receipt-order_receipt-2',
-      quantity: 6,
-      occurredAt: '2026-11-16T11:00:00.000Z',
-      receiptNumber: 'receipt-2',
-    };
-    const secondBalance = {
-      ...balance,
-      quantity: 10,
-      averageUnitCostGTQ: 75,
-      updatedAt: '2026-11-16T11:00:00.000Z',
-      lastMovementId: secondMovement.id,
-    };
-    const secondOrderUpdate = {
-      lines: [{ itemId: 'receipt-cement', description: 'Cemento', unit: 'saco',
-        quantity: 10, receivedQuantity: 10, unitPriceGTQ: 75 }],
-      status: 'received',
-      updatedAt: '2026-11-16T11:00:00.000Z',
-      lastReceiptMovementId: secondMovement.id,
-    };
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+  const secondMovement = {
+    ...movement,
+    id: 'rec_receipt-order_receipt-2',
+    quantity: 6,
+    occurredAt: '2026-11-16T11:00:00.000Z',
+    receiptNumber: 'receipt-2',
+  };
+  const secondBalance = {
+    ...balance,
+    quantity: 10,
+    averageUnitCostGTQ: 75,
+    updatedAt: '2026-11-16T11:00:00.000Z',
+    lastMovementId: secondMovement.id,
+  };
+  const secondOrderUpdate = {
+    lines: [
+      {
+        itemId: 'receipt-cement',
+        description: 'Cemento',
+        unit: 'saco',
+        quantity: 10,
+        receivedQuantity: 10,
+        unitPriceGTQ: 75,
+      },
+    ],
+    status: 'received',
+    updatedAt: '2026-11-16T11:00:00.000Z',
+    lastReceiptMovementId: secondMovement.id,
+  };
+  await assertFails(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(doc(database, 'stockMovements', secondMovement.id), secondMovement);
       transaction.set(balanceRef, { ...secondBalance, averageUnitCostGTQ: 999 });
       transaction.update(orderRef, secondOrderUpdate);
-    }));
-    await assertSucceeds(runTransaction(database, async (transaction: Transaction) => {
+    })
+  );
+  await assertSucceeds(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.set(doc(database, 'stockMovements', secondMovement.id), secondMovement);
       transaction.set(balanceRef, secondBalance);
       transaction.update(orderRef, secondOrderUpdate);
-    }));
-    // A receipt already committed with its purchase order cannot be replayed as a balance-only write.
-    await assertFails(runTransaction(database, async (transaction: Transaction) => {
+    })
+  );
+  // A receipt already committed with its purchase order cannot be replayed as a balance-only write.
+  await assertFails(
+    runTransaction(database, async (transaction: Transaction) => {
       transaction.update(balanceRef, {
         ...secondBalance,
         quantity: 16,
         updatedAt: '2026-11-16T12:00:00.000Z',
       });
-    }));
-  });
+    })
+  );
+});
 
-  it('allows finance to create purchase orders and subcontracts only for same-company references', async () => {
-    await seedProject(makeProject('procurement-project'));
-    await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      await setDoc(doc(context.firestore(), 'suppliers', 'supplier-procurement'), {
-        id: 'supplier-procurement', companyId: COMPANY_A, name: 'Proveedor QA',
-        nit: 'CF', active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(context.firestore(), 'inventoryItems', 'cement'), {
-        id: 'cement', companyId: COMPANY_A, name: 'Cemento', unit: 'saco',
-        reorderLevel: 10, active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(context.firestore(), 'inventoryItems', 'steel'), {
-        id: 'steel', companyId: COMPANY_A, name: 'Hierro', unit: 'varilla',
-        reorderLevel: 10, active: true, createdBy: USERS.owner,
-      });
-      await setDoc(doc(context.firestore(), 'warehouses', 'procurement-warehouse'), {
-        id: 'procurement-warehouse',
-        companyId: COMPANY_A,
-        projectId: 'procurement-project',
-        name: 'Bodega de compras',
-        type: 'project',
-        active: true,
-        createdBy: USERS.owner,
-      });
+it('allows finance to create purchase orders and subcontracts only for same-company references', async () => {
+  await seedProject(makeProject('procurement-project'));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'suppliers', 'supplier-procurement'), {
+      id: 'supplier-procurement',
+      companyId: COMPANY_A,
+      name: 'Proveedor QA',
+      nit: 'CF',
+      active: true,
+      createdBy: USERS.owner,
     });
-    const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
-    const order = {
-      id: 'purchase-order-qa', companyId: COMPANY_A, projectId: 'procurement-project',
-      supplierId: 'supplier-procurement', number: 'OC-QA-001', status: 'draft',
-      currency: 'GTQ',
-      lines: [{ itemId: 'cement', description: 'Cemento', unit: 'saco', quantity: 10,
-        receivedQuantity: 0, unitPriceGTQ: 75 }],
-      subtotalGTQ: 750, discountGTQ: 0, taxPercent: 12, taxGTQ: 90, totalGTQ: 840,
-      requestedBy: USERS.finance, createdAt: '2026-11-16T08:00:00.000Z',
-      updatedAt: '2026-11-16T08:00:00.000Z',
-    };
-    await assertSucceeds(writePurchaseOrderWithLineReferences(finance, order));
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', 'missing-line-refs'), {
-      ...order, id: 'missing-line-refs',
-    }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
-      ...order, id: 'wrong-subtotal', subtotalGTQ: 900, taxGTQ: 108, totalGTQ: 1008,
-    }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
-      ...order, id: 'wrong-tax', taxGTQ: 120, totalGTQ: 870,
-    }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
-      ...order, id: 'discount-over-subtotal', discountGTQ: 800, taxGTQ: 0, totalGTQ: -50,
-    }));
-    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', order.id), {
-      status: 'approved',
-      approvedBy: USERS.finance,
-      updatedAt: '2026-11-16T09:00:00.000Z',
-    }, { merge: true }));
-    await assertFails(setDoc(doc(finance, 'purchaseOrders', order.id), {
-      status: 'received',
-      updatedAt: '2026-11-16T09:30:00.000Z',
-      lastReceiptMovementId: 'forged-receipt',
-      lines: [{ ...order.lines[0], receivedQuantity: 10 }],
-    }, { merge: true }));
-    const multiLineOrder = {
-      ...order,
-      id: 'multi-line-order',
-      number: 'OC-QA-002',
-      lines: [
-        { ...order.lines[0], quantity: 10 },
-        { itemId: 'steel', description: 'Hierro', unit: 'varilla', quantity: 20, receivedQuantity: 0, unitPriceGTQ: 45 },
-      ],
-      subtotalGTQ: 1650,
-      taxGTQ: 198,
-      totalGTQ: 1848,
-    };
-    await assertSucceeds(writePurchaseOrderWithLineReferences(finance, multiLineOrder));
-    await assertSucceeds(setDoc(doc(finance, 'purchaseOrders', multiLineOrder.id), {
-      status: 'approved',
-      approvedBy: USERS.finance,
-      updatedAt: '2026-11-16T09:15:00.000Z',
-    }, { merge: true }));
-
-    const warehouseManager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
-    const firstReceipt = {
-      id: 'rec_multi-line-order_0_RCV-001',
+    await setDoc(doc(context.firestore(), 'inventoryItems', 'cement'), {
+      id: 'cement',
       companyId: COMPANY_A,
-      projectId: multiLineOrder.projectId,
-      itemId: 'cement',
-      warehouseId: 'procurement-warehouse',
-      kind: 'purchase_receipt',
-      quantity: 10,
-      unitCostGTQ: 75,
-      occurredAt: '2026-11-16T10:00:00.000Z',
-      referenceId: multiLineOrder.id,
-      balanceId: 'bal_procurement-warehouse_cement',
-      receiptNumber: 'RCV-001',
-      lineIndex: 0,
-      createdBy: USERS.warehouseManager,
-    };
-    const firstBalance = {
-      id: firstReceipt.balanceId,
-      companyId: COMPANY_A,
-      itemId: 'cement',
-      warehouseId: 'procurement-warehouse',
-      quantity: 10,
-      averageUnitCostGTQ: 75,
+      name: 'Cemento',
+      unit: 'saco',
       reorderLevel: 10,
-      createdBy: USERS.warehouseManager,
-      createdAt: '2026-11-16T10:00:00.000Z',
-      updatedAt: '2026-11-16T10:00:00.000Z',
-      lastMovementId: firstReceipt.id,
-    };
-    await assertFails(setDoc(doc(warehouseManager, 'stockMovements', firstReceipt.id), firstReceipt));
-    await assertSucceeds(runTransaction(warehouseManager, async (transaction: Transaction) => {
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(context.firestore(), 'inventoryItems', 'steel'), {
+      id: 'steel',
+      companyId: COMPANY_A,
+      name: 'Hierro',
+      unit: 'varilla',
+      reorderLevel: 10,
+      active: true,
+      createdBy: USERS.owner,
+    });
+    await setDoc(doc(context.firestore(), 'warehouses', 'procurement-warehouse'), {
+      id: 'procurement-warehouse',
+      companyId: COMPANY_A,
+      projectId: 'procurement-project',
+      name: 'Bodega de compras',
+      type: 'project',
+      active: true,
+      createdBy: USERS.owner,
+    });
+  });
+  const finance = testEnvironment.authenticatedContext(USERS.finance).firestore();
+  const order = {
+    id: 'purchase-order-qa',
+    companyId: COMPANY_A,
+    projectId: 'procurement-project',
+    supplierId: 'supplier-procurement',
+    number: 'OC-QA-001',
+    status: 'draft',
+    currency: 'GTQ',
+    lines: [
+      {
+        itemId: 'cement',
+        description: 'Cemento',
+        unit: 'saco',
+        quantity: 10,
+        receivedQuantity: 0,
+        unitPriceGTQ: 75,
+      },
+    ],
+    subtotalGTQ: 750,
+    discountGTQ: 0,
+    taxPercent: 12,
+    taxGTQ: 90,
+    totalGTQ: 840,
+    requestedBy: USERS.finance,
+    createdAt: '2026-11-16T08:00:00.000Z',
+    updatedAt: '2026-11-16T08:00:00.000Z',
+  };
+  await assertSucceeds(writePurchaseOrderWithLineReferences(finance, order));
+  await assertFails(
+    setDoc(doc(finance, 'purchaseOrders', 'missing-line-refs'), {
+      ...order,
+      id: 'missing-line-refs',
+    })
+  );
+  await assertFails(
+    writePurchaseOrderWithLineReferences(finance, {
+      ...order,
+      id: 'wrong-subtotal',
+      subtotalGTQ: 900,
+      taxGTQ: 108,
+      totalGTQ: 1008,
+    })
+  );
+  await assertFails(
+    writePurchaseOrderWithLineReferences(finance, {
+      ...order,
+      id: 'wrong-tax',
+      taxGTQ: 120,
+      totalGTQ: 870,
+    })
+  );
+  await assertFails(
+    writePurchaseOrderWithLineReferences(finance, {
+      ...order,
+      id: 'discount-over-subtotal',
+      discountGTQ: 800,
+      taxGTQ: 0,
+      totalGTQ: -50,
+    })
+  );
+  await assertSucceeds(
+    setDoc(
+      doc(finance, 'purchaseOrders', order.id),
+      {
+        status: 'approved',
+        approvedBy: USERS.finance,
+        updatedAt: '2026-11-16T09:00:00.000Z',
+      },
+      { merge: true }
+    )
+  );
+  await assertFails(
+    setDoc(
+      doc(finance, 'purchaseOrders', order.id),
+      {
+        status: 'received',
+        updatedAt: '2026-11-16T09:30:00.000Z',
+        lastReceiptMovementId: 'forged-receipt',
+        lines: [{ ...order.lines[0], receivedQuantity: 10 }],
+      },
+      { merge: true }
+    )
+  );
+  const multiLineOrder = {
+    ...order,
+    id: 'multi-line-order',
+    number: 'OC-QA-002',
+    lines: [
+      { ...order.lines[0], quantity: 10 },
+      {
+        itemId: 'steel',
+        description: 'Hierro',
+        unit: 'varilla',
+        quantity: 20,
+        receivedQuantity: 0,
+        unitPriceGTQ: 45,
+      },
+    ],
+    subtotalGTQ: 1650,
+    taxGTQ: 198,
+    totalGTQ: 1848,
+  };
+  await assertSucceeds(writePurchaseOrderWithLineReferences(finance, multiLineOrder));
+  await assertSucceeds(
+    setDoc(
+      doc(finance, 'purchaseOrders', multiLineOrder.id),
+      {
+        status: 'approved',
+        approvedBy: USERS.finance,
+        updatedAt: '2026-11-16T09:15:00.000Z',
+      },
+      { merge: true }
+    )
+  );
+
+  const warehouseManager = testEnvironment.authenticatedContext(USERS.warehouseManager).firestore();
+  const firstReceipt = {
+    id: 'rec_multi-line-order_0_RCV-001',
+    companyId: COMPANY_A,
+    projectId: multiLineOrder.projectId,
+    itemId: 'cement',
+    warehouseId: 'procurement-warehouse',
+    kind: 'purchase_receipt',
+    quantity: 10,
+    unitCostGTQ: 75,
+    occurredAt: '2026-11-16T10:00:00.000Z',
+    referenceId: multiLineOrder.id,
+    balanceId: 'bal_procurement-warehouse_cement',
+    receiptNumber: 'RCV-001',
+    lineIndex: 0,
+    createdBy: USERS.warehouseManager,
+  };
+  const firstBalance = {
+    id: firstReceipt.balanceId,
+    companyId: COMPANY_A,
+    itemId: 'cement',
+    warehouseId: 'procurement-warehouse',
+    quantity: 10,
+    averageUnitCostGTQ: 75,
+    reorderLevel: 10,
+    createdBy: USERS.warehouseManager,
+    createdAt: '2026-11-16T10:00:00.000Z',
+    updatedAt: '2026-11-16T10:00:00.000Z',
+    lastMovementId: firstReceipt.id,
+  };
+  await assertFails(setDoc(doc(warehouseManager, 'stockMovements', firstReceipt.id), firstReceipt));
+  await assertSucceeds(
+    runTransaction(warehouseManager, async (transaction: Transaction) => {
       transaction.set(doc(warehouseManager, 'stockMovements', firstReceipt.id), firstReceipt);
       transaction.set(doc(warehouseManager, 'inventoryBalances', firstBalance.id), firstBalance);
       transaction.update(doc(warehouseManager, 'purchaseOrders', multiLineOrder.id), {
-        lines: [
-          { ...multiLineOrder.lines[0], receivedQuantity: 10 },
-          multiLineOrder.lines[1],
-        ],
+        lines: [{ ...multiLineOrder.lines[0], receivedQuantity: 10 }, multiLineOrder.lines[1]],
         status: 'partially_received',
         updatedAt: firstReceipt.occurredAt,
         lastReceiptMovementId: firstReceipt.id,
       });
-    }));
+    })
+  );
 
-    const secondReceipt = {
-      id: 'rec_multi-line-order_1_RCV-002',
-      companyId: COMPANY_A,
-      projectId: multiLineOrder.projectId,
-      itemId: 'steel',
-      warehouseId: 'procurement-warehouse',
-      kind: 'purchase_receipt',
-      quantity: 20,
-      unitCostGTQ: 45,
-      occurredAt: '2026-11-16T10:30:00.000Z',
-      referenceId: multiLineOrder.id,
-      balanceId: 'bal_procurement-warehouse_steel',
-      receiptNumber: 'RCV-002',
-      lineIndex: 1,
-      createdBy: USERS.warehouseManager,
-    };
-    const secondBalance = {
-      id: secondReceipt.balanceId,
-      companyId: COMPANY_A,
-      itemId: 'steel',
-      warehouseId: 'procurement-warehouse',
-      quantity: 20,
-      averageUnitCostGTQ: 45,
-      reorderLevel: 10,
-      createdBy: USERS.warehouseManager,
-      createdAt: '2026-11-16T10:30:00.000Z',
-      updatedAt: '2026-11-16T10:30:00.000Z',
-      lastMovementId: secondReceipt.id,
-    };
-    await assertSucceeds(runTransaction(warehouseManager, async (transaction: Transaction) => {
+  const secondReceipt = {
+    id: 'rec_multi-line-order_1_RCV-002',
+    companyId: COMPANY_A,
+    projectId: multiLineOrder.projectId,
+    itemId: 'steel',
+    warehouseId: 'procurement-warehouse',
+    kind: 'purchase_receipt',
+    quantity: 20,
+    unitCostGTQ: 45,
+    occurredAt: '2026-11-16T10:30:00.000Z',
+    referenceId: multiLineOrder.id,
+    balanceId: 'bal_procurement-warehouse_steel',
+    receiptNumber: 'RCV-002',
+    lineIndex: 1,
+    createdBy: USERS.warehouseManager,
+  };
+  const secondBalance = {
+    id: secondReceipt.balanceId,
+    companyId: COMPANY_A,
+    itemId: 'steel',
+    warehouseId: 'procurement-warehouse',
+    quantity: 20,
+    averageUnitCostGTQ: 45,
+    reorderLevel: 10,
+    createdBy: USERS.warehouseManager,
+    createdAt: '2026-11-16T10:30:00.000Z',
+    updatedAt: '2026-11-16T10:30:00.000Z',
+    lastMovementId: secondReceipt.id,
+  };
+  await assertSucceeds(
+    runTransaction(warehouseManager, async (transaction: Transaction) => {
       transaction.set(doc(warehouseManager, 'stockMovements', secondReceipt.id), secondReceipt);
       transaction.set(doc(warehouseManager, 'inventoryBalances', secondBalance.id), secondBalance);
       transaction.update(doc(warehouseManager, 'purchaseOrders', multiLineOrder.id), {
@@ -969,9 +1201,11 @@ beforeEach(async () => {
         updatedAt: secondReceipt.occurredAt,
         lastReceiptMovementId: secondReceipt.id,
       });
-    }));
+    })
+  );
 
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+  await assertFails(
+    writePurchaseOrderWithLineReferences(finance, {
       ...multiLineOrder,
       id: 'too-many-lines',
       number: 'OC-QA-003',
@@ -979,92 +1213,116 @@ beforeEach(async () => {
       subtotalGTQ: 4950,
       taxGTQ: 594,
       totalGTQ: 5544,
-    }));
-    const contract = {
-      id: 'subcontract-qa', companyId: COMPANY_A, projectId: 'procurement-project',
-      supplierId: 'supplier-procurement', contractNumber: 'SUB-QA-001',
-      description: 'Instalación eléctrica de prueba', startDate: '2026-11-01',
-      endDate: '2026-12-31', amountGTQ: 100000, paidGTQ: 0,
-      status: 'active', createdBy: USERS.finance,
-    };
-    await assertFails(setDoc(doc(finance, 'subcontracts', 'subcontract-bad-date'), {
-      ...contract, id: 'subcontract-bad-date', startDate: '2026/11/01',
-    }));
-    await assertSucceeds(setDoc(doc(finance, 'subcontracts', contract.id), contract));
-    const payment = {
-      id: 'subpay_subcontract-qa_BANK-TRANSFER-001',
-      companyId: COMPANY_A,
-      contractId: contract.id,
-      projectId: contract.projectId,
-      supplierId: contract.supplierId,
-      amountGTQ: 25000,
-      paymentDate: '2026-11-16',
-      reference: 'BANK-TRANSFER-001',
-      paymentMethod: 'Transferencia BI',
-      createdBy: USERS.finance,
-      createdAt: '2026-11-16T10:00:00.000Z',
-    };
-    const paymentExpense = {
-      id: payment.id,
-      subcontractPaymentId: payment.id,
-      paymentReference: payment.reference,
-      companyId: COMPANY_A,
-      projectId: contract.projectId,
-      authorId: USERS.finance,
-      date: payment.paymentDate,
-      category: 'Subcontratos',
-      description: 'Pago de subcontrato SUB-QA-001: Instalación eléctrica de prueba',
-      supplier: 'Proveedor QA',
-      nitSupplier: 'CF',
-      facturaNumber: '',
-      amount: payment.amountGTQ,
-      currency: 'GTQ',
-      paymentMethod: payment.paymentMethod,
-      approvalStatus: 'Aprobado',
-      approvedBy: payment.createdBy,
-      approvedAt: payment.createdAt,
-    };
-    await assertFails(setDoc(doc(finance, 'subcontracts', contract.id), {
-      paidGTQ: 25000,
-      lastPaymentId: payment.id,
-      updatedAt: payment.createdAt,
-    }, { merge: true }));
-    await assertFails(setDoc(doc(finance, 'subcontractPayments', payment.id), payment));
-    // A linked Subcontratos expense is rejected unless its payment exists in
-    // the same atomic write, preventing free-standing or duplicate ledger rows.
-    await assertFails(setDoc(doc(finance, 'expenses', paymentExpense.id), paymentExpense));
-    const malformedDatePayment = {
-      ...payment,
-      id: 'subpay_subcontract-qa_BAD-DATE',
-      paymentDate: '2026/11/16',
-      reference: 'BAD-DATE',
-    };
-    await assertFails(runTransaction(finance, async (transaction: Transaction) => {
-      transaction.set(doc(finance, 'subcontractPayments', malformedDatePayment.id), malformedDatePayment);
+    })
+  );
+  const contract = {
+    id: 'subcontract-qa',
+    companyId: COMPANY_A,
+    projectId: 'procurement-project',
+    supplierId: 'supplier-procurement',
+    contractNumber: 'SUB-QA-001',
+    description: 'Instalación eléctrica de prueba',
+    startDate: '2026-11-01',
+    endDate: '2026-12-31',
+    amountGTQ: 100000,
+    paidGTQ: 0,
+    status: 'active',
+    createdBy: USERS.finance,
+  };
+  await assertFails(
+    setDoc(doc(finance, 'subcontracts', 'subcontract-bad-date'), {
+      ...contract,
+      id: 'subcontract-bad-date',
+      startDate: '2026/11/01',
+    })
+  );
+  await assertSucceeds(setDoc(doc(finance, 'subcontracts', contract.id), contract));
+  const payment = {
+    id: 'subpay_subcontract-qa_BANK-TRANSFER-001',
+    companyId: COMPANY_A,
+    contractId: contract.id,
+    projectId: contract.projectId,
+    supplierId: contract.supplierId,
+    amountGTQ: 25000,
+    paymentDate: '2026-11-16',
+    reference: 'BANK-TRANSFER-001',
+    paymentMethod: 'Transferencia BI',
+    createdBy: USERS.finance,
+    createdAt: '2026-11-16T10:00:00.000Z',
+  };
+  const paymentExpense = {
+    id: payment.id,
+    subcontractPaymentId: payment.id,
+    paymentReference: payment.reference,
+    companyId: COMPANY_A,
+    projectId: contract.projectId,
+    authorId: USERS.finance,
+    date: payment.paymentDate,
+    category: 'Subcontratos',
+    description: 'Pago de subcontrato SUB-QA-001: Instalación eléctrica de prueba',
+    supplier: 'Proveedor QA',
+    nitSupplier: 'CF',
+    facturaNumber: '',
+    amount: payment.amountGTQ,
+    currency: 'GTQ',
+    paymentMethod: payment.paymentMethod,
+    approvalStatus: 'Aprobado',
+    approvedBy: payment.createdBy,
+    approvedAt: payment.createdAt,
+  };
+  await assertFails(
+    setDoc(
+      doc(finance, 'subcontracts', contract.id),
+      {
+        paidGTQ: 25000,
+        lastPaymentId: payment.id,
+        updatedAt: payment.createdAt,
+      },
+      { merge: true }
+    )
+  );
+  await assertFails(setDoc(doc(finance, 'subcontractPayments', payment.id), payment));
+  // A linked Subcontratos expense is rejected unless its payment exists in
+  // the same atomic write, preventing free-standing or duplicate ledger rows.
+  await assertFails(setDoc(doc(finance, 'expenses', paymentExpense.id), paymentExpense));
+  const malformedDatePayment = {
+    ...payment,
+    id: 'subpay_subcontract-qa_BAD-DATE',
+    paymentDate: '2026/11/16',
+    reference: 'BAD-DATE',
+  };
+  await assertFails(
+    runTransaction(finance, async (transaction: Transaction) => {
+      transaction.set(
+        doc(finance, 'subcontractPayments', malformedDatePayment.id),
+        malformedDatePayment
+      );
       transaction.update(doc(finance, 'subcontracts', contract.id), {
         paidGTQ: 25000,
         lastPaymentId: malformedDatePayment.id,
         updatedAt: malformedDatePayment.createdAt,
       });
-    }));
-    // A payment and its expense must not introduce fractions of a GTQ cent,
-    // even when a client attempts to bypass the app and write directly.
-    const fractionalPayment = {
-      ...payment,
-      id: 'subpay_subcontract-qa_FRACTIONAL-001',
-      amountGTQ: 25000.005,
-      reference: 'FRACTIONAL-001',
-      createdAt: '2026-11-16T10:15:00.000Z',
-    };
-    const fractionalExpense = {
-      ...paymentExpense,
-      id: fractionalPayment.id,
-      subcontractPaymentId: fractionalPayment.id,
-      paymentReference: fractionalPayment.reference,
-      amount: fractionalPayment.amountGTQ,
-      approvedAt: fractionalPayment.createdAt,
-    };
-    await assertFails(runTransaction(finance, async (transaction: Transaction) => {
+    })
+  );
+  // A payment and its expense must not introduce fractions of a GTQ cent,
+  // even when a client attempts to bypass the app and write directly.
+  const fractionalPayment = {
+    ...payment,
+    id: 'subpay_subcontract-qa_FRACTIONAL-001',
+    amountGTQ: 25000.005,
+    reference: 'FRACTIONAL-001',
+    createdAt: '2026-11-16T10:15:00.000Z',
+  };
+  const fractionalExpense = {
+    ...paymentExpense,
+    id: fractionalPayment.id,
+    subcontractPaymentId: fractionalPayment.id,
+    paymentReference: fractionalPayment.reference,
+    amount: fractionalPayment.amountGTQ,
+    approvedAt: fractionalPayment.createdAt,
+  };
+  await assertFails(
+    runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', fractionalPayment.id), fractionalPayment);
       transaction.set(doc(finance, 'expenses', fractionalExpense.id), fractionalExpense);
       transaction.update(doc(finance, 'subcontracts', contract.id), {
@@ -1072,8 +1330,10 @@ beforeEach(async () => {
         lastPaymentId: fractionalPayment.id,
         updatedAt: fractionalPayment.createdAt,
       });
-    }));
-    await assertSucceeds(runTransaction(finance, async (transaction: Transaction) => {
+    })
+  );
+  await assertSucceeds(
+    runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', payment.id), payment);
       transaction.set(doc(finance, 'expenses', paymentExpense.id), paymentExpense);
       transaction.update(doc(finance, 'subcontracts', contract.id), {
@@ -1081,53 +1341,72 @@ beforeEach(async () => {
         lastPaymentId: payment.id,
         updatedAt: payment.createdAt,
       });
-    }));
-    const persistedPaymentExpense = await getDoc(doc(finance, 'expenses', paymentExpense.id));
-    expect(persistedPaymentExpense.exists()).toBe(true);
-    expect(persistedPaymentExpense.data()).toMatchObject({
-      category: 'Subcontratos',
-      amount: 25000,
-      paymentReference: 'BANK-TRANSFER-001',
-      subcontractPaymentId: payment.id,
-    });
-    // The linked expense is an immutable accounting entry.
-    await assertFails(deleteDoc(doc(finance, 'expenses', paymentExpense.id)));
-    await assertFails(setDoc(doc(finance, 'expenses', paymentExpense.id), {
-      ...paymentExpense,
-      amount: 26000,
-    }, { merge: true }));
-    const excessivePayment = {
-      ...payment,
-      id: 'subpay_subcontract-qa_OVERPAY-001',
-      amountGTQ: 80000,
-      reference: 'OVERPAY-001',
-      createdAt: '2026-11-16T10:30:00.000Z',
-    };
-    await assertFails(runTransaction(finance, async (transaction: Transaction) => {
+    })
+  );
+  const persistedPaymentExpense = await getDoc(doc(finance, 'expenses', paymentExpense.id));
+  expect(persistedPaymentExpense.exists()).toBe(true);
+  expect(persistedPaymentExpense.data()).toMatchObject({
+    category: 'Subcontratos',
+    amount: 25000,
+    paymentReference: 'BANK-TRANSFER-001',
+    subcontractPaymentId: payment.id,
+  });
+  // The linked expense is an immutable accounting entry.
+  await assertFails(deleteDoc(doc(finance, 'expenses', paymentExpense.id)));
+  await assertFails(
+    setDoc(
+      doc(finance, 'expenses', paymentExpense.id),
+      {
+        ...paymentExpense,
+        amount: 26000,
+      },
+      { merge: true }
+    )
+  );
+  const excessivePayment = {
+    ...payment,
+    id: 'subpay_subcontract-qa_OVERPAY-001',
+    amountGTQ: 80000,
+    reference: 'OVERPAY-001',
+    createdAt: '2026-11-16T10:30:00.000Z',
+  };
+  await assertFails(
+    runTransaction(finance, async (transaction: Transaction) => {
       transaction.set(doc(finance, 'subcontractPayments', excessivePayment.id), excessivePayment);
       transaction.update(doc(finance, 'subcontracts', contract.id), {
         paidGTQ: 105000,
         lastPaymentId: excessivePayment.id,
         updatedAt: excessivePayment.createdAt,
       });
-    }));
-    await seedProject(makeProject('foreign-project', COMPANY_B));
-    await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      await setDoc(doc(context.firestore(), 'inventoryItems', 'foreign-cement'), {
-        id: 'foreign-cement', companyId: COMPANY_B, name: 'Cemento ajeno', unit: 'saco',
-        reorderLevel: 0, active: true, createdBy: USERS.otherCompanyOwner,
-      });
+    })
+  );
+  await seedProject(makeProject('foreign-project', COMPANY_B));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'inventoryItems', 'foreign-cement'), {
+      id: 'foreign-cement',
+      companyId: COMPANY_B,
+      name: 'Cemento ajeno',
+      unit: 'saco',
+      reorderLevel: 0,
+      active: true,
+      createdBy: USERS.otherCompanyOwner,
     });
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
-      ...order, id: 'foreign-order', projectId: 'foreign-project',
-    }));
-    await assertFails(writePurchaseOrderWithLineReferences(finance, {
+  });
+  await assertFails(
+    writePurchaseOrderWithLineReferences(finance, {
+      ...order,
+      id: 'foreign-order',
+      projectId: 'foreign-project',
+    })
+  );
+  await assertFails(
+    writePurchaseOrderWithLineReferences(finance, {
       ...order,
       id: 'foreign-item-order',
       lines: [{ ...order.lines[0], itemId: 'foreign-cement' }],
-    }));
-  });
-
+    })
+  );
+});
 
 afterAll(async () => {
   await testEnvironment?.cleanup();
@@ -1160,7 +1439,6 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     await assertFails(deleteDoc(ownerRef));
   });
 
-
   it('keeps user profile contact data private to the authenticated UID', async () => {
     const owner = testEnvironment.authenticatedContext(USERS.owner).firestore();
     const other = testEnvironment.authenticatedContext(USERS.viewer).firestore();
@@ -1175,10 +1453,16 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     await assertFails(getDoc(doc(other, 'userProfiles', USERS.owner)));
     await assertFails(getDocs(collection(owner, 'userProfiles')));
     await assertFails(setDoc(doc(other, 'userProfiles', USERS.owner), profile));
-    await assertFails(setDoc(doc(owner, 'userProfiles', USERS.owner), {
-      ...profile,
-      uid: USERS.viewer,
-    }, { merge: true }));
+    await assertFails(
+      setDoc(
+        doc(owner, 'userProfiles', USERS.owner),
+        {
+          ...profile,
+          uid: USERS.viewer,
+        },
+        { merge: true }
+      )
+    );
   });
 
   it('permite resolver membresías y configuración de empresa al iniciar sesión', async () => {
@@ -1387,13 +1671,17 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     await assertSucceeds(batch.commit());
 
     // The meter cannot be edited directly without a matching new usage log.
-    await assertFails(updateDoc(doc(database, 'machinery', 'machine-1'), {
-      currentHorometer: 103,
-    }));
+    await assertFails(
+      updateDoc(doc(database, 'machinery', 'machine-1'), {
+        currentHorometer: 103,
+      })
+    );
     // Reusing the previous log ID must not let a caller add its hours twice.
-    await assertFails(updateDoc(doc(database, 'machinery', 'machine-1'), {
-      currentHorometer: 104,
-    }));
+    await assertFails(
+      updateDoc(doc(database, 'machinery', 'machine-1'), {
+        currentHorometer: 104,
+      })
+    );
 
     await assertFails(
       setDoc(doc(database, 'expenses', 'forged-machine-expense'), {
@@ -1413,17 +1701,12 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
 
   it('rechaza acceso de otra empresa y escrituras de un rol viewer', async () => {
     await seedProject(makeProject('private-project-a'));
-    const otherCompany = testEnvironment
-      .authenticatedContext(USERS.otherCompanyOwner)
-      .firestore();
+    const otherCompany = testEnvironment.authenticatedContext(USERS.otherCompanyOwner).firestore();
     const viewer = testEnvironment.authenticatedContext(USERS.viewer).firestore();
 
     await assertFails(getDoc(doc(otherCompany, 'projects', 'private-project-a')));
     await assertFails(
-      setDoc(
-        doc(viewer, 'projects', 'viewer-project'),
-        makeProject('viewer-project')
-      )
+      setDoc(doc(viewer, 'projects', 'viewer-project'), makeProject('viewer-project'))
     );
   });
 
@@ -1437,8 +1720,8 @@ describe('Firestore Emulator: aislamiento y escenarios de obra', () => {
     const result = await getDocs(
       query(collection(database, 'projects'), where('companyId', '==', COMPANY_A))
     );
-    const projects = result.docs.map(
-      (snapshot: QueryDocumentSnapshot<DocumentData>) => snapshot.data()
+    const projects = result.docs.map((snapshot: QueryDocumentSnapshot<DocumentData>) =>
+      snapshot.data()
     );
     const totalBudget = projects.reduce(
       (sum: number, project: DocumentData) => sum + Number(project.budgetTotal),

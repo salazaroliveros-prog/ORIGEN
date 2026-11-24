@@ -69,7 +69,7 @@ npx -y firebase-tools@latest firestore:databases:create <database-id> --edition=
 
 Proceed with using the guides under `references/enterprise/`.
 
-______________________________________________________________________
+---
 
 ## 2. Specialized Guides
 

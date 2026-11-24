@@ -4,18 +4,21 @@ description: Shows Agent Skills client products and implementations that support
 ---
 
 Use this skill when the user asks about:
+
 - Agent products that support Agent Skills format
 - Different client implementations (VS Code, Claude Code, OpenAI Codex, etc.)
 - How various agents discover and execute skills
 - Cross-platform skill compatibility
 
 **Client implementations typically support:**
+
 - Skill discovery through `.agents/skills/` directory scanning
 - Progressive disclosure (name/description first, full body on match)
 - Various skill types: dice rolling, code generation, design-to-code, etc.
 - Integration with local and remote resources
 
 **Supported frameworks and languages:**
+
 - React, Vue, Svelte, Angular (web frameworks)
 - JavaScript, TypeScript, Python, Ruby, Go, Rust, etc.
 - Figma design-to-code workflows

@@ -63,7 +63,12 @@ export async function checkRateLimit(
           resetTime: now + windowMs,
           windowMs,
         });
-        return { allowed: true, remaining: maxRequests - 1, resetTime: now + windowMs, total: maxRequests };
+        return {
+          allowed: true,
+          remaining: maxRequests - 1,
+          resetTime: now + windowMs,
+          total: maxRequests,
+        };
       }
 
       if (data.count >= maxRequests) {
@@ -85,7 +90,12 @@ export async function checkRateLimit(
         resetTime: now + windowMs,
         windowMs,
       });
-      return { allowed: true, remaining: maxRequests - 1, resetTime: now + windowMs, total: maxRequests };
+      return {
+        allowed: true,
+        remaining: maxRequests - 1,
+        resetTime: now + windowMs,
+        total: maxRequests,
+      };
     }
   } catch {
     // Fallback to in-memory store if Firestore fails
@@ -98,7 +108,12 @@ export async function checkRateLimit(
         windowMs,
       };
       setMemoryEntry(key, newEntry);
-      return { allowed: true, remaining: maxRequests - 1, resetTime: now + windowMs, total: maxRequests };
+      return {
+        allowed: true,
+        remaining: maxRequests - 1,
+        resetTime: now + windowMs,
+        total: maxRequests,
+      };
     }
 
     if (entry.count >= maxRequests) {

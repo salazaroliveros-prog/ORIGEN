@@ -15,7 +15,7 @@
 [✅] TypeScript Compilation
      └─ npx tsc --noEmit → SIN ERRORES
 
-[✅] ESLint Validation  
+[✅] ESLint Validation
      └─ npm run lint → 0 WARNINGS
 
 [✅] Build Next.js

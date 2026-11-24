@@ -12,7 +12,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 const PROJECT_ID = 'demo-origen-erp-test';
 const imagePath = (caseName: string) => `projects/project-1/progress/${caseName}.jpg`;
-const imageBytes = () => new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+const imageBytes = () =>
+  new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
 
 let testEnvironment: RulesTestEnvironment;
 
@@ -53,34 +54,56 @@ beforeEach(async () => {
 describe('storage.rules', () => {
   it('denies anonymous uploads', async () => {
     const storage = testEnvironment.unauthenticatedContext().storage();
-    await assertFails(uploadBytes(ref(storage, imagePath('anonymous')), imageBytes(), { contentType: 'image/jpeg' }));
+    await assertFails(
+      uploadBytes(ref(storage, imagePath('anonymous')), imageBytes(), { contentType: 'image/jpeg' })
+    );
   });
 
   it('denies authenticated users who are not members of the project company', async () => {
     const storage = testEnvironment.authenticatedContext('uid-2').storage();
-    await assertFails(uploadBytes(ref(storage, imagePath('outsider-upload')), imageBytes(), { contentType: 'image/jpeg' }));
+    await assertFails(
+      uploadBytes(ref(storage, imagePath('outsider-upload')), imageBytes(), {
+        contentType: 'image/jpeg',
+      })
+    );
   });
 
   it('allows a member of the project company to upload a valid image', async () => {
     const storage = testEnvironment.authenticatedContext('uid-1').storage();
-    await assertSucceeds(uploadBytes(ref(storage, imagePath('member-upload')), imageBytes(), { contentType: 'image/jpeg' }));
+    await assertSucceeds(
+      uploadBytes(ref(storage, imagePath('member-upload')), imageBytes(), {
+        contentType: 'image/jpeg',
+      })
+    );
   });
 
   it('denies project-photo reads to users outside the company', async () => {
     const ownerStorage = testEnvironment.authenticatedContext('uid-1').storage();
-    await assertSucceeds(uploadBytes(ref(ownerStorage, imagePath('private-read')), imageBytes(), { contentType: 'image/jpeg' }));
+    await assertSucceeds(
+      uploadBytes(ref(ownerStorage, imagePath('private-read')), imageBytes(), {
+        contentType: 'image/jpeg',
+      })
+    );
     const otherStorage = testEnvironment.authenticatedContext('uid-2').storage();
     await assertFails(getBytes(ref(otherStorage, imagePath('private-read'))));
   });
 
   it('rejects non-image content types', async () => {
     const storage = testEnvironment.authenticatedContext('uid-1').storage();
-    await assertFails(uploadBytes(ref(storage, imagePath('invalid-type')), new Uint8Array([1, 2, 3]), { contentType: 'application/pdf' }));
+    await assertFails(
+      uploadBytes(ref(storage, imagePath('invalid-type')), new Uint8Array([1, 2, 3]), {
+        contentType: 'application/pdf',
+      })
+    );
   });
 
   it('rejects empty and oversized image uploads', async () => {
     const storage = testEnvironment.authenticatedContext('uid-1').storage();
-    await assertFails(uploadBytes(ref(storage, imagePath('empty-and-oversized')), new Uint8Array(0), { contentType: 'image/jpeg' }));
+    await assertFails(
+      uploadBytes(ref(storage, imagePath('empty-and-oversized')), new Uint8Array(0), {
+        contentType: 'image/jpeg',
+      })
+    );
     await assertFails(
       uploadBytes(
         ref(storage, 'projects/project-1/progress/oversized.jpg'),
@@ -99,13 +122,17 @@ describe('storage.rules', () => {
 
   it('denies deleting an uploaded photo from the client', async () => {
     const storage = testEnvironment.authenticatedContext('uid-1').storage();
-    await assertSucceeds(uploadBytes(ref(storage, imagePath('no-delete')), imageBytes(), { contentType: 'image/jpeg' }));
+    await assertSucceeds(
+      uploadBytes(ref(storage, imagePath('no-delete')), imageBytes(), { contentType: 'image/jpeg' })
+    );
     await assertFails(deleteObject(ref(storage, imagePath('no-delete'))));
   });
 
   it('keeps every other path in the bucket closed', async () => {
     const storage = testEnvironment.authenticatedContext('uid-1').storage();
-    await assertFails(uploadBytes(ref(storage, 'private/foto.jpg'), imageBytes(), { contentType: 'image/jpeg' }));
+    await assertFails(
+      uploadBytes(ref(storage, 'private/foto.jpg'), imageBytes(), { contentType: 'image/jpeg' })
+    );
     expect(true).toBe(true);
   });
 });

@@ -418,7 +418,7 @@ export function SignaturePad({
 
   if (inline) {
     return (
-      <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-5">{content}</div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">{content}</div>
     );
   }
 

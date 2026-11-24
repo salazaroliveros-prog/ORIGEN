@@ -1,6 +1,6 @@
 /**
  * ✅ TEST SUITE COMPLETO - ORIGEN ERP GUATEMALA
- * 
+ *
  * Cobertura: Funcionalidad, Seguridad, Performance, Compliance
  */
 
@@ -31,38 +31,38 @@ export const smokeTests = {
       type: res.headers.get('x-content-type-options'),
       hsts: res.headers.get('strict-transport-security'),
     };
-    
+
     console.assert(headers.csp !== null, 'CSP header missing');
     console.assert(headers.frame === 'DENY', 'X-Frame-Options not DENY');
     console.assert(headers.type === 'nosniff', 'X-Content-Type-Options not nosniff');
     console.assert(headers.hsts !== null, 'HSTS header missing');
-    
+
     return { passed: true, headers };
   },
 
   async checkMetadataAndSEO() {
     const res = await fetch('/');
     const html = await res.text();
-    
+
     console.assert(html.includes('ConstructERP Guatemala'), 'Title missing');
     console.assert(html.includes('og:title'), 'OG tags missing');
     console.assert(html.includes('robots.txt'), 'Robots reference missing');
     console.assert(html.includes('schema.org'), 'Schema.org missing');
-    
+
     return { passed: true };
   },
 
   async checkRateLimiting() {
     // Simular múltiples requests rápidos
-    const requests = Array(5).fill(null).map(() => 
-      fetch('/api/health').catch(() => null)
-    );
+    const requests = Array(5)
+      .fill(null)
+      .map(() => fetch('/api/health').catch(() => null));
     const responses = await Promise.all(requests);
-    
+
     // Al menos 4 de 5 deben pasar (1 puede ser rate limited)
-    const successes = responses.filter(r => r?.status === 200).length;
+    const successes = responses.filter((r) => r?.status === 200).length;
     console.assert(successes >= 4, 'Rate limiting too aggressive');
-    
+
     return { passed: true, successRate: `${(successes / 5) * 100}%` };
   },
 };
@@ -118,12 +118,12 @@ export const securityTests = {
   async testCSPPolicy() {
     const res = await fetch('/');
     const csp = res.headers.get('content-security-policy');
-    
+
     console.assert(csp?.includes('default-src'), 'default-src missing');
     console.assert(csp?.includes('script-src'), 'script-src missing');
     console.assert(csp?.includes('style-src'), 'style-src missing');
     console.assert(!csp?.includes('*'), 'Wildcard in CSP detected');
-    
+
     return { passed: true, policyLength: csp?.length };
   },
 
@@ -225,7 +225,10 @@ export const complianceTests = {
     // GET /api/account/my-data
     // DELETE /api/account/delete-account
     console.log('Verifying ARCO endpoints...');
-    return { passed: true, endpoints: ['GET /api/account/my-data', 'DELETE /api/account/delete-account'] };
+    return {
+      passed: true,
+      endpoints: ['GET /api/account/my-data', 'DELETE /api/account/delete-account'],
+    };
   },
 };
 
@@ -235,7 +238,7 @@ export const complianceTests = {
 
 export async function loadTest(numUsers: number, duration: number = 60) {
   console.log(`🚀 Starting load test: ${numUsers} users for ${duration}s`);
-  
+
   const startTime = Date.now();
   const results = {
     totalRequests: 0,
@@ -247,10 +250,12 @@ export async function loadTest(numUsers: number, duration: number = 60) {
     responseTimes: [] as number[],
   };
 
-  const userSessions = Array(numUsers).fill(null).map((_, i) => ({
-    userId: `user-${i}`,
-    responseTimes: [] as number[],
-  }));
+  const userSessions = Array(numUsers)
+    .fill(null)
+    .map((_, i) => ({
+      userId: `user-${i}`,
+      responseTimes: [] as number[],
+    }));
 
   while (Date.now() - startTime < duration * 1000) {
     for (const session of userSessions) {
@@ -258,7 +263,7 @@ export async function loadTest(numUsers: number, duration: number = 60) {
       try {
         const res = await fetch('/api/health');
         const reqTime = performance.now() - reqStart;
-        
+
         results.totalRequests++;
         results.responseTimes.push(reqTime);
         session.responseTimes.push(reqTime);
@@ -275,10 +280,10 @@ export async function loadTest(numUsers: number, duration: number = 60) {
         results.failedRequests++;
       }
     }
-    await new Promise(r => setTimeout(r, 100)); // Rate limit ourselves
+    await new Promise((r) => setTimeout(r, 100)); // Rate limit ourselves
   }
 
-  results.averageResponseTime = 
+  results.averageResponseTime =
     results.responseTimes.reduce((a, b) => a + b, 0) / results.responseTimes.length;
 
   console.log(`✅ Load test completed:`);
@@ -298,7 +303,7 @@ export async function loadTest(numUsers: number, duration: number = 60) {
 
 export async function runLighthouse() {
   console.log('🔍 Running Lighthouse performance audit...');
-  
+
   const metrics = {
     performance: 88,
     accessibility: 90,

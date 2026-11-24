@@ -72,14 +72,11 @@ export function Pagination({
       </p>
 
       {/* Controles de paginación */}
-      <nav
-        aria-label={ariaLabel}
-        className="flex items-center justify-between gap-2"
-      >
+      <nav aria-label={ariaLabel} className="flex items-center justify-between gap-2">
         <button
           onClick={() => goToPage(safePage - 1)}
           disabled={safePage === 1}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
             safePage === 1
               ? 'border border-slate-300 bg-slate-100 text-slate-400'
               : 'border border-slate-300 bg-white text-slate-900 hover:bg-slate-50'
@@ -124,7 +121,7 @@ export function Pagination({
                   key={p}
                   onClick={() => goToPage(p)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold transition-colors ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold transition-colors ${
                     isActive
                       ? 'bg-brand-400 text-neutral-900 shadow-glow'
                       : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900'
@@ -140,7 +137,7 @@ export function Pagination({
         <button
           onClick={() => goToPage(safePage + 1)}
           disabled={safePage === totalPages}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
             safePage === totalPages
               ? 'border border-slate-300 bg-slate-100 text-slate-400'
               : 'border border-slate-300 bg-white text-slate-900 hover:bg-slate-50'

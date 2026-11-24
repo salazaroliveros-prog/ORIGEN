@@ -823,12 +823,14 @@ export async function exportConstructionAuditPdf(
   doc.setDrawColor(203, 213, 225);
   doc.roundedRect(margin, y, usableWidth, 14, 1.5, 1.5, 'FD');
 
-  const pendingNote = pendingCount > 0
-    ? `Hay ${pendingCount} solicitud(es) pendientes por ${formatGTQ(pendingAmount)}; no se certifican como gasto ejecutado, pero sí reducen el saldo disponible.`
-    : '';
-  const rejectionNote = auditMetrics.rejectedCount > 0
-    ? `Se excluyen ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatGTQ(auditMetrics.rejectedAmount)}.`
-    : '';
+  const pendingNote =
+    pendingCount > 0
+      ? `Hay ${pendingCount} solicitud(es) pendientes por ${formatGTQ(pendingAmount)}; no se certifican como gasto ejecutado, pero sí reducen el saldo disponible.`
+      : '';
+  const rejectionNote =
+    auditMetrics.rejectedCount > 0
+      ? `Se excluyen ${auditMetrics.rejectedCount} gasto(s) rechazado(s) por ${formatGTQ(auditMetrics.rejectedAmount)}.`
+      : '';
   const baseNotes =
     auditNotes?.trim() ||
     `Los gastos aprobados y auditados ascienden a ${formatGTQ(totalExpenses)} y se comparan con el avance físico certificado de ${physicalProgress}%. El saldo presupuestario después de compromisos es de ${formatGTQ(budgetBalance)}.`;

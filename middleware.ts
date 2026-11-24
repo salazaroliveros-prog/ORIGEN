@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * ✅ MIDDLEWARE: HTTPS Redirect + Security
- * 
+ *
  * Implementa:
  * 1. Redirect HTTP → HTTPS en producción
  * 2. HSTS header confirmación
@@ -21,12 +21,9 @@ export async function middleware(request: NextRequest) {
 
   // ✅ Agregar headers de seguridad adicionales
   const response = NextResponse.next();
-  
+
   // HSTS
-  response.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
-  );
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
   // X-UA-Compatible
   response.headers.set('X-UA-Compatible', 'IE=edge');
@@ -41,7 +38,5 @@ export async function middleware(request: NextRequest) {
 
 // ✅ Configurar qué rutas usan el middleware
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
 };

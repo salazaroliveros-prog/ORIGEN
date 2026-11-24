@@ -44,7 +44,9 @@ export function GanttModuleExpanded() {
           <CalendarDays className="mb-4 h-12 w-12 text-primary-500" />
           <h2 className="text-xl font-bold text-white">Cronograma Gantt</h2>
           <p className="mt-2 text-sm text-slate-400">Visualización de timeline del proyecto</p>
-          <Button variant="primary" className="mt-6">Ver Cronograma Completo</Button>
+          <Button variant="primary" className="mt-6">
+            Ver Cronograma Completo
+          </Button>
         </div>
       </Card>
     </div>

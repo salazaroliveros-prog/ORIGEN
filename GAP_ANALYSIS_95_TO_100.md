@@ -33,6 +33,7 @@
 **Gap:** 5 puntos
 
 #### 🔴 FALTA 1: Web Application Firewall (WAF)
+
 - **Componente:** Cloud Armor (Google Cloud)
 - **Impacto:** DDoS prevention, bot detection
 - **Criticidad:** ALTA
@@ -40,6 +41,7 @@
 - **Benefit:** +2 puntos
 
 **Recomendación:**
+
 ```
 Cloud Armor rules:
 - DDoS protection: Default + Custom rules
@@ -49,6 +51,7 @@ Cloud Armor rules:
 ```
 
 #### 🔴 FALTA 2: API Key Rotation Policy
+
 - **Componente:** Service accounts
 - **Impacto:** Key management security
 - **Criticidad:** ALTA
@@ -56,6 +59,7 @@ Cloud Armor rules:
 - **Benefit:** +1.5 puntos
 
 **Recomendación:**
+
 ```
 Implement:
 - Monthly key rotation
@@ -65,6 +69,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 3: TLS/SSL Certificate Pinning
+
 - **Componente:** Network security
 - **Impacto:** Man-in-the-middle attack prevention
 - **Criticidad:** MEDIA
@@ -72,6 +77,7 @@ Implement:
 - **Benefit:** +1.5 puntos
 
 **Recomendación:**
+
 ```
 Vercel + Firebase:
 - Implement HPKP headers
@@ -88,6 +94,7 @@ Vercel + Firebase:
 **Gap:** 12 puntos
 
 #### 🔴 FALTA 1: Image Optimization WebP/AVIF
+
 - **Componente:** `app/layout.tsx`, `components/`
 - **Impacto:** -30-40% payload size
 - **Criticidad:** ALTA
@@ -95,12 +102,14 @@ Vercel + Firebase:
 - **Benefit:** +4 puntos
 
 **Current State:**
+
 - PNG sin comprensión
 - 192x192 (apple-touch-icon) = ~15KB
 - 512x512 (PWA icon) = ~40KB
 - Total: ~55KB
 
 **Recommended:**
+
 ```
 Convert to:
 - WebP: -40% (33KB)
@@ -109,6 +118,7 @@ Convert to:
 ```
 
 #### 🔴 FALTA 2: Code Splitting Optimization
+
 - **Componente:** Next.js route-based splitting
 - **Impacto:** Initial JS bundle reduction
 - **Criticidad:** ALTA
@@ -117,6 +127,7 @@ Convert to:
 
 **Current:** No hay evidencia de code splitting manual  
 **Recommended:**
+
 ```
 Implement:
 - Dynamic imports en rutas pesadas
@@ -125,6 +136,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 3: Database Query Optimization
+
 - **Componente:** Firestore queries
 - **Impacto:** -20-30% read operations
 - **Criticidad:** MEDIA
@@ -133,6 +145,7 @@ Implement:
 
 **Current:** No hay índices compuestos mencionados  
 **Recommended:**
+
 ```
 Add Firestore indexes:
 - userId + createdAt
@@ -142,6 +155,7 @@ Add Firestore indexes:
 ```
 
 #### 🔴 FALTA 4: Service Worker Caching Strategy
+
 - **Componente:** `service-worker.ts`
 - **Impacto:** -50-70% repeat visits
 - **Criticidad:** MEDIA
@@ -150,6 +164,7 @@ Add Firestore indexes:
 
 **Current:** Basic SW, sin strategy clara  
 **Recommended:**
+
 ```
 Implement:
 - Cache-first para assets estáticos
@@ -167,6 +182,7 @@ Implement:
 **Gap:** 10 puntos
 
 #### 🔴 FALTA 1: Data Encryption at Rest
+
 - **Componente:** Firestore + Cloud Storage
 - **Impacto:** PCI-DSS, HIPAA compliance
 - **Criticidad:** ALTA
@@ -175,6 +191,7 @@ Implement:
 
 **Current:** Google-managed encryption (default)  
 **Recommended:**
+
 ```
 Implement:
 - Customer-managed encryption keys (CMEK)
@@ -183,6 +200,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 2: Data Retention & Deletion Policies
+
 - **Componente:** Firestore TTL + Cloud Storage lifecycle
 - **Impacto:** GDPR, CCPA compliance
 - **Criticidad:** ALTA
@@ -191,6 +209,7 @@ Implement:
 
 **Current:** Manual retention configurado (90 días backups)  
 **Recommended:**
+
 ```
 Implement:
 - Firestore TTL policies
@@ -200,6 +219,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 3: Audit Logging Comprehensive
+
 - **Componente:** Cloud Logging + Firestore audit
 - **Impacto:** SOC 2, ISO 27001 compliance
 - **Criticidad:** MEDIA
@@ -208,6 +228,7 @@ Implement:
 
 **Current:** Basic audit logs en _audit_logs  
 **Recommended:**
+
 ```
 Implement:
 - Cloud Audit Logs (admin, data access, system events)
@@ -217,6 +238,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 4: Penetration Testing Report
+
 - **Componente:** Third-party security assessment
 - **Impacto:** SOC 2 Type II, ISO compliance
 - **Criticidad:** MEDIA
@@ -225,6 +247,7 @@ Implement:
 
 **Current:** Básico security review hecho  
 **Recommended:**
+
 ```
 Hire:
 - Annual penetration testing
@@ -242,6 +265,7 @@ Hire:
 **Gap:** 10 puntos
 
 #### 🔴 FALTA 1: WCAG 2.1 AAA Complete Implementation
+
 - **Componente:** CSS + Componentes
 - **Impacto:** Full AAA compliance
 - **Criticidad:** MEDIA
@@ -250,6 +274,7 @@ Hire:
 
 **Current:** 70% AAA compliance  
 **Recommended:**
+
 ```
 Implement:
 - Color contrast 7:1 en TODOS los textos
@@ -259,6 +284,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 2: Multilingual Accessibility
+
 - **Componente:** i18n + translations
 - **Impacto:** Spanish/English support completo
 - **Criticidad:** BAJA
@@ -267,6 +293,7 @@ Implement:
 
 **Current:** Español nativo, English interface pendiente  
 **Recommended:**
+
 ```
 Implement:
 - next-i18n-router
@@ -276,6 +303,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 3: Video/Audio Accessibility
+
 - **Componente:** Media players
 - **Impacto:** Captions, transcripts
 - **Criticidad:** BAJA
@@ -284,6 +312,7 @@ Implement:
 
 **Current:** No hay video/audio en sistema  
 **Recommended:**
+
 ```
 If added:
 - Captions (SRT files)
@@ -301,6 +330,7 @@ If added:
 **Gap:** 15 puntos
 
 #### 🔴 FALTA 1: Advanced Analytics Dashboard
+
 - **Componente:** Google Analytics 4 + Mixpanel
 - **Impacto:** User behavior insights
 - **Criticidad:** MEDIA
@@ -309,6 +339,7 @@ If added:
 
 **Current:** No analytics implementadas  
 **Recommended:**
+
 ```
 Implement:
 - Google Analytics 4
@@ -318,6 +349,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 2: Error Tracking & Reporting
+
 - **Componente:** Sentry o Rollbar
 - **Impacto:** Proactive error detection
 - **Criticidad:** MEDIA
@@ -326,6 +358,7 @@ Implement:
 
 **Current:** Slack alerts basic  
 **Recommended:**
+
 ```
 Implement:
 - Sentry integration
@@ -335,6 +368,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 3: Real-time Performance Monitoring
+
 - **Componente:** New Relic / Datadog
 - **Impacto:** Production visibility
 - **Criticidad:** MEDIA
@@ -343,6 +377,7 @@ Implement:
 
 **Current:** Health checks básicos  
 **Recommended:**
+
 ```
 Implement:
 - APM (Application Performance Monitoring)
@@ -352,6 +387,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 4: Uptime Monitoring SLA
+
 - **Componente:** Uptime Robot / Pingdom
 - **Impacto:** 99.9% SLA documentation
 - **Criticidad:** BAJA
@@ -360,6 +396,7 @@ Implement:
 
 **Current:** Verificación manual  
 **Recommended:**
+
 ```
 Implement:
 - Uptime Robot ($10/mes)
@@ -386,6 +423,7 @@ Implement:
 **Gap:** 10 puntos
 
 #### 🔴 FALTA 1: API Documentation (OpenAPI/Swagger)
+
 - **Componente:** Swagger UI / OpenAPI spec
 - **Impacto:** Developer onboarding
 - **Criticidad:** MEDIA
@@ -394,6 +432,7 @@ Implement:
 
 **Current:** No hay Swagger UI  
 **Recommended:**
+
 ```
 Implement:
 - OpenAPI 3.1 spec
@@ -403,6 +442,7 @@ Implement:
 ```
 
 #### 🔴 FALTA 2: Architecture Decision Records (ADRs)
+
 - **Componente:** docs/adr/
 - **Impacto:** Technical decisions traced
 - **Criticidad:** MEDIA
@@ -411,6 +451,7 @@ Implement:
 
 **Current:** No ADR files  
 **Recommended:**
+
 ```
 Create:
 - ADR-001: Technology stack choice
@@ -419,6 +460,7 @@ Create:
 ```
 
 #### 🔴 FALTA 3: User/Developer Handbook
+
 - **Componente:** GitBook / docs website
 - **Impacto:** Self-service resources
 - **Criticidad:** BAJA
@@ -427,6 +469,7 @@ Create:
 
 **Current:** Reportes técnicos, sin handbook  
 **Recommended:**
+
 ```
 Create:
 - Getting started guide
@@ -462,6 +505,7 @@ TOTAL EFFORT: 51-57 horas
 ## 🎯 ROADMAP PARA 100/100
 
 ### FASE 1: Quick Wins (12-14 horas) → +8 puntos
+
 1. Image optimization WebP/AVIF (+4)
 2. Cloud Armor WAF (+2)
 3. API Key Rotation (+1.5)
@@ -470,14 +514,17 @@ TOTAL EFFORT: 51-57 horas
 **Resultado: 95 → 103... wait, capped at 100**
 
 ### FASE 2: Performance Optimization (9-11 horas) → +6 puntos
+
 1. Code Splitting (+3)
 2. Firestore Query Optimization (+3)
 
 ### FASE 3: Compliance & Security (9-11 horas) → +6 puntos
+
 1. Data Encryption at Rest (+3)
 2. Data Retention Policies (+3)
 
 ### FASE 4: Monitoring & Analytics (8-10 horas) → +12 puntos
+
 1. Advanced Analytics (+4)
 2. Error Tracking (+4)
 3. Real-time APM (+4)
@@ -508,6 +555,7 @@ TOTAL: 11-17h → +17 puntos (capped at +5 → 100)
 **95 → 100 requiere 51-57 horas de trabajo.**
 
 **Áreas principales:**
+
 1. Performance optimizations (11-12h)
 2. Advanced monitoring (8-10h)
 3. Compliance deepening (7-8h)
@@ -518,7 +566,7 @@ TOTAL: 11-17h → +17 puntos (capped at +5 → 100)
 **Current state:** 95/100 es EXCELENTE para producción.  
 **100/100 es perfectamente posible pero requiere inversión de tiempo.**
 
-**Recomendación:** 
+**Recomendación:**
+
 - Deploy con 95/100 (todos los gaps son optimizaciones, no blockers)
 - Mejorar a 100/100 en próximas 2 semanas post-launch
-

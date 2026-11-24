@@ -12,7 +12,7 @@ export function LoadingScreen({
 }: LoadingScreenProps) {
   return (
     <div
-      className={`bg-deep flex min-h-screen items-center justify-center px-4 text-slate-300 ${className}`}
+      className={`flex min-h-screen items-center justify-center bg-deep px-4 text-slate-300 ${className}`}
     >
       <div className="flex flex-col items-center gap-4 text-center backdrop-blur-sm">
         <div className="relative">

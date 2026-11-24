@@ -56,7 +56,11 @@ async function addManualAPUItem(
   await expect(modal).toBeHidden({ timeout: 30_000 });
 }
 
-async function getProjectRow(page: Page, code: string, action: 'Editar proyecto' | 'Archivar proyecto' | 'Restaurar proyecto' = 'Editar proyecto') {
+async function getProjectRow(
+  page: Page,
+  code: string,
+  action: 'Editar proyecto' | 'Archivar proyecto' | 'Restaurar proyecto' = 'Editar proyecto'
+) {
   const actionButton = page.getByRole('button', { name: `${action} ${code}` });
   await expect(actionButton).toBeVisible({ timeout: 20_000 });
   return actionButton.locator('xpath=ancestor::li[1]');
@@ -608,8 +612,8 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
     await expect(
       dashboard.locator('p').filter({ hasText: /^Presupuesto Proyectado$/ })
     ).toBeVisible({ timeout: 15_000 });
-    await expect(
-      dashboard.locator('p').filter({ hasText: /^Gastos Registrados$/ })
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(dashboard.locator('p').filter({ hasText: /^Gastos Registrados$/ })).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });

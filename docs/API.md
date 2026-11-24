@@ -1,23 +1,29 @@
 # ConstructERP API Documentation
 
 ## Base URL
+
 ```
 /api
 ```
 
 ## Authentication
+
 All API endpoints require authentication via Firebase Auth token in the Authorization header:
+
 ```
 Authorization: Bearer <firebase-id-token>
 ```
 
 ## Rate Limiting
+
 API endpoints are rate-limited using persistent storage (Firestore with in-memory fallback):
+
 - Default: 30 requests/minute per user
 - Receipt analysis: 20 requests/minute
 - Bitácora generation: 10 requests/minute
 
 Rate limit headers returned:
+
 - `X-RateLimit-Limit`: Maximum requests allowed
 - `X-RateLimit-Remaining`: Remaining requests in window
 - `X-RateLimit-Reset`: Unix timestamp when limit resets
@@ -25,6 +31,7 @@ Rate limit headers returned:
 ## Response Format
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -33,6 +40,7 @@ Rate limit headers returned:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -44,21 +52,23 @@ Rate limit headers returned:
 
 ## Error Codes
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `VALIDATION_ERROR` | 400 | Invalid request data |
-| `AUTHENTICATION_ERROR` | 401 | Missing or invalid auth token |
-| `AUTHORIZATION_ERROR` | 403 | Insufficient permissions |
-| `NOT_FOUND` | 404 | Resource not found |
-| `CONFLICT` | 409 | Resource conflict |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
-| `FIRESTORE_ERROR` | 500 | Database operation failed |
-| `EXTERNAL_SERVICE_ERROR` | 502 | External service (Gemini, etc.) failed |
-| `INTERNAL_ERROR` | 500 | Unexpected server error |
-| `UNKNOWN_ERROR` | 500 | Unclassified error |
+| Code                     | HTTP Status | Description                            |
+| ------------------------ | ----------- | -------------------------------------- |
+| `VALIDATION_ERROR`       | 400         | Invalid request data                   |
+| `AUTHENTICATION_ERROR`   | 401         | Missing or invalid auth token          |
+| `AUTHORIZATION_ERROR`    | 403         | Insufficient permissions               |
+| `NOT_FOUND`              | 404         | Resource not found                     |
+| `CONFLICT`               | 409         | Resource conflict                      |
+| `RATE_LIMIT_EXCEEDED`    | 429         | Too many requests                      |
+| `FIRESTORE_ERROR`        | 500         | Database operation failed              |
+| `EXTERNAL_SERVICE_ERROR` | 502         | External service (Gemini, etc.) failed |
+| `INTERNAL_ERROR`         | 500         | Unexpected server error                |
+| `UNKNOWN_ERROR`          | 500         | Unclassified error                     |
 
 ## Security Headers
+
 All responses include security headers:
+
 - `Content-Security-Policy`: Restricted to Firebase/Google APIs
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
@@ -70,9 +80,11 @@ All responses include security headers:
 ## Endpoints
 
 ### POST /api/gemini
+
 AI-powered construction assistance for Guatemalan projects.
 
 **Request:**
+
 ```json
 {
   "action": "chat" | "analyze",
@@ -83,6 +95,7 @@ AI-powered construction assistance for Guatemalan projects.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -92,9 +105,11 @@ AI-powered construction assistance for Guatemalan projects.
 ```
 
 ### POST /api/gemini/receipt
+
 Analyze receipt/factura images using Gemini Vision.
 
 **Request:**
+
 ```json
 {
   "image": "data:image/jpeg;base64,..."
@@ -102,6 +117,7 @@ Analyze receipt/factura images using Gemini Vision.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -117,9 +133,11 @@ Analyze receipt/factura images using Gemini Vision.
 ```
 
 ### POST /api/gemini/bitacora
+
 Generate Smart Bitácora from foreman voice notes.
 
 **Request:**
+
 ```json
 {
   "voiceNotes": "string",
@@ -130,6 +148,7 @@ Generate Smart Bitácora from foreman voice notes.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -152,9 +171,12 @@ Generate Smart Bitácora from foreman voice notes.
 ```
 
 ## Versioning
+
 API versioning is handled via URL path:
+
 - Current: `/api/v1/` (implicit, v1 is default)
 - Future versions: `/api/v2/`, etc.
 
 ## Changelog
+
 - v1.0.0: Initial API with standardized error handling, rate limiting, and security headers

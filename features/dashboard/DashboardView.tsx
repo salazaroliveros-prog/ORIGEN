@@ -11,7 +11,13 @@ import { D3BudgetUtilizationChart } from '@/components/D3BudgetUtilizationChart'
 import { exportDashboardPerformancePdf } from '@/lib/dashboardPdfExport';
 import { calculateProjectSpentById } from '@/lib/projectCalculations';
 import { formatGTQ, initialCompanySettings } from '@/lib/data';
-import type { DashboardViewProps, DashboardTotals, ProgressChartDataPoint, StackedChartDataPoint, WidgetId } from './types';
+import type {
+  DashboardViewProps,
+  DashboardTotals,
+  ProgressChartDataPoint,
+  StackedChartDataPoint,
+  WidgetId,
+} from './types';
 import { WIDGET_CATALOG, DEFAULT_VISIBLE_WIDGETS, HIGH_PRIORITY_WIDGETS } from './widgetCatalog';
 import {
   KPICards,
@@ -33,8 +39,11 @@ export function DashboardView({
   employees = [],
   attendance = [],
 }: DashboardViewProps) {
-  const [statusFilter, setStatusFilter] = useState<'todos' | 'En Ejecución' | 'Planificación' | 'Finalizado'>('todos');
-  const [visibleWidgets, setVisibleWidgets] = useState<Record<WidgetId, boolean>>(DEFAULT_VISIBLE_WIDGETS);
+  const [statusFilter, setStatusFilter] = useState<
+    'todos' | 'En Ejecución' | 'Planificación' | 'Finalizado'
+  >('todos');
+  const [visibleWidgets, setVisibleWidgets] =
+    useState<Record<WidgetId, boolean>>(DEFAULT_VISIBLE_WIDGETS);
   const [isWidgetModalOpen, setIsWidgetModalOpen] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
 
@@ -68,7 +77,10 @@ export function DashboardView({
   const handleResetWidgets = () => {
     setVisibleWidgets(DEFAULT_VISIBLE_WIDGETS);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('constructerp_dashboard_widgets', JSON.stringify(DEFAULT_VISIBLE_WIDGETS));
+      localStorage.setItem(
+        'constructerp_dashboard_widgets',
+        JSON.stringify(DEFAULT_VISIBLE_WIDGETS)
+      );
     }
   };
 
@@ -84,21 +96,27 @@ export function DashboardView({
     return projects.filter((p) => p.status === statusFilter);
   }, [projects, statusFilter]);
 
-  const displayedActiveProjectId = filteredProjects.some((project) => project.id === activeProjectId)
+  const displayedActiveProjectId = filteredProjects.some(
+    (project) => project.id === activeProjectId
+  )
     ? activeProjectId
-    : filteredProjects[0]?.id ?? '';
+    : (filteredProjects[0]?.id ?? '');
 
   const totals = useMemo((): DashboardTotals => {
-    const totalBudget = filteredProjects.reduce((sum, project) => sum + (project.budgetTotal || 0), 0);
+    const totalBudget = filteredProjects.reduce(
+      (sum, project) => sum + (project.budgetTotal || 0),
+      0
+    );
     const projectSpentMap = new Map<string, number>();
 
     for (const project of projects) {
       const projectExpenses = expenses.filter((expense) => expense.projectId === project.id);
       // If expense records exist but all are rejected, executed spending is zero.
       // Use the persisted snapshot only when there are no expense records.
-      const computedSpent = projectExpenses.length > 0
-        ? calculateProjectSpentById(projectExpenses, project.id)
-        : (project.spentTotal ?? 0);
+      const computedSpent =
+        projectExpenses.length > 0
+          ? calculateProjectSpentById(projectExpenses, project.id)
+          : (project.spentTotal ?? 0);
       projectSpentMap.set(project.id, computedSpent);
     }
 
@@ -124,7 +142,8 @@ export function DashboardView({
   const progressChartData = useMemo((): ProgressChartDataPoint[] => {
     return filteredProjects.map((p) => {
       const actualSpent = totals.projectSpentMap.get(p.id) ?? 0;
-      const financialPercent = p.budgetTotal > 0 ? Math.round((actualSpent / p.budgetTotal) * 100) : 0;
+      const financialPercent =
+        p.budgetTotal > 0 ? Math.round((actualSpent / p.budgetTotal) * 100) : 0;
       const physicalPercent = p.progressPercent || 0;
       const gap = financialPercent - physicalPercent;
 
@@ -193,7 +212,10 @@ export function DashboardView({
       {/* Header Bar */}
       <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/15 bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-slate-950/90 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.45)] ring-1 ring-white/10 backdrop-blur-2xl md:flex-row md:items-center">
         <div className="flex items-center gap-3.5">
-          <span className="rounded-2xl border border-amber-500/40 bg-amber-500/20 p-3.5 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.25)]" aria-hidden="true">
+          <span
+            className="rounded-2xl border border-amber-500/40 bg-amber-500/20 p-3.5 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.25)]"
+            aria-hidden="true"
+          >
             <Activity className="h-6 w-6 stroke-[2.5]" />
           </span>
           <div>
@@ -201,14 +223,17 @@ export function DashboardView({
               Tablero de Control Financiero & Avance de Obras
             </h1>
             <p className="mt-0.5 text-xs font-medium text-slate-300">
-              Monitoreo analítico de presupuestos proyectados, gastos registrados (aprobados y pendientes) y descalces de obra en Guatemala.
+              Monitoreo analítico de presupuestos proyectados, gastos registrados (aprobados y
+              pendientes) y descalces de obra en Guatemala.
             </p>
           </div>
         </div>
 
         {/* Filter & Widget Customization Controls */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <label htmlFor="project-status-filter" className="sr-only">Filtrar proyectos por estado</label>
+          <label htmlFor="project-status-filter" className="sr-only">
+            Filtrar proyectos por estado
+          </label>
           <select
             id="project-status-filter"
             value={statusFilter}
@@ -217,9 +242,13 @@ export function DashboardView({
               setStatusFilter(nextFilter);
               if (
                 nextFilter !== 'todos' &&
-                !projects.some((project) => project.id === activeProjectId && project.status === nextFilter)
+                !projects.some(
+                  (project) => project.id === activeProjectId && project.status === nextFilter
+                )
               ) {
-                const firstMatchingProject = projects.find((project) => project.status === nextFilter);
+                const firstMatchingProject = projects.find(
+                  (project) => project.status === nextFilter
+                );
                 if (firstMatchingProject) onSelectProject(firstMatchingProject.id);
               }
             }}
@@ -231,12 +260,23 @@ export function DashboardView({
             <option value="Finalizado">Finalizado</option>
           </select>
 
-          <Button variant="outline" size="sm" onClick={() => setIsWidgetModalOpen(true)} className="flex items-center gap-2 border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsWidgetModalOpen(true)}
+            className="flex items-center gap-2 border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+          >
             <SlidersHorizontal className="h-4 w-4 text-amber-400" aria-hidden="true" />
             <span>Personalizar Widgets ({activeWidgetCount}/7)</span>
           </Button>
 
-          <Button variant="primary" size="sm" disabled={isExportingPdf} onClick={handleExportPdf} className="flex items-center gap-2 font-bold shadow-md">
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={isExportingPdf}
+            onClick={handleExportPdf}
+            className="flex items-center gap-2 font-bold shadow-md"
+          >
             <Download className="h-4 w-4 text-slate-950" aria-hidden="true" />
             <span>{isExportingPdf ? 'Generando PDF…' : 'Exportar Reporte PDF'}</span>
           </Button>
@@ -250,7 +290,11 @@ export function DashboardView({
       <OverbudgetWarning totals={totals} />
 
       {/* Upcoming Milestones */}
-      <UpcomingMilestones projects={projects} milestones={milestones} onSelectProject={onSelectProject} />
+      <UpcomingMilestones
+        projects={projects}
+        milestones={milestones}
+        onSelectProject={onSelectProject}
+      />
 
       {/* Dynamic Widgets Section */}
       <div className="space-y-6">

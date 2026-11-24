@@ -1,16 +1,33 @@
 import { describe, expect, it } from 'vitest';
 import type { ExpenseRecord } from '@/lib/types';
 import {
-  classifyExpenseApproval, isApprovedExpense, isBudgetCommitmentExpense,
-  isPendingApprovalExpense, isRejectedExpense, sumApprovedExpenses,
-  sumBudgetCommitments, sumPendingApprovalExpenses, sumRejectedExpenses,
+  classifyExpenseApproval,
+  isApprovedExpense,
+  isBudgetCommitmentExpense,
+  isPendingApprovalExpense,
+  isRejectedExpense,
+  sumApprovedExpenses,
+  sumBudgetCommitments,
+  sumPendingApprovalExpenses,
+  sumRejectedExpenses,
 } from './expenseRecognition';
 
-const expense = (id: string, amount: number, approvalStatus?: ExpenseRecord['approvalStatus']): ExpenseRecord => ({
-  id, projectId: 'project-1', date: '2026-11-16',
-  category: 'Materiales (Cementos, Hierro)', description: id,
-  supplier: 'Proveedor', nitSupplier: 'CF', facturaNumber: id,
-  amount, currency: 'GTQ', paymentMethod: 'Pendiente',
+const expense = (
+  id: string,
+  amount: number,
+  approvalStatus?: ExpenseRecord['approvalStatus']
+): ExpenseRecord => ({
+  id,
+  projectId: 'project-1',
+  date: '2026-11-16',
+  category: 'Materiales (Cementos, Hierro)',
+  description: id,
+  supplier: 'Proveedor',
+  nitSupplier: 'CF',
+  facturaNumber: id,
+  amount,
+  currency: 'GTQ',
+  paymentMethod: 'Pendiente',
   ...(approvalStatus ? { approvalStatus } : {}),
 });
 

@@ -12,12 +12,14 @@
 ## 2️⃣ Iniciar la App
 
 ### Opción A: Local Development
+
 ```bash
 npm run dev
 # La app estará en http://localhost:3000
 ```
 
 ### Opción B: Docker
+
 ```bash
 docker compose up -d app
 # La app estará en http://localhost:3000
@@ -26,41 +28,53 @@ docker compose up -d app
 ## 3️⃣ Ejecutar Pruebas Visuales
 
 ### 👀 Ver navegador en vivo (RECOMENDADO)
+
 ```bash
 npm run test:visual:headed
 ```
+
 Esto abrirá una ventana del navegador y ejecutará todas las pruebas visualmente.
 
 ### 🎯 Interfaz Interactiva
+
 ```bash
 npm run test:visual:ui
 ```
+
 Abre un dashboard donde puedes:
+
 - Elegir qué tests ejecutar
 - Ver videos de las pruebas
 - Revisar screenshots lado a lado
 
 ### 🐛 Modo Debug (Paso a Paso)
+
 ```bash
 npm run test:visual:debug
 ```
+
 Ejecuta con inspector de Playwright para debugging avanzado.
 
 ### ⚡ Modo Rápido
+
 ```bash
 npm run test:visual:fast
 ```
+
 Ejecuta en paralelo con 4 workers sin reintentos.
 
 ### 🔇 Headless (Sin GUI)
+
 ```bash
 npm run test:visual
 ```
+
 Captura screenshots sin abrir navegadores.
 
 ## 4️⃣ Ver Resultados
 
 ### 📸 Screenshots Capturados
+
 ```bash
 # Abrir carpeta de screenshots
 open screenshots/
@@ -78,6 +92,7 @@ screenshots/
 ```
 
 ### 📊 Reporte HTML Interactivo
+
 ```bash
 # Abrir en navegador
 open test-results/visual-html/index.html
@@ -85,11 +100,11 @@ open test-results/visual-html/index.html
 
 ## 5️⃣ Dispositivos Probados
 
-| Categoría | Dispositivos |
-|-----------|-------------|
-| **Desktop** | Chrome, Firefox, Safari (1920x1080) |
-| **Tablet** | iPad Pro (1024x1366), iPad Mini (768x1024), Galaxy Tab (1280x800) |
-| **Mobile** | iPhone 14 (390x844), iPhone SE (375x667), Pixel 7 (412x915), Galaxy S8 (360x740) |
+| Categoría   | Dispositivos                                                                     |
+| ----------- | -------------------------------------------------------------------------------- |
+| **Desktop** | Chrome, Firefox, Safari (1920x1080)                                              |
+| **Tablet**  | iPad Pro (1024x1366), iPad Mini (768x1024), Galaxy Tab (1280x800)                |
+| **Mobile**  | iPhone 14 (390x844), iPhone SE (375x667), Pixel 7 (412x915), Galaxy S8 (360x740) |
 
 ## 6️⃣ Qué se Valida
 
@@ -98,7 +113,7 @@ open test-results/visual-html/index.html
 ✅ **Tipografía** - Legibilidad, contraste, line-height  
 ✅ **Performance** - First Paint, Load time  
 ✅ **Accesibilidad** - Navegación por teclado  
-✅ **Overflow** - Sin horizontal scrolling  
+✅ **Overflow** - Sin horizontal scrolling
 
 ## 7️⃣ Con Docker Compose
 
@@ -121,13 +136,13 @@ docker compose down -v
 
 ## 8️⃣ Troubleshooting
 
-| Problema | Solución |
-|----------|----------|
-| **Port 3000 en uso** | `lsof -ti:3000 \| xargs kill -9` |
-| **App no carga** | `npm run dev` y esperar ~30s |
-| **Screenshots vacíos** | Aumentar timeout: `--timeout=60000` |
-| **Firebase emulator falla** | `docker compose down -v && docker compose up firebase-emulator` |
-| **Navegadores no descargan** | `npx playwright install chromium firefox webkit` |
+| Problema                     | Solución                                                        |
+| ---------------------------- | --------------------------------------------------------------- |
+| **Port 3000 en uso**         | `lsof -ti:3000 \| xargs kill -9`                                |
+| **App no carga**             | `npm run dev` y esperar ~30s                                    |
+| **Screenshots vacíos**       | Aumentar timeout: `--timeout=60000`                             |
+| **Firebase emulator falla**  | `docker compose down -v && docker compose up firebase-emulator` |
+| **Navegadores no descargan** | `npx playwright install chromium firefox webkit`                |
 
 ## 9️⃣ Próximos Pasos
 

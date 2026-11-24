@@ -88,9 +88,9 @@ export function useCompanyOnboarding(): UseCompanyOnboardingReturn {
             const record = data as (CompanySettings & Partial<CompanyWorkspace>) | null;
             const hasCompanyIdentity = Boolean(
               record &&
-                [record.legalName, record.companyName, record.commercialName, record.name].some(
-                  (value) => typeof value === 'string' && value.trim().length > 0
-                )
+              [record.legalName, record.companyName, record.commercialName, record.name].some(
+                (value) => typeof value === 'string' && value.trim().length > 0
+              )
             );
 
             if (record && hasCompanyIdentity) {

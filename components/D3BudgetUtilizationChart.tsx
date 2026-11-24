@@ -459,8 +459,8 @@ export function D3BudgetUtilizationChart({
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Análisis comparativo del presupuesto asignado frente a gastos registrados
-              (aprobados y pendientes; excluye rechazados)
+              Análisis comparativo del presupuesto asignado frente a gastos registrados (aprobados y
+              pendientes; excluye rechazados)
             </p>
           </div>
         </div>

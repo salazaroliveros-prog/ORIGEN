@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 /**
  * ✅ MONITORING COMPONENT
- * 
+ *
  * Features:
  * - Vercel analytics
  * - Firebase metrics
@@ -120,21 +120,19 @@ export function MonitoringSystem() {
     <div className="fixed bottom-4 right-4 z-50">
       {/* Status Indicator */}
       <div
-        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+        className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${
           isHealthy
-            ? 'bg-green-900/50 text-green-100 border border-green-700'
-            : 'bg-red-900/50 text-red-100 border border-red-700 animate-pulse'
+            ? 'border border-green-700 bg-green-900/50 text-green-100'
+            : 'animate-pulse border border-red-700 bg-red-900/50 text-red-100'
         }`}
       >
-        <span
-          className={`w-2 h-2 rounded-full ${isHealthy ? 'bg-green-500' : 'bg-red-500'}`}
-        />
+        <span className={`h-2 w-2 rounded-full ${isHealthy ? 'bg-green-500' : 'bg-red-500'}`} />
         <span>{isHealthy ? 'Online' : 'Issues Detected'}</span>
       </div>
 
       {/* Detailed Metrics (dev only) */}
       {process.env.NODE_ENV === 'development' && health && (
-        <div className="mt-2 bg-slate-900 text-slate-100 rounded-lg p-3 text-xs max-w-sm border border-slate-700">
+        <div className="mt-2 max-w-sm rounded-lg border border-slate-700 bg-slate-900 p-3 text-xs text-slate-100">
           <p className="font-mono">Uptime: {health.uptime.toFixed(2)}s</p>
           <p className="font-mono">Response: {health.responseTime}ms</p>
           <p className="font-mono text-slate-400">

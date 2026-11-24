@@ -4,12 +4,14 @@ description: Provides methods for evaluating skill output quality using eval-dri
 ---
 
 Use this skill when users need to:
+
 - Test whether a skill produces high-quality outputs
 - Set up evaluation criteria for skill performance
 - Implement eval-driven iteration for skill improvement
 - Debug skills that aren't producing expected results
 
 **Evaluation framework:**
+
 1. **Define success criteria** - What makes a "good" output for this skill?
    - Correctness (accurate results)
    - Relevance (matches user intent)
@@ -41,6 +43,7 @@ Use this skill when users need to:
    - Re-run evaluations to verify improvements
 
 **Tools and techniques:**
+
 - Use structured prompt templates for consistent testing
 - Track results in a spreadsheet or evaluation database
 - Consider automated testing if running many evaluations

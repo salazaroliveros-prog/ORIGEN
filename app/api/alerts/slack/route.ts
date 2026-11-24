@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * ✅ API ENDPOINT: POST /api/alerts/slack
- * 
+ *
  * Envía alertas a Slack cuando:
  * - Salud de sistema degrada
  * - Errores críticos
@@ -81,16 +81,10 @@ export async function POST(req: NextRequest) {
 
     if (!slackResponse.ok) {
       console.error('Slack API error:', await slackResponse.text());
-      return NextResponse.json(
-        { error: 'Failed to send Slack alert' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to send Slack alert' }, { status: 500 });
     }
 
-    return NextResponse.json(
-      { ok: true, message: 'Alert sent to Slack' },
-      { status: 200 }
-    );
+    return NextResponse.json({ ok: true, message: 'Alert sent to Slack' }, { status: 200 });
   } catch (error) {
     console.error('Alert endpoint error:', error);
     return NextResponse.json(

@@ -48,38 +48,45 @@ export function ProjectPhotoDropzone({
     }>
   >([]);
 
-  const [savedFiles, setSavedFiles] = useState<Array<{
-    id: string;
-    url: string;
-    filename: string;
-    uploadedAt: string;
-    size: number;
-  }>>([]);
+  const [savedFiles, setSavedFiles] = useState<
+    Array<{
+      id: string;
+      url: string;
+      filename: string;
+      uploadedAt: string;
+      size: number;
+    }>
+  >([]);
 
   useEffect(() => {
     let active = true;
     const objectUrls: string[] = [];
     const loadSavedPhotos = async () => {
-      const results = await Promise.all(savedPhotos.map(async (photo) => {
-        try {
-          const response = await authFetch(
-            `/api/project-photos/${encodeURIComponent(projectId)}/${encodeURIComponent(photo.id)}`
-          );
-          if (!response.ok) return null;
-          const objectUrl = URL.createObjectURL(await response.blob());
-          objectUrls.push(objectUrl);
-          return {
-            id: photo.id,
-            url: objectUrl,
-            filename: photo.filename,
-            uploadedAt: photo.uploadedAt,
-            size: photo.size,
-          };
-        } catch {
-          return null;
-        }
-      }));
-      if (active) setSavedFiles(results.filter((photo): photo is NonNullable<typeof photo> => photo !== null));
+      const results = await Promise.all(
+        savedPhotos.map(async (photo) => {
+          try {
+            const response = await authFetch(
+              `/api/project-photos/${encodeURIComponent(projectId)}/${encodeURIComponent(photo.id)}`
+            );
+            if (!response.ok) return null;
+            const objectUrl = URL.createObjectURL(await response.blob());
+            objectUrls.push(objectUrl);
+            return {
+              id: photo.id,
+              url: objectUrl,
+              filename: photo.filename,
+              uploadedAt: photo.uploadedAt,
+              size: photo.size,
+            };
+          } catch {
+            return null;
+          }
+        })
+      );
+      if (active)
+        setSavedFiles(
+          results.filter((photo): photo is NonNullable<typeof photo> => photo !== null)
+        );
     };
     void loadSavedPhotos();
     return () => {
@@ -103,17 +110,17 @@ export function ProjectPhotoDropzone({
     setUploadedFiles((current) => current.filter((file) => !savedIds.has(file.id)));
   }, [savedPhotos, uploadedFiles]);
 
-  useEffect(() => () => {
-    uploadedObjectUrls.current.forEach((url) => URL.revokeObjectURL(url));
-    uploadedObjectUrls.current.clear();
-  }, []);
+  useEffect(
+    () => () => {
+      uploadedObjectUrls.current.forEach((url) => URL.revokeObjectURL(url));
+      uploadedObjectUrls.current.clear();
+    },
+    []
+  );
 
   const displayedFiles = useMemo(() => {
     const savedIds = new Set(savedFiles.map((file) => file.id));
-    return [
-      ...savedFiles,
-      ...uploadedFiles.filter((file) => !savedIds.has(file.id)),
-    ];
+    return [...savedFiles, ...uploadedFiles.filter((file) => !savedIds.has(file.id))];
   }, [savedFiles, uploadedFiles]);
 
   const remainingSlots = Math.max(0, maxFiles - savedPhotos.length - uploadedFiles.length);
@@ -176,12 +183,18 @@ export function ProjectPhotoDropzone({
             }
             const previewUrl = URL.createObjectURL(await previewResponse.blob());
             uploadedObjectUrls.current.add(previewUrl);
-            setUploadedFiles((prev) => [...prev, {
-              ...photoMetadata,
-              url: previewUrl,
-            }]);
+            setUploadedFiles((prev) => [
+              ...prev,
+              {
+                ...photoMetadata,
+                url: previewUrl,
+              },
+            ]);
           } catch (previewError) {
-            console.warn('La foto se guardó; la previsualización se cargará desde el registro del proyecto.', previewError);
+            console.warn(
+              'La foto se guardó; la previsualización se cargará desde el registro del proyecto.',
+              previewError
+            );
           }
         }
       } catch (error) {

@@ -17,10 +17,12 @@ vi.mock('./firebaseService', () => ({
 }));
 
 // Mock de authErrors
-const mockGetAuthErrorMessage = vi.hoisted(() => vi.fn((error: unknown) => {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}));
+const mockGetAuthErrorMessage = vi.hoisted(() =>
+  vi.fn((error: unknown) => {
+    if (error instanceof Error) return error.message;
+    return String(error);
+  })
+);
 
 vi.mock('./authErrors', () => ({
   getAuthErrorMessage: (error: unknown) => mockGetAuthErrorMessage(error),
@@ -139,19 +141,27 @@ describe('firebaseAuth', () => {
 
   describe('validateCredentials (indirect via signInWithEmail)', () => {
     it('should reject empty email', async () => {
-      await expect(signInWithEmail('', 'password')).rejects.toThrow('El correo electrónico es requerido.');
+      await expect(signInWithEmail('', 'password')).rejects.toThrow(
+        'El correo electrónico es requerido.'
+      );
     });
 
     it('should reject invalid email format', async () => {
-      await expect(signInWithEmail('not-an-email', 'password')).rejects.toThrow('Escribe un correo electrónico válido.');
+      await expect(signInWithEmail('not-an-email', 'password')).rejects.toThrow(
+        'Escribe un correo electrónico válido.'
+      );
     });
 
     it('should reject empty password', async () => {
-      await expect(signInWithEmail('test@example.com', '')).rejects.toThrow('La contraseña es requerida.');
+      await expect(signInWithEmail('test@example.com', '')).rejects.toThrow(
+        'La contraseña es requerida.'
+      );
     });
 
     it('should reject null email', async () => {
-      await expect(signInWithEmail(null as any, 'password')).rejects.toThrow('El correo electrónico es requerido.');
+      await expect(signInWithEmail(null as any, 'password')).rejects.toThrow(
+        'El correo electrónico es requerido.'
+      );
     });
   });
 
@@ -159,19 +169,29 @@ describe('firebaseAuth', () => {
     it('should sign in successfully with valid credentials', async () => {
       const result = await signInWithEmail('test@example.com', 'password123');
       expect(mockSetPersistence).toHaveBeenCalled();
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(mockAuth, 'test@example.com', 'password123');
+      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+        mockAuth,
+        'test@example.com',
+        'password123'
+      );
       expect(result).toBe(mockUser);
     });
 
     it('should trim email before sending to Firebase', async () => {
       await signInWithEmail('  test@example.com  ', 'password123');
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(mockAuth, 'test@example.com', 'password123');
+      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+        mockAuth,
+        'test@example.com',
+        'password123'
+      );
     });
 
     it('should handle Firebase auth errors', async () => {
       mockGetAuthErrorMessage.mockReturnValue('Credenciales inválidas');
       mockSignInWithEmailAndPassword.mockRejectedValue(new Error('auth/invalid-credential'));
-      await expect(signInWithEmail('test@example.com', 'wrong')).rejects.toThrow('Credenciales inválidas');
+      await expect(signInWithEmail('test@example.com', 'wrong')).rejects.toThrow(
+        'Credenciales inválidas'
+      );
     });
   });
 
@@ -179,14 +199,20 @@ describe('firebaseAuth', () => {
     it('should create account and send verification email', async () => {
       const result = await createEmailAccount('new@example.com', 'password123');
       expect(mockSetPersistence).toHaveBeenCalled();
-      expect(mockCreateUserWithEmailAndPassword).toHaveBeenCalledWith(mockAuth, 'new@example.com', 'password123');
+      expect(mockCreateUserWithEmailAndPassword).toHaveBeenCalledWith(
+        mockAuth,
+        'new@example.com',
+        'password123'
+      );
       expect(mockSendEmailVerification).toHaveBeenCalled();
       expect(result.verificationEmailSent).toBe(true);
       expect(result.user).toBe(mockUser);
     });
 
     it('should reject password shorter than 6 characters', async () => {
-      await expect(createEmailAccount('new@example.com', '12345')).rejects.toThrow('La contraseña debe tener al menos 6 caracteres.');
+      await expect(createEmailAccount('new@example.com', '12345')).rejects.toThrow(
+        'La contraseña debe tener al menos 6 caracteres.'
+      );
     });
 
     it('should handle verification email failure gracefully', async () => {
@@ -197,7 +223,9 @@ describe('firebaseAuth', () => {
     });
 
     it('should reject invalid email', async () => {
-      await expect(createEmailAccount('bad-email', 'password123')).rejects.toThrow('Escribe un correo electrónico válido.');
+      await expect(createEmailAccount('bad-email', 'password123')).rejects.toThrow(
+        'Escribe un correo electrónico válido.'
+      );
     });
   });
 
@@ -212,7 +240,9 @@ describe('firebaseAuth', () => {
     });
 
     it('should reject invalid email format', async () => {
-      await expect(resetEmailPassword('not-an-email')).rejects.toThrow('Escribe un correo electrónico válido.');
+      await expect(resetEmailPassword('not-an-email')).rejects.toThrow(
+        'Escribe un correo electrónico válido.'
+      );
     });
   });
 
@@ -244,7 +274,9 @@ describe('firebaseAuth', () => {
   describe('authorizeGmailSend', () => {
     it('should throw when no user is signed in', async () => {
       mockAuth.currentUser = null;
-      await expect(authorizeGmailSend()).rejects.toThrow('Inicia sesión antes de autorizar el envío de correo.');
+      await expect(authorizeGmailSend()).rejects.toThrow(
+        'Inicia sesión antes de autorizar el envío de correo.'
+      );
     });
 
     it('should link Google provider when user has no Google provider', async () => {

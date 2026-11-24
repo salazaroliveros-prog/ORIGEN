@@ -426,10 +426,11 @@ export async function exportProjectAccountingWorkbook({
     const approvalStatus = exp.approvalStatus || 'Sin estado registrado';
     const approvedBy = exp.approvedBy || '';
     const approvedAt = exp.approvedAt || '';
-    const auditNotes = exp.auditTrail
-      ?.map((entry) => entry.note)
-      .filter((note): note is string => Boolean(note))
-      .join('; ') || '';
+    const auditNotes =
+      exp.auditTrail
+        ?.map((entry) => entry.note)
+        .filter((note): note is string => Boolean(note))
+        .join('; ') || '';
 
     expensesRows.push([
       index + 1,

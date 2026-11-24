@@ -6,10 +6,7 @@
  */
 import { useCallback } from 'react';
 import type { QuoteRecord } from '@/lib/types';
-import {
-  saveQuoteToFirestore,
-  updateQuoteStatusInFirestore,
-} from '@/lib/firebaseService';
+import { saveQuoteToFirestore, updateQuoteStatusInFirestore } from '@/lib/firebaseService';
 import { createLogger } from '@/lib/utils/logger';
 import { createCacheKey, queryCache } from '@/lib/utils/cacheManager';
 import { notifySyncEnd } from './useFirebaseSyncStatus';
@@ -23,18 +20,11 @@ interface UseQuoteManagementParams {
   quotes: QuoteRecord[];
 }
 
-export function useQuoteManagement({
-  companyId,
-  currentUserId,
-  quotes,
-}: UseQuoteManagementParams) {
-  const addQuote = useCallback(
-    async (quote: QuoteRecord) => {
-      toast.error('Inicia sesión en una empresa para guardar cotizaciones.');
-      return false;
-    },
-    []
-  );
+export function useQuoteManagement({ companyId, currentUserId, quotes }: UseQuoteManagementParams) {
+  const addQuote = useCallback(async (quote: QuoteRecord) => {
+    toast.error('Inicia sesión en una empresa para guardar cotizaciones.');
+    return false;
+  }, []);
 
   const addQuoteWithAuth = useCallback(
     async (quote: QuoteRecord) => {
@@ -63,13 +53,10 @@ export function useQuoteManagement({
     [companyId, currentUserId]
   );
 
-  const updateQuoteStatus = useCallback(
-    async (quoteId: string, status: QuoteRecord['status']) => {
-      toast.error('Inicia sesión en una empresa para actualizar cotizaciones.');
-      return false;
-    },
-    []
-  );
+  const updateQuoteStatus = useCallback(async (quoteId: string, status: QuoteRecord['status']) => {
+    toast.error('Inicia sesión en una empresa para actualizar cotizaciones.');
+    return false;
+  }, []);
 
   const updateQuoteStatusWithAuth = useCallback(
     async (quoteId: string, status: QuoteRecord['status']) => {

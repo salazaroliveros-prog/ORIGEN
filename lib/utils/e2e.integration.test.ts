@@ -74,7 +74,6 @@ describe('E2E Workflow 1: Project Creation to Completion', () => {
         totalPriceGTQ: 85500,
       },
     ];
-
   });
 
   it('should validate project budget is greater than zero', () => {

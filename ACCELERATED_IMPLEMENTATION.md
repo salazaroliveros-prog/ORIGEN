@@ -1,15 +1,17 @@
 # ⚡ ACCELERATED IMPLEMENTATION GUIDE - FULL SYSTEM COVERAGE
+
 ## ConstructERP Guatemala - Cobertura 100% en 3-4 Semanas
 
 **Objetivo:** Transformar TODOS los 14 módulos del 50% → 90% UI/UX  
 **Estrategia:** Modular + Template-based + Reutilizable  
-**Timeline:** 3-4 semanas (implementación paralela posible)  
+**Timeline:** 3-4 semanas (implementación paralela posible)
 
 ---
 
 ## ✅ ENTREGABLES YA COMPLETOS
 
 ### Foundation (100% ✅)
+
 - [x] Paleta profesional (Sky #0ea5e9)
 - [x] Design tokens (50+ colores)
 - [x] CSS variables (28+ tokens)
@@ -17,6 +19,7 @@
 - [x] Responsive system
 
 ### Base Components (100% ✅)
+
 - [x] DashboardEnhanced.tsx
 - [x] ProjectSelectorEnhanced.tsx
 - [x] TabsGrouped.tsx
@@ -26,6 +29,7 @@
 - [x] Button.tsx (6 variantes)
 
 ### Templates (100% ✅)
+
 - [x] ModuleTemplate.tsx (CRUD)
 - [x] Full System Refinement Plan
 
@@ -38,7 +42,9 @@
 ### SEMANA 1: CRITICAL MODULES (1️⃣ Dashboard, 2️⃣ Proyectos, 3️⃣ Presupuestos)
 
 #### Paso 1: Integración Manual Dashboard
+
 **Tiempo:** 30 min
+
 ```bash
 # En MainApp.tsx
 import { DashboardEnhanced } from '@/components/DashboardEnhanced';
@@ -47,7 +53,9 @@ import { DashboardEnhanced } from '@/components/DashboardEnhanced';
 ```
 
 #### Paso 2: Crear Proyectos Module (Usando Template)
+
 **Tiempo:** 2-3 horas
+
 ```bash
 # Crear archivo: components/modules/Projects/ProjectsModule.tsx
 # 1. Copiar ModuleTemplate.tsx
@@ -59,7 +67,9 @@ import { DashboardEnhanced } from '@/components/DashboardEnhanced';
 ```
 
 #### Paso 3: Crear Presupuestos Module (Usando Template)
+
 **Tiempo:** 2-3 horas
+
 ```bash
 # Crear archivo: components/modules/Budget/BudgetModule.tsx
 # 1. Copiar ModuleTemplate.tsx
@@ -71,7 +81,9 @@ import { DashboardEnhanced } from '@/components/DashboardEnhanced';
 ```
 
 #### Paso 4: Integración en MainApp.tsx
+
 **Tiempo:** 30 min
+
 ```typescript
 // Reemplazar imports viejos
 import { ProjectsModule } from '@/components/modules/Projects/ProjectsModule';
@@ -83,6 +95,7 @@ import { BudgetModule } from '@/components/modules/Budget/BudgetModule';
 ```
 
 #### Paso 5: Validación Semana 1
+
 ```bash
 npm run build              # OK?
 npm run dev               # OK?
@@ -92,6 +105,7 @@ npm run test:e2e         # Pruebas E2E
 ```
 
 **Resultado Semana 1:**
+
 - ✅ Dashboard con DashboardEnhanced
 - ✅ Proyectos módulo completo
 - ✅ Presupuestos módulo completo
@@ -104,6 +118,7 @@ npm run test:e2e         # Pruebas E2E
 Usando el MISMO patrón:
 
 #### Módulos a crear:
+
 1. **PersonalModule.tsx** - Personal & IGSS
 2. **PayrollModule.tsx** - Planillas Guate
 3. **ExpensesModule.tsx** - Gastos & Facturas
@@ -114,6 +129,7 @@ Usando el MISMO patrón:
 **Total Semana 2:** 10 horas
 
 **Resultado Semana 2:**
+
 - ✅ 8 de 14 módulos refinados (57%)
 - ✅ Cobertura de módulos financieros + personal
 
@@ -122,6 +138,7 @@ Usando el MISMO patrón:
 ### SEMANA 3: MEDIUM PRIORITY MODULES (9️⃣ 1️⃣0️⃣ 1️⃣1️⃣ 1️⃣2️⃣)
 
 #### Módulos a crear:
+
 1. **MachineryModule.tsx** - Maquinaria
 2. **InventoryModule.tsx** - Inventario & Compras
 3. **ReportsModule.tsx** - Reportes Finales
@@ -129,6 +146,7 @@ Usando el MISMO patrón:
 
 **Tiempo:** 8 horas total
 **Resultado Semana 3:**
+
 - ✅ 12 de 14 módulos refinados (86%)
 
 ---
@@ -148,11 +166,13 @@ Usando el MISMO patrón:
 ## 🎯 TEMPLATE GUIDE RÁPIDA
 
 ### Paso 1: Copiar Template
+
 ```bash
 cp components/modules/ModuleTemplate.tsx components/modules/[ModuleName]/index.tsx
 ```
 
 ### Paso 2: Reemplazar Placeholders
+
 ```typescript
 // 1. Tipos
 interface ModuleItem { ... }
@@ -176,6 +196,7 @@ handleDelete = async (id) => { /* API call */ }
 ```
 
 ### Paso 3: Conectar API
+
 ```typescript
 const handleCreate = async (data: Partial<ModuleItem>) => {
   const response = await fetch('/api/[module]', {
@@ -187,6 +208,7 @@ const handleCreate = async (data: Partial<ModuleItem>) => {
 ```
 
 ### Paso 4: Testear
+
 ```bash
 # CRUD
 - Crear item
@@ -254,6 +276,7 @@ META      14/14 módulos refinados 50% → 90% UI/UX ✅
 ## 🔐 ZERO BREAKING CHANGES
 
 Todas las nuevas implementaciones son **aditivas**:
+
 - ✅ Componentes antiguos siguen funcionando
 - ✅ Nuevos componentes son imports opcionales
 - ✅ Puedes migrar gradualmente
@@ -327,14 +350,14 @@ Semana 4: Deploy
 
 ## 📞 TROUBLESHOOTING RÁPIDO
 
-| Problema | Solución |
-|----------|----------|
-| Template compilation error | Revisar types en ModuleItem |
-| API errors | Check fetch URL + auth headers |
-| Table not showing | Verify columns array |
-| Form validation broken | Check FormField props |
-| Mobile not responsive | Add mobile breakpoints |
-| Performance slow | Use React.memo, useMemo |
+| Problema                   | Solución                       |
+| -------------------------- | ------------------------------ |
+| Template compilation error | Revisar types en ModuleItem    |
+| API errors                 | Check fetch URL + auth headers |
+| Table not showing          | Verify columns array           |
+| Form validation broken     | Check FormField props          |
+| Mobile not responsive      | Add mobile breakpoints         |
+| Performance slow           | Use React.memo, useMemo        |
 
 ---
 
@@ -357,16 +380,19 @@ Semana 4: Deploy
 ## 📅 COMIENZA YA
 
 **Hoy:**
+
 1. Leer este archivo
 2. Revisar ModuleTemplate.tsx
 3. Crear primer módulo (Proyectos)
 
 **Mañana:**
+
 1. Crear segundo módulo (Presupuestos)
 2. Integrar en MainApp.tsx
 3. Testing
 
 **Esta semana:**
+
 1. Dashboard + 3 módulos completos
 2. Validación Lighthouse
 3. Ready para Semana 2
@@ -376,6 +402,6 @@ Semana 4: Deploy
 **Timeline:** 3-4 semanas para cobertura 100%  
 **Esfuerzo:** 60-80 horas desarrollo + 20-30 horas testing  
 **Riesgo:** MUY BAJO (componentes modulares, zero breaking changes)  
-**ROI:** 20-40x (cliente retention, competitividad)  
+**ROI:** 20-40x (cliente retention, competitividad)
 
 🚀 **¡VAMOS A COMPLETAR ESTO!** 🚀

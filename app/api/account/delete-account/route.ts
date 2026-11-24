@@ -5,11 +5,11 @@ import { checkRateLimit } from '@/lib/rate-limit';
 
 /**
  * ✅ API ENDPOINT: DELETE /api/account/delete-account
- * 
+ *
  * Derechos ARCO:
  * - Cancelación (Derecho al olvido)
  * - Elimina todos los datos del usuario en cascada
- * 
+ *
  * Rate Limit: 2 requests/hour (crítico - muy restrictivo)
  */
 
@@ -69,10 +69,7 @@ export async function DELETE(req: NextRequest) {
     let deletedCount = 0;
 
     for (const colName of collections) {
-      const q = query(
-        collection(db, colName),
-        where('userId', '==', userId)
-      );
+      const q = query(collection(db, colName), where('userId', '==', userId));
       const snap = await getDocs(q);
 
       for (const docSnap of snap.docs) {

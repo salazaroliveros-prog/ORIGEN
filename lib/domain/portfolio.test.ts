@@ -107,7 +107,9 @@ describe('aggregatePortfolio', () => {
     expect(result.spentTotalGTQ).toBe(25000);
     expect(result.remainingBudgetGTQ).toBe(75000);
     expect(result.budgetUsagePercent).toBe(25);
-    expect(result.projects[0].alerts).not.toContain('Compromiso presupuestario supera el presupuesto');
+    expect(result.projects[0].alerts).not.toContain(
+      'Compromiso presupuestario supera el presupuesto'
+    );
   });
 
   it('flags a portfolio commitment overrun when pending approvals are included', () => {

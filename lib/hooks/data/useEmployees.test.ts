@@ -45,14 +45,18 @@ describe('useEmployees subscription lifecycle', () => {
     const unsubscribeFull = vi.fn();
     const unsubscribeDirectory = vi.fn();
 
-    mocks.subscribeEmployees.mockImplementation((_companyId: string, callback: (items: Employee[]) => void) => {
-      fullCallback = callback;
-      return unsubscribeFull;
-    });
-    mocks.subscribeEmployeeDirectory.mockImplementation((_companyId: string, callback: (items: EmployeeDirectoryEntry[]) => void) => {
-      directoryCallback = callback;
-      return unsubscribeDirectory;
-    });
+    mocks.subscribeEmployees.mockImplementation(
+      (_companyId: string, callback: (items: Employee[]) => void) => {
+        fullCallback = callback;
+        return unsubscribeFull;
+      }
+    );
+    mocks.subscribeEmployeeDirectory.mockImplementation(
+      (_companyId: string, callback: (items: EmployeeDirectoryEntry[]) => void) => {
+        directoryCallback = callback;
+        return unsubscribeDirectory;
+      }
+    );
 
     const initial: HookProps = { companyId: 'company-1', currentUserId: 'owner-1', role: 'owner' };
     const { result, rerender } = renderHook((props: HookProps) => useEmployees(props), {

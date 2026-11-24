@@ -5,13 +5,29 @@
 
 import { summarizeProjectFinance } from './domain/projectFinance';
 import { calculateScheduleProgress } from './domain/executionTimeline';
-import type { Project, ScheduleTask, Milestone, ExpenseRecord, APUItem, QuoteRecord, AttendanceRecord, Machinery, MachineryLog } from './types';
+import type {
+  Project,
+  ScheduleTask,
+  Milestone,
+  ExpenseRecord,
+  APUItem,
+  QuoteRecord,
+  AttendanceRecord,
+  Machinery,
+  MachineryLog,
+} from './types';
 import { isBudgetCommitmentExpense, sumBudgetCommitments } from './domain/expenseRecognition';
 
 export {
-  classifyExpenseApproval, isApprovedExpense, isBudgetCommitmentExpense,
-  isPendingApprovalExpense, isRejectedExpense, sumApprovedExpenses,
-  sumBudgetCommitments, sumPendingApprovalExpenses, sumRejectedExpenses,
+  classifyExpenseApproval,
+  isApprovedExpense,
+  isBudgetCommitmentExpense,
+  isPendingApprovalExpense,
+  isRejectedExpense,
+  sumApprovedExpenses,
+  sumBudgetCommitments,
+  sumPendingApprovalExpenses,
+  sumRejectedExpenses,
 } from './domain/expenseRecognition';
 
 /** @deprecated Use isBudgetCommitmentExpense; pending approvals are not executed spend. */
@@ -223,7 +239,14 @@ export function hasProjectDependencies(params: {
   attendance?: AttendanceRecord[];
   machineryLogs?: MachineryLog[];
 }): ProjectDependencies {
-  const { projectId, expenses = [], apuItems = [], quotes = [], attendance = [], machineryLogs = [] } = params;
+  const {
+    projectId,
+    expenses = [],
+    apuItems = [],
+    quotes = [],
+    attendance = [],
+    machineryLogs = [],
+  } = params;
 
   const dependencies: Record<string, number> = {};
 

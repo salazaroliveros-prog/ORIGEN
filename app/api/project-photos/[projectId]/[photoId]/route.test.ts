@@ -8,7 +8,10 @@ vi.mock('@/lib/apiAuth', () => ({
 
 vi.mock('@/lib/storageRest', () => ({
   StorageUploadError: class StorageUploadError extends Error {
-    constructor(message: string, readonly status: number) {
+    constructor(
+      message: string,
+      readonly status: number
+    ) {
       super(message);
       this.name = 'StorageUploadError';
     }
@@ -71,10 +74,12 @@ describe('GET /api/project-photos/[projectId]/[photoId]', () => {
       data: new Uint8Array([0xff, 0xd8, 0xff, 0xe0]),
       contentType: 'image/jpeg',
     });
-    fetchMock.mockResolvedValue(new Response(JSON.stringify(PHOTO_METADATA), {
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-    }));
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(PHOTO_METADATA), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
   });
 
   afterEach(() => {
@@ -122,10 +127,7 @@ describe('GET /api/project-photos/[projectId]/[photoId]', () => {
   });
 
   it('rejects malformed project and photo identifiers before external requests', async () => {
-    const response = await GET(
-      makeRequest(),
-      makeContext({ photoId: '../private-photo' })
-    );
+    const response = await GET(makeRequest(), makeContext({ photoId: '../private-photo' }));
 
     expect(response.status).toBe(400);
     expect(canReadDocumentAsUser).not.toHaveBeenCalled();
@@ -143,13 +145,18 @@ describe('GET /api/project-photos/[projectId]/[photoId]', () => {
   });
 
   it('rejects metadata that points outside the requested project path', async () => {
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      fields: {
-        projectId: { stringValue: 'project-1' },
-        filename: { stringValue: 'photo.jpg' },
-        storagePath: { stringValue: 'projects/another-project/progress/photo.jpg' },
-      },
-    }), { status: 200 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          fields: {
+            projectId: { stringValue: 'project-1' },
+            filename: { stringValue: 'photo.jpg' },
+            storagePath: { stringValue: 'projects/another-project/progress/photo.jpg' },
+          },
+        }),
+        { status: 200 }
+      )
+    );
 
     const response = await GET(makeRequest(), makeContext());
 

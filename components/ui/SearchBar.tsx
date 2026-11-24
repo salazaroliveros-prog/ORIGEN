@@ -17,7 +17,11 @@ export interface SearchBarProps {
  * en proyectos, empleados, clientes, etc.
  *****/
 
-export function SearchBar({ placeholder = 'Buscar en ORIGEN ERP', onSearch, immediate = false }: SearchBarProps) {
+export function SearchBar({
+  placeholder = 'Buscar en ORIGEN ERP',
+  onSearch,
+  immediate = false,
+}: SearchBarProps) {
   const [query, setQuery] = useState('');
 
   const debouncedQuery = useDebounce(query, 300, immediate);
@@ -38,14 +42,14 @@ export function SearchBar({ placeholder = 'Buscar en ORIGEN ERP', onSearch, imme
   };
 
   return (
-    <div className="relative w-full max-w-md mx-auto">
+    <div className="relative mx-auto w-full max-w-md">
       <Input
         type="text"
         placeholder={placeholder}
         value={query}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="w-full pl-12 pr-4 py-2 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary focus:outline-none"
+        className="w-full rounded-xl py-2 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
         aria-label="Buscar en ORIGEN ERP"
       />
     </div>

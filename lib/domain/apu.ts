@@ -8,10 +8,17 @@ import {
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 const TOTAL_TOLERANCE_GTQ = 0.01;
 
-export function assertAPUTotalsConsistent(item: Pick<
-  APUItem,
-  'quantity' | 'materialUnitCostGTQ' | 'laborUnitCostGTQ' | 'equipmentUnitCostGTQ' | 'totalUnitCostGTQ' | 'totalPriceGTQ'
->): void {
+export function assertAPUTotalsConsistent(
+  item: Pick<
+    APUItem,
+    | 'quantity'
+    | 'materialUnitCostGTQ'
+    | 'laborUnitCostGTQ'
+    | 'equipmentUnitCostGTQ'
+    | 'totalUnitCostGTQ'
+    | 'totalPriceGTQ'
+  >
+): void {
   const expectedUnit = calculateTotalUnitCost(
     item.materialUnitCostGTQ,
     item.laborUnitCostGTQ,

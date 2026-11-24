@@ -388,7 +388,7 @@ export function StaffAndAttendance({
   return (
     <div className="space-y-6">
       {/* Top Header & Mode Toggle */}
-      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-xl bg-blue-50 p-2 text-blue-600">
@@ -411,7 +411,7 @@ export function StaffAndAttendance({
               onClick={() => setActiveTab('asistencia')}
               className={`min-h-11 cursor-pointer rounded-lg px-3.5 py-1.5 text-xs font-bold transition sm:min-h-9 ${
                 activeTab === 'asistencia'
-                  ? 'shadow-xs bg-white text-blue-700'
+                  ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -421,7 +421,7 @@ export function StaffAndAttendance({
               onClick={() => setActiveTab('personal')}
               className={`min-h-11 cursor-pointer rounded-lg px-3.5 py-1.5 text-xs font-bold transition sm:min-h-9 ${
                 activeTab === 'personal'
-                  ? 'shadow-xs bg-white text-blue-700'
+                  ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -432,7 +432,7 @@ export function StaffAndAttendance({
                 onClick={() => setActiveTab('productividad')}
                 className={`inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition sm:min-h-9 ${
                   activeTab === 'productividad'
-                    ? 'shadow-xs bg-amber-500 text-slate-950'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -458,19 +458,19 @@ export function StaffAndAttendance({
 
       {/* KPI Stats Bar */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <p className="text-[11px] font-bold uppercase text-slate-500">Nómina Total</p>
           <p className="mt-1 text-xl font-bold text-slate-900">{employees.length} trabajadores</p>
           <p className="mt-0.5 text-[10px] text-slate-400">Albañiles, ayudantes y capataces</p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <p className="text-[11px] font-bold uppercase text-blue-600">Marcajes Registrados</p>
           <p className="mt-1 text-xl font-bold text-blue-950">{totalRegistered} asistencias</p>
           <p className="mt-0.5 text-[10px] text-blue-600">En historial del proyecto</p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <p className="text-[11px] font-bold uppercase text-emerald-600">
             Verificados en Obra (GPS)
           </p>
@@ -480,7 +480,7 @@ export function StaffAndAttendance({
           </p>
         </div>
 
-        <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <p className="text-[11px] font-bold uppercase text-amber-600">Excepciones / Fuera Obra</p>
           <p className="mt-1 text-xl font-bold text-amber-950">{outsideCount} advertencias</p>
           <p className="mt-0.5 text-[10px] text-amber-700">Con justificación autorizada</p>
@@ -489,7 +489,7 @@ export function StaffAndAttendance({
 
       {/* SUCCESS TOAST */}
       {saveSuccessToast && (
-        <div className="animate-in fade-in shadow-xs flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
+        <div className="animate-in fade-in flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-xs">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" aria-hidden="true" />
             <p className="text-xs font-bold">{saveSuccessToast}</p>
@@ -508,7 +508,7 @@ export function StaffAndAttendance({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* LEFT: Geofence Check-in Form (5 cols) */}
           <div className="space-y-6 lg:col-span-5">
-            <div className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
@@ -813,7 +813,7 @@ export function StaffAndAttendance({
 
           {/* RIGHT: History Table with GPS Badges (7 cols) */}
           <div className="space-y-4 lg:col-span-7">
-            <div className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
               <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
                 <div className="flex items-center gap-2">
                   <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
@@ -969,7 +969,7 @@ export function StaffAndAttendance({
           {employees.map((emp) => (
             <div
               key={emp.id}
-              className="shadow-xs space-y-3 rounded-2xl border border-slate-200 bg-white p-5"
+              className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
             >
               <div className="flex items-start justify-between">
                 <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700">

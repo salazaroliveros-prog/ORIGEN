@@ -9,6 +9,7 @@
 ## 📋 PRE-DEPLOYMENT CHECKLIST (24 horas antes)
 
 ### Configuración & Verificación
+
 - [ ] **Env vars en Vercel:**
   - [ ] `VERCEL_KV_REST_API_URL`
   - [ ] `VERCEL_KV_REST_API_TOKEN`
@@ -31,6 +32,7 @@
   - [ ] Permisos correctos
 
 ### Code Verification
+
 - [ ] `npm run build` ✅ (sin errores)
 - [ ] `npm run lint` ✅
 - [ ] `npm run type-check` ✅
@@ -38,6 +40,7 @@
 - [ ] Cambios merged a `main` branch
 
 ### Testing en Staging
+
 - [ ] Deploy a staging-origen-erp.vercel.app
 - [ ] Smoke tests 100% pass
 - [ ] Security headers verificados
@@ -50,6 +53,7 @@
 ## 🧪 TESTING PHASE (Día 1)
 
 ### 1. Build & Smoke Tests (30 min)
+
 ```bash
 # 1. Build localmente
 npm run build
@@ -62,12 +66,14 @@ npm run test:smoke
 ```
 
 **Success Criteria:**
+
 - ✅ Build sin errores
 - ✅ `/api/health` responde 200
 - ✅ Security headers presentes
 - ✅ All 4 smoke tests pass
 
 ### 2. Functional Testing (1 hora)
+
 ```bash
 # CRUD en cada módulo
 # - CREATE → READ → UPDATE → DELETE
@@ -77,12 +83,14 @@ npm run test:functional
 ```
 
 **Success Criteria:**
+
 - ✅ 7/7 módulos CRUD OK
 - ✅ Datos persisten en Firestore
 - ✅ No errores de autenticación
 - ✅ Rate limiting no activa
 
 ### 3. Security Testing (1 hora)
+
 ```bash
 # Verificar todos los headers
 curl -I https://staging-origen-erp.vercel.app
@@ -99,6 +107,7 @@ curl https://staging-origen-erp.vercel.app/sitemap.xml
 ```
 
 **Success Criteria:**
+
 - ✅ CSP header presente
 - ✅ X-Frame-Options: DENY
 - ✅ X-Content-Type-Options: nosniff
@@ -106,12 +115,14 @@ curl https://staging-origen-erp.vercel.app/sitemap.xml
 - ✅ robots.txt + sitemap accesibles
 
 ### 4. Load Testing 100 Usuarios (45 min)
+
 ```bash
 # Ejecutar load test
 k6 run scripts/load-test.js --vus 100 --duration 180s
 ```
 
 **Success Criteria:**
+
 - ✅ Error rate < 1%
 - ✅ P95 response < 500ms
 - ✅ P99 response < 1000ms
@@ -119,6 +130,7 @@ k6 run scripts/load-test.js --vus 100 --duration 180s
 - ✅ Rate limiting activado
 
 ### 5. Performance Profiling (30 min)
+
 ```bash
 # Lighthouse audit
 npm run lighthouse:audit
@@ -128,6 +140,7 @@ npm run vitals:check
 ```
 
 **Success Criteria:**
+
 - ✅ Performance > 85/100
 - ✅ Accessibility > 85/100
 - ✅ SEO > 90/100
@@ -140,6 +153,7 @@ npm run vitals:check
 ## 🚀 DEPLOYMENT PHASE (Día 2)
 
 ### Pre-Deployment Steps (30 min)
+
 ```bash
 # 1. Crear backup manual de producción
 gcloud firestore export gs://origen-backups-firestore/pre-deploy-$(date +%Y%m%d)
@@ -155,6 +169,7 @@ gsutil ls gs://origen-backups-firestore/ | tail -1
 ```
 
 ### Deployment Steps (Vercel)
+
 ```bash
 # 1. Verificar que main branch está listo
 git log --oneline -1
@@ -176,6 +191,7 @@ git push origin main
 ### Post-Deployment Verification (1 hora)
 
 **Paso 1: Health Check (5 min)**
+
 ```bash
 # Verificar que app está live
 curl -I https://origen-erp.vercel.app
@@ -188,6 +204,7 @@ time curl https://origen-erp.vercel.app
 ```
 
 **Paso 2: Security Verification (10 min)**
+
 ```bash
 # Verificar TODOS los headers
 curl -I https://origen-erp.vercel.app | grep -i "x-\|content\|strict"
@@ -201,6 +218,7 @@ curl -I https://origen-erp.vercel.app | grep -i "x-\|content\|strict"
 ```
 
 **Paso 3: Functional Verification (15 min)**
+
 ```bash
 # 1. Visitar home page
 # → ✅ Debe cargar sin errores
@@ -220,6 +238,7 @@ curl https://origen-erp.vercel.app | grep "schema.org"
 ```
 
 **Paso 4: Monitoring Setup (10 min)**
+
 ```bash
 # 1. Verificar Vercel Analytics
 # Dashboard → origen-erp → Analytics
@@ -238,6 +257,7 @@ curl https://origen-erp.vercel.app | grep "schema.org"
 ```
 
 **Paso 5: Performance Check (10 min)**
+
 ```bash
 # Lighthouse mobile
 npm run lighthouse:audit -- https://origen-erp.vercel.app
@@ -253,6 +273,7 @@ npm run vitals:check -- https://origen-erp.vercel.app
 ```
 
 **Paso 6: User Communication (5 min)**
+
 ```bash
 # 1. Post en #general
 "🚀 Deployment completado exitosamente!"
@@ -269,6 +290,7 @@ npm run vitals:check -- https://origen-erp.vercel.app
 ## ⚠️ ROLLBACK PLAN (Si hay problema)
 
 ### Automatic Rollback (Vercel)
+
 ```bash
 # Vercel tiene 1-hour instant rollback
 # Dashboard → origen-erp → Deployments → (anterior)
@@ -277,6 +299,7 @@ npm run vitals:check -- https://origen-erp.vercel.app
 ```
 
 ### Manual Rollback Steps
+
 ```bash
 # 1. Identificar deployment anterior estable
 vercel rollback
@@ -293,6 +316,7 @@ vercel logs
 ```
 
 ### Data Rollback (si hay corrupción)
+
 ```bash
 # 1. Restaurar de backup pre-deployment
 gcloud firestore restore gs://origen-backups-firestore/pre-deploy-20261125
@@ -312,18 +336,18 @@ gcloud firestore export gs://origen-backups-firestore/post-restore-$(date +%Y%m%
 
 ✅ **Todo debe pasar:**
 
-| Check | Resultado | Status |
-|-------|-----------|--------|
-| Build sin errores | ✅ | PASS |
-| Health check 200 | ✅ | PASS |
-| Security headers | ✅ | PASS |
-| Load test 100 usuarios | ✅ | PASS |
-| Performance > 85 | ✅ | PASS |
-| Monitoreo activo | ✅ | PASS |
-| Backups en agenda | ✅ | PASS |
-| Slack alerts | ✅ | PASS |
-| No errores en logs | ✅ | PASS |
-| Users accessing | ✅ | PASS |
+| Check                  | Resultado | Status |
+| ---------------------- | --------- | ------ |
+| Build sin errores      | ✅        | PASS   |
+| Health check 200       | ✅        | PASS   |
+| Security headers       | ✅        | PASS   |
+| Load test 100 usuarios | ✅        | PASS   |
+| Performance > 85       | ✅        | PASS   |
+| Monitoreo activo       | ✅        | PASS   |
+| Backups en agenda      | ✅        | PASS   |
+| Slack alerts           | ✅        | PASS   |
+| No errores en logs     | ✅        | PASS   |
+| Users accessing        | ✅        | PASS   |
 
 ---
 
@@ -350,15 +374,18 @@ Día 2 (Deployment):
 ## 📞 CONTACTS
 
 **On-Call Support:**
+
 - 🔴 Critical: Tech Lead
 - 🟡 High: Dev Team
 - 🟢 Low: Support Team
 
 **Escalation:**
+
 - Tech Lead → CTO
 - CTO → VP Engineering
 
 **Communication:**
+
 - Slack: #deployments, #alerts
 - Email: team@origen-erp.com
 - Status Page: status.origen-erp.com
@@ -372,6 +399,7 @@ Día 2 (Deployment):
 **Go/No-Go:** 🚀 **GO LIVE**
 
 **Authorized by:**
+
 - [ ] Tech Lead
 - [ ] Product Manager
 - [ ] CTO
@@ -379,4 +407,3 @@ Día 2 (Deployment):
 ---
 
 **NEXT STEP:** Ejecutar Day 1 Testing Phase
-

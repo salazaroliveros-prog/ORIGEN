@@ -14,26 +14,26 @@ npm run test:visual:headed
 
 ### Ejecución Básica
 
-| Script | Uso |
-|--------|-----|
-| `npm run test:visual` | Headless (sin GUI) |
+| Script                       | Uso                          |
+| ---------------------------- | ---------------------------- |
+| `npm run test:visual`        | Headless (sin GUI)           |
 | `npm run test:visual:headed` | ⭐ **Con navegador visible** |
-| `npm run test:visual:ui` | Dashboard interactivo |
-| `npm run test:visual:debug` | Paso a paso (debug) |
-| `npm run test:visual:local` | Local con headed |
-| `npm run test:visual:fast` | Paralelo sin reintentos |
+| `npm run test:visual:ui`     | Dashboard interactivo        |
+| `npm run test:visual:debug`  | Paso a paso (debug)          |
+| `npm run test:visual:local`  | Local con headed             |
+| `npm run test:visual:fast`   | Paralelo sin reintentos      |
 
 ### Producción & CI/CD
 
-| Script | Uso |
-|--------|-----|
-| `npm run test:visual:prod` | Tests completos producción |
-| `npm run test:visual:all` | Alias para prod |
-| `npm run test:visual:docker` | En Docker Compose |
-| `npm run test:visual:compare` | Comparación visual |
-| `npm run test:visual:baseline` | Generar baseline |
+| Script                             | Uso                        |
+| ---------------------------------- | -------------------------- |
+| `npm run test:visual:prod`         | Tests completos producción |
+| `npm run test:visual:all`          | Alias para prod            |
+| `npm run test:visual:docker`       | En Docker Compose          |
+| `npm run test:visual:compare`      | Comparación visual         |
+| `npm run test:visual:baseline`     | Generar baseline           |
 | `npm run test:visual:baseline:all` | Baseline todos navegadores |
-| `npm run test:visual:watch` | Watch mode (auto-rerun) |
+| `npm run test:visual:watch`        | Watch mode (auto-rerun)    |
 
 ## 📸 Qué Se Prueba
 
@@ -84,17 +84,18 @@ npm run test:visual:prod
 
 ## 🐛 Troubleshooting
 
-| Problema | Solución |
-|----------|----------|
-| App no carga | `npm run dev` y esperar 30s |
-| Puerto 3000 ocupado | `lsof -ti:3000 \| xargs kill -9` |
-| Screenshots vacíos | `npm run test:visual:headed --timeout=60000` |
-| Navegadores no descargados | `npx playwright install` |
-| Docker falla | `docker compose down -v && docker compose up -d` |
+| Problema                   | Solución                                         |
+| -------------------------- | ------------------------------------------------ |
+| App no carga               | `npm run dev` y esperar 30s                      |
+| Puerto 3000 ocupado        | `lsof -ti:3000 \| xargs kill -9`                 |
+| Screenshots vacíos         | `npm run test:visual:headed --timeout=60000`     |
+| Navegadores no descargados | `npx playwright install`                         |
+| Docker falla               | `docker compose down -v && docker compose up -d` |
 
 ## 🎨 Tipos de Tests
 
 ### Screenshots por Dispositivo
+
 ```
 ✓ Desktop (3 navegadores)
 ✓ Tablet (3 tipos)
@@ -102,6 +103,7 @@ npm run test:visual:prod
 ```
 
 ### Validaciones
+
 ```
 ✓ Responsividad
 ✓ Interactividad (focus, hover)
@@ -121,26 +123,31 @@ npm run test:visual:prod
 ## 💡 Tips Avanzados
 
 ### Ver solo un device
+
 ```bash
 npx playwright test --project=Mobile-iPhone14
 ```
 
 ### Modo trace (debugging)
+
 ```bash
 npx playwright test --trace on --headed
 ```
 
 ### Aumentar timeout
+
 ```bash
 npx playwright test --timeout=60000
 ```
 
 ### Parallelismo
+
 ```bash
 npx playwright test --workers=8
 ```
 
 ### Capturar video
+
 ```bash
 npx playwright test --video=on
 ```

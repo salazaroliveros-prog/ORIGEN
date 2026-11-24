@@ -23,7 +23,14 @@ import { TouchTarget } from '@/components/ui/TouchTarget';
 import { Pagination } from '@/components/ui/Pagination';
 import { ProjectPhotoDropzone } from '@/components/ProjectPhotoDropzone';
 import { toast } from 'react-hot-toast';
-import type { APUItem, CompanySettings, ExpenseRecord, Project, ProjectPhotoRecord, QuoteRecord } from '@/lib/types';
+import type {
+  APUItem,
+  CompanySettings,
+  ExpenseRecord,
+  Project,
+  ProjectPhotoRecord,
+  QuoteRecord,
+} from '@/lib/types';
 import { saveProjectPhotoToFirestore, subscribeProjectPhotos } from '@/lib/firebaseService';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
 
@@ -74,10 +81,8 @@ export function ProjectsView({
       setSavedProjectPhotos([]);
       return;
     }
-    return subscribeProjectPhotos(
-      selectedProjectForPhotos.id,
-      setSavedProjectPhotos,
-      (error) => toast.error(error.message || 'No se pudieron cargar las fotos del proyecto.')
+    return subscribeProjectPhotos(selectedProjectForPhotos.id, setSavedProjectPhotos, (error) =>
+      toast.error(error.message || 'No se pudieron cargar las fotos del proyecto.')
     );
   }, [photoModalOpen, selectedProjectForPhotos?.id, company?.companyId]);
 
@@ -146,16 +151,18 @@ export function ProjectsView({
 
   const handlePhotoUploaded = async (
     _photoUrl: string,
-    metadata: { id: string; filename: string; storagePath: string; uploadedAt: string; size: number }
+    metadata: {
+      id: string;
+      filename: string;
+      storagePath: string;
+      uploadedAt: string;
+      size: number;
+    }
   ) => {
     if (!selectedProjectForPhotos || !company?.companyId) {
       throw new Error('No se pudo identificar la empresa y el proyecto para guardar la foto.');
     }
-    await saveProjectPhotoToFirestore(
-      selectedProjectForPhotos.id,
-      company.companyId,
-      metadata
-    );
+    await saveProjectPhotoToFirestore(selectedProjectForPhotos.id, company.companyId, metadata);
     toast.success(`Foto vinculada al proyecto ${selectedProjectForPhotos.name}`);
   };
 

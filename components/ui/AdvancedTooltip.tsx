@@ -64,7 +64,7 @@ interface HoverableAreaProps {
 export function HoverableArea({ text, place = 'top', children }: HoverableAreaProps) {
   return (
     <div
-      className="relative group hover:tooltip-show transition-colors duration-200"
+      className="hover:tooltip-show group relative transition-colors duration-200"
       onMouseEnter={() => {}}
       onMouseLeave={() => {}}
     >

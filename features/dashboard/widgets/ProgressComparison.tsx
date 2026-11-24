@@ -24,7 +24,13 @@ interface ProgressComparisonProps {
   onToggle: () => void;
 }
 
-const CustomProgressTooltip = memo(function CustomProgressTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: ProgressChartDataPoint }> }) {
+const CustomProgressTooltip = memo(function CustomProgressTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: ProgressChartDataPoint }>;
+}) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -50,7 +56,14 @@ const CustomProgressTooltip = memo(function CustomProgressTooltip({ active, payl
           </div>
           {data.isAlert && (
             <p className="flex items-center gap-1 pt-1 text-[10px] font-bold text-rose-400">
-              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <svg
+                className="h-3 w-3"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                 <line x1="12" y1="9" x2="12" y2="13" />
                 <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -65,11 +78,19 @@ const CustomProgressTooltip = memo(function CustomProgressTooltip({ active, payl
   return null;
 });
 
-const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ data, visible, onToggle }: ProgressComparisonProps) {
+const ProgressComparisonComponent = memo(function ProgressComparisonComponent({
+  data,
+  visible,
+  onToggle,
+}: ProgressComparisonProps) {
   if (!visible) return null;
 
   return (
-    <Card variant="elevated" padding="sm" className="border-slate-800 bg-slate-900/90 shadow-xl group relative">
+    <Card
+      variant="elevated"
+      padding="sm"
+      className="group relative border-slate-800 bg-slate-900/90 shadow-xl"
+    >
       <div className="absolute right-3 top-3 z-10 opacity-0 transition group-hover:opacity-100">
         <button
           onClick={onToggle}
@@ -80,7 +101,7 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
           <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
-      <div className="p-5 space-y-4">
+      <div className="space-y-4 p-5">
         <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
           <div>
             <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
@@ -88,16 +109,19 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
               Avance Físico de Obra vs. Compromiso Presupuestario (%)
             </h3>
             <p className="mt-0.5 text-xs text-slate-400">
-              Comparativa porcentual por proyecto. Detecta descalces donde el presupuesto comprometido supera al avance real de construcción.
+              Comparativa porcentual por proyecto. Detecta descalces donde el presupuesto
+              comprometido supera al avance real de construcción.
             </p>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-bold">
             <span className="flex items-center gap-1.5 text-emerald-400">
-              <span className="inline-block h-3 w-3 rounded bg-emerald-500" aria-hidden="true" /> Avance Físico (%)
+              <span className="inline-block h-3 w-3 rounded bg-emerald-500" aria-hidden="true" />{' '}
+              Avance Físico (%)
             </span>
             <span className="flex items-center gap-1.5 text-amber-400">
-              <span className="inline-block h-3 w-3 rounded bg-amber-500" aria-hidden="true" /> Compromiso Presupuestario (%)
+              <span className="inline-block h-3 w-3 rounded bg-amber-500" aria-hidden="true" />{' '}
+              Compromiso Presupuestario (%)
             </span>
             <button
               onClick={onToggle}
@@ -137,7 +161,13 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
                   position: 'right',
                 }}
               />
-              <Bar dataKey="avanceFisico" name="Avance Físico (%)" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
+              <Bar
+                dataKey="avanceFisico"
+                name="Avance Físico (%)"
+                fill="#10b981"
+                radius={[4, 4, 0, 0]}
+                barSize={20}
+              />
               <Bar
                 dataKey="ejecucionFinanciera"
                 name="Compromiso Presupuestario (%)"
@@ -148,7 +178,11 @@ const ProgressComparisonComponent = memo(function ProgressComparisonComponent({ 
                   <Cell
                     key={`cell-${index}`}
                     fill={
-                      entry.ejecucionFinanciera > 100 ? '#f43f5e' : entry.isAlert ? '#f59e0b' : '#3b82f6'
+                      entry.ejecucionFinanciera > 100
+                        ? '#f43f5e'
+                        : entry.isAlert
+                          ? '#f59e0b'
+                          : '#3b82f6'
                     }
                   />
                 ))}

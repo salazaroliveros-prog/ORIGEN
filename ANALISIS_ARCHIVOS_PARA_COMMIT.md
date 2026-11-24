@@ -9,6 +9,7 @@
 ## ✅ ARCHIVOS PRODUCCIÓN - DEBEN ESTAR EN COMMIT
 
 ### App Code (Core Application)
+
 ```
 ✅ app/
   ├─ app/layout.tsx                 (PRODUCCIÓN - Security + Analytics)
@@ -23,6 +24,7 @@
 ```
 
 ### Components
+
 ```
 ✅ components/
   ├─ MonitoringSystem.tsx           (PRODUCCIÓN - Health monitoring)
@@ -31,6 +33,7 @@
 ```
 
 ### Libraries & Utilities
+
 ```
 ✅ lib/
   ├─ lib/rate-limit.ts              (PRODUCCIÓN - Rate limiting)
@@ -41,6 +44,7 @@
 ```
 
 ### Configuration
+
 ```
 ✅ next.config.ts                    (ACTUALIZADO - Security + images)
 ✅ middleware.ts
@@ -50,6 +54,7 @@
 ```
 
 ### Public Assets
+
 ```
 ✅ public/
   ├─ public/favicon.ico
@@ -62,6 +67,7 @@
 ```
 
 ### Scripts de Producción
+
 ```
 ✅ scripts/
   ├─ scripts/api-key-rotation-policy.sh    (NUEVO - Setup automation)
@@ -72,6 +78,7 @@
 ```
 
 ### Configuration Files
+
 ```
 ✅ config/
   ├─ config/cloud-armor-waf.yaml       (NUEVO - WAF rules)
@@ -81,11 +88,13 @@
 ```
 
 ### GitHub Actions
+
 ```
 ✅ .github/workflows/main.yml         (CI/CD pipeline)
 ```
 
 ### Environment & Dependencies
+
 ```
 ✅ .env.example                       (Template, NO secrets)
 ✅ .eslintrc.json
@@ -98,6 +107,7 @@
 ## ❌ ARCHIVOS DOCUMENTACIÓN - NO VAN EN COMMIT
 
 ### Reportes de Auditoría (Documentación)
+
 ```
 ❌ REPORTE_FINAL_EXHAUSTIVO.md
 ❌ VALIDACION_SISTEMA_CRUD.md
@@ -108,6 +118,7 @@
 ```
 
 ### Reportes de Implementación
+
 ```
 ❌ REPORTE_CORRECCIONES_MOVILES.md
 ❌ IMPLEMENTACION_FASE_1_COMPLETADA.md
@@ -116,6 +127,7 @@
 ```
 
 ### Reportes de Testing
+
 ```
 ❌ TEST_RESULTS_FINAL_REPORT.md
 ❌ test-results.json
@@ -124,12 +136,14 @@
 ```
 
 ### Reportes de Sign-Off & Certificación
+
 ```
 ❌ PRODUCTION_SIGN_OFF_CERTIFICATE.md
 ❌ PROYECTO_COMPLETADO_GO_LIVE.txt
 ```
 
 ### Reportes de GAP Analysis (Nuevos)
+
 ```
 ❌ GAP_ANALYSIS_95_TO_100.md
 ❌ GAP_ANALYSIS_VISUAL_SUMMARY.txt
@@ -140,6 +154,7 @@
 ```
 
 ### Índices y Referencias
+
 ```
 ❌ INDICE_MAESTRO_FINAL_COMPLETO.md
 ❌ QUICK_REFERENCE_DEPLOYMENT.md
@@ -148,6 +163,7 @@
 ```
 
 ### Deployment Plans
+
 ```
 ❌ PLAN_DEPLOYMENT_CICD.md
 ❌ PLAN_ESCALABILIDAD_LOADTEST.md
@@ -156,6 +172,7 @@
 ```
 
 ### Executive Summaries
+
 ```
 ❌ REPORTE_EJECUTIVO_FINAL_INTEGRAL.md
 ```
@@ -167,6 +184,7 @@
 ## 🎯 ESTRATEGIA DE LIMPIEZA
 
 ### Paso 1: Mover Documentación a carpeta exclusiva
+
 ```bash
 # Crear carpeta para documentación
 mkdir -p docs/reports
@@ -184,6 +202,7 @@ mv VERIFICACION_*.txt docs/reports/
 ```
 
 ### Paso 2: Actualizar .gitignore
+
 ```bash
 # Agregar a .gitignore
 echo "
@@ -216,6 +235,7 @@ START_AQUI_*.md
 ```
 
 ### Paso 3: Verificar archivos en staging
+
 ```bash
 # Ver qué está staged
 git status
@@ -229,6 +249,7 @@ git reset HEAD TEST_*.md
 ```
 
 ### Paso 4: Agregar solo archivos producción
+
 ```bash
 # Staged solo código
 git add app/
@@ -250,6 +271,7 @@ git add .env.example
 ## 📊 RESUMEN ARCHIVOS
 
 ### PRODUCCIÓN (Deben estar en commit)
+
 ```
 ✅ App Code:           ~50 KB
 ✅ Components:        ~30 KB
@@ -264,6 +286,7 @@ git add .env.example
 ```
 
 ### DOCUMENTACIÓN (NO en commit)
+
 ```
 ❌ Reports:           ~150 KB
 ❌ Analysis:          ~80 KB
@@ -278,6 +301,7 @@ git add .env.example
 ## 🔍 VERIFICACIÓN PRE-COMMIT
 
 ### Checklist
+
 ```
 ✅ Código producción: app/, lib/, components/
 ✅ Nuevas utilidades: lib/analytics.ts, lib/sentry-setup.ts
@@ -321,9 +345,9 @@ Status: Ready for production"
 
 1. ❌ Todos los REPORTE_*.md
 2. ❌ Todos los AUDITORIA_*.md
-3. ❌ Todos los GAP_*.md / GAP_*.txt
+3. ❌ Todos los GAP__.md / GAP__.txt
 4. ❌ Todos los TEST_*.md
-5. ❌ Todos los *_FINAL_*.md / *_FINAL_*.txt
+5. ❌ Todos los _*FINAL*_.md / _*FINAL*_.txt
 6. ❌ PRODUCTION_SIGN_OFF_CERTIFICATE.md
 7. ❌ test-results.json
 8. ❌ Todos los PLAN_*.md
@@ -333,6 +357,7 @@ Status: Ready for production"
 12. ❌ Otros archivos de documentación
 
 **Comando rápido para remover todos:**
+
 ```bash
 git reset HEAD *.md *.txt
 git reset HEAD test-results.json
@@ -346,6 +371,7 @@ git add next.config.ts middleware.ts package*.json tsconfig.json
 ## ✅ ARCHIVOS QUE SÍ VAN
 
 ### Code Files (Producción)
+
 ```
 ✅ app/layout.tsx                    (Con analytics + WebP/AVIF)
 ✅ app/middleware.ts                 (HTTPS redirect)
@@ -384,4 +410,3 @@ git add next.config.ts middleware.ts package*.json tsconfig.json
 **Total Documentación (NO):** 30+ archivos (~310 KB)
 
 **Acción:** Push solo archivos de código. Documentación queda en local.
-

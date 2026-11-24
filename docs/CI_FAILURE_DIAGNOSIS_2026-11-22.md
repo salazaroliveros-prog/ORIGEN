@@ -34,6 +34,7 @@ El workflow **CI** del commit `ccf9990df0619d925ef44d0c7e63a88e3ff0d898` termina
    ```
 
    El script crea credenciales aleatorias y usa emuladores desechables. No reutilices credenciales ni datos de producción.
+
 3. Clasifica el primer error real antes de editar:
    - Si es una prueba Playwright, ejecuta solo el spec y el test identificados por el log mediante `npm run test:e2e -- <spec> --grep '<nombre>'` (o pasa los argumentos equivalentes a `node scripts/run-e2e.mjs`) y corrige el comportamiento/selector esperado en el código o spec apropiado.
    - Si falla el seed, corrige el contrato/fixture señalado en `scripts/seed-e2e-emulator.mjs` y agrega o ajusta una prueba focalizada; no cambies reglas para silenciar rechazos esperados.

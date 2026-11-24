@@ -49,17 +49,17 @@ No se realizaron escrituras de prueba en la base de datos productiva.
 
 ## 3. Estado de verificación observado
 
-| Control | Evidencia disponible | Estado al corte |
-|---|---|---|
-| Instalación de dependencias y lint | Aprobados en ejecuciones recientes de la rama antes de los últimos cambios de reglas/maquinaria | Parcial; requiere repetir en el último commit |
-| Validación Service Worker y manifiesto PWA | Aprobadas en ejecuciones recientes | Parcial; requiere repetir en el último commit |
-| TypeScript y pruebas unitarias | Aprobados en ejecuciones recientes | Parcial; requiere repetir en el último commit |
-| Firebase Emulator / reglas | Aprobado en una ejecución previa con las correcciones de centavos; los nuevos controles de horómetro aún esperan ejecución íntegra | Pendiente |
-| Build Next.js | Aprobado en el commit `428708e`; las ejecuciones posteriores fueron canceladas al avanzar la rama | Pendiente de repetir en el último commit |
-| Playwright E2E completo | La última ejecución que alcanzó esta etapa fue cancelada al entrar nuevos commits; no hay aprobación integral del head actual | Pendiente |
-| Vercel Preview del head actual | El check de Vercel devuelve `build-rate-limit`; no se pudo confirmar un deployment Preview accesible desde el conector | Bloqueado externamente |
-| Producción Firebase | No se verificó configuración real, App Check, dominios, backups ni restore | Pendiente de acceso/validación |
-| Aceptación funcional en campo | No hay acta de UAT firmada para todos los roles y módulos | Pendiente |
+| Control                                    | Evidencia disponible                                                                                                               | Estado al corte                               |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Instalación de dependencias y lint         | Aprobados en ejecuciones recientes de la rama antes de los últimos cambios de reglas/maquinaria                                    | Parcial; requiere repetir en el último commit |
+| Validación Service Worker y manifiesto PWA | Aprobadas en ejecuciones recientes                                                                                                 | Parcial; requiere repetir en el último commit |
+| TypeScript y pruebas unitarias             | Aprobados en ejecuciones recientes                                                                                                 | Parcial; requiere repetir en el último commit |
+| Firebase Emulator / reglas                 | Aprobado en una ejecución previa con las correcciones de centavos; los nuevos controles de horómetro aún esperan ejecución íntegra | Pendiente                                     |
+| Build Next.js                              | Aprobado en el commit `428708e`; las ejecuciones posteriores fueron canceladas al avanzar la rama                                  | Pendiente de repetir en el último commit      |
+| Playwright E2E completo                    | La última ejecución que alcanzó esta etapa fue cancelada al entrar nuevos commits; no hay aprobación integral del head actual      | Pendiente                                     |
+| Vercel Preview del head actual             | El check de Vercel devuelve `build-rate-limit`; no se pudo confirmar un deployment Preview accesible desde el conector             | Bloqueado externamente                        |
+| Producción Firebase                        | No se verificó configuración real, App Check, dominios, backups ni restore                                                         | Pendiente de acceso/validación                |
+| Aceptación funcional en campo              | No hay acta de UAT firmada para todos los roles y módulos                                                                          | Pendiente                                     |
 
 La ejecución debe revisarse por SHA, no mezclando resultados de commits anteriores. La ejecución asociada al commit `f010014312b8eec43828bec99bbd899b642fdd9d` es:
 [GitHub Actions — rama de auditoría](https://github.com/salazaroliveros-prog/ORIGEN/actions).
@@ -113,4 +113,5 @@ El límite de Vercel es externo al código de esta rama y requiere intervención
 Los documentos `COMPREHENSIVE_SYSTEM_VALIDATION_REPORT.md`, `DEPLOYMENT_FINAL_REPORT.md`, `FINAL_COMPLETION_REPORT.txt` y `GO_LIVE_FINAL_REPORT.md` describen estados y fechas anteriores. Sus frases de “100 % completo”, “producción lista” o porcentajes de pruebas no acreditan el estado vigente de noviembre de 2026. Deben leerse como histórico y no como autorización de despliegue.
 
 ---
+
 **Mantenimiento del documento:** actualizar fecha, SHA, resultados exactos de CI/Vercel y lista de bloqueos cada vez que cambie el head del PR o se complete una puerta de salida.

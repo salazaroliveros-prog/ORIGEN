@@ -76,7 +76,7 @@ export function QuotesManager({
 
   return (
     <div className="space-y-6">
-      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-bold text-slate-900">
             Cotizaciones a Clientes & Presupuestos Comerciales
@@ -97,7 +97,7 @@ export function QuotesManager({
         {quotes.map((quote) => (
           <div
             key={quote.id}
-            className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5"
+            className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
           >
             <div className="flex items-start justify-between">
               <div>

@@ -25,7 +25,8 @@ describe('settleSyncLog', () => {
       {
         ...pending,
         status: 'error',
-        details: 'La operación no se confirmó correctamente. No se registró como sincronización exitosa.',
+        details:
+          'La operación no se confirmó correctamente. No se registró como sincronización exitosa.',
       },
     ]);
   });

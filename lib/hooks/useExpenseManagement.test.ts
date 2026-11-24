@@ -44,7 +44,10 @@ import {
 const mockCompanyId = 'company-1';
 const mockUserId = 'user-1';
 
-function renderUseExpenseManagement(companyId: string = mockCompanyId, userId: string = mockUserId) {
+function renderUseExpenseManagement(
+  companyId: string = mockCompanyId,
+  userId: string = mockUserId
+) {
   return renderHook(() => useExpenseManagement({ companyId, currentUserId: userId }));
 }
 

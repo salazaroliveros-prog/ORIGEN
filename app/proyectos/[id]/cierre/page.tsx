@@ -8,9 +8,7 @@
 
 import { ProjectClosureContent } from './ProjectClosureContent.client';
 
-export default async function ProjectClosurePage({
-  params,
-}: { params: Promise<{ id: string }> }) {
+export default async function ProjectClosurePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: projectId } = await params;
   return <ProjectClosureContent projectId={projectId} />;
 }

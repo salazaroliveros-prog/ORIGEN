@@ -3,25 +3,25 @@
 This guide focuses on the **Modular Web SDK** (v9+) designed for tree-shaking
 and efficiency.
 
-______________________________________________________________________
+---
 
 ## 1. Initialization
 
 Initialize the SDK and Firestore instance:
 
 ```javascript
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   // Retrieve values using 'firebase apps:sdkconfig web <app-id>'
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app, "<database-id>");
+const db = getFirestore(app, '<database-id>');
 ```
 
-______________________________________________________________________
+---
 
 ## 2. Decision Framework: Pipelines vs. Standard Queries
 
@@ -41,7 +41,7 @@ ______________________________________________________________________
    or offline querying/caching are absolute application requirements. When doing
    so, explicitly document the reason in your response.
 
-______________________________________________________________________
+---
 
 ## 3. Pipeline Examples
 
@@ -53,17 +53,21 @@ bind alias parameters. - Invoke `.addFields()` incorporating a new subquery
 linking the documents.
 
 ```javascript
-import { execute, field, variable } from "firebase/firestore/pipelines";
+import { execute, field, variable } from 'firebase/firestore/pipelines';
 
 // Fetch articles and join the associated author Profile side-by-side
-const articlesWithAuthProfile = db.pipeline().collection("articles")
-  .define(field("authorUid").as("author_id"))
+const articlesWithAuthProfile = db
+  .pipeline()
+  .collection('articles')
+  .define(field('authorUid').as('author_id'))
   .addFields(
-    db.pipeline().collection("users")
-      .where(field("__name__").documentId().equal(variable("author_id")))
-      .select(field("displayName"), field("avatarUrl"), field("handle"))
+    db
+      .pipeline()
+      .collection('users')
+      .where(field('__name__').documentId().equal(variable('author_id')))
+      .select(field('displayName'), field('avatarUrl'), field('handle'))
       .toScalarExpression()
-      .as("author")
+      .as('author')
   );
 const snapshot = await execute(articlesWithAuthProfile);
 ```
@@ -74,17 +78,15 @@ Leverage the database-native `.findNearest()` stage for vector similarity
 lookups:
 
 ```javascript
-import { execute } from "firebase/firestore/pipelines";
+import { execute } from 'firebase/firestore/pipelines';
 
 // Execute vector similarity search within pipeline
-const vectorPipeline = db.pipeline()
-  .collection("articles")
-  .findNearest({
-    field: "embedding",
-    vectorValue: queryVector,
-    distanceMeasure: "cosine",
-    limit: 5
-  });
+const vectorPipeline = db.pipeline().collection('articles').findNearest({
+  field: 'embedding',
+  vectorValue: queryVector,
+  distanceMeasure: 'cosine',
+  limit: 5,
+});
 const results = await execute(vectorPipeline);
 ```
 
@@ -94,19 +96,20 @@ Leverage the database-native `.search()` stage (introduced in Firebase v12.13.0)
 for high-performance text lookups.
 
 ```javascript
-import { documentMatches, execute, score } from "firebase/firestore/pipelines";
+import { documentMatches, execute, score } from 'firebase/firestore/pipelines';
 // Execute full-text search within pipeline
-const searchPipeline = db.pipeline()
-  .collection("articles")
+const searchPipeline = db
+  .pipeline()
+  .collection('articles')
   .search({
-    query: documentMatches("machine learning"),
-    sort: score().descending()
+    query: documentMatches('machine learning'),
+    sort: score().descending(),
   })
   .limit(5);
 const results = await execute(searchPipeline);
 ```
 
-______________________________________________________________________
+---
 
 ## 4. Real-Time Listener & Document Operations
 
@@ -115,32 +118,41 @@ alongside standard read/write transactions as shown in this comprehensive
 example.
 
 ```javascript
-import { collection, query, where, onSnapshot, doc, setDoc, updateDoc, addDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  setDoc,
+  updateDoc,
+  addDoc,
+} from 'firebase/firestore';
 
 // 1. Add a new document to a collection
-const newDocRef = await addDoc(collection(db, "tasks"), {
-  title: "Refactor Web SDK",
-  status: "pending"
+const newDocRef = await addDoc(collection(db, 'tasks'), {
+  title: 'Refactor Web SDK',
+  status: 'pending',
 });
 
 // 2. Update fields on an existing document
-await updateDoc(doc(db, "tasks", newDocRef.id), {
-  priority: "high"
+await updateDoc(doc(db, 'tasks', newDocRef.id), {
+  priority: 'high',
 });
 
 // 3. Establish a real-time listener on a compound query
-const q = query(collection(db, "tasks"), where("status", "==", "pending"));
+const q = query(collection(db, 'tasks'), where('status', '==', 'pending'));
 
 const unsubscribe = onSnapshot(q, (snapshot) => {
   snapshot.docChanges().forEach((change) => {
-    if (change.type === "added") {
-        console.log("Added Task: ", change.doc.id, change.doc.data());
+    if (change.type === 'added') {
+      console.log('Added Task: ', change.doc.id, change.doc.data());
     }
-    if (change.type === "modified") {
-        console.log("Updated Task: ", change.doc.id, change.doc.data());
+    if (change.type === 'modified') {
+      console.log('Updated Task: ', change.doc.id, change.doc.data());
     }
-    if (change.type === "removed") {
-        console.log("Removed Task: ", change.doc.id, change.doc.data());
+    if (change.type === 'removed') {
+      console.log('Removed Task: ', change.doc.id, change.doc.data());
     }
   });
 });

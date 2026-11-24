@@ -48,21 +48,21 @@ describe('lib/security', () => {
       expect(result.remaining).toBe(29);
     });
 
-  it('should reset after the time window', () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-01T00:00:00Z'));
-    rateLimit('user-t1'); // count=1, remaining=29
-    const second = rateLimit('user-t1'); // count=2, remaining=28
-    expect(second.allowed).toBe(true);
-    expect(second.remaining).toBe(28);
+    it('should reset after the time window', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-01-01T00:00:00Z'));
+      rateLimit('user-t1'); // count=1, remaining=29
+      const second = rateLimit('user-t1'); // count=2, remaining=28
+      expect(second.allowed).toBe(true);
+      expect(second.remaining).toBe(28);
 
-    vi.setSystemTime(new Date('2024-01-01T00:01:05Z'));
-    const reset = rateLimit('user-t1'); // new window, count=1, remaining=29
-    expect(reset.allowed).toBe(true);
-    expect(reset.remaining).toBe(29);
+      vi.setSystemTime(new Date('2024-01-01T00:01:05Z'));
+      const reset = rateLimit('user-t1'); // new window, count=1, remaining=29
+      expect(reset.allowed).toBe(true);
+      expect(reset.remaining).toBe(29);
 
-    vi.useRealTimers();
-  });
+      vi.useRealTimers();
+    });
   });
 
   describe('rateLimitMiddleware', () => {
@@ -131,7 +131,9 @@ describe('lib/security', () => {
     });
 
     it('should preserve safe HTML', () => {
-      expect(sanitizeHtml('<p>Hello <strong>world</strong></p>')).toBe('<p>Hello <strong>world</strong></p>');
+      expect(sanitizeHtml('<p>Hello <strong>world</strong></p>')).toBe(
+        '<p>Hello <strong>world</strong></p>'
+      );
     });
   });
 });

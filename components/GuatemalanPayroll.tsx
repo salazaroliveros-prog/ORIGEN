@@ -203,7 +203,7 @@ export function GuatemalanPayroll({
   return (
     <div className="space-y-6">
       {/* Header with Print & Export Controls */}
-      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-lg bg-blue-50 p-1.5 text-blue-700">
@@ -226,7 +226,7 @@ export function GuatemalanPayroll({
               onClick={() => setViewMode('validador')}
               className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                 viewMode === 'validador'
-                  ? 'shadow-xs bg-blue-600 font-bold text-white'
+                  ? 'bg-blue-600 font-bold text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -240,7 +240,7 @@ export function GuatemalanPayroll({
               onClick={() => setViewMode('summary_prestaciones')}
               className={`cursor-pointer rounded-lg px-3 py-1.5 transition ${
                 viewMode === 'summary_prestaciones'
-                  ? 'shadow-xs bg-white text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -250,7 +250,7 @@ export function GuatemalanPayroll({
               onClick={() => setViewMode('regular')}
               className={`cursor-pointer rounded-lg px-3 py-1.5 transition ${
                 viewMode === 'regular'
-                  ? 'shadow-xs bg-white text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -275,7 +275,7 @@ export function GuatemalanPayroll({
       </div>
 
       {/* Filters: Period, Month, Search */}
-      <div className="shadow-xs rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             {/* Period Selector */}
@@ -377,7 +377,7 @@ export function GuatemalanPayroll({
 
           {/* Summary KPI Cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
               <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 Masa Salarial Base
               </p>
@@ -386,7 +386,7 @@ export function GuatemalanPayroll({
                 {employees.length} colaboradores activos
               </p>
             </div>
-            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
               <p className="text-[11px] font-bold uppercase tracking-wider text-rose-600">
                 IGSS Laboral (4.83%)
               </p>
@@ -395,7 +395,7 @@ export function GuatemalanPayroll({
               </p>
               <p className="mt-0.5 text-[10px] text-slate-400">Deducción de planilla</p>
             </div>
-            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
               <p className="text-[11px] font-bold uppercase tracking-wider text-blue-600">
                 IGSS Patronal (12.67%)
               </p>
@@ -404,7 +404,7 @@ export function GuatemalanPayroll({
               </p>
               <p className="mt-0.5 text-[10px] text-slate-400">Incluye 1% IRTRA + 1% INTECAP</p>
             </div>
-            <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
               <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600">
                 Provisión Bono 14 & Aguinaldo
               </p>
@@ -418,7 +418,7 @@ export function GuatemalanPayroll({
           </div>
 
           {/* Printable Document Container (PDF Style) */}
-          <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white print:border-none print:shadow-none">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs print:border-none print:shadow-none">
             {/* Printable Official Header */}
             <div className="border-b border-slate-200 bg-slate-50/70 p-6 print:border-b-2 print:border-black print:bg-white print:p-0">
               <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">

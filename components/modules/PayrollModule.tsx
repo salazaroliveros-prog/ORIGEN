@@ -30,7 +30,7 @@ interface PayrollModuleExpandedProps {
 
 /**
  * PAYROLL MODULE EXPANDED - Módulo de Planillas Guate Completo
- * 
+ *
  * ✨ Características:
  * - Gestión completa de nóminas
  * - Cálculo automático de IGSS
@@ -253,7 +253,7 @@ export function PayrollModuleExpanded({
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium border ${getStatusColor(payroll.status)}`}
+                      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(payroll.status)}`}
                     >
                       {payroll.status}
                     </span>
@@ -289,7 +289,10 @@ export function PayrollModuleExpanded({
 
       {/* Empty State */}
       {filteredPayrolls.length === 0 && (
-        <Card variant="default" className="flex flex-col items-center justify-center py-12 text-center">
+        <Card
+          variant="default"
+          className="flex flex-col items-center justify-center py-12 text-center"
+        >
           <Banknote className="mb-4 h-12 w-12 text-slate-500" />
           <h3 className="mb-2 text-lg font-semibold text-white">Sin planillas</h3>
           <p className="text-sm text-slate-400">

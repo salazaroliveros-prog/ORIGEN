@@ -189,7 +189,13 @@ export async function createWarehouseToFirestore(
   };
   await runTransaction(db, async (transaction: Transaction) => {
     if (warehouse.projectId) {
-      await assertCompanyReference(transaction, 'projects', warehouse.projectId, companyId, 'Proyecto');
+      await assertCompanyReference(
+        transaction,
+        'projects',
+        warehouse.projectId,
+        companyId,
+        'Proyecto'
+      );
     }
     transaction.set(ref, stripUndefined(warehouse));
   }).catch((error: unknown) => {
@@ -247,7 +253,9 @@ export async function createPurchaseOrderToFirestore(
     updatedAt: input.updatedAt ?? now,
   });
   if (order.status !== 'draft') {
-    throw new Error('Una orden nueva debe crearse como borrador; la aprobación se habilitará con el flujo auditable.');
+    throw new Error(
+      'Una orden nueva debe crearse como borrador; la aprobación se habilitará con el flujo auditable.'
+    );
   }
 
   // El encabezado y las referencias de sus artículos se escriben juntos. Las
@@ -296,8 +304,10 @@ export async function approvePurchaseOrderToFirestore(
       const snapshot = await transaction.get(orderRef);
       if (!snapshot.exists()) throw new Error('La orden de compra no existe.');
       const current = snapshot.data() as PurchaseOrderRecord;
-      if (current.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (current.status !== 'draft') throw new Error('Solo se pueden aprobar órdenes en borrador.');
+      if (current.companyId !== companyId)
+        throw new Error('La orden no pertenece a la empresa activa.');
+      if (current.status !== 'draft')
+        throw new Error('Solo se pueden aprobar órdenes en borrador.');
       const approved = validatePurchaseOrder({
         ...current,
         status: 'approved',
@@ -341,7 +351,9 @@ export async function receivePurchaseOrderToWarehouse(input: {
   assertFiniteNonNegative(quantity, 'Cantidad recibida');
   if (quantity <= 0) throw new Error('La cantidad recibida debe ser mayor a cero.');
   if (!/^[a-zA-Z0-9_-]{1,40}$/.test(receiptNumber.trim())) {
-    throw new Error('El número de recepción solo puede contener letras, números, guion y guion bajo (máximo 40).');
+    throw new Error(
+      'El número de recepción solo puede contener letras, números, guion y guion bajo (máximo 40).'
+    );
   }
 
   const db = getDbOrThrow();
@@ -354,8 +366,14 @@ export async function receivePurchaseOrderToWarehouse(input: {
       const orderSnapshot = await transaction.get(orderRef);
       if (!orderSnapshot.exists()) throw new Error('La orden de compra no existe.');
       const order = orderSnapshot.data() as PurchaseOrderRecord;
-      if (order.companyId !== companyId) throw new Error('La orden no pertenece a la empresa activa.');
-      if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 2 || lineIndex >= order.lines.length) {
+      if (order.companyId !== companyId)
+        throw new Error('La orden no pertenece a la empresa activa.');
+      if (
+        !Array.isArray(order.lines) ||
+        order.lines.length < 1 ||
+        order.lines.length > 2 ||
+        lineIndex >= order.lines.length
+      ) {
         throw new Error('El renglón seleccionado no existe en esta orden.');
       }
 
@@ -363,7 +381,9 @@ export async function receivePurchaseOrderToWarehouse(input: {
       const itemId = line.itemId;
       assertSafeDocumentId(itemId, 'Artículo');
       if (warehouseId.length > 55 || itemId.length > 55 || orderId.length > 55) {
-        throw new Error('El identificador de bodega, artículo u orden supera el límite para referencias de inventario.');
+        throw new Error(
+          'El identificador de bodega, artículo u orden supera el límite para referencias de inventario.'
+        );
       }
 
       const balanceId = `bal_${warehouseId}_${itemId}`;
@@ -374,17 +394,20 @@ export async function receivePurchaseOrderToWarehouse(input: {
       const movementRef = doc(db, 'stockMovements', movementId);
       const itemRef = doc(db, 'inventoryItems', itemId);
 
-      const [warehouseSnapshot, itemSnapshot, balanceSnapshot, movementSnapshot] = await Promise.all([
-        transaction.get(warehouseRef),
-        transaction.get(itemRef),
-        transaction.get(balanceRef),
-        transaction.get(movementRef),
-      ]);
+      const [warehouseSnapshot, itemSnapshot, balanceSnapshot, movementSnapshot] =
+        await Promise.all([
+          transaction.get(warehouseRef),
+          transaction.get(itemRef),
+          transaction.get(balanceRef),
+          transaction.get(movementRef),
+        ]);
 
       if (movementSnapshot.exists()) {
         const previous = movementSnapshot.data() as StockMovement;
         if (!balanceSnapshot.exists()) {
-          throw new Error('Se encontró una recepción previa sin saldo asociado. Se requiere revisión de inventario.');
+          throw new Error(
+            'Se encontró una recepción previa sin saldo asociado. Se requiere revisión de inventario.'
+          );
         }
         if (
           previous.companyId === companyId &&
@@ -403,7 +426,9 @@ export async function receivePurchaseOrderToWarehouse(input: {
             previousBalance.itemId !== itemId ||
             previousBalance.id !== balanceId
           ) {
-            throw new Error('El saldo asociado a la recepción no coincide con la empresa, bodega o artículo.');
+            throw new Error(
+              'El saldo asociado a la recepción no coincide con la empresa, bodega o artículo.'
+            );
           }
           return {
             order,
@@ -470,7 +495,9 @@ export async function receivePurchaseOrderToWarehouse(input: {
       }
 
       const nextBalance = applyStockMovement(previousBalance, movement);
-      const receivedQuantities = order.lines.map((_, index) => index === lineIndex ? quantity : 0);
+      const receivedQuantities = order.lines.map((_, index) =>
+        index === lineIndex ? quantity : 0
+      );
       const updatedOrder = recordPurchaseReceipt(order, receivedQuantities, now);
       updatedOrder.lastReceiptMovementId = movementId;
 
@@ -504,7 +531,6 @@ export async function receivePurchaseOrderToWarehouse(input: {
   }
 }
 
-
 export interface OpeningStockResult {
   movement: StockMovement;
   balance: InventoryBalanceRecord;
@@ -529,8 +555,15 @@ export async function recordOpeningStockToFirestore(input: {
   userId: string;
 }): Promise<OpeningStockResult> {
   const {
-    movementId, itemId, warehouseId, quantity, unitCostGTQ,
-    reference, notes, companyId, userId,
+    movementId,
+    itemId,
+    warehouseId,
+    quantity,
+    unitCostGTQ,
+    reference,
+    notes,
+    companyId,
+    userId,
   } = input;
   assertSafeDocumentId(movementId, 'Movimiento de inventario inicial');
   assertSafeDocumentId(itemId, 'Artículo');
@@ -545,7 +578,9 @@ export async function recordOpeningStockToFirestore(input: {
     throw new Error('Las notas no pueden superar 1000 caracteres.');
   }
   if (warehouseId.length > 55 || itemId.length > 55) {
-    throw new Error('El identificador de bodega o artículo supera el límite para referencias de inventario.');
+    throw new Error(
+      'El identificador de bodega o artículo supera el límite para referencias de inventario.'
+    );
   }
 
   const db = getDbOrThrow();
@@ -593,7 +628,9 @@ export async function recordOpeningStockToFirestore(input: {
       if (movementSnapshot.exists()) {
         const previous = movementSnapshot.data() as StockMovement;
         if (!balanceSnapshot.exists()) {
-          throw new Error('Se encontró un movimiento inicial sin saldo asociado. Se requiere revisión de inventario.');
+          throw new Error(
+            'Se encontró un movimiento inicial sin saldo asociado. Se requiere revisión de inventario.'
+          );
         }
         const previousBalance = balanceSnapshot.data() as InventoryBalanceRecord;
         const sameOperation =
@@ -616,15 +653,22 @@ export async function recordOpeningStockToFirestore(input: {
           previousBalance.itemId !== itemId ||
           previousBalance.warehouseId !== warehouseId
         ) {
-          throw new Error('El saldo del inventario inicial no coincide con la empresa, artículo o bodega.');
+          throw new Error(
+            'El saldo del inventario inicial no coincide con la empresa, artículo o bodega.'
+          );
         }
         assertFiniteNonNegative(previousBalance.quantity, 'La existencia del saldo inicial');
-        assertFiniteNonNegative(previousBalance.averageUnitCostGTQ, 'El costo promedio del saldo inicial');
+        assertFiniteNonNegative(
+          previousBalance.averageUnitCostGTQ,
+          'El costo promedio del saldo inicial'
+        );
         return { movement: previous, balance: previousBalance, alreadyProcessed: true };
       }
 
       if (balanceSnapshot.exists()) {
-        throw new Error('Esta combinación de artículo y bodega ya tiene historial. Usa un ajuste de inventario, no otra apertura.');
+        throw new Error(
+          'Esta combinación de artículo y bodega ya tiene historial. Usa un ajuste de inventario, no otra apertura.'
+        );
       }
       if (!warehouse || !item) {
         throw new Error('No se pudieron validar las referencias del inventario inicial.');
@@ -633,7 +677,9 @@ export async function recordOpeningStockToFirestore(input: {
       const movement: StockMovement = {
         id: movementId,
         companyId,
-        ...(warehouse.type === 'project' && warehouse.projectId ? { projectId: warehouse.projectId } : {}),
+        ...(warehouse.type === 'project' && warehouse.projectId
+          ? { projectId: warehouse.projectId }
+          : {}),
         itemId,
         warehouseId,
         kind: 'opening',
@@ -703,8 +749,16 @@ export async function adjustInventoryStockToFirestore(input: {
   userId: string;
 }): Promise<StockAdjustmentResult> {
   const {
-    movementId, itemId, warehouseId, kind, quantity, unitCostGTQ,
-    reference, reason, companyId, userId,
+    movementId,
+    itemId,
+    warehouseId,
+    kind,
+    quantity,
+    unitCostGTQ,
+    reference,
+    reason,
+    companyId,
+    userId,
   } = input;
   assertSafeDocumentId(movementId, 'Movimiento de ajuste');
   assertSafeDocumentId(itemId, 'Artículo');
@@ -725,7 +779,9 @@ export async function adjustInventoryStockToFirestore(input: {
     assertFiniteNonNegative(unitCostGTQ, 'Costo unitario del ajuste');
   }
   if (warehouseId.length > 55 || itemId.length > 55) {
-    throw new Error('El identificador de bodega o artículo supera el límite para referencias de inventario.');
+    throw new Error(
+      'El identificador de bodega o artículo supera el límite para referencias de inventario.'
+    );
   }
 
   const db = getDbOrThrow();
@@ -779,7 +835,9 @@ export async function adjustInventoryStockToFirestore(input: {
       if (movementSnapshot.exists()) {
         const previous = movementSnapshot.data() as StockMovement;
         if (!balanceSnapshot.exists()) {
-          throw new Error('Se encontró un ajuste previo sin saldo asociado. Se requiere revisión de inventario.');
+          throw new Error(
+            'Se encontró un ajuste previo sin saldo asociado. Se requiere revisión de inventario.'
+          );
         }
         const previousBalance = balanceSnapshot.data() as InventoryBalanceRecord;
         const sameOperation =
@@ -803,15 +861,22 @@ export async function adjustInventoryStockToFirestore(input: {
           previousBalance.itemId !== itemId ||
           previousBalance.warehouseId !== warehouseId
         ) {
-          throw new Error('El saldo del ajuste previo no coincide con la empresa, artículo o bodega.');
+          throw new Error(
+            'El saldo del ajuste previo no coincide con la empresa, artículo o bodega.'
+          );
         }
         assertFiniteNonNegative(previousBalance.quantity, 'La existencia del saldo ajustado');
-        assertFiniteNonNegative(previousBalance.averageUnitCostGTQ, 'El costo promedio del saldo ajustado');
+        assertFiniteNonNegative(
+          previousBalance.averageUnitCostGTQ,
+          'El costo promedio del saldo ajustado'
+        );
         return { movement: previous, balance: previousBalance, alreadyProcessed: true };
       }
 
       if (!balanceSnapshot.exists()) {
-        throw new Error('No existe saldo de inventario para ajustar. Registra primero el inventario inicial o una recepción.');
+        throw new Error(
+          'No existe saldo de inventario para ajustar. Registra primero el inventario inicial o una recepción.'
+        );
       }
       if (!warehouse || !item) {
         throw new Error('No se pudieron validar las referencias del ajuste de inventario.');
@@ -830,7 +895,9 @@ export async function adjustInventoryStockToFirestore(input: {
       const movement: StockMovement = {
         id: movementId,
         companyId,
-        ...(warehouse.type === 'project' && warehouse.projectId ? { projectId: warehouse.projectId } : {}),
+        ...(warehouse.type === 'project' && warehouse.projectId
+          ? { projectId: warehouse.projectId }
+          : {}),
         itemId,
         warehouseId,
         kind,
@@ -892,7 +959,17 @@ export async function recordProjectStockIssueToFirestore(input: {
   companyId: string;
   userId: string;
 }): Promise<StockIssueResult> {
-  const { movementId, projectId, itemId, warehouseId, quantity, reference, notes, companyId, userId } = input;
+  const {
+    movementId,
+    projectId,
+    itemId,
+    warehouseId,
+    quantity,
+    reference,
+    notes,
+    companyId,
+    userId,
+  } = input;
   assertSafeDocumentId(movementId, 'Movimiento de salida');
   assertSafeDocumentId(projectId, 'Proyecto');
   assertSafeDocumentId(itemId, 'Artículo');
@@ -906,7 +983,9 @@ export async function recordProjectStockIssueToFirestore(input: {
     throw new Error('Las notas no pueden superar 1000 caracteres.');
   }
   if (warehouseId.length > 55 || itemId.length > 55) {
-    throw new Error('El identificador de bodega o artículo supera el límite para referencias de inventario.');
+    throw new Error(
+      'El identificador de bodega o artículo supera el límite para referencias de inventario.'
+    );
   }
 
   const db = getDbOrThrow();
@@ -977,7 +1056,9 @@ export async function recordProjectStockIssueToFirestore(input: {
             previous.balanceId !== balanceId ||
             !balanceSnapshot.exists()
           ) {
-            throw new Error('Se encontró una salida previa sin saldo asociado o con referencias inconsistentes. Se requiere revisión de inventario.');
+            throw new Error(
+              'Se encontró una salida previa sin saldo asociado o con referencias inconsistentes. Se requiere revisión de inventario.'
+            );
           }
           const balance = balanceSnapshot.data() as InventoryBalanceRecord;
           if (
@@ -986,10 +1067,15 @@ export async function recordProjectStockIssueToFirestore(input: {
             balance.itemId !== itemId ||
             balance.warehouseId !== warehouseId
           ) {
-            throw new Error('El saldo de la salida previa no coincide con la empresa, artículo o bodega. Se requiere revisión de inventario.');
+            throw new Error(
+              'El saldo de la salida previa no coincide con la empresa, artículo o bodega. Se requiere revisión de inventario.'
+            );
           }
           assertFiniteNonNegative(balance.quantity, 'La existencia del saldo de salida');
-          assertFiniteNonNegative(balance.averageUnitCostGTQ, 'El costo promedio del saldo de salida');
+          assertFiniteNonNegative(
+            balance.averageUnitCostGTQ,
+            'El costo promedio del saldo de salida'
+          );
           return { movement: previous, balance, alreadyProcessed: true };
         }
         throw new Error('La referencia de salida ya fue utilizada para otro movimiento.');
@@ -1003,7 +1089,9 @@ export async function recordProjectStockIssueToFirestore(input: {
       }
       const item = preflightItem;
       if (!balanceSnapshot.exists()) {
-        throw new Error('No hay saldo registrado para este artículo en la bodega. Registra una recepción antes de retirar material.');
+        throw new Error(
+          'No hay saldo registrado para este artículo en la bodega. Registra una recepción antes de retirar material.'
+        );
       }
 
       const current = balanceSnapshot.data() as InventoryBalanceRecord;
@@ -1061,7 +1149,6 @@ export async function recordProjectStockIssueToFirestore(input: {
   }
 }
 
-
 export interface WarehouseTransferResult {
   outgoing: StockMovement;
   incoming: StockMovement;
@@ -1084,10 +1171,8 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
   companyId: string;
   userId: string;
 }): Promise<WarehouseTransferResult> {
-  const {
-    transferId, itemId, fromWarehouseId, toWarehouseId,
-    quantity, notes, companyId, userId,
-  } = input;
+  const { transferId, itemId, fromWarehouseId, toWarehouseId, quantity, notes, companyId, userId } =
+    input;
   assertSafeDocumentId(transferId, 'Traslado');
   assertSafeDocumentId(itemId, 'Artículo');
   assertSafeDocumentId(fromWarehouseId, 'Bodega de origen');
@@ -1097,7 +1182,12 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
   assertFiniteNonNegative(quantity, 'Cantidad del traslado');
   if (quantity <= 0) throw new Error('La cantidad del traslado debe ser mayor a cero.');
   if (fromWarehouseId === toWarehouseId) throw new Error('Selecciona dos bodegas diferentes.');
-  if (transferId.length > 75 || itemId.length > 55 || fromWarehouseId.length > 55 || toWarehouseId.length > 55) {
+  if (
+    transferId.length > 75 ||
+    itemId.length > 55 ||
+    fromWarehouseId.length > 55 ||
+    toWarehouseId.length > 55
+  ) {
     throw new Error('El ID del traslado, artículo o bodega supera el límite permitido.');
   }
   if (notes !== undefined && (typeof notes !== 'string' || notes.length > 1000)) {
@@ -1132,11 +1222,12 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
     let item: InventoryItemRecord | null = null;
 
     if (!previousOutgoing.exists() && !previousIncoming.exists()) {
-      const [sourceWarehouseSnapshot, destinationWarehouseSnapshot, itemSnapshot] = await Promise.all([
-        getDoc(sourceWarehouseRef),
-        getDoc(destinationWarehouseRef),
-        getDoc(itemRef),
-      ]);
+      const [sourceWarehouseSnapshot, destinationWarehouseSnapshot, itemSnapshot] =
+        await Promise.all([
+          getDoc(sourceWarehouseRef),
+          getDoc(destinationWarehouseRef),
+          getDoc(itemRef),
+        ]);
       if (!sourceWarehouseSnapshot.exists() || !destinationWarehouseSnapshot.exists()) {
         throw new Error('La bodega de origen o destino no existe.');
       }
@@ -1145,8 +1236,10 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
       destinationWarehouse = destinationWarehouseSnapshot.data() as WarehouseRecord;
       item = itemSnapshot.data() as InventoryItemRecord;
       if (
-        sourceWarehouse.companyId !== companyId || !sourceWarehouse.active ||
-        destinationWarehouse.companyId !== companyId || !destinationWarehouse.active
+        sourceWarehouse.companyId !== companyId ||
+        !sourceWarehouse.active ||
+        destinationWarehouse.companyId !== companyId ||
+        !destinationWarehouse.active
       ) {
         throw new Error('Ambas bodegas deben estar activas y pertenecer a la empresa.');
       }
@@ -1165,9 +1258,15 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
       const destinationBalanceSnapshot = await transaction.get(destinationBalanceRef);
 
       if (outgoingSnapshot.exists() || incomingSnapshot.exists()) {
-        if (!outgoingSnapshot.exists() || !incomingSnapshot.exists() ||
-            !sourceBalanceSnapshot.exists() || !destinationBalanceSnapshot.exists()) {
-          throw new Error('El traslado tiene registros incompletos. Se requiere revisión de inventario.');
+        if (
+          !outgoingSnapshot.exists() ||
+          !incomingSnapshot.exists() ||
+          !sourceBalanceSnapshot.exists() ||
+          !destinationBalanceSnapshot.exists()
+        ) {
+          throw new Error(
+            'El traslado tiene registros incompletos. Se requiere revisión de inventario.'
+          );
         }
         const outgoing = outgoingSnapshot.data() as StockMovement;
         const incoming = incomingSnapshot.data() as StockMovement;
@@ -1204,12 +1303,20 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
           destinationBalance.itemId !== itemId ||
           destinationBalance.warehouseId !== toWarehouseId
         ) {
-          throw new Error('Los saldos del traslado previo no coinciden con la empresa, artículo o bodegas. Se requiere revisión de inventario.');
+          throw new Error(
+            'Los saldos del traslado previo no coinciden con la empresa, artículo o bodegas. Se requiere revisión de inventario.'
+          );
         }
         assertFiniteNonNegative(sourceBalance.quantity, 'La existencia del saldo de origen');
-        assertFiniteNonNegative(sourceBalance.averageUnitCostGTQ, 'El costo promedio del saldo de origen');
+        assertFiniteNonNegative(
+          sourceBalance.averageUnitCostGTQ,
+          'El costo promedio del saldo de origen'
+        );
         assertFiniteNonNegative(destinationBalance.quantity, 'La existencia del saldo de destino');
-        assertFiniteNonNegative(destinationBalance.averageUnitCostGTQ, 'El costo promedio del saldo de destino');
+        assertFiniteNonNegative(
+          destinationBalance.averageUnitCostGTQ,
+          'El costo promedio del saldo de destino'
+        );
         return {
           outgoing,
           incoming,
@@ -1238,13 +1345,14 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
       }
 
       const destination = destinationBalanceSnapshot.exists()
-        ? destinationBalanceSnapshot.data() as InventoryBalanceRecord
+        ? (destinationBalanceSnapshot.data() as InventoryBalanceRecord)
         : null;
-      if (destination && (
-        destination.companyId !== companyId ||
-        destination.itemId !== itemId ||
-        destination.warehouseId !== toWarehouseId
-      )) {
+      if (
+        destination &&
+        (destination.companyId !== companyId ||
+          destination.itemId !== itemId ||
+          destination.warehouseId !== toWarehouseId)
+      ) {
         throw new Error('El saldo de destino no coincide con el artículo, bodega o empresa.');
       }
 
@@ -1252,7 +1360,9 @@ export async function transferInventoryBetweenWarehousesToFirestore(input: {
       if (sourceWarehouse.type === 'project') projectId = sourceWarehouse.projectId;
       if (destinationWarehouse.type === 'project') {
         if (projectId && projectId !== destinationWarehouse.projectId) {
-          throw new Error('No se pueden trasladar materiales directamente entre bodegas de proyectos distintos.');
+          throw new Error(
+            'No se pueden trasladar materiales directamente entre bodegas de proyectos distintos.'
+          );
         }
         projectId = destinationWarehouse.projectId;
       }
@@ -1348,12 +1458,26 @@ export async function createSubcontractToFirestore(
     createdBy: userId,
   });
   if (!['draft', 'active'].includes(contract.status) || contract.paidGTQ !== 0) {
-    throw new Error('Un subcontrato nuevo debe estar en borrador o activo y no puede registrar pagos iniciales.');
+    throw new Error(
+      'Un subcontrato nuevo debe estar en borrador o activo y no puede registrar pagos iniciales.'
+    );
   }
   try {
     await runTransaction(db, async (transaction: Transaction) => {
-      await assertCompanyReference(transaction, 'projects', contract.projectId, companyId, 'Proyecto');
-      await assertCompanyReference(transaction, 'suppliers', contract.supplierId, companyId, 'Proveedor');
+      await assertCompanyReference(
+        transaction,
+        'projects',
+        contract.projectId,
+        companyId,
+        'Proyecto'
+      );
+      await assertCompanyReference(
+        transaction,
+        'suppliers',
+        contract.supplierId,
+        companyId,
+        'Proveedor'
+      );
       transaction.set(ref, stripUndefined(contract));
     });
   } catch (error) {
@@ -1384,10 +1508,8 @@ export async function registerSubcontractPaymentToFirestore(input: {
   companyId: string;
   userId: string;
 }): Promise<SubcontractPaymentResult> {
-  const {
-    contractId, amountGTQ, paymentDate, reference, paymentMethod,
-    notes, companyId, userId,
-  } = input;
+  const { contractId, amountGTQ, paymentDate, reference, paymentMethod, notes, companyId, userId } =
+    input;
   assertSafeDocumentId(contractId, 'Subcontrato');
   assertText(companyId, 'Empresa', 128);
   assertText(userId, 'Usuario que registra', 128);
@@ -1403,7 +1525,9 @@ export async function registerSubcontractPaymentToFirestore(input: {
     throw new Error('Selecciona un método de pago válido.');
   }
   if (!/^[a-zA-Z0-9_-]{1,60}$/.test(reference.trim())) {
-    throw new Error('La referencia de pago solo puede contener letras, números, guion y guion bajo (máximo 60).');
+    throw new Error(
+      'La referencia de pago solo puede contener letras, números, guion y guion bajo (máximo 60).'
+    );
   }
   if (notes !== undefined && (typeof notes !== 'string' || notes.length > 1000)) {
     throw new Error('Las notas del pago no pueden superar 1000 caracteres.');
@@ -1432,7 +1556,8 @@ export async function registerSubcontractPaymentToFirestore(input: {
         lastPaymentId?: string;
         updatedAt?: string;
       };
-      if (contract.companyId !== companyId) throw new Error('El subcontrato no pertenece a la empresa activa.');
+      if (contract.companyId !== companyId)
+        throw new Error('El subcontrato no pertenece a la empresa activa.');
 
       if (paymentSnapshot.exists()) {
         const previous = paymentSnapshot.data() as SubcontractPaymentRecord;
@@ -1446,7 +1571,9 @@ export async function registerSubcontractPaymentToFirestore(input: {
           previous.createdBy === userId
         ) {
           if (!expenseSnapshot.exists()) {
-            throw new Error('El pago ya existe, pero no tiene su gasto vinculado. Se requiere regularización contable.');
+            throw new Error(
+              'El pago ya existe, pero no tiene su gasto vinculado. Se requiere regularización contable.'
+            );
           }
           const expense = expenseSnapshot.data() as ExpenseRecord;
           if (
@@ -1457,7 +1584,9 @@ export async function registerSubcontractPaymentToFirestore(input: {
             expense.date !== paymentDate ||
             expense.paymentMethod !== paymentMethod
           ) {
-            throw new Error('El gasto vinculado al pago no coincide. Se requiere revisión contable.');
+            throw new Error(
+              'El gasto vinculado al pago no coincide. Se requiere revisión contable.'
+            );
           }
           return { payment: previous, expense, contract, alreadyProcessed: true };
         }
@@ -1465,19 +1594,24 @@ export async function registerSubcontractPaymentToFirestore(input: {
       }
 
       if (expenseSnapshot.exists()) {
-        throw new Error('Ya existe un gasto con el identificador reservado para este pago. Se requiere revisión contable.');
+        throw new Error(
+          'Ya existe un gasto con el identificador reservado para este pago. Se requiere revisión contable.'
+        );
       }
       if (contract.status !== 'active') {
         throw new Error('Solo se pueden registrar pagos de subcontratos activos.');
       }
-      const paidGTQ = Math.round((contract.paidGTQ + normalizedAmountGTQ + Number.EPSILON) * 100) / 100;
+      const paidGTQ =
+        Math.round((contract.paidGTQ + normalizedAmountGTQ + Number.EPSILON) * 100) / 100;
       if (paidGTQ > contract.amountGTQ + 0.000001) {
         throw new Error('El pago supera el saldo pendiente del subcontrato.');
       }
 
       const supplierSnapshot = await transaction.get(doc(db, 'suppliers', contract.supplierId));
       if (!supplierSnapshot.exists() || supplierSnapshot.data().companyId !== companyId) {
-        throw new Error('El proveedor del subcontrato no existe o no pertenece a la empresa activa.');
+        throw new Error(
+          'El proveedor del subcontrato no existe o no pertenece a la empresa activa.'
+        );
       }
       const supplier = supplierSnapshot.data() as SupplierRecord;
 
@@ -1504,7 +1638,8 @@ export async function registerSubcontractPaymentToFirestore(input: {
         authorId: userId,
         date: paymentDate,
         category: 'Subcontratos',
-        description: `Pago de subcontrato ${contract.contractNumber}: ${contract.description}`.slice(0, 500),
+        description:
+          `Pago de subcontrato ${contract.contractNumber}: ${contract.description}`.slice(0, 500),
         supplier: supplier.name,
         nitSupplier: supplier.nit,
         facturaNumber: '',
@@ -1549,7 +1684,9 @@ function subscribeCompanyRecords<T>(
   return onSnapshot(
     recordsQuery,
     (snapshot: QuerySnapshot<DocumentData>) =>
-      callback(snapshot.docs.map((document: QueryDocumentSnapshot<DocumentData>) => document.data() as T)),
+      callback(
+        snapshot.docs.map((document: QueryDocumentSnapshot<DocumentData>) => document.data() as T)
+      ),
     (error: Error) => {
       const normalized = handleFirestoreError(error, OperationType.LIST, collectionName);
       onError?.(normalized instanceof Error ? normalized : error);

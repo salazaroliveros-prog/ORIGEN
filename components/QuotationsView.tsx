@@ -308,7 +308,11 @@ export function QuotationsView({ projectId }: { projectId: string }) {
 
     pdf.setFontSize(10);
     pdf.text(`Subtotal: Q${quotation.subtotal.toLocaleString()}`, 130, y + 10);
-    pdf.text(`Descuento (${quotation.discount}%): -Q${quotation.discountAmount.toLocaleString()}`, 130, y + 17);
+    pdf.text(
+      `Descuento (${quotation.discount}%): -Q${quotation.discountAmount.toLocaleString()}`,
+      130,
+      y + 17
+    );
     pdf.text(`IVA (12%): Q${quotation.tax.toLocaleString()}`, 130, y + 24);
     pdf.setFont('helvetica', 'bold');
     pdf.text(`TOTAL: Q${quotation.total.toLocaleString()}`, 130, y + 33);

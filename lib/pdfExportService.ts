@@ -51,9 +51,8 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   // Filter expenses for target projects
   // This is a budget-control report: show approved + pending commitments,
   // while excluding rejected expenses. Certified audit spend is in the audit PDFs.
-  const relevantExpenses = (selectedProject
-    ? expenses.filter((e) => e.projectId === selectedProject.id)
-    : expenses
+  const relevantExpenses = (
+    selectedProject ? expenses.filter((e) => e.projectId === selectedProject.id) : expenses
   ).filter(isBudgetCommitmentExpense);
 
   // Header helper
@@ -233,7 +232,14 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
 
   // Project Table Header
   const projColWidths = [24, 48, 30, 28, 28, 24];
-  const projHeaders = ['Código', 'Proyecto', 'Presupuesto', 'Comprometido', 'Saldo', '% Comprometido'];
+  const projHeaders = [
+    'Código',
+    'Proyecto',
+    'Presupuesto',
+    'Comprometido',
+    'Saldo',
+    '% Comprometido',
+  ];
 
   doc.setFillColor(30, 41, 59); // slate-800
   doc.rect(margin, y, usableWidth, 6, 'F');
@@ -422,14 +428,7 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
   y += 4;
 
   const expColWidths = [18, 24, 40, 34, 28, 38];
-  const expHeaders = [
-    'Fecha',
-    'Factura FEL',
-    'Proveedor',
-    'Categoría',
-    'Estado',
-    'Monto',
-  ];
+  const expHeaders = ['Fecha', 'Factura FEL', 'Proveedor', 'Categoría', 'Estado', 'Monto'];
 
   doc.setFillColor(30, 41, 59);
   doc.rect(margin, y, usableWidth, 6, 'F');
@@ -484,7 +483,11 @@ export async function exportExpensesBudgetPdf(options: ExportPdfOptions): Promis
       cx += expColWidths[3];
       const expenseStatus = exp.approvalStatus || 'Histórico';
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(expenseStatus === 'Pendiente' ? 180 : 22, expenseStatus === 'Pendiente' ? 83 : 101, expenseStatus === 'Pendiente' ? 9 : 52);
+      doc.setTextColor(
+        expenseStatus === 'Pendiente' ? 180 : 22,
+        expenseStatus === 'Pendiente' ? 83 : 101,
+        expenseStatus === 'Pendiente' ? 9 : 52
+      );
       doc.text(expenseStatus, cx + 2, y + 4.2);
       cx += expColWidths[4];
       doc.setFont('helvetica', 'normal');

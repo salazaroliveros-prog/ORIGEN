@@ -35,8 +35,14 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
   // El informe separa ejecución aprobada de solicitudes pendientes y presupuesto comprometido.
   const auditMetrics = buildPortfolioAuditMetrics({ projects, expenses });
   const {
-    totalBudget, totalSpent, totalPending, totalCommitted,
-    remainingBudget, spentPercent, commitmentPercent, overbudgetCount,
+    totalBudget,
+    totalSpent,
+    totalPending,
+    totalCommitted,
+    remainingBudget,
+    spentPercent,
+    commitmentPercent,
+    overbudgetCount,
   } = auditMetrics;
 
   // Header Banner Background
@@ -201,7 +207,14 @@ export async function exportDashboardPerformancePdf(options: DashboardPdfOptions
 
   // Table Header
   const colWidths = [20, 50, 30, 30, 25, 27];
-  const tableHeaders = ['Código', 'Proyecto', 'Presupuesto', 'Comprometido', '% Comprometido', 'Estado'];
+  const tableHeaders = [
+    'Código',
+    'Proyecto',
+    'Presupuesto',
+    'Comprometido',
+    '% Comprometido',
+    'Estado',
+  ];
 
   doc.setFillColor(30, 41, 59); // slate-800
   doc.rect(margin, y, usableWidth, 7, 'F');

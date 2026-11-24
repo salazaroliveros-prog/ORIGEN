@@ -73,7 +73,10 @@ export class RateLimitError extends Error implements AppError {
   isOperational = true;
   retryAfter?: number;
 
-  constructor(message = 'Demasiadas solicitudes. Inténtelo de nuevo más tarde.', retryAfter?: number) {
+  constructor(
+    message = 'Demasiadas solicitudes. Inténtelo de nuevo más tarde.',
+    retryAfter?: number
+  ) {
     super(message);
     this.name = 'RateLimitError';
     this.retryAfter = retryAfter;
@@ -117,7 +120,12 @@ export function isOperationalError(error: unknown): boolean {
   return false;
 }
 
-export function formatErrorResponse(error: unknown): { error: string; code?: string; statusCode: number; details?: unknown } {
+export function formatErrorResponse(error: unknown): {
+  error: string;
+  code?: string;
+  statusCode: number;
+  details?: unknown;
+} {
   if (isAppError(error)) {
     return {
       error: error.message,
@@ -152,7 +160,13 @@ export function handleAsyncError<T>(
       if (isAppError(error)) {
         return [null, error];
       }
-      return [null, new errorConstructor(error instanceof Error ? error.message : 'Error desconocido', error instanceof Error ? error : undefined)];
+      return [
+        null,
+        new errorConstructor(
+          error instanceof Error ? error.message : 'Error desconocido',
+          error instanceof Error ? error : undefined
+        ),
+      ];
     });
 }
 
@@ -177,4 +191,4 @@ export const ErrorCodes = {
   UNKNOWN_ERROR: 'UNKNOWN_ERROR',
 } as const;
 
-export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes];
+export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];

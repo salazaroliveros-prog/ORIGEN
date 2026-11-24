@@ -24,7 +24,9 @@ test.describe('Interactive Components - Visual States', () => {
       const viewport = getViewportInfo(page);
 
       // Buscar input
-      const input = page.locator('input[type="text"], input[type="email"], input[type="password"]').first();
+      const input = page
+        .locator('input[type="text"], input[type="email"], input[type="password"]')
+        .first();
 
       if (await input.isVisible()) {
         // Default state
@@ -121,7 +123,9 @@ test.describe('Interactive Components - Visual States', () => {
           await captureElementState(page, 'button, a[role="button"]', 'focus');
 
           // Check if button has disabled state
-          const disabled = page.locator('button:disabled, [role="button"][aria-disabled="true"]').first();
+          const disabled = page
+            .locator('button:disabled, [role="button"][aria-disabled="true"]')
+            .first();
           if (await disabled.isVisible()) {
             await disabled.screenshot({
               path: `screenshots/form/button-disabled-${viewport.width}.png`,
@@ -233,7 +237,9 @@ test.describe('Interactive Components - Visual States', () => {
     test('breadcrumb display on different sizes', async ({ page }) => {
       const viewport = getViewportInfo(page);
 
-      const breadcrumb = page.locator('nav[aria-label="Breadcrumb"], [role="navigation"] [aria-label*="breadcrumb" i]').first();
+      const breadcrumb = page
+        .locator('nav[aria-label="Breadcrumb"], [role="navigation"] [aria-label*="breadcrumb" i]')
+        .first();
 
       if (await breadcrumb.isVisible()) {
         await breadcrumb.screenshot({
@@ -247,7 +253,9 @@ test.describe('Interactive Components - Visual States', () => {
     test('loading spinner animation', async ({ page }) => {
       const viewport = getViewportInfo(page);
 
-      const spinner = page.locator('[class*="spinner"], [class*="loading"], [role="status"]').first();
+      const spinner = page
+        .locator('[class*="spinner"], [class*="loading"], [role="status"]')
+        .first();
 
       if (await spinner.isVisible()) {
         // Frame 1

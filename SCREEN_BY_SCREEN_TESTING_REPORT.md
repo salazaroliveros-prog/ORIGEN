@@ -38,10 +38,10 @@ URL: `/` (root)
 
 **Test case 1: Valid login**
 
-| Input                            | Expected              |
-| -------------------------------- | --------------------- |
+| Input                         | Expected              |
+| ----------------------------- | --------------------- |
 | Email: cuenta E2E configurada | Redirect to dashboard |
-| Password: correct password       | Redirect to dashboard |
+| Password: correct password    | Redirect to dashboard |
 
 **Test case 2: Invalid email**
 

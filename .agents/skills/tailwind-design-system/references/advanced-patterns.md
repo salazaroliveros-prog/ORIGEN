@@ -213,12 +213,12 @@ Define reusable custom utilities:
 ```css
 /* Custom utility for decorative lines */
 @utility line-t {
-  @apply relative before:absolute before:top-0 before:-left-[100vw] before:h-px before:w-[200vw] before:bg-gray-950/5 dark:before:bg-white/10;
+  @apply relative before:absolute before:-left-[100vw] before:top-0 before:h-px before:w-[200vw] before:bg-gray-950/5 dark:before:bg-white/10;
 }
 
 /* Custom utility for text gradients */
 @utility text-gradient {
-  @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  @apply from-primary to-accent bg-gradient-to-r bg-clip-text text-transparent;
 }
 ```
 
@@ -236,7 +236,7 @@ Define reusable custom utilities:
 }
 
 /* Import with theme options */
-@import "tailwindcss" theme(static);
+@import 'tailwindcss' theme(static);
 ```
 
 ### Namespace Overrides
@@ -261,16 +261,8 @@ Define reusable custom utilities:
 @theme {
   /* Use color-mix() for alpha variants */
   --color-primary-50: color-mix(in oklab, var(--color-primary) 5%, transparent);
-  --color-primary-100: color-mix(
-    in oklab,
-    var(--color-primary) 10%,
-    transparent
-  );
-  --color-primary-200: color-mix(
-    in oklab,
-    var(--color-primary) 20%,
-    transparent
-  );
+  --color-primary-100: color-mix(in oklab, var(--color-primary) 10%, transparent);
+  --color-primary-200: color-mix(in oklab, var(--color-primary) 20%, transparent);
 }
 ```
 

@@ -9,6 +9,7 @@
 ## 🚀 CONFIGURACIÓN REQUERIDA EN VERCEL
 
 ### Step 1: Vercel Project Setup
+
 ```bash
 # Verificar que el proyecto está conectado a GitHub
 # En Vercel Dashboard:
@@ -19,6 +20,7 @@
 ```
 
 ### Step 2: Environment Variables en Vercel
+
 ```bash
 # Production Environment
 # Settings → Environment Variables
@@ -38,6 +40,7 @@ FIREBASE_CLIENT_EMAIL=
 ```
 
 ### Step 3: Build Settings
+
 ```bash
 # Settings → Build & Development Settings
 
@@ -51,6 +54,7 @@ Install Command: npm install
 ## 🔍 CHECKLIST PRE-DEPLOYMENT
 
 ### Verificación Local
+
 ```bash
 ✅ npm run build      # Build completo sin errores
 ✅ npm run test       # Tests pasando (si aplica)
@@ -59,6 +63,7 @@ Install Command: npm install
 ```
 
 ### Verificación Git
+
 ```bash
 ✅ git status         # Working tree clean
 ✅ git log --oneline  # Commits en orden
@@ -66,6 +71,7 @@ Install Command: npm install
 ```
 
 ### Verificación Archivos
+
 ```bash
 ✅ No .env.local      # No secrets en staging
 ✅ No archivos .md    # Documentación excluida
@@ -74,6 +80,7 @@ Install Command: npm install
 ```
 
 ### Verificación Dependencias
+
 ```bash
 ✅ package.json       # Scripts válidos
 ✅ npm audit          # Sin vulnerabilidades críticas
@@ -85,11 +92,13 @@ Install Command: npm install
 ## 📊 FLUJO VERCEL DEPLOYMENT
 
 ### 1. Push a GitHub (main branch)
+
 ```bash
 git push origin main
 ```
 
 ### 2. GitHub Actions CI/CD Triggers
+
 ```
 ✅ Lint job         → 2-3 minutos
 ✅ Security scan    → 2-3 minutos
@@ -100,6 +109,7 @@ git push origin main
 ```
 
 ### 3. Vercel Automatic Deployment
+
 ```
 GitHub Webhook
    ↓
@@ -125,6 +135,7 @@ Health checks
 ## ✅ DEPLOYMENT CHECKLIST
 
 ### Pre-deployment (Antes de push)
+
 ```
 ☐ Código testeado localmente
 ☐ Build sin errores
@@ -138,6 +149,7 @@ Health checks
 ```
 
 ### During deployment (GitHub Actions)
+
 ```
 ☐ Lint job → ✅ PASS
 ☐ Security job → ✅ PASS
@@ -148,6 +160,7 @@ Health checks
 ```
 
 ### Post-deployment (Health checks)
+
 ```
 ☐ HTTPS redirect working
 ☐ /api/health responding
@@ -165,6 +178,7 @@ Health checks
 ### Si Build Falla
 
 **Error: "Cannot find module"**
+
 ```bash
 # Solución:
 # 1. Verificar imports en código
@@ -174,6 +188,7 @@ Health checks
 ```
 
 **Error: "Build Timeout"**
+
 ```bash
 # Solución:
 # 1. Reducir tamaño de dependencias
@@ -182,6 +197,7 @@ Health checks
 ```
 
 **Error: "Memory limit exceeded"**
+
 ```bash
 # Solución:
 # 1. Reducir chunks
@@ -192,6 +208,7 @@ Health checks
 ### Si Health Checks Fallan
 
 **Error: Health endpoint not responding**
+
 ```bash
 # Verificar:
 # 1. POST deploy URL correcto
@@ -200,6 +217,7 @@ Health checks
 ```
 
 **Error: Security headers missing**
+
 ```bash
 # Verificar:
 # 1. next.config.ts headers configurados
@@ -212,6 +230,7 @@ Health checks
 ## 📈 MONITOREO POST-DEPLOYMENT
 
 ### Vercel Dashboard
+
 ```
 1. Deployments tab
    ├─ Ver estado actual
@@ -233,6 +252,7 @@ Health checks
 ```
 
 ### GitHub Actions Monitoring
+
 ```
 1. Actions tab
    ├─ CI/CD workflow status
@@ -247,6 +267,7 @@ Health checks
 ```
 
 ### Sentry Monitoring
+
 ```
 1. Project Dashboard
    ├─ Error rate
@@ -262,6 +283,7 @@ Health checks
 ```
 
 ### Google Analytics 4
+
 ```
 1. Real-time events
    ├─ User activity
@@ -285,6 +307,7 @@ Health checks
 ## 🎯 ESPERADO POST-DEPLOYMENT
 
 ### Inmediato (0-5 minutos)
+
 ```
 ✅ Site live en https://origen-erp.vercel.app
 ✅ HTTPS funcional
@@ -294,6 +317,7 @@ Health checks
 ```
 
 ### Corto plazo (5-30 minutos)
+
 ```
 ✅ GA4 eventos registrándose
 ✅ Sentry capturando errores
@@ -303,6 +327,7 @@ Health checks
 ```
 
 ### Largo plazo (1+ horas)
+
 ```
 ✅ Analytics data acumulando
 ✅ Patterns detectados por ML
@@ -316,6 +341,7 @@ Health checks
 ## 📋 VERIFICACIÓN AUTOMÁTICA
 
 ### GitHub Actions Output
+
 ```bash
 # Esperar todos los jobs:
 ✅ Lint [2-3m]
@@ -330,6 +356,7 @@ TOTAL: 15-25 minutos
 ```
 
 ### Vercel Deployment Details
+
 ```bash
 # En Vercel Dashboard:
 ✅ Build completed in X seconds
@@ -341,6 +368,7 @@ TOTAL: 15-25 minutos
 ```
 
 ### Post-deployment Health
+
 ```bash
 # Manual verification:
 curl https://origen-erp.vercel.app/api/health
@@ -355,17 +383,20 @@ curl -I https://origen-erp.vercel.app
 ## 🚀 DEPLOYMENT SUCCESS CRITERIA
 
 ✅ **Build Status:** GREEN
+
 - No build errors
 - Build time < 10 minutes
 - Artifact size < 50MB
 
 ✅ **Health Checks:** ALL PASS
+
 - `/api/health` responds
 - HTTPS redirect working
 - Security headers present
 - Homepage loads < 3s
 
 ✅ **Pipeline Status:** ALL GREEN
+
 - Lint: ✅ PASS
 - Security: ✅ PASS
 - Build: ✅ PASS
@@ -374,12 +405,14 @@ curl -I https://origen-erp.vercel.app
 - Monitoring: ✅ PASS
 
 ✅ **Monitoring:** ACTIVE
+
 - GA4 events flowing
 - Sentry capturing errors
 - Slack alerts working
 - Uptime monitoring active
 
 ✅ **Performance:** ACCEPTABLE
+
 - LCP < 3s
 - FID < 100ms
 - CLS < 0.1
@@ -431,4 +464,3 @@ curl -I https://origen-erp.vercel.app
 **Score:** 95-97/100
 **Status:** PRODUCTION READY ✅
 **Time to Deploy:** 15-25 minutos
-

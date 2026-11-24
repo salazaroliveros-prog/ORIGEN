@@ -37,7 +37,10 @@ import { saveEmployeeToFirestore, deleteEmployeeFromFirestore } from '../firebas
 const mockCompanyId = 'company-1';
 const mockUserId = 'user-1';
 
-function renderUseEmployeeManagement(companyId: string = mockCompanyId, userId: string = mockUserId) {
+function renderUseEmployeeManagement(
+  companyId: string = mockCompanyId,
+  userId: string = mockUserId
+) {
   return renderHook(() => useEmployeeManagement({ companyId, currentUserId: userId }));
 }
 
@@ -62,14 +65,21 @@ describe('useEmployeeManagement', () => {
       const { result } = renderUseEmployeeManagement('', '');
       const success = await result.current.deleteEmployee('emp-1');
       expect(success).toBe(false);
-      expect(mockToast.error).toHaveBeenCalledWith('Inicia sesión en una empresa para eliminar empleados.');
+      expect(mockToast.error).toHaveBeenCalledWith(
+        'Inicia sesión en una empresa para eliminar empleados.'
+      );
     });
   });
 
   describe('with auth', () => {
     it('should add employee successfully', async () => {
       const { result } = renderUseEmployeeManagement();
-      const employee = { id: 'emp-1', name: 'Juan Pérez', role: 'Operador', companyId: 'company-1' } as any;
+      const employee = {
+        id: 'emp-1',
+        name: 'Juan Pérez',
+        role: 'Operador',
+        companyId: 'company-1',
+      } as any;
 
       const success = await act(async () => {
         return await result.current.addEmployee(employee);

@@ -32,9 +32,9 @@
   --surface-input: rgba(255, 255, 255, 0.08);
 
   /* ---------- Texto - Alto contraste para modo oscuro (WCAG 2.1 AAA) ---------- */
-  --text-primary: #f8fafc;      /* 100% white - 100:1 contrast */
-  --text-secondary: #cbd5e1;    /* Light gray - 10.5:1 contrast */
-  --text-muted: #cbd5e1;        /* Mejorado de #94a3b8 - 10.5:1 en lugar de 7:1 */
+  --text-primary: #f8fafc; /* 100% white - 100:1 contrast */
+  --text-secondary: #cbd5e1; /* Light gray - 10.5:1 contrast */
+  --text-muted: #cbd5e1; /* Mejorado de #94a3b8 - 10.5:1 en lugar de 7:1 */
 
   /* ---------- Bordes ---------- */
   --border-strong: rgba(255, 255, 255, 0.2);
@@ -843,7 +843,7 @@ html.theme-light .bg-slate-800 {
   body {
     padding-bottom: 72px;
   }
-  
+
   /* Mobile content layout */
   main {
     margin-bottom: 0;
@@ -854,17 +854,17 @@ html.theme-light .bg-slate-800 {
   .mobile-sheet {
     max-height: 95vh;
   }
-  
+
   .mobile-bottom-nav {
     height: 56px;
   }
-  
+
   .mobile-bottom-nav .bottom-nav-item {
     min-height: 56px;
     min-width: 56px;
     gap: 0.25rem;
   }
-  
+
   body {
     padding-bottom: 56px;
   }

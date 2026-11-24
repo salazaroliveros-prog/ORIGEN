@@ -1,4 +1,5 @@
 # 🆘 PLAN DE DISASTER RECOVERY Y CONTINUIDAD DE NEGOCIO
+
 ## ORIGEN ERP GUATEMALA - RTO/RPO Strategy
 
 **Fecha:** 23 de Noviembre de 2026  
@@ -29,6 +30,7 @@ Email Notifications   BAJA        4 horas    4 horas    Alertas retrasadas
 ### 1. Firestore Database Backups
 
 **Automático (Firebase-managed):**
+
 ```
 ├─ Snapshots: Diarios (últimos 30 días)
 ├─ Replicación: Multi-region (us-central1 + us-east1)
@@ -38,6 +40,7 @@ Email Notifications   BAJA        4 horas    4 horas    Alertas retrasadas
 ```
 
 **Manual (Recommended):**
+
 ```bash
 # Script: backup-firestore-daily.sh
 # Ejecutar: 02:00 AM UTC (via Cloud Scheduler)
@@ -65,6 +68,7 @@ gsutil -m rm -r gs://origen-backups-firestore/*/\
 ```
 
 **Configuration:**
+
 ```yaml
 # cloud-scheduler-job.yaml
 apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
@@ -72,8 +76,8 @@ kind: CloudSchedulerJob
 metadata:
   name: firestore-backup-daily
 spec:
-  schedule: "0 2 * * *"  # 02:00 UTC diarios
-  timeZone: "UTC"
+  schedule: '0 2 * * *' # 02:00 UTC diarios
+  timeZone: 'UTC'
   httpTarget:
     httpMethod: POST
     uri: https://region-cloudrun.googleapis.com/firestore-backup
@@ -132,40 +136,42 @@ Cloud Storage Security:
 **Trigger:** Automated detection OR user report
 
 **Detection:**
+
 ```sql
 -- Query to detect corruption patterns
-SELECT * FROM proyectos 
+SELECT * FROM proyectos
 WHERE metadata.created_time > NOW() - INTERVAL 1 HOUR
   AND (data IS NULL OR data = {});
 ```
 
 **Recovery Steps:**
+
 ```
 1. IMMEDIATE (0-5 min):
    └─ Identify last-known-good backup time
    └─ Create incident ticket (Slack)
-   
+
 2. ANALYSIS (5-15 min):
    └─ Assess corruption scope
    └─ Query: Affected collections/documents
    └─ Determine: Full restore vs selective recovery
-   
+
 3. RECOVERY (15-30 min):
    └─ Option A: Full restore
       └─ gcloud firestore restore [backup-id]
       └─ Verify data integrity
       └─ Monitor performance
-   
+
    └─ Option B: Selective recovery
       └─ Export uncorrupted collections
       └─ Restore only affected docs
       └─ Merge with current data
-   
+
 4. VALIDATION (30-45 min):
    └─ Run data integrity checks
    └─ Verify CRUD operations
    └─ Compare with backups
-   
+
 5. COMMUNICATION (ongoing):
    └─ Alert users via Slack/email
    └─ Post-mortem analysis
@@ -173,6 +179,7 @@ WHERE metadata.created_time > NOW() - INTERVAL 1 HOUR
 ```
 
 **Rollback if Restore Fails:**
+
 ```
 ├─ Restore from previous day backup
 ├─ Potential data loss: Up to 24 hours
@@ -185,6 +192,7 @@ WHERE metadata.created_time > NOW() - INTERVAL 1 HOUR
 **Trigger:** Deploy fails, app unreachable, or performance degradation
 
 **Auto-Detection:**
+
 ```javascript
 // Vercel health checks (run every 60s)
 const healthCheck = async () => {
@@ -192,16 +200,16 @@ const healthCheck = async () => {
     const res = await fetch('https://origen-erp.vercel.app/api/health', {
       timeout: 10000,
     });
-    
+
     if (res.status !== 200) {
       throw new Error(`Health check failed: ${res.status}`);
     }
-    
+
     const data = await res.json();
     if (data.status !== 'healthy') {
       throw new Error('Service unhealthy');
     }
-    
+
     return { ok: true };
   } catch (error) {
     // Trigger alert + automatic rollback
@@ -212,26 +220,27 @@ const healthCheck = async () => {
 ```
 
 **Recovery Steps:**
+
 ```
 1. IMMEDIATE (0-1 min):
    └─ Vercel auto-detects via health checks
    └─ Trigger automatic rollback to last-good commit
-   
+
 2. VERIFY (1-3 min):
    └─ Check if previous version is healthy
    └─ Run smoke tests
    └─ Verify database connectivity
-   
+
 3. IF MANUAL INTERVENTION NEEDED (3-5 min):
    └─ Vercel dashboard → Deploy → Select stable version
    └─ gcloud app versions list
    └─ kubectl rollout undo deployment/origen (if K8s)
-   
+
 4. COMMUNICATION (5-10 min):
    └─ Slack notification
    └─ User notification (if >5min downtime)
    └─ Internal status page update
-   
+
 5. ROOT CAUSE (Post-incident):
    └─ Analyze deploy logs
    └─ Review failed tests
@@ -243,6 +252,7 @@ const healthCheck = async () => {
 **Note:** Firebase auth outage = Google Cloud outage (rare, <0.1% chance)
 
 **Mitigation:**
+
 ```
 ├─ Fallback auth: Custom JWT tokens stored locally
 ├─ Offline mode: Allow read-only access
@@ -251,16 +261,17 @@ const healthCheck = async () => {
 ```
 
 **Local Fallback (if Google Auth down):**
+
 ```typescript
 // auth.fallback.ts
 export const useFallbackAuth = () => {
   const localStorage = window.localStorage;
   const cachedToken = localStorage.getItem('auth_token_fallback');
-  
+
   if (cachedToken && isTokenValid(cachedToken)) {
     return { token: cachedToken, mode: 'offline' };
   }
-  
+
   return { token: null, mode: 'offline' };
 };
 ```
@@ -270,6 +281,7 @@ export const useFallbackAuth = () => {
 **Trigger:** Google Cloud region failure (rare, <0.01% chance)
 
 **Pre-Incident Preparation:**
+
 ```
 ├─ Multi-region setup: us-central1 (primary) + us-east1 (failover)
 ├─ Database: Geo-replicated via Firestore
@@ -279,26 +291,27 @@ export const useFallbackAuth = () => {
 ```
 
 **Recovery Steps:**
+
 ```
 1. DETECTION (0-5 min):
    └─ Automated health check detects us-central1 down
    └─ Alert team via PagerDuty
-   
+
 2. ASSESSMENT (5-10 min):
    └─ Check if us-east1 replica is healthy
    └─ Verify data replication lag
    └─ Estimate RTO/RPO
-   
+
 3. FAILOVER (10-30 min):
    └─ Update DNS: origen-erp.com → us-east1 endpoint
    └─ Verify traffic flow
    └─ Monitor performance
-   
+
 4. COMMUNICATION (ongoing):
    └─ Status page update
    └─ Email to all users
    └─ Support team briefing
-   
+
 5. RECOVERY (1-4 hours):
    └─ Wait for Google Cloud to recover us-central1
    └─ Fail back to primary region
@@ -421,14 +434,13 @@ Post-Mortem (within 24 hours)
 
 ## 📊 DR SCORE
 
-| Aspecto | Score | Status |
-|---------|-------|--------|
-| Backup Strategy | 90/100 | ✅ |
-| Recovery Procedures | 85/100 | ✅ |
-| Communication | 80/100 | ⚠️ |
-| Team Preparedness | 70/100 | ⚠️ |
-| Testing & Validation | 65/100 | ⚠️ |
-| **TOTAL DR** | **78/100** | ⚠️ |
+| Aspecto              | Score      | Status |
+| -------------------- | ---------- | ------ |
+| Backup Strategy      | 90/100     | ✅     |
+| Recovery Procedures  | 85/100     | ✅     |
+| Communication        | 80/100     | ⚠️     |
+| Team Preparedness    | 70/100     | ⚠️     |
+| Testing & Validation | 65/100     | ⚠️     |
+| **TOTAL DR**         | **78/100** | ⚠️     |
 
 **Estado:** ⚠️ PLAN LISTO, REQUIERE TESTING & TRAINING
-

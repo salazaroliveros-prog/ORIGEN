@@ -34,7 +34,11 @@ test.describe('CRUD completo de módulos ERP', () => {
 
     await test.step('proyectos: CREATE', async () => {
       // Navegar a Proyectos
-      await page.locator('a, button, span').filter({ hasText: 'Proyectos & Firmas' }).first().click({ timeout: 10_000 });
+      await page
+        .locator('a, button, span')
+        .filter({ hasText: 'Proyectos & Firmas' })
+        .first()
+        .click({ timeout: 10_000 });
       await page.waitForTimeout(2000);
 
       // Click Nuevo Proyecto
@@ -48,9 +52,12 @@ test.describe('CRUD completo de módulos ERP', () => {
       await dialog.locator('input').nth(1).fill(projectName);
       await dialog.locator('input').nth(2).fill('Cliente Test');
       await dialog.locator('input').nth(3).fill('Zona 1');
-      
+
       // Click Crear
-      await dialog.getByRole('button', { name: /Crear|Guardar/ }).first().click({ timeout: 15_000 });
+      await dialog
+        .getByRole('button', { name: /Crear|Guardar/ })
+        .first()
+        .click({ timeout: 15_000 });
       await page.waitForTimeout(2000);
 
       // Verificar que se creó
@@ -66,7 +73,10 @@ test.describe('CRUD completo de módulos ERP', () => {
 
     await test.step('proyectos: UPDATE', async () => {
       // Buscar botón de editar (puede variar el texto)
-      const editBtn = page.locator('button, a').filter({ hasText: /Editar|Edit/ }).first();
+      const editBtn = page
+        .locator('button, a')
+        .filter({ hasText: /Editar|Edit/ })
+        .first();
       await editBtn.click({ timeout: 10_000 });
       await page.waitForTimeout(500);
 
@@ -85,7 +95,11 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('APU: CREATE', async () => {
-      await page.locator('a, button, span').filter({ hasText: 'Presupuestos|APU' }).first().click({ timeout: 10_000 });
+      await page
+        .locator('a, button, span')
+        .filter({ hasText: 'Presupuestos|APU' })
+        .first()
+        .click({ timeout: 10_000 });
       await page.waitForTimeout(1500);
 
       const newBtn = page.getByRole('button', { name: /Manual|Nuevo/ }).first();
@@ -106,7 +120,11 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('gastos: CREATE & READ', async () => {
-      await page.locator('a, button, span').filter({ hasText: 'Gastos|Facturas' }).first().click({ timeout: 10_000 });
+      await page
+        .locator('a, button, span')
+        .filter({ hasText: 'Gastos|Facturas' })
+        .first()
+        .click({ timeout: 10_000 });
       await page.waitForTimeout(1500);
 
       const newBtn = page.getByRole('button', { name: /Registrar|Nuevo/ }).first();
@@ -118,7 +136,10 @@ test.describe('CRUD completo de módulos ERP', () => {
       await page.locator('input').filter({ hasText: 'A-' }).first().fill(expenseFactura);
       await page.locator('input[type="number"]').first().fill('1500');
 
-      await page.getByRole('button', { name: /Registrar/ }).first().click({ timeout: 15_000 });
+      await page
+        .getByRole('button', { name: /Registrar/ })
+        .first()
+        .click({ timeout: 15_000 });
       await page.waitForTimeout(2000);
 
       // Verificar
@@ -126,12 +147,19 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('personal: CREATE & READ', async () => {
-      await page.locator('a, button, span').filter({ hasText: 'Personal|IGSS' }).first().click({ timeout: 10_000 });
+      await page
+        .locator('a, button, span')
+        .filter({ hasText: 'Personal|IGSS' })
+        .first()
+        .click({ timeout: 10_000 });
       await page.waitForTimeout(1500);
 
       let newBtn = page.getByRole('button', { name: /Empleado|Nuevo/ }).first();
-      if (!await newBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        newBtn = page.locator('button, a').filter({ hasText: /Nuevo|Crear/ }).first();
+      if (!(await newBtn.isVisible({ timeout: 3000 }).catch(() => false))) {
+        newBtn = page
+          .locator('button, a')
+          .filter({ hasText: /Nuevo|Crear/ })
+          .first();
       }
       await newBtn.click({ timeout: 10_000 });
       await page.waitForTimeout(500);
@@ -140,7 +168,10 @@ test.describe('CRUD completo de módulos ERP', () => {
       await page.locator('input[type="text"]').nth(0).fill(employeeName);
       await page.locator('input[type="number"]').nth(0).fill('250');
 
-      await page.getByRole('button', { name: /Guardar/ }).first().click({ timeout: 15_000 });
+      await page
+        .getByRole('button', { name: /Guardar/ })
+        .first()
+        .click({ timeout: 15_000 });
       await page.waitForTimeout(2000);
 
       // Verificar
@@ -148,7 +179,11 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('cotizaciones: CREATE & UPDATE', async () => {
-      await page.locator('a, button, span').filter({ hasText: 'Cotizaciones|Quotes' }).first().click({ timeout: 10_000 });
+      await page
+        .locator('a, button, span')
+        .filter({ hasText: 'Cotizaciones|Quotes' })
+        .first()
+        .click({ timeout: 10_000 });
       await page.waitForTimeout(1500);
 
       const newBtn = page.getByRole('button', { name: /Nueva|Rápida/ }).first();
@@ -159,7 +194,10 @@ test.describe('CRUD completo de módulos ERP', () => {
       await page.locator('input').nth(0).fill(quoteClientName);
       await page.locator('textarea').nth(0).fill('Obra de prueba E2E');
 
-      await page.getByRole('button', { name: /Guardar|Agregar/ }).first().click({ timeout: 15_000 });
+      await page
+        .getByRole('button', { name: /Guardar|Agregar/ })
+        .first()
+        .click({ timeout: 15_000 });
       await page.waitForTimeout(2000);
 
       // Verificar
@@ -167,7 +205,11 @@ test.describe('CRUD completo de módulos ERP', () => {
     });
 
     await test.step('maquinaria: CREATE & UPDATE', async () => {
-      await page.locator('a, button, span').filter({ hasText: 'Maquinaria|Equipment' }).first().click({ timeout: 10_000 });
+      await page
+        .locator('a, button, span')
+        .filter({ hasText: 'Maquinaria|Equipment' })
+        .first()
+        .click({ timeout: 10_000 });
       await page.waitForTimeout(1500);
 
       const newBtn = page.getByRole('button', { name: /Registrar|Nueva/ }).first();
@@ -179,7 +221,10 @@ test.describe('CRUD completo de módulos ERP', () => {
       await page.locator('input[type="text"]').nth(1).fill('2026');
       await page.locator('input[type="number"]').nth(0).fill('300');
 
-      await page.getByRole('button', { name: /Guardar/ }).first().click({ timeout: 15_000 });
+      await page
+        .getByRole('button', { name: /Guardar/ })
+        .first()
+        .click({ timeout: 15_000 });
       await page.waitForTimeout(2000);
 
       // Verificar

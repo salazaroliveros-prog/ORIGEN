@@ -76,7 +76,7 @@ export function MobileSheet({
           role="dialog"
           aria-modal="true"
           aria-labelledby={labelledBy}
-          aria-label={labelledBy ? undefined : "Panel de navegación"}
+          aria-label={labelledBy ? undefined : 'Panel de navegación'}
           style={{
             transform: transformStyle,
             transition: isDragging ? 'none' : 'transform var(--transition-slower)',

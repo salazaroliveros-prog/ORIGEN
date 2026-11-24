@@ -62,7 +62,7 @@ export function initSentry() {
     attachStacktrace: true,
 
     // Max breadcrumbs
-    maxBreadcrumbs: 50
+    maxBreadcrumbs: 50,
   });
 }
 

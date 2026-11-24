@@ -85,7 +85,10 @@ export function SyncLogPanel({
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 id="sync-log-panel-title" className="text-lg font-extrabold tracking-tight text-white">
+                <h3
+                  id="sync-log-panel-title"
+                  className="text-lg font-extrabold tracking-tight text-white"
+                >
                   Historial de Sincronización Firestore
                 </h3>
                 <span

@@ -91,7 +91,6 @@ export function buildEmployeeRecord(
   };
 }
 
-
 /**
  * Merge a field visit without transferring original authorship on edits.
  * Firestore rules keep companyId and authorId immutable.

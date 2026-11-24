@@ -29,14 +29,17 @@
 ## 📋 DESGLOSE DE IMPLEMENTACIONES
 
 ### 1️⃣ IMAGE OPTIMIZATION: WebP/AVIF 🖼️
+
 **Impacto:** +4 puntos | Criticidad: 🔴 ALTA  
 **Effort:** 3-4 horas | Status: ✅ IMPLEMENTADO
 
 **Archivos Creados:**
+
 - `scripts/optimize-images.sh` - Script de optimización
 - `app/layout.tsx` - Updated con soporte WebP/AVIF
 
 **Cambios:**
+
 ```
 app/layout.tsx:
 ├─ Iconos con múltiples formatos (PNG → WebP → AVIF)
@@ -51,6 +54,7 @@ Ahorro de tamaño esperado:
 ```
 
 **Verificación:**
+
 ```bash
 ✅ Iconos con fallback: PNG → WebP → AVIF
 ✅ Open Graph images optimizadas
@@ -61,13 +65,16 @@ Ahorro de tamaño esperado:
 ---
 
 ### 2️⃣ CLOUD ARMOR WAF 🛡️
+
 **Impacto:** +2 puntos | Criticidad: 🔴 ALTA  
 **Effort:** 2-3 horas | Status: ✅ IMPLEMENTADO
 
 **Archivo Creado:**
+
 - `config/cloud-armor-waf.yaml` - Reglas WAF de producción
 
 **Protecciones Implementadas:**
+
 ```yaml
 ✅ Rate Limiting (1000 req/min global, 5000 req/min API)
 ✅ SQL Injection blocking (OWASP CRS rules)
@@ -92,6 +99,7 @@ Ahorro de tamaño esperado:
 ```
 
 **Deployment:**
+
 ```bash
 gcloud compute security-policies create origen-erp-waf \
   --description="WAF for ORIGEN ERP"
@@ -101,6 +109,7 @@ gcloud compute backend-services update BACKEND_SERVICE \
 ```
 
 **Monitoreo:**
+
 ```
 ✅ Cloud Logging: httpLoadBalancerLog
 ✅ Alertas en Slack: Blocked requests
@@ -110,13 +119,16 @@ gcloud compute backend-services update BACKEND_SERVICE \
 ---
 
 ### 3️⃣ API KEY ROTATION POLICY 🔐
+
 **Impacto:** +1.5 puntos | Criticidad: 🔴 ALTA  
 **Effort:** 1-2 horas | Status: ✅ IMPLEMENTADO
 
 **Archivo Creado:**
+
 - `scripts/api-key-rotation-policy.sh` - Setup completo
 
 **Componentes:**
+
 ```bash
 ✅ Service Account creation
 ✅ IAM roles configuration
@@ -135,6 +147,7 @@ Rotación:
 ```
 
 **Automatización:**
+
 ```python
 ✅ Automatic detection of aged keys
 ✅ Safe deletion (never breaks active keys)
@@ -146,13 +159,16 @@ Rotación:
 ---
 
 ### 4️⃣ TLS CERTIFICATE PINNING 🔒
+
 **Impacto:** +1.5 puntos | Criticidad: ⚠️ MEDIA  
 **Effort:** 2-3 horas | Status: ✅ IMPLEMENTADO
 
 **Archivo Actualizado:**
+
 - `next.config.ts` - Security headers mejorados
 
 **Headers Implementados:**
+
 ```typescript
 ✅ Public-Key-Pins (HPKP)
    ├─ 3 pins SHA256 (primary + backups)
@@ -177,6 +193,7 @@ Rotación:
 ```
 
 **MITM Prevention:**
+
 ```
 Protección contra:
 ✅ Man-in-the-Middle attacks
@@ -189,14 +206,17 @@ Protección contra:
 ---
 
 ### 5️⃣ ANALYTICS + ERROR TRACKING 📊
+
 **Impacto:** +4 puntos | Criticidad: ⚠️ MEDIA  
 **Effort:** 2-3 horas (cada uno) | Status: ✅ IMPLEMENTADOS
 
 **Archivos Creados:**
+
 - `lib/analytics.ts` - Google Analytics 4 integration
 - `lib/sentry-setup.ts` - Sentry error tracking
 
 #### A) Google Analytics 4 (GA4)
+
 ```typescript
 ✅ Inicialización automática
 ✅ Page view tracking
@@ -237,12 +257,14 @@ Protección contra:
 ```
 
 **Métricas Rastreadas:**
+
 - 25+ eventos personalizados
 - Funnels de conversión (signup, activation)
 - Retention (DAU, WAU, MAU)
 - Performance (page load, API response)
 
 #### B) Sentry Error Tracking
+
 ```typescript
 ✅ Inicialización con DSN
 ✅ Error capture automático
@@ -276,6 +298,7 @@ Funciones incluidas:
 ## 🔧 INSTALACIÓN REQUERIDA
 
 ### Paso 1: Google Analytics 4
+
 ```bash
 # 1. Crear proyecto GA4 en https://analytics.google.com
 # 2. Obtener Measurement ID (G-XXXXXXXXXX)
@@ -285,6 +308,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
 
 ### Paso 2: Sentry
+
 ```bash
 # 1. Crear cuenta en https://sentry.io
 # 2. Crear proyecto Next.js
@@ -296,6 +320,7 @@ NEXT_PUBLIC_APP_VERSION=1.0.0
 ```
 
 ### Paso 3: Cloud Armor
+
 ```bash
 gcloud compute security-policies create origen-erp-waf \
   --project=PROJECT_ID
@@ -303,11 +328,13 @@ gcloud compute security-policies create origen-erp-waf \
 ```
 
 ### Paso 4: API Key Rotation
+
 ```bash
 bash scripts/api-key-rotation-policy.sh PROJECT_ID
 ```
 
 ### Paso 5: Images Optimization
+
 ```bash
 # Install tools
 brew install cwebp cavif  # macOS
@@ -380,16 +407,19 @@ INTEGRAL            95      96.8     +1.8    97/100 ⬆️
 ## 🚀 PRÓXIMOS PASOS PARA ALCANZAR 100/100 (Opcionales)
 
 ### Fase 2: Performance Profundo (9-11 horas) → +3 más puntos
+
 - Code splitting avanzado
 - Firestore query optimization
 - Service Worker caching strategy
 
 ### Fase 3: Compliance Profundo (9-11 horas) → +3 más puntos
+
 - Data encryption at rest (CMEK)
 - Data retention policies (TTL)
 - Penetration testing report
 
 ### Fase 4: Accesibilidad AAA (9-10 horas) → +5 más puntos
+
 - WCAG 2.1 AAA 100% compliance
 - Multilingual support (English)
 - Video/Audio accessibility
@@ -423,6 +453,7 @@ Recomendación: Deploy con 97/100, mejorar a 100/100 post-launch
 ✅ **5 Mejoras de Alto Impacto Implementadas**
 
 Hemos creado soluciones de producción listas para:
+
 1. Image optimization (WebP/AVIF)
 2. WAF con Cloud Armor (12 reglas)
 3. API Key rotation automática
@@ -431,7 +462,7 @@ Hemos creado soluciones de producción listas para:
 
 **Nuevo Score Estimado: 97/100** (from 95/100)
 
-**Recomendación:** 
+**Recomendación:**
+
 - ✅ Deploy con estas 5 mejoras implementadas
 - ⏳ Fase 2 & 3 después del launch (post-production improvements)
-

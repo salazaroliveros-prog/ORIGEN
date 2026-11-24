@@ -10,8 +10,18 @@ import { Button } from '@/components/ui/Button';
  */
 export function ReportsModuleExpanded() {
   const reports = [
-    { id: 1, name: 'Resumen de Proyectos', icon: '📊', desc: 'Reporte general de todos los proyectos' },
-    { id: 2, name: 'Presupuesto vs Gasto', icon: '💰', desc: 'Comparación de presupuesto ejecutado' },
+    {
+      id: 1,
+      name: 'Resumen de Proyectos',
+      icon: '📊',
+      desc: 'Reporte general de todos los proyectos',
+    },
+    {
+      id: 2,
+      name: 'Presupuesto vs Gasto',
+      icon: '💰',
+      desc: 'Comparación de presupuesto ejecutado',
+    },
     { id: 3, name: 'Personal Activo', icon: '👥', desc: 'Nomina y estado del personal' },
     { id: 4, name: 'Maquinaria', icon: '🚜', desc: 'Estado de equipos y mantenimiento' },
     { id: 5, name: 'Inventario', icon: '📦', desc: 'Existencias y movimientos' },
@@ -23,7 +33,9 @@ export function ReportsModuleExpanded() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white sm:text-3xl">Reportes Finales</h1>
-          <p className="mt-1 text-sm text-slate-400">Generación de reportes ejecutivos y documentación de obra</p>
+          <p className="mt-1 text-sm text-slate-400">
+            Generación de reportes ejecutivos y documentación de obra
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="flex items-center gap-2">
@@ -40,7 +52,11 @@ export function ReportsModuleExpanded() {
       {/* Reports Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {reports.map((report) => (
-          <Card key={report.id} variant="default" className="group cursor-pointer hover:border-primary-500/50">
+          <Card
+            key={report.id}
+            variant="default"
+            className="group cursor-pointer hover:border-primary-500/50"
+          >
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-3xl">{report.icon}</p>
@@ -57,7 +73,7 @@ export function ReportsModuleExpanded() {
 
       {/* Quick Stats */}
       <Card variant="elevated" className="mt-8">
-        <h3 className="text-lg font-semibold text-white mb-4">Estadísticas Rápidas</h3>
+        <h3 className="mb-4 text-lg font-semibold text-white">Estadísticas Rápidas</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div>
             <p className="text-xs font-semibold uppercase text-slate-400">Proyectos</p>

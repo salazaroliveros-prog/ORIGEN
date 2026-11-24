@@ -73,7 +73,6 @@ export async function uploadImageAsUser({
   return { storagePath: storedPath };
 }
 
-
 export interface StorageDownloadResult {
   data: Uint8Array;
   contentType: string;

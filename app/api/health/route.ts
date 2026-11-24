@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 /**
  * ✅ API HEALTH CHECK
  * GET /api/health
- * 
+ *
  * Usado para:
  * - Vercel health checks
  * - Uptime monitoring

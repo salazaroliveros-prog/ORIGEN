@@ -11,7 +11,15 @@ interface KPICardsProps {
   totals: DashboardTotals;
 }
 
-const KPICard = memo(function KPICard({ title, value, subtitle, icon: Icon, iconBg, iconColor, valueColor }: {
+const KPICard = memo(function KPICard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  iconBg,
+  iconColor,
+  valueColor,
+}: {
   title: string;
   value: React.ReactNode;
   subtitle: string;
@@ -28,7 +36,9 @@ const KPICard = memo(function KPICard({ title, value, subtitle, icon: Icon, icon
           <Icon className="h-4 w-4" aria-hidden="true" />
         </span>
       </div>
-      <p className="mt-1 font-mono text-2xl font-black" style={{ color: valueColor }}>{value}</p>
+      <p className="mt-1 font-mono text-2xl font-black" style={{ color: valueColor }}>
+        {value}
+      </p>
       <p className="mt-0.5 text-[11px] text-slate-400">{subtitle}</p>
     </Card>
   );
@@ -46,14 +56,18 @@ const OverbudgetCard = memo(function OverbudgetCard({ totals }: { totals: Dashbo
       }`}
     >
       <div className="flex items-start justify-between">
-        <p className="text-xs font-bold uppercase tracking-wider text-rose-400">Alertas de Sobrecosto</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-rose-400">
+          Alertas de Sobrecosto
+        </p>
         <span className="rounded-lg bg-rose-500/20 p-1.5 text-rose-400">
           <AlertTriangle className="h-4 w-4" aria-hidden="true" />
         </span>
       </div>
       <p className="mt-1 text-2xl font-black text-rose-400">{totals.overbudgetCount} Obras</p>
       <p className="mt-0.5 text-[11px] text-rose-300/80">
-        {totals.overbudgetCount > 0 ? 'Superan el 100% del presupuesto' : 'Sin desviaciones críticas'}
+        {totals.overbudgetCount > 0
+          ? 'Superan el 100% del presupuesto'
+          : 'Sin desviaciones críticas'}
       </p>
     </Card>
   );

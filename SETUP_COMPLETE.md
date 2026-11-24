@@ -7,12 +7,14 @@ Tu suite de pruebas visuales **100% lista para producción** ha sido configurada
 ## 📦 Qué Se Instaló
 
 ### 1. Playwright 1.65.0
+
 - ✅ @playwright/test
 - ✅ Chromium browser
 - ✅ Firefox browser
 - ✅ WebKit browser
 
 ### 2. 21 Archivos Configurados
+
 ```
 ✅ 5 Archivos de Configuración
 ✅ 5 Test Suites (4 + helpers)
@@ -21,6 +23,7 @@ Tu suite de pruebas visuales **100% lista para producción** ha sido configurada
 ```
 
 ### 3. 4 Suites de Pruebas Completas
+
 1. **Visual Responsiveness** - Layout en 11 dispositivos
 2. **Login Flow** - Flujo completo con admin
 3. **Dashboard Responsiveness** - Componentes del dashboard
@@ -29,16 +32,19 @@ Tu suite de pruebas visuales **100% lista para producción** ha sido configurada
 ## 📱 Cobertura de Dispositivos
 
 ### Desktop (3)
+
 - Chrome 1920x1080
 - Firefox 1920x1080
 - Safari 1920x1080
 
 ### Tablets (3)
+
 - iPad Pro 12.9": 1024x1366
 - iPad Mini: 768x1024
 - Galaxy Tab: 1280x800
 
 ### Móviles (6)
+
 - iPhone 14: 390x844
 - iPhone 14 Pro Max: 430x932
 - iPhone SE: 375x667
@@ -80,25 +86,26 @@ open test-results/visual-html/index.html
 
 ## 🎮 13 Scripts Disponibles
 
-| Comando | Uso |
-|---------|-----|
-| `npm run test:visual` | Headless |
-| `npm run test:visual:headed` | ⭐ **Con navegador** |
-| `npm run test:visual:ui` | Dashboard |
-| `npm run test:visual:debug` | Debug paso a paso |
-| `npm run test:visual:local` | Local headed |
-| `npm run test:visual:fast` | Paralelo |
-| `npm run test:visual:prod` | Producción |
-| `npm run test:visual:all` | Alias prod |
-| `npm run test:visual:docker` | Docker |
-| `npm run test:visual:compare` | Comparación |
-| `npm run test:visual:baseline` | Generar baseline |
-| `npm run test:visual:baseline:all` | Baseline completo |
-| `npm run test:visual:watch` | Watch mode |
+| Comando                            | Uso                  |
+| ---------------------------------- | -------------------- |
+| `npm run test:visual`              | Headless             |
+| `npm run test:visual:headed`       | ⭐ **Con navegador** |
+| `npm run test:visual:ui`           | Dashboard            |
+| `npm run test:visual:debug`        | Debug paso a paso    |
+| `npm run test:visual:local`        | Local headed         |
+| `npm run test:visual:fast`         | Paralelo             |
+| `npm run test:visual:prod`         | Producción           |
+| `npm run test:visual:all`          | Alias prod           |
+| `npm run test:visual:docker`       | Docker               |
+| `npm run test:visual:compare`      | Comparación          |
+| `npm run test:visual:baseline`     | Generar baseline     |
+| `npm run test:visual:baseline:all` | Baseline completo    |
+| `npm run test:visual:watch`        | Watch mode           |
 
 ## 📊 Outputs Generados
 
 ### Screenshots
+
 ```
 screenshots/
 ├── login/
@@ -112,6 +119,7 @@ screenshots/
 ```
 
 ### Reportes
+
 ```
 test-results/
 ├── visual-html/            (📊 Reporte interactivo)
@@ -145,23 +153,25 @@ test-results/
 
 ## 🛠️ Tecnología Stack
 
-| Herramienta | Versión | Propósito |
-|------------|---------|----------|
-| **Playwright** | 1.65.0 | Framework de testing |
-| **Node.js** | 24.x | Runtime |
-| **TypeScript** | 5.8.2 | Lenguaje |
-| **Docker** | Latest | Containerización |
-| **GitHub Actions** | - | CI/CD |
+| Herramienta        | Versión | Propósito            |
+| ------------------ | ------- | -------------------- |
+| **Playwright**     | 1.65.0  | Framework de testing |
+| **Node.js**        | 24.x    | Runtime              |
+| **TypeScript**     | 5.8.2   | Lenguaje             |
+| **Docker**         | Latest  | Containerización     |
+| **GitHub Actions** | -       | CI/CD                |
 
 ## 🎨 Capabilidades Avanzadas
 
 ### Desarrollo Local
+
 - 👀 Navegador visible
 - 🐛 Debug paso a paso
 - 🔄 Watch mode (auto-rerun)
 - 📊 Dashboard interactivo
 
 ### Producción
+
 - 🤖 Totalmente automatizado
 - 📈 Reportes completos
 - 🔀 Comparación visual
@@ -169,6 +179,7 @@ test-results/
 - ⚡ Paralelo
 
 ### CI/CD
+
 - 🔗 GitHub Actions integrado
 - 📦 Docker ready
 - 📤 Artifact upload
@@ -184,13 +195,13 @@ test-results/
 
 ## 🚨 Troubleshooting Rápido
 
-| Problema | Solución |
-|----------|----------|
-| App no carga | `npm run dev` y esperar |
-| Puerto 3000 | `lsof -ti:3000 \| xargs kill -9` |
+| Problema           | Solución                                     |
+| ------------------ | -------------------------------------------- |
+| App no carga       | `npm run dev` y esperar                      |
+| Puerto 3000        | `lsof -ti:3000 \| xargs kill -9`             |
 | Screenshots vacíos | `npm run test:visual:headed --timeout=60000` |
-| Navegadores | `npx playwright install` |
-| Docker | `docker compose down -v` |
+| Navegadores        | `npx playwright install`                     |
+| Docker             | `docker compose down -v`                     |
 
 ## 📈 Próximas Mejoras (Opcionales)
 
@@ -214,7 +225,7 @@ test-results/
 ✅ Buttons accesibles al toque  
 ✅ Focus indicators visibles  
 ✅ Meta viewport tags  
-✅ Keyboard navigation  
+✅ Keyboard navigation
 
 ## 🎯 Métricas Capturadas
 
@@ -230,16 +241,16 @@ test-results/
 
 ## ✨ Estado Final
 
-| Aspecto | Status |
-|---------|--------|
-| Installation | ✅ Complete |
-| Configuration | ✅ Complete |
-| Test Suites | ✅ Created |
-| Scripts | ✅ Ready |
-| Docker | ✅ Ready |
-| CI/CD | ✅ Setup |
-| Documentation | ✅ Complete |
-| **OVERALL** | ✅ **100% READY** |
+| Aspecto       | Status            |
+| ------------- | ----------------- |
+| Installation  | ✅ Complete       |
+| Configuration | ✅ Complete       |
+| Test Suites   | ✅ Created        |
+| Scripts       | ✅ Ready          |
+| Docker        | ✅ Ready          |
+| CI/CD         | ✅ Setup          |
+| Documentation | ✅ Complete       |
+| **OVERALL**   | ✅ **100% READY** |
 
 ---
 
@@ -269,4 +280,3 @@ open test-results/visual-html/index.html
 Ahora puedes validar la integridad visual de tu aplicación en múltiples dispositivos, navegadores y condiciones en segundos.
 
 **Próximo paso:** `npm run dev` y `npm run test:visual:headed`
-

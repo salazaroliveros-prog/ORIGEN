@@ -4,12 +4,7 @@
  */
 
 export type PurchaseOrderStatus =
-  | 'draft'
-  | 'submitted'
-  | 'approved'
-  | 'partially_received'
-  | 'received'
-  | 'cancelled';
+  'draft' | 'submitted' | 'approved' | 'partially_received' | 'received' | 'cancelled';
 
 export interface SupplierRecord {
   id: string;
@@ -112,7 +107,6 @@ function requirePositive(value: number, label: string): void {
   if (!Number.isFinite(value) || value <= 0) throw new Error(`${label} debe ser mayor a cero.`);
 }
 
-
 /** Validates a real calendar date in YYYY-MM-DD form. */
 export function isValidCalendarDate(value: unknown): value is string {
   if (typeof value !== 'string' || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value)) return false;
@@ -126,10 +120,15 @@ export function validateSupplier(supplier: SupplierRecord): SupplierRecord {
   requireText(supplier.name, 'Nombre del proveedor');
   requireText(supplier.nit, 'NIT');
   requireText(supplier.createdBy, 'Usuario creador');
-  if (supplier.name.trim().length < 2 || supplier.name.trim().length > 200 || supplier.nit.trim().length > 30) {
+  if (
+    supplier.name.trim().length < 2 ||
+    supplier.name.trim().length > 200 ||
+    supplier.nit.trim().length > 30
+  ) {
     throw new Error('El nombre o NIT del proveedor supera la longitud permitida.');
   }
-  if (typeof supplier.active !== 'boolean') throw new Error('El estado del proveedor no es válido.');
+  if (typeof supplier.active !== 'boolean')
+    throw new Error('El estado del proveedor no es válido.');
   if (supplier.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(supplier.email)) {
     throw new Error('Correo del proveedor inválido.');
   }
@@ -147,14 +146,20 @@ export function validatePurchaseOrder(order: PurchaseOrderRecord): PurchaseOrder
   requireText(order.createdAt, 'Fecha de creación');
   requireText(order.updatedAt, 'Fecha de actualización');
   if (order.currency !== 'GTQ') throw new Error('La orden debe estar expresada en GTQ.');
-  if (!['draft', 'submitted', 'approved', 'partially_received', 'received', 'cancelled'].includes(order.status)) {
+  if (
+    !['draft', 'submitted', 'approved', 'partially_received', 'received', 'cancelled'].includes(
+      order.status
+    )
+  ) {
     throw new Error('El estado de la orden de compra no es válido.');
   }
   if (!Array.isArray(order.lines) || order.lines.length < 1 || order.lines.length > 2) {
     throw new Error('La orden debe incluir entre 1 y 2 renglones.');
   }
   if (new Set(order.lines.map((line) => line.itemId)).size !== order.lines.length) {
-    throw new Error('No repitas artículos en una misma orden; consolida sus cantidades en un solo renglón.');
+    throw new Error(
+      'No repitas artículos en una misma orden; consolida sus cantidades en un solo renglón.'
+    );
   }
 
   for (const line of order.lines) {
@@ -169,7 +174,9 @@ export function validatePurchaseOrder(order: PurchaseOrderRecord): PurchaseOrder
     }
   }
 
-  const expectedSubtotal = money(order.lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0));
+  const expectedSubtotal = money(
+    order.lines.reduce((sum, line) => sum + line.quantity * line.unitPriceGTQ, 0)
+  );
   requireNonNegative(order.subtotalGTQ, 'Subtotal');
   requireNonNegative(order.discountGTQ, 'Descuento');
   requireNonNegative(order.taxPercent, 'Porcentaje de IVA');
@@ -178,16 +185,18 @@ export function validatePurchaseOrder(order: PurchaseOrderRecord): PurchaseOrder
   requireNonNegative(order.totalGTQ, 'Total');
   if (order.discountGTQ > expectedSubtotal) throw new Error('El descuento supera el subtotal.');
   const taxable = money(expectedSubtotal - order.discountGTQ);
-  const expectedTax = money(taxable * order.taxPercent / 100);
+  const expectedTax = money((taxable * order.taxPercent) / 100);
   const expectedTotal = money(taxable + expectedTax);
-  if (Math.abs(order.subtotalGTQ - expectedSubtotal) > 0.01 ||
-      Math.abs(order.taxGTQ - expectedTax) > 0.01 ||
-      Math.abs(order.totalGTQ - expectedTotal) > 0.01) {
+  if (
+    Math.abs(order.subtotalGTQ - expectedSubtotal) > 0.01 ||
+    Math.abs(order.taxGTQ - expectedTax) > 0.01 ||
+    Math.abs(order.totalGTQ - expectedTotal) > 0.01
+  ) {
     throw new Error('Los totales de la orden no coinciden con sus renglones, descuento e IVA.');
   }
 
-  const received = order.lines.every(line => line.receivedQuantity === line.quantity);
-  const partiallyReceived = order.lines.some(line => line.receivedQuantity > 0);
+  const received = order.lines.every((line) => line.receivedQuantity === line.quantity);
+  const partiallyReceived = order.lines.some((line) => line.receivedQuantity > 0);
   if (order.status === 'received' && !received) {
     throw new Error('No se puede cerrar como recibida una orden con cantidades pendientes.');
   }
@@ -219,8 +228,8 @@ export function recordPurchaseReceipt(
     }
     return { ...line, receivedQuantity: roundQuantity(line.receivedQuantity + receivedNow) };
   });
-  const allReceived = lines.every(line => line.receivedQuantity === line.quantity);
-  const anyReceived = lines.some(line => line.receivedQuantity > 0);
+  const allReceived = lines.every((line) => line.receivedQuantity === line.quantity);
+  const anyReceived = lines.some((line) => line.receivedQuantity > 0);
   const updated: PurchaseOrderRecord = {
     ...order,
     lines,
@@ -236,9 +245,11 @@ export function validateSubcontract(contract: SubcontractRecord): SubcontractRec
   requireText(contract.projectId, 'Proyecto');
   requireText(contract.supplierId, 'Proveedor');
   requireText(contract.contractNumber, 'Número de contrato');
-  if (contract.contractNumber.length > 80) throw new Error('El número de contrato supera 80 caracteres.');
+  if (contract.contractNumber.length > 80)
+    throw new Error('El número de contrato supera 80 caracteres.');
   requireText(contract.description, 'Descripción');
-  if (contract.description.length > 1000) throw new Error('La descripción del subcontrato supera 1000 caracteres.');
+  if (contract.description.length > 1000)
+    throw new Error('La descripción del subcontrato supera 1000 caracteres.');
   requireText(contract.createdBy, 'Usuario creador');
   if (!['draft', 'active', 'completed', 'terminated'].includes(contract.status)) {
     throw new Error('El estado del subcontrato no es válido.');
@@ -269,8 +280,8 @@ export function getSubcontractExpiryAlerts(
   requireNonNegative(warningDays, 'Días de anticipación');
 
   return contracts
-    .filter(contract => contract.status === 'active')
-    .map(contract => {
+    .filter((contract) => contract.status === 'active')
+    .map((contract) => {
       const end = Date.parse(contract.endDate);
       if (!Number.isFinite(end)) throw new Error(`Fecha de vencimiento inválida: ${contract.id}`);
       const daysRemaining = Math.ceil((end - asOf) / 86_400_000);
@@ -282,6 +293,6 @@ export function getSubcontractExpiryAlerts(
         severity: daysRemaining < 0 ? 'expired' : daysRemaining <= 7 ? 'urgent' : 'upcoming',
       } as ContractExpiryAlert;
     })
-    .filter(alert => alert.daysRemaining <= warningDays)
+    .filter((alert) => alert.daysRemaining <= warningDays)
     .sort((a, b) => a.daysRemaining - b.daysRemaining);
 }

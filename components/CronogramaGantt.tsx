@@ -118,7 +118,6 @@ export function CronogramaGantt({
   // Compute Planned Progress vs Real Progress for each task
   const [todayMs] = useState(() => Date.now());
   const enrichedTasks = useMemo(() => {
-
     return filteredTasks.map((t) => {
       const startMs = new Date(t.startDate).getTime();
       const endMs = new Date(t.endDate).getTime();

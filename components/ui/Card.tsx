@@ -13,9 +13,9 @@ interface CardProps {
 
 /**
  * CARD COMPONENT - Base Reutilizable
- * 
+ *
  * Usado en: Dashboard, Proyectos, Presupuestos, etc.
- * 
+ *
  * Variantes:
  * - default: Glass morphism (recomendado)
  * - elevated: Con sombra
@@ -30,18 +30,15 @@ export function Card({
   hover = true,
   padding = 'md',
 }: CardProps) {
-  const baseStyles =
-    'rounded-xl border transition-all duration-300 ease-out';
+  const baseStyles = 'rounded-xl border transition-all duration-300 ease-out';
 
   const variants = {
     default:
       'bg-glass-l2-bg border-glass-l2-border backdrop-blur-xl shadow-glass-md hover:shadow-glass-lg hover:border-white/20',
     elevated:
       'bg-white/[0.08] border-white/10 shadow-lg hover:shadow-xl hover:border-white/20 hover:bg-white/[0.1]',
-    flat:
-      'bg-white/[0.05] border-transparent hover:bg-white/[0.08] hover:border-white/10',
-    outlined:
-      'bg-transparent border-white/20 hover:border-white/40 hover:bg-white/[0.02]',
+    flat: 'bg-white/[0.05] border-transparent hover:bg-white/[0.08] hover:border-white/10',
+    outlined: 'bg-transparent border-white/20 hover:border-white/40 hover:bg-white/[0.02]',
   };
 
   const paddingStyles = {
@@ -74,7 +71,7 @@ export function Card({
 
 /**
  * STAT CARD - Para KPIs y métricas
- * 
+ *
  * Features:
  * - Título + valor
  * - Cambio con indicador
@@ -128,16 +125,10 @@ export function StatCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            {title}
-          </p>
-          <p className="text-2xl font-bold text-white sm:text-3xl">
-            {loading ? '...' : value}
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{title}</p>
+          <p className="text-2xl font-bold text-white sm:text-3xl">{loading ? '...' : value}</p>
           {change && (
-            <p className={`text-xs font-medium ${changeTypeStyles[change.type]}`}>
-              {change.label}
-            </p>
+            <p className={`text-xs font-medium ${changeTypeStyles[change.type]}`}>{change.label}</p>
           )}
         </div>
         {icon && (

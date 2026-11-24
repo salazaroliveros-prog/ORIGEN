@@ -6,15 +6,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 export interface FormFieldProps {
   label: string;
   name: string;
-  type?:
-    | 'text'
-    | 'email'
-    | 'password'
-    | 'number'
-    | 'date'
-    | 'textarea'
-    | 'select'
-    | 'checkbox';
+  type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'textarea' | 'select' | 'checkbox';
   value?: string | number | boolean;
   onChange?: (value: string | number | boolean) => void;
   onBlur?: () => void;
@@ -31,7 +23,7 @@ export interface FormFieldProps {
 
 /**
  * FORM FIELD COMPONENT - Base Reutilizable
- * 
+ *
  * Features:
  * - Label + Input + Description
  * - Validation inline
@@ -40,7 +32,7 @@ export interface FormFieldProps {
  * - Disabled state
  * - Required indicator
  * - Accessible (WCAG 2.1 AA)
- * 
+ *
  * Usado en: Proyectos, Presupuestos, Personal, Gastos, etc.
  */
 export function FormField({
@@ -85,10 +77,7 @@ export function FormField({
   return (
     <div className="space-y-2">
       {/* Label */}
-      <label
-        htmlFor={name}
-        className="block text-sm font-medium text-white"
-      >
+      <label htmlFor={name} className="block text-sm font-medium text-white">
         {label}
         {required && (
           <span className="ml-1 text-danger-500" aria-label="requerido">
@@ -108,9 +97,11 @@ export function FormField({
             onBlur={onBlur}
             placeholder={placeholder}
             disabled={disabled}
-            className={`${inputClassName} resize-none min-h-[100px]`}
+            className={`${inputClassName} min-h-[100px] resize-none`}
             aria-invalid={!!error}
-            aria-describedby={error ? `${name}-error` : description ? `${name}-description` : undefined}
+            aria-describedby={
+              error ? `${name}-error` : description ? `${name}-description` : undefined
+            }
           />
         ) : type === 'select' ? (
           <select
@@ -122,7 +113,9 @@ export function FormField({
             disabled={disabled}
             className={inputClassName}
             aria-invalid={!!error}
-            aria-describedby={error ? `${name}-error` : description ? `${name}-description` : undefined}
+            aria-describedby={
+              error ? `${name}-error` : description ? `${name}-description` : undefined
+            }
           >
             <option value="">Selecciona una opción</option>
             {children}
@@ -146,18 +139,16 @@ export function FormField({
             name={name}
             value={value as string | number}
             onChange={(e) =>
-              onChange?.(
-                type === 'number'
-                  ? parseFloat(e.target.value)
-                  : e.target.value
-              )
+              onChange?.(type === 'number' ? parseFloat(e.target.value) : e.target.value)
             }
             onBlur={onBlur}
             placeholder={placeholder}
             disabled={disabled}
             className={inputClassName}
             aria-invalid={!!error}
-            aria-describedby={error ? `${name}-error` : description ? `${name}-description` : undefined}
+            aria-describedby={
+              error ? `${name}-error` : description ? `${name}-description` : undefined
+            }
           />
         )}
 
@@ -180,17 +171,14 @@ export function FormField({
       {error ? (
         <p
           id={`${name}-error`}
-          className="text-xs text-danger-400 flex items-center gap-1"
+          className="flex items-center gap-1 text-xs text-danger-400"
           role="alert"
         >
           <AlertCircle className="h-3 w-3" />
           {error}
         </p>
       ) : description ? (
-        <p
-          id={`${name}-description`}
-          className="text-xs text-slate-400"
-        >
+        <p id={`${name}-description`} className="text-xs text-slate-400">
           {description}
         </p>
       ) : null}
@@ -209,11 +197,7 @@ export interface FormProps {
 
 export function Form({ onSubmit, children, className = '' }: FormProps) {
   return (
-    <form
-      onSubmit={onSubmit}
-      className={`space-y-6 ${className}`}
-      noValidate
-    >
+    <form onSubmit={onSubmit} className={`space-y-6 ${className}`} noValidate>
       {children}
     </form>
   );

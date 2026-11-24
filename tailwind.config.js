@@ -17,14 +17,14 @@ module.exports = {
           200: '#bae6fd',
           300: '#7dd3fc',
           400: '#38bdf8',
-          500: '#0ea5e9',   // PRIMARY - Acción principal
-          600: '#0284c7',   // Hover
-          700: '#0369a1',   // Active
+          500: '#0ea5e9', // PRIMARY - Acción principal
+          600: '#0284c7', // Hover
+          700: '#0369a1', // Active
           800: '#075985',
           900: '#0c4a6e',
           950: '#082f49',
         },
-        
+
         // ========== SECUNDARIA (Amber - Alertas, energía) ==========
         accent: {
           50: '#fffbeb',
@@ -32,8 +32,8 @@ module.exports = {
           200: '#fde68a',
           300: '#fcd34d',
           400: '#fbbf24',
-          500: '#f59e0b',   // ACCENT - Alertas
-          600: '#d97706',   // Hover
+          500: '#f59e0b', // ACCENT - Alertas
+          600: '#d97706', // Hover
           700: '#b45309',
           800: '#92400e',
           900: '#78350f',
@@ -48,7 +48,7 @@ module.exports = {
           200: '#a7f3d0',
           300: '#6ee7b7',
           400: '#34d399',
-          500: '#10b981',   // Completado, éxito
+          500: '#10b981', // Completado, éxito
           600: '#059669',
           700: '#047857',
           800: '#065f46',
@@ -63,7 +63,7 @@ module.exports = {
           200: '#fde68a',
           300: '#fcd34d',
           400: '#fbbf24',
-          500: '#f59e0b',   // Pendiente, advertencia
+          500: '#f59e0b', // Pendiente, advertencia
           600: '#d97706',
           700: '#b45309',
           800: '#92400e',
@@ -78,7 +78,7 @@ module.exports = {
           200: '#fecaca',
           300: '#fca5a5',
           400: '#f87171',
-          500: '#ef4444',   // Error, rechazo
+          500: '#ef4444', // Error, rechazo
           600: '#dc2626',
           700: '#b91c1c',
           800: '#991b1b',
@@ -93,7 +93,7 @@ module.exports = {
           200: '#bfdbfe',
           300: '#93c5fd',
           400: '#60a5fa',
-          500: '#3b82f6',   // Información
+          500: '#3b82f6', // Información
           600: '#2563eb',
           700: '#1d4ed8',
           800: '#1e40af',
@@ -107,7 +107,7 @@ module.exports = {
           200: '#e9d5ff',
           300: '#d8b4fe',
           400: '#c084fc',
-          500: '#a855f7',   // Rechazado
+          500: '#a855f7', // Rechazado
           600: '#9333ea',
           700: '#7e22ce',
           800: '#6b21a8',
@@ -116,13 +116,13 @@ module.exports = {
         },
 
         // ========== CAPAS DE FONDO ==========
-        'bg-primary': '#0f172a',      // Deep black - Base
-        'bg-secondary': '#1e293b',    // Elevated - Cards
-        'bg-tertiary': '#334155',     // Surface - Inputs
+        'bg-primary': '#0f172a', // Deep black - Base
+        'bg-secondary': '#1e293b', // Elevated - Cards
+        'bg-tertiary': '#334155', // Surface - Inputs
 
         // ========== BRAND (LEGACY - para compatibilidad) ==========
         brand: {
-          primary: '#0ea5e9',         // Cambio de primario a Sky
+          primary: '#0ea5e9', // Cambio de primario a Sky
           'primary-hover': '#0284c7',
           'primary-glow': 'rgba(14, 165, 233, 0.35)',
           secondary: '#38bdf8',
@@ -182,8 +182,8 @@ module.exports = {
         border: {
           strong: 'rgba(255, 255, 255, 0.18)',
           weak: 'rgba(255, 255, 255, 0.08)',
-          focus: 'rgba(14, 165, 233, 0.5)',      // Sky focus
-          brand: 'rgba(14, 165, 233, 0.4)',      // Sky brand
+          focus: 'rgba(14, 165, 233, 0.5)', // Sky focus
+          brand: 'rgba(14, 165, 233, 0.4)', // Sky brand
         },
 
         deep: '#0f172a',
@@ -261,8 +261,8 @@ module.exports = {
         lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
         xl: '0 20px 25px rgba(0, 0, 0, 0.15)',
         glass: '0 8px 32px 0 rgba(0, 0, 0, 0.35)',
-        glow: '0 0 20px rgba(14, 165, 233, 0.4)',           // Sky glow
-        'glow-brand': '0 0 24px rgba(14, 165, 233, 0.35)',  // Sky brand glow
+        glow: '0 0 20px rgba(14, 165, 233, 0.4)', // Sky glow
+        'glow-brand': '0 0 24px rgba(14, 165, 233, 0.35)', // Sky brand glow
         'glass-sm': '0 4px 16px 0 rgba(0, 0, 0, 0.3)',
         'glass-md': '0 8px 32px 0 rgba(0, 0, 0, 0.35)',
         'glass-lg': '0 12px 40px 0 rgba(0, 0, 0, 0.4)',
@@ -306,8 +306,8 @@ module.exports = {
           'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
         'mesh-gradient':
           'radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.12), transparent 50%), radial-gradient(circle at 75% 75%, rgba(248, 113, 113, 0.08), transparent 50%)',
-        'brand-gradient': 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',  // Sky gradient
-        'sky-gradient': 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%)',    // Sky gradient
+        'brand-gradient': 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', // Sky gradient
+        'sky-gradient': 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%)', // Sky gradient
       },
 
       animation: {

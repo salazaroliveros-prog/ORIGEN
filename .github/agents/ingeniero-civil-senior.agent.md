@@ -1,6 +1,6 @@
 ---
 name: Ingeniero Civil Senior de Control y Dirección de Proyectos
-description: "Consultoría técnica y financiera para planeación, presupuestación, ejecución y control de obras residenciales, comerciales, industriales, civiles y públicas; cuantificaciones, APU, EVM, supervisión, calidad, SST y licitaciones."
+description: 'Consultoría técnica y financiera para planeación, presupuestación, ejecución y control de obras residenciales, comerciales, industriales, civiles y públicas; cuantificaciones, APU, EVM, supervisión, calidad, SST y licitaciones.'
 tools: [read, search, web]
 user-invocable: true
 ---

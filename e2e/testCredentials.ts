@@ -9,7 +9,9 @@ const getEnv = (key: string, fallback: string): string => {
 export const ADMIN_EMAIL = getEnv('E2E_ADMIN_EMAIL', 'salazaroliveros@gmail.com');
 export const ADMIN_PASSWORD = getEnv('E2E_ADMIN_PASSWORD', 'AngelDarioJose.2026');
 
-console.log(`[testCredentials] Email: ${ADMIN_EMAIL}, Password: ${ADMIN_PASSWORD ? '***' : 'VACIO'}`);
+console.log(
+  `[testCredentials] Email: ${ADMIN_EMAIL}, Password: ${ADMIN_PASSWORD ? '***' : 'VACIO'}`
+);
 
 /**
  * Espera a que el espacio de trabajo esté resuelto.
@@ -49,21 +51,31 @@ export async function ensureAuthenticated(page: Page) {
     console.log(`[ensureAuthenticated] Logging in with ${ADMIN_EMAIL}...`);
     await emailField.fill(ADMIN_EMAIL);
     await page.getByLabel('Contraseña', { exact: true }).fill(ADMIN_PASSWORD);
-    
+
     const loginBtn = page.getByRole('button', { name: /Iniciar Sesión/i }).first();
     await loginBtn.click();
 
     // Esperar redirección y dashboard
-    await page.waitForURL((url) => !url.toString().includes('/login'), { timeout: 20_000 }).catch(() => {});
+    await page
+      .waitForURL((url) => !url.toString().includes('/login'), { timeout: 20_000 })
+      .catch(() => {});
     await page.waitForTimeout(2_000);
 
     // Verificar dashboard con más tolerancia
     const isDashboard = await dashboard.isVisible({ timeout: 20_000 }).catch(() => false);
     if (!isDashboard) {
       // Buscar alternativas
-      const hasTablero = await page.locator('button, a').filter({ hasText: 'Tablero' }).first().isVisible({ timeout: 10_000 }).catch(() => false);
+      const hasTablero = await page
+        .locator('button, a')
+        .filter({ hasText: 'Tablero' })
+        .first()
+        .isVisible({ timeout: 10_000 })
+        .catch(() => false);
       if (!hasTablero) {
-        const bodyText = await page.locator('body').innerText().catch(() => '');
+        const bodyText = await page
+          .locator('body')
+          .innerText()
+          .catch(() => '');
         console.error(`[ensureAuthenticated] No dashboard found. Page:\n${bodyText.slice(0, 500)}`);
         throw new Error('Dashboard not visible after login');
       }

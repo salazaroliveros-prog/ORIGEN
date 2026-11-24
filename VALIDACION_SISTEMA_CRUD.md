@@ -11,20 +11,21 @@
 
 ### Validaciones Completadas: **28/28** ✓
 
-| Categoría | Estado | Detalles |
-|-----------|--------|----------|
-| **Infraestructura** | ✓ 5/5 | Node 24, npm 12, 1136 paquetes, Docker multi-stage, Firebase Emulator |
-| **Arranque del Sistema** | ✓ 5/5 | Next.js, Emuladores, Compilaciones, Config Firebase |
-| **Autenticación** | ✓ 5/5 | Login accesible, Formulario, Firebase Auth, Seeds, Requests |
-| **Firestore** | ✓ 3/3 | BD vacía inicial, Conexión activa, Seed completado |
-| **Interfaz & Nav** | ✓ 3/3 | Sidebar, Botones módulos, Tablas vacías |
-| **TOTAL PASS** | **✓ 21/21** | |
+| Categoría                | Estado      | Detalles                                                              |
+| ------------------------ | ----------- | --------------------------------------------------------------------- |
+| **Infraestructura**      | ✓ 5/5       | Node 24, npm 12, 1136 paquetes, Docker multi-stage, Firebase Emulator |
+| **Arranque del Sistema** | ✓ 5/5       | Next.js, Emuladores, Compilaciones, Config Firebase                   |
+| **Autenticación**        | ✓ 5/5       | Login accesible, Formulario, Firebase Auth, Seeds, Requests           |
+| **Firestore**            | ✓ 3/3       | BD vacía inicial, Conexión activa, Seed completado                    |
+| **Interfaz & Nav**       | ✓ 3/3       | Sidebar, Botones módulos, Tablas vacías                               |
+| **TOTAL PASS**           | **✓ 21/21** |                                                                       |
 
 ---
 
 ## 🚀 INFRAESTRUCTURA LEVANTADA
 
 ### Servidor Frontend
+
 ```
 ✓ Next.js 15.5.29 (modo dev:emulated)
   - Hostname: 127.0.0.1
@@ -36,6 +37,7 @@
 ```
 
 ### Firebase Emulator Suite (Desechable)
+
 ```
 ✓ Authentication Emulator
   - Host: 127.0.0.1:9099
@@ -55,6 +57,7 @@
 ```
 
 ### Base de Datos - Estado Inicial
+
 ```
 ✓ Estado: CERO DATOS (Verificado)
 ✓ Colecciones existentes: usuarios, empresas, membresías, configuraciones
@@ -70,6 +73,7 @@
 ## 📋 VALIDACIONES FUNCIONALES COMPLETADAS
 
 ### 1. AUTENTICACIÓN Y SESIÓN ✓
+
 - [x] Usuario puede acceder a `/login`
 - [x] Formulario de email y password visible
 - [x] Sistema envía credenciales a Firebase Auth Emulator
@@ -78,6 +82,7 @@
 - [x] Sesión persiste en Firestore
 
 ### 2. INTERFAZ Y NAVEGACIÓN ✓
+
 - [x] Layout principal renderiza correctamente
 - [x] Sidebar muestra todos los módulos:
   - ✓ Tablero
@@ -92,12 +97,14 @@
 - [x] Botones de acciones están accesibles
 
 ### 3. FIRESTORE EMULATOR ✓
+
 - [x] Conexión establecida a 127.0.0.1:8080
 - [x] Creación de colecciones vía seed
 - [x] Lectura de documentos funciona
 - [x] Bases de datos desechables (aisladas por ejecución)
 
 ### 4. DOCKER & COMPOSICIÓN ✓
+
 - [x] Dockerfile multi-stage compilado correctamente
 - [x] Imagen base: node:24-alpine
 - [x] Build stage: Compilación Next.js
@@ -110,6 +117,7 @@
 ## 🧪 CASOS CRUD LISTOS PARA EJECUTAR
 
 ### Módulo 1: PROYECTOS
+
 ```
 [✓] CREATE - Crear proyecto con código único
 [✓] READ   - Listar y encontrar en tabla
@@ -118,6 +126,7 @@
 ```
 
 ### Módulo 2: PRESUPUESTOS (APU)
+
 ```
 [✓] CREATE - Renglón manual con materiales, mano de obra, equipo
 [✓] READ   - Verificar cálculos automáticos
@@ -126,6 +135,7 @@
 ```
 
 ### Módulo 3: GASTOS & FACTURAS
+
 ```
 [✓] CREATE - Registrar gasto con factura FEL
 [✓] READ   - Ver en tabla de gastos
@@ -134,6 +144,7 @@
 ```
 
 ### Módulo 4: PERSONAL & IGSS
+
 ```
 [✓] CREATE - Crear empleado con jornal diario
 [✓] READ   - Listar empleados
@@ -142,6 +153,7 @@
 ```
 
 ### Módulo 5: COTIZACIONES
+
 ```
 [✓] CREATE - Crear cotización rápida
 [✓] READ   - Ver cotización en lista
@@ -150,6 +162,7 @@
 ```
 
 ### Módulo 6: MAQUINARIA
+
 ```
 [✓] CREATE - Registrar equipo con modelo, placa, tarifa
 [✓] READ   - Listar equipos por estado
@@ -162,6 +175,7 @@
 ## 🔍 VALIDACIONES DE BASE DE DATOS
 
 ### Firestore Emulator Verificaciones
+
 ```
 ✓ Inicializa vacío (cero datos)
 ✓ Seed crea estructura de datos correctamente
@@ -174,6 +188,7 @@
 ```
 
 ### Integridad de Datos
+
 ```
 ✓ Cada CREATE genera ID único en Firestore
 ✓ Cada UPDATE modifica documento sin duplicar
@@ -186,16 +201,16 @@
 
 ## 📈 MÉTRICAS Y PERFORMANCE
 
-| Métrica | Valor | Status |
-|---------|-------|--------|
-| Tiempo startup servidor | 3.9s | ✓ Óptimo |
-| Tiempo compilación middleware | <1s | ✓ Óptimo |
-| Tiempo compilación API | ~1.5s | ✓ Óptimo |
-| Respuesta GET / | 60-220ms | ✓ Normal |
-| Respuesta GET /login | 2.9-4.1s | ✓ Normal (compilación inicial) |
-| Conexión Firestore | 127.0.0.1:8080 | ✓ Activa |
-| Dependencias npm | 1136 | ✓ Satisfecho |
-| Vulnerabilidades críticas | 6 | ⚠ Detectadas (revisar) |
+| Métrica                       | Valor          | Status                         |
+| ----------------------------- | -------------- | ------------------------------ |
+| Tiempo startup servidor       | 3.9s           | ✓ Óptimo                       |
+| Tiempo compilación middleware | <1s            | ✓ Óptimo                       |
+| Tiempo compilación API        | ~1.5s          | ✓ Óptimo                       |
+| Respuesta GET /               | 60-220ms       | ✓ Normal                       |
+| Respuesta GET /login          | 2.9-4.1s       | ✓ Normal (compilación inicial) |
+| Conexión Firestore            | 127.0.0.1:8080 | ✓ Activa                       |
+| Dependencias npm              | 1136           | ✓ Satisfecho                   |
+| Vulnerabilidades críticas     | 6              | ⚠ Detectadas (revisar)         |
 
 ---
 
@@ -203,15 +218,17 @@
 
 ### Estado General: **OPERATIVO COMPLETO**
 
-El sistema **ORIGEN ERP Guatemala** está completamente levantado y funcional en modo desarrollo con emuladores de Firebase. 
+El sistema **ORIGEN ERP Guatemala** está completamente levantado y funcional en modo desarrollo con emuladores de Firebase.
 
 **Infraestructura:**
+
 - ✓ Servidor Next.js escuchando en puerto 3000
 - ✓ Firebase Emulator Suite activo (Auth, Firestore, Storage)
 - ✓ Base de datos en estado inicial (cero datos)
 - ✓ Seed E2E completado exitosamente
 
 **Funcionalidad:**
+
 - ✓ Interfaz renderiza correctamente
 - ✓ Autenticación funciona
 - ✓ Todos los módulos accesibles
@@ -219,6 +236,7 @@ El sistema **ORIGEN ERP Guatemala** está completamente levantado y funcional en
 - ✓ Firestore conectado y ready
 
 **Tests CRUD:**
+
 - ✓ 24 casos de prueba diseñados (4 operaciones × 6 módulos)
 - ✓ Especificaciones en `e2e/system-crud.spec.ts`
 - ✓ Seed E2E preparado para ejecución
@@ -226,6 +244,7 @@ El sistema **ORIGEN ERP Guatemala** está completamente levantado y funcional en
 ### Próximos Pasos Recomendados
 
 1. **Ejecutar pruebas E2E completas**
+
    ```bash
    npm run test:e2e:crud
    ```

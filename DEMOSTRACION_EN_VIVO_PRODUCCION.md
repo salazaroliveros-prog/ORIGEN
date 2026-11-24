@@ -3,7 +3,7 @@
 **Fecha:** 23 de Noviembre de 2026  
 **Hora:** 00:40 UTC  
 **Status:** ✅ EN VIVO EN PRODUCCIÓN  
-**URL:** https://origen-erp.vercel.app  
+**URL:** https://origen-erp.vercel.app
 
 ---
 
@@ -18,7 +18,7 @@ He levantado la aplicación ORIGEN ERP Guatemala en producción y estoy interact
 ```bash
 $ curl -s -I https://origen-erp.vercel.app | head -20
 
-HTTP/2 200 
+HTTP/2 200
 date: Sun, 23 Nov 2026 00:40:23 GMT
 content-type: text/html; charset=utf-8
 content-length: 45632
@@ -530,7 +530,7 @@ Monitoring:
    Users Online: 1 (Admin)
    Requests: Handled
    Errors: 0
-   
+
 📊 Score: 95/100 (Excelente)
 ✨ Status: PRODUCTION READY
 🎊 Ready for Users

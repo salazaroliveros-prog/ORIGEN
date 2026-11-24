@@ -51,14 +51,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         <section
           aria-live="polite"
           aria-atomic="true"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 max-w-md mx-auto"
+          className="mx-auto max-w-md rounded-lg border border-red-500/30 bg-red-500/10 p-6"
           role="alert"
         >
-          <div className="flex gap-3 items-start">
-            <AlertCircle
-              className="h-6 w-6 flex-shrink-0 text-red-500"
-              aria-label="Error"
-            />
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-6 w-6 flex-shrink-0 text-red-500" aria-label="Error" />
             <div className="flex-1 space-y-2">
               <h3 className="font-semibold text-red-200">Error inesperado</h3>
               <p className="text-sm text-red-100">
@@ -66,9 +63,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                   'Ocurrió un error inesperado. El equipo ha sido notificado.'}
               </p>
               {process.env.NODE_ENV === 'development' && (
-                <pre
-                  className="mt-2 max-h-40 overflow-auto rounded bg-slate-950 p-2 text-xs text-slate-300"
-                >
+                <pre className="mt-2 max-h-40 overflow-auto rounded bg-slate-950 p-2 text-xs text-slate-300">
                   {this.state.error.stack}
                 </pre>
               )}
@@ -112,7 +107,7 @@ export default ErrorBoundary;
  * - Diferenciación entre desarrollo y producción
  */
 
-/** 
+/**
  * Versión mejorada con:
  * - Mejor manejo de accesibilidad (ARIA live regions)
  * - Mensajes de error más amigables

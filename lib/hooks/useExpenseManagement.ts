@@ -24,13 +24,10 @@ interface UseExpenseManagementParams {
 }
 
 export function useExpenseManagement({ companyId, currentUserId }: UseExpenseManagementParams) {
-  const addExpense = useCallback(
-    async (expense: ExpenseRecord) => {
-      toast.error('Usuario no autenticado');
-      return false;
-    },
-    []
-  );
+  const addExpense = useCallback(async (expense: ExpenseRecord) => {
+    toast.error('Usuario no autenticado');
+    return false;
+  }, []);
 
   const addExpenseWithAuth = useCallback(
     async (expense: ExpenseRecord) => {
@@ -61,13 +58,10 @@ export function useExpenseManagement({ companyId, currentUserId }: UseExpenseMan
     [companyId, currentUserId]
   );
 
-  const updateExpense = useCallback(
-    async (expense: ExpenseRecord) => {
-      toast.error('Usuario no autenticado');
-      return false;
-    },
-    []
-  );
+  const updateExpense = useCallback(async (expense: ExpenseRecord) => {
+    toast.error('Usuario no autenticado');
+    return false;
+  }, []);
 
   const updateExpenseWithAuth = useCallback(
     async (expense: ExpenseRecord) => {
@@ -95,13 +89,10 @@ export function useExpenseManagement({ companyId, currentUserId }: UseExpenseMan
     [companyId, currentUserId]
   );
 
-  const deleteExpense = useCallback(
-    async (expenseId: string) => {
-      toast.error('Usuario no autenticado');
-      return false;
-    },
-    []
-  );
+  const deleteExpense = useCallback(async (expenseId: string) => {
+    toast.error('Usuario no autenticado');
+    return false;
+  }, []);
 
   const deleteExpenseWithAuth = useCallback(
     async (expenseId: string) => {

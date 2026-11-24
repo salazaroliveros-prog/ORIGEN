@@ -164,7 +164,7 @@ export function LaborProductivityChart({
               onClick={() => setViewScope('empleado')}
               className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'empleado'
-                  ? 'shadow-xs bg-sky-500 text-slate-950'
+                  ? 'bg-sky-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -174,7 +174,7 @@ export function LaborProductivityChart({
               onClick={() => setViewScope('rol')}
               className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'rol'
-                  ? 'shadow-xs bg-sky-500 text-slate-950'
+                  ? 'bg-sky-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -184,7 +184,7 @@ export function LaborProductivityChart({
               onClick={() => setViewScope('proyecto')}
               className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'proyecto'
-                  ? 'shadow-xs bg-sky-500 text-slate-950'
+                  ? 'bg-sky-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
             >

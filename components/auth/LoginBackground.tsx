@@ -8,17 +8,17 @@
 
 export function LoginBackground() {
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <div
-        className="absolute top-[-10%] left-[-10%] h-[60%] w-[60%] rounded-full bg-brand-primary/20 blur-[120px] animate-pulse-slow"
+        className="absolute left-[-10%] top-[-10%] h-[60%] w-[60%] animate-pulse-slow rounded-full bg-brand-primary/20 blur-[120px]"
         aria-hidden="true"
       />
       <div
-        className="absolute bottom-[-10%] right-[-10%] h-[60%] w-[60%] rounded-full bg-brand-secondary/20 blur-[120px] animate-[float-delayed:6s_ease-in-out_infinite]"
+        className="animate-[float-delayed:6s_ease-in-out_infinite] absolute bottom-[-10%] right-[-10%] h-[60%] w-[60%] rounded-full bg-brand-secondary/20 blur-[120px]"
         aria-hidden="true"
       />
       <div
-        className="absolute top-1/3 left-1/4 h-[30%] w-[30%] rounded-full bg-slate-900/40 blur-[80px]"
+        className="absolute left-1/4 top-1/3 h-[30%] w-[30%] rounded-full bg-slate-900/40 blur-[80px]"
         aria-hidden="true"
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,#0f172a_0%,#0b0f19_100%)]" />

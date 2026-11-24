@@ -6,10 +6,7 @@
  */
 import { useCallback } from 'react';
 import type { APUItem, Project } from '@/lib/types';
-import {
-  saveAPUItemsToFirestore,
-  deleteAPUItemFromFirestore,
-} from '@/lib/firebaseService';
+import { saveAPUItemsToFirestore, deleteAPUItemFromFirestore } from '@/lib/firebaseService';
 import { normalizeAPUItems } from '@/lib/domain/apu';
 import { createLogger } from '@/lib/utils/logger';
 import { createCacheKey, queryCache } from '@/lib/utils/cacheManager';
@@ -30,13 +27,10 @@ export function useAPUManagement({
   projects,
   apuItems,
 }: UseAPUManagementParams) {
-  const saveAPUItems = useCallback(
-    async (_items: APUItem[], _projectId: string) => {
-      toast.error('Inicia sesión en una empresa para guardar el presupuesto APU.');
-      return false;
-    },
-    []
-  );
+  const saveAPUItems = useCallback(async (_items: APUItem[], _projectId: string) => {
+    toast.error('Inicia sesión en una empresa para guardar el presupuesto APU.');
+    return false;
+  }, []);
 
   const saveAPUItemsWithAuth = useCallback(
     async (items: APUItem[], projectId: string) => {
@@ -76,13 +70,10 @@ export function useAPUManagement({
     [companyId, currentUserId, projects]
   );
 
-  const deleteAPUItem = useCallback(
-    async (_itemId: string) => {
-      toast.error('Inicia sesión en una empresa para eliminar partidas APU.');
-      return false;
-    },
-    []
-  );
+  const deleteAPUItem = useCallback(async (_itemId: string) => {
+    toast.error('Inicia sesión en una empresa para eliminar partidas APU.');
+    return false;
+  }, []);
 
   const deleteAPUItemWithAuth = useCallback(
     async (itemId: string) => {

@@ -7,9 +7,7 @@
 
 import { FelInvoicePrintContent } from './FelInvoicePrintContent.client';
 
-export default async function FelInvoicePrintPage({
-  params,
-}: { params: Promise<{ id: string }> }) {
+export default async function FelInvoicePrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: invoiceId } = await params;
   return <FelInvoicePrintContent invoiceId={invoiceId} />;
 }

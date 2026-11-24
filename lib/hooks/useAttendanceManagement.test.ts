@@ -71,7 +71,9 @@ describe('useAttendanceManagement', () => {
       const { result } = renderUseAttendanceManagement('', '', []);
       const success = await result.current.deleteAttendance('att-1');
       expect(success).toBe(false);
-      expect(mockToast.error).toHaveBeenCalledWith('Inicia sesión para eliminar un registro de asistencia.');
+      expect(mockToast.error).toHaveBeenCalledWith(
+        'Inicia sesión para eliminar un registro de asistencia.'
+      );
     });
   });
 
@@ -110,11 +112,9 @@ describe('useAttendanceManagement', () => {
     });
 
     it('should delete attendance successfully', async () => {
-      const { result } = renderUseAttendanceManagement(
-        mockCompanyId,
-        mockUserId,
-        [{ id: 'att-1', companyId: 'company-1' }]
-      );
+      const { result } = renderUseAttendanceManagement(mockCompanyId, mockUserId, [
+        { id: 'att-1', companyId: 'company-1' },
+      ]);
       window.confirm = vi.fn(() => true);
       vi.mocked(deleteAttendanceFromFirestore).mockResolvedValueOnce(true);
 
@@ -139,11 +139,9 @@ describe('useAttendanceManagement', () => {
     });
 
     it('should return false when user cancels deletion', async () => {
-      const { result } = renderUseAttendanceManagement(
-        mockCompanyId,
-        mockUserId,
-        [{ id: 'att-1', companyId: 'company-1' }]
-      );
+      const { result } = renderUseAttendanceManagement(mockCompanyId, mockUserId, [
+        { id: 'att-1', companyId: 'company-1' },
+      ]);
       window.confirm = vi.fn(() => false);
 
       const success = await act(async () => {

@@ -34,7 +34,11 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file');
     const projectId = formData.get('projectId');
 
-    if (!(file instanceof File) || typeof projectId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(projectId.trim())) {
+    if (
+      !(file instanceof File) ||
+      typeof projectId !== 'string' ||
+      !/^[A-Za-z0-9_-]{1,128}$/.test(projectId.trim())
+    ) {
       return jsonError('Faltan datos requeridos para subir la foto.', 400);
     }
 

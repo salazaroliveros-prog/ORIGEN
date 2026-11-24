@@ -464,9 +464,9 @@ describe('firebaseService CRUD contra el emulador', () => {
       status: 'Disponible',
     };
 
-    await expect(
-      service.saveMachineryToFirestore(equipment, companyId, userId)
-    ).resolves.toBe(true);
+    await expect(service.saveMachineryToFirestore(equipment, companyId, userId)).resolves.toBe(
+      true
+    );
 
     const logId = uniqueId('ml');
     const log: MachineryLog = {
@@ -500,15 +500,19 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(storedLog.costGTQ).toBe(1500);
     expect(storedLog.expenseId).toBe(`machine-${logId}`);
 
-    const storedExpense = await expectPersisted<ExpenseRecord>('expenses', `machine-${logId}`, (cb) =>
-      service.subscribeExpenses(companyId, cb)
+    const storedExpense = await expectPersisted<ExpenseRecord>(
+      'expenses',
+      `machine-${logId}`,
+      (cb) => service.subscribeExpenses(companyId, cb)
     );
     expect(storedExpense.amount).toBe(1500);
     expect(storedExpense.machineryLogId).toBe(logId);
     expect(storedExpense.projectId).toBe(projectId);
 
     // A repeated immutable ID cannot post the same hours or expense twice.
-    await expect(service.recordMachineryUse(log, equipment, companyId, userId)).resolves.toBe(false);
+    await expect(service.recordMachineryUse(log, equipment, companyId, userId)).resolves.toBe(
+      false
+    );
 
     // A second use based on the old UI snapshot is rejected; the stored
     // horometer and financial entry remain unchanged.
@@ -518,7 +522,9 @@ describe('firebaseService CRUD contra el emulador', () => {
       hoursWorked: 3,
       costGTQ: 0,
     };
-    await expect(service.recordMachineryUse(staleLog, equipment, companyId, userId)).resolves.toBe(false);
+    await expect(service.recordMachineryUse(staleLog, equipment, companyId, userId)).resolves.toBe(
+      false
+    );
 
     const finalMachine = await expectPersisted<Machinery>('machinery', machineryId, (cb) =>
       service.subscribeMachinery(companyId, cb)
@@ -650,8 +656,18 @@ describe('firebaseService CRUD contra el emulador', () => {
     );
 
     expect(storedSupplier).toMatchObject({ companyId, createdBy: userId, nit: '1234567-8' });
-    expect(storedWarehouse).toMatchObject({ companyId, createdBy: userId, projectId, type: 'project' });
-    expect(storedItem).toMatchObject({ companyId, createdBy: userId, unit: 'saco', reorderLevel: 12 });
+    expect(storedWarehouse).toMatchObject({
+      companyId,
+      createdBy: userId,
+      projectId,
+      type: 'project',
+    });
+    expect(storedItem).toMatchObject({
+      companyId,
+      createdBy: userId,
+      unit: 'saco',
+      reorderLevel: 12,
+    });
   });
 
   it('registra inventario inicial de forma atómica, inmutable e idempotente', async () => {
@@ -704,18 +720,24 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(retry.alreadyProcessed).toBe(true);
     expect(retry.balance.quantity).toBe(125);
 
-    await expect(inventoryService.recordOpeningStockToFirestore({
-      ...input,
-      quantity: 126,
-    })).rejects.toThrow('ID del movimiento inicial ya fue utilizado');
+    await expect(
+      inventoryService.recordOpeningStockToFirestore({
+        ...input,
+        quantity: 126,
+      })
+    ).rejects.toThrow('ID del movimiento inicial ya fue utilizado');
 
-    await expect(inventoryService.recordOpeningStockToFirestore({
-      ...input,
-      movementId: uniqueId('OPENING-SECOND'),
-    })).rejects.toThrow('ya tiene historial');
+    await expect(
+      inventoryService.recordOpeningStockToFirestore({
+        ...input,
+        movementId: uniqueId('OPENING-SECOND'),
+      })
+    ).rejects.toThrow('ya tiene historial');
 
-    const stored = await expectPersisted<StockMovement>('stockMovements', input.movementId, (callback) =>
-      inventoryService.subscribeStockMovements(companyId, callback)
+    const stored = await expectPersisted<StockMovement>(
+      'stockMovements',
+      input.movementId,
+      (callback) => inventoryService.subscribeStockMovements(companyId, callback)
     );
     expect(stored).toMatchObject({ kind: 'opening', referenceId: input.reference, quantity: 125 });
   });
@@ -805,16 +827,20 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(outgoingRetry.alreadyProcessed).toBe(true);
     expect(outgoingRetry.balance.quantity).toBe(12);
 
-    await expect(inventoryService.adjustInventoryStockToFirestore({
-      ...outgoingInput,
-      quantity: 4,
-    })).rejects.toThrow('ID del movimiento de ajuste ya fue utilizado');
+    await expect(
+      inventoryService.adjustInventoryStockToFirestore({
+        ...outgoingInput,
+        quantity: 4,
+      })
+    ).rejects.toThrow('ID del movimiento de ajuste ya fue utilizado');
 
-    await expect(inventoryService.adjustInventoryStockToFirestore({
-      ...outgoingInput,
-      movementId: uniqueId('ADJ-OVERDRAW'),
-      quantity: 99,
-    })).rejects.toThrow('Existencia insuficiente');
+    await expect(
+      inventoryService.adjustInventoryStockToFirestore({
+        ...outgoingInput,
+        movementId: uniqueId('ADJ-OVERDRAW'),
+        quantity: 99,
+      })
+    ).rejects.toThrow('Existencia insuficiente');
   });
 
   it('crea órdenes de compra y subcontratos solo con referencias existentes de la empresa', async () => {
@@ -899,104 +925,180 @@ describe('firebaseService CRUD contra el emulador', () => {
   it('registra salidas y traslados de inventario atómicos e idempotentes', async () => {
     const projectId = await createProject('INV-MOVEMENTS', 'Proyecto para movimientos');
     const supplier = await inventoryService.createSupplierToFirestore(
-      { name: 'Proveedor movimientos QA', nit: 'CF', active: true }, companyId, userId
+      { name: 'Proveedor movimientos QA', nit: 'CF', active: true },
+      companyId,
+      userId
     );
     const item = await inventoryService.createInventoryItemToFirestore(
-      { name: 'Mortero movimientos QA', unit: 'saco', reorderLevel: 2, active: true }, companyId, userId
+      { name: 'Mortero movimientos QA', unit: 'saco', reorderLevel: 2, active: true },
+      companyId,
+      userId
     );
     const source = await inventoryService.createWarehouseToFirestore(
-      { name: 'Bodega de obra movimientos QA', type: 'project', projectId, active: true }, companyId, userId
+      { name: 'Bodega de obra movimientos QA', type: 'project', projectId, active: true },
+      companyId,
+      userId
     );
     const destination = await inventoryService.createWarehouseToFirestore(
-      { name: 'Bodega general movimientos QA', type: 'general', active: true }, companyId, userId
+      { name: 'Bodega general movimientos QA', type: 'general', active: true },
+      companyId,
+      userId
     );
-    const order = await inventoryService.createPurchaseOrderToFirestore({
-      projectId, supplierId: supplier.id, number: uniqueId('OC-MOV'), status: 'draft', currency: 'GTQ',
-      lines: [{ itemId: item.id, description: item.name, unit: item.unit, quantity: 5, unitPriceGTQ: 50 }],
-      subtotalGTQ: 250, discountGTQ: 0, taxPercent: 12, taxGTQ: 30, totalGTQ: 280,
-    }, companyId, userId);
+    const order = await inventoryService.createPurchaseOrderToFirestore(
+      {
+        projectId,
+        supplierId: supplier.id,
+        number: uniqueId('OC-MOV'),
+        status: 'draft',
+        currency: 'GTQ',
+        lines: [
+          {
+            itemId: item.id,
+            description: item.name,
+            unit: item.unit,
+            quantity: 5,
+            unitPriceGTQ: 50,
+          },
+        ],
+        subtotalGTQ: 250,
+        discountGTQ: 0,
+        taxPercent: 12,
+        taxGTQ: 30,
+        totalGTQ: 280,
+      },
+      companyId,
+      userId
+    );
     await inventoryService.approvePurchaseOrderToFirestore(order.id, companyId, userId);
     const receipt = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 0, warehouseId: source.id, quantity: 5,
-      receiptNumber: 'MOV-RECEIPT', companyId, userId,
+      orderId: order.id,
+      lineIndex: 0,
+      warehouseId: source.id,
+      quantity: 5,
+      receiptNumber: 'MOV-RECEIPT',
+      companyId,
+      userId,
     });
     expect(receipt.balance.quantity).toBe(5);
 
     const movementId = uniqueId('ISSUE');
     const issueInput = {
-      movementId, projectId, itemId: item.id, warehouseId: source.id, quantity: 2,
-      reference: 'VALE-MOV-001', notes: 'Consumo de prueba', companyId, userId,
+      movementId,
+      projectId,
+      itemId: item.id,
+      warehouseId: source.id,
+      quantity: 2,
+      reference: 'VALE-MOV-001',
+      notes: 'Consumo de prueba',
+      companyId,
+      userId,
     };
     const issue = await inventoryService.recordProjectStockIssueToFirestore(issueInput);
     expect(issue.alreadyProcessed).toBe(false);
     expect(issue.balance.quantity).toBe(3);
     const issueRetry = await inventoryService.recordProjectStockIssueToFirestore(issueInput);
     expect(issueRetry.alreadyProcessed).toBe(true);
-    await expect(inventoryService.recordProjectStockIssueToFirestore({
-      ...issueInput,
-      quantity: 1,
-    })).rejects.toThrow('La referencia de salida ya fue utilizada');
-    await expect(inventoryService.recordProjectStockIssueToFirestore({
-      ...issueInput, movementId: uniqueId('ISSUE-OVER'), quantity: 4, reference: 'VALE-MOV-OVER',
-    })).rejects.toThrow('Existencia insuficiente');
+    await expect(
+      inventoryService.recordProjectStockIssueToFirestore({
+        ...issueInput,
+        quantity: 1,
+      })
+    ).rejects.toThrow('La referencia de salida ya fue utilizada');
+    await expect(
+      inventoryService.recordProjectStockIssueToFirestore({
+        ...issueInput,
+        movementId: uniqueId('ISSUE-OVER'),
+        quantity: 4,
+        reference: 'VALE-MOV-OVER',
+      })
+    ).rejects.toThrow('Existencia insuficiente');
 
     const transferId = uniqueId('TRANSFER');
     const transferInput = {
-      transferId, itemId: item.id, fromWarehouseId: source.id, toWarehouseId: destination.id,
-      quantity: 1, notes: 'Traslado de prueba', companyId, userId,
+      transferId,
+      itemId: item.id,
+      fromWarehouseId: source.id,
+      toWarehouseId: destination.id,
+      quantity: 1,
+      notes: 'Traslado de prueba',
+      companyId,
+      userId,
     };
-    const transfer = await inventoryService.transferInventoryBetweenWarehousesToFirestore(transferInput);
+    const transfer =
+      await inventoryService.transferInventoryBetweenWarehousesToFirestore(transferInput);
     expect(transfer.alreadyProcessed).toBe(false);
     expect(transfer.sourceBalance.quantity).toBe(2);
     expect(transfer.destinationBalance.quantity).toBe(1);
     expect(transfer.destinationBalance.averageUnitCostGTQ).toBe(50);
-    const transferRetry = await inventoryService.transferInventoryBetweenWarehousesToFirestore(transferInput);
+    const transferRetry =
+      await inventoryService.transferInventoryBetweenWarehousesToFirestore(transferInput);
     expect(transferRetry.alreadyProcessed).toBe(true);
-    await expect(inventoryService.transferInventoryBetweenWarehousesToFirestore({
-      ...transferInput,
-      quantity: 2,
-    })).rejects.toThrow('El ID del traslado ya fue utilizado');
+    await expect(
+      inventoryService.transferInventoryBetweenWarehousesToFirestore({
+        ...transferInput,
+        quantity: 2,
+      })
+    ).rejects.toThrow('El ID del traslado ya fue utilizado');
 
     const destinationBalanceId = `bal_${destination.id}_${item.id}`;
-    const storedDestination = await expectPersisted('inventoryBalances', destinationBalanceId, (callback) =>
-      inventoryService.subscribeInventoryBalances(companyId, callback)
+    const storedDestination = await expectPersisted(
+      'inventoryBalances',
+      destinationBalanceId,
+      (callback) => inventoryService.subscribeInventoryBalances(companyId, callback)
     );
     expect(storedDestination).toMatchObject({
-      companyId, warehouseId: destination.id, itemId: item.id,
-      quantity: 1, averageUnitCostGTQ: 50, lastMovementId: `tr_${transferId}_in`,
+      companyId,
+      warehouseId: destination.id,
+      itemId: item.id,
+      quantity: 1,
+      averageUnitCostGTQ: 50,
+      lastMovementId: `tr_${transferId}_in`,
     });
     // El saldo remanente es 2. Una nueva operación no puede consumir más
     // de lo disponible ni dejar movimientos/saldos parcialmente escritos.
     const overdrawnTransferId = uniqueId('TRANSFER-OVERDRAW');
-    await expect(inventoryService.transferInventoryBetweenWarehousesToFirestore({
-      transferId: overdrawnTransferId,
-      itemId: item.id,
-      fromWarehouseId: source.id,
-      toWarehouseId: destination.id,
-      quantity: 3,
-      companyId,
-      userId,
-    })).rejects.toThrow('Existencia insuficiente');
+    await expect(
+      inventoryService.transferInventoryBetweenWarehousesToFirestore({
+        transferId: overdrawnTransferId,
+        itemId: item.id,
+        fromWarehouseId: source.id,
+        toWarehouseId: destination.id,
+        quantity: 3,
+        companyId,
+        userId,
+      })
+    ).rejects.toThrow('Existencia insuficiente');
 
-    const finalBalances = await waitFor<Array<{ id: string; quantity: number; averageUnitCostGTQ: number }>>(
+    const finalBalances = await waitFor<
+      Array<{ id: string; quantity: number; averageUnitCostGTQ: number }>
+    >(
       (callback) => inventoryService.subscribeInventoryBalances(companyId, callback),
       (records) => {
-        const sourceBalance = records.find((balance) => balance.id === `bal_${source.id}_${item.id}`);
-        const destinationBalance = records.find((balance) => balance.id === `bal_${destination.id}_${item.id}`);
+        const sourceBalance = records.find(
+          (balance) => balance.id === `bal_${source.id}_${item.id}`
+        );
+        const destinationBalance = records.find(
+          (balance) => balance.id === `bal_${destination.id}_${item.id}`
+        );
         return sourceBalance?.quantity === 2 && destinationBalance?.quantity === 1;
       }
     );
-    expect(finalBalances.find((balance) => balance.id === `bal_${source.id}_${item.id}`))
-      .toMatchObject({ quantity: 2, averageUnitCostGTQ: 50 });
-    expect(finalBalances.find((balance) => balance.id === `bal_${destination.id}_${item.id}`))
-      .toMatchObject({ quantity: 1, averageUnitCostGTQ: 50 });
+    expect(
+      finalBalances.find((balance) => balance.id === `bal_${source.id}_${item.id}`)
+    ).toMatchObject({ quantity: 2, averageUnitCostGTQ: 50 });
+    expect(
+      finalBalances.find((balance) => balance.id === `bal_${destination.id}_${item.id}`)
+    ).toMatchObject({ quantity: 1, averageUnitCostGTQ: 50 });
 
     const movementsAfterRejectedTransfer = await waitFor<StockMovement[]>(
       (callback) => inventoryService.subscribeStockMovements(companyId, callback),
       (records) => !records.some((movement) => movement.referenceId === overdrawnTransferId)
     );
-    expect(movementsAfterRejectedTransfer.some((movement) => movement.referenceId === overdrawnTransferId)).toBe(false);
-
+    expect(
+      movementsAfterRejectedTransfer.some(
+        (movement) => movement.referenceId === overdrawnTransferId
+      )
+    ).toBe(false);
   });
 
   it('rechaza una orden con más de dos renglones antes de escribir en Firestore', async () => {
@@ -1007,40 +1109,70 @@ describe('firebaseService CRUD contra el emulador', () => {
       quantity: 1,
       unitPriceGTQ: 10 + index,
     }));
-    await expect(inventoryService.createPurchaseOrderToFirestore({
-      projectId: 'project-three-lines',
-      supplierId: 'supplier-three-lines',
-      number: uniqueId('OC-THREE'),
-      status: 'draft',
-      currency: 'GTQ',
-      lines,
-      subtotalGTQ: 33,
-      discountGTQ: 0,
-      taxPercent: 12,
-      taxGTQ: 3.96,
-      totalGTQ: 36.96,
-    }, companyId, userId)).rejects.toThrow('entre 1 y 2');
+    await expect(
+      inventoryService.createPurchaseOrderToFirestore(
+        {
+          projectId: 'project-three-lines',
+          supplierId: 'supplier-three-lines',
+          number: uniqueId('OC-THREE'),
+          status: 'draft',
+          currency: 'GTQ',
+          lines,
+          subtotalGTQ: 33,
+          discountGTQ: 0,
+          taxPercent: 12,
+          taxGTQ: 3.96,
+          totalGTQ: 36.96,
+        },
+        companyId,
+        userId
+      )
+    ).rejects.toThrow('entre 1 y 2');
   });
   it('registra pagos de subcontratos con fecha real, atomicidad, idempotencia y límite de saldo', async () => {
     const projectId = await createProject('SUB-PAYMENTS', 'Proyecto para pagos de subcontrato');
     const supplier = await inventoryService.createSupplierToFirestore(
-      { name: 'Proveedor pagos QA', nit: 'CF', active: true }, companyId, userId
+      { name: 'Proveedor pagos QA', nit: 'CF', active: true },
+      companyId,
+      userId
     );
-    const contract = await inventoryService.createSubcontractToFirestore({
-      projectId, supplierId: supplier.id, contractNumber: uniqueId('SUB-PAY'),
-      description: 'Subcontrato de prueba para pagos', startDate: '2026-11-16',
-      endDate: '2026-12-31', amountGTQ: 1000, paidGTQ: 0, status: 'active',
-    }, companyId, userId);
+    const contract = await inventoryService.createSubcontractToFirestore(
+      {
+        projectId,
+        supplierId: supplier.id,
+        contractNumber: uniqueId('SUB-PAY'),
+        description: 'Subcontrato de prueba para pagos',
+        startDate: '2026-11-16',
+        endDate: '2026-12-31',
+        amountGTQ: 1000,
+        paidGTQ: 0,
+        status: 'active',
+      },
+      companyId,
+      userId
+    );
 
-    await expect(inventoryService.registerSubcontractPaymentToFirestore({
-      contractId: contract.id, amountGTQ: 100, paymentDate: '2026-02-31',
-      reference: 'INVALID-DATE', paymentMethod: 'Efectivo', companyId, userId,
-    })).rejects.toThrow('fecha real');
+    await expect(
+      inventoryService.registerSubcontractPaymentToFirestore({
+        contractId: contract.id,
+        amountGTQ: 100,
+        paymentDate: '2026-02-31',
+        reference: 'INVALID-DATE',
+        paymentMethod: 'Efectivo',
+        companyId,
+        userId,
+      })
+    ).rejects.toThrow('fecha real');
 
     const input = {
-      contractId: contract.id, amountGTQ: 350, paymentDate: '2026-11-16',
-      reference: 'BANK-TRANSFER-350', paymentMethod: 'Transferencia BI' as const,
-      notes: 'Pago de prueba', companyId, userId,
+      contractId: contract.id,
+      amountGTQ: 350,
+      paymentDate: '2026-11-16',
+      reference: 'BANK-TRANSFER-350',
+      paymentMethod: 'Transferencia BI' as const,
+      notes: 'Pago de prueba',
+      companyId,
+      userId,
     };
     const firstPayment = await inventoryService.registerSubcontractPaymentToFirestore(input);
     expect(firstPayment.alreadyProcessed).toBe(false);
@@ -1049,9 +1181,13 @@ describe('firebaseService CRUD contra el emulador', () => {
     const storedPayment = await getDoc(doc(db, 'subcontractPayments', firstPayment.payment.id));
     expect(storedPayment.exists()).toBe(true);
     expect(storedPayment.data()).toMatchObject({
-      companyId, contractId: contract.id, amountGTQ: 350,
-      paymentDate: '2026-11-16', reference: 'BANK-TRANSFER-350',
-      paymentMethod: 'Transferencia BI', createdBy: userId,
+      companyId,
+      contractId: contract.id,
+      amountGTQ: 350,
+      paymentDate: '2026-11-16',
+      reference: 'BANK-TRANSFER-350',
+      paymentMethod: 'Transferencia BI',
+      createdBy: userId,
     });
 
     const storedExpense = await expectPersisted<ExpenseRecord>(
@@ -1090,11 +1226,19 @@ describe('firebaseService CRUD contra el emulador', () => {
         resolve(records);
       });
     });
-    expect(storedExpensesAfterRetry.filter((expense) => expense.subcontractPaymentId === firstPayment.payment.id)).toHaveLength(1);
+    expect(
+      storedExpensesAfterRetry.filter(
+        (expense) => expense.subcontractPaymentId === firstPayment.payment.id
+      )
+    ).toHaveLength(1);
 
-    await expect(inventoryService.registerSubcontractPaymentToFirestore({
-      ...input, amountGTQ: 700, reference: 'BANK-TRANSFER-700',
-    })).rejects.toThrow('supera el saldo pendiente');
+    await expect(
+      inventoryService.registerSubcontractPaymentToFirestore({
+        ...input,
+        amountGTQ: 700,
+        reference: 'BANK-TRANSFER-700',
+      })
+    ).rejects.toThrow('supera el saldo pendiente');
   });
 
   it('aprueba y recibe una OC con saldo atómico, costo promedio e idempotencia', async () => {
@@ -1121,13 +1265,15 @@ describe('firebaseService CRUD contra el emulador', () => {
         number: uniqueId('OC-RECEIPT'),
         status: 'draft',
         currency: 'GTQ',
-        lines: [{
-          itemId: item.id,
-          description: item.name,
-          unit: item.unit,
-          quantity: 4,
-          unitPriceGTQ: 425,
-        }],
+        lines: [
+          {
+            itemId: item.id,
+            description: item.name,
+            unit: item.unit,
+            quantity: 4,
+            unitPriceGTQ: 425,
+          },
+        ],
         subtotalGTQ: 1700,
         discountGTQ: 0,
         taxPercent: 12,
@@ -1226,8 +1372,6 @@ describe('firebaseService CRUD contra el emulador', () => {
     ).rejects.toThrow();
   });
 
-
-
   it('recibe órdenes de dos renglones en entregas parciales independientes', async () => {
     const projectId = await createProject('INV-MULTILINE', 'Proyecto para recepción multi-renglón');
     const supplier = await inventoryService.createSupplierToFirestore(
@@ -1251,34 +1395,38 @@ describe('firebaseService CRUD contra el emulador', () => {
       userId
     );
 
-    const order = await inventoryService.createPurchaseOrderToFirestore({
-      projectId,
-      supplierId: supplier.id,
-      number: uniqueId('OC-MULTILINE'),
-      status: 'draft',
-      currency: 'GTQ',
-      lines: [
-        {
-          itemId: cement.id,
-          description: cement.name,
-          unit: cement.unit,
-          quantity: 4,
-          unitPriceGTQ: 425,
-        },
-        {
-          itemId: steel.id,
-          description: steel.name,
-          unit: steel.unit,
-          quantity: 10,
-          unitPriceGTQ: 80,
-        },
-      ],
-      subtotalGTQ: 2500,
-      discountGTQ: 0,
-      taxPercent: 12,
-      taxGTQ: 300,
-      totalGTQ: 2800,
-    }, companyId, userId);
+    const order = await inventoryService.createPurchaseOrderToFirestore(
+      {
+        projectId,
+        supplierId: supplier.id,
+        number: uniqueId('OC-MULTILINE'),
+        status: 'draft',
+        currency: 'GTQ',
+        lines: [
+          {
+            itemId: cement.id,
+            description: cement.name,
+            unit: cement.unit,
+            quantity: 4,
+            unitPriceGTQ: 425,
+          },
+          {
+            itemId: steel.id,
+            description: steel.name,
+            unit: steel.unit,
+            quantity: 10,
+            unitPriceGTQ: 80,
+          },
+        ],
+        subtotalGTQ: 2500,
+        discountGTQ: 0,
+        taxPercent: 12,
+        taxGTQ: 300,
+        totalGTQ: 2800,
+      },
+      companyId,
+      userId
+    );
 
     const approved = await inventoryService.approvePurchaseOrderToFirestore(
       order.id,
@@ -1288,8 +1436,13 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(approved.status).toBe('approved');
 
     const cementPartial = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 0, warehouseId: warehouse.id, quantity: 2,
-      receiptNumber: 'ML-CEMENT-01', companyId, userId,
+      orderId: order.id,
+      lineIndex: 0,
+      warehouseId: warehouse.id,
+      quantity: 2,
+      receiptNumber: 'ML-CEMENT-01',
+      companyId,
+      userId,
     });
     expect(cementPartial.order.status).toBe('partially_received');
     expect(cementPartial.order.lines.map((line) => line.receivedQuantity)).toEqual([2, 0]);
@@ -1297,8 +1450,13 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(cementPartial.balance.averageUnitCostGTQ).toBe(425);
 
     const steelPartial = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 5,
-      receiptNumber: 'ML-STEEL-01', companyId, userId,
+      orderId: order.id,
+      lineIndex: 1,
+      warehouseId: warehouse.id,
+      quantity: 5,
+      receiptNumber: 'ML-STEEL-01',
+      companyId,
+      userId,
     });
     expect(steelPartial.order.status).toBe('partially_received');
     expect(steelPartial.order.lines.map((line) => line.receivedQuantity)).toEqual([2, 5]);
@@ -1306,15 +1464,25 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(steelPartial.balance.averageUnitCostGTQ).toBe(80);
 
     const cementComplete = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 0, warehouseId: warehouse.id, quantity: 2,
-      receiptNumber: 'ML-CEMENT-02', companyId, userId,
+      orderId: order.id,
+      lineIndex: 0,
+      warehouseId: warehouse.id,
+      quantity: 2,
+      receiptNumber: 'ML-CEMENT-02',
+      companyId,
+      userId,
     });
     expect(cementComplete.order.status).toBe('partially_received');
     expect(cementComplete.order.lines.map((line) => line.receivedQuantity)).toEqual([4, 5]);
 
     const steelComplete = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 5,
-      receiptNumber: 'ML-STEEL-02', companyId, userId,
+      orderId: order.id,
+      lineIndex: 1,
+      warehouseId: warehouse.id,
+      quantity: 5,
+      receiptNumber: 'ML-STEEL-02',
+      companyId,
+      userId,
     });
     expect(steelComplete.order.status).toBe('received');
     expect(steelComplete.order.lines.map((line) => line.receivedQuantity)).toEqual([4, 10]);
@@ -1322,16 +1490,28 @@ describe('firebaseService CRUD contra el emulador', () => {
     expect(steelComplete.balance.averageUnitCostGTQ).toBe(80);
 
     const retry = await inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 5,
-      receiptNumber: 'ML-STEEL-02', companyId, userId,
+      orderId: order.id,
+      lineIndex: 1,
+      warehouseId: warehouse.id,
+      quantity: 5,
+      receiptNumber: 'ML-STEEL-02',
+      companyId,
+      userId,
     });
     expect(retry.alreadyProcessed).toBe(true);
     expect(retry.order.status).toBe('received');
 
-    await expect(inventoryService.receivePurchaseOrderToWarehouse({
-      orderId: order.id, lineIndex: 1, warehouseId: warehouse.id, quantity: 1,
-      receiptNumber: 'ML-STEEL-03', companyId, userId,
-    })).rejects.toThrow();
+    await expect(
+      inventoryService.receivePurchaseOrderToWarehouse({
+        orderId: order.id,
+        lineIndex: 1,
+        warehouseId: warehouse.id,
+        quantity: 1,
+        receiptNumber: 'ML-STEEL-03',
+        companyId,
+        userId,
+      })
+    ).rejects.toThrow();
 
     const cementBalanceId = `bal_${warehouse.id}_${cement.id}`;
     const steelBalanceId = `bal_${warehouse.id}_${steel.id}`;
@@ -1342,95 +1522,99 @@ describe('firebaseService CRUD contra el emulador', () => {
       inventoryService.subscribeInventoryBalances(companyId, callback)
     );
     expect(storedCement).toMatchObject({
-      companyId, warehouseId: warehouse.id, itemId: cement.id,
-      quantity: 4, averageUnitCostGTQ: 425,
+      companyId,
+      warehouseId: warehouse.id,
+      itemId: cement.id,
+      quantity: 4,
+      averageUnitCostGTQ: 425,
     });
     expect(storedSteel).toMatchObject({
-      companyId, warehouseId: warehouse.id, itemId: steel.id,
-      quantity: 10, averageUnitCostGTQ: 80,
+      companyId,
+      warehouseId: warehouse.id,
+      itemId: steel.id,
+      quantity: 10,
+      averageUnitCostGTQ: 80,
     });
   });
 
-
-
   it('guarda, actualiza y elimina una factura FEL', async () => {
-      const projectId = await createProject('CRUD-FEL', 'Proyecto para facturas FEL');
-      const invoiceId = uniqueId('fel');
-  
-      // La tasa viaja en porcentaje (12), como la ingresa el formulario, y debe
-      // normalizarse a fracción (0.12) antes de calcular: el IVA es el 12 %.
-      const invoice = {
-        id: invoiceId,
-        projectId,
-        dteNumber: 'FAC-001-000000001',
-        serie: 'F',
-        correlativo: '000000001',
-        date: '2026-06-15',
-        status: 'Emitida' as const,
-        paymentMethod: 'Transferencia BI' as const,
-        emisor: {
-          nit: '123456789',
-          nombre: 'Materiales La Unión',
-          direccion: 'Zona 1, Guatemala',
-          correo: 'ventas@launion.com',
+    const projectId = await createProject('CRUD-FEL', 'Proyecto para facturas FEL');
+    const invoiceId = uniqueId('fel');
+
+    // La tasa viaja en porcentaje (12), como la ingresa el formulario, y debe
+    // normalizarse a fracción (0.12) antes de calcular: el IVA es el 12 %.
+    const invoice = {
+      id: invoiceId,
+      projectId,
+      dteNumber: 'FAC-001-000000001',
+      serie: 'F',
+      correlativo: '000000001',
+      date: '2026-06-15',
+      status: 'Emitida' as const,
+      paymentMethod: 'Transferencia BI' as const,
+      emisor: {
+        nit: '123456789',
+        nombre: 'Materiales La Unión',
+        direccion: 'Zona 1, Guatemala',
+        correo: 'ventas@launion.com',
+      },
+      receptor: {
+        nit: 'CF',
+        nombre: 'Constructora Origen',
+        direccion: 'Zona 10, Guatemala',
+        correo: 'compras@origen.gt',
+      },
+      items: [
+        {
+          id: 'item-1',
+          description: 'Block de concreto',
+          quantity: 10,
+          unit: 'Und',
+          unitPriceGTQ: 25,
+          totalPriceGTQ: 0,
+          taxRate: 12,
+          taxAmountGTQ: 0,
         },
-        receptor: {
-          nit: 'CF',
-          nombre: 'Constructora Origen',
-          direccion: 'Zona 10, Guatemala',
-          correo: 'compras@origen.gt',
+      ],
+      subtotalGTQ: 0,
+      taxAmountGTQ: 0,
+      totalGTQ: 0,
+    };
+
+    await expect(service.saveFelInvoiceToFirestore(invoice, companyId, userId)).resolves.toBe(true);
+
+    const stored = await expectPersisted<FelInvoiceStored>('felInvoices', invoiceId, (cb) =>
+      service.subscribeFelInvoices(companyId, cb)
+    );
+    expect(stored.companyId).toBe(companyId);
+    expect(stored.authorId).toBe(userId);
+    expect(stored.subtotalGTQ).toBe(250);
+    expect(stored.taxAmountGTQ).toBe(30);
+    expect(stored.totalGTQ).toBe(280);
+    const storedItems = stored.items as unknown as FelInvoiceItem[];
+    expect(storedItems[0]?.taxRate).toBe(0.12);
+
+    // Anular la factura: la regla exige que id, companyId y authorId no cambien.
+    await expect(
+      service.updateFelInvoiceToFirestore(
+        {
+          ...(stored as unknown as FelInvoice),
+          status: 'Anulada',
         },
-        items: [
-          {
-            id: 'item-1',
-            description: 'Block de concreto',
-            quantity: 10,
-            unit: 'Und',
-            unitPriceGTQ: 25,
-            totalPriceGTQ: 0,
-            taxRate: 12,
-            taxAmountGTQ: 0,
-          },
-        ],
-        subtotalGTQ: 0,
-        taxAmountGTQ: 0,
-        totalGTQ: 0,
-      };
-  
-      await expect(service.saveFelInvoiceToFirestore(invoice, companyId, userId)).resolves.toBe(true);
-  
-      const stored = await expectPersisted<FelInvoiceStored>('felInvoices', invoiceId, (cb) =>
-        service.subscribeFelInvoices(companyId, cb)
-      );
-      expect(stored.companyId).toBe(companyId);
-      expect(stored.authorId).toBe(userId);
-      expect(stored.subtotalGTQ).toBe(250);
-      expect(stored.taxAmountGTQ).toBe(30);
-      expect(stored.totalGTQ).toBe(280);
-      const storedItems = stored.items as unknown as FelInvoiceItem[];
-      expect(storedItems[0]?.taxRate).toBe(0.12);
-  
-      // Anular la factura: la regla exige que id, companyId y authorId no cambien.
-      await expect(
-        service.updateFelInvoiceToFirestore(
-          {
-            ...(stored as unknown as FelInvoice),
-            status: 'Anulada',
-          },
-          companyId,
-          userId
-        )
-      ).resolves.toBe(true);
-  
-      const updated = await expectPersisted<FelInvoiceStored>('felInvoices', invoiceId, (cb) =>
-        service.subscribeFelInvoices(companyId, cb)
-      );
-      expect(updated.status).toBe('Anulada');
-      expect(updated.authorId).toBe(userId);
-      expect(updated.companyId).toBe(companyId);
-      expect(updated.totalGTQ).toBe(280);
-  
-      await expect(service.deleteFelInvoiceFromFirestore(invoiceId)).resolves.toBe(true);
-      await expectRemoved('felInvoices', invoiceId);
+        companyId,
+        userId
+      )
+    ).resolves.toBe(true);
+
+    const updated = await expectPersisted<FelInvoiceStored>('felInvoices', invoiceId, (cb) =>
+      service.subscribeFelInvoices(companyId, cb)
+    );
+    expect(updated.status).toBe('Anulada');
+    expect(updated.authorId).toBe(userId);
+    expect(updated.companyId).toBe(companyId);
+    expect(updated.totalGTQ).toBe(280);
+
+    await expect(service.deleteFelInvoiceFromFirestore(invoiceId)).resolves.toBe(true);
+    await expectRemoved('felInvoices', invoiceId);
   });
 });

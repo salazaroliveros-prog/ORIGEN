@@ -35,14 +35,28 @@ describe('lib/branding', () => {
   })();
 
   beforeEach(() => {
-    Object.defineProperty(global, 'localStorage', { value: localStorageMock, writable: true, configurable: true });
+    Object.defineProperty(global, 'localStorage', {
+      value: localStorageMock,
+      writable: true,
+      configurable: true,
+    });
     Object.defineProperty(global, 'window', {
-      value: { ...originalWindow, localStorage: localStorageMock, dispatchEvent: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn() },
+      value: {
+        ...originalWindow,
+        localStorage: localStorageMock,
+        dispatchEvent: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      },
       writable: true,
       configurable: true,
     });
     Object.defineProperty(global, 'document', {
-      value: { ...originalDocument, documentElement: { style: { setProperty: vi.fn() } }, querySelector: vi.fn(() => null) },
+      value: {
+        ...originalDocument,
+        documentElement: { style: { setProperty: vi.fn() } },
+        querySelector: vi.fn(() => null),
+      },
       writable: true,
       configurable: true,
     });
@@ -74,9 +88,23 @@ describe('lib/branding', () => {
 
   describe('loadBranding', () => {
     it('should return DEFAULT_BRANDING when window is undefined', () => {
-      Object.defineProperty(global, 'window', { value: undefined, writable: true, configurable: true });
+      Object.defineProperty(global, 'window', {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
       expect(loadBranding()).toBe(DEFAULT_BRANDING);
-      Object.defineProperty(global, 'window', { value: { ...originalWindow, localStorage: localStorageMock, dispatchEvent: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn() }, writable: true, configurable: true });
+      Object.defineProperty(global, 'window', {
+        value: {
+          ...originalWindow,
+          localStorage: localStorageMock,
+          dispatchEvent: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        },
+        writable: true,
+        configurable: true,
+      });
     });
 
     it('should return DEFAULT_BRANDING when no stored data', () => {
@@ -114,9 +142,23 @@ describe('lib/branding', () => {
     });
 
     it('should do nothing when window is undefined', () => {
-      Object.defineProperty(global, 'window', { value: undefined, writable: true, configurable: true });
+      Object.defineProperty(global, 'window', {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
       expect(() => saveBranding(DEFAULT_BRANDING)).not.toThrow();
-      Object.defineProperty(global, 'window', { value: { ...originalWindow, localStorage: localStorageMock, dispatchEvent: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn() }, writable: true, configurable: true });
+      Object.defineProperty(global, 'window', {
+        value: {
+          ...originalWindow,
+          localStorage: localStorageMock,
+          dispatchEvent: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        },
+        writable: true,
+        configurable: true,
+      });
     });
   });
 
@@ -185,9 +227,21 @@ describe('lib/branding', () => {
 
   describe('applyBrandingToDocument', () => {
     it('should do nothing when document is undefined', () => {
-      Object.defineProperty(global, 'document', { value: undefined, writable: true, configurable: true });
+      Object.defineProperty(global, 'document', {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
       expect(() => applyBrandingToDocument(DEFAULT_BRANDING)).not.toThrow();
-      Object.defineProperty(global, 'document', { value: { ...originalDocument, documentElement: { style: { setProperty: vi.fn() } }, querySelector: vi.fn(() => null) }, writable: true, configurable: true });
+      Object.defineProperty(global, 'document', {
+        value: {
+          ...originalDocument,
+          documentElement: { style: { setProperty: vi.fn() } },
+          querySelector: vi.fn(() => null),
+        },
+        writable: true,
+        configurable: true,
+      });
     });
 
     it('should set CSS custom properties', () => {
@@ -209,10 +263,24 @@ describe('lib/branding', () => {
 
   describe('subscribeToBrandingUpdates', () => {
     it('should return no-op when window is undefined', () => {
-      Object.defineProperty(global, 'window', { value: undefined, writable: true, configurable: true });
+      Object.defineProperty(global, 'window', {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
       const unsubscribe = subscribeToBrandingUpdates(() => {});
       expect(typeof unsubscribe).toBe('function');
-      Object.defineProperty(global, 'window', { value: { ...originalWindow, localStorage: localStorageMock, dispatchEvent: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn() }, writable: true, configurable: true });
+      Object.defineProperty(global, 'window', {
+        value: {
+          ...originalWindow,
+          localStorage: localStorageMock,
+          dispatchEvent: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        },
+        writable: true,
+        configurable: true,
+      });
     });
 
     it('should add and remove event listener', () => {

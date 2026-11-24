@@ -30,10 +30,7 @@ export async function GET(
     if (!auth.ok) return jsonError(auth.message, auth.status);
 
     const { projectId, photoId } = await Promise.resolve(context.params);
-    if (
-      !/^[a-zA-Z0-9_-]{1,128}$/.test(projectId) ||
-      !/^[a-zA-Z0-9_-]{1,128}$/.test(photoId)
-    ) {
+    if (!/^[a-zA-Z0-9_-]{1,128}$/.test(projectId) || !/^[a-zA-Z0-9_-]{1,128}$/.test(photoId)) {
       return jsonError('La referencia de la foto no es válida.', 400);
     }
 
@@ -51,7 +48,8 @@ export async function GET(
     if (!firebaseProjectId || !storageBucket) {
       return jsonError('La configuración de almacenamiento no está disponible.', 503);
     }
-    const safeDatabaseId = databaseId === '(default)' ? '(default)' : encodeURIComponent(databaseId);
+    const safeDatabaseId =
+      databaseId === '(default)' ? '(default)' : encodeURIComponent(databaseId);
     const metadataUrl = `${firestoreApiBaseUrl()}/v1/projects/${encodeURIComponent(firebaseProjectId)}/databases/${safeDatabaseId}/documents/projects/${encodeURIComponent(projectId)}/photos/${encodeURIComponent(photoId)}`;
     const metadataResponse = await fetch(metadataUrl, {
       headers: { Authorization: `Bearer ${auth.idToken}` },

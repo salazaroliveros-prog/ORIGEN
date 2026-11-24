@@ -16,10 +16,7 @@ export interface SyncLogEntry {
 
 const INITIAL_SYNC_LOGS: SyncLogEntry[] = [];
 
-export function settleSyncLog(
-  entries: SyncLogEntry[],
-  succeeded: boolean
-): SyncLogEntry[] {
+export function settleSyncLog(entries: SyncLogEntry[], succeeded: boolean): SyncLogEntry[] {
   const index = entries.findIndex((entry) => entry.status === 'sincronizando');
   if (index < 0) return entries;
 
@@ -33,7 +30,8 @@ export function settleSyncLog(
     : {
         ...next[index],
         status: 'error',
-        details: 'La operación no se confirmó correctamente. No se registró como sincronización exitosa.',
+        details:
+          'La operación no se confirmó correctamente. No se registró como sincronización exitosa.',
       };
   return next;
 }
@@ -63,7 +61,11 @@ export function useFirebaseSyncStatus() {
       setSyncLogs((prev) =>
         prev.map((entry) =>
           logId && entry.id === logId
-            ? { ...entry, status: 'completado', details: 'Firestore confirmó las escrituras pendientes.' }
+            ? {
+                ...entry,
+                status: 'completado',
+                details: 'Firestore confirmó las escrituras pendientes.',
+              }
             : entry
         )
       );
@@ -74,7 +76,11 @@ export function useFirebaseSyncStatus() {
       setSyncLogs((prev) =>
         prev.map((entry) =>
           logId && entry.id === logId
-            ? { ...entry, status: 'error', details: `No se pudo confirmar la sincronización: ${message}` }
+            ? {
+                ...entry,
+                status: 'error',
+                details: `No se pudo confirmar la sincronización: ${message}`,
+              }
             : entry
         )
       );
@@ -119,7 +125,8 @@ export function useFirebaseSyncStatus() {
           second: '2-digit',
         }),
         status: 'pendiente',
-        details: 'Las operaciones compatibles se conservan localmente; otras requieren conexión. Se reintentarán al recuperar Internet.',
+        details:
+          'Las operaciones compatibles se conservan localmente; otras requieren conexión. Se reintentarán al recuperar Internet.',
       };
       setSyncLogs((prev) => [newLog, ...prev]);
     };
@@ -197,8 +204,6 @@ export function notifySyncStart(details?: { operation?: string; path?: string; d
 
 export function notifySyncEnd(success = false) {
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(
-      new CustomEvent('firebase-sync-end', { detail: { success } })
-    );
+    window.dispatchEvent(new CustomEvent('firebase-sync-end', { detail: { success } }));
   }
 }

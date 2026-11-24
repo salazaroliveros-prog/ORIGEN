@@ -267,7 +267,9 @@ describe('useProjectData - Project CRUD', () => {
       mockUserId
     );
     expect(result.current.projects).toEqual(
-      expect.arrayContaining([expect.objectContaining({ id: existingProject.id, budgetTotal: 200_000 })])
+      expect.arrayContaining([
+        expect.objectContaining({ id: existingProject.id, budgetTotal: 200_000 }),
+      ])
     );
     expect(mockToast.success).toHaveBeenCalledWith('Proyecto actualizado correctamente');
   });

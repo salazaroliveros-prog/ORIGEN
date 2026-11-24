@@ -1,4 +1,5 @@
 # ✅ MATRIZ DE ACCIONES PRIORITARIAS - ORIGEN ERP GUATEMALA
+
 ## 25 Acciones Clasificadas por Urgencia
 
 **Generado:** 23 de Noviembre de 2026  
@@ -10,6 +11,7 @@
 ## 🔴 CRÍTICAS (5 acciones - Implementar en 48 horas)
 
 ### 1. Implementar CSP Headers
+
 ```
 Riesgo: XSS, injection attacks
 Effort: 30 minutos
@@ -25,6 +27,7 @@ Acción:
 ```
 
 ### 2. Agregar Security Headers Completos
+
 ```
 Riesgo: MIME sniffing, clickjacking
 Effort: 30 minutos
@@ -42,6 +45,7 @@ Headers:
 ```
 
 ### 3. Crear robots.txt + sitemap.xml
+
 ```
 Riesgo: SEO impacts
 Effort: 15 minutos
@@ -56,6 +60,7 @@ Contenido:
 ```
 
 ### 4. HTTPS Redirect Middleware
+
 ```
 Riesgo: Man-in-the-middle
 Effort: 20 minutos
@@ -71,6 +76,7 @@ Acción:
 ```
 
 ### 5. Rate Limiting API
+
 ```
 Riesgo: DDoS, brute force
 Effort: 1 hora
@@ -92,6 +98,7 @@ Configuración:
 ## 🟡 ALTAS (8 acciones - Esta semana)
 
 ### 6. Convertir Imágenes a WebP/AVIF
+
 ```
 Effort: 2 horas
 Impacto: +3% performance
@@ -107,6 +114,7 @@ Acciones:
 ```
 
 ### 7. Agregar JSON-LD Schema.org
+
 ```
 Effort: 30 minutos
 Impacto: +2% SEO
@@ -121,6 +129,7 @@ Schema:
 ```
 
 ### 8. Mejorar Firestore Security Rules
+
 ```
 Effort: 1 hora
 Impacto: +3% seguridad
@@ -135,6 +144,7 @@ Mejoras:
 ```
 
 ### 9. GitHub Actions CI/CD Setup
+
 ```
 Effort: 2 horas
 Impacto: +5% deployment confidence
@@ -151,6 +161,7 @@ Pipeline:
 ```
 
 ### 10. Configurar Backups Automáticos
+
 ```
 Effort: 1 hora
 Impacto: +5% disaster recovery
@@ -166,6 +177,7 @@ Configuración:
 ```
 
 ### 11. Health Checks & Monitoring
+
 ```
 Effort: 1 hora
 Impacto: +4% uptime visibility
@@ -181,6 +193,7 @@ Setup:
 ```
 
 ### 12. Implementar ARCO Endpoints
+
 ```
 Effort: 2 horas
 Impacto: +3% compliance
@@ -196,6 +209,7 @@ Endpoints:
 ```
 
 ### 13. Publicar Privacy Policy
+
 ```
 Effort: 30 minutos (con abogado)
 Impacto: +2% compliance
@@ -217,6 +231,7 @@ Contenido:
 ## 🟢 MEDIAS (12 acciones - Próximas 2 semanas)
 
 ### 14-16. Analytics & Tracking
+
 ```
 Effort: 3 horas
 Impacto: +2% business intelligence
@@ -228,6 +243,7 @@ Herramienta: Google Analytics 4, Mixpanel (opcional)
 ```
 
 ### 17-18. Cookie & Consent
+
 ```
 Effort: 2 horas
 Impacto: +1% compliance (GDPR/CCPA)
@@ -238,6 +254,7 @@ Herramienta: osano.com o iubenda.com
 ```
 
 ### 19-20. WCAG 2.1 AAA Improvements
+
 ```
 Effort: 2 horas
 Impacto: +2% accesibilidad
@@ -247,6 +264,7 @@ Impacto: +2% accesibilidad
 ```
 
 ### 21-22. Load Testing
+
 ```
 Effort: 3 horas
 Impacto: +3% confidence en escalabilidad
@@ -257,6 +275,7 @@ Herramienta: k6, Gatling
 ```
 
 ### 23-24. Penetration Testing
+
 ```
 Effort: 4 horas (con externa)
 Impacto: +5% seguridad
@@ -266,6 +285,7 @@ Impacto: +5% seguridad
 ```
 
 ### 25. Documentation Handover
+
 ```
 Effort: 2 horas
 Impacto: +2% operational readiness
@@ -297,6 +317,7 @@ TOTAL       25     28.5h     ✅        1 mes
 ## 🕐 TIMELINE RECOMENDADO
 
 ### DÍA 1 (Hoy)
+
 ```
 08:00-10:30: Críticas (CSP, security headers, robots.txt)
   └─ 2.5 horas
@@ -311,6 +332,7 @@ Resultado: ✅ 5 críticas implementadas
 ```
 
 ### SEMANA 1 (Lunes-Viernes)
+
 ```
 Lunes-Miércoles: Altas (GitHub Actions, Backups, ARCO)
   └─ 6 horas
@@ -325,6 +347,7 @@ Resultado: ✅ 8 altas implementadas
 ```
 
 ### SEMANA 2-3
+
 ```
 Medias: Analytics, Load Testing, Compliance
   └─ 16 horas repartidas
@@ -337,6 +360,7 @@ Resultado: ✅ 12 medias implementadas
 ## 💰 ESTIMACIÓN DE COSTO
 
 ### Tiempo Interno
+
 ```
 Críticas: 2.5h × $100/h = $250
 Altas: 10.5h × $100/h = $1,050
@@ -346,6 +370,7 @@ TOTAL INTERNO: $2,900
 ```
 
 ### Servicios Externos (Opcional)
+
 ```
 Penetration Testing: $1,000-2,000
 Certificación ISO: $3,000-5,000
@@ -355,6 +380,7 @@ TOTAL SERVICIOS: $4,500-8,000
 ```
 
 ### Herramientas Nuevas
+
 ```
 Vercel KV (rate limiting): $100/mes
 Datadog (monitoring): $100/mes (trial)
@@ -370,6 +396,7 @@ TOTAL INVERSIÓN: $2,900 + $229/mes
 ## 📋 CHECKLIST DE IMPLEMENTACIÓN
 
 ### Críticas
+
 - [ ] 1. CSP Headers
 - [ ] 2. Security Headers
 - [ ] 3. robots.txt + sitemap
@@ -377,6 +404,7 @@ TOTAL INVERSIÓN: $2,900 + $229/mes
 - [ ] 5. Rate Limiting
 
 ### Altas
+
 - [ ] 6. WebP/AVIF Images
 - [ ] 7. JSON-LD Schema
 - [ ] 8. Firestore Rules
@@ -387,6 +415,7 @@ TOTAL INVERSIÓN: $2,900 + $229/mes
 - [ ] 13. Privacy Policy
 
 ### Medias
+
 - [ ] 14. GA4
 - [ ] 15. Eventos GA4
 - [ ] 16. Dashboard GA4
@@ -438,11 +467,12 @@ Medias (DRI: Product/DevOps):
 **Total Acciones:** 25  
 **Criticidad Crítica:** 5  
 **Criticidad Alta:** 8  
-**Criticidad Media:** 12  
+**Criticidad Media:** 12
 
 **Tiempo Total:** ~28.5 horas
 
 **Timeline Recomendado:**
+
 - Día 1: 2.5 horas (críticas)
 - Semana 1: 10.5 horas (altas)
 - Semanas 2-3: 16 horas (medias)
@@ -454,4 +484,3 @@ Medias (DRI: Product/DevOps):
 ---
 
 **Próxima acción:** Implementar las 5 acciones críticas HOY
-

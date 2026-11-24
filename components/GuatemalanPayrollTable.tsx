@@ -333,7 +333,7 @@ export function GuatemalanPayrollTable({
   return (
     <div className="space-y-4">
       {/* Control bar: Period, Frequency, Search & Filter tools */}
-      <div className="shadow-xs space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
         <div className="flex flex-col items-stretch justify-between gap-3 lg:flex-row lg:items-center">
           {/* Frequency & Period Selectors */}
           <div className="flex flex-col flex-wrap items-start gap-2.5 sm:flex-row sm:items-center">
@@ -343,7 +343,7 @@ export function GuatemalanPayrollTable({
                 onClick={() => handleFrequencyChange('quincenal')}
                 className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                   frequency === 'quincenal'
-                    ? 'shadow-xs bg-blue-600 font-bold text-white'
+                    ? 'bg-blue-600 font-bold text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -355,7 +355,7 @@ export function GuatemalanPayrollTable({
                 onClick={() => handleFrequencyChange('mensual')}
                 className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition ${
                   frequency === 'mensual'
-                    ? 'shadow-xs bg-blue-600 font-bold text-white'
+                    ? 'bg-blue-600 font-bold text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -391,7 +391,7 @@ export function GuatemalanPayrollTable({
               type="button"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className="shadow-xs inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-extrabold text-white transition hover:bg-rose-500 disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs transition hover:bg-rose-500 disabled:opacity-50"
               title="Descargar reporte en formato PDF listo para auditoría y firma de contador"
             >
               <FileText className="h-3.5 w-3.5" aria-hidden="true" />
@@ -468,7 +468,7 @@ export function GuatemalanPayrollTable({
       </div>
 
       {/* Main Table Container */}
-      <div className="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
         {/* Table Header Banner */}
         <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-200 bg-slate-50/90 p-4 sm:flex-row sm:items-center">
           <div>
@@ -948,7 +948,7 @@ export function GuatemalanPayrollTable({
                   handleExportPdf();
                 }}
                 disabled={isExportingPdf}
-                className="shadow-xs flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-5 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-50"
+                className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-rose-700 disabled:opacity-50"
               >
                 <FileText className="h-4 w-4" aria-hidden="true" />
                 {isExportingPdf ? 'Descargando…' : 'Descargar Archivo PDF'}

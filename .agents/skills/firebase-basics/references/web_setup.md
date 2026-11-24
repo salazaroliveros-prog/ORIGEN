@@ -37,18 +37,18 @@ npx -y firebase-tools@latest apps:sdkconfig WEB <APP_ID>
 Copy the output config object into your initialization file:
 
 ```javascript
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "PROJECT_ID.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  storageBucket: "PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID",
-  measurementId: "G-MEASUREMENT_ID"
+  apiKey: 'API_KEY',
+  authDomain: 'PROJECT_ID.firebaseapp.com',
+  projectId: 'PROJECT_ID',
+  storageBucket: 'PROJECT_ID.firebasestorage.app',
+  messagingSenderId: 'SENDER_ID',
+  appId: 'APP_ID',
+  measurementId: 'G-MEASUREMENT_ID',
 };
 
 // Initialize Firebase
@@ -63,13 +63,13 @@ export { app };
 Import specific services as needed (Modular API):
 
 ```javascript
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { app } from "./firebase"; // Import the initialized app
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { app } from './firebase'; // Import the initialized app
 
 const db = getFirestore(app);
 
 async function getUsers() {
-  const querySnapshot = await getDocs(collection(db, "users"));
+  const querySnapshot = await getDocs(collection(db, 'users'));
   querySnapshot.forEach((doc) => {
     console.log(`${doc.id} => ${doc.data()}`);
   });
@@ -108,22 +108,20 @@ To persist a stable debug token across browser resets without leaking secrets:
 1. Configure your code before initializing App Check:
 
    ```javascript
-   import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+   import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
-   if (typeof self !== "undefined") {
-     if (typeof process !== "undefined" && process.env.NODE_ENV === "development") {
+   if (typeof self !== 'undefined') {
+     if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
        // ✅ SAFE: Load dynamically from Next.js environment variable; fallback to true to auto-generate
-       self.FIREBASE_APPCHECK_DEBUG_TOKEN =
-         process.env.NEXT_PUBLIC_APP_CHECK_DEBUG_TOKEN || true;
-     } else if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+       self.FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.NEXT_PUBLIC_APP_CHECK_DEBUG_TOKEN || true;
+     } else if (typeof import.meta !== 'undefined' && import.meta.env?.DEV) {
        // ✅ SAFE: Load dynamically from Vite environment variable; fallback to true to auto-generate
-       self.FIREBASE_APPCHECK_DEBUG_TOKEN =
-         import.meta.env.VITE_APPCHECK_DEBUG_TOKEN || true;
+       self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.VITE_APPCHECK_DEBUG_TOKEN || true;
      }
    }
 
    const appCheck = initializeAppCheck(app, {
-     provider: new ReCaptchaEnterpriseProvider("/* reCAPTCHA site key */"),
+     provider: new ReCaptchaEnterpriseProvider('/* reCAPTCHA site key */'),
      isTokenAutoRefreshEnabled: true,
    });
    ```

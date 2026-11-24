@@ -60,7 +60,8 @@ export interface PurchaseOrderTotals {
 }
 
 const roundCurrency = (amount: number): number => Math.round((amount + Number.EPSILON) * 100) / 100;
-const roundQuantity = (amount: number): number => Math.round((amount + Number.EPSILON) * 10_000) / 10_000;
+const roundQuantity = (amount: number): number =>
+  Math.round((amount + Number.EPSILON) * 10_000) / 10_000;
 
 function assertPositiveFinite(value: number, label: string): void {
   if (!Number.isFinite(value) || value <= 0) {
@@ -97,9 +98,13 @@ export function applyStockMovement(
   assertPositiveFinite(movement.quantity, 'La cantidad');
   assertNonNegativeFinite(movement.unitCostGTQ, 'El costo unitario');
 
-  const incoming = ['opening', 'purchase_receipt', 'transfer_in', 'adjustment_in', 'return'].includes(
-    movement.kind
-  );
+  const incoming = [
+    'opening',
+    'purchase_receipt',
+    'transfer_in',
+    'adjustment_in',
+    'return',
+  ].includes(movement.kind);
   const outgoing = ['project_issue', 'transfer_out', 'adjustment_out'].includes(movement.kind);
   if (!incoming && !outgoing) throw new Error('Tipo de movimiento no reconocido.');
 
@@ -162,7 +167,9 @@ export function applyWarehouseTransfer(
   input: WarehouseTransferInput
 ): WarehouseTransferResult {
   if (!/^[a-zA-Z0-9_-]{1,120}$/.test(input.id)) {
-    throw new Error('El ID del traslado debe contener entre 1 y 120 caracteres alfanuméricos, guion o guion bajo.');
+    throw new Error(
+      'El ID del traslado debe contener entre 1 y 120 caracteres alfanuméricos, guion o guion bajo.'
+    );
   }
   if (!input.companyId.trim() || !input.createdBy.trim()) {
     throw new Error('El traslado debe identificar su empresa y usuario creador.');
@@ -181,7 +188,8 @@ export function applyWarehouseTransfer(
     throw new Error('La fecha del traslado no es válida.');
   }
   if (
-    source.itemId !== input.itemId || destination.itemId !== input.itemId ||
+    source.itemId !== input.itemId ||
+    destination.itemId !== input.itemId ||
     source.warehouseId !== input.fromWarehouseId ||
     destination.warehouseId !== input.toWarehouseId
   ) {
@@ -235,7 +243,9 @@ export function calculateInventoryBalance(params: {
   assertNonNegativeFinite(reorderLevel, 'El mínimo de reorden');
   const relevant = movements
     .filter((movement) => movement.itemId === itemId && movement.warehouseId === warehouseId)
-    .sort((a, b) => Date.parse(a.occurredAt) - Date.parse(b.occurredAt) || a.id.localeCompare(b.id));
+    .sort(
+      (a, b) => Date.parse(a.occurredAt) - Date.parse(b.occurredAt) || a.id.localeCompare(b.id)
+    );
 
   let balance: InventoryBalance = {
     itemId,

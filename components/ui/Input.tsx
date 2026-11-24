@@ -60,9 +60,9 @@ export function Input({
 
   // ✅ CORRECCIÓN: Todos los tamaños ahora usan text-base mínimo en mobile
   const sizeStyles = {
-    sm: 'py-2 px-3 text-base md:text-xs',    // 16px mobile
-    md: 'py-3 px-4 text-base md:text-sm',    // 16px mobile
-    lg: 'py-3.5 px-4 text-base md:text-lg',  // 16px mobile
+    sm: 'py-2 px-3 text-base md:text-xs', // 16px mobile
+    md: 'py-3 px-4 text-base md:text-sm', // 16px mobile
+    lg: 'py-3.5 px-4 text-base md:text-lg', // 16px mobile
   };
 
   const labelStyles = isLight

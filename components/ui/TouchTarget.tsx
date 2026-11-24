@@ -28,10 +28,10 @@ export function TouchTarget({
         }
       }}
       style={{ ...style, minWidth: minSize, minHeight: minSize }}
-      className={`touch-target group relative focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 active:scale-[0.95] active:opacity-[0.8] transition-transform duration-150 ease-[cubic-bezier(0.4,0,0,0.2,1)] ${className}`}
+      className={`touch-target group relative transition-transform duration-150 ease-[cubic-bezier(0.4,0,0,0.2,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 active:scale-[0.95] active:opacity-[0.8] ${className}`}
       {...buttonProps}
     >
-      <span className="pointer-events-none absolute inset-0 rounded-full bg-white/[0.05] opacity-0 transition-opacity duration-[150ms] ease-[cubic-bezier(0.4,0,0,0.2,1)] group-hover:opacity-100 group-focusvisible:opacity-100"></span>
+      <span className="group-focusvisible:opacity-100 pointer-events-none absolute inset-0 rounded-full bg-white/[0.05] opacity-0 transition-opacity duration-[150ms] ease-[cubic-bezier(0.4,0,0,0.2,1)] group-hover:opacity-100"></span>
       {children}
     </button>
   );

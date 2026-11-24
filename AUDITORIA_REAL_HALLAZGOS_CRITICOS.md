@@ -74,7 +74,7 @@ El archivo `ProjectSelectorEnhanced.tsx` no fue verificado completamente. No se 
 ✗ Acepta los props que Sidebar.tsx le envía  
 ✗ Renderiza correctamente con datos vacíos  
 ✗ Maneja errores de forma robusta  
-✗ Las ARIA labels son correctas  
+✗ Las ARIA labels son correctas
 
 ### Recomendación:
 
@@ -156,7 +156,7 @@ import { RouteTransition } from '@/components/ui/RouteTransition';
 #### 5.1 DashboardEnhanced - `any` types en chartData:
 
 ```typescript
-const [chartData, setChartData] = useState<any[]>([]);  // ❌ any type!
+const [chartData, setChartData] = useState<any[]>([]); // ❌ any type!
 ```
 
 Debería ser:
@@ -176,7 +176,7 @@ const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
 ```typescript
 const handleSelectTab = (tabId: string) => {
-  setActiveTab(tabId as TabKey);  // ⚠️ Type assertion en runtime
+  setActiveTab(tabId as TabKey); // ⚠️ Type assertion en runtime
   // ...
 };
 ```
@@ -198,13 +198,13 @@ const handleSelectTab = (tabId: string) => {
 
 ## 📊 RESUMEN DE HALLAZGOS
 
-| Issue # | Componente | Severidad | Tipo | Estado |
-|---------|-----------|-----------|------|--------|
-| 1 | DashboardEnhanced | CRÍTICA | Props Flow | ❌ FALLA |
-| 2 | ProjectSelectorEnhanced | ALTA | No Verificado | ⚠️ RIESGO |
-| 3 | TabsGrouped | MEDIA | Duplicidad | ⚠️ INCONSISTENCIA |
-| 4 | MainApp | BAJA | Dead Code | ✓ LIMPIEZA |
-| 5 | Múltiples | MEDIA | TypeScript | ⚠️ RIGOR |
+| Issue # | Componente              | Severidad | Tipo          | Estado            |
+| ------- | ----------------------- | --------- | ------------- | ----------------- |
+| 1       | DashboardEnhanced       | CRÍTICA   | Props Flow    | ❌ FALLA          |
+| 2       | ProjectSelectorEnhanced | ALTA      | No Verificado | ⚠️ RIESGO         |
+| 3       | TabsGrouped             | MEDIA     | Duplicidad    | ⚠️ INCONSISTENCIA |
+| 4       | MainApp                 | BAJA      | Dead Code     | ✓ LIMPIEZA        |
+| 5       | Múltiples               | MEDIA     | TypeScript    | ⚠️ RIGOR          |
 
 ---
 
@@ -243,6 +243,7 @@ const handleSelectTab = (tabId: string) => {
 ---
 
 **Próximos Pasos:**
+
 1. Contactar al equipo de desarrollo
 2. Crear tickets para cada issue
 3. Estimar tiempo de corrección
@@ -251,5 +252,5 @@ const handleSelectTab = (tabId: string) => {
 
 ---
 
-*Auditoría completada con verificación línea por línea.*  
-*Sin falsos positivos - solo hallazgos reales.*
+_Auditoría completada con verificación línea por línea._  
+_Sin falsos positivos - solo hallazgos reales._

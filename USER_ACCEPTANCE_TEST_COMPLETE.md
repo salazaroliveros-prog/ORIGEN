@@ -16,13 +16,13 @@ Date: May 16, 2025
 
 ### Initial state
 
-| Field     | Value                                          |
-| --------- | ---------------------------------------------- |
+| Field     | Value                                              |
+| --------- | -------------------------------------------------- |
 | User      | Cuenta de pruebas autenticada (registro histórico) |
-| Role      | Owner/Admin                                    |
-| Company   | ConstructERP Guatemala                         |
-| Workspace | Active                                         |
-| Status    | Authenticated                                  |
+| Role      | Owner/Admin                                        |
+| Company   | ConstructERP Guatemala                             |
+| Workspace | Active                                             |
+| Status    | Authenticated                                      |
 
 ### UI verified
 

@@ -1,9 +1,10 @@
 # GUÍA DE IMPLEMENTACIÓN - REFINAMIENTO UI/UX PROFESIONAL
+
 ## ConstructERP Guatemala - Fase de Producción Empresarial
 
 **Fecha:** Noviembre 2026  
 **Versión:** 1.0  
-**Estado:** Listo para Desarrollo  
+**Estado:** Listo para Desarrollo
 
 ---
 
@@ -33,6 +34,7 @@ git checkout -b feature/ui-professional-refinement
 **Archivo:** `components/DashboardOverview.tsx`
 
 **Cambios:**
+
 1. Renombrar export de `DashboardOverview` a `DashboardEnhancedLegacy`
 2. Importar y usar `DashboardEnhanced` en lugar
 
@@ -45,6 +47,7 @@ import { DashboardEnhanced as DashboardOverview } from '@/components/DashboardEn
 ```
 
 **QA Checklist:**
+
 - [ ] Empty state renderiza correctamente (sin light theme)
 - [ ] KPI cards muestran colores diferenciados por tipo
 - [ ] Charts renderean con unidades GTQ
@@ -59,6 +62,7 @@ import { DashboardEnhanced as DashboardOverview } from '@/components/DashboardEn
 **Archivo:** `components/ui/Sidebar.tsx`
 
 **Búscar:**
+
 ```typescript
 {projects.length > 0 && (
   <div className="border-b border-white/10 px-4 py-3">
@@ -67,6 +71,7 @@ import { DashboardEnhanced as DashboardOverview } from '@/components/DashboardEn
 ```
 
 **Reemplazar con:**
+
 ```typescript
 import { ProjectSelectorEnhanced } from '@/components/ProjectSelectorEnhanced';
 
@@ -82,6 +87,7 @@ import { ProjectSelectorEnhanced } from '@/components/ProjectSelectorEnhanced';
 ```
 
 **QA Checklist:**
+
 - [ ] Selector renderiza con preview de proyecto
 - [ ] Progress bar actualiza correctamente
 - [ ] Dropdown abre/cierra sin errores
@@ -127,14 +133,15 @@ const getTabGroup = (tabId: string): 'operativo' | 'financiero' | 'personal' | '
     personal: ['personal', 'planillas'],
     admin: ['inventario', 'gmail', 'ai', 'equipo'],
   };
-  
-  return Object.keys(groups).find(group => 
+
+  return Object.keys(groups).find(group =>
     groups[group].includes(tabId)
   ) as any ?? 'operativo';
 };
 ```
 
 **QA Checklist:**
+
 - [ ] Tabs agrupadas se renderean correctamente
 - [ ] Headers de grupo (Operativo, Financiero, etc.) visibles
 - [ ] Badges de "Firma" y "Avance" con colores correctos
@@ -148,6 +155,7 @@ const getTabGroup = (tabId: string): 'operativo' | 'financiero' | 'personal' | '
 **Archivo:** `components/ui/MobileSheet.tsx` o `components/ui/BottomNav.tsx`
 
 **Cambios:**
+
 1. Mostrar más opciones en bottom nav (6-8 en lugar de 4-5)
 2. Implementar selector dinámico según permisos
 3. Añadir indicador visual de sección activa
@@ -237,6 +245,7 @@ export function KPICard({
 ```
 
 **Integrar en DashboardEnhanced:**
+
 ```typescript
 import { KPICard } from '@/components/ui/KPICard';
 
@@ -330,6 +339,7 @@ Desktop (1024px+):
 #### Tarea 4.2: Accesibilidad (WCAG 2.1 AA)
 
 **Validar:**
+
 ```bash
 # En DevTools > Lighthouse
 npm run build
@@ -339,6 +349,7 @@ npx lighthouse http://localhost:3000 --view
 ```
 
 **Checklist:**
+
 - [ ] Color contrast ≥ 4.5:1 (normal), 3:1 (large)
 - [ ] Touch targets ≥ 44x44px
 - [ ] Focus visible en todos los elementos interactivos
@@ -351,6 +362,7 @@ npx lighthouse http://localhost:3000 --view
 #### Tarea 4.3: Performance
 
 **Validar:**
+
 ```bash
 npm run build:analyze
 # Verificar bundle size
@@ -359,6 +371,7 @@ npm run build:analyze
 ```
 
 **Optimizaciones:**
+
 - [ ] Componentes memorizados (useMemo, React.memo)
 - [ ] Lazy loading de charts
 - [ ] Image optimization (Next/Image)
@@ -375,14 +388,14 @@ import { test, expect } from '@playwright/test';
 
 test('dashboard enhanced renders correctly', async ({ page }) => {
   await page.goto('/');
-  
+
   // Verificar KPI cards
   const kpiCards = page.locator('[role="region"]');
   expect(await kpiCards.count()).toBe(4);
-  
+
   // Verificar charts
   expect(page.locator('canvas')).toBeTruthy();
-  
+
   // Verificar selector de proyecto
   const projectSelector = page.locator('[role="button"]').first();
   await projectSelector.click();
@@ -392,7 +405,7 @@ test('dashboard enhanced renders correctly', async ({ page }) => {
 test('dashboard responsive on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto('/');
-  
+
   // Verificar que mobile layout se activa
   const bottomNav = page.locator('[role="tablist"]');
   expect(bottomNav).toBeTruthy();
@@ -400,6 +413,7 @@ test('dashboard responsive on mobile', async ({ page }) => {
 ```
 
 **Ejecutar:**
+
 ```bash
 npm run test:e2e
 ```
@@ -456,13 +470,13 @@ state: {
 
 ### Antes vs Después
 
-| Métrica | Antes | Después | Meta |
-|---------|-------|---------|------|
-| Lighthouse Performance | 85 | 92+ | ✅ |
-| Lighthouse Accessibility | 78 | 95+ | ✅ |
-| Component consistency | 65% | 100% | ✅ |
-| Mobile usability | 75% | 98%+ | ✅ |
-| Touch target adequacy | 70% | 100% | ✅ |
+| Métrica                  | Antes | Después | Meta |
+| ------------------------ | ----- | ------- | ---- |
+| Lighthouse Performance   | 85    | 92+     | ✅   |
+| Lighthouse Accessibility | 78    | 95+     | ✅   |
+| Component consistency    | 65%   | 100%    | ✅   |
+| Mobile usability         | 75%   | 98%+    | ✅   |
+| Touch target adequacy    | 70%   | 100%    | ✅   |
 
 ---
 
@@ -500,15 +514,19 @@ git push origin feature/ui-professional-refinement
 ## 📞 TROUBLESHOOTING
 
 ### Problema: Dashboard no renderiza
+
 **Solución:** Verificar imports, asegurar componentes en lugar correcto
 
 ### Problema: Tailwind classes no aplican
+
 **Solución:** Ejecutar `npm run build` o verificar content paths en tailwind.config.js
 
 ### Problema: Mobile layout roto
+
 **Solución:** Verificar breakpoints en tailwind.config.js, ajustar media queries
 
 ### Problema: Charts no renderean
+
 **Solución:** Verificar que ResponsiveContainer tenga parent con altura definida
 
 ---
@@ -526,7 +544,7 @@ git push origin feature/ui-professional-refinement
 
 **Responsable:** [Tu nombre]  
 **Fecha inicio:** [Fecha]  
-**Fecha finalización estimada:** [+2-3 semanas]  
+**Fecha finalización estimada:** [+2-3 semanas]
 
 **Estado actual:** ✅ Documentación Lista → 🔄 Desarrollo Fase 1
 

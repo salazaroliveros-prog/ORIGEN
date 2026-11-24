@@ -20,12 +20,7 @@ export function Logo({ className = '', ...props }: { className?: string; [key: s
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={logoUrl}
-      alt="ConstructERP Guatemala"
-      className={`block ${className}`}
-      {...props}
-    />
+    <img src={logoUrl} alt="ConstructERP Guatemala" className={`block ${className}`} {...props} />
   );
 }
 
@@ -43,17 +38,17 @@ export function BrandName({ className = '' }: { className?: string }) {
  */
 export function LoginBrandingHeader({ className = '' }: { className?: string }) {
   return (
-    <div className={`${className} flex w-full max-w-md flex-col items-center justify-center gap-3 mb-8`}>
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.08] border border-white/10 backdrop-blur-md">
+    <div
+      className={`${className} mb-8 flex w-full max-w-md flex-col items-center justify-center gap-3`}
+    >
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.08] backdrop-blur-md">
         <Building2 className="h-7 w-7 text-brand-secondary" aria-hidden="true" />
       </div>
       <div className="text-center">
         <h2 className="text-2xl font-bold tracking-tight text-slate-50">
           ConstructERP <span className="text-brand-secondary">Guatemala</span>
         </h2>
-        <p className="text-sm text-slate-400">
-          Inicia sesión para acceder a tu panel de control.
-        </p>
+        <p className="text-sm text-slate-400">Inicia sesión para acceder a tu panel de control.</p>
       </div>
     </div>
   );

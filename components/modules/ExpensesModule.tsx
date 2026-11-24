@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Plus, Edit2, Trash2, Search, Receipt, AlertCircle, TrendingUp, Calendar } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  Receipt,
+  AlertCircle,
+  TrendingUp,
+  Calendar,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -31,7 +40,7 @@ interface ExpensesModuleExpandedProps {
 
 /**
  * EXPENSES MODULE EXPANDED - Módulo de Gastos & Facturas Completo
- * 
+ *
  * ✨ Características:
  * - Registro de gastos con categorización
  * - Seguimiento de estado (Pendiente, Aprobada, Pagada)
@@ -144,17 +153,13 @@ export function ExpensesModuleExpanded({
             <p className="text-xs font-semibold uppercase tracking-wider text-amber-400">
               Pendientes
             </p>
-            <p className="mt-2 text-2xl font-bold text-white">
-              Q{totals.pending.toLocaleString()}
-            </p>
+            <p className="mt-2 text-2xl font-bold text-white">Q{totals.pending.toLocaleString()}</p>
           </div>
         </Card>
 
         <Card variant="default">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-sky-400">
-              Aprobadas
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-sky-400">Aprobadas</p>
             <p className="mt-2 text-2xl font-bold text-white">
               Q{totals.approved.toLocaleString()}
             </p>
@@ -166,9 +171,7 @@ export function ExpensesModuleExpanded({
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
               Pagadas
             </p>
-            <p className="mt-2 text-2xl font-bold text-white">
-              Q{totals.paid.toLocaleString()}
-            </p>
+            <p className="mt-2 text-2xl font-bold text-white">Q{totals.paid.toLocaleString()}</p>
           </div>
         </Card>
 
@@ -185,12 +188,8 @@ export function ExpensesModuleExpanded({
 
         <Card variant="default">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary-400">
-              Total
-            </p>
-            <p className="mt-2 text-2xl font-bold text-white">
-              Q{totals.total.toLocaleString()}
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary-400">Total</p>
+            <p className="mt-2 text-2xl font-bold text-white">Q{totals.total.toLocaleString()}</p>
           </div>
         </Card>
       </div>
@@ -256,7 +255,7 @@ export function ExpensesModuleExpanded({
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium border ${getStatusColor(expense.status)}`}
+                      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(expense.status)}`}
                     >
                       {expense.status}
                     </span>
@@ -292,7 +291,10 @@ export function ExpensesModuleExpanded({
 
       {/* Empty State */}
       {filteredExpenses.length === 0 && (
-        <Card variant="default" className="flex flex-col items-center justify-center py-12 text-center">
+        <Card
+          variant="default"
+          className="flex flex-col items-center justify-center py-12 text-center"
+        >
           <Receipt className="mb-4 h-12 w-12 text-slate-500" />
           <h3 className="mb-2 text-lg font-semibold text-white">Sin gastos registrados</h3>
           <p className="text-sm text-slate-400">

@@ -24,7 +24,8 @@ function validateAsset(src, label) {
 
   try {
     const stats = fs.statSync(filePath);
-    if (!stats.isFile() || stats.size === 0) errors.push(`${label}: asset is empty or not a file (${src}).`);
+    if (!stats.isFile() || stats.size === 0)
+      errors.push(`${label}: asset is empty or not a file (${src}).`);
   } catch {
     errors.push(`${label}: asset does not exist (${src}).`);
   }
@@ -32,7 +33,15 @@ function validateAsset(src, label) {
 
 try {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const requiredFields = ['name', 'short_name', 'start_url', 'scope', 'display', 'theme_color', 'background_color'];
+  const requiredFields = [
+    'name',
+    'short_name',
+    'start_url',
+    'scope',
+    'display',
+    'theme_color',
+    'background_color',
+  ];
   for (const field of requiredFields) {
     if (typeof manifest[field] !== 'string' || manifest[field].trim() === '') {
       errors.push(`Missing or invalid required field: ${field}`);
@@ -47,8 +56,10 @@ try {
         errors.push(`icons[${index}] must be an object.`);
         return;
       }
-      if (typeof icon.sizes !== 'string' || !icon.sizes.trim()) errors.push(`icons[${index}] is missing sizes.`);
-      if (typeof icon.type !== 'string' || !icon.type.trim()) errors.push(`icons[${index}] is missing type.`);
+      if (typeof icon.sizes !== 'string' || !icon.sizes.trim())
+        errors.push(`icons[${index}] is missing sizes.`);
+      if (typeof icon.type !== 'string' || !icon.type.trim())
+        errors.push(`icons[${index}] is missing type.`);
       validateAsset(icon.src, `icons[${index}]`);
     });
   }
@@ -65,13 +76,20 @@ try {
         return;
       }
       if (collectionName === 'shortcuts') {
-        if (typeof item.name !== 'string' || !item.name.trim()) errors.push(`shortcuts[${index}] is missing name.`);
-        if (typeof item.url !== 'string' || !item.url.startsWith('/') || item.url.startsWith('//')) {
+        if (typeof item.name !== 'string' || !item.name.trim())
+          errors.push(`shortcuts[${index}] is missing name.`);
+        if (
+          typeof item.url !== 'string' ||
+          !item.url.startsWith('/') ||
+          item.url.startsWith('//')
+        ) {
           errors.push(`shortcuts[${index}] must use a same-origin URL.`);
         }
       }
       if (item.src) validateAsset(item.src, `${collectionName}[${index}]`);
-      (item.icons || []).forEach((icon, iconIndex) => validateAsset(icon?.src, `${collectionName}[${index}].icons[${iconIndex}]`));
+      (item.icons || []).forEach((icon, iconIndex) =>
+        validateAsset(icon?.src, `${collectionName}[${index}].icons[${iconIndex}]`)
+      );
     });
   }
 } catch (error) {

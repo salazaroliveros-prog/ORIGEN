@@ -16,7 +16,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useProjectData } from '@/lib/hooks/useProjectData';
 import { usePagination } from '@/lib/hooks/usePagination';
-import { Plus, Trash2, Pencil, ChevronLeft, ChevronRight, ChevronDown, Loader, ArrowUpDown } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Loader,
+  ArrowUpDown,
+} from 'lucide-react';
 import Link from 'next/link';
 import { toast } from '@/components/ui/toast';
 import { Modal } from '@/components/ui/Modal';
@@ -166,7 +175,7 @@ export function ProjectsList() {
         {sortBy && (
           <>
             <ChevronDown className="h-4 w-4" />
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{sortBy}</span>
+            <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-700">{sortBy}</span>
           </>
         )}
         <button

@@ -30,18 +30,23 @@ export function MachineryModuleExpanded({
   const [searchTerm, setSearchTerm] = useState('');
 
   const filtered = useMemo(() => {
-    return machinery.filter(m =>
-      m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.code.toLowerCase().includes(searchTerm.toLowerCase())
+    return machinery.filter(
+      (m) =>
+        m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        m.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [machinery, searchTerm]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Activa': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-      case 'Inactiva': return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
-      case 'Mantenimiento': return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
-      default: return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+      case 'Activa':
+        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+      case 'Inactiva':
+        return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+      case 'Mantenimiento':
+        return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+      default:
+        return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
     }
   };
 
@@ -63,7 +68,10 @@ export function MachineryModuleExpanded({
       {/* Search */}
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
-        <input type="text" placeholder="Buscar maquinaria..." value={searchTerm}
+        <input
+          type="text"
+          placeholder="Buscar maquinaria..."
+          value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full rounded-lg border border-white/10 bg-white/[0.05] py-2 pl-10 pr-4 text-sm text-white focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
         />
@@ -79,14 +87,18 @@ export function MachineryModuleExpanded({
                   <span className="text-xs font-semibold text-primary-300">{m.code}</span>
                   <h3 className="mt-1 font-semibold text-white">{m.name}</h3>
                 </div>
-                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium border ${getStatusColor(m.status)}`}>
+                <span
+                  className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(m.status)}`}
+                >
                   {m.status}
                 </span>
               </div>
               <div className="text-sm text-slate-300">
-                <p>{m.type} - {m.model}</p>
+                <p>
+                  {m.type} - {m.model}
+                </p>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-400 pt-2 border-t border-white/10">
+              <div className="flex items-center gap-2 border-t border-white/10 pt-2 text-sm text-slate-400">
                 <Gauge className="h-4 w-4" />
                 <span>{m.horometer.toLocaleString()} horas</span>
               </div>

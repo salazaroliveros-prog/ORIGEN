@@ -41,7 +41,9 @@ function ItemContent({ item, isActive }: { item: BottomNavItem; isActive: boolea
           <span className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-400" />
         )}
       </div>
-      <span className={`block max-w-full truncate px-0.5 text-center font-medium ${isActive ? 'text-xs' : 'text-[11px]'}`}>
+      <span
+        className={`block max-w-full truncate px-0.5 text-center font-medium ${isActive ? 'text-xs' : 'text-[11px]'}`}
+      >
         {item.label}
       </span>
     </>

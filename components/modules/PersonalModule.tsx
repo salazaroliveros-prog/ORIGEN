@@ -25,7 +25,7 @@ interface PersonalModuleProps {
 
 /**
  * PERSONAL MODULE - Módulo de Personal & IGSS
- * 
+ *
  * ✨ Características:
  * - Directorio de personal
  * - Datos de IGSS
@@ -41,9 +41,10 @@ export function PersonalModule({
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredEmployees = useMemo(() => {
-    return employees.filter((emp) =>
-      emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchTerm.toLowerCase())
+    return employees.filter(
+      (emp) =>
+        emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [employees, searchTerm]);
 
@@ -52,7 +53,9 @@ export function PersonalModule({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white sm:text-3xl">Personal & IGSS</h1>
-          <p className="mt-1 text-sm text-slate-400">Control de cuadrillas y cumplimiento laboral</p>
+          <p className="mt-1 text-sm text-slate-400">
+            Control de cuadrillas y cumplimiento laboral
+          </p>
         </div>
         {canWrite && (
           <Button variant="primary" className="flex items-center gap-2">
@@ -82,10 +85,10 @@ export function PersonalModule({
               <div className="flex items-start justify-between">
                 <h3 className="font-semibold text-white">{emp.fullName}</h3>
                 <span
-                  className={`inline-flex rounded-full px-2 py-1 text-xs font-medium border ${
+                  className={`inline-flex rounded-full border px-2 py-1 text-xs font-medium ${
                     emp.status === 'Activo'
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                      : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
+                      ? 'border-emerald-500/30 bg-emerald-500/20 text-emerald-300'
+                      : 'border-slate-500/30 bg-slate-500/20 text-slate-300'
                   }`}
                 >
                   {emp.status}
@@ -116,7 +119,10 @@ export function PersonalModule({
       </div>
 
       {filteredEmployees.length === 0 && (
-        <Card variant="default" className="flex flex-col items-center justify-center py-12 text-center">
+        <Card
+          variant="default"
+          className="flex flex-col items-center justify-center py-12 text-center"
+        >
           <Users className="mb-4 h-12 w-12 text-slate-500" />
           <h3 className="mb-2 text-lg font-semibold text-white">Sin empleados</h3>
         </Card>

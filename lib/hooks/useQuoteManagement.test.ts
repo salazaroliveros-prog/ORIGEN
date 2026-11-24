@@ -45,9 +45,7 @@ function renderUseQuoteManagement(
   userId: string = mockUserId,
   quotes: any[] = []
 ) {
-  return renderHook(() =>
-    useQuoteManagement({ companyId, currentUserId: userId, quotes })
-  );
+  return renderHook(() => useQuoteManagement({ companyId, currentUserId: userId, quotes }));
 }
 
 beforeEach(() => {
@@ -99,11 +97,7 @@ describe('useQuoteManagement', () => {
       });
 
       expect(success).toBe(true);
-      expect(saveQuoteToFirestore).toHaveBeenCalledWith(
-        quote,
-        'company-1',
-        'user-1'
-      );
+      expect(saveQuoteToFirestore).toHaveBeenCalledWith(quote, 'company-1', 'user-1');
     });
 
     it('should return false when add quote fails', async () => {
@@ -119,11 +113,9 @@ describe('useQuoteManagement', () => {
     });
 
     it('should update quote status successfully', async () => {
-      const { result } = renderUseQuoteManagement(
-        mockCompanyId,
-        mockUserId,
-        [{ id: 'quote-1', status: 'Borrador', companyId: 'company-1' }]
-      );
+      const { result } = renderUseQuoteManagement(mockCompanyId, mockUserId, [
+        { id: 'quote-1', status: 'Borrador', companyId: 'company-1' },
+      ]);
       vi.mocked(updateQuoteStatusInFirestore).mockResolvedValueOnce(true);
 
       const success = await act(async () => {

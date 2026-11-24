@@ -474,7 +474,12 @@ export function ProjectForm({
                     aria-invalid={Boolean(errors.budgetTotal)}
                     aria-describedby={errors.budgetTotal ? 'project-budget-total-error' : undefined}
                     value={formData.budgetTotal}
-                    onChange={(e) => handleChange('budgetTotal', e.currentTarget.value === '' ? 0 : e.currentTarget.valueAsNumber)}
+                    onChange={(e) =>
+                      handleChange(
+                        'budgetTotal',
+                        e.currentTarget.value === '' ? 0 : e.currentTarget.valueAsNumber
+                      )
+                    }
                     placeholder="0"
                     className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
                       errors.budgetTotal ? 'border-red-500 focus:ring-red-500/50' : ''

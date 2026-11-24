@@ -134,17 +134,17 @@ export const sentinelIotDesignTokens = {
     l1: 'bg-white/[0.04] border border-white/10 backdrop-blur-sm',
     l2: 'bg-white/[0.06] border border-white/12 backdrop-blur-md',
     l3: 'bg-white/[0.08] border border-white/15 backdrop-blur-lg',
-    // Dark glass variants  
+    // Dark glass variants
     darkL1: 'bg-slate-900/[0.3] border border-slate-700/30 backdrop-blur-sm',
     darkL2: 'bg-slate-900/[0.4] border border-slate-600/40 backdrop-blur-md',
     darkL3: 'bg-slate-900/[0.5] border border-slate-500/50 backdrop-blur-lg',
     // Glow effects
-    glowPrimary: '0 0 20px rgba(99, 102, 241, 0.4)',  // sky-500 glow
+    glowPrimary: '0 0 20px rgba(99, 102, 241, 0.4)', // sky-500 glow
     glowSecondary: '0 0 15px rgba(168, 85, 247, 0.3)', // violet-500 glow
     // Accent colors (matching SENTINEL-IOT's premium palette)
-    accentPrimary: '#6366F1',   // indigo-600
+    accentPrimary: '#6366F1', // indigo-600
     accentSecondary: '#A855FF', // violet-500
-    accentTertiary: '#0891B2',  // sky-600
+    accentTertiary: '#0891B2', // sky-600
   },
   // Status colors for threat indicators
   threatStatus: {

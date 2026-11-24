@@ -31,7 +31,7 @@ interface BudgetModuleProps {
 
 /**
  * BUDGET MODULE - Módulo de Presupuestos APU
- * 
+ *
  * ✨ Características:
  * - Presupuestos con APU (Análisis de Precios Unitarios)
  * - Tracking de gastos vs presupuesto
@@ -175,7 +175,9 @@ export function BudgetModule({
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Utilización
               </p>
-              <p className={`mt-2 text-2xl font-bold sm:text-3xl ${getUtilizationColor(utilizationPercent).split(' ')[0]}`}>
+              <p
+                className={`mt-2 text-2xl font-bold sm:text-3xl ${getUtilizationColor(utilizationPercent).split(' ')[0]}`}
+              >
                 {utilizationPercent}%
               </p>
             </div>
@@ -253,7 +255,7 @@ export function BudgetModule({
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium border ${getStatusColor(item.status)}`}
+                      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(item.status)}`}
                     >
                       {item.status}
                     </span>
@@ -262,18 +264,10 @@ export function BudgetModule({
                     <div className="flex items-center justify-center gap-2">
                       {canWrite && (
                         <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedItem(item)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedItem(item)}>
                             <Edit2 className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onDeleteItem?.(item.id)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => onDeleteItem?.(item.id)}>
                             <Trash2 className="h-4 w-4 text-red-400" />
                           </Button>
                         </>
@@ -289,7 +283,10 @@ export function BudgetModule({
 
       {/* Empty State */}
       {filteredItems.length === 0 && (
-        <Card variant="default" className="flex flex-col items-center justify-center py-12 text-center">
+        <Card
+          variant="default"
+          className="flex flex-col items-center justify-center py-12 text-center"
+        >
           <DollarSign className="mb-4 h-12 w-12 text-slate-500" />
           <h3 className="mb-2 text-lg font-semibold text-white">Sin renglones presupuestarios</h3>
           <p className="text-sm text-slate-400">Crea tu primer renglón para comenzar</p>

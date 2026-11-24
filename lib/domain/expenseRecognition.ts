@@ -11,10 +11,14 @@ export function classifyExpenseApproval(
   expense: Pick<ExpenseRecord, 'approvalStatus'>
 ): ExpenseApprovalClassification {
   switch (expense.approvalStatus) {
-    case 'Aprobado': return 'approved';
-    case 'Pendiente': return 'pending';
-    case 'Rechazado': return 'rejected';
-    default: return 'legacy';
+    case 'Aprobado':
+      return 'approved';
+    case 'Pendiente':
+      return 'pending';
+    case 'Rechazado':
+      return 'rejected';
+    default:
+      return 'legacy';
   }
 }
 

@@ -7,21 +7,24 @@ Configuración completa de Playwright para pruebas visuales responsivas con capt
 ✅ **Playwright 1.65.0** instalado  
 ✅ **Navegadores**: Chromium, Firefox, WebKit  
 ✅ **Configuración**: 11 tipos de dispositivos diferentes  
-✅ **Docker Compose**: Ambiente containerizado listo  
+✅ **Docker Compose**: Ambiente containerizado listo
 
 ## 📱 Dispositivos & Resoluciones Soportadas
 
 ### Desktop
+
 - Chrome 1920x1080
 - Firefox 1920x1080
 - Safari 1920x1080
 
 ### Tablets
+
 - iPad Pro: 1024x1366
 - iPad Mini: 768x1024
 - Galaxy Tab: 1280x800
 
 ### Mobile
+
 - iPhone 14: 390x844
 - iPhone 14 Pro Max: 430x932
 - iPhone SE: 375x667
@@ -65,6 +68,7 @@ docker compose exec playwright ls -la screenshots/
 Después de ejecutar las pruebas:
 
 ### Ubicaciones
+
 ```
 screenshots/                          # Screenshots por viewport
 ├── 01-login-1920x1080.png
@@ -82,6 +86,7 @@ test-results/visual-junit.xml         # Formato JUnit para CI/CD
 ```
 
 ### Abrir Reporte HTML
+
 ```bash
 # En Windows/macOS
 open test-results/visual-html/index.html
@@ -120,6 +125,7 @@ xdg-open test-results/visual-html/index.html
 ## 📸 Workflow Interactivo
 
 ### Paso 1: Levantar la app
+
 ```bash
 npm run dev
 # O en Docker:
@@ -127,6 +133,7 @@ docker compose up app
 ```
 
 ### Paso 2: Ejecutar pruebas visuales
+
 ```bash
 npm run test:visual:headed
 
@@ -134,6 +141,7 @@ npm run test:visual:headed
 ```
 
 ### Paso 3: Revisar resultados
+
 ```bash
 # Abrir reporte
 open test-results/visual-html/index.html
@@ -165,7 +173,9 @@ docker compose down -v
 ## ⚙️ Configuración Avanzada
 
 ### Cambiar URLs
+
 Editar `playwright.visual.config.ts`:
+
 ```typescript
 use: {
   baseURL: 'http://your-server:3000',
@@ -174,7 +184,9 @@ use: {
 ```
 
 ### Agregar Nuevos Dispositivos
+
 En `playwright.visual.config.ts`, agregar a `projects`:
+
 ```typescript
 {
   name: 'Custom-Device',
@@ -186,17 +198,19 @@ En `playwright.visual.config.ts`, agregar a `projects`:
 ```
 
 ### Timeout & Retries
+
 ```typescript
 export default defineConfig({
-  timeout: 30000,          // Timeout por test
-  retries: 2,              // Reintentos
-  workers: 4,              // Parallelismo
+  timeout: 30000, // Timeout por test
+  retries: 2, // Reintentos
+  workers: 4, // Parallelismo
 });
 ```
 
 ## 🛠️ Troubleshooting
 
 ### "Port already in use"
+
 ```bash
 # Matar proceso en puerto 3000
 lsof -ti:3000 | xargs kill -9
@@ -205,11 +219,13 @@ lsof -ti:3000 | xargs kill -9
 ```
 
 ### Navegadores no descargados
+
 ```bash
 npx playwright install chromium firefox webkit
 ```
 
 ### Screenshots vacíos
+
 ```bash
 # Asegurar que la app está corriendo
 npm run dev
@@ -219,6 +235,7 @@ npx playwright test --timeout=60000
 ```
 
 ### Firebase emulator no conecta
+
 ```bash
 docker compose down -v
 docker compose up firebase-emulator

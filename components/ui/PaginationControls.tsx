@@ -60,7 +60,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
 
   return (
     <div
-      className="space-y-2 sm:flex-col sm:flex-row items-center justify-between gap-2"
+      className="items-center justify-between gap-2 space-y-2 sm:flex-row sm:flex-col"
       role="navigation"
       aria-label="Paginación"
     >
@@ -70,7 +70,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         <span className="font-semibold text-white">{totalItems}</span> elementos
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-2">
+      <div className="flex flex-col items-center gap-2 sm:flex-row">
         <Button
           variant="secondary"
           size="sm"
@@ -83,7 +83,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           {!compact && <span className="sr-only">Página anterior</span>}
         </Button>
 
-        <div className="flex gap-2 sm:gap-1 justify-center sm:justify-end">
+        <div className="flex justify-center gap-2 sm:justify-end sm:gap-1">
           {pageNumbers.map((page, idx) => {
             if (page === '…') {
               return (
@@ -98,7 +98,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
                 variant={page === currentPage ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => onPageChange(page as number)}
-                className={`min-w-10 w-16 text-center`}
+                className={`w-16 min-w-10 text-center`}
                 aria-current={page === currentPage ? 'page' : undefined}
               >
                 {page}

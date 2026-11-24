@@ -128,7 +128,7 @@ TOTAL TIEMPO: ~3 HORAS DEPLOY
 
 BREAKDOWN:
 ├─ Revisión:        30 min
-├─ Validación:      45 min  
+├─ Validación:      45 min
 ├─ Deploy Staging:  30 min
 ├─ Testing:         60 min
 ├─ Deploy Prod:     15 min

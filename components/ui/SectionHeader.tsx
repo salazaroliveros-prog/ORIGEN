@@ -24,13 +24,9 @@ export function SectionHeader({
           {icon && <span className="text-sm">{icon}</span>}
           <h2 className="text-sm font-bold text-white">{title}</h2>
         </div>
-        {subtitle && (
-          <p className="text-xs text-slate-400">{subtitle}</p>
-        )}
+        {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
       </div>
-      {actions && (
-        <div className="flex items-end gap-2">{actions}</div>
-      )}
+      {actions && <div className="flex items-end gap-2">{actions}</div>}
     </div>
   );
 }

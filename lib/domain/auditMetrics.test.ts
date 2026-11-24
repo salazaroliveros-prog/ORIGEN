@@ -1,31 +1,56 @@
 import { describe, expect, it } from 'vitest';
 import type { ExpenseRecord, Project } from '@/lib/types';
-import { buildPortfolioAuditMetrics, buildProjectAuditMetrics, projectExpensesForAudit } from './auditMetrics';
+import {
+  buildPortfolioAuditMetrics,
+  buildProjectAuditMetrics,
+  projectExpensesForAudit,
+} from './auditMetrics';
 
 const project: Project = {
-  id: 'proj-1', code: 'OBRA-2026-01', name: 'Torre de prueba', client: 'Cliente',
-  location: 'Guatemala', municipality: 'Guatemala', department: 'Guatemala',
-  budgetTotal: 100000, spentTotal: 0, progressPercent: 40, status: 'En Ejecución',
-  startDate: '2026-01-01', endDate: '2026-12-31', lat: 14.6349, lng: -90.5069,
+  id: 'proj-1',
+  code: 'OBRA-2026-01',
+  name: 'Torre de prueba',
+  client: 'Cliente',
+  location: 'Guatemala',
+  municipality: 'Guatemala',
+  department: 'Guatemala',
+  budgetTotal: 100000,
+  spentTotal: 0,
+  progressPercent: 40,
+  status: 'En Ejecución',
+  startDate: '2026-01-01',
+  endDate: '2026-12-31',
+  lat: 14.6349,
+  lng: -90.5069,
 };
 
 function expense(overrides: Partial<ExpenseRecord> & Pick<ExpenseRecord, 'id' | 'amount'>) {
   return {
-    projectId: 'proj-1', date: '2026-11-01', category: 'Materiales (Cementos, Hierro)',
-    description: 'Material', supplier: 'Proveedor', nitSupplier: 'CF',
-    facturaNumber: 'FAC-1', currency: 'GTQ', paymentMethod: 'Efectivo', ...overrides,
+    projectId: 'proj-1',
+    date: '2026-11-01',
+    category: 'Materiales (Cementos, Hierro)',
+    description: 'Material',
+    supplier: 'Proveedor',
+    nitSupplier: 'CF',
+    facturaNumber: 'FAC-1',
+    currency: 'GTQ',
+    paymentMethod: 'Efectivo',
+    ...overrides,
   } as ExpenseRecord;
 }
 
 describe('projectExpensesForAudit', () => {
   it('includes approved and legacy records, but excludes pending, rejected and other projects', () => {
-    const result = projectExpensesForAudit([
-      expense({ id: 'approved', amount: 1000, approvalStatus: 'Aprobado' }),
-      expense({ id: 'legacy', amount: 200 }),
-      expense({ id: 'pending', amount: 500, approvalStatus: 'Pendiente' }),
-      expense({ id: 'rejected', amount: 9999, approvalStatus: 'Rechazado' }),
-      expense({ id: 'other-project', amount: 700, projectId: 'proj-2' }),
-    ], 'proj-1');
+    const result = projectExpensesForAudit(
+      [
+        expense({ id: 'approved', amount: 1000, approvalStatus: 'Aprobado' }),
+        expense({ id: 'legacy', amount: 200 }),
+        expense({ id: 'pending', amount: 500, approvalStatus: 'Pendiente' }),
+        expense({ id: 'rejected', amount: 9999, approvalStatus: 'Rechazado' }),
+        expense({ id: 'other-project', amount: 700, projectId: 'proj-2' }),
+      ],
+      'proj-1'
+    );
     expect(result.map((item) => item.id)).toEqual(['approved', 'legacy']);
   });
 });

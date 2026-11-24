@@ -109,7 +109,13 @@ describe('useAPUManagement', () => {
 
       expect(success).toBe(true);
       expect(saveAPUItemsToFirestore).toHaveBeenCalledWith(
-        [expect.objectContaining({ code: 'CONC-001', totalUnitCostGTQ: 900, totalPriceGTQ: 45000 })],
+        [
+          expect.objectContaining({
+            code: 'CONC-001',
+            totalUnitCostGTQ: 900,
+            totalPriceGTQ: 45000,
+          }),
+        ],
         'proj-1',
         'company-1',
         'user-1'
@@ -171,7 +177,9 @@ describe('useAPUManagement', () => {
       });
 
       expect(success).toBe(false);
-      expect(mockToast.error).toHaveBeenCalledWith('No se encontró la partida APU en esta empresa.');
+      expect(mockToast.error).toHaveBeenCalledWith(
+        'No se encontró la partida APU en esta empresa.'
+      );
     });
   });
 });

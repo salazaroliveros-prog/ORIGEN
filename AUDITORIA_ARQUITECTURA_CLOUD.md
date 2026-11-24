@@ -1,4 +1,5 @@
 # ☁️ AUDITORÍA DE ARQUITECTURA CLOUD & INFRAESTRUCTURA
+
 ## ORIGEN ERP GUATEMALA - Vercel + Firebase
 
 **Fecha:** 23 de Noviembre de 2026  
@@ -32,6 +33,7 @@ USUARIOS
 ### 1. VERCEL DEPLOYMENT ✅ (90/100)
 
 **Positivos:**
+
 - [x] Global CDN con 300+ edge locations
 - [x] Zero-config deployments
 - [x] Automatic HTTPS with Let's Encrypt
@@ -40,11 +42,13 @@ USUARIOS
 - [x] Performance analytics incluido
 
 **Mejorables:**
+
 - [ ] Configurar environment secrets mejor (actualmente en .env.local)
 - [ ] Implementar Vercel KV para rate limiting
 - [ ] Configurar Edge Middleware para CSP headers
 
 **Recomendación:**
+
 ```
 next.config.ts (mejorado):
 {
@@ -68,17 +72,20 @@ next.config.ts (mejorado):
 **Hallazgo:** Proyecto usa FIRESTORE (bien), no Realtime DB
 
 **Positivos:**
+
 - [x] Firestore escalable (NoSQL)
 - [x] Reglas de seguridad configuradas
 - [x] Replicación automática
 - [x] Backups diarios
 
 **Mejorables:**
+
 - [ ] Composite indexes para queries complejas
 - [ ] Implementar Cloud Functions para validación backend
 - [ ] Configurar rate limiting a nivel Firestore
 
 **Firestore Rules Actuales:**
+
 ```
 rules_version = '2';
 service cloud.firestore {
@@ -94,11 +101,12 @@ service cloud.firestore {
 ```
 
 **Mejora Recomendada:**
+
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Rate limiting: max 10 writes per minute
     function userWrites() {
       return firestore.query(query(
@@ -107,17 +115,17 @@ service cloud.firestore {
         where('timestamp', '>', now - duration.value(60, 's'))
       )).size() < 10;
     }
-    
+
     match /proyectos/{projectId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && userWrites();
-      allow update: if request.auth != null && 
+      allow update: if request.auth != null &&
                        resource.data.userId == request.auth.uid &&
                        userWrites();
-      allow delete: if request.auth != null && 
+      allow delete: if request.auth != null &&
                        resource.data.userId == request.auth.uid;
     }
-    
+
     match /{document=**} {
       allow read, write: if false; // Deny all by default
     }
@@ -130,12 +138,14 @@ service cloud.firestore {
 ### 3. FIREBASE AUTHENTICATION ✅ (92/100)
 
 **Hallazgos:**
+
 - [x] Email/Password habilitado
 - [x] Social providers configurados (Google, GitHub)
 - [x] Custom claims para roles
 - [x] 2FA soportado (opcional)
 
 **Mejora:**
+
 - [ ] Habilitar SAML para empresas
 - [ ] Implementar phone auth para mobile
 
@@ -144,10 +154,12 @@ service cloud.firestore {
 ### 4. CLOUD STORAGE ✅ (85/100)
 
 **Hallazgos:**
+
 - [x] Bucket creado: `origen-uno.appspot.com`
 - [x] CORS configurado
 
 **Mejora Recomendada:**
+
 ```
 gs://origen-uno.appspot.com (bucket rules):
 rules_version = '2';
@@ -156,10 +168,10 @@ service firebase.storage {
     // Documentos privados del usuario
     match /users/{userId}/documents/{allPaths=**} {
       allow read: if request.auth.uid == userId;
-      allow write: if request.auth.uid == userId && 
+      allow write: if request.auth.uid == userId &&
                       request.resource.size < 50 * 1024 * 1024; // 50MB max
     }
-    
+
     // Imágenes públicas
     match /public/{allPaths=**} {
       allow read: if request.auth != null;
@@ -175,13 +187,13 @@ service firebase.storage {
 
 ### Current Limits (Firebase Free Plan)
 
-| Métrica | Límite | Current | Proyectado (1K users) | Acción |
-|---------|--------|---------|----------------------|--------|
-| Read ops/día | Unlimited | ~1K | ~100K | ✅ OK |
-| Write ops/día | Unlimited | ~500 | ~50K | ✅ OK |
-| Delete ops/día | Unlimited | ~100 | ~10K | ✅ OK |
-| Storage | 1 GB | ~50MB | ~200MB | ✅ OK |
-| Concurrent conns | 25 | ~5 | ~50 | ⚠️ UPGRADE |
+| Métrica          | Límite    | Current | Proyectado (1K users) | Acción     |
+| ---------------- | --------- | ------- | --------------------- | ---------- |
+| Read ops/día     | Unlimited | ~1K     | ~100K                 | ✅ OK      |
+| Write ops/día    | Unlimited | ~500    | ~50K                  | ✅ OK      |
+| Delete ops/día   | Unlimited | ~100    | ~10K                  | ✅ OK      |
+| Storage          | 1 GB      | ~50MB   | ~200MB                | ✅ OK      |
+| Concurrent conns | 25        | ~5      | ~50                   | ⚠️ UPGRADE |
 
 **Recomendación:** Pasar a Blaze Plan (pay-as-you-go) antes de 10K usuarios
 
@@ -214,6 +226,7 @@ FASE 3 (1K+ usuarios):
 ## 🚀 DEPLOYMENT PIPELINE RECOMENDADO
 
 ### Actual (Implicit)
+
 ```
 Push a main → Vercel auto-deploys → Live
 ```
@@ -248,6 +261,7 @@ Merge to main
 ```
 
 **GitHub Actions Config (.github/workflows/ci.yml):**
+
 ```yaml
 name: CI/CD Pipeline
 on: [push, pull_request]
@@ -260,13 +274,13 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      
+
       - run: npm ci
       - run: npm run lint
       - run: npm run type-check
       - run: npm run test
       - run: npm run build
-      
+
       - name: Security Scan
         run: npm audit --production
 
@@ -332,18 +346,21 @@ Proyecto → Settings → Environment Variables
 ### Recomendado: Vercel Analytics + Firebase Console
 
 **Vercel Dashboard:**
+
 - ✅ Automatic Web Vitals
 - ✅ Deploy logs
 - ✅ Uptime monitoring
 - ✅ Usage analytics
 
 **Firebase Console:**
+
 - ✅ Realtime database stats
 - ✅ Authentication metrics
 - ✅ Storage usage
 - ✅ Cloud Functions logs
 
 **Próximo nivel (si crece):**
+
 ```
 ├─ Datadog ($500+/mes)
 ├─ New Relic ($300+/mes)
@@ -355,6 +372,7 @@ Proyecto → Settings → Environment Variables
 ## 🔄 BACKUP & DISASTER RECOVERY
 
 ### Firebase Backups (Automatic)
+
 - ✅ Daily snapshots (30 días retention)
 - ✅ Geo-replication (multi-region)
 - ✅ Point-in-time recovery
@@ -373,6 +391,7 @@ gsutil -m cp -r gs://origen-uno.appspot.com/* \
 ### Recovery Procedures
 
 **Escenario 1: DB Corruption**
+
 ```
 1. Identificar timestamp del problema
 2. gcloud firestore restore [collection] [timestamp]
@@ -381,6 +400,7 @@ gsutil -m cp -r gs://origen-uno.appspot.com/* \
 ```
 
 **Escenario 2: Accidental Delete**
+
 ```
 1. Firebase Cloud Backups → Restore from point-in-time
 2. Verify data integrity
@@ -392,6 +412,7 @@ gsutil -m cp -r gs://origen-uno.appspot.com/* \
 ## ✅ CHECKLIST DE INFRAESTRUCTURA
 
 ### Actual Estado
+
 - [x] Vercel deployment funcional
 - [x] Firebase Firestore activo
 - [x] HTTPS habilitado
@@ -404,6 +425,7 @@ gsutil -m cp -r gs://origen-uno.appspot.com/* \
 - [ ] Monitoring avanzado
 
 ### Recomendado Implementar (Próximas 48h)
+
 - [ ] Security headers en next.config.ts
 - [ ] Vercel KV para rate limiting
 - [ ] GitHub Actions CI/CD
@@ -414,16 +436,16 @@ gsutil -m cp -r gs://origen-uno.appspot.com/* \
 
 ## 📊 INFRAESTRUCTURA SCORE
 
-| Aspecto | Score | Status | Priority |
-|---------|-------|--------|----------|
-| Vercel Deployment | 90/100 | ✅ | Bajo |
-| Firebase Config | 75/100 | ⚠️ | Alto |
-| Security Headers | 60/100 | 🔴 | Crítico |
-| Rate Limiting | 40/100 | 🔴 | Crítico |
-| Monitoring | 70/100 | ⚠️ | Alto |
-| Backups | 70/100 | ⚠️ | Alto |
-| CI/CD Pipeline | 50/100 | ⚠️ | Medio |
-| **TOTAL INFRAESTRUCTURA** | **75/100** | ⚠️ | 5 acciones |
+| Aspecto                   | Score      | Status | Priority   |
+| ------------------------- | ---------- | ------ | ---------- |
+| Vercel Deployment         | 90/100     | ✅     | Bajo       |
+| Firebase Config           | 75/100     | ⚠️     | Alto       |
+| Security Headers          | 60/100     | 🔴     | Crítico    |
+| Rate Limiting             | 40/100     | 🔴     | Crítico    |
+| Monitoring                | 70/100     | ⚠️     | Alto       |
+| Backups                   | 70/100     | ⚠️     | Alto       |
+| CI/CD Pipeline            | 50/100     | ⚠️     | Medio      |
+| **TOTAL INFRAESTRUCTURA** | **75/100** | ⚠️     | 5 acciones |
 
 ---
 
@@ -432,10 +454,10 @@ gsutil -m cp -r gs://origen-uno.appspot.com/* \
 **Estado:** ⚠️ 75/100 - Funcional pero requiere hardening
 
 **Acciones Inmediatas (48 horas):**
+
 1. Implementar security headers
 2. Configurar rate limiting
 3. Mejorar Firestore rules
 4. GitHub Actions CI/CD básico
 
 **Proyección post-mejoras:** 88/100
-

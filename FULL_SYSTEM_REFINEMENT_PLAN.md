@@ -1,4 +1,5 @@
 # 🏗️ MASTER SYSTEM REFINEMENT PLAN - FULL COVERAGE
+
 ## ConstructERP Guatemala - Transformación Completa 360°
 
 **Scope:** Todos los 60+ componentes + 14 módulos principales  
@@ -12,22 +13,22 @@
 
 ### MÓDULOS PRINCIPALES IDENTIFICADOS (14)
 
-| # | Módulo | Componentes | Estado UI/UX | Prioridad |
-|---|--------|------------|--------------|-----------|
-| 1 | **Dashboard** | 3 | ⚠️ 45% | 🔴 CRÍTICA |
-| 2 | **Proyectos & Firmas** | 8 | ⚠️ 50% | 🔴 CRÍTICA |
-| 3 | **Presupuestos APU** | 6 | ⚠️ 48% | 🟠 ALTA |
-| 4 | **Cotizaciones** | 4 | ⚠️ 52% | 🟠 ALTA |
-| 5 | **Cronograma Gantt** | 2 | ⚠️ 55% | 🟠 ALTA |
-| 6 | **Maquinaria** | 3 | ⚠️ 50% | 🟡 MEDIA |
-| 7 | **Personal & IGSS** | 5 | ⚠️ 48% | 🟠 ALTA |
-| 8 | **Planillas Guate** | 4 | ⚠️ 50% | 🟠 ALTA |
-| 9 | **Gastos & Facturas** | 4 | ⚠️ 52% | 🟠 ALTA |
-| 10 | **Facturas FEL** | 1 | ⚠️ 45% | 🟡 MEDIA |
-| 11 | **Inventario & Compras** | 2 | ⚠️ 50% | 🟡 MEDIA |
-| 12 | **Reportes Finales** | 2 | ⚠️ 48% | 🟡 MEDIA |
-| 13 | **Asistente IA** | 1 | ⚠️ 55% | 🟡 MEDIA |
-| 14 | **Correo & Avisos** | 1 | ⚠️ 50% | 🟡 MEDIA |
+| #   | Módulo                   | Componentes | Estado UI/UX | Prioridad  |
+| --- | ------------------------ | ----------- | ------------ | ---------- |
+| 1   | **Dashboard**            | 3           | ⚠️ 45%       | 🔴 CRÍTICA |
+| 2   | **Proyectos & Firmas**   | 8           | ⚠️ 50%       | 🔴 CRÍTICA |
+| 3   | **Presupuestos APU**     | 6           | ⚠️ 48%       | 🟠 ALTA    |
+| 4   | **Cotizaciones**         | 4           | ⚠️ 52%       | 🟠 ALTA    |
+| 5   | **Cronograma Gantt**     | 2           | ⚠️ 55%       | 🟠 ALTA    |
+| 6   | **Maquinaria**           | 3           | ⚠️ 50%       | 🟡 MEDIA   |
+| 7   | **Personal & IGSS**      | 5           | ⚠️ 48%       | 🟠 ALTA    |
+| 8   | **Planillas Guate**      | 4           | ⚠️ 50%       | 🟠 ALTA    |
+| 9   | **Gastos & Facturas**    | 4           | ⚠️ 52%       | 🟠 ALTA    |
+| 10  | **Facturas FEL**         | 1           | ⚠️ 45%       | 🟡 MEDIA   |
+| 11  | **Inventario & Compras** | 2           | ⚠️ 50%       | 🟡 MEDIA   |
+| 12  | **Reportes Finales**     | 2           | ⚠️ 48%       | 🟡 MEDIA   |
+| 13  | **Asistente IA**         | 1           | ⚠️ 55%       | 🟡 MEDIA   |
+| 14  | **Correo & Avisos**      | 1           | ⚠️ 50%       | 🟡 MEDIA   |
 
 **Avg UI/UX Score:** 50% (TODO necesita mejora)
 
@@ -36,6 +37,7 @@
 ## 🎯 ESTRATEGIA DE IMPLEMENTACIÓN
 
 ### FASE 0: FOUNDATION (Ya Completada ✅)
+
 ```
 ✅ Paleta profesional (Sky #0ea5e9)
 ✅ Design tokens completos
@@ -46,6 +48,7 @@
 ```
 
 ### FASE 1: CRITICAL MODULES (1-2 semanas)
+
 ```
 1️⃣ Dashboard (Enhanced + Stats)
 2️⃣ Proyectos & Firmas (Form + List)
@@ -55,6 +58,7 @@
 ```
 
 ### FASE 2: HIGH PRIORITY MODULES (2 semanas)
+
 ```
 6️⃣ Personal & IGSS
 7️⃣ Planillas Guate
@@ -64,6 +68,7 @@
 ```
 
 ### FASE 3: MEDIUM PRIORITY (1 semana)
+
 ```
 1️⃣1️⃣ Maquinaria
 1️⃣2️⃣ Inventario
@@ -78,6 +83,7 @@
 Estos 15-20 componentes base cubrirán el 80% del sistema:
 
 ### UI PRIMITIVES
+
 ```typescript
 ✅ Button (primary, secondary, ghost, danger, success)
 ✅ Input (text, email, number, date, select)
@@ -92,6 +98,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 ```
 
 ### COMPOSITE COMPONENTS
+
 ```typescript
 🆕 FormField (input + label + validation)
 🆕 TableWithFilters (table + pagination + search)
@@ -110,6 +117,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 ## 📋 MÓDULO 1: DASHBOARD (PRIORITY 1)
 
 ### Componentes
+
 - ✅ DashboardEnhanced (ya hecho)
 - 🆕 StatCard (KPI mejorado)
 - 🆕 ChartCard (chart container)
@@ -117,6 +125,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 - 🆕 RecentActivity (timeline)
 
 ### Features
+
 - Empty state profesional
 - KPI cards diferenciadas
 - Charts contextualizados (Recharts)
@@ -125,6 +134,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 - Mobile responsive 2x1 → 4x1
 
 ### Responsive
+
 - Mobile (375px): 1 columna, full width
 - Tablet (768px): 2 columnas
 - Desktop (1024px+): 4 columnas
@@ -134,6 +144,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 ## 📋 MÓDULO 2: PROYECTOS & FIRMAS (PRIORITY 1)
 
 ### Componentes
+
 - 🆕 ProjectsList (list view mejorada)
 - 🆕 ProjectCard (project preview)
 - 🆕 ProjectForm (create/edit)
@@ -142,6 +153,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 - 🆕 ProjectStatus (status indicator)
 
 ### Features
+
 - List view con cards profesionales
 - Filter by status/date/client
 - Quick actions (edit, delete, sign)
@@ -154,6 +166,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 ## 📋 MÓDULO 3: PRESUPUESTOS APU (PRIORITY 1)
 
 ### Componentes
+
 - 🆕 BudgetTable (sortable, filterable)
 - 🆕 BudgetForm (create/edit)
 - 🆕 BudgetCard (summary)
@@ -161,6 +174,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 - 🆕 BudgetChart (visualization)
 
 ### Features
+
 - Advanced table with filters
 - Inline editing
 - Create/edit forms
@@ -173,6 +187,7 @@ Estos 15-20 componentes base cubrirán el 80% del sistema:
 ## 📋 MÓDULO 4-14: OTROS MÓDULOS
 
 Cada módulo seguirá el mismo patrón:
+
 1. **List View** - Cards + Table con filters
 2. **Detail View** - Modal/Panel con info completa
 3. **Create/Edit** - Form modal
@@ -185,31 +200,18 @@ Cada módulo seguirá el mismo patrón:
 ## 🎨 DESIGN TOKENS EXPANDIDOS
 
 ### Colores Semánticos por Módulo
+
 ```css
 /* Proyectos */
---status-planning: #f59e0b
---status-active: #0ea5e9
---status-completed: #10b981
---status-archived: #64748b
-
-/* Presupuestos */
---budget-ok: #10b981
---budget-warning: #f59e0b
---budget-critical: #ef4444
-
-/* Personal */
---attendance-present: #10b981
---attendance-absent: #ef4444
---attendance-late: #f59e0b
---attendance-vacation: #3b82f6
-
-/* Pagos */
---payment-paid: #10b981
---payment-pending: #f59e0b
---payment-overdue: #ef4444
+--status-planning: #f59e0b --status-active: #0ea5e9 --status-completed: #10b981
+  --status-archived: #64748b /* Presupuestos */ --budget-ok: #10b981 --budget-warning: #f59e0b
+  --budget-critical: #ef4444 /* Personal */ --attendance-present: #10b981
+  --attendance-absent: #ef4444 --attendance-late: #f59e0b --attendance-vacation: #3b82f6 /* Pagos */
+  --payment-paid: #10b981 --payment-pending: #f59e0b --payment-overdue: #ef4444;
 ```
 
 ### Responsive Scales por Módulo
+
 ```
 Mobile:   1 column × n rows
 Tablet:   2 columns × n rows
@@ -222,12 +224,14 @@ Ultra:    4-6 columns × n rows
 ## 📊 DELIVERABLES POR FASE
 
 ### FASE 0 (✅ COMPLETADA)
+
 - [x] 12 documentos (150+ KB)
 - [x] 3 componentes base (1,050 líneas)
 - [x] Paleta profesional (50+ tokens)
 - [x] Design system completo
 
 ### FASE 1 (🔴 A INICIAR)
+
 - [ ] Dashboard mejorado (stats, charts, quick actions)
 - [ ] Proyectos & Firmas (list, cards, forms)
 - [ ] Presupuestos APU (advanced table, forms)
@@ -236,6 +240,7 @@ Ultra:    4-6 columns × n rows
 - [ ] Documentación módulos
 
 ### FASE 2 (🟡 PLANEADA)
+
 - [ ] Personal & IGSS
 - [ ] Planillas Guate
 - [ ] Gastos & Facturas
@@ -243,6 +248,7 @@ Ultra:    4-6 columns × n rows
 - [ ] Cronograma Gantt
 
 ### FASE 3 (🟡 PLANEADA)
+
 - [ ] Maquinaria
 - [ ] Inventario & Compras
 - [ ] Reportes Finales
@@ -303,6 +309,7 @@ components/
 ## 🎯 ESTÁNDARES DE IMPLEMENTACIÓN
 
 ### Cada Componente Debe Tener:
+
 ```typescript
 ✅ TypeScript tipado (no any)
 ✅ Accesibilidad WCAG 2.1 AA
@@ -320,6 +327,7 @@ components/
 ```
 
 ### Cada Pantalla/Módulo Debe Tener:
+
 ```typescript
 ✅ Header con breadcrumbs
 ✅ Filtros avanzados
@@ -352,6 +360,7 @@ TOTAL: 3-4 semanas para cobertura completa 100%
 ## 🚀 PRÓXIMAS ACCIONES
 
 ### Semana 1 (Comienza YA)
+
 ```
 [ ] Crear componentes base faltantes (Input, Card, Table, Modal)
 [ ] Crear Dashboard mejorado (stats, charts)
@@ -361,6 +370,7 @@ TOTAL: 3-4 semanas para cobertura completa 100%
 ```
 
 ### Semana 2
+
 ```
 [ ] Personal & IGSS módulo
 [ ] Planillas Guate módulo
@@ -370,6 +380,7 @@ TOTAL: 3-4 semanas para cobertura completa 100%
 ```
 
 ### Semana 3-4
+
 ```
 [ ] Maquinaria + Inventario + Reportes
 [ ] IA + Correos
@@ -402,6 +413,7 @@ Bundle Size                +10% máximo (optimizado)
 ## 📞 CONFIGURACIÓN
 
 ### Git Branches (Modular)
+
 ```bash
 main (producción)
 ├── develop (integración)
@@ -411,6 +423,7 @@ main (producción)
 ```
 
 ### Environment Variables
+
 ```bash
 NEXT_PUBLIC_MODULES_TO_REFINE=["dashboard","projects","budget"]
 NEXT_PUBLIC_UI_VERSION=2.0
@@ -429,12 +442,12 @@ Este plan abarca **TODO el sistema 360°:**
 ✅ **50% → 90% UI/UX** en 3-4 semanas  
 ✅ **Zero breaking changes**  
 ✅ **100% WCAG 2.1 AA** accesibilidad  
-✅ **Modular escalable** para futuro  
+✅ **Modular escalable** para futuro
 
 ---
 
 **Estado:** 🔴 LISTO PARA INICIAR FASE 1  
 **Próximo Paso:** Crear componentes base faltantes  
-**Seguimiento:** Revisar cada 2-3 días  
+**Seguimiento:** Revisar cada 2-3 días
 
 **¡Vamos a transformar TODO el sistema!** 🚀

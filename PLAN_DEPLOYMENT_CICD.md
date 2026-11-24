@@ -1,4 +1,5 @@
 # 🚀 PLAN DE DEPLOYMENT ESTRATÉGICO & CI/CD
+
 ## ORIGEN ERP GUATEMALA - Producción Ready
 
 **Fecha:** 23 de Noviembre de 2026  
@@ -63,23 +64,23 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint & Code Quality
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - run: npm ci
-      
+
       - name: ESLint
         run: npm run lint
-      
+
       - name: Prettier Check
         run: npm run format:check
-      
+
       - name: Type Check
         run: npm run type-check
 
@@ -89,13 +90,13 @@ jobs:
   security:
     runs-on: ubuntu-latest
     name: Security Scan
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: npm audit
         run: npm audit --production --audit-level=moderate
-      
+
       - name: Snyk Security Scan
         uses: snyk/actions/node@master
         env:
@@ -110,20 +111,20 @@ jobs:
     runs-on: ubuntu-latest
     name: Unit Tests
     needs: lint
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - run: npm ci
-      
+
       - name: Run Unit Tests
         run: npm run test -- --coverage
-      
+
       - name: Upload Coverage
         uses: codecov/codecov-action@v3
         with:
@@ -138,25 +139,25 @@ jobs:
     runs-on: ubuntu-latest
     name: Build & Optimization
     needs: [lint, security]
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - run: npm ci
-      
+
       - name: Next.js Build
         run: npm run build
-      
+
       - name: Analyze Bundle
         run: |
           npm install -g next-bundle-analysis
           ANALYZE=true npm run build
-      
+
       - name: Store Build
         uses: actions/upload-artifact@v3
         with:
@@ -171,10 +172,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Preview
     needs: build
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Deploy to Vercel Preview
         uses: vercel/action@master
         with:
@@ -192,7 +193,7 @@ jobs:
     runs-on: ubuntu-latest
     name: E2E Tests
     needs: build
-    
+
     services:
       firebase-emulator:
         image: osfamily/firebase-tools:latest
@@ -201,23 +202,23 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - run: npm ci
-      
+
       - name: Start Firebase Emulator
         run: |
           npm install -g firebase-tools
           firebase emulators:start --only firestore &
           sleep 5
-      
+
       - name: Cypress E2E Tests
         uses: cypress-io/github-action@v5
         with:
@@ -234,17 +235,17 @@ jobs:
     runs-on: ubuntu-latest
     name: Performance Testing
     needs: build
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - run: npm ci
-      
+
       - name: Lighthouse CI
         uses: treosh/lighthouse-ci-action@v9
         with:
@@ -262,10 +263,10 @@ jobs:
     environment:
       name: production
       url: https://origen-erp.vercel.app
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Deploy to Vercel Production
         uses: vercel/action@master
         with:
@@ -273,12 +274,12 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           production: true
-      
+
       - name: Smoke Tests
         run: |
           curl -f https://origen-erp.vercel.app || exit 1
           curl -f https://origen-erp.vercel.app/api/health || exit 1
-      
+
       - name: Notify Deployment
         if: success()
         uses: slackapi/slack-github-action@v1.24.0
@@ -297,7 +298,7 @@ jobs:
                 }
               ]
             }
-      
+
       - name: Notify Failure
         if: failure()
         uses: slackapi/slack-github-action@v1.24.0
@@ -325,10 +326,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Validate Deployment
     needs: deploy-production
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Health Check
         run: |
           for i in {1..10}; do
@@ -340,11 +341,11 @@ jobs:
           done
           echo "🔴 Health check failed"
           exit 1
-      
+
       - name: Verify HTTPS
         run: |
           curl -I https://origen-erp.vercel.app | grep -q "Strict-Transport-Security"
-      
+
       - name: Check CSP Headers
         run: |
           curl -I https://origen-erp.vercel.app | grep -q "Content-Security-Policy"
@@ -432,6 +433,7 @@ Uptime Post-Deploy         99.9%     99.95%    ✅ EXCEED
 ## ✅ PRE-DEPLOYMENT CHECKLIST
 
 ### Developer (Antes de hacer PR)
+
 - [ ] Code compila sin warnings
 - [ ] All tests pass locally
 - [ ] ESLint + Prettier OK
@@ -440,12 +442,14 @@ Uptime Post-Deploy         99.9%     99.95%    ✅ EXCEED
 - [ ] PR description incluye changes
 
 ### Code Review
+
 - [ ] 1-2 reviewers aprobaron
 - [ ] No breaking changes
 - [ ] Documentación actualizada
 - [ ] Performance impact analisado
 
 ### CI/CD Pipeline
+
 - [ ] Lint ✅
 - [ ] Security scan ✅
 - [ ] Unit tests ✅
@@ -454,6 +458,7 @@ Uptime Post-Deploy         99.9%     99.95%    ✅ EXCEED
 - [ ] Performance ✅
 
 ### Post-Deployment
+
 - [ ] Health check pass ✅
 - [ ] Smoke tests OK
 - [ ] No errors en logs
@@ -464,14 +469,13 @@ Uptime Post-Deploy         99.9%     99.95%    ✅ EXCEED
 
 ## 🎯 CONCLUSIÓN - CI/CD SCORE
 
-| Aspecto | Score | Status |
-|---------|-------|--------|
-| Automation | 85/100 | ✅ |
-| Testing | 80/100 | ✅ |
-| Security | 90/100 | ✅ |
-| Performance | 85/100 | ✅ |
-| Reliability | 90/100 | ✅ |
-| **TOTAL CI/CD** | **86/100** | ✅ |
+| Aspecto         | Score      | Status |
+| --------------- | ---------- | ------ |
+| Automation      | 85/100     | ✅     |
+| Testing         | 80/100     | ✅     |
+| Security        | 90/100     | ✅     |
+| Performance     | 85/100     | ✅     |
+| Reliability     | 90/100     | ✅     |
+| **TOTAL CI/CD** | **86/100** | ✅     |
 
 **Estado:** ✅ LISTO PARA IMPLEMENTAR
-

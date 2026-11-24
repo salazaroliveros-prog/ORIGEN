@@ -120,7 +120,6 @@ describe('role hierarchy', () => {
   });
 });
 
-
 describe('inventory and purchasing permissions', () => {
   it('grants inventory maintenance to project and warehouse managers', () => {
     expect(canManageInventory('owner')).toBe(true);
@@ -143,7 +142,14 @@ describe('inventory and purchasing permissions', () => {
   });
 
   it('allows warehouse managers and finance to read the supply chain', () => {
-    for (const role of ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager', 'viewer'] as const) {
+    for (const role of [
+      'owner',
+      'admin',
+      'project_manager',
+      'finance',
+      'warehouse_manager',
+      'viewer',
+    ] as const) {
       expect(canReadInventory(role)).toBe(true);
       expect(canReadPurchasing(role)).toBe(true);
     }
@@ -153,7 +159,6 @@ describe('inventory and purchasing permissions', () => {
     expect(canManagePurchasing(undefined)).toBe(false);
   });
 });
-
 
 describe('company invitations', () => {
   it('exposes the warehouse manager as an assignable role', () => {

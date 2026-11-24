@@ -28,21 +28,24 @@ export default function LoginPage() {
   // Mientras se resuelve el estado de auth, mostrar esqueleto ligero
   if (!mounted || status === 'loading') {
     return (
-      <div className="fixed inset-0 bg-slate-950 flex items-center justify-center">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary animate-spin" />
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-950">
+        <div className="flex h-8 w-8 animate-spin items-center justify-center rounded-full border-4 border-brand-primary/30 border-t-brand-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-ambient text-slate-100 px-4 pb-12">
+    <div className="flex min-h-screen items-center justify-center bg-bg-ambient px-4 pb-12 text-slate-100">
       <LoginBackground />
-      <main className="relative z-10 flex w-full flex-col items-center justify-center max-w-md">
+      <main className="relative z-10 flex w-full max-w-md flex-col items-center justify-center">
         <LoginBrandingHeader />
         <LoginForm />
         <p className="mt-8 text-center text-xs text-slate-500">
           ¿No tienes una cuenta?{' '}
-          <a href="/signup" className="font-medium text-brand-secondary hover:text-brand-secondary-hover transition-colors underline underline-offset-2">
+          <a
+            href="/signup"
+            className="font-medium text-brand-secondary underline underline-offset-2 transition-colors hover:text-brand-secondary-hover"
+          >
             Regístrate
           </a>
         </p>

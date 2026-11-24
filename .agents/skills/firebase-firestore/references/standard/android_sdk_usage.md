@@ -15,7 +15,7 @@ following is done.
 - The Android project has a Firebase config file (`google-services.json`) and
   the Google services Gradle plugin (`google-services`).
 
-______________________________________________________________________
+---
 
 ## 1. Provision Firestore
 
@@ -29,7 +29,7 @@ to do the following:
 - Deploy database, rules, and indexes
 - Run Firestore locally for development and testing
 
-______________________________________________________________________
+---
 
 ## 2. Add dependencies to Gradle build files
 
@@ -68,7 +68,7 @@ dependencies {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## 3. Initialize Firestore
 
@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## 4. Work with data
 

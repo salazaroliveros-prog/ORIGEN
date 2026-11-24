@@ -32,7 +32,9 @@ export function LoginForm({ className }: { className?: string }) {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>(
+    {}
+  );
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -102,7 +104,10 @@ export function LoginForm({ className }: { className?: string }) {
 
   const handleForgotPassword = async () => {
     if (!email.trim()) {
-      setFieldErrors((prev) => ({ ...prev, email: 'Ingresa tu correo para restablecer la contraseña' }));
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: 'Ingresa tu correo para restablecer la contraseña',
+      }));
       return;
     }
     try {
@@ -111,7 +116,8 @@ export function LoginForm({ className }: { className?: string }) {
       await resetEmailPassword(email.trim());
       toast.success('Correo de restablecimiento enviado.');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'No se pudo restablecer la contraseña';
+      const message =
+        error instanceof Error ? error.message : 'No se pudo restablecer la contraseña';
       setGeneralError(message);
       toast.error(message);
     } finally {
@@ -120,7 +126,12 @@ export function LoginForm({ className }: { className?: string }) {
   };
 
   return (
-    <motion.div initial="hidden" animate="visible" variants={fadeInUp} className={`${className} mx-auto w-full max-w-md`}>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={fadeInUp}
+      className={`${className} mx-auto w-full max-w-md`}
+    >
       {generalError && (
         <div className="mb-6 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
           <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -155,7 +166,7 @@ export function LoginForm({ className }: { className?: string }) {
                 type="button"
                 onClick={() => setShowPassword((p) => !p)}
                 disabled={isAuthenticating}
-                className="pointer-events-auto absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 transition-colors hover:text-slate-300 disabled:opacity-50"
+                className="pointer-events-auto absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors hover:text-slate-300 disabled:opacity-50"
                 aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -177,17 +188,43 @@ export function LoginForm({ className }: { className?: string }) {
             disabled={isAuthenticating}
             className="h-4 w-4 rounded border-white/10 bg-white/[0.03] text-brand-secondary focus:ring-2 focus:ring-brand-secondary/50"
           />
-          <label htmlFor="remember-me" className="text-sm text-slate-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+          <label
+            htmlFor="remember-me"
+            className="cursor-pointer text-sm text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
             Recordarme
           </label>
         </div>
 
-        <Button type="submit" variant="primary" size="lg" isLoading={isAuthenticating} className="w-full" disabled={isAuthenticating}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={isAuthenticating}
+          className="w-full"
+          disabled={isAuthenticating}
+        >
           {isAuthenticating ? (
             <>
-              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <svg
+                className="h-4 w-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
               </svg>
               Accediendo…
             </>
@@ -200,24 +237,52 @@ export function LoginForm({ className }: { className?: string }) {
         </Button>
 
         <div className="mt-6 border-t border-white/10 pt-6">
-          <p className="mb-4 text-sm text-slate-400 text-center">
+          <p className="mb-4 text-center text-sm text-slate-400">
             ¿No tienes una cuenta?{' '}
-            <Link href="/signup" className="font-medium text-brand-secondary underline underline-offset-4 hover:text-brand-secondary-hover transition-colors">
+            <Link
+              href="/signup"
+              className="font-medium text-brand-secondary underline underline-offset-4 transition-colors hover:text-brand-secondary-hover"
+            >
               Regístrate ahora
             </Link>
           </p>
 
           <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10" /></div>
-            <span className="relative flex -mx-3 items-center rounded-full bg-slate-950 px-3 text-xs text-slate-500">o continúa con</span>
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-white/10" />
+            </div>
+            <span className="relative -mx-3 flex items-center rounded-full bg-slate-950 px-3 text-xs text-slate-500">
+              o continúa con
+            </span>
           </div>
 
-          <Button type="button" variant="outline" size="lg" onClick={handleGoogleLogin} disabled={isAuthenticating} className="w-full" leftIcon={<svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path d="M5.84 14.09c-.22-.66-.36-1.39-.36-2.19 0-.78.15-1.53.4-2.25H2.18v2.84c0 .81.17 1.56.45 2.19.47.99 1.45 1.69 2.67 1.98V19.6c-1.8-.39-3.04-1.57-3.48-3.48z" /><path d="M12 5.39c1.61 0 3.04.4 4.21 1.15l3.58-2.77C17.46 2.12 14.76 1 12 1 7.7 1 3.99 3.47 2.18 6.81l3.57 2.77c.76-.61 1.71-.98 2.72-.98.78 0 1.53.19 2.21.56V5.39z" /><path d="M12 1.5c-3.31 0-6.35 1.3-8.49 3.47l3.57 2.77c.97-.78 2.23-1.22 3.7-1.22.97 0 1.88.26 2.67.72V1.5z" /></svg>}>
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={handleGoogleLogin}
+            disabled={isAuthenticating}
+            className="w-full"
+            leftIcon={
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path d="M5.84 14.09c-.22-.66-.36-1.39-.36-2.19 0-.78.15-1.53.4-2.25H2.18v2.84c0 .81.17 1.56.45 2.19.47.99 1.45 1.69 2.67 1.98V19.6c-1.8-.39-3.04-1.57-3.48-3.48z" />
+                <path d="M12 5.39c1.61 0 3.04.4 4.21 1.15l3.58-2.77C17.46 2.12 14.76 1 12 1 7.7 1 3.99 3.47 2.18 6.81l3.57 2.77c.76-.61 1.71-.98 2.72-.98.78 0 1.53.19 2.21.56V5.39z" />
+                <path d="M12 1.5c-3.31 0-6.35 1.3-8.49 3.47l3.57 2.77c.97-.78 2.23-1.22 3.7-1.22.97 0 1.88.26 2.67.72V1.5z" />
+              </svg>
+            }
+          >
             Continuar con Google
           </Button>
 
           <div className="mt-6 text-center">
-            <button type="button" onClick={handleForgotPassword} disabled={!email.trim() || isAuthenticating} className="text-sm text-brand-secondary hover:text-brand-secondary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={!email.trim() || isAuthenticating}
+              className="text-sm text-brand-secondary transition-colors hover:text-brand-secondary-hover disabled:cursor-not-allowed disabled:opacity-50"
+            >
               ¿Olvidaste tu contraseña?
             </button>
           </div>
@@ -226,4 +291,3 @@ export function LoginForm({ className }: { className?: string }) {
     </motion.div>
   );
 }
-

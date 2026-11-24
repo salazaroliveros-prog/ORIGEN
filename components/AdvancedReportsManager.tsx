@@ -526,7 +526,7 @@ export function AdvancedReportsManager({
   return (
     <div className="space-y-6">
       {/* Top Header & Export Controls */}
-      <div className="shadow-xs flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
@@ -585,7 +585,7 @@ export function AdvancedReportsManager({
 
       {/* Excel Success Notification Banner */}
       {excelSuccessToast && (
-        <div className="animate-in fade-in shadow-xs flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
+        <div className="animate-in fade-in flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-xs">
           <div className="flex items-center gap-3">
             <span className="rounded-xl bg-emerald-100 p-2 text-emerald-800">
               <FileSpreadsheet className="h-5 w-5" aria-hidden="true" />
@@ -614,7 +614,7 @@ export function AdvancedReportsManager({
       )}
 
       {/* Filter & Configuration Bar */}
-      <div className="shadow-xs grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:grid-cols-3">
         <div>
           <label className="mb-1 block text-xs font-semibold text-slate-700">
             Proyecto Seleccionado
@@ -901,7 +901,7 @@ export function AdvancedReportsManager({
                   </li>
                   <li>
                     Presione{' '}
-                    <kbd className="shadow-2xs rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono">
+                    <kbd className="rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono shadow-2xs">
                       Alt + F11
                     </kbd>{' '}
                     para abrir el editor de Visual Basic.
@@ -912,7 +912,7 @@ export function AdvancedReportsManager({
                   </li>
                   <li>
                     Presione{' '}
-                    <kbd className="shadow-2xs rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono">
+                    <kbd className="rounded border border-blue-300 bg-white px-1.5 py-0.5 font-mono shadow-2xs">
                       Alt + F8
                     </kbd>{' '}
                     en Excel para ejecutar cualquier macro con 1 clic.

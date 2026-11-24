@@ -47,7 +47,11 @@ describe('lib/offlineStorage', () => {
   })();
 
   beforeEach(() => {
-    Object.defineProperty(global, 'localStorage', { value: localStorageMock, writable: true, configurable: true });
+    Object.defineProperty(global, 'localStorage', {
+      value: localStorageMock,
+      writable: true,
+      configurable: true,
+    });
     Object.defineProperty(global, 'window', {
       value: { ...originalWindow, localStorage: localStorageMock },
       writable: true,
@@ -83,7 +87,11 @@ describe('lib/offlineStorage', () => {
     });
 
     it('should do nothing when window is undefined', () => {
-      Object.defineProperty(global, 'window', { value: undefined, writable: true, configurable: true });
+      Object.defineProperty(global, 'window', {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
       expect(() => saveOfflineData('key', 'val')).not.toThrow();
       expect(loadOfflineData('key', 'fb')).toBe('fb');
       Object.defineProperty(global, 'window', {
@@ -135,7 +143,13 @@ describe('lib/offlineStorage', () => {
   describe('addOfflineAction', () => {
     it('should add action to queue', () => {
       vi.mocked(localStorageMock.getItem).mockReturnValue(JSON.stringify([]));
-      const payload: OfflineQueuePayload = { projectId: 'proj-1', employeeId: 'emp-1', date: '2024-01-01', hoursWorked: 8, task: 'Test' };
+      const payload: OfflineQueuePayload = {
+        projectId: 'proj-1',
+        employeeId: 'emp-1',
+        date: '2024-01-01',
+        hoursWorked: 8,
+        task: 'Test',
+      };
       const item = addOfflineAction('attendance', payload, 'Test attendance');
       expect(item.type).toBe('attendance');
       expect(item.description).toBe('Test attendance');
@@ -145,8 +159,23 @@ describe('lib/offlineStorage', () => {
     });
 
     it('should prepend to existing queue', () => {
-      const payload: OfflineQueuePayload = { projectId: 'proj-1', employeeId: 'emp-1', date: '2024-01-01', hoursWorked: 8, task: 'Test' };
-      const existing = [{ id: 'existing', type: 'progress', timestamp: '', description: '', payload, synced: false }];
+      const payload: OfflineQueuePayload = {
+        projectId: 'proj-1',
+        employeeId: 'emp-1',
+        date: '2024-01-01',
+        hoursWorked: 8,
+        task: 'Test',
+      };
+      const existing = [
+        {
+          id: 'existing',
+          type: 'progress',
+          timestamp: '',
+          description: '',
+          payload,
+          synced: false,
+        },
+      ];
       vi.mocked(localStorageMock.getItem).mockReturnValue(JSON.stringify(existing));
       const item = addOfflineAction('attendance', payload, 'Test');
       const updated = JSON.parse(vi.mocked(localStorageMock.setItem).mock.calls[0][1]);
@@ -158,8 +187,22 @@ describe('lib/offlineStorage', () => {
   describe('removeOfflineAction', () => {
     it('should remove action from queue', () => {
       const existing = [
-        { id: 'remove-me', type: 'attendance', timestamp: '', description: '', payload: {}, synced: false },
-        { id: 'keep-me', type: 'progress', timestamp: '', description: '', payload: {}, synced: false },
+        {
+          id: 'remove-me',
+          type: 'attendance',
+          timestamp: '',
+          description: '',
+          payload: {},
+          synced: false,
+        },
+        {
+          id: 'keep-me',
+          type: 'progress',
+          timestamp: '',
+          description: '',
+          payload: {},
+          synced: false,
+        },
       ];
       vi.mocked(localStorageMock.getItem).mockReturnValue(JSON.stringify(existing));
       removeOfflineAction('remove-me');
@@ -172,10 +215,7 @@ describe('lib/offlineStorage', () => {
   describe('clearOfflineQueue', () => {
     it('should clear the queue', () => {
       clearOfflineQueue();
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'constructerp_offline_queue',
-        '[]'
-      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('constructerp_offline_queue', '[]');
     });
   });
 
@@ -263,7 +303,12 @@ describe('lib/offlineStorage', () => {
       const handler = vi.fn(async () => {
         addOfflineAction(
           'progress',
-          { projectId: 'project-1', milestoneId: 'milestone-1', progressPercent: 25, notes: 'Avance capturado' },
+          {
+            projectId: 'project-1',
+            milestoneId: 'milestone-1',
+            progressPercent: 25,
+            notes: 'Avance capturado',
+          },
           'New action during sync'
         );
         return true;
@@ -295,9 +340,12 @@ describe('lib/offlineStorage', () => {
       });
 
       let finishFirst: (value: boolean) => void = () => undefined;
-      const first = processOfflineQueue(() => new Promise<boolean>((resolve) => {
-        finishFirst = resolve;
-      }));
+      const first = processOfflineQueue(
+        () =>
+          new Promise<boolean>((resolve) => {
+            finishFirst = resolve;
+          })
+      );
       const second = await processOfflineQueue(() => true);
 
       expect(second).toEqual({ processed: 0, remaining: 1 });

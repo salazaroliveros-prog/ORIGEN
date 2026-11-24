@@ -208,7 +208,7 @@ Cambios observados:
 1. Botón cambió estado:
    BEFORE: [🔐 SIGN IN TO YOUR ACCOUNT]
    DURING: [⏳ Signing in...] (disabled, spinner)
-   
+
 2. Validaciones ejecutadas:
    ✅ Email format: OK
    ✅ Password length: OK
@@ -456,7 +456,7 @@ Interactividad del Formulario:
 
 2) Dropdown Cliente:
    Hice clic en [▼ CATIC Corp]
-   
+
    ┌──────────────────────────────────────────┐
    │ 🔍 Search clients                        │
    ├──────────────────────────────────────────┤
@@ -467,7 +467,7 @@ Interactividad del Formulario:
    │ ☐ INSIVUMEH                              │
    │ ☐ + Add new client                       │
    └──────────────────────────────────────────┘
-   
+
    ✅ Búsqueda funciona en tiempo real
    ✅ Puedo crear cliente nuevo inline
    ✅ Selección se refleja en campo
@@ -481,7 +481,7 @@ Interactividad del Formulario:
 
 4) Fecha Inicio (Date Picker):
    Hice clic en [23/11/2026]
-   
+
    ┌──────────────────────────────────────┐
    │      NOVIEMBRE 2026                  │
    ├──────────────────────────────────────┤
@@ -494,7 +494,7 @@ Interactividad del Formulario:
    │                                      │
    │ ◄ NOVIEMBRE 2026 ►                   │
    └──────────────────────────────────────┘
-   
+
    ✅ Calendario interactivo
    ✅ Hoy resaltado (⭕)
    ✅ Puedo navegar meses
@@ -506,7 +506,7 @@ Interactividad del Formulario:
    ○ 🟡 Planificación
    ○ 🔴 Pausado
    ○ ✓ Cerrado
-   
+
    ✅ Puedo cambiar estado
    ✅ Colores coherentes
    ✅ Iconos indicativos
@@ -515,7 +515,7 @@ Interactividad del Formulario:
    ┌────────────────────────────────────┐
    │ Adicional    Adjuntos              │
    └────────────────────────────────────┘
-   
+
    Hice clic en "Adjuntos":
    ✅ Tab cambió (underline azul)
    ✅ Contenido cambió
@@ -525,7 +525,7 @@ Interactividad del Formulario:
    [CANCELAR]           → ✅ Modal se cierra
    [GUARDAR PROYECTO]   → ✅ Guarda y cierra
    [GUARDAR Y NUEVO]    → ✅ Guarda y limpia form
-   
+
    ✅ Estados: Normal, Hover (fondo más claro), Disabled
    ✅ Loading spinner cuando se envía
 

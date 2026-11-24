@@ -87,7 +87,11 @@ export function GmailManager({
     setError(null);
     try {
       const grant = await onAuthorize();
-      if (!grant?.accessToken || !Number.isFinite(grant.expiresAt) || grant.expiresAt <= Date.now()) {
+      if (
+        !grant?.accessToken ||
+        !Number.isFinite(grant.expiresAt) ||
+        grant.expiresAt <= Date.now()
+      ) {
         throw new Error('No se obtuvo un permiso temporal válido de Gmail.');
       }
     } catch (cause) {

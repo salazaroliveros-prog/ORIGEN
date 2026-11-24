@@ -142,10 +142,7 @@ test.describe('Visual Testing - Login & Dashboard', () => {
         return { bgColor, color };
       });
 
-      console.log(
-        `Colors on ${viewport?.width}x${viewport?.height}:`,
-        contrast
-      );
+      console.log(`Colors on ${viewport?.width}x${viewport?.height}:`, contrast);
       expect(contrast).not.toBeNull();
     });
   });
@@ -183,15 +180,11 @@ test.describe('Visual Testing - Login & Dashboard', () => {
 
       const metrics = await page.evaluate(() => ({
         firstPaint: performance.getEntriesByName('first-paint')[0]?.startTime,
-        firstContentfulPaint: performance
-          .getEntriesByName('first-contentful-paint')[0]?.startTime,
+        firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime,
         loadTime: performance.timing.loadEventEnd - performance.timing.navigationStart,
       }));
 
-      console.log(
-        `Performance metrics on ${viewport?.width}x${viewport?.height}:`,
-        metrics
-      );
+      console.log(`Performance metrics on ${viewport?.width}x${viewport?.height}:`, metrics);
       console.log('='.repeat(60));
     });
   });

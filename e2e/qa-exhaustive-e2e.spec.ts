@@ -79,9 +79,9 @@ async function fillProjectForm(page: any, overrides: any = {}) {
   const pageSizeSelector = page.getByLabel('Elementos por página');
   await expect(pageSizeSelector).toBeVisible({ timeout: 15_000 });
   await pageSizeSelector.selectOption('50');
-  await expect(
-    page.getByRole('button', { name: `Editar proyecto ${defaults.code}` })
-  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('button', { name: `Editar proyecto ${defaults.code}` })).toBeVisible({
+    timeout: 30_000,
+  });
   return defaults;
 }
 
@@ -532,7 +532,10 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
     // Ver en tablero
     await openTab(page, 'Tablero');
     await expect(
-      page.locator('main p').filter({ hasText: /^Gastos Registrados$/ }).first()
+      page
+        .locator('main p')
+        .filter({ hasText: /^Gastos Registrados$/ })
+        .first()
     ).toBeVisible();
     await expect(page.getByText('8,000').first()).toBeVisible({ timeout: 20_000 });
   });
@@ -695,13 +698,11 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
       if (section === 'Inventario & Compras') {
         // The application shell also renders this label as an h1. Assert the
         // module's actual content heading inside main, where it is a unique h2.
-        const inventoryHeading = page
-          .locator('#main-content')
-          .getByRole('heading', {
-            name: 'Inventario & Compras',
-            level: 2,
-            exact: true,
-          });
+        const inventoryHeading = page.locator('#main-content').getByRole('heading', {
+          name: 'Inventario & Compras',
+          level: 2,
+          exact: true,
+        });
         await expect(inventoryHeading).toBeVisible({ timeout: 15_000 });
       } else {
         const activeNavigationLink = page.getByRole('button', { name: section }).first();

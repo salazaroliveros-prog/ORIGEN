@@ -50,9 +50,7 @@ function renderUseMachineryManagement(
   userId: string = mockUserId,
   machinery: any[] = []
 ) {
-  return renderHook(() =>
-    useMachineryManagement({ companyId, currentUserId: userId, machinery })
-  );
+  return renderHook(() => useMachineryManagement({ companyId, currentUserId: userId, machinery }));
 }
 
 beforeEach(() => {
@@ -96,11 +94,7 @@ describe('useMachineryManagement', () => {
       });
 
       expect(success).toBe(true);
-      expect(saveMachineryToFirestore).toHaveBeenCalledWith(
-        machinery,
-        'company-1',
-        'user-1'
-      );
+      expect(saveMachineryToFirestore).toHaveBeenCalledWith(machinery, 'company-1', 'user-1');
     });
 
     it('should return false when add machinery fails', async () => {
@@ -116,11 +110,9 @@ describe('useMachineryManagement', () => {
     });
 
     it('should add machinery log successfully', async () => {
-      const { result } = renderUseMachineryManagement(
-        mockCompanyId,
-        mockUserId,
-        [{ id: 'mach-1', name: 'Excavadora', status: 'Disponible' }]
-      );
+      const { result } = renderUseMachineryManagement(mockCompanyId, mockUserId, [
+        { id: 'mach-1', name: 'Excavadora', status: 'Disponible' },
+      ]);
       vi.mocked(recordMachineryUse).mockResolvedValueOnce(true);
 
       const log = {
@@ -160,11 +152,9 @@ describe('useMachineryManagement', () => {
     });
 
     it('should set machinery status successfully', async () => {
-      const { result } = renderUseMachineryManagement(
-        mockCompanyId,
-        mockUserId,
-        [{ id: 'mach-1', name: 'Excavadora', status: 'Disponible' }]
-      );
+      const { result } = renderUseMachineryManagement(mockCompanyId, mockUserId, [
+        { id: 'mach-1', name: 'Excavadora', status: 'Disponible' },
+      ]);
       vi.mocked(updateMachineryStatusInFirestore).mockResolvedValueOnce(true);
 
       const success = await act(async () => {

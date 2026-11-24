@@ -127,7 +127,7 @@ export function FieldVisit({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Top Banner & Action */}
-      <div className="shadow-xs flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-bold text-blue-600">
             <FileText className="h-5 w-5" aria-hidden="true" />
@@ -146,7 +146,7 @@ export function FieldVisit({
           <button
             type="button"
             onClick={() => setIsCreatingNew(!isCreatingNew)}
-            className="shadow-xs inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
+            className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
           >
             {isCreatingNew ? (
               'Cerrar Formulario'
@@ -312,7 +312,7 @@ export function FieldVisit({
             </button>
             <button
               type="submit"
-              className="shadow-xs inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
             >
               <CheckCircle2 className="h-4 w-4" /> Guardar Reporte de Bitácora
             </button>
@@ -341,7 +341,7 @@ export function FieldVisit({
               <div
                 key={item.id}
                 id={`field-visit-${item.id}`}
-                className="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300"
+                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition hover:border-slate-300"
               >
                 {/* Header row */}
                 <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
@@ -429,7 +429,7 @@ export function FieldVisit({
                             <div
                               key={ph.id}
                               onClick={() => setSelectedPhoto(ph)}
-                              className="aspect-[4/3] shadow-2xs group relative cursor-pointer overflow-hidden rounded-lg border border-slate-200"
+                              className="group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-lg border border-slate-200 shadow-2xs"
                             >
                               <Image
                                 src={ph.url}
@@ -471,7 +471,7 @@ export function FieldVisit({
                           <p className="mb-1 text-[10px] font-semibold text-slate-400">
                             Firma en Pantalla (Canvas):
                           </p>
-                          <div className="shadow-2xs flex h-14 items-center justify-center rounded-lg border border-slate-300 bg-white p-1">
+                          <div className="flex h-14 items-center justify-center rounded-lg border border-slate-300 bg-white p-1 shadow-2xs">
                             {item.signatureDataUrl && (
                               <Image
                                 src={item.signatureDataUrl}
@@ -505,7 +505,7 @@ export function FieldVisit({
                           <button
                             type="button"
                             onClick={() => setActiveSigningVisitId(item.id)}
-                            className="shadow-xs inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
+                            className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
                           >
                             <PenTool className="h-3.5 w-3.5" /> Firmar con SignaturePad
                           </button>

@@ -1,6 +1,6 @@
 /**
  * ✅ K6 LOAD TESTING SCRIPT
- * 
+ *
  * Uso:
  *   k6 run scripts/load-test.js --vus 100 --duration 60s
  *   k6 run scripts/load-test.js --vus 1000 --duration 300s
@@ -24,15 +24,15 @@ const apiDuration = new Trend('api_duration');
 
 export const options = {
   stages: [
-    { duration: '30s', target: 20 },   // Ramp up a 20 usuarios
+    { duration: '30s', target: 20 }, // Ramp up a 20 usuarios
     { duration: '1m30s', target: 100 }, // Ramp up a 100
-    { duration: '2m', target: 100 },    // Stay at 100
-    { duration: '30s', target: 0 },     // Ramp down
+    { duration: '2m', target: 100 }, // Stay at 100
+    { duration: '30s', target: 0 }, // Ramp down
   ],
   thresholds: {
-    'http_req_duration': ['p(95)<500', 'p(99)<1000'], // 95% de requests < 500ms
-    'errors': ['rate<0.1'], // Error rate < 10%
-    'health_check_duration': ['p(95)<200'],
+    http_req_duration: ['p(95)<500', 'p(99)<1000'], // 95% de requests < 500ms
+    errors: ['rate<0.1'], // Error rate < 10%
+    health_check_duration: ['p(95)<200'],
   },
 };
 

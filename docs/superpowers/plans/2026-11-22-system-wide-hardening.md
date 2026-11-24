@@ -29,6 +29,7 @@
 ### Task 1: Establish a clean local baseline
 
 **Files:**
+
 - Modify: `eslint.config.mjs`
 - Modify: `.gitignore`
 - Modify: `e2e/global-setup.ts`
@@ -41,6 +42,7 @@
 ### Task 2: Firebase and Storage security audit
 
 **Files:**
+
 - Review: `firestore.rules`, `storage.rules`, `lib/firestore-emulator.test.ts`, `lib/storage-emulator.test.ts`
 - Modify: rules and focused emulator tests only where a reproducible finding exists
 
@@ -51,6 +53,7 @@
 ### Task 3: Type and domain hardening
 
 **Files:**
+
 - Review: `lib/types.ts`, `lib/domain/**`, `lib/hooks/**`, API route handlers
 - Modify: only files implicated by type-check, tests or security data-flow findings
 - Test: focused Vitest suites near each changed module
@@ -62,6 +65,7 @@
 ### Task 4: CI and GitHub hygiene
 
 **Files:**
+
 - Review/modify: `.github/workflows/ci.yml`, `.gitignore`, repository metadata
 
 - [ ] Mantener lint, type-check, tests, reglas, build y E2E como gates independientes.
@@ -72,6 +76,7 @@
 ### Task 5: Vercel readiness and deployment verification
 
 **Files:**
+
 - Review: `vercel.json`, `next.config.ts`, `.vercel/repo.json`, `.env.example`
 - Modify: deployment configuration only when validated locally
 

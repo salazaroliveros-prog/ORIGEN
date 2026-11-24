@@ -1,4 +1,5 @@
 # 📈 PLAN DE ESCALABILIDAD, CAPACITY PLANNING & LOAD TESTING
+
 ## ORIGEN ERP GUATEMALA - Proyección 1 Año
 
 **Fecha:** 23 de Noviembre de 2026  
@@ -362,23 +363,23 @@ export default function () {
     email: `user${__VU}@test.com`,
     password: 'test123',
   });
-  
+
   check(res, {
     'login success': (r) => r.status === 200,
     'has token': (r) => r.body.includes('token'),
   });
-  
+
   sleep(1);
-  
+
   // Fetch proyectos
   res = http.get('https://origin-staging.vercel.app/api/proyectos');
   check(res, {
     'proyectos fetched': (r) => r.status === 200,
     'response time < 500ms': (r) => r.timings.duration < 500,
   });
-  
+
   sleep(2);
-  
+
   // Create gastos
   res = http.post('https://origin-staging.vercel.app/api/gastos', {
     amount: 100,
@@ -388,7 +389,7 @@ export default function () {
   check(res, {
     'gastos created': (r) => r.status === 201,
   });
-  
+
   sleep(3);
 }
 ```
@@ -427,11 +428,13 @@ Custom Monitoring:
 ## 📋 CHECKLIST DE ESCALABILIDAD
 
 ### Fase 1 ✅
+
 - [x] Verificar Vercel setup
 - [x] Firebase Free tier OK
 - [x] Manual monitoring
 
 ### Fase 2 ⏳
+
 - [ ] Migrate a Blaze plan
 - [ ] Implementar Vercel KV
 - [ ] Optimize Firestore queries
@@ -439,6 +442,7 @@ Custom Monitoring:
 - [ ] Setup automated backups
 
 ### Fase 3 ⏳
+
 - [ ] Load test 2K users
 - [ ] Datastore sharding strategy
 - [ ] Cloud CDN setup
@@ -446,6 +450,7 @@ Custom Monitoring:
 - [ ] Advanced monitoring
 
 ### Fase 4 ⏳
+
 - [ ] Load test 10K users
 - [ ] Multi-region deployment
 - [ ] Global load balancer
@@ -459,7 +464,7 @@ Custom Monitoring:
 ```
         FASE 1   FASE 2    FASE 3    FASE 4
         (MVP)    (Growth)  (Scale)   (Enterprise)
-        
+
 Users   100      500       2,000     10,000
 Period  Mes 1-3  Mes 4-6   Mes 7-9   Mes 10-12
 
@@ -479,14 +484,13 @@ TOTAL   $50      $420      $1,120    $3,500
 
 ## ✅ CONCLUSIÓN - ESCALABILIDAD SCORE
 
-| Aspecto | Score | Status |
-|---------|-------|--------|
-| Strategy | 90/100 | ✅ |
-| Capacity Planning | 85/100 | ✅ |
-| Load Testing | 80/100 | ✅ |
-| Cost Planning | 90/100 | ✅ |
-| Roadmap | 90/100 | ✅ |
-| **TOTAL** | **87/100** | ✅ |
+| Aspecto           | Score      | Status |
+| ----------------- | ---------- | ------ |
+| Strategy          | 90/100     | ✅     |
+| Capacity Planning | 85/100     | ✅     |
+| Load Testing      | 80/100     | ✅     |
+| Cost Planning     | 90/100     | ✅     |
+| Roadmap           | 90/100     | ✅     |
+| **TOTAL**         | **87/100** | ✅     |
 
 **Estado:** ✅ PLAN LISTO PARA EJECUTAR
-

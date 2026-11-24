@@ -30,7 +30,7 @@ interface CashFlowTrendChartProps {
 
 export function CashFlowTrendChart({ data, showBrush = false }: CashFlowTrendChartProps) {
   if (!data || data.length === 0) {
-    return <p className="text-slate-500 text-sm py-8">No hay datos para la gráfica</p>;
+    return <p className="py-8 text-sm text-slate-500">No hay datos para la gráfica</p>;
   }
 
   const formattedData = data.map((item) => ({
@@ -44,7 +44,7 @@ export function CashFlowTrendChart({ data, showBrush = false }: CashFlowTrendCha
     <ResponsiveContainer width="100%" height={400}>
       <LineChart
         data={formattedData}
-        margin={{ top: 20, right: 30, left: 0, bottom: 5}}
+        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
         dataKey="neto"
       >
         <CartesianGrid strokeDasharray="3 3" />
@@ -57,9 +57,28 @@ export function CashFlowTrendChart({ data, showBrush = false }: CashFlowTrendCha
         <Tooltip />
         <CartesianGrid strokeDasharray="3 3" />
 
-        <Line type="monotone" dataKey="ingresos" stroke="#10b981" strokeWidth={2} activeDot={{ r: 8 }} />
-        <Line type="monotone" dataKey="gastos" stroke="#f87171" strokeWidth={2} activeDot={{ r: 8 }} />
-        <Line type="monotone" dataKey="neto" stroke="#3b82f6" strokeWidth={3} activeDot={{ r: 8 }} strokeDasharray="5 5" />
+        <Line
+          type="monotone"
+          dataKey="ingresos"
+          stroke="#10b981"
+          strokeWidth={2}
+          activeDot={{ r: 8 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="gastos"
+          stroke="#f87171"
+          strokeWidth={2}
+          activeDot={{ r: 8 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="neto"
+          stroke="#3b82f6"
+          strokeWidth={3}
+          activeDot={{ r: 8 }}
+          strokeDasharray="5 5"
+        />
 
         {showBrush && <></>}
       </LineChart>

@@ -115,9 +115,7 @@ export function Navbar({
 }: NavbarProps) {
   const tabs = [
     ...TABS,
-    ...(canManageCompany
-      ? [{ id: 'equipo', label: 'Equipo de la empresa', icon: UserPlus }]
-      : []),
+    ...(canManageCompany ? [{ id: 'equipo', label: 'Equipo de la empresa', icon: UserPlus }] : []),
   ].filter((tab) => {
     if (tab.id === 'personal') return canViewPersonnel;
     if (tab.id === 'planillas') return canViewPayroll;
@@ -209,11 +207,7 @@ export function Navbar({
           }))}
         />
 
-        <FocusTrap
-          isActive={isMobileSidebarOpen}
-          onEscape={onToggleMobileSidebar}
-          returnFocus
-        >
+        <FocusTrap isActive={isMobileSidebarOpen} onEscape={onToggleMobileSidebar} returnFocus>
           <MobileSheet
             id="mobile-navigation"
             labelledBy="mobile-navigation-title"
@@ -227,7 +221,10 @@ export function Navbar({
                     <Building2 className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div className="min-w-0">
-                    <h2 id="mobile-navigation-title" className="truncate text-sm font-bold text-white">
+                    <h2
+                      id="mobile-navigation-title"
+                      className="truncate text-sm font-bold text-white"
+                    >
                       {company.commercialName || company.companyName || 'ORIGEN ERP'}
                     </h2>
                     <p className="text-[11px] text-slate-400">Construcción y Arquitectura</p>
@@ -266,7 +263,10 @@ export function Navbar({
                     className="min-h-[44px] w-full rounded-lg border border-white/10 bg-slate-900 px-3 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-400"
                   >
                     {workspaces.map((workspaceOption) => (
-                      <option key={workspaceOption.workspace.id} value={workspaceOption.workspace.id}>
+                      <option
+                        key={workspaceOption.workspace.id}
+                        value={workspaceOption.workspace.id}
+                      >
                         {workspaceOption.workspace.name} · {workspaceOption.membership.role}
                       </option>
                     ))}
@@ -313,11 +313,20 @@ export function Navbar({
                   const content = (
                     <>
                       <tab.icon
-                        className={isActive ? 'h-5 w-5 shrink-0 text-amber-300' : 'h-5 w-5 shrink-0 text-slate-400'}
+                        className={
+                          isActive
+                            ? 'h-5 w-5 shrink-0 text-amber-300'
+                            : 'h-5 w-5 shrink-0 text-slate-400'
+                        }
                         aria-hidden="true"
                       />
                       <span className="min-w-0 flex-1 truncate">{tab.label}</span>
-                      {isActive && <ChevronRight className="h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />}
+                      {isActive && (
+                        <ChevronRight
+                          className="h-4 w-4 shrink-0 text-amber-300"
+                          aria-hidden="true"
+                        />
+                      )}
                     </>
                   );
 

@@ -1,4 +1,5 @@
 # ⚖️ AUDITORÍA DE COMPLIANCE Y CUMPLIMIENTO NORMATIVO
+
 ## ORIGEN ERP GUATEMALA - Regulaciones Locales e Internacionales
 
 **Fecha:** 23 de Noviembre de 2026  
@@ -33,6 +34,7 @@ INTERNACIONAL:
 ### 1. LEY DE PROTECCIÓN DE DATOS (Ley de Protección de Datos Personales - 2008)
 
 **Requisitos:**
+
 - Consentimiento informado antes de recopilar datos
 - Aviso de privacidad claro y accesible
 - Derecho a acceso, rectificación, cancelación (ARCO)
@@ -40,6 +42,7 @@ INTERNACIONAL:
 - Seguridad física y lógica
 
 **Estado Actual:**
+
 ```
 ✅ Recopilación con consentimiento: OK
    └─ Login form incluye checkbox de términos
@@ -47,14 +50,14 @@ INTERNACIONAL:
 ⚠️ Aviso de Privacidad: 70%
    └─ Falta: Política de privacidad publicada
    └─ Falta: Avisos en cada formulario
-   
+
 ⚠️ Derechos ARCO: 50%
    └─ Falta: Endpoints para acceso/rectificación/cancelación
    └─ Falta: Proceso de reclamos documentado
-   
+
 ✅ Responsable de Datos: Designado
    └─ Manager: IT/Compliance
-   
+
 ⚠️ Seguridad: 80%
    └─ OK: Encriptación TLS 1.3
    └─ OK: Firebase Auth con 2FA
@@ -63,6 +66,7 @@ INTERNACIONAL:
 ```
 
 **Acciones Requeridas:**
+
 ```
 1. Crear Privacy Policy (Spanish):
    ├─ Publicar en /privacy
@@ -90,20 +94,22 @@ INTERNACIONAL:
 ### 2. REGULACIÓN DE FIRMAS DIGITALES (Decreto 54-2002)
 
 **Requisitos:**
+
 - Firma digital válida legalmente
 - Certificado digital reconocido
 - Validación ante SAT/UEF
 
 **Estado Actual:** ✅ 100%
+
 ```
 ✅ Firma digital implementada
    └─ Usando: Firebase Auth + Firestore
    └─ Cloud Sign services integrado
-   
+
 ✅ Certificación:
    └─ Validación ante SAT manual
    └─ Documentos firmados en Firestore
-   
+
 ✅ Conformidad:
    └─ Cumple decreto 54-2002
 ```
@@ -111,26 +117,29 @@ INTERNACIONAL:
 ### 3. LEY DE COMERCIO ELECTRÓNICO (Decreto 51-2002)
 
 **Requisitos:**
+
 - Términos y Condiciones claros
 - Protección de consumidor
 - Responsabilidad de plataforma
 
 **Estado Actual:** ✅ 100%
+
 ```
 ✅ T&Cs:
    └─ Publicado en /terms
    └─ Aceptación en registro
-   
+
 ✅ Protección consumidor:
    └─ Responsabilidad de acciones
    └─ Garantía de servicio
-   
+
 ✅ LGPD compliance:
    └─ Avisos de cookies (falta cookie banner)
    └─ Política de retención
 ```
 
 **Mejora Faltante:**
+
 ```
 Crear Cookie Banner:
 ├─ Implementar: osano.com o iubenda.com
@@ -142,20 +151,22 @@ Crear Cookie Banner:
 ### 4. CÓDIGO TRIBUTARIO (Guatemala)
 
 **Requisitos:**
+
 - Registros contables auditables
 - Comprobantes digitales firmados
 - Retención de registros: 7 años
 
 **Estado Actual:** ⚠️ 90%
+
 ```
 ⚠️ Registros:
    └─ OK: Sistema registra todas operaciones en Firestore
    └─ OK: Timestamps automáticos
    └─ Falta: Integración SAT para comprobantes fiscales
-   
+
 ✅ Firmas Digitales:
    └─ OK: Documentos registrados en Firestore
-   
+
 ⚠️ Retención:
    └─ OK: Backups 30 días automáticos
    └─ Falta: Política de retención 7 años
@@ -163,6 +174,7 @@ Crear Cookie Banner:
 ```
 
 **Acciones:**
+
 ```
 1. Integración SAT:
    ├─ Implementar: Web service SAT para comprobantes
@@ -185,6 +197,7 @@ Crear Cookie Banner:
 **Aplica si:** Tienes usuarios EU o procesan datos EU
 
 **Requisitos Clave:**
+
 - Consentimiento explícito (opt-in, no opt-out)
 - Derecho al olvido ("derecho a ser borrado")
 - Portabilidad de datos
@@ -197,23 +210,23 @@ Crear Cookie Banner:
 ```
 ✅ Consentimiento:
    └─ Checkbox requerido en registro
-   
+
 ⚠️ Derecho al olvido:
    └─ Falta: Cascada delete (proyectos → gastos → asistencia)
    └─ Falta: Eliminar backups después de delete request
-   
+
 ⚠️ Portabilidad:
    └─ OK: GET /api/account/my-data (todos los datos en JSON)
    └─ Falta: Formato estándar (confirmable)
-   
+
 🔴 Notificación de brechas:
    └─ Falta: Proceso de incident response
    └─ Falta: Template de notificación
-   
+
 ⚠️ DPIA:
    └─ Falta: Evaluación formal de riesgos
    └─ Falta: Medidas mitigantes documentadas
-   
+
 ⚠️ DPA:
    └─ Falta: Signed DPA con Vercel
    └─ Falta: Signed DPA con Firebase
@@ -226,28 +239,28 @@ Crear Cookie Banner:
 
 export const deleteAccountCascade = async (userId: string) => {
   const batch = db.batch();
-  
+
   // 1. Borrar proyectos
   const proyectosRef = collection(db, 'proyectos');
   const q1 = query(proyectosRef, where('userId', '==', userId));
   const pDocs = await getDocs(q1);
-  pDocs.forEach(doc => batch.delete(doc.ref));
-  
+  pDocs.forEach((doc) => batch.delete(doc.ref));
+
   // 2. Borrar relacionados (APU, Gastos, etc)
   const relatedCollections = ['apu', 'gastos', 'personal', 'cotizaciones'];
   for (const col of relatedCollections) {
     const ref = collection(db, col);
     const q = query(ref, where('userId', '==', userId));
     const docs = await getDocs(q);
-    docs.forEach(doc => batch.delete(doc.ref));
+    docs.forEach((doc) => batch.delete(doc.ref));
   }
-  
+
   // 3. Borrar usuario
   batch.delete(doc(db, 'users', userId));
-  
+
   // 4. Commit
   await batch.commit();
-  
+
   // 5. Crear registro de delete para compliance
   await recordAccountDeletion(userId);
 };
@@ -269,6 +282,7 @@ export const deleteAccountCascade = async (userId: string) => {
 **Aplica si:** Tienes usuarios California
 
 **Requisitos:**
+
 - Divulgar datos recopilados
 - Derecho de acceso
 - Derecho a eliminar
@@ -280,7 +294,7 @@ export const deleteAccountCascade = async (userId: string) => {
 ```
 ✅ Similares a GDPR
    └─ Implementaciones GDPR también aplican aquí
-   
+
 ⚠️ Diferencias importantes:
    └─ Falta: Deshabilitar "venta" de datos (cookies)
    └─ Falta: "Do Not Sell My Personal Info" enlace
@@ -318,6 +332,7 @@ TOTAL            81%        63%    57%    27%      27%     ⚠️ 71%
 ## 🎯 ROADMAP DE COMPLIANCE
 
 ### INMEDIATO (Semana 1)
+
 ```
 - [ ] Crear Privacy Policy (Spanish) - abogado
 - [ ] Crear Terms & Conditions (Spanish) - abogado
@@ -326,6 +341,7 @@ TOTAL            81%        63%    57%    27%      27%     ⚠️ 71%
 ```
 
 ### CORTO PLAZO (Mes 1)
+
 ```
 - [ ] Implementar Right to be Forgotten (cascada delete)
 - [ ] Crear Incident Response Plan
@@ -334,6 +350,7 @@ TOTAL            81%        63%    57%    27%      27%     ⚠️ 71%
 ```
 
 ### MEDIANO PLAZO (Mes 2-3)
+
 ```
 - [ ] ISO/IEC 27001 internal assessment
 - [ ] Data Processing Impact Assessment (DPIA)
@@ -342,6 +359,7 @@ TOTAL            81%        63%    57%    27%      27%     ⚠️ 71%
 ```
 
 ### LARGO PLAZO (Mes 4-6)
+
 ```
 - [ ] Certificación ISO/IEC 27001 (optional)
 - [ ] SOC 2 Type II audit (optional)
@@ -368,13 +386,12 @@ TOTAL            81%        63%    57%    27%      27%     ⚠️ 71%
 
 ## 📊 COMPLIANCE SCORE
 
-| Aspecto | Score | Status | Priority |
-|---------|-------|--------|----------|
-| Guatemala | 85/100 | ✅ | Bajo |
-| GDPR | 60/100 | ⚠️ | Alto |
-| CCPA | 50/100 | ⚠️ | Medio |
-| ISO/SOC | 25/100 | 🔴 | Futuro |
-| **TOTAL** | **70/100** | ⚠️ | 10+ acciones |
+| Aspecto   | Score      | Status | Priority     |
+| --------- | ---------- | ------ | ------------ |
+| Guatemala | 85/100     | ✅     | Bajo         |
+| GDPR      | 60/100     | ⚠️     | Alto         |
+| CCPA      | 50/100     | ⚠️     | Medio        |
+| ISO/SOC   | 25/100     | 🔴     | Futuro       |
+| **TOTAL** | **70/100** | ⚠️     | 10+ acciones |
 
 **Estado:** ⚠️ FUNCIONAL PERO INCOMPLETO - REQUIERE LEGAL REVIEW
-

@@ -91,11 +91,24 @@ describe('inventory domain', () => {
     const source = { ...openingBalance, quantity: 2 };
     const destination = { ...openingBalance, warehouseId: 'bodega-general' };
 
-    expect(() => applyWarehouseTransfer(source, destination, { ...input, quantity: 3 })).toThrow('Existencia insuficiente');
-    expect(() => applyWarehouseTransfer(source, destination, { ...input, toWarehouseId: input.fromWarehouseId })).toThrow('diferentes');
-    expect(() => applyWarehouseTransfer(source, destination, { ...input, occurredAt: 'fecha-invalida' })).toThrow('fecha');
-    expect(() => applyWarehouseTransfer(source, destination, { ...input, id: 'transfer/con-invalid' })).toThrow('ID del traslado');
-    expect(() => applyWarehouseTransfer(source, destination, { ...input, notes: 'x'.repeat(1001) })).toThrow('notas del traslado');
+    expect(() => applyWarehouseTransfer(source, destination, { ...input, quantity: 3 })).toThrow(
+      'Existencia insuficiente'
+    );
+    expect(() =>
+      applyWarehouseTransfer(source, destination, {
+        ...input,
+        toWarehouseId: input.fromWarehouseId,
+      })
+    ).toThrow('diferentes');
+    expect(() =>
+      applyWarehouseTransfer(source, destination, { ...input, occurredAt: 'fecha-invalida' })
+    ).toThrow('fecha');
+    expect(() =>
+      applyWarehouseTransfer(source, destination, { ...input, id: 'transfer/con-invalid' })
+    ).toThrow('ID del traslado');
+    expect(() =>
+      applyWarehouseTransfer(source, destination, { ...input, notes: 'x'.repeat(1001) })
+    ).toThrow('notas del traslado');
   });
 
   it('recalculates weighted-average cost for positive adjustments', () => {
@@ -114,10 +127,12 @@ describe('inventory domain', () => {
     );
     expect(adjusted.quantity).toBe(6);
     expect(adjusted.averageUnitCostGTQ).toBe(75);
-    expect(() => applyStockMovement(
-      { ...openingBalance, quantity: 3 },
-      movement({ kind: 'adjustment_out', quantity: 4 })
-    )).toThrow('Existencia insuficiente');
+    expect(() =>
+      applyStockMovement(
+        { ...openingBalance, quantity: 3 },
+        movement({ kind: 'adjustment_out', quantity: 4 })
+      )
+    ).toThrow('Existencia insuficiente');
   });
 
   it('rejects issue above available stock', () => {
@@ -136,13 +151,21 @@ describe('inventory domain', () => {
   });
 
   it('rejects corrupted current balances before applying a movement', () => {
-    expect(() => applyStockMovement({ ...openingBalance, quantity: -1 }, movement())).toThrow('existencia actual');
-    expect(() => applyStockMovement({ ...openingBalance, averageUnitCostGTQ: Number.NaN }, movement())).toThrow('costo promedio actual');
+    expect(() => applyStockMovement({ ...openingBalance, quantity: -1 }, movement())).toThrow(
+      'existencia actual'
+    );
+    expect(() =>
+      applyStockMovement({ ...openingBalance, averageUnitCostGTQ: Number.NaN }, movement())
+    ).toThrow('costo promedio actual');
   });
 
   it('rejects movements without audit identity or a valid timestamp', () => {
-    expect(() => applyStockMovement(openingBalance, movement({ createdBy: '' }))).toThrow('ID, empresa y usuario');
-    expect(() => applyStockMovement(openingBalance, movement({ occurredAt: 'fecha-invalida' }))).toThrow('fecha del movimiento');
+    expect(() => applyStockMovement(openingBalance, movement({ createdBy: '' }))).toThrow(
+      'ID, empresa y usuario'
+    );
+    expect(() =>
+      applyStockMovement(openingBalance, movement({ occurredAt: 'fecha-invalida' }))
+    ).toThrow('fecha del movimiento');
   });
 
   it('orders movements by their actual instant even when timezone offsets differ', () => {
@@ -150,8 +173,19 @@ describe('inventory domain', () => {
       itemId: 'cemento-42',
       warehouseId: 'bodega-obra-1',
       movements: [
-        movement({ id: 'later', kind: 'project_issue', quantity: 2, unitCostGTQ: 0, occurredAt: '2026-11-01T12:00:00+02:00' }),
-        movement({ id: 'earlier', quantity: 5, unitCostGTQ: 80, occurredAt: '2026-11-01T09:00:00Z' }),
+        movement({
+          id: 'later',
+          kind: 'project_issue',
+          quantity: 2,
+          unitCostGTQ: 0,
+          occurredAt: '2026-11-01T12:00:00+02:00',
+        }),
+        movement({
+          id: 'earlier',
+          quantity: 5,
+          unitCostGTQ: 80,
+          occurredAt: '2026-11-01T09:00:00Z',
+        }),
       ],
     });
     expect(result.quantity).toBe(3);
@@ -194,7 +228,13 @@ describe('inventory domain', () => {
     expect(
       calculatePurchaseOrderTotals({
         lines: [
-          { itemId: 'cemento', description: 'Cemento', quantity: 10, unit: 'saco', unitPriceGTQ: 75 },
+          {
+            itemId: 'cemento',
+            description: 'Cemento',
+            quantity: 10,
+            unit: 'saco',
+            unitPriceGTQ: 75,
+          },
           { itemId: 'arena', description: 'Arena', quantity: 2, unit: 'm3', unitPriceGTQ: 100 },
         ],
         discountPercent: 5,

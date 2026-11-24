@@ -6,11 +6,13 @@ description: Provides the complete format specification for Agent Skills SKILL.m
 Use this skill when the user needs to understand or create Agent Skills following the official specification. The skill covers:
 
 **Required fields:**
+
 - `name` — Short identifier, must match the folder name
 - `description` — Tells the agent when to use the skill
 - The body — Instructions the agent follows when the skill activates
 
 **Optional fields and features:**
+
 - Variable definitions for reusable values (colors, fonts, sizes)
 - Design tokens and styles
 - Code Connect mappings for linking Figma nodes to code components
@@ -22,6 +24,7 @@ Use this skill when the user needs to understand or create Agent Skills followin
 Skills are progressive disclosure — agents only load `name` and `description` initially, then load the full body when matched to a prompt.
 
 **Typical use cases:**
+
 - Creating new skills from scratch
 - Understanding skill format requirements
 - Debugging skill activation issues

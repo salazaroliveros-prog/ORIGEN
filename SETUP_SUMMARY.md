@@ -3,12 +3,14 @@
 ## ✅ Completado
 
 ### 1. **Playwright Installation**
+
 - ✅ `@playwright/test` v1.65.0
 - ✅ Chromium browser
 - ✅ Firefox browser
 - ✅ WebKit browser
 
 ### 2. **Configuration Files Created**
+
 ```
 ✅ playwright.visual.config.ts        - Configuración completa de viewports
 ✅ Dockerfile.playwright              - Imagen Docker para tests
@@ -18,12 +20,14 @@
 ```
 
 ### 3. **Test Suites Created**
+
 ```
 ✅ e2e/visual/visual-responsiveness.spec.ts  - Tests de responsividad
 ✅ e2e/visual/login-flow.spec.ts             - Tests de login con 11 dispositivos
 ```
 
 ### 4. **Scripts Added**
+
 ```
 ✅ npm run test:visual                - Headless (sin GUI)
 ✅ npm run test:visual:headed         - Con navegador visible
@@ -35,6 +39,7 @@
 ```
 
 ### 5. **Documentation**
+
 ```
 ✅ PLAYWRIGHT_VISUAL_TESTING.md       - Guía completa
 ✅ VISUAL_TESTING_QUICKSTART.md       - Quick start guide
@@ -44,16 +49,19 @@
 ## 📱 Dispositivos Configurados
 
 ### Desktop (3 navegadores)
+
 - Chrome 1920x1080
 - Firefox 1920x1080
 - Safari 1920x1080
 
 ### Tablets (3 tipos)
+
 - iPad Pro 12.9": 1024x1366
 - iPad Mini: 768x1024
 - Galaxy Tab: 1280x800
 
 ### Móviles (6 tipos)
+
 - iPhone 14: 390x844
 - iPhone 14 Pro Max: 430x932
 - iPhone SE: 375x667
@@ -72,7 +80,7 @@
 ✅ **Interactividad** (focus, hover, keyboard)  
 ✅ **Reportes** HTML interactivos + JSON + JUnit  
 ✅ **Docker** support para CI/CD  
-✅ **GitHub Actions** workflow integrado  
+✅ **GitHub Actions** workflow integrado
 
 ## 🚀 Quick Start
 
@@ -131,12 +139,12 @@ docker compose down -v
 
 ## 🛠️ Troubleshooting
 
-| Problema | Comando |
-|----------|---------|
-| App no carga | `npm run dev` |
-| Navegadores no descargados | `npx playwright install` |
-| Puerto 3000 en uso | `lsof -ti:3000 \| xargs kill -9` |
-| Docker issues | `docker compose down -v` |
+| Problema                   | Comando                          |
+| -------------------------- | -------------------------------- |
+| App no carga               | `npm run dev`                    |
+| Navegadores no descargados | `npx playwright install`         |
+| Puerto 3000 en uso         | `lsof -ti:3000 \| xargs kill -9` |
+| Docker issues              | `docker compose down -v`         |
 
 ## 📚 Documentación
 
@@ -156,13 +164,13 @@ docker compose down -v
 
 ## ✨ Status
 
-| Item | Status |
-|------|--------|
-| Installation | ✅ Complete |
+| Item          | Status      |
+| ------------- | ----------- |
+| Installation  | ✅ Complete |
 | Configuration | ✅ Complete |
-| Tests | ✅ Created |
-| Docker | ✅ Ready |
-| CI/CD | ✅ Setup |
+| Tests         | ✅ Created  |
+| Docker        | ✅ Ready    |
+| CI/CD         | ✅ Setup    |
 | Documentation | ✅ Complete |
 
 ---

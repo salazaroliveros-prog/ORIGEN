@@ -46,7 +46,6 @@ type TabKey =
   | 'equipo'
   | 'inventario';
 
-
 export function MainAppHeader({
   company,
   activeTab,

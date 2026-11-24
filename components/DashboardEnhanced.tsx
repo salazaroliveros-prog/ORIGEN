@@ -51,7 +51,14 @@ interface ChartDataPoint {
 }
 
 interface DashboardEnhancedProps {
-  projects: Array<{ id: string; name: string; status: string; budgetTotal: number; spentTotal: number; startDate: string }>;
+  projects: Array<{
+    id: string;
+    name: string;
+    status: string;
+    budgetTotal: number;
+    spentTotal: number;
+    startDate: string;
+  }>;
   expenses: Array<any>;
   company?: { logoUrl?: string; companyName?: string };
   activeProjectId: string;
@@ -63,7 +70,7 @@ interface DashboardEnhancedProps {
 
 /**
  * DASHBOARD ENHANCED - Producción Empresarial
- * 
+ *
  * ✨ Mejoras implementadas:
  * - Empty state profesional con gradient y CTA clara
  * - KPI cards con estados visuales (neutral, warning, critical)
@@ -76,7 +83,10 @@ export function DashboardEnhanced(props?: DashboardEnhancedProps) {
   // Si props no se proporciona, usar hook; si se proporciona, usar props
   const projectDataHook = useProjectData();
   const projectsFromProps = props?.projects;
-  const projects = projectsFromProps && projectsFromProps.length > 0 ? projectsFromProps : projectDataHook.projects;
+  const projects =
+    projectsFromProps && projectsFromProps.length > 0
+      ? projectsFromProps
+      : projectDataHook.projects;
   const loading = !projectsFromProps ? projectDataHook.loading : false;
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
@@ -435,12 +445,7 @@ export function DashboardEnhanced(props?: DashboardEnhancedProps) {
                       labelStyle={{ color: '#f1f5f9' }}
                       formatter={(value) => [`${value} proyectos`, 'Total']}
                     />
-                    <Bar
-                      dataKey="count"
-                      fill="#0ea5e9"
-                      radius={[8, 8, 0, 0]}
-                      name="Proyectos"
-                    />
+                    <Bar dataKey="count" fill="#0ea5e9" radius={[8, 8, 0, 0]} name="Proyectos" />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -480,7 +485,8 @@ export function DashboardEnhanced(props?: DashboardEnhancedProps) {
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-white">{project.name}</p>
                     <p className="mt-1 text-xs text-slate-400">
-                      Q{project.spentTotal.toLocaleString()} / Q{project.budgetTotal.toLocaleString()}
+                      Q{project.spentTotal.toLocaleString()} / Q
+                      {project.budgetTotal.toLocaleString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">

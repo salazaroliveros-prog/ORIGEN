@@ -52,10 +52,13 @@ export const ProjectFormSchema = z
       .default(0),
     startDate: z.string().date('La fecha de inicio debe ser válida (YYYY-MM-DD)'),
     endDate: z.string().date('La fecha de finalización debe ser válida (YYYY-MM-DD)'),
-    status: z.enum(['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'], {
-      message:
-        'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido, Archivado o Cerrado',
-    }),
+    status: z.enum(
+      ['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'],
+      {
+        message:
+          'Estado inválido. Debe ser: En Ejecución, Planificación, Finalizado, Suspendido, Archivado o Cerrado',
+      }
+    ),
     lat: z
       .number()
       .min(-90, 'Latitud inválida (debe estar entre -90 y 90)')

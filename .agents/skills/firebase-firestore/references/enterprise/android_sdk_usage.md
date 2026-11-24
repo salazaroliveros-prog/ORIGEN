@@ -15,7 +15,7 @@ following is done.
 - The Android project has a Firebase config file (`google-services.json`) and
   the Google services Gradle plugin (`google-services`).
 
-______________________________________________________________________
+---
 
 ## 1. Provision Firestore
 
@@ -29,7 +29,7 @@ Follow the instructions in
 - Deploy database, rules, and indexes
 - Run Firestore locally for development and testing
 
-______________________________________________________________________
+---
 
 ## 2. Add dependencies to Gradle build files
 
@@ -68,7 +68,7 @@ dependencies {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## 3. Initialize Firestore
 
@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## 4. Decision framework: Mandatory pipeline architecture
 
@@ -134,7 +134,7 @@ ______________________________________________________________________
      - **Reference** the extracted `expressions.docs.txt` on-demand for specific
        function overloads and parameters.
 
-______________________________________________________________________
+---
 
 ## 5. Pipeline examples
 
@@ -188,7 +188,7 @@ val searchPipeline = db.pipeline()
     .limit(5)
 ```
 
-______________________________________________________________________
+---
 
 ## 6. Real-time listener & document operations
 

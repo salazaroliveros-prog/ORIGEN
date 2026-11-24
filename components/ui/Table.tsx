@@ -30,7 +30,7 @@ export interface TableProps<T> {
 
 /**
  * ADVANCED TABLE COMPONENT - Base Reutilizable
- * 
+ *
  * Features:
  * - Sortable columns
  * - Pagination
@@ -38,7 +38,7 @@ export interface TableProps<T> {
  * - Responsive mobile
  * - Keyboard accessible
  * - Loading states
- * 
+ *
  * Usado en: Presupuestos, Personal, Gastos, Inventario, etc.
  */
 export function Table<T extends { id?: string; [key: string]: any }>({
@@ -89,8 +89,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
 
     setSortConfig((prev) => ({
       key,
-      direction:
-        prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
@@ -99,7 +98,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
       <Card variant="default" padding="md">
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin">
-            <div className="h-8 w-8 border-4 border-primary-500/20 border-t-primary-500 rounded-full" />
+            <div className="h-8 w-8 rounded-full border-4 border-primary-500/20 border-t-primary-500" />
           </div>
         </div>
       </Card>
@@ -119,7 +118,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
   return (
     <Card variant="default" padding="md" className="overflow-hidden">
       {/* Desktop Table */}
-      <div className="hidden sm:block overflow-x-auto">
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/10">
@@ -129,33 +128,29 @@ export function Table<T extends { id?: string; [key: string]: any }>({
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 ${
                     column.width ? `w-${column.width}` : ''
                   } ${column.align === 'center' ? 'text-center' : ''} ${column.align === 'right' ? 'text-right' : ''}`}
-                  onClick={() =>
-                    column.sortable && handleSort(column.key)
-                  }
+                  onClick={() => column.sortable && handleSort(column.key)}
                   style={{ cursor: column.sortable ? 'pointer' : 'default' }}
                   role={column.sortable ? 'button' : undefined}
                   tabIndex={column.sortable ? 0 : undefined}
                   onKeyDown={
                     column.sortable
                       ? (e) => {
-                          if (e.key === 'Enter' || e.key === ' ')
-                            handleSort(column.key);
+                          if (e.key === 'Enter' || e.key === ' ') handleSort(column.key);
                         }
                       : undefined
                   }
                 >
                   <div className="flex items-center gap-2">
                     {column.label}
-                    {column.sortable &&
-                      sortConfig.key === column.key && (
-                        <span>
-                          {sortConfig.direction === 'asc' ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
+                    {column.sortable && sortConfig.key === column.key && (
+                      <span>
+                        {sortConfig.direction === 'asc' ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </span>
+                    )}
                   </div>
                 </th>
               ))}
@@ -166,9 +161,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
               <tr
                 key={row.id ?? idx}
                 className={`border-b border-white/5 transition-colors ${
-                  striped && idx % 2 === 0
-                    ? 'bg-white/[0.02]'
-                    : 'bg-transparent'
+                  striped && idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-transparent'
                 } ${hoverable ? 'hover:bg-white/[0.08]' : ''} ${onRowClick ? 'cursor-pointer' : ''}`}
                 onClick={() => onRowClick?.(row)}
                 role={onRowClick ? 'button' : undefined}
@@ -188,9 +181,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
                       column.align === 'center' ? 'text-center' : ''
                     } ${column.align === 'right' ? 'text-right' : ''}`}
                   >
-                    {column.render
-                      ? column.render(row[column.key], row)
-                      : row[column.key]}
+                    {column.render ? column.render(row[column.key], row) : row[column.key]}
                   </td>
                 ))}
               </tr>
@@ -200,25 +191,21 @@ export function Table<T extends { id?: string; [key: string]: any }>({
       </div>
 
       {/* Mobile Cards */}
-      <div className="sm:hidden space-y-3">
+      <div className="space-y-3 sm:hidden">
         {paginatedData.map((row, idx) => (
           <div
             key={row.id ?? idx}
-            className={`border border-white/10 rounded-lg p-4 cursor-pointer transition-all hover:border-white/20 hover:bg-white/[0.05] ${onRowClick ? '' : 'pointer-events-none'}`}
+            className={`cursor-pointer rounded-lg border border-white/10 p-4 transition-all hover:border-white/20 hover:bg-white/[0.05] ${onRowClick ? '' : 'pointer-events-none'}`}
             onClick={() => onRowClick?.(row)}
           >
             {columns.map((column) => (
               <div
                 key={String(column.key)}
-                className="flex justify-between gap-2 mb-2 last:mb-0 text-xs"
+                className="mb-2 flex justify-between gap-2 text-xs last:mb-0"
               >
-                <span className="font-medium text-slate-400">
-                  {column.label}:
-                </span>
-                <span className="text-white font-semibold text-right">
-                  {column.render
-                    ? column.render(row[column.key], row)
-                    : row[column.key]}
+                <span className="font-medium text-slate-400">{column.label}:</span>
+                <span className="text-right font-semibold text-white">
+                  {column.render ? column.render(row[column.key], row) : row[column.key]}
                 </span>
               </div>
             ))}
@@ -236,9 +223,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() =>
-                setCurrentPage((p) => Math.max(1, p - 1))
-              }
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               aria-label="Página anterior"
             >
@@ -247,9 +232,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
             {Array.from({ length: totalPages }).map((_, idx) => (
               <Button
                 key={idx + 1}
-                variant={
-                  currentPage === idx + 1 ? 'primary' : 'ghost'
-                }
+                variant={currentPage === idx + 1 ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => setCurrentPage(idx + 1)}
               >
@@ -259,11 +242,7 @@ export function Table<T extends { id?: string; [key: string]: any }>({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() =>
-                setCurrentPage((p) =>
-                  Math.min(totalPages, p + 1)
-                )
-              }
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               aria-label="Página siguiente"
             >

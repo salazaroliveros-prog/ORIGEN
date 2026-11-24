@@ -214,7 +214,7 @@ export function FieldPhotoGallery({
   return (
     <div className="space-y-6">
       {/* Top Banner & Action */}
-      <div className="shadow-xs flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
@@ -280,11 +280,11 @@ export function FieldPhotoGallery({
           {filteredPhotos.map(({ visit, photo }) => (
             <div
               key={photo.id}
-              className="shadow-xs group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:shadow-md"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition hover:shadow-md"
             >
               {/* Image Container with GPS Badge */}
               <div
-                className="aspect-[4/3] relative cursor-pointer overflow-hidden bg-slate-900"
+                className="relative aspect-[4/3] cursor-pointer overflow-hidden bg-slate-900"
                 onClick={() => setSelectedPhoto(photo)}
               >
                 <Image
@@ -368,7 +368,7 @@ export function FieldPhotoGallery({
 
             <div className="space-y-4 p-5">
               {/* Video Preview or Captured Image */}
-              <div className="aspect-[4/3] relative flex items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+              <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
                 {capturedDataUrl ? (
                   <Image
                     src={capturedDataUrl}

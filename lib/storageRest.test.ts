@@ -84,7 +84,6 @@ describe('uploadImageAsUser', () => {
   });
 });
 
-
 describe('downloadStorageObjectAsUser', () => {
   const fetchMock = vi.fn();
 

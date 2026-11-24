@@ -1,8 +1,8 @@
 /**
  * MODULE TEMPLATE - Usar como base para cada módulo
- * 
+ *
  * Estructura estándar para todos los módulos (Proyectos, Presupuestos, Personal, etc)
- * 
+ *
  * Features:
  * - List view (tabla + filtros)
  * - Detail view (panel lateral)
@@ -62,12 +62,7 @@ export function ModuleTemplate() {
   const filteredItems = useMemo(() => {
     return state.items.filter((item) => {
       // Aplicar filtros de búsqueda
-      if (
-        searchTerm &&
-        !JSON.stringify(item)
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-      ) {
+      if (searchTerm && !JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
 
@@ -127,12 +122,8 @@ export function ModuleTemplate() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white sm:text-3xl">
-            Módulo Name
-          </h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Descripción del módulo y qué hace
-          </p>
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">Módulo Name</h1>
+          <p className="mt-1 text-sm text-slate-400">Descripción del módulo y qué hace</p>
         </div>
 
         <Button
@@ -182,18 +173,10 @@ export function ModuleTemplate() {
               label: 'Acciones',
               render: (_, row) => (
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedItem(row)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedItem(row)}>
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(row.id)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(row.id)}>
                     <Trash2 className="h-4 w-4 text-danger-500" />
                   </Button>
                 </div>
@@ -207,34 +190,31 @@ export function ModuleTemplate() {
 
       {/* Detail Panel / Modal (Mobile Sheet) */}
       {selectedItem && (
-        <Card variant="elevated" padding="lg" className="fixed inset-0 z-50 overflow-y-auto sm:static">
+        <Card
+          variant="elevated"
+          padding="lg"
+          className="fixed inset-0 z-50 overflow-y-auto sm:static"
+        >
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">
-              Editar
-            </h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedItem(null)}
-            >
+            <h2 className="text-xl font-bold text-white">Editar</h2>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedItem(null)}>
               ✕
             </Button>
           </div>
 
-          <Form onSubmit={(e) => {
-            e.preventDefault();
-            handleUpdate(selectedItem.id, {});
-          }}>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleUpdate(selectedItem.id, {});
+            }}
+          >
             {/* TODO: Agregar FormFields específicos */}
 
             <div className="flex gap-2">
               <Button variant="primary" type="submit">
                 Guardar
               </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setSelectedItem(null)}
-              >
+              <Button variant="ghost" onClick={() => setSelectedItem(null)}>
                 Cancelar
               </Button>
             </div>
@@ -244,34 +224,31 @@ export function ModuleTemplate() {
 
       {/* Create Modal */}
       {isCreateModalOpen && (
-        <Card variant="elevated" padding="lg" className="fixed inset-0 z-50 overflow-y-auto sm:static">
+        <Card
+          variant="elevated"
+          padding="lg"
+          className="fixed inset-0 z-50 overflow-y-auto sm:static"
+        >
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">
-              Crear Nuevo
-            </h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsCreateModalOpen(false)}
-            >
+            <h2 className="text-xl font-bold text-white">Crear Nuevo</h2>
+            <Button variant="ghost" size="sm" onClick={() => setIsCreateModalOpen(false)}>
               ✕
             </Button>
           </div>
 
-          <Form onSubmit={(e) => {
-            e.preventDefault();
-            handleCreate({});
-          }}>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCreate({});
+            }}
+          >
             {/* TODO: Agregar FormFields específicos */}
 
             <div className="flex gap-2">
               <Button variant="primary" type="submit">
                 Crear
               </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setIsCreateModalOpen(false)}
-              >
+              <Button variant="ghost" onClick={() => setIsCreateModalOpen(false)}>
                 Cancelar
               </Button>
             </div>
@@ -288,30 +265,30 @@ export default ModuleTemplate;
  * ============================================================
  * INSTRUCCIONES DE USO
  * ============================================================
- * 
+ *
  * 1. Copiar este archivo a: components/modules/[ModuleName]/index.tsx
- * 
+ *
  * 2. Reemplazar "ModuleTemplate" con nombre real (ProjectsModule, BudgetModule, etc)
- * 
+ *
  * 3. Definir interface ModuleItem específica con campos reales
- * 
+ *
  * 4. Agregar columnas específicas en Table.columns
- * 
+ *
  * 5. Agregar FormFields específicos en Form components
- * 
+ *
  * 6. Implementar handlers (handleCreate, handleUpdate, handleDelete)
  *    - Conectar con API real
  *    - Manejar errores
  *    - Actualizar state
- * 
+ *
  * 7. Importar en MainApp.tsx y renderizar según activeTab
- * 
+ *
  * 8. Testear:
  *    - Create/Read/Update/Delete
  *    - Search/Filter
  *    - Mobile responsive
  *    - Accesibilidad
  *    - Performance
- * 
+ *
  * ============================================================
  */

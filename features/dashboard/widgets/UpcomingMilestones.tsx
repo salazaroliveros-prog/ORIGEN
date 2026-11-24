@@ -10,7 +10,15 @@ interface UpcomingMilestonesProps {
   onSelectProject: (projectId: string) => void;
 }
 
-const MilestoneCard = memo(function MilestoneCard({ milestone, isUrgent, onSelect }: { milestone: UpcomingMilestone; isUrgent: boolean; onSelect: () => void }) {
+const MilestoneCard = memo(function MilestoneCard({
+  milestone,
+  isUrgent,
+  onSelect,
+}: {
+  milestone: UpcomingMilestone;
+  isUrgent: boolean;
+  onSelect: () => void;
+}) {
   return (
     <div
       onClick={onSelect}
@@ -18,8 +26,12 @@ const MilestoneCard = memo(function MilestoneCard({ milestone, isUrgent, onSelec
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <span className="font-mono text-[10px] font-bold uppercase text-amber-400">{milestone.projectCode} • {milestone.phase}</span>
-          <h4 className="mt-0.5 text-xs font-extrabold text-white transition group-hover:text-amber-300">{milestone.title}</h4>
+          <span className="font-mono text-[10px] font-bold uppercase text-amber-400">
+            {milestone.projectCode} • {milestone.phase}
+          </span>
+          <h4 className="mt-0.5 text-xs font-extrabold text-white transition group-hover:text-amber-300">
+            {milestone.title}
+          </h4>
           <p className="mt-1 line-clamp-1 text-[11px] text-slate-400">{milestone.projectName}</p>
         </div>
         <span
@@ -45,12 +57,14 @@ const MilestoneCard = memo(function MilestoneCard({ milestone, isUrgent, onSelec
   );
 });
 
-const UpcomingMilestonesComponent = memo(function UpcomingMilestonesComponent({ projects, milestones, onSelectProject }: UpcomingMilestonesProps) {
+const UpcomingMilestonesComponent = memo(function UpcomingMilestonesComponent({
+  projects,
+  milestones,
+  onSelectProject,
+}: UpcomingMilestonesProps) {
   const upcoming = useMemo(() => {
     const allMilestones =
-      milestones.length > 0
-        ? milestones
-        : projects.flatMap((p) => p.scheduleMilestones ?? []);
+      milestones.length > 0 ? milestones : projects.flatMap((p) => p.scheduleMilestones ?? []);
 
     const today = new Date('2026-11-01T00:00:00');
     const in7Days = new Date(today);
@@ -82,7 +96,10 @@ const UpcomingMilestonesComponent = memo(function UpcomingMilestonesComponent({ 
     <div className="space-y-4 rounded-2xl border border-amber-500/30 bg-slate-900/90 p-5 shadow-xl">
       <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-800 pb-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
-          <span className="rounded-xl border border-amber-500/40 bg-amber-500/20 p-2.5 text-amber-400" aria-hidden="true">
+          <span
+            className="rounded-xl border border-amber-500/40 bg-amber-500/20 p-2.5 text-amber-400"
+            aria-hidden="true"
+          >
             <Clock className="h-5 w-5 animate-pulse" />
           </span>
           <div>
@@ -90,7 +107,8 @@ const UpcomingMilestonesComponent = memo(function UpcomingMilestonesComponent({ 
               Alertas Próximas & Hitos del Cronograma (Próximos Vencimientos)
             </h3>
             <p className="mt-0.5 text-xs text-slate-400">
-              Hitos críticos de obra pendientes con fecha de vencimiento próxima en el cronograma de ejecución.
+              Hitos críticos de obra pendientes con fecha de vencimiento próxima en el cronograma de
+              ejecución.
             </p>
           </div>
         </div>
@@ -101,7 +119,8 @@ const UpcomingMilestonesComponent = memo(function UpcomingMilestonesComponent({ 
 
       {upcoming.length === 0 ? (
         <div className="py-6 text-center text-xs text-slate-400">
-          No hay hitos programados con vencimiento inminente en los próximos días. Todo el cronograma se encuentra al día.
+          No hay hitos programados con vencimiento inminente en los próximos días. Todo el
+          cronograma se encuentra al día.
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
