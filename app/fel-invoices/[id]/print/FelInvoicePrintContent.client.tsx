@@ -75,7 +75,7 @@ export function FelInvoicePrintContent({ invoiceId }: { invoiceId: string }) {
   if (error || !ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">No se pudo cargar la empresa</h1>
           <p className="mb-4 text-sm text-slate-400">
             {error ?? 'Inicia sesión para consultar la factura.'}
@@ -91,7 +91,7 @@ export function FelInvoicePrintContent({ invoiceId }: { invoiceId: string }) {
   if (!invoice) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">Factura no encontrada</h1>
           <p className="mb-4 text-sm text-slate-400">
             La factura solicitada no existe o no pertenece a tu empresa.

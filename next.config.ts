@@ -198,15 +198,18 @@ const nextConfig: NextConfig = {
   },
 
   // ============================================
+  // SERVER EXTERNAL PACKAGES (Firebase, GCP)
+  // ============================================
+
+  serverExternalPackages: ['@google-cloud/firestore', '@firebase/app', '@firebase/auth'],
+
+  // ============================================
   // EXPERIMENTAL FEATURES
   // ============================================
 
   experimental: {
-    optimizePackageImports: ['@google-cloud/firestore', '@firebase/app', '@firebase/auth'],
+    optimizePackageImports: ['lodash', 'date-fns'],
   },
-
-  // Server external packages instead of experimental.serverComponentsExternalPackages
-  serverExternalPackages: ['@google-cloud/firestore'],
 };
 
 export default nextConfig;

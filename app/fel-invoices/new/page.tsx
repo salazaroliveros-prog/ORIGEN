@@ -301,7 +301,7 @@ export default function NewFelInvoicePage() {
   if (workspaceError || !ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">No se pudo cargar la empresa</h1>
           <p className="mb-4 text-sm text-slate-400">
             {workspaceError ?? 'Inicia sesión para emitir facturas FEL.'}
@@ -317,7 +317,7 @@ export default function NewFelInvoicePage() {
   if (!canWrite) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">Permiso insuficiente</h1>
           <p className="mb-4 text-sm text-slate-400">
             Solo los roles de propietario, administrador o finanzas pueden emitir facturas FEL.
@@ -332,7 +332,7 @@ export default function NewFelInvoicePage() {
 
   return (
     <div className="mx-auto max-w-4xl p-4">
-      <Card variant="glass" padding="lg">
+      <Card variant="outlined" padding="lg">
         <div className="mb-6 flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-glass">
             <span className="font-bold text-white">🧾</span>

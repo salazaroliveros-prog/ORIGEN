@@ -1,17 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, deleteDoc, doc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  QueryDocumentSnapshot,
+  DocumentData,
+} from 'firebase/firestore';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 /**
  * ✅ API ENDPOINT: GET /api/account/my-data
- * 
+ *
  * Derechos ARCO:
  * - Acceso: Exportar todos mis datos en JSON
  * - Usado para: GDPR Data Portability + Compliance
- * 
+ *
  * Rate Limit: 50 requests/min por usuario
  */
+
+interface UserDataExport {
+  exportedAt: string;
+  userId: string;
+  dataRetention: string;
+  collections: Record<string, unknown[]>;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -45,7 +59,7 @@ export async function GET(req: NextRequest) {
     const userId = 'user-id-from-token'; // Placeholder
 
     // ✅ Recolectar todos los datos del usuario
-    const userData: Record<string, unknown> = {
+    const userData: UserDataExport = {
       exportedAt: new Date().toISOString(),
       userId,
       dataRetention: '2 years per Guatemala law',
@@ -63,12 +77,9 @@ export async function GET(req: NextRequest) {
     ];
 
     for (const colName of collectionNames) {
-      const q = query(
-        collection(db, colName),
-        where('userId', '==', userId)
-      );
+      const q = query(collection(db, colName), where('userId', '==', userId));
       const snap = await getDocs(q);
-      userData.collections[colName] = snap.docs.map(d => ({
+      userData.collections[colName] = snap.docs.map((d: QueryDocumentSnapshot<DocumentData>) => ({
         id: d.id,
         ...d.data(),
       }));
