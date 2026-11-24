@@ -125,7 +125,130 @@ service cloud.firestore {
       allow write: if false; // Admin solo
     }
     
-    // ✅ Por defecto: DENEGAR TODO
+    // ✅ EMPRESAS y MEMEBRÍAS
+    match /companies/{companyId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.ownerId);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.ownerId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.ownerId);
+    }
+
+    match /companies/{companyId}/members/{memberId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.uid);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.uid);
+      allow delete: if isAuthenticated() && isOwner(resource.data.uid);
+    }
+
+    // ✅ PROVEEDORES
+    match /suppliers/{supplierId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // ✅ BODEGAS
+    match /warehouses/{warehouseId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // ✅ ARTÍCULOS DE INVENTARIO
+    match /inventoryItems/{itemId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // ✅ MOVIMIENTOS DE INVENTARIO (solo transacciones autorizadas por la lógica de negocio)
+    match /stockMovements/{movementId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Se controla vía transacciones en el servicio
+    }
+
+    // ✅ SALDOS DE INVENTARIO
+    match /inventoryBalances/{balanceId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Se controla vía transacciones en el servicio
+    }
+
+    // ✅ ÓRDENES DE COMPRA
+    match /purchaseOrders/{orderId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.requestedBy);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.requestedBy);
+      allow delete: if isAuthenticated() && isOwner(resource.data.requestedBy);
+    }
+
+    // ✅ SUBCONTRATOS
+    match /subcontracts/{contractId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    }
+
+    // ✅ GASTOS
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.authorId);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.authorId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
+    }
+
+    // ✅ ASISTENCIA
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.authorId);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.authorId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
+    }
+
+    // ✅ EMPLEADOS
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    }
+
+    // ✅ MAQUINARIA
+    match /machinery/{machineryId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // ✅ BITÁCORAS DE MAQUINARIA
+    match /machineryLogs/{logId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.machineryId);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.machineryId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.machineryId);
+    }
+
+    // ✅ COTIZACIONES
+    match /quotes/{quoteId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    }
+
+    // ✅ PAGOS DE SUBCONTRATO
+    match /subcontractPayments/{paymentId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.contractId);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid);
+      allow update: if isAuthenticated() && isOwner(resource.data.contractId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.contractId);
+    }
+
+    // ✅ Por defecto: DENEGAR TODO documento no explícitamente cubierto
     match /{document=**} {
       allow read, write: if false;
     }
