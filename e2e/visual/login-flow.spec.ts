@@ -83,7 +83,9 @@ test.describe('Login Flow - Visual Testing', () => {
       const viewport = page.viewportSize();
 
       // Encontrar campo de email
-      const emailInput = page.locator('input[type="email"], input[name*="email"], input[placeholder*="email" i]').first();
+      const emailInput = page
+        .locator('input[type="email"], input[name*="email"], input[placeholder*="email" i]')
+        .first();
 
       if (await emailInput.isVisible()) {
         // Screenshot sin foco
@@ -100,9 +102,11 @@ test.describe('Login Flow - Visual Testing', () => {
           path: `screenshots/login/05-email-input-focused-${viewport?.width}.png`,
         });
 
-        // Captura de bounding box
+        // Captura de bounding box - CORREGIDO: usar x, y en lugar de top, left
         const box = await emailInput.boundingBox();
-        console.log(`Email input position: top=${box?.top}, left=${box?.left}, w=${box?.width}, h=${box?.height}`);
+        console.log(
+          `Email input position: x=${box?.x}, y=${box?.y}, w=${box?.width}, h=${box?.height}`
+        );
 
         // Tipear ejemplo
         await emailInput.fill('admin@test.com');
@@ -148,7 +152,11 @@ test.describe('Login Flow - Visual Testing', () => {
     test('submit button: default and hover states', async ({ page }) => {
       const viewport = page.viewportSize();
 
-      const submitButton = page.locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign In"), button:has-text("Iniciar")').first();
+      const submitButton = page
+        .locator(
+          'button[type="submit"], button:has-text("Login"), button:has-text("Sign In"), button:has-text("Iniciar")'
+        )
+        .first();
 
       if (await submitButton.isVisible()) {
         // Estado inicial
@@ -182,7 +190,9 @@ test.describe('Login Flow - Visual Testing', () => {
       const viewport = page.viewportSize();
 
       // Encontrar botón submit
-      const submitButton = page.locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign In")').first();
+      const submitButton = page
+        .locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign In")')
+        .first();
 
       // Captura previa
       await page.screenshot({
@@ -210,7 +220,9 @@ test.describe('Login Flow - Visual Testing', () => {
     test('complete login flow with valid credentials - admin', async ({ page, browserName }) => {
       const viewport = page.viewportSize();
 
-      console.log(`\n📱 Testing login flow on ${browserName} (${viewport?.width}x${viewport?.height})\n`);
+      console.log(
+        `\n📱 Testing login flow on ${browserName} (${viewport?.width}x${viewport?.height})\n`
+      );
 
       // 1. Captura inicial
       await page.screenshot({
@@ -218,7 +230,9 @@ test.describe('Login Flow - Visual Testing', () => {
       });
 
       // 2. Llenar email
-      const emailInput = page.locator('input[type="email"], input[name*="email"], input[placeholder*="email" i]').first();
+      const emailInput = page
+        .locator('input[type="email"], input[name*="email"], input[placeholder*="email" i]')
+        .first();
       if (await emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
         await emailInput.fill('admin@test.com');
         console.log('✓ Email ingresado: admin@test.com');
@@ -238,7 +252,11 @@ test.describe('Login Flow - Visual Testing', () => {
       }
 
       // 4. Submit
-      const submitButton = page.locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign In"), button:has-text("Iniciar")').first();
+      const submitButton = page
+        .locator(
+          'button[type="submit"], button:has-text("Login"), button:has-text("Sign In"), button:has-text("Iniciar")'
+        )
+        .first();
       if (await submitButton.isVisible({ timeout: 5000 }).catch(() => false)) {
         await submitButton.click();
         console.log('✓ Click en submit');
