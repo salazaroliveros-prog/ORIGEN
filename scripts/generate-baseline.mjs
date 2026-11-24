@@ -11,7 +11,9 @@ import { join } from 'path';
 
 const args = process.argv.slice(2);
 const isCI = process.env.CI === 'true';
-const browsers = args.includes('--all') ? [] : args.includes('--chrome') ? ['chrome'] : [];
+const shouldUseAllBrowsers = args.includes('--all');
+const shouldUseChrome = args.includes('--chrome');
+const browsers = shouldUseAllBrowsers ? [] : shouldUseChrome ? ['chrome'] : [];
 
 console.log(`
 ╔════════════════════════════════════════════════════════════╗
@@ -61,11 +63,13 @@ try {
 
     let copied = 0;
     files.forEach((file) => {
-      const src = join(screenshotDir, file as string);
-      const dst = join('test-baselines/screenshots', file as string);
+      const src = join(screenshotDir, String(file));
+      const dst = join('test-baselines/screenshots', String(file));
       
       // Crear directorios si es necesario
-      const dir = join('test-baselines/screenshots', (file as string).substring(0, (file as string).lastIndexOf('/')));
+      const fileStr = String(file);
+      const lastSlashIndex = fileStr.lastIndexOf('/');
+      const dir = lastSlashIndex >= 0 ? join('test-baselines/screenshots', fileStr.substring(0, lastSlashIndex)) : 'test-baselines/screenshots';
       mkdirSync(dir, { recursive: true });
       
       try {

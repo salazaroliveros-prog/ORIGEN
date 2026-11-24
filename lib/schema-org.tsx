@@ -1,6 +1,6 @@
 /**
  * ✅ JSON-LD Schema.org para SEO
- * 
+ *
  * Implementa:
  * - SoftwareApplication schema
  * - Organization schema
@@ -50,24 +50,24 @@ export const softwareApplicationSchema = {
 };
 
 /**
- * Hook para insertar schema en <head>
+ * Component para insertar schema en <head>
  */
 export function SchemaScripts() {
   return (
     <>
       <script
         type="application/ld+json"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(organizationSchema),
         }}
-        suppressHydrationWarning
       />
       <script
         type="application/ld+json"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(softwareApplicationSchema),
         }}
-        suppressHydrationWarning
       />
     </>
   );

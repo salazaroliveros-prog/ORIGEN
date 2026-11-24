@@ -22,7 +22,7 @@ interface ProjectSelectorProps {
 
 /**
  * PROJECT SELECTOR ENHANCED - Producción Empresarial
- * 
+ *
  * ✨ Características:
  * - Preview visual de proyecto (código, nombre, estado, % avance)
  * - Indicador de estado semántico (Planificación, Ejecución, Finalizado)
@@ -38,6 +38,20 @@ export function ProjectSelectorEnhanced({
 }: ProjectSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
 
   // Calcular progreso promedio del proyecto
   const getProjectProgress = (project: Project): number => {
@@ -86,20 +100,6 @@ export function ProjectSelectorEnhanced({
 
   const progress = getProjectProgress(activeProject);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
-
   if (compact) {
     // Compact mode - simple select
     return (
@@ -136,9 +136,7 @@ export function ProjectSelectorEnhanced({
               </span>
               {getStatusIcon(activeProject.status)}
             </div>
-            <h3 className="mt-2 truncate text-sm font-semibold text-white">
-              {activeProject.name}
-            </h3>
+            <h3 className="mt-2 truncate text-sm font-semibold text-white">{activeProject.name}</h3>
             <p className="mt-1 text-xs text-slate-400">
               {activeProject.location || 'Ubicación no definida'}
             </p>
@@ -180,7 +178,7 @@ export function ProjectSelectorEnhanced({
           </div>
 
           <ChevronDown
-            className={`mt-1 h-5 w-5 shrink-0 transition-transform duration-200 text-slate-400 group-hover:text-white ${isOpen ? 'rotate-180' : ''}`}
+            className={`mt-1 h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:text-white ${isOpen ? 'rotate-180' : ''}`}
             aria-hidden="true"
           />
         </div>
