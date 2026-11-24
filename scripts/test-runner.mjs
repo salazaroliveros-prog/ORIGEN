@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @next/next/no-assign-module-variable */
 
 /**
  * ✅ SISTEMA DE TESTING EXHAUSTIVO - ORIGEN ERP GUATEMALA
@@ -519,6 +520,11 @@ async function runAllTests() {
   fs.writeFileSync(reportPath, JSON.stringify(RESULTS, null, 2));
   log('INFO', `✓ Report saved to: ${reportPath}`);
   log('INFO', '');
+
+  // Exportar para módulo
+  if (typeof process !== 'undefined' && process.env.NODE_ENV) {
+    globalThis.testResults = RESULTS;
+  }
 }
 
 // ============================================================

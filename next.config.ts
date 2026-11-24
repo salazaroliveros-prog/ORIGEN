@@ -21,14 +21,13 @@ const nextConfig: NextConfig = {
 
           {
             key: 'Public-Key-Pins',
-            value: `
-              pin-sha256="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-              pin-sha256="BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=";
-              pin-sha256="CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=";
-              max-age=31536000;
-              includeSubDomains;
-              report-uri="https://origen-erp.vercel.app/api/security/hpkp-report"
-            `.trim(),
+            value:
+              'pin-sha256="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; ' +
+              'pin-sha256="BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="; ' +
+              'pin-sha256="CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="; ' +
+              'max-age=31536000; ' +
+              'includeSubDomains; ' +
+              'report-uri="https://origen-erp.vercel.app/api/security/hpkp-report"',
           },
 
           // HTTP Strict Transport Security (HSTS)
@@ -76,21 +75,18 @@ const nextConfig: NextConfig = {
           // ========== CSP WITH CERTIFICATE PINNING ==========
           {
             key: 'Content-Security-Policy',
-            value: `
-              default-src 'self';
-              script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
-              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-              img-src 'self' data: https: blob:;
-              font-src 'self' https://fonts.gstatic.com;
-              connect-src 'self' https://www.google-analytics.com https://*.firebaseio.com https://firestore.googleapis.com;
-              frame-ancestors 'none';
-              form-action 'self';
-              base-uri 'self';
-              upgrade-insecure-requests;
-              block-all-mixed-content;
-            `
-              .replace(/\s+/g, ' ')
-              .trim(),
+            value:
+              "default-src 'self'; " +
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; " +
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+              "img-src 'self' data: https: blob:; " +
+              "font-src 'self' https://fonts.gstatic.com; " +
+              "connect-src 'self' https://www.google-analytics.com https://*.firebaseio.com https://firestore.googleapis.com; " +
+              "frame-ancestors 'none'; " +
+              "form-action 'self'; " +
+              "base-uri 'self'; " +
+              'upgrade-insecure-requests; ' +
+              'block-all-mixed-content;',
           },
 
           // ========== CERTIFICATE TRANSPARENCY ==========
@@ -123,25 +119,22 @@ const nextConfig: NextConfig = {
           // Permissions-Policy (formerly Feature-Policy)
           {
             key: 'Permissions-Policy',
-            value: `
-              accelerometer=(),
-              ambient-light-sensor=(),
-              autoplay=(),
-              battery=(),
-              camera=(),
-              clipboard-read=(),
-              clipboard-write=(),
-              geolocation=(),
-              gyroscope=(),
-              magnetometer=(),
-              microphone=(),
-              payment=(),
-              usb=(),
-              vr=(),
-              xr-spatial-tracking=()
-            `
-              .replace(/\s+/g, ', ')
-              .trim(),
+            value:
+              'accelerometer=(), ' +
+              'ambient-light-sensor=(), ' +
+              'autoplay=(), ' +
+              'battery=(), ' +
+              'camera=(), ' +
+              'clipboard-read=(), ' +
+              'clipboard-write=(), ' +
+              'geolocation=(), ' +
+              'gyroscope=(), ' +
+              'magnetometer=(), ' +
+              'microphone=(), ' +
+              'payment=(), ' +
+              'usb=(), ' +
+              'vr=(), ' +
+              'xr-spatial-tracking=()',
           },
         ],
       },

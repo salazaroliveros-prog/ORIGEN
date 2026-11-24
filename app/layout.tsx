@@ -1,108 +1,108 @@
 // app/layout.tsx - UPDATED with WebP/AVIF image optimization
+/* eslint-disable @next/next/no-page-custom-font */
 
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#1f2937",
+  themeColor: '#1f2937',
 };
 
 export const metadata: Metadata = {
-  title: "ORIGEN ERP Guatemala",
+  title: 'ORIGEN ERP Guatemala',
   description:
-    "ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal",
-  applicationName: "ORIGEN ERP",
-  
+    'ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal',
+  applicationName: 'ORIGEN ERP',
+
   // Icon definitions - with WebP/AVIF support
   icons: {
     icon: [
       {
-        url: "/favicon.ico",
-        type: "image/x-icon",
+        url: '/favicon.ico',
+        type: 'image/x-icon',
       },
       {
-        url: "/images-optimized/favicon-192x192.webp",
-        sizes: "192x192",
-        type: "image/webp",
+        url: '/images-optimized/favicon-192x192.webp',
+        sizes: '192x192',
+        type: 'image/webp',
       },
       {
-        url: "/images-optimized/favicon-192x192.avif",
-        sizes: "192x192",
-        type: "image/avif",
+        url: '/images-optimized/favicon-192x192.avif',
+        sizes: '192x192',
+        type: 'image/avif',
       },
       {
-        url: "/favicon-192x192.png",
-        sizes: "192x192",
-        type: "image/png",
+        url: '/favicon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
       },
     ],
     apple: [
       {
-        url: "/images-optimized/apple-touch-icon.webp",
-        type: "image/webp",
+        url: '/images-optimized/apple-touch-icon.webp',
+        type: 'image/webp',
       },
       {
-        url: "/images-optimized/apple-touch-icon.avif",
-        type: "image/avif",
+        url: '/images-optimized/apple-touch-icon.avif',
+        type: 'image/avif',
       },
       {
-        url: "/apple-touch-icon.png",
-        type: "image/png",
+        url: '/apple-touch-icon.png',
+        type: 'image/png',
       },
     ],
   },
 
   // Manifest with optimized images
-  manifest: "/site.webmanifest",
+  manifest: '/site.webmanifest',
 
   // Open Graph - Optimized images
   openGraph: {
-    type: "website",
-    locale: "es_GT",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://origen-erp.vercel.app",
-    siteName: "ORIGEN ERP Guatemala",
-    title: "ORIGEN ERP Guatemala",
+    type: 'website',
+    locale: 'es_GT',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app',
+    siteName: 'ORIGEN ERP Guatemala',
+    title: 'ORIGEN ERP Guatemala',
     description:
-      "ERP integral para construcción. Gestión de proyectos, APU, cotizaciones y personal",
+      'ERP integral para construcción. Gestión de proyectos, APU, cotizaciones y personal',
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://origen-erp.vercel.app"}/images-optimized/og-image.webp`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/images-optimized/og-image.webp`,
         width: 1200,
         height: 630,
-        alt: "ORIGEN ERP",
-        type: "image/webp",
+        alt: 'ORIGEN ERP',
+        type: 'image/webp',
       },
       {
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://origen-erp.vercel.app"}/og-image.png`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "ORIGEN ERP",
-        type: "image/png",
+        alt: 'ORIGEN ERP',
+        type: 'image/png',
       },
     ],
   },
 
   // Twitter Card - Optimized
   twitter: {
-    card: "summary_large_image",
-    title: "ORIGEN ERP Guatemala",
+    card: 'summary_large_image',
+    title: 'ORIGEN ERP Guatemala',
     description:
-      "ERP integral para construcción. Gestión de proyectos, APU, cotizaciones y personal",
+      'ERP integral para construcción. Gestión de proyectos, APU, cotizaciones y personal',
     images: [
-      `${process.env.NEXT_PUBLIC_SITE_URL || "https://origen-erp.vercel.app"}/images-optimized/twitter-image.webp`,
+      `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/images-optimized/twitter-image.webp`,
     ],
   },
 
   // Mobile optimization
-  viewport:
-    "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes",
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes',
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "ORIGEN ERP",
+    statusBarStyle: 'black-translucent',
+    title: 'ORIGEN ERP',
   },
 
   // PWA setup
@@ -114,27 +114,23 @@ export const metadata: Metadata = {
 
 // JSON-LD Schema with optimized image
 const schema = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "ORIGEN ERP",
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'ORIGEN ERP',
   description:
-    "ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal",
-  applicationCategory: "BusinessApplication",
-  image: `${process.env.NEXT_PUBLIC_SITE_URL || "https://origen-erp.vercel.app"}/images-optimized/logo.webp`,
-  operatingSystem: "Web",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://origen-erp.vercel.app",
+    'ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal',
+  applicationCategory: 'BusinessApplication',
+  image: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/images-optimized/logo.webp`,
+  operatingSystem: 'Web',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app',
   aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.9",
-    ratingCount: "250",
+    '@type': 'AggregateRating',
+    ratingValue: '4.9',
+    ratingCount: '250',
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es-GT">
       <head>
@@ -146,11 +142,7 @@ export default function RootLayout({
 
         {/* Preconnect to external services */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
         {/* Fonts - with font-display: swap for LCP optimization */}
         <link
@@ -163,11 +155,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
 
         {/* Preload critical resources */}
-        <link
-          rel="preload"
-          as="style"
-          href="/fonts/inter.css"
-        />
+        <link rel="preload" as="style" href="/fonts/inter.css" />
       </head>
 
       <body className="bg-gray-50 dark:bg-gray-900">
