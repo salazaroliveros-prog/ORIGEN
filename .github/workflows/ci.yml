@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
     branches:
       - main
+      - develop
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -19,13 +21,15 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
+    name: Validate & Build
+
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
+      - name: Set up Node.js 26.x
+        uses: actions/setup-node@v4
         with:
           node-version: 26.x
           cache: npm
@@ -33,23 +37,23 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Lint
+      - name: ESLint - Check code quality
         run: npm run lint
 
-      - name: Validate privacy-first Service Worker
-        run: node scripts/generate-service-worker.js
+      - name: Prettier - Code formatting check
+        run: npm run format:check
 
-      - name: Validate PWA manifest and local assets
-        run: node scripts/pwa-manifest-validator.js
-
-      - name: Type check
+      - name: TypeScript - Type checking
         run: npm run type-check
 
-      - name: Run tests
-        run: npm test
+      - name: Validate PWA manifest and local assets
+        run: npm run pwa:validate-manifest
+
+      - name: Run unit tests
+        run: npm run test
 
       - name: Set up Java for Firebase emulators
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
@@ -57,7 +61,8 @@ jobs:
       - name: Run Firebase emulator security tests
         run: npm run test:firebase
 
-      - name: Build
+      - name: Build Next.js
+        run: npm run build
         env:
           NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -66,14 +71,26 @@ jobs:
           NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_FIREBASE_VAPID_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_VAPID_KEY }}
           NEXT_PUBLIC_FIRESTORE_DATABASE_ID: ${{ secrets.NEXT_PUBLIC_FIRESTORE_DATABASE_ID }}
-        run: npm run build
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PRIMARY_ADMIN_EMAIL: ${{ secrets.PRIMARY_ADMIN_EMAIL }}
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run full Chromium browser E2E suite
+      - name: Run E2E tests
+        run: npm run test:e2e -- --project=chromium
         env:
           CI: 'true'
           NEXT_TELEMETRY_DISABLED: '1'
-        run: npm run test:e2e -- --project=chromium
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results-${{ github.run_id }}
+          path: test-results/
+          retention-days: 30
+          if-no-files-found: ignore

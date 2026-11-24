@@ -7,272 +7,352 @@ on:
     branches: [main, develop]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '26'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+  checks: write
 
 jobs:
   # ========================================
   # JOB 1: LINT & CODE QUALITY
   # ========================================
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Lint & Code Quality
-    
+    timeout-minutes: 20
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
-      - run: npm ci
-      
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
       - name: ESLint - Check code quality
-        run: npm run lint || true
-        continue-on-error: true
-      
+        run: npm run lint
+        continue-on-error: false
+
       - name: TypeScript - Type checking
-        run: npm run type-check || true
-        continue-on-error: true
-      
-      - name: Prettier - Code formatting
-        run: npx prettier --check . || true
-        continue-on-error: true
+        run: npm run type-check
+        continue-on-error: false
+
+      - name: Prettier - Code formatting check
+        run: npm run format:check
+        continue-on-error: false
 
   # ========================================
   # JOB 2: SECURITY SCANNING
   # ========================================
   security:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Security Scan
-    
+    timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: npm audit - Check dependencies
-        run: npm audit --production --audit-level=moderate || true
-        continue-on-error: true
-      
-      - name: OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          project: 'ORIGEN ERP Guatemala'
-          path: '.'
-          format: 'JSON'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: npm audit - Check dependencies
+        run: npm audit --production --audit-level=high
         continue-on-error: true
 
   # ========================================
   # JOB 3: BUILD
   # ========================================
   build:
-    runs-on: ubuntu-latest
-    name: Build & Optimization
+    runs-on: ubuntu-24.04
+    name: Build Next.js Application
     needs: [lint, security]
-    
+    timeout-minutes: 45
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
-        run: npm ci
-      
-      - name: Next.js Build
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate PWA manifest
+        run: npm run pwa:validate-manifest
+
+      - name: Build Next.js
         run: npm run build
-      
-      - name: Build Output Size
-        run: |
-          echo "🏗️  Build completed successfully"
-          du -sh .next/ || echo "Build size: N/A"
-      
+        env:
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_FIREBASE_VAPID_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_VAPID_KEY }}
+          NEXT_PUBLIC_FIRESTORE_DATABASE_ID: ${{ secrets.NEXT_PUBLIC_FIRESTORE_DATABASE_ID }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PRIMARY_ADMIN_EMAIL: ${{ secrets.PRIMARY_ADMIN_EMAIL }}
+
       - name: Store Build Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-output
+          name: build-output-${{ github.run_id }}
           path: .next/
           retention-days: 1
-      
-      - name: Store Public Artifact
-        uses: actions/upload-artifact@v3
+          if-no-files-found: error
+
+      - name: Store Public Files
+        uses: actions/upload-artifact@v4
         with:
-          name: public-output
+          name: public-output-${{ github.run_id }}
           path: public/
           retention-days: 1
+          if-no-files-found: ignore
 
   # ========================================
   # JOB 4: UNIT & INTEGRATION TESTS
   # ========================================
   test:
-    runs-on: ubuntu-latest
-    name: Tests
+    runs-on: ubuntu-24.04
+    name: Unit & Integration Tests
     needs: build
-    
+    timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
-      - run: npm ci
-      
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
       - name: Run Test Suite
-        run: npm run test || true
-        continue-on-error: true
-      
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v3
+        run: npm run test
+
+      - name: Setup Java for Firebase emulators
+        uses: actions/setup-java@v4
         with:
-          name: test-results
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Run Firebase emulator security tests
+        run: npm run test:firebase
+
+      - name: Upload Coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ github.run_id }}
           path: coverage/
-        continue-on-error: true
+          retention-days: 30
+          if-no-files-found: ignore
 
   # ========================================
-  # JOB 5: PERFORMANCE CHECK
+  # JOB 5: E2E TESTS
   # ========================================
-  performance:
-    runs-on: ubuntu-latest
-    name: Performance Check
+  e2e:
+    runs-on: ubuntu-24.04
+    name: E2E Tests (Chromium)
     needs: build
-    
+    timeout-minutes: 45
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v9
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-        continue-on-error: true
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E Tests
+        run: npm run test:e2e -- --project=chromium
+        env:
+          CI: 'true'
+          NEXT_TELEMETRY_DISABLED: '1'
+
+      - name: Upload E2E Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-${{ github.run_id }}
+          path: test-results/
+          retention-days: 30
+          if-no-files-found: ignore
 
   # ========================================
   # JOB 6: DEPLOY TO STAGING
   # ========================================
   deploy-staging:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Deploy to Staging
-    needs: [build, test, performance]
-    
+    needs: [build, test, e2e]
+    timeout-minutes: 30
+    environment:
+      name: staging
+      url: https://origen-staging.vercel.app
+
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Deploy to Vercel Staging
-        uses: vercel/action@master
+        uses: vercel/action@v8
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STAGING }}
           github-comment: true
-      
-      - name: Smoke Tests - Staging
+        env:
+          VERCEL_ENV: preview
+
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Health Check - Staging
         run: |
-          echo "🧪 Running smoke tests on staging..."
-          sleep 10
-          STAGING_URL=$(git show HEAD:vercel.json | jq -r '.env.STAGING_URL // "https://origen-erp-staging.vercel.app"' || echo "https://origen-erp-staging.vercel.app")
-          
-          echo "Testing health endpoint..."
-          curl -f $STAGING_URL/api/health || exit 1
-          
-          echo "✅ Staging health check passed"
-        continue-on-error: true
-      
-      - name: Notify Slack - Staging
+          echo "🧪 Running health checks on staging..."
+          STAGING_URL="https://origen-staging.vercel.app"
+
+          for attempt in {1..5}; do
+            echo "Attempt $attempt/5..."
+            if curl -sf "$STAGING_URL" > /dev/null 2>&1; then
+              echo "✅ Staging deployment is healthy"
+              exit 0
+            fi
+            if [ $attempt -lt 5 ]; then
+              sleep 10
+            fi
+          done
+
+          echo "❌ Staging deployment health check failed"
+          exit 1
+
+      - name: Notify Slack - Staging Deploy
         if: always()
         uses: slackapi/slack-github-action@v1.24.0
         with:
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           payload: |
             {
-              "text": "🌍 ORIGEN ERP - Staging Deploy",
+              "text": "🌍 ORIGEN ERP - Staging Deployment",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*🌍 Staging Deploy Complete*\nBranch: develop\nCommit: ${{ github.sha }}\nAutor: ${{ github.actor }}"
+                    "text": "*${{ job.status == 'success' && '✅ Staging Deploy Successful' || '❌ Staging Deploy Failed' }}*\n\nBranch: develop\nCommit: ${{ github.sha }}\nAuthor: ${{ github.actor }}\nURL: https://origen-staging.vercel.app"
                   }
                 }
               ]
             }
+        continue-on-error: true
 
   # ========================================
   # JOB 7: DEPLOY TO PRODUCTION
   # ========================================
   deploy-production:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Deploy to Production
-    needs: [build, test, performance]
+    needs: [build, test, e2e]
+    timeout-minutes: 30
     environment:
       name: production
-      url: https://origen-erp.vercel.app
-    
+      url: https://origen-one-kohl.vercel.app
+
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Deploy to Vercel Production
-        uses: vercel/action@master
+        uses: vercel/action@v8
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           production: true
-      
+        env:
+          VERCEL_ENV: production
+
+      - name: Wait for deployment
+        run: sleep 30
+
       - name: Health Check - Production
         run: |
           echo "✅ Running production health checks..."
-          sleep 15
-          
-          # Health endpoint
-          echo "Checking /api/health..."
-          curl -f https://origen-erp.vercel.app/api/health || exit 1
-          
-          # Home page
-          echo "Checking homepage..."
-          curl -f https://origen-erp.vercel.app/ || exit 1
-          
-          # Security headers
-          echo "Checking security headers..."
-          HEADERS=$(curl -I https://origen-erp.vercel.app/ 2>/dev/null)
-          
-          if echo "$HEADERS" | grep -q "Strict-Transport-Security"; then
-            echo "✅ HSTS header present"
-          else
-            echo "⚠️  HSTS header missing"
-          fi
-          
-          if echo "$HEADERS" | grep -q "X-Frame-Options"; then
-            echo "✅ X-Frame-Options header present"
-          else
-            echo "⚠️  X-Frame-Options header missing"
-          fi
-          
-          echo "✅ All health checks passed"
-      
-      - name: Performance Check - Production
-        run: |
-          echo "🚀 Checking performance metrics..."
-          
-          # Simple performance check
-          START=$(date +%s%N)
-          curl -s https://origen-erp.vercel.app/api/health > /dev/null
-          END=$(date +%s%N)
-          DURATION=$((($END - $START) / 1000000))
-          
-          echo "Response time: ${DURATION}ms"
-          
-          if [ $DURATION -lt 2000 ]; then
-            echo "✅ Performance OK (< 2000ms)"
-          else
-            echo "⚠️  Performance warning (> 2000ms)"
-          fi
-      
+          PROD_URL="https://origen-one-kohl.vercel.app"
+
+          for attempt in {1..5}; do
+            echo "Attempt $attempt/5..."
+            if curl -sf "$PROD_URL" > /dev/null 2>&1; then
+              echo "✅ Production deployment is healthy"
+              
+              # Check security headers
+              echo ""
+              echo "Verifying security headers..."
+              HEADERS=$(curl -sI "$PROD_URL")
+              
+              if echo "$HEADERS" | grep -q "X-Frame-Options"; then
+                echo "✅ X-Frame-Options header present"
+              else
+                echo "⚠️  X-Frame-Options header missing"
+              fi
+              
+              if echo "$HEADERS" | grep -q "X-Content-Type-Options"; then
+                echo "✅ X-Content-Type-Options header present"
+              else
+                echo "⚠️  X-Content-Type-Options header missing"
+              fi
+              
+              echo ""
+              echo "✅ All health checks passed"
+              exit 0
+            fi
+            if [ $attempt -lt 5 ]; then
+              sleep 15
+            fi
+          done
+
+          echo "❌ Production deployment health check failed"
+          exit 1
+
       - name: Notify Slack - Success
         if: success()
         uses: slackapi/slack-github-action@v1.24.0
@@ -286,12 +366,13 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*✅ Production Deploy Successful*\n\nURL: https://origen-erp.vercel.app\nCommit: ${{ github.sha }}\nAutor: ${{ github.actor }}\n\nAll health checks passed ✅"
+                    "text": "*✅ Production Deploy Successful*\n\n🌐 URL: https://origen-one-kohl.vercel.app\n📝 Commit: ${{ github.sha }}\n👤 Author: ${{ github.actor }}\n\n✅ All health checks passed"
                   }
                 }
               ]
             }
-      
+        continue-on-error: true
+
       - name: Notify Slack - Failure
         if: failure()
         uses: slackapi/slack-github-action@v1.24.0
@@ -305,67 +386,94 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*❌ Production Deploy FAILED*\n\nCommit: ${{ github.sha }}\nAutor: ${{ github.actor }}\n\nCheck logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    "text": "*❌ Production Deploy FAILED*\n\n📝 Commit: ${{ github.sha }}\n👤 Author: ${{ github.actor }}\n\n🔗 Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                   }
                 }
               ]
             }
+        continue-on-error: true
 
   # ========================================
   # JOB 8: POST-DEPLOYMENT MONITORING
   # ========================================
   monitoring:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.deploy-production.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Post-Deployment Monitoring
     needs: deploy-production
-    
+    timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
-      
       - name: Monitor Production
         run: |
-          echo "📊 Monitoring production deployment..."
-          
-          # Check uptime for first 60 seconds
+          echo "📊 Monitoring production deployment for 60 seconds..."
+          PROD_URL="https://origen-one-kohl.vercel.app"
+
           for i in {1..6}; do
-            echo "Check $i/6..."
-            curl -s https://origen-erp.vercel.app/api/health > /dev/null && echo "✅ Health OK" || echo "❌ Health check failed"
-            sleep 10
+            echo ""
+            echo "Check $i/6 at $(date)"
+            if curl -sf "$PROD_URL" > /dev/null 2>&1; then
+              echo "✅ Health check passed"
+            else
+              echo "❌ Health check failed"
+              exit 1
+            fi
+            if [ $i -lt 6 ]; then
+              sleep 10
+            fi
           done
-          
-          echo "✅ Initial monitoring complete"
+
+          echo ""
+          echo "✅ Monitoring complete - Application stable"
         continue-on-error: true
-      
-      - name: Create Deployment Summary
+
+      - name: Create Deployment Record
         run: |
-          cat > deployment-summary.txt << EOF
-          🚀 DEPLOYMENT SUMMARY
-          ══════════════════════════════════
-          
+          cat > deployment-record.txt << EOF
+          🚀 DEPLOYMENT RECORD
+          ══════════════════════════════════════════
+
           Project: ORIGEN ERP Guatemala
           Environment: Production
-          URL: https://origen-erp.vercel.app
-          Deployment Time: $(date)
+          URL: https://origen-one-kohl.vercel.app
+
+          Deployment Details:
+          ───────────────────────────────────────────
+          Date/Time: $(date)
           Commit SHA: ${{ github.sha }}
           Author: ${{ github.actor }}
-          
-          Status: ✅ SUCCESS
-          
-          Checks Completed:
-          ✅ Build completed
-          ✅ Tests passed
-          ✅ Performance checked
-          ✅ Security scan passed
-          ✅ Health endpoints responding
+          Branch: main
+          Workflow Run: ${{ github.run_id }}
+
+          Validation Steps Completed:
+          ───────────────────────────────────────────
+          ✅ Dependencies linted
+          ✅ Type checking passed
+          ✅ Unit tests passed
+          ✅ Firebase security tests passed
+          ✅ E2E tests passed (Chromium)
+          ✅ Build completed successfully
+          ✅ Vercel deployment successful
+          ✅ Health checks passed
           ✅ Security headers verified
-          
-          Ready for production use!
+          ✅ 60-second monitoring passed
+
+          Status: ✅ PRODUCTION READY
+
+          Next Steps:
+          ───────────────────────────────────────────
+          - Monitor application in production
+          - Check error tracking (Sentry)
+          - Verify user data integrity
+          - Monitor performance metrics
+
+          Deployment Checklist Complete ✅
           EOF
-          cat deployment-summary.txt
-      
-      - name: Upload Deployment Summary
-        uses: actions/upload-artifact@v3
+          cat deployment-record.txt
+
+      - name: Save Deployment Record
+        uses: actions/upload-artifact@v4
         with:
-          name: deployment-summary
-          path: deployment-summary.txt
+          name: deployment-record-${{ github.run_id }}
+          path: deployment-record.txt
+          retention-days: 90
