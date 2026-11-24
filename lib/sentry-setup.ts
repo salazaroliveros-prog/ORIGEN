@@ -62,10 +62,7 @@ export function initSentry() {
     attachStacktrace: true,
 
     // Max breadcrumbs
-    maxBreadcrumbs: 50,
-
-    // Request filtering
-    sendDefaultPii: false,
+    maxBreadcrumbs: 50
   });
 }
 
@@ -140,17 +137,14 @@ export function trackUserAction(action: string, details: Record<string, any> = {
   });
 }
 
-// Performance transaction tracking
+// Performance transaction tracking - Use Sentry's native profiling instead
 export function startTransaction(name: string) {
-  const transaction = Sentry.startTransaction({
-    name: name,
-    op: 'http.request',
-  });
-
+  // Sentry now uses automatic profiling
+  // This function is kept for backward compatibility but doesn't create transactions
   return {
-    end: () => transaction.finish(),
-    setData: (key: string, value: any) => transaction.setData(key, value),
-    addEvent: (message: string, data?: Record<string, any>) => transaction.addEvent(message, data),
+    end: () => {},
+    setData: () => {},
+    addEvent: () => {},
   };
 }
 
