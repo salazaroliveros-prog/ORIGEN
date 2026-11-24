@@ -1,0 +1,51 @@
+Debugger listening on ws://127.0.0.1:52456/9a7d3bff-da70-46df-b927-017739587945
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+npm notice run constructerp-guatemala@0.1.0 build
+npm notice run node scripts/build.mjs
+Debugger listening on ws://127.0.0.1:52473/dac46c24-2ef1-4d5d-9f3a-9cd696325d3f
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+[build.mjs] Starting production build with Next.js in: C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN
+Debugger listening on ws://127.0.0.1:52477/41df19d9-ebff-4d1a-8b9e-f6b11fc33b8c
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\wilso\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\wilso\Documents\APPS\origen_app_erp\ORIGEN\package-lock.json
+
+   ▲ Next.js 15.5.29
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 6.3s
+   Linting and checking validity of types ...
+Debugger listening on ws://127.0.0.1:63973/68b2673e-e259-4fd7-9fa6-801c24ca9540
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger listening on ws://127.0.0.1:63974/b4ee018c-70b9-4a78-ac6c-79b1eb1de696
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger attached.
+Failed to compile.
+
+./components/modules/ProjectsModule.tsx:178:26
+Type error: Property 'teamMembers' does not exist on type 'Project'.
+
+  176 |                 )}
+  177 |
+> 178 |                 {project.teamMembers && project.teamMembers.length > 0 && (
+      |                          ^
+  179 |                   <div className="flex items-center gap-2 text-slate-400">
+  180 |                     <Users className="h-4 w-4 shrink-0" />
+  181 |                     <span>{project.teamMembers.length} miembros</span>
+Waiting for the debugger to disconnect...
+Next.js build worker exited with code: 1 and signal: null
+Waiting for the debugger to disconnect...
+[build.mjs] Next.js build failed with code 1
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

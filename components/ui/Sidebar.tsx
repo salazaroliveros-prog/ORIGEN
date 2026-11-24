@@ -29,8 +29,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ProjectSelectorEnhanced } from '@/components/ProjectSelectorEnhanced';
 import { TabsGrouped } from '@/components/TabsGrouped';
-import type { Column as TabColumn } from '@/components/TabsGrouped';
-import { TAB_DEFINITIONS, filterTabsByPermissions } from '@/lib/constants/tabs';
+import { TAB_DEFINITIONS, filterTabsByPermissions, getTabGroup } from '@/lib/constants/tabs';
 
 interface SidebarProps {
   company: CompanySettings;
@@ -53,9 +52,6 @@ interface SidebarProps {
   canViewSupplyChain?: boolean;
   className?: string;
 }
-
-// getTabGroup now imported from lib/constants/tabs
-import { getTabGroup } from '@/lib/constants/tabs';
 
 export function Sidebar({
   company,
@@ -153,11 +149,7 @@ export function Sidebar({
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4"
         aria-label="Navegación"
       >
-        <TabsGrouped
-          tabs={tabs}
-          activeTabId={activeTab}
-          onSelectTab={onSelectTab}
-        />
+        <TabsGrouped tabs={tabs} activeTabId={activeTab} onSelectTab={onSelectTab} />
       </nav>
 
       {/* Footer con acceso a configuración, usuario y cerrar sesión - MEJORADO */}

@@ -9,7 +9,6 @@ import {
   AlertCircle,
   Briefcase,
   Calendar,
-  Users,
 } from 'lucide-react';
 import type { Project } from '@/lib/types';
 
@@ -166,12 +165,6 @@ export function ProjectSelectorEnhanced({
                       year: '2-digit',
                     })}
                   </span>
-                </div>
-              )}
-              {activeProject.teamMembers && activeProject.teamMembers.length > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <Users className="h-3 w-3" aria-hidden="true" />
-                  <span>{activeProject.teamMembers.length} miembros</span>
                 </div>
               )}
             </div>

@@ -1,7 +1,17 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Plus, Edit2, Trash2, Filter, Search, Building2, MapPin, Calendar, Users, TrendingUp } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Filter,
+  Search,
+  Building2,
+  MapPin,
+  Calendar,
+  TrendingUp,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
@@ -18,7 +28,7 @@ interface ProjectsModuleProps {
 
 /**
  * PROJECTS MODULE - Módulo de Proyectos
- * 
+ *
  * ✨ Características:
  * - Listado profesional de proyectos
  * - Vista detallada con información completa
@@ -147,7 +157,7 @@ export function ProjectsModule({
                 </div>
 
                 <span
-                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium border ${getStatusColor(project.status)}`}
+                  className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(project.status)}`}
                 >
                   {project.status}
                 </span>
@@ -172,13 +182,6 @@ export function ProjectsModule({
                         day: '2-digit',
                       })}
                     </span>
-                  </div>
-                )}
-
-                {project.teamMembers && project.teamMembers.length > 0 && (
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Users className="h-4 w-4 shrink-0" />
-                    <span>{project.teamMembers.length} miembros</span>
                   </div>
                 )}
 
@@ -221,7 +224,7 @@ export function ProjectsModule({
 
               {/* Actions */}
               {canWrite && (
-                <div className="flex gap-2 pt-2 border-t border-white/5">
+                <div className="flex gap-2 border-t border-white/5 pt-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -231,7 +234,7 @@ export function ProjectsModule({
                     }}
                     className="flex-1"
                   >
-                    <Edit2 className="h-4 w-4 mr-1" />
+                    <Edit2 className="mr-1 h-4 w-4" />
                     Editar
                   </Button>
                   <Button
@@ -245,7 +248,7 @@ export function ProjectsModule({
                     }}
                     className="flex-1"
                   >
-                    <Trash2 className="h-4 w-4 mr-1 text-red-400" />
+                    <Trash2 className="mr-1 h-4 w-4 text-red-400" />
                     Eliminar
                   </Button>
                 </div>
@@ -257,7 +260,10 @@ export function ProjectsModule({
 
       {/* Empty State */}
       {filteredProjects.length === 0 && (
-        <Card variant="default" className="flex flex-col items-center justify-center py-12 text-center">
+        <Card
+          variant="default"
+          className="flex flex-col items-center justify-center py-12 text-center"
+        >
           <Building2 className="mb-4 h-12 w-12 text-slate-500" />
           <h3 className="mb-2 text-lg font-semibold text-white">Sin proyectos</h3>
           <p className="text-sm text-slate-400">

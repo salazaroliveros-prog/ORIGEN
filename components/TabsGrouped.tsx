@@ -40,7 +40,7 @@ interface TabsGroupedProps {
 /**
  * TABS GROUPED - Producción Empresarial
  * Usa definiciones centralizadas desde lib/constants/tabs
- * 
+ *
  * ✨ Características:
  * - Tabs organizados por sección (Operativo, Financiero, Personal, Admin)
  * - Badges con colores semánticos
@@ -70,23 +70,20 @@ const TAB_GROUPS = {
     color: 'amber',
     description: 'Configuración y gestión',
   },
-};
+} as const;
+
+type TabGroupKey = keyof typeof TAB_GROUPS;
 
 // DEFAULT_TABS ahora viene de TAB_DEFINITIONS en lib/constants/tabs
 // Mantener solo para compatibilidad hacia atrás
 const DEFAULT_TABS: Tab[] = TAB_DEFINITIONS;
 
-export function TabsGrouped({
-  tabs,
-  activeTabId,
-  onSelectTab,
-  compact = false,
-}: TabsGroupedProps) {
+export function TabsGrouped({ tabs, activeTabId, onSelectTab, compact = false }: TabsGroupedProps) {
   // Si no se pasan tabs, usar las definiciones centralizadas
   const finalTabs = tabs && tabs.length > 0 ? tabs : TAB_DEFINITIONS;
   // Agrupar tabs
   const groupedTabs = useMemo(() => {
-    const groups: Record<string, Tab[]> = {
+    const groups: Record<TabGroupKey, Tab[]> = {
       operativo: [],
       financiero: [],
       personal: [],
@@ -94,7 +91,7 @@ export function TabsGrouped({
     };
 
     finalTabs.forEach((tab) => {
-      groups[tab.group].push(tab);
+      groups[tab.group as TabGroupKey].push(tab);
     });
 
     return groups;
@@ -140,7 +137,7 @@ export function TabsGrouped({
   // Full mode - grouped with headers
   return (
     <div className="space-y-6" role="tablist">
-      {(Object.keys(groupedTabs) as Array<keyof typeof groupedTabs>).map((groupKey) => {
+      {(Object.keys(groupedTabs) as TabGroupKey[]).map((groupKey) => {
         const group = TAB_GROUPS[groupKey];
         const groupTabs = groupedTabs[groupKey];
 
@@ -179,7 +176,7 @@ export function TabsGrouped({
                     <div
                       className={`absolute inset-0 -z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${
                         isActive
-                          ? 'opacity-100 bg-gradient-to-r from-sky-500/10 to-transparent'
+                          ? 'bg-gradient-to-r from-sky-500/10 to-transparent opacity-100'
                           : 'bg-gradient-to-r from-white/[0.08] to-transparent'
                       }`}
                       aria-hidden="true"
@@ -197,10 +194,8 @@ export function TabsGrouped({
                     {/* Badge */}
                     {tab.badge && (
                       <span
-                        className={`ml-auto shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                          isActive
-                            ? 'bg-sky-400/40 text-sky-100'
-                            : 'bg-amber-500/30 text-amber-200'
+                        className={`ml-auto inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                          isActive ? 'bg-sky-400/40 text-sky-100' : 'bg-amber-500/30 text-amber-200'
                         }`}
                       >
                         {tab.badge}
