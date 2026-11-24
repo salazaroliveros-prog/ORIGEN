@@ -151,15 +151,13 @@ export function getTabDefinition(tabId: string): TabDefinition | undefined {
 /**
  * HELPER: Filtrar tabs según permisos
  */
-export function filterTabsByPermissions(
-  permissions: {
-    canViewPersonnel: boolean;
-    canViewPayroll: boolean;
-    canViewExpenses: boolean;
-    canViewSupplyChain: boolean;
-    canManageCompany: boolean;
-  }
-): TabDefinition[] {
+export function filterTabsByPermissions(permissions: {
+  canViewPersonnel: boolean;
+  canViewPayroll: boolean;
+  canViewExpenses: boolean;
+  canViewSupplyChain: boolean;
+  canManageCompany: boolean;
+}): TabDefinition[] {
   return TAB_DEFINITIONS.filter((tab) => {
     if (tab.id === 'personal') return permissions.canViewPersonnel;
     if (tab.id === 'planillas') return permissions.canViewPayroll;
@@ -184,4 +182,26 @@ export function getTabsByGroup(
  */
 export function isValidTabId(tabId: string): boolean {
   return TAB_DEFINITIONS.some((tab) => tab.id === tabId);
+}
+
+/** Get color class for a tab based on its group */
+export function getRoleColor(tabId: string): string {
+  const tab = TAB_DEFINITIONS.find((t) => t.id === tabId);
+  const group = tab?.group ?? 'operativo';
+  const colors: Record<string, string> = {
+    operativo: 'primary',
+    financiero: 'secondary',
+    personal: 'success',
+    admin: 'warning',
+  };
+  return colors[group] || 'primary';
+}
+
+/** Get icon component for a tab based on its id */
+export function getRoleIcon(tabId: string): React.ComponentType<{ className?: string }> {
+  const tab = TAB_DEFINITIONS.find((t) => t.id === tabId);
+  if (tab?.icon) {
+    return tab.icon;
+  }
+  return Users;
 }
