@@ -21,7 +21,7 @@ export function getViewportInfo(page: Page): ViewportInfo {
 
   const width = size.width;
   const height = size.height;
-  
+
   let category: 'desktop' | 'tablet' | 'mobile' = 'desktop';
   let name = 'Desktop';
 
@@ -46,7 +46,7 @@ export async function captureScreenshot(
 ) {
   const viewport = getViewportInfo(page);
   const browserName = page.context().browser()?.browserType().name() || 'unknown';
-  
+
   const filename = `screenshots/${testName}-${browserName}-${viewport.width}x${viewport.height}.png`;
 
   if (options?.selector) {
@@ -73,22 +73,26 @@ export async function validateElement(
   options?: { minWidth?: number; minHeight?: number; visible?: boolean }
 ) {
   const element = page.locator(selector).first();
-  
+
   if (options?.visible !== false) {
-    await expect(element).toBeVisible({ timeout: 5000 }).catch(() => {
-      // Element not visible, continue
-    });
+    await expect(element)
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {
+        // Element not visible, continue
+      });
   }
 
   if (await element.isVisible()) {
     const box = await element.boundingBox();
-    
+
     if (box) {
       if (options?.minWidth && box.width < options.minWidth) {
         throw new Error(`Element width ${box.width}px is less than minimum ${options.minWidth}px`);
       }
       if (options?.minHeight && box.height < options.minHeight) {
-        throw new Error(`Element height ${box.height}px is less than minimum ${options.minHeight}px`);
+        throw new Error(
+          `Element height ${box.height}px is less than minimum ${options.minHeight}px`
+        );
       }
     }
 
@@ -121,7 +125,8 @@ export async function getPerformanceMetrics(page: Page) {
     firstPaint: performance.getEntriesByName('first-paint')[0]?.startTime,
     firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime,
     loadTime: performance.timing.loadEventEnd - performance.timing.navigationStart,
-    domContentLoaded: performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart,
+    domContentLoaded:
+      performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart,
     domInteractive: performance.timing.domInteractive - performance.timing.navigationStart,
   }));
 }
@@ -155,7 +160,7 @@ export async function interactWithElement(
 ) {
   const element = page.locator(selector).first();
 
-  if (!await element.isVisible()) {
+  if (!(await element.isVisible())) {
     throw new Error(`Element ${selector} not visible for ${action}`);
   }
 
@@ -186,8 +191,8 @@ export async function captureElementState(
   state: 'default' | 'hover' | 'focus' | 'active'
 ) {
   const element = page.locator(selector).first();
-  
-  if (!await element.isVisible()) return null;
+
+  if (!(await element.isVisible())) return null;
 
   const viewport = getViewportInfo(page);
   const browserName = page.context().browser()?.browserType().name() || 'unknown';
@@ -216,16 +221,19 @@ export async function captureElementState(
  * Validar accesibilidad básica
  */
 export async function validateAccessibility(page: Page) {
-  const issues = await page.evaluate(() => {
-    const issues = [];
+  const issues: string[] = await page.evaluate(() => {
+    const issuesArray: string[] = [];
 
     // Validar que inputs tengan labels
     const inputs = document.querySelectorAll('input, textarea, select');
     inputs.forEach((input) => {
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || 
-                       input.closest('label');
+      const htmlInput = input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+      const inputId = htmlInput.id || '';
+      const hasLabel =
+        document.querySelector(`label[for="${inputId}"]`) || htmlInput.closest('label');
       if (!hasLabel) {
-        issues.push(`Input ${input.id || input.name} no tiene label`);
+        const name = inputId || ('name' in htmlInput ? htmlInput.name : 'unnamed');
+        issuesArray.push(`Input ${name} no tiene label`);
       }
     });
 
@@ -233,17 +241,17 @@ export async function validateAccessibility(page: Page) {
     const buttons = document.querySelectorAll('button');
     buttons.forEach((btn) => {
       if (!btn.textContent?.trim() && !btn.getAttribute('aria-label')) {
-        issues.push('Button sin texto o aria-label');
+        issuesArray.push('Button sin texto o aria-label');
       }
     });
 
     // Validar viewport meta tag
     const meta = document.querySelector('meta[name="viewport"]');
     if (!meta) {
-      issues.push('Meta viewport tag no encontrada');
+      issuesArray.push('Meta viewport tag no encontrada');
     }
 
-    return issues;
+    return issuesArray;
   });
 
   return issues;
@@ -270,14 +278,14 @@ export async function generateA11yReport(page: Page) {
  */
 export async function waitForPageReady(page: Page, maxWait = 30000) {
   await page.waitForLoadState('networkidle', { timeout: maxWait });
-  
+
   // Esperar a que se renderice
   await page.evaluate(() => {
-    return new Promise(resolve => {
+    return new Promise<void>((resolve) => {
       if (document.readyState === 'complete') {
-        resolve(null);
+        resolve();
       } else {
-        window.addEventListener('load', () => resolve(null));
+        window.addEventListener('load', () => resolve());
       }
     });
   });
