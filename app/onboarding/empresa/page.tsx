@@ -147,7 +147,7 @@ export default function OnboardingEmpresaPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
       <div className="w-full max-w-2xl">
-        <Card variant="glass" padding="lg" className="mx-auto w-full shadow-glass-xl">
+        <Card variant="outlined" padding="lg" className="mx-auto w-full shadow-glass-xl">
           <div className="mb-8 text-center">
             <div className="mb-4 flex items-center justify-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-glass">

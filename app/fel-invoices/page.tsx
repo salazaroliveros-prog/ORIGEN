@@ -120,7 +120,7 @@ export default function FelInvoicesListPage() {
   if (workspaceError || !ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">No se pudo cargar la empresa</h1>
           <p className="mb-4 text-sm text-slate-400">
             {workspaceError ?? 'Inicia sesión para consultar las facturas FEL.'}
@@ -275,7 +275,7 @@ export default function FelInvoicesListPage() {
 
       {/* Editar estado y notas */}
       {editingId && (
-        <Card variant="glass" padding="md" className="mt-6 shadow-glass-xl">
+        <Card variant="outlined" padding="md" className="mt-6 shadow-glass-xl">
           <div className="mb-4">
             <h3 className="text-sm font-bold text-white">Editar Factura FEL</h3>
             <p className="mt-1 text-xs text-slate-400">
