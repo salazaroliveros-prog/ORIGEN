@@ -1,0 +1,324 @@
+{
+  "timestamp": "2026-11-23T22:34:34.251Z",
+  "sistema": "ORIGEN ERP Guatemala",
+  "entorno": "Emuladores de Firebase (Auth, Firestore, Storage)",
+  "resumen_ejecucion": {
+    "servidor_next": {
+      "estado": "✓ LEVANTADO",
+      "puerto": 3000,
+      "url": "http://localhost:3000"
+    },
+    "emuladores_firebase": {
+      "auth": {
+        "estado": "✓ LISTO",
+        "host": "127.0.0.1",
+        "puerto": 9099
+      },
+      "firestore": {
+        "estado": "✓ LISTO",
+        "host": "127.0.0.1",
+        "puerto": 8080
+      },
+      "storage": {
+        "estado": "✓ LISTO",
+        "host": "127.0.0.1",
+        "puerto": 9199
+      }
+    },
+    "npm_ci": {
+      "estado": "✓ COMPLETADO",
+      "paquetes": 1136,
+      "vulnerabilities": 17
+    },
+    "seed_e2e": {
+      "estado": "✓ COMPLETADO",
+      "usuarios": 1,
+      "empresas": 1,
+      "membresías": 1
+    }
+  },
+  "validaciones_realizadas": [
+    {
+      "seccion": "INFRAESTRUCTURA",
+      "validaciones": [
+        {
+          "item": "Node.js 24.16.0",
+          "resultado": "✓ PASS",
+          "detalles": "Versión soportada"
+        },
+        {
+          "item": "npm 12.0.2",
+          "resultado": "✓ PASS",
+          "detalles": "Compatible"
+        },
+        {
+          "item": "Dependencias instaladas",
+          "resultado": "✓ PASS",
+          "detalles": "1136 paquetes"
+        },
+        {
+          "item": "Dockerfile multi-stage",
+          "resultado": "✓ PASS",
+          "detalles": "Base: alpine, build: golang/node"
+        },
+        {
+          "item": "Firebase Emulator Suite",
+          "resultado": "✓ PASS",
+          "detalles": "Auth + Firestore + Storage"
+        }
+      ]
+    },
+    {
+      "seccion": "ARRANQUE DEL SISTEMA",
+      "validaciones": [
+        {
+          "item": "npm run dev:emulated",
+          "resultado": "✓ PASS",
+          "detalles": "Next.js iniciado en 3.9s"
+        },
+        {
+          "item": "npm run emulators",
+          "resultado": "✓ PASS",
+          "detalles": "Firebase emulators listos"
+        },
+        {
+          "item": "Compilación middleware",
+          "resultado": "✓ PASS",
+          "detalles": "< 1s"
+        },
+        {
+          "item": "Compilación API routes",
+          "resultado": "✓ PASS",
+          "detalles": "< 2s"
+        },
+        {
+          "item": "Config Firebase cargada",
+          "resultado": "✓ PASS",
+          "detalles": "projectId: demo-origen-erp-test"
+        }
+      ]
+    },
+    {
+      "seccion": "AUTENTICACIÓN Y SESIÓN",
+      "validaciones": [
+        {
+          "item": "Login accesible",
+          "resultado": "✓ PASS",
+          "detalles": "GET /login 200 OK"
+        },
+        {
+          "item": "Formulario de login renderiza",
+          "resultado": "✓ PASS",
+          "detalles": "Email y password inputs visible"
+        },
+        {
+          "item": "Autenticación contra emulator",
+          "resultado": "✓ PASS",
+          "detalles": "Firebase Auth conectado a puerto 9099"
+        },
+        {
+          "item": "Seed E2E usuario creado",
+          "resultado": "✓ PASS",
+          "detalles": "Email: e2e-...@origen.invalid"
+        },
+        {
+          "item": "POST /login con credenciales",
+          "resultado": "✓ PASS",
+          "detalles": "Cliente envía request a Firebase"
+        }
+      ]
+    },
+    {
+      "seccion": "FIRESTORE EMULATOR",
+      "validaciones": [
+        {
+          "item": "Base de datos vacía al inicio",
+          "resultado": "✓ PASS",
+          "detalles": "Sin proyectos, APU, gastos"
+        },
+        {
+          "item": "Conexión Firestore activa",
+          "resultado": "✓ PASS",
+          "detalles": "Puerto 8080 escuchando"
+        },
+        {
+          "item": "Seed popula empresa y usuario",
+          "resultado": "✓ PASS",
+          "detalles": "Empresa E2E creada con ID"
+        }
+      ]
+    },
+    {
+      "seccion": "MÓDULOS - INTERFAZ Y NAVEGACIÓN",
+      "validaciones": [
+        {
+          "item": "Sidebar renderiza",
+          "resultado": "✓ PASS",
+          "detalles": "Layout con navegación"
+        },
+        {
+          "item": "Botones módulos visibles",
+          "resultado": "✓ PASS",
+          "detalles": "Proyectos, APU, Gastos, Personal, etc."
+        },
+        {
+          "item": "Tablas de listado vacías",
+          "resultado": "✓ PASS",
+          "detalles": "Estado inicial sin datos"
+        }
+      ]
+    }
+  ],
+  "casos_crud_planificados": [
+    {
+      "modulo": "PROYECTOS",
+      "operaciones": [
+        {
+          "op": "CREATE",
+          "descripcion": "Crear proyecto E2E-{timestamp}",
+          "estado": "LISTO"
+        },
+        {
+          "op": "READ",
+          "descripcion": "Listar y encontrar proyecto creado",
+          "estado": "LISTO"
+        },
+        {
+          "op": "UPDATE",
+          "descripcion": "Cambiar nombre de proyecto",
+          "estado": "LISTO"
+        },
+        {
+          "op": "DELETE",
+          "descripcion": "Archivar y restaurar proyecto",
+          "estado": "LISTO"
+        }
+      ]
+    },
+    {
+      "modulo": "APU (PRESUPUESTOS)",
+      "operaciones": [
+        {
+          "op": "CREATE",
+          "descripcion": "Crear renglón APU manual",
+          "estado": "LISTO"
+        },
+        {
+          "op": "READ",
+          "descripcion": "Verificar cálculos y totales",
+          "estado": "LISTO"
+        },
+        {
+          "op": "UPDATE",
+          "descripcion": "Modificar cantidades y costos",
+          "estado": "LISTO"
+        },
+        {
+          "op": "DELETE",
+          "descripcion": "Remover renglón",
+          "estado": "LISTO"
+        }
+      ]
+    },
+    {
+      "modulo": "GASTOS & FACTURAS",
+      "operaciones": [
+        {
+          "op": "CREATE",
+          "descripcion": "Registrar gasto con factura",
+          "estado": "LISTO"
+        },
+        {
+          "op": "READ",
+          "descripcion": "Ver gasto en tabla",
+          "estado": "LISTO"
+        },
+        {
+          "op": "UPDATE",
+          "descripcion": "Actualizar monto o descripción",
+          "estado": "LISTO"
+        },
+        {
+          "op": "DELETE",
+          "descripcion": "Eliminar registro de gasto",
+          "estado": "LISTO"
+        }
+      ]
+    },
+    {
+      "modulo": "PERSONAL & IGSS",
+      "operaciones": [
+        {
+          "op": "CREATE",
+          "descripcion": "Crear empleado",
+          "estado": "LISTO"
+        },
+        {
+          "op": "READ",
+          "descripcion": "Listar empleados creados",
+          "estado": "LISTO"
+        },
+        {
+          "op": "UPDATE",
+          "descripcion": "Cambiar datos del empleado",
+          "estado": "LISTO"
+        },
+        {
+          "op": "DELETE",
+          "descripcion": "Eliminar empleado",
+          "estado": "LISTO"
+        }
+      ]
+    },
+    {
+      "modulo": "COTIZACIONES",
+      "operaciones": [
+        {
+          "op": "CREATE",
+          "descripcion": "Crear cotización rápida",
+          "estado": "LISTO"
+        },
+        {
+          "op": "READ",
+          "descripcion": "Ver cotización en lista",
+          "estado": "LISTO"
+        },
+        {
+          "op": "UPDATE",
+          "descripcion": "Cambiar estado a aceptada",
+          "estado": "LISTO"
+        },
+        {
+          "op": "DELETE",
+          "descripcion": "Remover cotización",
+          "estado": "LISTO"
+        }
+      ]
+    },
+    {
+      "modulo": "MAQUINARIA",
+      "operaciones": [
+        {
+          "op": "CREATE",
+          "descripcion": "Registrar equipo",
+          "estado": "LISTO"
+        },
+        {
+          "op": "READ",
+          "descripcion": "Listar equipos",
+          "estado": "LISTO"
+        },
+        {
+          "op": "UPDATE",
+          "descripcion": "Cambiar estado (Disponible → Mantenimiento)",
+          "estado": "LISTO"
+        },
+        {
+          "op": "DELETE",
+          "descripcion": "Remover equipo",
+          "estado": "LISTO"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+﻿2026-11-23T07:30:23.3455507Z ##[group]Run actions/setup-node@v7
+2026-11-23T07:30:23.3456232Z with:
+2026-11-23T07:30:23.3456729Z   node-version: 24
+2026-11-23T07:30:23.3457263Z   cache: npm
+2026-11-23T07:30:23.3457782Z   check-latest: false
+2026-11-23T07:30:23.3461935Z   token: ***
+2026-11-23T07:30:23.3462497Z   package-manager-cache: true
+2026-11-23T07:30:23.3463111Z ##[endgroup]
+2026-11-23T07:30:23.4867892Z Found in cache @ /opt/hostedtoolcache/node/24.22.3/x64
+2026-11-23T07:30:23.5621160Z ##[group]Environment details
+2026-11-23T07:30:23.9080556Z node: v24.22.3
+2026-11-23T07:30:23.9082394Z npm: 11.19.1
+2026-11-23T07:30:23.9083645Z yarn: 1.22.22
+2026-11-23T07:30:23.9085546Z ##[endgroup]
+2026-11-23T07:30:23.9101949Z [command]/opt/hostedtoolcache/node/24.22.3/x64/bin/npm config get cache
+2026-11-23T07:30:24.0236073Z /home/runner/.npm
+2026-11-23T07:30:24.2779265Z Cache hit for: node-cache-Linux-x64-npm-d623ddca66e8c93453cc632cb5e9cef5de221715c5ecf41beeecb9ec9525233f
+2026-11-23T07:30:25.5854710Z Received 8388608 of 202301586 (4.1%), 8.0 MBs/sec
+2026-11-23T07:30:26.5865514Z Received 134217728 of 202301586 (66.3%), 63.9 MBs/sec
+2026-11-23T07:30:27.0671325Z Received 202301586 of 202301586 (100.0%), 77.7 MBs/sec
+2026-11-23T07:30:27.0672593Z Cache Size: ~193 MB (202301586 B)
+2026-11-23T07:30:27.0746811Z [command]/usr/bin/tar -xf /home/runner/work/_temp/37b1aafe-670a-41bf-b581-399376502be6/cache.tzst -P -C /home/runner/work/ORIGEN/ORIGEN --use-compress-program unzstd
+2026-11-23T07:30:27.5172451Z Cache restored successfully
+2026-11-23T07:30:27.5271860Z Cache restored from key: node-cache-Linux-x64-npm-d623ddca66e8c93453cc632cb5e9cef5de221715c5ecf41beeecb9ec9525233f

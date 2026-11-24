@@ -1,0 +1,221 @@
+// config/cloud-armor-waf.yaml
+// Cloud Armor WAF rules for ORIGEN ERP
+
+---
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeSecurityPolicy
+metadata:
+  name: origen-erp-waf
+  namespace: default
+spec:
+  description: "WAF policy for ORIGEN ERP Guatemala - DDoS + Bot Protection"
+  
+  # Rules applied in order
+  rules:
+    
+    # RULE 1: Block known malicious IPs
+    - priority: 1000
+      description: "Block known malicious IPs"
+      match:
+        srcIpRanges:
+          - "192.0.2.0/24"      # Placeholder - Replace with actual blocklist
+          - "198.51.100.0/24"   # Placeholder - Replace with actual blocklist
+      action: "deny(403)"
+      preview: false
+
+    # RULE 2: Rate limiting - Global
+    - priority: 1010
+      description: "Rate limit - 1000 requests per minute per IP"
+      match:
+        versionedExpr: "CEL"
+        cexlOptions:
+          recommendations: ["SECURITY_POLICY_RULES_LOGGING"]
+      action: "rate_based_ban"
+      rateLimitOptions:
+        conformAction: "allow"
+        exceedAction: "deny(429)"
+        rateLimit­Interval:
+          sec: 60
+        banLimit:
+          count: 1000
+          intervalSec: 60
+      preview: false
+
+    # RULE 3: Block SQL Injection attempts
+    - priority: 1020
+      description: "Block SQL Injection attacks"
+      match:
+        expr:
+          expression: |
+            evaluatePreconfiguredExpr('sqli-v33-stable',
+              ['owasp-crs-v030001-id942251-sqli',
+               'owasp-crs-v030001-id942420-sqli',
+               'owasp-crs-v030001-id942431-sqli',
+               'owasp-crs-v030001-id942460-sqli'])
+      action: "deny(403)"
+      preview: false
+
+    # RULE 4: Block XSS attacks
+    - priority: 1030
+      description: "Block XSS attacks"
+      match:
+        expr:
+          expression: |
+            evaluatePreconfiguredExpr('xss-v33-stable',
+              ['owasp-crs-v030001-id941110-xss',
+               'owasp-crs-v030001-id941120-xss',
+               'owasp-crs-v030001-id941130-xss',
+               'owasp-crs-v030001-id941340-xss'])
+      action: "deny(403)"
+      preview: false
+
+    # RULE 5: Block Local File Inclusion (LFI)
+    - priority: 1040
+      description: "Block LFI attacks"
+      match:
+        expr:
+          expression: |
+            evaluatePreconfiguredExpr('lfi-v33-stable',
+              ['owasp-crs-v030001-id930100-lfi',
+               'owasp-crs-v030001-id930110-lfi'])
+      action: "deny(403)"
+      preview: false
+
+    # RULE 6: Block Remote Code Execution (RCE)
+    - priority: 1050
+      description: "Block RCE attacks"
+      match:
+        expr:
+          expression: |
+            evaluatePreconfiguredExpr('rce-v33-stable',
+              ['owasp-crs-v030001-id932100-rce',
+               'owasp-crs-v030001-id932110-rce'])
+      action: "deny(403)"
+      preview: false
+
+    # RULE 7: Block Scanner Detection
+    - priority: 1060
+      description: "Block security scanners and bots"
+      match:
+        expr:
+          expression: |
+            origin.region_code == 'CN' ||
+            origin.region_code == 'RU' ||
+            has(origin.region_code) == false ||
+            evaluatePreconfiguredExpr('protections-v33-stable',
+              ['owasp-crs-v030001-id913101-scanner'])
+      action: "deny(403)"
+      preview: false
+
+    # RULE 8: Block Protocol attacks
+    - priority: 1070
+      description: "Block protocol attacks"
+      match:
+        expr:
+          expression: |
+            evaluatePreconfiguredExpr('protections-v33-stable',
+              ['owasp-crs-v030001-id921110-protocol',
+               'owasp-crs-v030001-id921120-protocol'])
+      action: "deny(403)"
+      preview: false
+
+    # RULE 9: Allow API requests with rate limiting
+    - priority: 2000
+      description: "API endpoints - elevated rate limit"
+      match:
+        versionedExpr: "CEL"
+        cexlOptions:
+          recommendations: ["SECURITY_POLICY_RULES_LOGGING"]
+        expr:
+          expression: "path.startsWith('/api')"
+      action: "rate_based_ban"
+      rateLimitOptions:
+        conformAction: "allow"
+        exceedAction: "deny(429)"
+        rateLimit­Interval:
+          sec: 60
+        banLimit:
+          count: 5000  # Higher limit for API
+          intervalSec: 60
+      preview: false
+
+    # RULE 10: Allow authenticated requests
+    - priority: 3000
+      description: "Allow authenticated users - no rate limit"
+      match:
+        expr:
+          expression: |
+            has(request.headers['authorization']) &&
+            request.headers['authorization'] != ''
+      action: "allow"
+      preview: false
+
+    # RULE 11: Block requests with no User-Agent (bots)
+    - priority: 3010
+      description: "Block requests without User-Agent (bot detection)"
+      match:
+        expr:
+          expression: |
+            !has(request.headers['user-agent']) ||
+            request.headers['user-agent'].contains('bot') ||
+            request.headers['user-agent'].contains('crawler') ||
+            request.headers['user-agent'].contains('spider')
+      action: "deny(403)"
+      preview: false
+
+    # RULE 12: Adaptive Protection (DDoS)
+    - priority: 3020
+      description: "Adaptive Protection - DDoS detection"
+      match:
+        expr:
+          expression: "true"  # Applies to all
+      action: "allow"
+      preview: false
+      headerAction:
+        requestHeadersToAdd:
+          - headerName: "X-Client-Region"
+            headerValue: "[ORIGIN_REGION]"
+
+    # RULE 13: Default allow
+    - priority: 65535
+      description: "Default allow all"
+      match:
+        versionedExpr: "CEL"
+        expr:
+          expression: "true"
+      action: "allow"
+      preview: false
+
+---
+# Deployment instructions:
+
+# 1. Install gcloud and authenticate
+#    gcloud auth login
+#    gcloud config set project PROJECT_ID
+
+# 2. Create the security policy
+#    gcloud compute security-policies create origen-erp-waf \
+#      --description="WAF for ORIGEN ERP"
+
+# 3. Add rules (use separate commands or Terraform)
+#    See rules above
+
+# 4. Apply to load balancer
+#    gcloud compute backend-services update BACKEND_SERVICE \
+#      --security-policy=origen-erp-waf \
+#      --global
+
+# 5. Enable Cloud Armor logging
+#    gcloud compute security-policies update origen-erp-waf \
+#      --enable-layer7-ddos-defense
+
+---
+# Monitoring:
+
+# View WAF logs in Cloud Logging:
+# resource.type="http_load_balancer"
+# jsonPayload.enforcedSecurityPolicy.name="origen-erp-waf"
+
+# Alert on blocked requests:
+# log_name="projects/PROJECT_ID/logs/httpLoadBalancerLog"
+# jsonPayload.enforcedSecurityPolicy.outcomes.name="DENY"

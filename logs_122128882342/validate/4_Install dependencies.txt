@@ -1,0 +1,25 @@
+﻿2026-11-23T07:30:27.5474009Z ##[group]Run npm ci --no-audit --no-fund
+2026-11-23T07:30:27.5474469Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-11-23T07:30:27.5519834Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:30:27.5520211Z ##[endgroup]
+2026-11-23T07:30:33.0372061Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2026-11-23T07:30:33.1550242Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
+2026-11-23T07:30:33.2724604Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+2026-11-23T07:30:33.2836435Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+2026-11-23T07:30:34.0008769Z npm warn deprecated fstream@1.0.12: This package is no longer supported.
+2026-11-23T07:30:34.3694526Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+2026-11-23T07:30:37.7383139Z npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+2026-11-23T07:30:45.1784784Z 
+2026-11-23T07:30:45.1785777Z > constructerp-guatemala@0.1.0 prepare
+2026-11-23T07:30:45.1786375Z > node -e "console.log('skipping husky install')"
+2026-11-23T07:30:45.1786656Z 
+2026-11-23T07:30:45.2496065Z skipping husky install
+2026-11-23T07:30:45.3310200Z 
+2026-11-23T07:30:45.3311291Z added 1014 packages in 18s
+2026-11-23T07:30:45.3326611Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+2026-11-23T07:30:45.3327744Z npm warn install-scripts   @firebase/util@1.15.3 (postinstall: node ./postinstall.js)
+2026-11-23T07:30:45.3328749Z npm warn install-scripts   @google/genai@2.32.0 (preinstall: echo 'preinstall: no-op')
+2026-11-23T07:30:45.3330181Z npm warn install-scripts   core-js@3.51.0 (postinstall: node -e "try{require('./postinstall')}catch(e){}")
+2026-11-23T07:30:45.3331274Z npm warn install-scripts   protobufjs@7.6.6 (postinstall: node scripts/postinstall)
+2026-11-23T07:30:45.3331921Z npm warn install-scripts
+2026-11-23T07:30:45.3332837Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.

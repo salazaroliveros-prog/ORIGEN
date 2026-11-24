@@ -1,0 +1,8 @@
+﻿2026-11-23T07:31:09.8572443Z ##[group]Run npm run type-check
+2026-11-23T07:31:09.8572820Z [36;1mnpm run type-check[0m
+2026-11-23T07:31:09.8606749Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:31:09.8607062Z ##[endgroup]
+2026-11-23T07:31:09.9625107Z 
+2026-11-23T07:31:09.9627657Z > constructerp-guatemala@0.1.0 type-check
+2026-11-23T07:31:09.9645068Z > tsc --noEmit
+2026-11-23T07:31:09.9645297Z 

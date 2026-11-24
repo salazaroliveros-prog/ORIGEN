@@ -1,0 +1,81 @@
+# ✅ CLOUD SCHEDULER CONFIGURATION
+# Deploy con: gcloud scheduler jobs create/update app-engine ...
+
+# Job 1: Daily Firestore Backup (02:00 UTC)
+---
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: firestore-backup-daily
+spec:
+  schedule: "0 2 * * *"  # 02:00 UTC todos los días
+  timeZone: "UTC"
+  region: "us-central1"
+  httpTarget:
+    httpMethod: POST
+    uri: https://backup-runner.origin-erp.com/v1/firestore-backup
+    headers:
+      X-API-Key: "${BACKUP_API_KEY}"
+      Content-Type: application/json
+    body: |
+      {
+        "type": "firestore",
+        "project": "origen-uno",
+        "retention_days": 30
+      }
+    oauthToken:
+      serviceAccountEmail: backup-service@origen-uno.iam.gserviceaccount.com
+      scope: "https://www.googleapis.com/auth/cloud-platform"
+
+---
+
+# Job 2: Weekly Storage Backup (Domingo 03:00 UTC)
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: storage-backup-weekly
+spec:
+  schedule: "0 3 * * 0"  # 03:00 UTC domingos
+  timeZone: "UTC"
+  region: "us-central1"
+  httpTarget:
+    httpMethod: POST
+    uri: https://backup-runner.origin-erp.com/v1/storage-backup
+    headers:
+      X-API-Key: "${BACKUP_API_KEY}"
+      Content-Type: application/json
+    body: |
+      {
+        "type": "storage",
+        "source_bucket": "origen-uno.appspot.com",
+        "backup_bucket": "origen-backups-storage",
+        "retention_weeks": 12
+      }
+    oauthToken:
+      serviceAccountEmail: backup-service@origen-uno.iam.gserviceaccount.com
+      scope: "https://www.googleapis.com/auth/cloud-platform"
+
+---
+
+# Job 3: Health Check + Monitoring (Cada 5 minutos)
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: health-check-monitoring
+spec:
+  schedule: "*/5 * * * *"  # Cada 5 minutos
+  timeZone: "UTC"
+  region: "us-central1"
+  httpTarget:
+    httpMethod: GET
+    uri: https://origen-erp.vercel.app/api/health
+    headers:
+      X-Health-Check: "true"
+
+# Deployment Commands:
+# gcloud scheduler jobs create app-engine firestore-backup-daily \
+#   --schedule="0 2 * * *" \
+#   --timezone="UTC" \
+#   --http-method=POST \
+#   --uri="https://backup-runner.origin-erp.com/v1/firestore-backup" \
+#   --service-account-email=backup-service@origen-uno.iam.gserviceaccount.com

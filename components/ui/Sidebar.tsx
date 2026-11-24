@@ -27,6 +27,10 @@ import {
 import type { CompanySettings, CompanyWorkspaceOption, Project } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { ProjectSelectorEnhanced } from '@/components/ProjectSelectorEnhanced';
+import { TabsGrouped } from '@/components/TabsGrouped';
+import type { Column as TabColumn } from '@/components/TabsGrouped';
+import { TAB_DEFINITIONS, filterTabsByPermissions } from '@/lib/constants/tabs';
 
 interface SidebarProps {
   company: CompanySettings;
@@ -50,6 +54,9 @@ interface SidebarProps {
   className?: string;
 }
 
+// getTabGroup now imported from lib/constants/tabs
+import { getTabGroup } from '@/lib/constants/tabs';
+
 export function Sidebar({
   company,
   projects,
@@ -71,28 +78,13 @@ export function Sidebar({
   canViewSupplyChain = false,
   className = '',
 }: SidebarProps) {
-  const tabs = [
-    { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
-    { id: 'proyectos', label: 'Proyectos & Firmas', icon: HardHat, badge: 'Firma' },
-    { id: 'apu_presupuestos', label: 'Presupuestos APU', icon: Calculator },
-    { id: 'cotizaciones', label: 'Cotizaciones', icon: FileText },
-    { id: 'cronograma_gantt', label: 'Seguimiento & Hitos', icon: CalendarDays, badge: 'Avance' },
-    { id: 'maquinaria', label: 'Maquinaria', icon: Truck },
-    { id: 'personal', label: 'Personal & IGSS', icon: Users },
-    { id: 'planillas', label: 'Planillas Guate', icon: Banknote },
-    { id: 'gastos', label: 'Gastos & Facturas', icon: Receipt },
-    { id: 'fel_invoices', label: 'Facturas FEL', icon: FileCheck2 },
-    { id: 'inventario', label: 'Inventario & Compras', icon: Boxes },
-    { id: 'reportes', label: 'Reportes Finales', icon: PieChart },
-    { id: 'ai', label: 'Asistente IA', icon: Sparkles },
-    { id: 'gmail', label: 'Correo & Avisos', icon: Mail },
-    ...(canManageCompany ? [{ id: 'equipo', label: 'Equipo de la empresa', icon: UserPlus }] : []),
-  ].filter((tab) => {
-    if (tab.id === 'personal') return canViewPersonnel;
-    if (tab.id === 'planillas') return canViewPayroll;
-    if (tab.id === 'gastos') return canViewExpenses;
-    if (tab.id === 'inventario') return canViewSupplyChain;
-    return true;
+  // Usar definiciones centralizadas de tabs
+  const tabs = filterTabsByPermissions({
+    canViewPersonnel,
+    canViewPayroll,
+    canViewExpenses,
+    canViewSupplyChain,
+    canManageCompany,
   });
 
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0] || null;
@@ -102,11 +94,11 @@ export function Sidebar({
       className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-white/10 bg-slate-950/90 backdrop-blur-xl ${className}`}
       aria-label="Navegación principal"
     >
-      {/* Header de empresa */}
+      {/* Header de empresa - MEJORADO */}
       <div className="flex flex-col items-center gap-3 border-b border-white/10 px-5 py-6">
-        <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-amber-400/20 to-sky-500/20 p-3 shadow-[0_8px_24px_rgba(245,158,11,0.2)]">
+        <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-primary-500/20 to-sky-500/20 p-3 shadow-[0_8px_24px_rgba(14,165,233,0.2)]">
           <div className="flex items-center justify-center rounded-lg bg-white/20 p-1">
-            <Building2 className="h-6 w-6 stroke-[2.5] text-amber-400" />
+            <Building2 className="h-6 w-6 stroke-[2.5] text-primary-500" />
           </div>
           <div className="flex flex-col">
             <h2 className="truncate text-sm font-bold text-white">
@@ -123,28 +115,15 @@ export function Sidebar({
         )}
       </div>
 
-      {/* Selector de proyecto activo: los módulos operativos usan activeProjectId. */}
+      {/* Project Selector - MEJORADO CON ProjectSelectorEnhanced */}
       {projects.length > 0 && (
         <div className="border-b border-white/10 px-4 py-3">
-          <label
-            htmlFor="active-project-select"
-            className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-slate-400"
-          >
-            Proyecto activo
-          </label>
-          <select
-            id="active-project-select"
-            aria-label="Proyecto activo"
-            value={activeProject?.id ?? ''}
-            onChange={(event) => onSelectProject(event.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2 text-xs text-white focus-visible:ring-2 focus-visible:ring-brand-400"
-          >
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.code} · {project.name}
-              </option>
-            ))}
-          </select>
+          <ProjectSelectorEnhanced
+            projects={projects}
+            activeProjectId={activeProjectId}
+            onSelectProject={onSelectProject}
+            compact
+          />
         </div>
       )}
 
@@ -158,7 +137,7 @@ export function Sidebar({
             id="workspace-select"
             value={activeWorkspaceId}
             onChange={(e) => onSelectWorkspace?.(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-xs text-white focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+            className="w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-xs text-white focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1"
           >
             {workspaces.map((ws) => (
               <option key={ws.workspace.id} value={ws.workspace.id}>
@@ -169,64 +148,19 @@ export function Sidebar({
         </div>
       )}
 
-      {/* Navegación principal */}
+      {/* Navegación principal - MEJORADA CON TabsGrouped */}
       <nav
-        className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-3 py-4"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4"
         aria-label="Navegación"
       >
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          const itemClassName = `w-full flex items-center gap-3 rounded-lg border border-white/10 bg-white/${isActive ? '15' : '0'} px-3 py-2 text-sm ${isActive ? 'text-white bg-brand-400/20 border-brand-400/50' : 'text-slate-400 hover:bg-white/[0.05]'} transition-colors`;
-          const content = (
-            <>
-              <div className="flex items-center gap-3">
-                <tab.icon
-                  className={`h-4 w-4 shrink-0 ${isActive ? 'stroke-[2.5] text-white' : 'text-slate-400'}`}
-                  aria-hidden="true"
-                />
-                <span className="truncate">{tab.label}</span>
-                {tab.badge && (
-                  <Badge
-                    variant="primary"
-                    size="sm"
-                    className={isActive ? 'border-brand-400/50 bg-brand-400 text-slate-900' : ''}
-                  >
-                    {tab.badge}
-                  </Badge>
-                )}
-              </div>
-              {isActive && <ChevronRight className="h-3 w-3 shrink-0 text-white" />}
-            </>
-          );
-
-          if (tab.id === 'fel_invoices') {
-            return (
-              <Link
-                key={tab.id}
-                href="/fel-invoices"
-                className={itemClassName}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                {content}
-              </Link>
-            );
-          }
-
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => onSelectTab(tab.id)}
-              className={`${itemClassName} text-left`}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              {content}
-            </button>
-          );
-        })}
+        <TabsGrouped
+          tabs={tabs}
+          activeTabId={activeTab}
+          onSelectTab={onSelectTab}
+        />
       </nav>
 
-      {/* Footer con acceso a configuración, usuario y cerrar sesión */}
+      {/* Footer con acceso a configuración, usuario y cerrar sesión - MEJORADO */}
       <div className="border-t border-white/10 p-4">
         {canManageCompany && onOpenBranding && (
           <Button
@@ -242,7 +176,7 @@ export function Sidebar({
           </Button>
         )}
         <div className="flex cursor-pointer items-center gap-3 rounded-xl bg-white/[0.05] px-2 py-2 transition-colors hover:bg-white/[0.1]">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-400/20 text-xs font-bold text-amber-400">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500/20 text-xs font-bold text-primary-500">
             {currentUser?.email?.charAt(0)?.toUpperCase() || 'U'}
           </div>
           <div className="min-w-0 flex-1">

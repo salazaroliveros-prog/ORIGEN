@@ -39,8 +39,9 @@ export function Input({
   const isDisabled = variant === 'disabled' || disabled;
   const isLight = formTheme === 'light';
 
+  // ✅ CORRECCIÓN: baseStyles con text-base para iOS (16px) + font-size en input evita zoom
   const baseStyles =
-    'w-full rounded-lg py-3 px-4 text-sm transition-all duration-[200ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/30 disabled:cursor-not-allowed';
+    'w-full rounded-lg py-3 px-4 text-base md:text-sm transition-all duration-[200ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/30 disabled:cursor-not-allowed font-size-base';
 
   const variantStyles = {
     default: isLight
@@ -57,10 +58,11 @@ export function Input({
       : 'bg-neutral-900/20 text-neutral-500 cursor-not-allowed border border-neutral-700/30',
   };
 
+  // ✅ CORRECCIÓN: Todos los tamaños ahora usan text-base mínimo en mobile
   const sizeStyles = {
-    sm: 'py-2 px-3 text-xs',
-    md: 'py-3 px-4 text-sm',
-    lg: 'py-3.5 px-4 text-base',
+    sm: 'py-2 px-3 text-base md:text-xs',    // 16px mobile
+    md: 'py-3 px-4 text-base md:text-sm',    // 16px mobile
+    lg: 'py-3.5 px-4 text-base md:text-lg',  // 16px mobile
   };
 
   const labelStyles = isLight
@@ -93,6 +95,8 @@ export function Input({
         )}
         <input
           id={inputId}
+          // ✅ CORRECCIÓN: font-size 16px inline para iOS (garantizado)
+          style={{ fontSize: '16px' }}
           className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[inputSize]} ${className}`}
           disabled={isDisabled}
           aria-invalid={isError || undefined}

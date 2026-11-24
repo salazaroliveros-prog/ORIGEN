@@ -1,0 +1,5 @@
+﻿2026-11-23T07:31:09.8139387Z ##[group]Run node scripts/pwa-manifest-validator.js
+2026-11-23T07:31:09.8140141Z [36;1mnode scripts/pwa-manifest-validator.js[0m
+2026-11-23T07:31:09.8173842Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:31:09.8174156Z ##[endgroup]
+2026-11-23T07:31:09.8496653Z [PWA] Manifest, icons, shortcuts and screenshots validated successfully.

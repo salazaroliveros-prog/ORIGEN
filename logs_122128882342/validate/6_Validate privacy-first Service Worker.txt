@@ -1,0 +1,5 @@
+﻿2026-11-23T07:31:09.7661429Z ##[group]Run node scripts/generate-service-worker.js
+2026-11-23T07:31:09.7661972Z [36;1mnode scripts/generate-service-worker.js[0m
+2026-11-23T07:31:09.7696249Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:31:09.7696548Z ##[endgroup]
+2026-11-23T07:31:09.8065254Z [PWA] Canonical Service Worker validated. No file was overwritten.

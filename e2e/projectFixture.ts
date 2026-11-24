@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
+import { ensureAuthenticated } from './testCredentials';
 
 /**
  * Datos de un proyecto de prueba.
@@ -99,7 +100,10 @@ export async function selectActiveProject(page: Page, code: string): Promise<voi
 export async function waitForProjectPersisted(page: Page, code: string): Promise<void> {
   const probe = await page.context().newPage();
   try {
-    await probe.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    // Una página nueva comparte el contexto del navegador, pero debe esperar
+    // a que Firebase restaure la sesión (o iniciar sesión con las credenciales
+    // E2E) antes de que exista el selector de proyectos.
+    await ensureAuthenticated(probe);
     const projectSelector = probe.getByRole('combobox', { name: 'Proyecto activo' });
     await expect(projectSelector).toBeVisible({ timeout: 30_000 });
     const projectOption = projectSelector.locator('option').filter({ hasText: code });

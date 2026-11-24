@@ -1,0 +1,77 @@
+﻿2026-11-23T07:32:33.1760672Z ##[group]Run npm run build
+2026-11-23T07:32:33.1761125Z [36;1mnpm run build[0m
+2026-11-23T07:32:33.1793699Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:32:33.1793986Z env:
+2026-11-23T07:32:33.1794315Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-11-23T07:32:33.1794858Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-11-23T07:32:33.1795272Z   MAVEN_ARGS: -ntp
+2026-11-23T07:32:33.1795670Z   NEXT_PUBLIC_FIREBASE_PROJECT_ID: *** 
+2026-11-23T07:32:33.1796102Z   NEXT_PUBLIC_FIREBASE_API_KEY: ***
+2026-11-23T07:32:33.1796538Z   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ***
+2026-11-23T07:32:33.1796953Z   NEXT_PUBLIC_FIREBASE_APP_ID: ***
+2026-11-23T07:32:33.1797399Z   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ***
+2026-11-23T07:32:33.1797767Z   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ***
+2026-11-23T07:32:33.1798141Z   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ***
+2026-11-23T07:32:33.1798493Z   NEXT_PUBLIC_FIRESTORE_DATABASE_ID: ***
+2026-11-23T07:32:33.1798800Z ##[endgroup]
+2026-11-23T07:32:33.2784295Z 
+2026-11-23T07:32:33.2785014Z > constructerp-guatemala@0.1.0 build
+2026-11-23T07:32:33.2785737Z > node scripts/build.mjs
+2026-11-23T07:32:33.2786065Z 
+2026-11-23T07:32:33.3085074Z [build.mjs] Starting production build with Next.js in: /home/runner/work/ORIGEN/ORIGEN
+2026-11-23T07:32:34.0211469Z ⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+2026-11-23T07:32:34.0276417Z Attention: Next.js now collects completely anonymous telemetry regarding usage.
+2026-11-23T07:32:34.0277536Z This information is used to shape Next.js' roadmap and prioritize features.
+2026-11-23T07:32:34.0279107Z You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+2026-11-23T07:32:34.0280451Z https://nextjs.org/telemetry
+2026-11-23T07:32:34.0280770Z 
+2026-11-23T07:32:34.1383668Z    ▲ Next.js 15.5.29
+2026-11-23T07:32:34.1385099Z    - Experiments (use with caution):
+2026-11-23T07:32:34.1386160Z      · optimizePackageImports
+2026-11-23T07:32:34.1387076Z      ⨯ devtoolSegmentExplorer
+2026-11-23T07:32:34.1387751Z 
+2026-11-23T07:32:34.1931893Z    Creating an optimized production build ...
+2026-11-23T07:32:58.5664200Z  ✓ Compiled successfully in 24.3s
+2026-11-23T07:32:58.5688442Z    Skipping linting
+2026-11-23T07:32:58.5690739Z    Checking validity of types ...
+2026-11-23T07:33:12.5270539Z    Collecting page data ...
+2026-11-23T07:33:17.3850015Z    Generating static pages (0/17) ...
+2026-11-23T07:33:18.3596713Z    Generating static pages (4/17) 
+2026-11-23T07:33:18.3597884Z    Generating static pages (8/17) 
+2026-11-23T07:33:18.5076636Z    Generating static pages (12/17) 
+2026-11-23T07:33:18.5077769Z  ✓ Generating static pages (17/17)
+2026-11-23T07:33:19.2884214Z    Finalizing page optimization ...
+2026-11-23T07:33:19.2885034Z    Collecting build traces ...
+2026-11-23T07:33:33.9089980Z 
+2026-11-23T07:33:33.9157743Z Route (app)                                       Size  First Load JS
+2026-11-23T07:33:33.9159952Z ┌ ○ /                                           295 kB         665 kB
+2026-11-23T07:33:33.9161034Z ├ ○ /_not-found                                  142 B         103 kB
+2026-11-23T07:33:33.9162068Z ├ ƒ /api/firebase-config.js                      142 B         103 kB
+2026-11-23T07:33:33.9163093Z ├ ƒ /api/gemini                                1.51 kB         280 kB
+2026-11-23T07:33:33.9164201Z ├ ƒ /api/gemini/bitacora                       1.51 kB         280 kB
+2026-11-23T07:33:33.9165305Z ├ ƒ /api/gemini/receipt                        1.51 kB         280 kB
+2026-11-23T07:33:33.9166467Z ├ ƒ /api/project-photos/[projectId]/[photoId]    142 B         103 kB
+2026-11-23T07:33:33.9167623Z ├ ƒ /api/upload-project-photo                    142 B         103 kB
+2026-11-23T07:33:33.9168784Z ├ ƒ /api/weather/safety-alerts                   142 B         103 kB
+2026-11-23T07:33:33.9169973Z ├ ○ /fel-invoices                              4.16 kB         362 kB
+2026-11-23T07:33:33.9171280Z ├ ƒ /fel-invoices/[id]/print                   3.22 kB         362 kB
+2026-11-23T07:33:33.9172227Z ├ ○ /fel-invoices/new                          5.46 kB         364 kB
+2026-11-23T07:33:33.9173110Z ├ ○ /login                                     45.7 kB         403 kB
+2026-11-23T07:33:33.9173977Z ├ ○ /onboarding/empresa                        4.58 kB         361 kB
+2026-11-23T07:33:33.9174832Z ├ ○ /perfil                                    3.48 kB         357 kB
+2026-11-23T07:33:33.9175658Z ├ ○ /privacy                                     174 B         106 kB
+2026-11-23T07:33:33.9176508Z ├ ƒ /proyectos/[id]/cierre                     3.52 kB         370 kB
+2026-11-23T07:33:33.9177354Z ├ ○ /signup                                       5 kB         362 kB
+2026-11-23T07:33:33.9178120Z └ ○ /terms                                       174 B         106 kB
+2026-11-23T07:33:33.9178735Z + First Load JS shared by all                   103 kB
+2026-11-23T07:33:33.9179393Z   ├ chunks/1255-d8a1861c775d9bcc.js            46.3 kB
+2026-11-23T07:33:33.9180206Z   ├ chunks/4bd1b696-100b9d70ed4e49c1.js        54.2 kB
+2026-11-23T07:33:33.9180827Z   └ other shared chunks (total)                2.24 kB
+2026-11-23T07:33:33.9181148Z 
+2026-11-23T07:33:33.9181160Z 
+2026-11-23T07:33:33.9181501Z ƒ Middleware                                   35.8 kB
+2026-11-23T07:33:33.9181806Z 
+2026-11-23T07:33:33.9182117Z ○  (Static)   prerendered as static content
+2026-11-23T07:33:33.9182680Z ƒ  (Dynamic)  server-rendered on demand
+2026-11-23T07:33:33.9182963Z 
+2026-11-23T07:33:34.0263027Z [build.mjs] Next.js build complete.

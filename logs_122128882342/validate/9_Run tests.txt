@@ -1,0 +1,296 @@
+﻿2026-11-23T07:31:22.3405162Z ##[group]Run npm test
+2026-11-23T07:31:22.3405496Z [36;1mnpm test[0m
+2026-11-23T07:31:22.3438167Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:31:22.3438466Z ##[endgroup]
+2026-11-23T07:31:22.4455662Z 
+2026-11-23T07:31:22.4456476Z > constructerp-guatemala@0.1.0 test
+2026-11-23T07:31:22.4457021Z > vitest run
+2026-11-23T07:31:22.4457198Z 
+2026-11-23T07:31:22.7182622Z [33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+2026-11-23T07:31:22.7185981Z   - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+2026-11-23T07:31:22.7189242Z Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+2026-11-23T07:31:22.7611819Z 
+2026-11-23T07:31:22.7614773Z [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/home/runner/work/ORIGEN/ORIGEN[39m
+2026-11-23T07:31:22.7615774Z 
+2026-11-23T07:31:23.6681442Z  [32m✓[39m lib/utils/crud.integration.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-23T07:31:23.6688034Z  [32m✓[39m lib/utils/calculations.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+2026-11-23T07:31:23.9011701Z  [32m✓[39m lib/hooks/useProjectData.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 85[2mms[22m[39m
+2026-11-23T07:31:24.3660453Z [90mstdout[2m | lib/__tests__/accessibility-integration.test.ts
+2026-11-23T07:31:24.3671015Z [22m[39m✓ Accessibility integration tests completed
+2026-11-23T07:31:24.3671945Z 
+2026-11-23T07:31:24.4007749Z  [32m✓[39m lib/__tests__/accessibility-integration.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+2026-11-23T07:31:24.4600999Z  [32m✓[39m lib/utils/e2e.integration.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+2026-11-23T07:31:24.7134961Z  [32m✓[39m lib/validation/entity.schemas.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+2026-11-23T07:31:25.0481815Z [90mstdout[2m | lib/__tests__/components.test.ts
+2026-11-23T07:31:25.0500903Z [22m[39m✓ All tests completed
+2026-11-23T07:31:25.0510479Z 
+2026-11-23T07:31:25.0711631Z  [32m✓[39m lib/__tests__/components.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-23T07:31:25.1972244Z  [32m✓[39m lib/projectCalculations.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+2026-11-23T07:31:25.3961895Z [90mstdout[2m | lib/__tests__/layout-components-integration.test.ts
+2026-11-23T07:31:25.3963446Z [22m[39m✓ Layout components integration tests completed
+2026-11-23T07:31:25.3964453Z 
+2026-11-23T07:31:25.4251487Z  [32m✓[39m lib/__tests__/layout-components-integration.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+2026-11-23T07:31:25.7135395Z [90mstdout[2m | lib/__tests__/additional-ui-components-integration.test.ts
+2026-11-23T07:31:25.7160881Z [22m[39m✓ Additional UI components integration tests completed
+2026-11-23T07:31:25.7190049Z 
+2026-11-23T07:31:25.7349989Z  [32m✓[39m lib/__tests__/additional-ui-components-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+2026-11-23T07:31:25.8331532Z [90mstdout[2m | lib/__tests__/payroll-integration.test.ts
+2026-11-23T07:31:25.8341082Z [22m[39m✓ Payroll integration tests completed
+2026-11-23T07:31:25.8341800Z 
+2026-11-23T07:31:25.8527357Z  [32m✓[39m lib/__tests__/payroll-integration.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-23T07:31:26.1022170Z [90mstdout[2m | lib/__tests__/auth-ui-integration.test.ts
+2026-11-23T07:31:26.1023889Z [22m[39m✓ Auth UI integration tests completed
+2026-11-23T07:31:26.1024905Z 
+2026-11-23T07:31:26.1296578Z  [32m✓[39m lib/__tests__/auth-ui-integration.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+2026-11-23T07:31:26.3982062Z [90mstdout[2m | lib/__tests__/critical-modules-integration.test.ts
+2026-11-23T07:31:26.3992105Z [22m[39m✓ Critical modules integration tests completed
+2026-11-23T07:31:26.3994475Z 
+2026-11-23T07:31:26.4161022Z  [32m✓[39m lib/__tests__/critical-modules-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-11-23T07:31:26.5249802Z [90mstdout[2m | lib/__tests__/e2e.test.ts
+2026-11-23T07:31:26.5251126Z [22m[39m✓ All E2E and Performance tests completed
+2026-11-23T07:31:26.5253209Z 
+2026-11-23T07:31:26.6018199Z  [32m✓[39m lib/__tests__/e2e.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+2026-11-23T07:31:26.8942846Z [90mstderr[2m | lib/offlineStorage.test.ts[2m > [22m[2mlib/offlineStorage[2m > [22m[2mprocessOfflineQueue[2m > [22m[2mshould handle handler exceptions
+2026-11-23T07:31:26.8949796Z [22m[39mFailed to sync item: {
+2026-11-23T07:31:26.8951746Z   id: [32m'queue-1'[39m,
+2026-11-23T07:31:26.8952722Z   type: [32m'attendance'[39m,
+2026-11-23T07:31:26.8953888Z   timestamp: [32m'2024-01-01'[39m,
+2026-11-23T07:31:26.8954987Z   description: [32m'Test'[39m,
+2026-11-23T07:31:26.8955806Z   payload: {},
+2026-11-23T07:31:26.8956495Z   synced: [33mfalse[39m
+2026-11-23T07:31:26.8957803Z } Error: sync failed
+2026-11-23T07:31:26.8960535Z     at [90m/home/runner/work/ORIGEN/ORIGEN/[39mlib/offlineStorage.test.ts:238:15
+2026-11-23T07:31:26.8962593Z     at Mock [90m(file:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/spy.DDMXghXv.js:353:40[90m)[39m
+2026-11-23T07:31:26.8964758Z     at processOfflineQueue [90m(/home/runner/work/ORIGEN/ORIGEN/[39mlib/offlineStorage.ts:92:31[90m)[39m
+2026-11-23T07:31:26.8966563Z     at [90m/home/runner/work/ORIGEN/ORIGEN/[39mlib/offlineStorage.test.ts:240:28
+2026-11-23T07:31:26.8968479Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:1632:35
+2026-11-23T07:31:26.8971870Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:2801:26
+2026-11-23T07:31:26.8974019Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3338:20
+2026-11-23T07:31:26.8975434Z     at new Promise (<anonymous>)
+2026-11-23T07:31:26.8977189Z     at runWithCancel [90m(file:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3333:10[90m)[39m
+2026-11-23T07:31:26.8979794Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3318:20
+2026-11-23T07:31:26.9007211Z 
+2026-11-23T07:31:26.9054164Z  [32m✓[39m lib/offlineStorage.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+2026-11-23T07:31:27.0401869Z [90mstdout[2m | lib/__tests__/data-import-export-integration.test.ts
+2026-11-23T07:31:27.0420777Z [22m[39m✓ Data import/export integration tests completed
+2026-11-23T07:31:27.0450222Z 
+2026-11-23T07:31:27.0835403Z  [32m✓[39m lib/__tests__/data-import-export-integration.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+2026-11-23T07:31:27.2415603Z [90mstdout[2m | lib/__tests__/performance-integration.test.ts
+2026-11-23T07:31:27.2420536Z [22m[39m✓ Performance integration tests completed
+2026-11-23T07:31:27.2421204Z 
+2026-11-23T07:31:27.2711492Z  [32m✓[39m lib/__tests__/performance-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+2026-11-23T07:31:27.6811810Z  [32m✓[39m lib/firebaseAuth.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+2026-11-23T07:31:27.7424074Z  [32m✓[39m lib/domain/budgetAnalysis.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+2026-11-23T07:31:27.8914129Z [90mstdout[2m | lib/__tests__/error-handling-integration.test.ts
+2026-11-23T07:31:27.8916951Z [22m[39m✓ Error handling integration tests completed
+2026-11-23T07:31:27.8941153Z 
+2026-11-23T07:31:27.9151744Z  [32m✓[39m lib/__tests__/error-handling-integration.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-23T07:31:28.3571474Z [90mstdout[2m | lib/__tests__/api-routes-integration.test.ts
+2026-11-23T07:31:28.3600743Z [22m[39m✓ API routes integration tests completed
+2026-11-23T07:31:28.3611954Z 
+2026-11-23T07:31:28.3804017Z  [32m✓[39m lib/__tests__/api-routes-integration.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+2026-11-23T07:31:28.3900920Z [90mstdout[2m | lib/__tests__/security-integration.test.ts
+2026-11-23T07:31:28.3920793Z [22m[39m✓ Security integration tests completed
+2026-11-23T07:31:28.3939863Z 
+2026-11-23T07:31:28.4076121Z  [32m✓[39m lib/__tests__/security-integration.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-11-23T07:31:28.6299910Z  [32m✓[39m lib/domain/portfolio.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-23T07:31:29.1192071Z  [32m✓[39m lib/branding.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+2026-11-23T07:31:29.2301719Z  [32m✓[39m lib/firebaseService.validation.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+2026-11-23T07:31:29.2406139Z [90mstdout[2m | lib/__tests__/field-operations-integration.test.ts
+2026-11-23T07:31:29.2440724Z [22m[39m✓ Field operations integration tests completed
+2026-11-23T07:31:29.2460003Z 
+2026-11-23T07:31:29.2613872Z  [32m✓[39m lib/__tests__/field-operations-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+2026-11-23T07:31:29.8485808Z  [32m✓[39m lib/domain/executionTimeline.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-23T07:31:29.8901653Z  [32m✓[39m lib/domain/machinery.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-23T07:31:29.9476238Z  [32m✓[39m lib/domain/inventory.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+2026-11-23T07:31:30.4790272Z [90mstdout[2m | lib/__tests__/custom-hooks-integration.test.ts
+2026-11-23T07:31:30.4792016Z [22m[39m✓ Custom hooks integration tests completed
+2026-11-23T07:31:30.4792834Z 
+2026-11-23T07:31:30.5013283Z  [32m✓[39m lib/__tests__/custom-hooks-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-23T07:31:30.5681027Z  [32m✓[39m lib/domain/procurement.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-11-23T07:31:30.5924149Z [90mstdout[2m | lib/__tests__/configuration-integration.test.ts
+2026-11-23T07:31:30.5952769Z [22m[39m✓ Configuration integration tests completed
+2026-11-23T07:31:30.5975791Z 
+2026-11-23T07:31:30.6223173Z  [32m✓[39m lib/__tests__/configuration-integration.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-11-23T07:31:31.2144544Z  [32m✓[39m lib/apiAuth.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+2026-11-23T07:31:31.2214005Z [90mstdout[2m | lib/__tests__/projects-components-integration.test.ts
+2026-11-23T07:31:31.2216281Z [22m[39m✓ Projects components integration tests completed
+2026-11-23T07:31:31.2216971Z 
+2026-11-23T07:31:31.2436059Z  [32m✓[39m lib/__tests__/projects-components-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-23T07:31:31.3402282Z [90mstderr[2m | lib/utils/validation.test.ts[2m > [22m[2mlib/utils/validation[2m > [22m[2msafeJSONParse[2m > [22m[2mshould return fallback for invalid JSON
+2026-11-23T07:31:31.3425571Z [22m[39mJSON parse error: SyntaxError: Unexpected token 'o', "not json" is not valid JSON
+2026-11-23T07:31:31.3451169Z  [32m✓[39m lib/utils/validation.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+2026-11-23T07:31:31.3462462Z     at JSON.parse (<anonymous>)
+2026-11-23T07:31:31.3463983Z     at safeJSONParse [90m(/home/runner/work/ORIGEN/ORIGEN/[39mlib/utils/validation.ts:165:17[90m)[39m
+2026-11-23T07:31:31.3465803Z     at [90m/home/runner/work/ORIGEN/ORIGEN/[39mlib/utils/validation.test.ts:135:22
+2026-11-23T07:31:31.3467660Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:1632:35
+2026-11-23T07:31:31.3470493Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:2801:26
+2026-11-23T07:31:31.3472600Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3338:20
+2026-11-23T07:31:31.3474003Z     at new Promise (<anonymous>)
+2026-11-23T07:31:31.3475851Z     at runWithCancel [90m(file:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3333:10[90m)[39m
+2026-11-23T07:31:31.3511015Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3318:20
+2026-11-23T07:31:31.3520183Z     at new Promise (<anonymous>)
+2026-11-23T07:31:31.3550181Z 
+2026-11-23T07:31:31.8682223Z [90mstdout[2m | lib/__tests__/team-management-integration.test.ts
+2026-11-23T07:31:31.8690354Z [22m[39m✓ Team management integration tests completed
+2026-11-23T07:31:31.8691195Z 
+2026-11-23T07:31:31.8860668Z  [32m✓[39m lib/__tests__/team-management-integration.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-11-23T07:31:32.0865592Z  [32m✓[39m app/api/project-photos/[projectId]/[photoId]/route.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+2026-11-23T07:31:32.1126308Z  [32m✓[39m lib/hooks/useCompanyWorkspace.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+2026-11-23T07:31:32.5731529Z  [32m✓[39m lib/domain/felInvoice.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+2026-11-23T07:31:32.6705508Z [90mstdout[2m | lib/__tests__/app-routes-integration.test.ts
+2026-11-23T07:31:32.6707066Z [22m[39m✓ App routes integration tests completed
+2026-11-23T07:31:32.6707888Z 
+2026-11-23T07:31:32.6858136Z  [32m✓[39m lib/__tests__/app-routes-integration.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+2026-11-23T07:31:32.8110210Z [90mstdout[2m | lib/__tests__/services-integration.test.ts
+2026-11-23T07:31:32.8111539Z [22m[39m✓ Services integration tests completed
+2026-11-23T07:31:32.8140127Z 
+2026-11-23T07:31:32.8371388Z  [32m✓[39m lib/__tests__/services-integration.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-11-23T07:31:33.3270483Z [90mstdout[2m | lib/__tests__/financial-components-integration.test.ts
+2026-11-23T07:31:33.3272541Z [22m[39m✓ Financial components integration tests completed
+2026-11-23T07:31:33.3273540Z 
+2026-11-23T07:31:33.3346653Z  [32m✓[39m lib/domain/ownership.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+2026-11-23T07:31:33.3508113Z  [32m✓[39m lib/__tests__/financial-components-integration.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-11-23T07:31:33.5461417Z  [32m✓[39m lib/domain/auditMetrics.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-11-23T07:31:34.1045066Z  [32m✓[39m lib/hooks/useMachineryManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+2026-11-23T07:31:34.1762442Z [90mstderr[2m | lib/hooks/useCompanyOnboarding.test.ts[2m > [22m[2museCompanyOnboarding[2m > [22m[2msurfaces Firestore lookup errors instead of leaving onboarding loading forever
+2026-11-23T07:31:34.1790932Z [22m[39m[useCompanyOnboarding] No se pudo consultar la configuración de empresa.
+2026-11-23T07:31:34.1791643Z 
+2026-11-23T07:31:34.1821081Z  [32m✓[39m lib/hooks/useCompanyOnboarding.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+2026-11-23T07:31:34.2691381Z  [32m✓[39m app/api/upload-project-photo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-23T07:31:34.7971880Z  [32m✓[39m lib/permissions.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-23T07:31:34.9636191Z  [32m✓[39m lib/domain/payrollEstimate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+2026-11-23T07:31:35.3407367Z  [32m✓[39m lib/__tests__/ui-components-a11y.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 207[2mms[22m[39m
+2026-11-23T07:31:35.3725969Z [90mstdout[2m | lib/__tests__/ai-assistant-integration.test.ts
+2026-11-23T07:31:35.3727537Z [22m[39m✓ AI assistant integration tests completed
+2026-11-23T07:31:35.3728320Z 
+2026-11-23T07:31:35.3957242Z  [32m✓[39m lib/__tests__/ai-assistant-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-23T07:31:35.7791727Z  [32m✓[39m lib/hooks/useAuthSession.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+2026-11-23T07:31:36.0298346Z [90mstdout[2m | lib/__tests__/dashboard-components-integration.test.ts
+2026-11-23T07:31:36.0301051Z [22m[39m✓ Dashboard components integration tests completed
+2026-11-23T07:31:36.0301978Z 
+2026-11-23T07:31:36.0551372Z  [32m✓[39m lib/__tests__/dashboard-components-integration.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-11-23T07:31:36.0731594Z  [32m✓[39m lib/guatemalanPayroll.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-11-23T07:31:36.6407737Z  [32m✓[39m lib/hooks/useAPUManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+2026-11-23T07:31:36.8451978Z  [32m✓[39m lib/hooks/useAttendanceManagement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+2026-11-23T07:31:36.9040655Z  [32m✓[39m lib/hooks/useExpenseManagement.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+2026-11-23T07:31:37.3817696Z  [32m✓[39m app/api/weather/safety-alerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+2026-11-23T07:31:37.5491666Z  [32m✓[39m lib/storageRest.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+2026-11-23T07:31:37.5566993Z  [32m✓[39m lib/guatemalaMarketData.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+2026-11-23T07:31:38.0501425Z  [32m✓[39m lib/utils/cacheManager.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+2026-11-23T07:31:38.3399439Z [90mstderr[2m | app/api/gemini.test.ts[2m > [22m[2mapp/api/gemini[2m > [22m[2mshould return 200 for chat with default message
+2026-11-23T07:31:38.3421390Z [22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+2026-11-23T07:31:38.3423225Z  [32m✓[39m app/api/gemini.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+2026-11-23T07:31:38.3452185Z Gemini chat error: TypeError: () => ({ models: { generateContent: __vite_ssr_import_0__.vi.fn(() => ({ text: "{}" })) } }) is not a constructor
+2026-11-23T07:31:38.3455733Z     at new Mock [90m(file:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/spy.DDMXghXv.js:333:27[90m)[39m
+2026-11-23T07:31:38.3458182Z     at Module.POST [90m(/home/runner/work/ORIGEN/ORIGEN/[39mapp/api/gemini/route.ts:624:22[90m)[39m
+2026-11-23T07:31:38.3460356Z [90m    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+2026-11-23T07:31:38.3462150Z     at [90m/home/runner/work/ORIGEN/ORIGEN/[39mapp/api/gemini.test.ts:136:17
+2026-11-23T07:31:38.3464087Z     at async [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:2801:20
+2026-11-23T07:31:38.3465309Z 
+2026-11-23T07:31:38.3838424Z  [32m✓[39m lib/hooks/useQuoteManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+2026-11-23T07:31:38.7941618Z  [32m✓[39m lib/security.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+2026-11-23T07:31:39.0110605Z [90mstderr[2m | lib/config.test.ts[2m > [22m[2mlib/config[2m > [22m[2mhasFirebaseRuntimeConfig[2m > [22m[2mshould return false when required config is missing
+2026-11-23T07:31:39.0121099Z [22m[39m[config] Firebase configuration incomplete. Check the public Firebase environment variables.
+2026-11-23T07:31:39.0129755Z 
+2026-11-23T07:31:39.0223067Z  [32m✓[39m lib/config.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+2026-11-23T07:31:39.0225371Z  [32m✓[39m lib/domain/expenseBudget.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-11-23T07:31:39.6055477Z  [32m✓[39m lib/geofencing.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-11-23T07:31:39.6618503Z  [32m✓[39m lib/hooks/useEmployeeManagement.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+2026-11-23T07:31:39.7391721Z [90mstderr[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould log error messages with error object
+2026-11-23T07:31:39.7394073Z [90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould log info messages
+2026-11-23T07:31:39.7430317Z [22m[39m[test-module] test message
+2026-11-23T07:31:39.7430736Z 
+2026-11-23T07:31:39.7436720Z [22m[39m[test-module] error happened
+2026-11-23T07:31:39.7450272Z 
+2026-11-23T07:31:39.7451602Z [90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by log level
+2026-11-23T07:31:39.7454791Z [90mstderr[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by log level
+2026-11-23T07:31:39.7456323Z [22m[39m[mod] warn msg
+2026-11-23T07:31:39.7457161Z [mod] error msg
+2026-11-23T07:31:39.7457661Z 
+2026-11-23T07:31:39.7459128Z [90mstderr[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould set minimum log level
+2026-11-23T07:31:39.7460818Z [22m[39m[mod] warn
+2026-11-23T07:31:39.7461497Z [mod] error
+2026-11-23T07:31:39.7461966Z 
+2026-11-23T07:31:39.7470730Z [22m[39m[mod] debug msg
+2026-11-23T07:31:39.7475313Z [90mstderr[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mcreateLogger[2m > [22m[2mshould pass data to logger
+2026-11-23T07:31:39.7477088Z [22m[39m[my-module] failed { code: [33m500[39m }
+2026-11-23T07:31:39.7477863Z 
+2026-11-23T07:31:39.7485629Z [mod] info msg
+2026-11-23T07:31:39.7486120Z 
+2026-11-23T07:31:39.7487670Z [90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould filter by module
+2026-11-23T07:31:39.7490603Z [22m[39m[mod-a] msg a
+2026-11-23T07:31:39.7491346Z [mod-b] msg b
+2026-11-23T07:31:39.7491829Z 
+2026-11-23T07:31:39.7493221Z [90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould clear logs
+2026-11-23T07:31:39.7496305Z [22m[39m[mod] msg
+2026-11-23T07:31:39.7496844Z 
+2026-11-23T07:31:39.7498275Z [90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould export logs as JSON
+2026-11-23T07:31:39.7499969Z [22m[39m[mod] test
+2026-11-23T07:31:39.7500512Z 
+2026-11-23T07:31:39.7502017Z [90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mLogger class[2m > [22m[2mshould respect maxLogs limit
+2026-11-23T07:31:39.7503595Z [22m[39m[mod] msg 0
+2026-11-23T07:31:39.7504318Z [mod] msg 1
+2026-11-23T07:31:39.7504938Z [mod] msg 2
+2026-11-23T07:31:39.7505556Z [mod] msg 3
+2026-11-23T07:31:39.7506145Z [mod] msg 4
+2026-11-23T07:31:39.7506714Z [mod] msg 5
+2026-11-23T07:31:39.7507291Z [mod] msg 6
+2026-11-23T07:31:39.7507894Z [mod] msg 7
+2026-11-23T07:31:39.7508471Z [mod] msg 8
+2026-11-23T07:31:39.7509059Z [mod] msg 9
+2026-11-23T07:31:39.7509716Z 
+2026-11-23T07:31:39.7511246Z [90mstdout[2m | lib/utils/logger.test.ts[2m > [22m[2mlib/utils/logger[2m > [22m[2mcreateLogger[2m > [22m[2mshould log with module name
+2026-11-23T07:31:39.7512777Z [22m[39m[my-module] hello
+2026-11-23T07:31:39.7513313Z 
+2026-11-23T07:31:39.7514341Z  [32m✓[39m lib/utils/logger.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+2026-11-23T07:31:40.2620304Z  [32m✓[39m lib/__tests__/middlewareOrigin.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-23T07:31:40.3564548Z  [32m✓[39m lib/design-tokens.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-11-23T07:31:40.5837517Z  [32m✓[39m lib/hooks/data/useEmployees.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 31[2mms[22m[39m
+2026-11-23T07:31:41.0902878Z  [32m✓[39m lib/hooks/useActiveWorkspace.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+2026-11-23T07:31:41.1278229Z  [32m✓[39m lib/validation/project.schema.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+2026-11-23T07:31:41.2451505Z  [32m✓[39m lib/services/projectAlerts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-23T07:31:41.7971270Z  [32m✓[39m lib/cashFlowService.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+2026-11-23T07:31:41.8587924Z [90mstderr[2m | app/api/firebase-config.test.ts[2m > [22m[2mapp/api/firebase-config[2m > [22m[2mshould return 500 on error
+2026-11-23T07:31:41.8600467Z  [32m✓[39m lib/gmail.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+2026-11-23T07:31:41.8602117Z [22m[39mFirebase config route error: Error: IP error
+2026-11-23T07:31:41.8615131Z  [32m✓[39m app/api/firebase-config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+2026-11-23T07:31:41.8621971Z     at [90m/home/runner/work/ORIGEN/ORIGEN/[39mapp/api/firebase-config.test.ts:77:13
+2026-11-23T07:31:41.8623762Z     at Mock [90m(file:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/spy.DDMXghXv.js:353:40[90m)[39m
+2026-11-23T07:31:41.8625680Z     at Module.GET [90m(/home/runner/work/ORIGEN/ORIGEN/[39mapp/api/firebase-config.js/route.ts:9:22[90m)[39m
+2026-11-23T07:31:41.8627353Z     at [90m/home/runner/work/ORIGEN/ORIGEN/[39mapp/api/firebase-config.test.ts:81:23
+2026-11-23T07:31:41.8629163Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:1632:35
+2026-11-23T07:31:41.8631377Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:2801:26
+2026-11-23T07:31:41.8633343Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3338:20
+2026-11-23T07:31:41.8634581Z     at new Promise (<anonymous>)
+2026-11-23T07:31:41.8636174Z     at runWithCancel [90m(file:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3333:10[90m)[39m
+2026-11-23T07:31:41.8638160Z     at [90mfile:///home/runner/work/ORIGEN/ORIGEN/[39mnode_modules/[4mvitest[24m/dist/chunks/run.CjdgFZiW.js:3318:20
+2026-11-23T07:31:41.8639232Z 
+2026-11-23T07:31:42.4571782Z  [32m✓[39m lib/domain/projectClosure.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-23T07:31:42.5252097Z  [32m✓[39m lib/domain/monthlyExpenses.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+2026-11-23T07:31:42.5771058Z  [32m✓[39m lib/utils/firestorePayload.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+2026-11-23T07:31:43.1675196Z  [32m✓[39m lib/apiClient.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+2026-11-23T07:31:43.1681235Z  [32m✓[39m lib/authErrors.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-23T07:31:43.2081664Z  [32m✓[39m lib/domain/expenseRecognition.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-23T07:31:43.7918704Z  [32m✓[39m lib/budget/demoProjects.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-23T07:31:43.8832001Z  [32m✓[39m lib/domain/projectFinance.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+2026-11-23T07:31:43.9203152Z  [32m✓[39m lib/api.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-23T07:31:44.4857778Z  [32m✓[39m lib/domain/finance.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-23T07:31:44.5687770Z  [32m✓[39m lib/domain/alerts.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-23T07:31:44.6661620Z  [32m✓[39m lib/hooks/useBudgetSummary.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+2026-11-23T07:31:45.1541741Z  [32m✓[39m lib/domain/apu.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-23T07:31:45.3320456Z  [32m✓[39m lib/__tests__/middlewareCsp.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-23T07:31:45.3649180Z  [32m✓[39m lib/hooks/useFirebaseSyncStatus.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-23T07:31:45.8412247Z  [32m✓[39m lib/quotationUtils.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-23T07:31:45.9801555Z  [32m✓[39m lib/data.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+2026-11-23T07:31:45.9980246Z  [32m✓[39m lib/logger.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-23T07:31:46.0054275Z 
+2026-11-23T07:31:46.0063209Z [2m Test Files [22m [1m[32m96 passed[39m[22m[90m (96)[39m
+2026-11-23T07:31:46.0073375Z [2m      Tests [22m [1m[32m1580 passed[39m[22m[90m (1580)[39m
+2026-11-23T07:31:46.0074254Z [2m   Start at [22m 07:31:22
+2026-11-23T07:31:46.0080637Z [2m   Duration [22m 23.23s[2m (environment 84%, import 7%, tests 4%, transform 3%, worker 1%, setup 1%)[22m
+2026-11-23T07:31:46.0087677Z 
+2026-11-23T07:31:46.0089306Z [2mEnvironment [22m [33mjsdom was created 96 times[39m[2m · 46.57s total, 84% of tracked time[22m
+2026-11-23T07:31:46.0091083Z [2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+2026-11-23T07:31:46.0092979Z [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+2026-11-23T07:31:46.0093843Z 

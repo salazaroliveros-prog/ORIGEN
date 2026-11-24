@@ -1,0 +1,302 @@
+﻿2026-11-23T07:31:46.2977339Z ##[group]Run npm run test:firebase
+2026-11-23T07:31:46.2977869Z [36;1mnpm run test:firebase[0m
+2026-11-23T07:31:46.3021046Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:31:46.3021485Z env:
+2026-11-23T07:31:46.3022017Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-11-23T07:31:46.3022928Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-11-23T07:31:46.3023627Z   MAVEN_ARGS: -ntp
+2026-11-23T07:31:46.3024002Z ##[endgroup]
+2026-11-23T07:31:46.4102308Z 
+2026-11-23T07:31:46.4102876Z > constructerp-guatemala@0.1.0 test:firebase
+2026-11-23T07:31:46.4104387Z > npx --yes firebase-tools@15.24.0 emulators:exec --config firebase.emulators.json --project demo-origen-erp-test --only auth,firestore,storage "vitest run --config vitest.emulator.config.ts"
+2026-11-23T07:31:46.4105398Z 
+2026-11-23T07:31:57.5308895Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+2026-11-23T07:31:57.9015013Z npm warn deprecated json-ptr@3.1.1: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+2026-11-23T07:31:58.2694208Z npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+2026-11-23T07:31:58.3633641Z npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+2026-11-23T07:32:04.7362086Z [36m[1mi  emulators:[22m[39m Starting emulators: auth, firestore, storage
+2026-11-23T07:32:04.7364352Z [36m[1mi  emulators:[22m[39m Detected demo project ID "demo-origen-erp-test", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+2026-11-23T07:32:04.7472719Z [33m[1m⚠ [22m[39m It appears you are running in a CI environment. You can avoid downloading the Firestore Emulator repeatedly by caching the /home/runner/.cache/firebase/emulators directory.
+2026-11-23T07:32:04.7475099Z [36m[1mi  firestore:[22m[39m downloading cloud-firestore-emulator-v1.21.0.jar...
+2026-11-23T07:32:05.7661900Z 
+2026-11-23T07:32:06.1978234Z [36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+2026-11-23T07:32:08.8136494Z [32m[1m✔  firestore:[22m[39m Firestore Emulator was started in standard edition.
+2026-11-23T07:32:08.8138646Z [32m[1m✔  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+2026-11-23T07:32:13.8789236Z [33m[1m⚠ [22m[39m It appears you are running in a CI environment. You can avoid downloading the Storage Emulator repeatedly by caching the /home/runner/.cache/firebase/emulators directory.
+2026-11-23T07:32:13.8791838Z [36m[1mi  storage:[22m[39m downloading cloud-storage-rules-runtime-v1.1.3.jar...
+2026-11-23T07:32:14.4783949Z 
+2026-11-23T07:32:15.8478232Z [36m[1mi [22m[39m Running script: [1mvitest run --config vitest.emulator.config.ts[22m
+2026-11-23T07:32:16.1082813Z [33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+2026-11-23T07:32:16.1091650Z   - ESM syntax in a file loaded as CommonJS (vitest.emulator.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+2026-11-23T07:32:16.1093515Z Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+2026-11-23T07:32:16.1447072Z 
+2026-11-23T07:32:16.1449119Z [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/home/runner/work/ORIGEN/ORIGEN[39m
+2026-11-23T07:32:16.1450039Z 
+2026-11-23T07:32:21.7511872Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2misolates supplier records and restricts supplier maintenance to purchasing roles
+2026-11-23T07:32:21.7514578Z [22m[39m[2026-11-23T07:32:21.748Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e03 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:21.7517429Z false for 'create' @ L6, false for 'create' @ L1484, false for 'update' @ L6, evaluation error at L1491:24 for 'update' @ L1491, false for 'create' @ L6, false for 'create' @ L1484
+2026-11-23T07:32:21.7518543Z 
+2026-11-23T07:32:22.0576186Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows warehouse managers to maintain catalogs but blocks stock movements pending atomic writes
+2026-11-23T07:32:22.0580284Z [22m[39m[2026-11-23T07:32:22.056Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e08 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.0582332Z false for 'create' @ L6, false for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608
+2026-11-23T07:32:22.0583278Z 
+2026-11-23T07:32:22.1093726Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows warehouse managers to maintain catalogs but blocks stock movements pending atomic writes
+2026-11-23T07:32:22.1121696Z [22m[39m[2026-11-23T07:32:22.107Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e0a error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.1124193Z false for 'create' @ L6, false for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608
+2026-11-23T07:32:22.1149949Z 
+2026-11-23T07:32:22.1191616Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows warehouse managers to maintain catalogs but blocks stock movements pending atomic writes
+2026-11-23T07:32:22.1194437Z [22m[39m[2026-11-23T07:32:22.117Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e0b error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.1211867Z false for 'delete' @ L6, false for 'delete' @ L1608
+2026-11-23T07:32:22.1212458Z 
+2026-11-23T07:32:22.2936362Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires an opening movement and first balance to be created atomically
+2026-11-23T07:32:22.2939725Z [22m[39m[2026-11-23T07:32:22.292Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e0f error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.2942414Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:22.2943754Z 
+2026-11-23T07:32:22.3159759Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires an opening movement and first balance to be created atomically
+2026-11-23T07:32:22.3163208Z [22m[39m[2026-11-23T07:32:22.315Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e10 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.3165973Z false for 'create' @ L6, evaluation error at L1560:24 for 'create' @ L1560, false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'create' @ L6, false for 'create' @ L1560
+2026-11-23T07:32:22.3167427Z 
+2026-11-23T07:32:22.4252940Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires an opening movement and first balance to be created atomically
+2026-11-23T07:32:22.4256713Z [22m[39m[2026-11-23T07:32:22.424Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e13 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.4259412Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'update' @ L6, false for 'update' @ L1608
+2026-11-23T07:32:22.4261011Z 
+2026-11-23T07:32:22.4359090Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires an opening movement and first balance to be created atomically
+2026-11-23T07:32:22.4362192Z [22m[39m[2026-11-23T07:32:22.435Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e14 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.4364394Z false for 'delete' @ L6, false for 'delete' @ L1608
+2026-11-23T07:32:22.4365049Z 
+2026-11-23T07:32:22.6101567Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2maccepts an opening stock movement only with its first balance in the same transaction
+2026-11-23T07:32:22.6121705Z [22m[39m[2026-11-23T07:32:22.608Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e18 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.6151786Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:22.6153144Z 
+2026-11-23T07:32:22.6298379Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2maccepts an opening stock movement only with its first balance in the same transaction
+2026-11-23T07:32:22.6301724Z [22m[39m[2026-11-23T07:32:22.627Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e19 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.6304939Z false for 'create' @ L6, evaluation error at L1560:24 for 'create' @ L1560, false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'create' @ L6, false for 'create' @ L1560
+2026-11-23T07:32:22.6307014Z 
+2026-11-23T07:32:22.8793071Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires audited stock adjustments to update the balance atomically and rejects overdraws
+2026-11-23T07:32:22.8801884Z [22m[39m[2026-11-23T07:32:22.877Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e20 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:22.8804449Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:22.8805810Z 
+2026-11-23T07:32:23.1682607Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires project stock issues and reduced balances in one atomic write and rejects overdrafts
+2026-11-23T07:32:23.1690150Z [22m[39m[2026-11-23T07:32:23.166Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e29 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.1692814Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.1694166Z 
+2026-11-23T07:32:23.3923684Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.3926752Z [22m[39m[2026-11-23T07:32:23.391Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e32 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.3929764Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.3931109Z 
+2026-11-23T07:32:23.4132919Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.4135868Z [22m[39m[2026-11-23T07:32:23.412Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e33 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.4139822Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.4154137Z 
+2026-11-23T07:32:23.4393325Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.4411753Z [22m[39m[2026-11-23T07:32:23.437Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e34 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.4415854Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.4418101Z 
+2026-11-23T07:32:23.4651961Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.4701655Z [22m[39m[2026-11-23T07:32:23.464Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e35 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.4706185Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, evaluation error at L1560:24 for 'create' @ L1560, false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.4709224Z 
+2026-11-23T07:32:23.4901949Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.4904708Z [22m[39m[2026-11-23T07:32:23.485Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e36 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.4925785Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1560, false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.4935177Z 
+2026-11-23T07:32:23.5076967Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.5124115Z [22m[39m[2026-11-23T07:32:23.504Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e37 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.5143328Z false for 'create' @ L6, false for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608
+2026-11-23T07:32:23.5149918Z 
+2026-11-23T07:32:23.5254183Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.5281501Z [22m[39m[2026-11-23T07:32:23.520Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e38 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.5300743Z false for 'create' @ L6, false for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608
+2026-11-23T07:32:23.5317860Z 
+2026-11-23T07:32:23.5558797Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.5561907Z [22m[39m[2026-11-23T07:32:23.553Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e39 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.5565930Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'create' @ L6, evaluation error at L1560:24 for 'create' @ L1560, false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.5568290Z 
+2026-11-23T07:32:23.6017655Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires both sides of a warehouse transfer and paired balances in one transaction
+2026-11-23T07:32:23.6041677Z [22m[39m[2026-11-23T07:32:23.600Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e3a error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.6044075Z false for 'update' @ L6, evaluation error at L1574:24 for 'update' @ L1574, false for 'update' @ L6, false for 'update' @ L1574
+2026-11-23T07:32:23.6060069Z 
+2026-11-23T07:32:23.7712543Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mrequires a purchase receipt movement, balance, and order update in one atomic write
+2026-11-23T07:32:23.7732122Z [22m[39m[2026-11-23T07:32:23.769Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e3f error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:23.7734193Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:23.7734935Z 
+2026-11-23T07:32:24.0580490Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.0583444Z [22m[39m[2026-11-23T07:32:24.056Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e49 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.0586158Z false for 'create' @ L6, evaluation error at L1615:24 for 'create' @ L1615, false for 'update' @ L6, evaluation error at L1651:24 for 'update' @ L1651, false for 'create' @ L6, Null value error. for 'create' @ L1615
+2026-11-23T07:32:24.0587621Z 
+2026-11-23T07:32:24.1546163Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.1552162Z [22m[39m[2026-11-23T07:32:24.153Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e4d error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.1561168Z false for 'create' @ L6, evaluation error at L1615:24 for 'create' @ L1615, false for 'update' @ L6, evaluation error at L1651:24 for 'update' @ L1651, false for 'update' @ L6, false for 'update' @ L1651
+2026-11-23T07:32:24.1562123Z 
+2026-11-23T07:32:24.2218958Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.2221875Z [22m[39m[2026-11-23T07:32:24.220Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e50 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.2224327Z false for 'create' @ L6, evaluation error at L1597:24 for 'create' @ L1597, false for 'update' @ L6, false for 'update' @ L1608, false for 'create' @ L6, false for 'create' @ L1597
+2026-11-23T07:32:24.2225509Z 
+2026-11-23T07:32:24.2970614Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.2973822Z [22m[39m[2026-11-23T07:32:24.296Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e4f error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.2976596Z false for 'create' @ L6, false for 'create' @ L1831, false for 'update' @ L6, Property lastPaymentId is undefined on object. for 'update' @ L1847, false for 'create' @ L6, false for 'create' @ L1831
+2026-11-23T07:32:24.2990652Z 
+2026-11-23T07:32:24.3225262Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.3229314Z [22m[39m[2026-11-23T07:32:24.321Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e54 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.3232443Z false for 'create' @ L6, evaluation error at L1831:24 for 'create' @ L1831, false for 'update' @ L6, evaluation error at L1847:24 for 'update' @ L1847, false for 'update' @ L6, false for 'update' @ L1847
+2026-11-23T07:32:24.3233751Z 
+2026-11-23T07:32:24.3318547Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.3321756Z [22m[39m[2026-11-23T07:32:24.331Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e55 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.3323733Z false for 'create' @ L6, evaluation error at L1869:24 for 'create' @ L1869, false for 'update' @ L6, false for 'update' @ L1870, false for 'create' @ L6, false for 'create' @ L1869
+2026-11-23T07:32:24.3325074Z 
+2026-11-23T07:32:24.3437731Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.3452157Z [22m[39m[2026-11-23T07:32:24.343Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e56 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.3454667Z false for 'create' @ L6, evaluation error at L1230:24 for 'create' @ L1230, false for 'update' @ L6, false for 'update' @ L1242, false for 'create' @ L6, false for 'create' @ L1230
+2026-11-23T07:32:24.3455991Z 
+2026-11-23T07:32:24.4161553Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.4164151Z [22m[39m[2026-11-23T07:32:24.415Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e5b error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.4166479Z false for 'delete' @ L6, evaluation error at L1257:24 for 'delete' @ L1257, false for 'delete' @ L6, false for 'delete' @ L1257
+2026-11-23T07:32:24.4167475Z 
+2026-11-23T07:32:24.4276022Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mallows finance to create purchase orders and subcontracts only for same-company references
+2026-11-23T07:32:24.4277955Z [22m[39m[2026-11-23T07:32:24.426Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e5c error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.4280090Z false for 'create' @ L6, evaluation error at L1230:24 for 'create' @ L1230, false for 'update' @ L6, evaluation error at L1242:24 for 'update' @ L1242, false for 'update' @ L6, false for 'update' @ L1242
+2026-11-23T07:32:24.4281225Z 
+2026-11-23T07:32:24.7393338Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mstores project photo metadata only for project members and keeps it immutable
+2026-11-23T07:32:24.7418008Z [22m[39m[2026-11-23T07:32:24.738Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e68 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.7420913Z false for 'create' @ L6, evaluation error at L1175:26 for 'create' @ L1175, false for 'update' @ L6, false for 'update' @ L1191, false for 'update' @ L6, false for 'update' @ L1191
+2026-11-23T07:32:24.7422309Z 
+2026-11-23T07:32:24.7507584Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mstores project photo metadata only for project members and keeps it immutable
+2026-11-23T07:32:24.7516512Z [22m[39m[2026-11-23T07:32:24.749Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e65 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.7575065Z false for 'create' @ L6, evaluation error at L1175:26 for 'create' @ L1175, false for 'update' @ L6, false for 'update' @ L1191, false for 'update' @ L6, false for 'update' @ L1191
+2026-11-23T07:32:24.7599747Z 
+2026-11-23T07:32:24.7602128Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mstores project photo metadata only for project members and keeps it immutable
+2026-11-23T07:32:24.7611755Z [22m[39m[2026-11-23T07:32:24.756Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e69 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.7620556Z false for 'delete' @ L6, false for 'delete' @ L1191
+2026-11-23T07:32:24.7631875Z 
+2026-11-23T07:32:24.8941855Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mkeeps user profile contact data private to the authenticated UID
+2026-11-23T07:32:24.8944075Z [22m[39m[2026-11-23T07:32:24.893Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e6f error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.8945888Z false for 'create' @ L6, false for 'create' @ L1877, false for 'update' @ L6, false for 'update' @ L1885
+2026-11-23T07:32:24.8946461Z 
+2026-11-23T07:32:24.9012444Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mkeeps user profile contact data private to the authenticated UID
+2026-11-23T07:32:24.9017071Z [22m[39m[2026-11-23T07:32:24.900Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e6c error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:24.9020180Z false for 'create' @ L6, evaluation error at L1877:24 for 'create' @ L1877, false for 'update' @ L6, evaluation error at L1885:24 for 'update' @ L1885, false for 'update' @ L6, false for 'update' @ L1885
+2026-11-23T07:32:24.9021793Z 
+2026-11-23T07:32:25.0966914Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mrechaza una configuración de empresa con tipos inválidos
+2026-11-23T07:32:25.0971374Z [22m[39m[2026-11-23T07:32:25.095Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e75 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.0981972Z false for 'create' @ L6, evaluation error at L1301:24 for 'create' @ L1301, false for 'update' @ L6, evaluation error at L1303:24 for 'update' @ L1303, false for 'update' @ L6, false for 'update' @ L1303
+2026-11-23T07:32:25.0983521Z 
+2026-11-23T07:32:25.1973172Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mimpide que un administrador elimine el documento raíz de su empresa
+2026-11-23T07:32:25.1976583Z [22m[39m[2026-11-23T07:32:25.196Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e79 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.1978411Z false for 'delete' @ L6, false for 'delete' @ L1058
+2026-11-23T07:32:25.1979077Z 
+2026-11-23T07:32:25.2915771Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mreserva un ID de run QA una sola vez y permite actualizar solo su manifiesto
+2026-11-23T07:32:25.2919085Z [22m[39m[2026-11-23T07:32:25.290Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e7d error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.2922078Z false for 'create' @ L6, evaluation error at L1936:24 for 'create' @ L1936, false for 'update' @ L6, evaluation error at L1942:24 for 'update' @ L1942, false for 'update' @ L6, false for 'update' @ L1942
+2026-11-23T07:32:25.2926373Z 
+2026-11-23T07:32:25.5950814Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mrechaza avances fuera de 0-100 y montos negativos en el servidor
+2026-11-23T07:32:25.5954156Z [22m[39m[2026-11-23T07:32:25.594Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e8a error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.5956888Z false for 'create' @ L6, false for 'create' @ L1147, false for 'update' @ L6, evaluation error at L1151:24 for 'update' @ L1151, false for 'create' @ L6, false for 'create' @ L1147
+2026-11-23T07:32:25.5958229Z 
+2026-11-23T07:32:25.6042774Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mrechaza avances fuera de 0-100 y montos negativos en el servidor
+2026-11-23T07:32:25.6045870Z [22m[39m[2026-11-23T07:32:25.603Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e8b error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.6048518Z false for 'create' @ L6, false for 'create' @ L1147, false for 'update' @ L6, evaluation error at L1151:24 for 'update' @ L1151, false for 'create' @ L6, false for 'create' @ L1147
+2026-11-23T07:32:25.6050798Z 
+2026-11-23T07:32:25.6115863Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mrechaza avances fuera de 0-100 y montos negativos en el servidor
+2026-11-23T07:32:25.6118925Z [22m[39m[2026-11-23T07:32:25.610Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e8c error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.6121665Z false for 'create' @ L6, false for 'create' @ L1147, false for 'update' @ L6, evaluation error at L1151:24 for 'update' @ L1151, false for 'create' @ L6, false for 'create' @ L1147
+2026-11-23T07:32:25.6122944Z 
+2026-11-23T07:32:25.6227496Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mrechaza avances fuera de 0-100 y montos negativos en el servidor
+2026-11-23T07:32:25.6230934Z [22m[39m[2026-11-23T07:32:25.619Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e8d error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.6236576Z false for 'create' @ L6, false for 'create' @ L1147, false for 'update' @ L6, evaluation error at L1151:24 for 'update' @ L1151, false for 'create' @ L6, false for 'create' @ L1147
+2026-11-23T07:32:25.6237526Z 
+2026-11-23T07:32:25.7410207Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mpermite a finanzas registrar un gasto solo dentro de su empresa y proyecto
+2026-11-23T07:32:25.7412766Z [22m[39m[2026-11-23T07:32:25.740Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e93 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.7414875Z false for 'create' @ L6, evaluation error at L1230:24 for 'create' @ L1230, false for 'update' @ L6, evaluation error at L1242:24 for 'update' @ L1242, false for 'create' @ L6, false for 'create' @ L1230
+2026-11-23T07:32:25.7415621Z 
+2026-11-23T07:32:25.7481076Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mpermite a finanzas registrar un gasto solo dentro de su empresa y proyecto
+2026-11-23T07:32:25.7483614Z [22m[39m[2026-11-23T07:32:25.747Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e94 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.7485410Z false for 'create' @ L6, false for 'create' @ L1230, false for 'update' @ L6, evaluation error at L1242:24 for 'update' @ L1242, false for 'create' @ L6, false for 'create' @ L1230
+2026-11-23T07:32:25.7486364Z 
+2026-11-23T07:32:25.8835230Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mvincula el gasto de maquinaria a un log y evita referencias entre empresas
+2026-11-23T07:32:25.8836951Z [22m[39m[2026-11-23T07:32:25.882Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e9a error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.8838083Z false for 'update' @ L6, evaluation error at L1412:24 for 'update' @ L1412, false for 'update' @ L6, false for 'update' @ L1412
+2026-11-23T07:32:25.8838556Z 
+2026-11-23T07:32:25.8909239Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mvincula el gasto de maquinaria a un log y evita referencias entre empresas
+2026-11-23T07:32:25.8912313Z [22m[39m[2026-11-23T07:32:25.890Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e9b error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.8914205Z false for 'update' @ L6, evaluation error at L1412:24 for 'update' @ L1412, false for 'update' @ L6, false for 'update' @ L1412
+2026-11-23T07:32:25.8915018Z 
+2026-11-23T07:32:25.8989399Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mvincula el gasto de maquinaria a un log y evita referencias entre empresas
+2026-11-23T07:32:25.8992198Z [22m[39m[2026-11-23T07:32:25.898Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e9c error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.8994679Z false for 'create' @ L6, evaluation error at L1230:24 for 'create' @ L1230, false for 'update' @ L6, evaluation error at L1242:24 for 'update' @ L1242, false for 'create' @ L6, false for 'create' @ L1230
+2026-11-23T07:32:25.8995876Z 
+2026-11-23T07:32:25.9048309Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mvincula el gasto de maquinaria a un log y evita referencias entre empresas
+2026-11-23T07:32:25.9051364Z [22m[39m[2026-11-23T07:32:25.904Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733e9d error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:25.9053778Z false for 'create' @ L6, false for 'create' @ L1448, false for 'update' @ L6, evaluation error at L1465:24 for 'update' @ L1465, false for 'create' @ L6, false for 'create' @ L1448
+2026-11-23T07:32:25.9054461Z 
+2026-11-23T07:32:26.0147198Z [90mstderr[2m | lib/firestore-emulator.test.ts[2m > [22m[2mFirestore Emulator: aislamiento y escenarios de obra[2m > [22m[2mrechaza acceso de otra empresa y escrituras de un rol viewer
+2026-11-23T07:32:26.0150319Z [22m[39m[2026-11-23T07:32:26.013Z]  @firebase/firestore: Firestore (12.19.0): GrpcConnection RPC 'Write' stream 0x4a733ea2 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+2026-11-23T07:32:26.0152208Z false for 'create' @ L6, false for 'create' @ L1147, false for 'update' @ L6, evaluation error at L1151:24 for 'update' @ L1151, false for 'create' @ L6, false for 'create' @ L1147
+2026-11-23T07:32:26.0152862Z 
+2026-11-23T07:32:26.1854010Z  [32m✓[39m lib/firestore-emulator.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 9575[2mms[22m[39m
+2026-11-23T07:32:26.1863945Z    [33m[2m✓[22m[39m isolates supplier records and restricts supplier maintenance to purchasing roles[33m 866[2mms[22m[39m
+2026-11-23T07:32:26.1866234Z    [33m[2m✓[22m[39m requires an opening movement and first balance to be created atomically[33m 318[2mms[22m[39m
+2026-11-23T07:32:26.1897434Z    [33m[2m✓[22m[39m requires audited stock adjustments to update the balance atomically and rejects overdraws[33m 320[2mms[22m[39m
+2026-11-23T07:32:26.1902153Z    [33m[2m✓[22m[39m requires both sides of a warehouse transfer and paired balances in one transaction[33m 361[2mms[22m[39m
+2026-11-23T07:32:26.1905041Z    [33m[2m✓[22m[39m allows finance to create purchase orders and subcontracts only for same-company references[33m 647[2mms[22m[39m
+2026-11-23T07:32:26.6455968Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts
+2026-11-23T07:32:26.6457419Z [22m[39m[config] Firebase configuration incomplete. Check the public Firebase environment variables.
+2026-11-23T07:32:26.6458346Z [firebaseService] Firebase configuration is incomplete. Check the public Firebase environment variables.
+2026-11-23T07:32:26.6458789Z 
+2026-11-23T07:32:27.3669411Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra el uso de maquinaria con transacción, rechaza lecturas obsoletas y evita duplicados
+2026-11-23T07:32:27.3676119Z [22m[39mFirestore Error:  {"error":"El horómetro cambió desde que abriste el formulario. Actualiza los datos e intenta nuevamente.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"write","path":"machineryLogs/ml-1795419147278-243984"}
+2026-11-23T07:32:27.3679915Z 
+2026-11-23T07:32:27.3758980Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra el uso de maquinaria con transacción, rechaza lecturas obsoletas y evita duplicados
+2026-11-23T07:32:27.3765185Z [22m[39mFirestore Error:  {"error":"El horómetro cambió desde que abriste el formulario. Actualiza los datos e intenta nuevamente.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"write","path":"machineryLogs/ml-stale-1795419147367-670948"}
+2026-11-23T07:32:27.3768245Z 
+2026-11-23T07:32:27.7145523Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra inventario inicial de forma atómica, inmutable e idempotente
+2026-11-23T07:32:27.7200765Z [22m[39mFirestore Error:  {"error":"El ID del movimiento inicial ya fue utilizado para otra operación.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"create","path":"inventoryBalances/bal_QawQh7tghlfwaQws9NL2_TZQiID5UQwRj91S2ZSmz"}
+2026-11-23T07:32:27.7204020Z 
+2026-11-23T07:32:27.7340845Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra inventario inicial de forma atómica, inmutable e idempotente
+2026-11-23T07:32:27.7346770Z [22m[39mFirestore Error:  {"error":"Esta combinación de artículo y bodega ya tiene historial. Usa un ajuste de inventario, no otra apertura.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"create","path":"inventoryBalances/bal_QawQh7tghlfwaQws9NL2_TZQiID5UQwRj91S2ZSmz"}
+2026-11-23T07:32:27.7352301Z 
+2026-11-23T07:32:27.9152914Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra ajustes de inventario de entrada y salida con promedio, atomicidad e idempotencia
+2026-11-23T07:32:27.9176620Z [22m[39mFirestore Error:  {"error":"El ID del movimiento de ajuste ya fue utilizado para otra operación.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"inventoryBalances/bal_N0IB8ShmEVPdPxs1vC2q_pHlO7oFHmmmi5PYGF9Rz"}
+2026-11-23T07:32:27.9180132Z 
+2026-11-23T07:32:27.9357044Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra ajustes de inventario de entrada y salida con promedio, atomicidad e idempotencia
+2026-11-23T07:32:27.9378998Z [22m[39mFirestore Error:  {"error":"Existencia insuficiente para completar el movimiento.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"inventoryBalances/bal_N0IB8ShmEVPdPxs1vC2q_pHlO7oFHmmmi5PYGF9Rz"}
+2026-11-23T07:32:27.9390125Z 
+2026-11-23T07:32:28.1910593Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra salidas y traslados de inventario atómicos e idempotentes
+2026-11-23T07:32:28.1917087Z [22m[39mFirestore Error:  {"error":"La referencia de salida ya fue utilizada para otro movimiento.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"inventoryBalances/bal_obO4zM3wVuGofjdotQJb_mloEpfPuBJyhk45ZACLr"}
+2026-11-23T07:32:28.1922057Z 
+2026-11-23T07:32:28.2142723Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra salidas y traslados de inventario atómicos e idempotentes
+2026-11-23T07:32:28.2155137Z [22m[39mFirestore Error:  {"error":"Existencia insuficiente. Disponible: 3 saco.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"inventoryBalances/bal_obO4zM3wVuGofjdotQJb_mloEpfPuBJyhk45ZACLr"}
+2026-11-23T07:32:28.2158220Z 
+2026-11-23T07:32:28.3088802Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra salidas y traslados de inventario atómicos e idempotentes
+2026-11-23T07:32:28.3094314Z [22m[39mFirestore Error:  {"error":"El ID del traslado ya fue utilizado por otra operación.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"inventoryBalances/bal_obO4zM3wVuGofjdotQJb_mloEpfPuBJyhk45ZACLr"}
+2026-11-23T07:32:28.3097064Z 
+2026-11-23T07:32:28.3442787Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra salidas y traslados de inventario atómicos e idempotentes
+2026-11-23T07:32:28.3448171Z [22m[39mFirestore Error:  {"error":"Existencia insuficiente. Disponible: 2 saco.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"inventoryBalances/bal_obO4zM3wVuGofjdotQJb_mloEpfPuBJyhk45ZACLr"}
+2026-11-23T07:32:28.3451595Z 
+2026-11-23T07:32:28.4489417Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mregistra pagos de subcontratos con fecha real, atomicidad, idempotencia y límite de saldo
+2026-11-23T07:32:28.4503571Z [22m[39mFirestore Error:  {"error":"El pago supera el saldo pendiente del subcontrato.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"subcontracts/z5QFV3y3Jix0GS0heNm2"}
+2026-11-23T07:32:28.4506900Z 
+2026-11-23T07:32:28.6279825Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2maprueba y recibe una OC con saldo atómico, costo promedio e idempotencia
+2026-11-23T07:32:28.6294023Z [22m[39mFirestore Error:  {"error":"Solo se pueden recibir órdenes aprobadas.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"purchaseOrders/Ezgbgv03euMuMN4eHmpj"}
+2026-11-23T07:32:28.6319989Z 
+2026-11-23T07:32:28.8635459Z [90mstderr[2m | lib/firebaseService.crud.emulator.test.ts[2m > [22m[2mfirebaseService CRUD contra el emulador[2m > [22m[2mrecibe órdenes de dos renglones en entregas parciales independientes
+2026-11-23T07:32:28.8640852Z [22m[39mFirestore Error:  {"error":"Solo se pueden recibir órdenes aprobadas.","authInfo":{"userId":"bjuK5gJoNJTtzFIiGnvTLciHmefT","email":"crud-integration@test.com","emailVerified":false,"isAnonymous":false,"tenantId":null,"providerInfo":[{"providerId":"password","email":"crud-integration@test.com"}]},"operationType":"update","path":"purchaseOrders/mDnbcSotXE9Sp9lNfJ0A"}
+2026-11-23T07:32:28.8645385Z 
+2026-11-23T07:32:28.9697514Z  [32m✓[39m lib/firebaseService.crud.emulator.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 2283[2mms[22m[39m
+2026-11-23T07:32:28.9705734Z    [32m✓[39m firebaseService CRUD contra el emulador [2m(18)[22m
+2026-11-23T07:32:28.9707765Z      [33m[2m✓[22m[39m registra salidas y traslados de inventario atómicos e idempotentes[33m 322[2mms[22m[39m
+2026-11-23T07:32:31.8003248Z  [32m✓[39m lib/storage-emulator.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2560[2mms[22m[39m
+2026-11-23T07:32:31.8003944Z    [32m✓[39m storage.rules [2m(9)[22m
+2026-11-23T07:32:31.8004484Z      [33m[2m✓[22m[39m denies anonymous uploads[33m 341[2mms[22m[39m
+2026-11-23T07:32:31.8043818Z 
+2026-11-23T07:32:31.8048115Z [2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+2026-11-23T07:32:31.8050366Z [2m      Tests [22m [1m[32m49 passed[39m[22m[90m (49)[39m
+2026-11-23T07:32:31.8051281Z [2m   Start at [22m 07:32:16
+2026-11-23T07:32:31.8081221Z [2m   Duration [22m 15.65s[2m (tests 95%, import 4%, transform 1%)[22m
+2026-11-23T07:32:31.8081866Z 
+2026-11-23T07:32:31.8326953Z [32m[1m✔ [22m[39m Script exited successfully (code 0)
+2026-11-23T07:32:32.3333634Z [36m[1mi  emulators:[22m[39m Shutting down emulators.
+2026-11-23T07:32:32.3337441Z [36m[1mi  firestore:[22m[39m Stopping Firestore Emulator
+2026-11-23T07:32:32.7120740Z [36m[1mi  auth:[22m[39m Stopping Authentication Emulator
+2026-11-23T07:32:32.7125207Z [36m[1mi  storage:[22m[39m Stopping Storage Emulator
+2026-11-23T07:32:33.0413050Z [36m[1mi  hub:[22m[39m Stopping emulator hub
+2026-11-23T07:32:33.0416787Z [36m[1mi  logging:[22m[39m Stopping Logging Emulator

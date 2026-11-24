@@ -1,4 +1,5 @@
-'use client';
+import { isValidTabId } from '@/lib/constants/tabs';
+import { isValidTabId } from '@/lib/constants/tabs';'use client';
 
 import { LogoUpload } from '@/components/LogoUpload';
 import { Navbar } from '@/components/Navbar';
@@ -9,8 +10,8 @@ import { Button } from '@/components/ui/Button';
 import { TouchTarget } from '@/components/ui/TouchTarget';
 import { AiAssistantView } from '@/features/ai/AiAssistantView';
 import { BudgetView } from '@/features/budget/BudgetView';
-import { DashboardView } from '@/features/dashboard/DashboardView';
-import { RouteTransition } from '@/components/ui/RouteTransition';
+import { DashboardEnhanced } from '@/components/DashboardEnhanced';
+
 import { ExpensesManager } from '@/components/ExpensesManager';
 import { GanttSchedule } from '@/components/GanttSchedule';
 import { CotizacionesView } from '@/components/CotizacionesView';
@@ -337,6 +338,11 @@ export default function MainApp() {
   };
 
   const handleSelectTab = (tabId: string) => {
+    // Validar que el tab sea válido
+    if (!isValidTabId(tabId)) {
+      console.error(`Tab ID inválido: ${tabId}`);
+      return;
+    }
     setActiveTab(tabId as TabKey);
     if (isMobileSidebarOpen) setIsMobileSidebarOpen(false);
   };
@@ -374,7 +380,7 @@ export default function MainApp() {
       {/* Skip link for accessibility */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-slate-950"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary-500 focus:px-4 focus:py-2 focus:text-slate-950"
       >
         Saltar al contenido principal
       </a>
@@ -430,7 +436,7 @@ export default function MainApp() {
         {authStatus === 'authenticated' && !workspaceLoading && data.loading && (
           <div
             role="status"
-            className="mt-4 rounded-xl border border-amber-400/30 bg-slate-900/80 px-4 py-3 text-sm text-amber-100 backdrop-blur-md"
+            className="mt-4 rounded-xl border border-primary-500/30 bg-slate-900/80 px-4 py-3 text-sm text-primary-100 backdrop-blur-md"
           >
             Cargando proyectos, presupuestos y gastos…
           </div>
@@ -443,7 +449,7 @@ export default function MainApp() {
               currentUser.emailVerified &&
               (membership?.role === 'owner' || membership?.role === 'admin')
                 ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-100'
-                : 'border-amber-400/30 bg-amber-500/10 text-amber-100'
+                : 'border-primary-500/30 bg-primary-500/10 text-primary-100'
             }`}
           >
             Correo de administración configurado: <strong>{currentUser.email}</strong>.{' '}
@@ -462,12 +468,12 @@ export default function MainApp() {
             className={`mt-4 flex flex-col gap-3 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${
               authStatus === 'error' || workspaceError
                 ? 'border-red-400/30 bg-red-500/10'
-                : 'border-amber-400/30 bg-amber-500/10'
+                : 'border-primary-500/30 bg-primary-500/10'
             }`}
           >
             <div>
               <p
-                className={`text-sm font-semibold ${authStatus === 'error' || workspaceError ? 'text-red-200' : 'text-amber-100'}`}
+                className={`text-sm font-semibold ${authStatus === 'error' || workspaceError ? 'text-red-200' : 'text-primary-100'}`}
               >
                 {workspaceError
                   ? 'No se pudo cargar la empresa.'
@@ -491,7 +497,7 @@ export default function MainApp() {
         {!(authStatus === 'authenticated' && workspaceLoading) && (
           <>
             {activeTab === 'dashboard' && (
-              <DashboardView
+              <DashboardEnhanced
                 projects={activeProjects}
                 expenses={activeExpenses}
                 company={company}
@@ -742,7 +748,7 @@ export default function MainApp() {
           <div className="animate-in slide-in-from-bottom w-full max-w-md rounded-t-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-md duration-300">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-amber-400" aria-hidden="true" />
+                <Settings className="h-5 w-5 text-primary-500" aria-hidden="true" />
                 <h3 id="branding-drawer-title" className="text-lg font-bold text-white">
                   Marca y Personalización
                 </h3>
@@ -837,7 +843,7 @@ export default function MainApp() {
             bottom: 'calc(5rem + env(safe-area-inset-bottom))',
             right: 'max(1.5rem, env(safe-area-inset-right))',
           }}
-          className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-slate-950 shadow-xl transition hover:bg-amber-400 lg:hidden"
+          className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full bg-primary-500 text-slate-950 shadow-xl transition hover:bg-primary-600 lg:hidden"
           aria-label="Configuración de Marca"
         >
           <Settings className="h-6 w-6" aria-hidden="true" />

@@ -1,0 +1,86 @@
+﻿2026-11-23T07:30:22.1214526Z ##[group]Run actions/checkout@v7
+2026-11-23T07:30:22.1215537Z with:
+2026-11-23T07:30:22.1216101Z   repository: salazaroliveros-prog/ORIGEN
+2026-11-23T07:30:22.1220020Z   token: ***
+2026-11-23T07:30:22.1220543Z   ssh-strict: true
+2026-11-23T07:30:22.1221067Z   ssh-user: git
+2026-11-23T07:30:22.1221590Z   persist-credentials: true
+2026-11-23T07:30:22.1222150Z   clean: true
+2026-11-23T07:30:22.1222673Z   sparse-checkout-cone-mode: true
+2026-11-23T07:30:22.1223267Z   fetch-depth: 1
+2026-11-23T07:30:22.1223776Z   fetch-tags: false
+2026-11-23T07:30:22.1224298Z   show-progress: true
+2026-11-23T07:30:22.1224818Z   lfs: false
+2026-11-23T07:30:22.1225310Z   submodules: false
+2026-11-23T07:30:22.1225890Z   set-safe-directory: true
+2026-11-23T07:30:22.1226485Z   allow-unsafe-pr-checkout: false
+2026-11-23T07:30:22.1227351Z ##[endgroup]
+2026-11-23T07:30:22.4004069Z Syncing repository: salazaroliveros-prog/ORIGEN
+2026-11-23T07:30:22.4006618Z ##[group]Getting Git version info
+2026-11-23T07:30:22.4007867Z Working directory is '/home/runner/work/ORIGEN/ORIGEN'
+2026-11-23T07:30:22.4009888Z [command]/usr/bin/git version
+2026-11-23T07:30:22.4040450Z git version 2.56.1
+2026-11-23T07:30:22.4139691Z ##[endgroup]
+2026-11-23T07:30:22.4147216Z Temporarily overriding HOME='/home/runner/work/_temp/90fc9528-6ad3-4801-a682-6b904fb54e76' before making global git config changes
+2026-11-23T07:30:22.4149764Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-23T07:30:22.4151642Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ORIGEN/ORIGEN
+2026-11-23T07:30:22.4154344Z Deleting the contents of '/home/runner/work/ORIGEN/ORIGEN'
+2026-11-23T07:30:22.4159143Z ##[group]Determining repository object format
+2026-11-23T07:30:22.4164650Z ##[endgroup]
+2026-11-23T07:30:22.4165967Z ##[group]Initializing the repository
+2026-11-23T07:30:22.4167143Z [command]/usr/bin/git init /home/runner/work/ORIGEN/ORIGEN
+2026-11-23T07:30:22.4278557Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-23T07:30:22.4280850Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-23T07:30:22.4282146Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-23T07:30:22.4283065Z hint: call:
+2026-11-23T07:30:22.4283573Z hint:
+2026-11-23T07:30:22.4284281Z hint: 	git config --global init.defaultBranch <name>
+2026-11-23T07:30:22.4284981Z hint:
+2026-11-23T07:30:22.4285640Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-23T07:30:22.4286744Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-23T07:30:22.4287549Z hint:
+2026-11-23T07:30:22.4288437Z hint: 	git branch -m <name>
+2026-11-23T07:30:22.4289216Z hint:
+2026-11-23T07:30:22.4290898Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-23T07:30:22.4293154Z Initialized empty Git repository in /home/runner/work/ORIGEN/ORIGEN/.git/
+2026-11-23T07:30:22.4303849Z [command]/usr/bin/git remote add origin https://github.com/salazaroliveros-prog/ORIGEN
+2026-11-23T07:30:22.4359129Z ##[endgroup]
+2026-11-23T07:30:22.4360771Z ##[group]Disabling automatic garbage collection
+2026-11-23T07:30:22.4363789Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-23T07:30:22.4400400Z ##[endgroup]
+2026-11-23T07:30:22.4402128Z ##[group]Setting up auth
+2026-11-23T07:30:22.4403085Z Removing SSH command configuration
+2026-11-23T07:30:22.4408070Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-23T07:30:22.4445013Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-23T07:30:22.4921501Z Removing HTTP extra header
+2026-11-23T07:30:22.4927357Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-23T07:30:22.4961201Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-23T07:30:22.5228754Z Removing includeIf entries pointing to credentials config files
+2026-11-23T07:30:22.5233916Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-23T07:30:22.5274991Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-23T07:30:22.5547814Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-92fe81d2-c825-4dfa-bae7-594bcbfbd5ea.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-23T07:30:22.5592372Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/ORIGEN/ORIGEN/.git.path /home/runner/work/_temp/git-credentials-92fe81d2-c825-4dfa-bae7-594bcbfbd5ea.config
+2026-11-23T07:30:22.5623661Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/ORIGEN/ORIGEN/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-92fe81d2-c825-4dfa-bae7-594bcbfbd5ea.config
+2026-11-23T07:30:22.5658268Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-92fe81d2-c825-4dfa-bae7-594bcbfbd5ea.config
+2026-11-23T07:30:22.5691676Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-92fe81d2-c825-4dfa-bae7-594bcbfbd5ea.config
+2026-11-23T07:30:22.5724687Z ##[endgroup]
+2026-11-23T07:30:22.5726561Z ##[group]Fetching the repository
+2026-11-23T07:30:22.5733708Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +45f8d8fb63141e944659b15d7696c766016868e4:refs/remotes/origin/main
+2026-11-23T07:30:23.2236146Z From https://github.com/salazaroliveros-prog/ORIGEN
+2026-11-23T07:30:23.2238324Z  * [new ref]         45f8d8fb63141e944659b15d7696c766016868e4 -> origin/main
+2026-11-23T07:30:23.2246497Z [command]/usr/bin/git branch --list --remote origin/main
+2026-11-23T07:30:23.2275161Z   origin/main
+2026-11-23T07:30:23.2282354Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-11-23T07:30:23.2306366Z 45f8d8fb63141e944659b15d7696c766016868e4
+2026-11-23T07:30:23.2311740Z ##[endgroup]
+2026-11-23T07:30:23.2313394Z ##[group]Determining the checkout info
+2026-11-23T07:30:23.2315296Z ##[endgroup]
+2026-11-23T07:30:23.2316727Z [command]/usr/bin/git sparse-checkout disable
+2026-11-23T07:30:23.2373607Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-23T07:30:23.2405340Z ##[group]Checking out the ref
+2026-11-23T07:30:23.2408968Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-11-23T07:30:23.3042038Z Switched to a new branch 'main'
+2026-11-23T07:30:23.3051017Z branch 'main' set up to track 'origin/main'.
+2026-11-23T07:30:23.3057059Z ##[endgroup]
+2026-11-23T07:30:23.3109417Z [command]/usr/bin/git log -1 --format=%H
+2026-11-23T07:30:23.3136961Z 45f8d8fb63141e944659b15d7696c766016868e4

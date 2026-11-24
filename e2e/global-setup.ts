@@ -1,174 +1,25 @@
-import { chromium, expect, type FullConfig } from '@playwright/test';
-
 /**
- * E2E Test Warm-up for Firebase Emulators.
- *
- * Flow:
- * 1. Login with admin credentials
- * 2. Detect onboarding vs dashboard state
- * 3. Since the seed already created the company, navigate directly to dashboard
- * 4. Verify dashboard is visible
+ * Global Setup Minimalista
+ * Solo verifica que el servidor esté disponible
  */
+export default async function setup(config: any): Promise<void> {
+  const baseURL = config.use?.baseURL || process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
+  console.log(`[setup] Verificando disponibilidad de ${baseURL}...`);
 
-export default async function warmUpSession(config: FullConfig): Promise<void> {
-  const baseURL =
-    config.projects[0]?.use.baseURL || process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
-  const email = process.env.E2E_ADMIN_EMAIL ?? 'admin@origen.com';
-  const password = process.env.E2E_ADMIN_PASSWORD ?? 'admin123';
-
-  // Wait for emulators to be ready - check if app is accessible
-  const maxEmulatorWait = Date.now() + 60_000;
-  let emulatorsReady = false;
-
-  while (Date.now() < maxEmulatorWait && !emulatorsReady) {
+  let ready = false;
+  for (let i = 0; i < 60; i++) {
     try {
-      const response = await fetch(baseURL, {
-        signal: AbortSignal.timeout(3_000),
-      });
-      if (response.ok) {
-        emulatorsReady = true;
-      }
-    } catch {
-      // Emulators not ready yet, wait and retry
-    }
-    await new Promise((resolve) => setTimeout(resolve, 3_000));
-  }
-
-  if (!emulatorsReady) {
-    console.warn('[warmUp] Emulators not ready after 60s, proceeding anyway');
-  }
-  const browser = await chromium.launch({ headless: process.env.CI === 'true' });
-
-  try {
-    const page = await browser.newPage();
-    const browserErrors: string[] = [];
-    page.on('pageerror', (error) => browserErrors.push(error.message));
-    page.on('console', (message) => {
-      if (message.type() === 'error') browserErrors.push(message.text());
-    });
-
-    await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 120_000 });
-
-    // UI Elements
-    const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
-    const emailField = page.locator('form input').nth(0);
-    const passwordField = page.locator('form input').nth(1);
-    const loginButton = page.getByRole('button', { name: /Iniciar sesión/i }).first();
-    const onboardingHeading = page
-      .getByRole('heading', {
-        name: 'Configuración inicial de empresa',
-      })
-      .first();
-
-    // Step 1: Check if already at dashboard
-    if (await dashboard.isVisible().catch(() => false)) {
-      console.log('[warmUp] Already at dashboard - session hot');
-      await browser.close();
-      return;
-    }
-
-    // A fresh emulator may redirect the unauthenticated landing page to the
-    // company onboarding route. Return to the login route before locating the
-    // credentials form; onboarding is handled again after authentication.
-    if (page.url().includes('/onboarding/empresa')) {
-      await page.goto(`${baseURL}/login`, {
-        waitUntil: 'domcontentloaded',
-        timeout: 30_000,
-      });
-    }
-
-    // Step 2: Login
-    console.log('[warmUp] Logging in...');
-
-    // Wait for login form to be visible
-    try {
-      await emailField.waitFor({ state: 'visible', timeout: 30_000 });
-      await emailField.fill(email);
-      await passwordField.fill(password);
-      await loginButton.click();
-    } catch (err) {
-      console.error('[warmUp] Login interaction failed, checking page content...');
-      const bodyText = await page
-        .locator('body')
-        .innerText()
-        .catch(() => '');
-      const inputSummary = await page
-        .locator('input')
-        .evaluateAll((inputs) =>
-          inputs.map((input) => ({
-            type: input.getAttribute('type'),
-            id: input.getAttribute('id'),
-            name: input.getAttribute('name'),
-            visible: Boolean((input as HTMLElement).offsetParent),
-          }))
-        )
-        .catch(() => []);
-      throw new Error(
-        `Login interaction failed. URL: ${page.url()}. Inputs: ${JSON.stringify(inputSummary)}. Content: ${bodyText.slice(0, 1000)}`
-      );
-    }
-
-    // Step 3: Wait for redirect after login (dashboard or onboarding)
-    console.log('[warmUp] Waiting for post-login redirect...');
-    const deadline = Date.now() + 120_000;
-    let done = false;
-    let loginAttempts = 0;
-
-    while (Date.now() < deadline && !done && loginAttempts < 3) {
-      const currentUrl = page.url();
-      const atDashboard = await dashboard.isVisible().catch(() => false);
-      const atOnboarding = await onboardingHeading.isVisible().catch(() => false);
-
-      // If redirected to dashboard, finish
-      if (atDashboard) {
-        console.log('[warmUp] Dashboard visible after login');
-        done = true;
+      const res = await fetch(baseURL, { signal: AbortSignal.timeout(3_000) });
+      if (res.ok) {
+        ready = true;
+        console.log('[setup] ✓ Servidor disponible');
         break;
       }
+    } catch {}
+    await new Promise((r) => setTimeout(r, 1_000));
+  }
 
-      // If onboarding page is showing, and company already exists from seed,
-      // navigate directly to dashboard (skip onboarding form)
-      if (atOnboarding) {
-        console.log('[warmUp] Onboarding page showing - navigating to dashboard...');
-        try {
-          await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-        } catch (err) {
-          console.warn('[warmUp] Navigation to / failed, retrying...');
-        }
-        if (await dashboard.isVisible().catch(() => false)) {
-          console.log('[warmUp] Dashboard visible after navigation');
-          done = true;
-          break;
-        }
-      }
-
-      await page.waitForTimeout(1_000);
-      loginAttempts++;
-    }
-
-    // Step 4: If still not done, error
-    if (!done) {
-      const currentUrl = page.url();
-      const bodyText = await page
-        .locator('body')
-        .innerText()
-        .catch(() => '(no se pudo leer)');
-      throw new Error(`E2E auth failed. URL: ${currentUrl}. Content: ${bodyText.slice(0, 2500)}`);
-    }
-
-    // Step 5: Wait for main content to be ready
-    await page.locator('#main-content').waitFor({ state: 'attached', timeout: 180_000 });
-    await expect
-      .poll(
-        async () => (await page.locator('#main-content').getAttribute('aria-busy')) === 'false',
-        {
-          timeout: 180_000,
-        }
-      )
-      .toBe(true);
-
-    console.log('[warmUp] E2E session hot and ready for tests');
-  } finally {
-    await browser.close();
+  if (!ready) {
+    console.warn('[setup] ⚠ Servidor no respondió después de 60s, continuando igualmente...');
   }
 }

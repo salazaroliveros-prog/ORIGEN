@@ -12,6 +12,7 @@ import React from 'react';
  * - Estados vacíos con mensaje descriptivo
  * - Celdas personalizables vía función render
  * - Hover y focus visibles
+ * - ✅ Shadow inset para indicar scroll horizontal en mobile
  *
  * @example
  * <DataTable
@@ -72,7 +73,8 @@ export function DataTable<T>({
     <div
       role="region"
       aria-label={ariaLabel}
-      className={`overflow-x-auto ${className}`}
+      // ✅ CORRECCIÓN: Shadow inset para indicar scroll horizontal disponible
+      className={`overflow-x-auto rounded-lg shadow-[inset_-15px_0_15px_-10px_rgba(0,0,0,0.3)] ${className}`}
     >
       <table
         role="grid"

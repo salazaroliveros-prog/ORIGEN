@@ -1,0 +1,437 @@
+﻿2026-11-23T07:34:20.6122240Z ##[group]Run npm run test:e2e
+2026-11-23T07:34:20.6122837Z [36;1mnpm run test:e2e[0m
+2026-11-23T07:34:20.6172469Z shell: /usr/bin/bash -e {0}
+2026-11-23T07:34:20.6172951Z env:
+2026-11-23T07:34:20.6173536Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-11-23T07:34:20.6174497Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-11-23T07:34:20.6175246Z   MAVEN_ARGS: -ntp
+2026-11-23T07:34:20.6175661Z   CI: true
+2026-11-23T07:34:20.6176035Z   NEXT_TELEMETRY_DISABLED: 1
+2026-11-23T07:34:20.6176536Z   E2E_BASE_URL: http://127.0.0.1:3000
+2026-11-23T07:34:20.6177092Z   E2E_ADMIN_EMAIL: admin@origen.com
+2026-11-23T07:34:20.6177612Z   E2E_ADMIN_PASSWORD: admin123
+2026-11-23T07:34:20.6178059Z ##[endgroup]
+2026-11-23T07:34:20.7209287Z 
+2026-11-23T07:34:20.7210217Z > constructerp-guatemala@0.1.0 test:e2e
+2026-11-23T07:34:20.7210840Z > node scripts/run-e2e.mjs
+2026-11-23T07:34:20.7211104Z 
+2026-11-23T07:34:20.7695975Z [e2e] Run: 561ddff84ab6b5a3
+2026-11-23T07:34:20.7697852Z [e2e] App aislada: http://127.0.0.1:35677
+2026-11-23T07:34:20.7698848Z [e2e] Firebase project: demo-origen-erp-test (emuladores desechables)
+2026-11-23T07:34:22.8567781Z [36m[1mi  emulators:[22m[39m Starting emulators: auth, firestore, storage
+2026-11-23T07:34:22.8569267Z [36m[1mi  emulators:[22m[39m Detected demo project ID "demo-origen-erp-test", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+2026-11-23T07:34:22.8785077Z [36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+2026-11-23T07:34:24.0876966Z [32m[1m✔  firestore:[22m[39m Firestore Emulator was started in standard edition.
+2026-11-23T07:34:24.0886403Z [32m[1m✔  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+2026-11-23T07:34:30.0559930Z [36m[1mi [22m[39m Running script: [1mnode scripts/run-e2e-inside.mjs[22m
+2026-11-23T07:34:30.3131697Z Usuario listo: e2e-561ddff84ab6b5a3@origen.invalid (uid 9BkxAmmXdx2C2wcTXegyYdzn9l3N)
+2026-11-23T07:34:33.8135995Z Empresa lista: 9BkxAmmXdx2C2wcTXegyYdzn9l3N
+2026-11-23T07:34:33.9062035Z Membresía owner creada
+2026-11-23T07:34:33.9415193Z Configuración de empresa lista
+2026-11-23T07:34:33.9431488Z 
+2026-11-23T07:34:33.9432501Z Seed E2E completado para e2e-561ddff84ab6b5a3@origen.invalid en demo-origen-erp-test.
+2026-11-23T07:34:34.7003730Z [WebServer] 
+2026-11-23T07:34:34.7004601Z [WebServer] > constructerp-guatemala@0.1.0 dev:emulated
+2026-11-23T07:34:34.7008155Z [WebServer] > cross-env NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-origen-erp-test NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=localhost NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:demo NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=demo-origen-erp-test.appspot.com NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000 npm run dev -- --port 35677 --hostname 127.0.0.1
+2026-11-23T07:34:34.7010468Z [WebServer] 
+2026-11-23T07:34:34.8422911Z [WebServer] 
+2026-11-23T07:34:34.8423652Z [WebServer] > constructerp-guatemala@0.1.0 dev
+2026-11-23T07:34:34.8424660Z [WebServer] > node scripts/dev.mjs --port 35677 --hostname 127.0.0.1
+2026-11-23T07:34:34.8425157Z [WebServer] 
+2026-11-23T07:34:36.0591098Z [WebServer]    ▲ Next.js 15.5.29
+2026-11-23T07:34:36.0592237Z [WebServer]    - Local:        http://127.0.0.1:35677
+2026-11-23T07:34:36.0594113Z [WebServer]    - Network:      http://127.0.0.1:35677
+2026-11-23T07:34:36.0595264Z [WebServer]    - Experiments (use with caution):
+2026-11-23T07:34:36.0596631Z [WebServer]      · optimizePackageImports
+2026-11-23T07:34:36.0597646Z [WebServer]      ⨯ devtoolSegmentExplorer
+2026-11-23T07:34:36.0599026Z [WebServer] 
+2026-11-23T07:34:36.0599934Z [WebServer]  ✓ Starting...
+2026-11-23T07:34:36.3322923Z [WebServer]    Using tsconfig file: .tsconfig.e2e-561ddff84ab6b5a3.json
+2026-11-23T07:34:36.5652151Z [WebServer] 
+2026-11-23T07:34:36.5654301Z [WebServer]    We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+2026-11-23T07:34:36.5656367Z [WebServer]    The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+2026-11-23T07:34:36.5657682Z [WebServer] 
+2026-11-23T07:34:36.5658756Z [WebServer]    	- include was updated to add '.next-e2e-561ddff84ab6b5a3/types/**/*.ts'
+2026-11-23T07:34:36.5659292Z [WebServer] 
+2026-11-23T07:34:36.9252989Z [WebServer]  ✓ Ready in 1258ms
+2026-11-23T07:34:37.5181018Z [WebServer]  ○ Compiling /middleware ...
+2026-11-23T07:34:37.5244536Z [WebServer]  ✓ Compiled /middleware in 588ms (166 modules)
+2026-11-23T07:34:38.1181334Z [WebServer]  ○ Compiling /api/firebase-config.js ...
+2026-11-23T07:34:39.3431324Z [WebServer]  ✓ Compiled /api/firebase-config.js in 1726ms (396 modules)
+2026-11-23T07:34:39.4531543Z [WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+2026-11-23T07:34:39.5101476Z [WebServer]  GET /api/firebase-config.js 200 in 1848ms
+2026-11-23T07:34:40.0901735Z [WebServer]  ○ Compiling / ...
+2026-11-23T07:34:51.5361150Z [WebServer]  ✓ Compiled / in 12s (2830 modules)
+2026-11-23T07:34:52.9675964Z [WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+2026-11-23T07:34:53.4000501Z [WebServer]  GET / 200 in 109ms
+2026-11-23T07:34:56.7518381Z [WebServer]  GET / 200 in 70ms
+2026-11-23T07:34:56.8488229Z [warmUp] Logging in...
+2026-11-23T07:34:58.2407648Z [WebServer]  ○ Compiling /login ...
+2026-11-23T07:34:59.8560026Z [WebServer]  ✓ Compiled /login in 2.1s (3625 modules)
+2026-11-23T07:34:59.9793335Z [WebServer]  GET /login 200 in 2258ms
+2026-11-23T07:35:01.3844353Z [warmUp] Waiting for post-login redirect...
+2026-11-23T07:35:01.4989375Z [WebServer]  GET / 200 in 75ms
+2026-11-23T07:35:02.2710448Z [WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+2026-11-23T07:35:02.7012102Z [WebServer]  GET / 200 in 740ms
+2026-11-23T07:35:02.8470834Z [warmUp] Dashboard visible after login
+2026-11-23T07:35:02.9040662Z [warmUp] E2E session hot and ready for tests
+2026-11-23T07:35:03.2774428Z ✓ QA Exhaustive E2E tests completed — PASO 1 a PASO 5
+2026-11-23T07:35:03.3732720Z ✓ UI/UX E2E tests completed (UI-001 to UI-025)
+2026-11-23T07:35:03.3987697Z 
+2026-11-23T07:35:03.3988447Z Running 550 tests using 1 worker
+2026-11-23T07:35:03.3989981Z 
+2026-11-23T07:35:04.0360646Z [WebServer]  GET / 200 in 58ms
+2026-11-23T07:35:06.1803344Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:35:07.4513185Z [WebServer]  GET / 200 in 45ms
+2026-11-23T07:35:07.6999839Z [WebServer]  GET / 200 in 81ms
+2026-11-23T07:35:08.8895191Z   ✓    1 [chromium] › e2e/auth.spec.ts:13:3 › Autenticación › la página carga con título que contiene ORIGEN o ConstructERP (5.0s)
+2026-11-23T07:35:09.0064859Z [WebServer]  GET / 200 in 43ms
+2026-11-23T07:35:11.3758176Z [WebServer]  GET /login 200 in 28ms
+2026-11-23T07:35:12.6118318Z [WebServer]  GET / 200 in 32ms
+2026-11-23T07:35:12.8480792Z [WebServer]  GET / 200 in 85ms
+2026-11-23T07:35:13.9531964Z   ✓    2 [chromium] › e2e/auth.spec.ts:25:3 › Autenticación › el correo del administrador autenticado es visible en pantalla (5.0s)
+2026-11-23T07:35:14.0879159Z [WebServer]  GET / 200 in 52ms
+2026-11-23T07:35:16.3573620Z [WebServer]  GET /login 200 in 26ms
+2026-11-23T07:35:17.6040237Z [WebServer]  GET / 200 in 30ms
+2026-11-23T07:35:17.8289980Z [WebServer]  GET / 200 in 63ms
+2026-11-23T07:35:18.9205596Z   ✓    3 [chromium] › e2e/auth.spec.ts:29:3 › Autenticación › la navegación principal con enlace real de la app es visible (4.9s)
+2026-11-23T07:35:19.0498176Z [WebServer]  GET / 200 in 49ms
+2026-11-23T07:35:21.1638402Z [WebServer]  GET /login 200 in 22ms
+2026-11-23T07:35:22.3788187Z [WebServer]  GET / 200 in 28ms
+2026-11-23T07:35:22.6106082Z [WebServer]  GET / 200 in 70ms
+2026-11-23T07:35:23.6961264Z   ✓    4 [chromium] › e2e/auth.spec.ts:36:3 › Autenticación › la sesión autenticada no muestra el formulario de inicio de sesión (4.8s)
+2026-11-23T07:35:23.8441078Z [WebServer]  GET / 200 in 64ms
+2026-11-23T07:35:26.1077130Z [WebServer]  GET /login 200 in 22ms
+2026-11-23T07:35:27.3269106Z [WebServer]  GET / 200 in 26ms
+2026-11-23T07:35:27.5365933Z [WebServer]  GET / 200 in 67ms
+2026-11-23T07:35:30.6212318Z [WebServer]  GET / 200 in 38ms
+2026-11-23T07:35:33.4437405Z [WebServer]  GET /login 200 in 30ms
+2026-11-23T07:35:34.8200895Z [WebServer]  GET / 200 in 33ms
+2026-11-23T07:35:35.1284264Z [WebServer]  GET / 200 in 104ms
+2026-11-23T07:35:38.2987851Z   ✓    5 [chromium] › e2e/financial.spec.ts:49:3 › Sección Gastos & Facturas › la sección Gastos & Facturas muestra el botón para registrar un gasto (7.8s)
+2026-11-23T07:35:38.4350949Z [WebServer]  GET / 200 in 51ms
+2026-11-23T07:35:40.5388981Z [WebServer]  GET /login 200 in 34ms
+2026-11-23T07:35:42.1680796Z [WebServer]  GET / 200 in 31ms
+2026-11-23T07:35:42.3729244Z [WebServer]  GET / 200 in 67ms
+2026-11-23T07:35:46.4669342Z   ✓    6 [chromium] › e2e/financial.spec.ts:59:3 › Sección Gastos & Facturas › el formulario de nuevo gasto se puede abrir y tiene los campos correctos (8.2s)
+2026-11-23T07:35:46.5827103Z [WebServer]  GET / 200 in 53ms
+2026-11-23T07:35:48.6285412Z [WebServer]  GET /login 200 in 21ms
+2026-11-23T07:35:49.8807057Z [WebServer]  GET / 200 in 29ms
+2026-11-23T07:35:50.1750810Z [WebServer]  GET / 200 in 91ms
+2026-11-23T07:35:54.4363571Z   ✓    7 [chromium] › e2e/financial.spec.ts:73:3 › Sección Gastos & Facturas › el formulario de gasto tiene el botón de guardar en español (8.0s)
+2026-11-23T07:35:54.5498832Z [WebServer]  GET / 200 in 40ms
+2026-11-23T07:35:56.9352837Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:35:58.1458151Z [WebServer]  GET / 200 in 28ms
+2026-11-23T07:35:58.4240635Z [WebServer]  GET / 200 in 96ms
+2026-11-23T07:36:00.4522331Z   ✓    8 [chromium] › e2e/navigation.spec.ts:19:3 › Navegación principal › todos los botones de navegación base están visibles en la barra lateral (6.0s)
+2026-11-23T07:36:01.4822684Z [WebServer]  GET / 200 in 445ms
+2026-11-23T07:36:05.7634610Z [WebServer]  GET /login 200 in 40ms
+2026-11-23T07:36:07.1781489Z [WebServer]  GET / 200 in 33ms
+2026-11-23T07:36:07.3830886Z [WebServer]  GET / 200 in 52ms
+2026-11-23T07:36:08.7532499Z   ✓    9 [chromium] › e2e/navigation.spec.ts:31:3 › Navegación principal › navegar a Inventario & Compras muestra sus secciones (8.3s)
+2026-11-23T07:36:08.8752064Z [WebServer]  GET / 200 in 39ms
+2026-11-23T07:36:11.3690242Z [WebServer]  GET /login 200 in 24ms
+2026-11-23T07:36:12.5951315Z [WebServer]  GET / 200 in 28ms
+2026-11-23T07:36:12.7930999Z [WebServer]  GET / 200 in 65ms
+2026-11-23T07:36:15.7822837Z   ✓   10 [chromium] › e2e/navigation.spec.ts:45:3 › Navegación principal › navegar a Proyectos & Firmas muestra la lista de proyectos o estado vacío (7.0s)
+2026-11-23T07:36:15.8970684Z [WebServer]  GET / 200 in 49ms
+2026-11-23T07:36:18.0260963Z [WebServer]  GET /login 200 in 27ms
+2026-11-23T07:36:19.6738165Z [WebServer]  GET / 200 in 32ms
+2026-11-23T07:36:19.9250408Z [WebServer]  GET / 200 in 78ms
+2026-11-23T07:36:22.8923915Z   ✓   11 [chromium] › e2e/navigation.spec.ts:58:3 › Navegación principal › navegar a Gastos & Facturas muestra la sección de gastos (7.1s)
+2026-11-23T07:36:23.0301935Z [WebServer]  GET / 200 in 49ms
+2026-11-23T07:36:25.1184022Z [WebServer]  GET /login 200 in 20ms
+2026-11-23T07:36:26.3607861Z [WebServer]  GET / 200 in 32ms
+2026-11-23T07:36:26.5630823Z [WebServer]  GET / 200 in 62ms
+2026-11-23T07:36:29.5690449Z   ✓   12 [chromium] › e2e/navigation.spec.ts:73:3 › Navegación principal › navegar a Cotizaciones muestra la sección de cotizaciones (6.7s)
+2026-11-23T07:36:29.6862060Z [WebServer]  GET / 200 in 51ms
+2026-11-23T07:36:32.0247006Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:36:33.2535232Z [WebServer]  GET / 200 in 32ms
+2026-11-23T07:36:33.4657522Z [WebServer]  GET / 200 in 65ms
+2026-11-23T07:36:36.4815881Z   ✓   13 [chromium] › e2e/navigation.spec.ts:82:3 › Navegación principal › navegar a Presupuestos APU carga la vista de presupuestos (6.9s)
+2026-11-23T07:36:36.6192600Z [WebServer]  GET / 200 in 44ms
+2026-11-23T07:36:38.9558528Z [WebServer]  GET /login 200 in 29ms
+2026-11-23T07:36:40.2058754Z [WebServer]  GET / 200 in 28ms
+2026-11-23T07:36:40.3879851Z [WebServer]  GET / 200 in 58ms
+2026-11-23T07:36:41.6373797Z   ✓   14 [chromium] › e2e/payroll.spec.ts:20:3 › Sección Personal & IGSS › el botón de navegación Personal & IGSS está visible para el administrador (5.1s)
+2026-11-23T07:36:41.7630158Z [WebServer]  GET / 200 in 51ms
+2026-11-23T07:36:43.8523889Z [WebServer]  GET /login 200 in 23ms
+2026-11-23T07:36:45.1403311Z [WebServer]  GET / 200 in 27ms
+2026-11-23T07:36:45.4219488Z [WebServer]  GET / 200 in 75ms
+2026-11-23T07:36:48.4401414Z   ✓   15 [chromium] › e2e/payroll.spec.ts:29:3 › Sección Personal & IGSS › la sección Personal & IGSS carga contenido de cuadrillas al navegar (6.8s)
+2026-11-23T07:36:48.6107979Z [WebServer]  GET / 200 in 99ms
+2026-11-23T07:36:51.0707072Z [WebServer]  GET /login 200 in 30ms
+2026-11-23T07:36:52.3827474Z [WebServer]  GET / 200 in 30ms
+2026-11-23T07:36:52.5826226Z [WebServer]  GET / 200 in 58ms
+2026-11-23T07:36:56.1313682Z   ✓   16 [chromium] › e2e/payroll.spec.ts:38:3 › Sección Personal & IGSS › la sub-sección Cuadrillas permite registrar un empleado nuevo (7.7s)
+2026-11-23T07:36:56.2359402Z [WebServer]  GET / 200 in 38ms
+2026-11-23T07:36:58.5855405Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:36:59.8153845Z [WebServer]  GET / 200 in 34ms
+2026-11-23T07:37:00.0261676Z [WebServer]  GET / 200 in 60ms
+2026-11-23T07:37:01.2522065Z   ✓   17 [chromium] › e2e/payroll.spec.ts:54:3 › Sección Personal & IGSS › la sub-sección Planillas Guate está visible en la navegación (5.1s)
+2026-11-23T07:37:01.3581765Z [WebServer]  GET / 200 in 35ms
+2026-11-23T07:37:03.4637837Z [WebServer]  GET /login 200 in 27ms
+2026-11-23T07:37:05.0760622Z [WebServer]  GET / 200 in 29ms
+2026-11-23T07:37:05.2746647Z [WebServer]  GET / 200 in 59ms
+2026-11-23T07:37:07.7192228Z   ✓   18 [chromium] › e2e/projects.spec.ts:21:3 › Sección Proyectos & Firmas › la sección muestra el botón Nuevo Proyecto (lista cargada o estado vacío) (6.4s)
+2026-11-23T07:37:07.8406961Z [WebServer]  GET / 200 in 54ms
+2026-11-23T07:37:09.8902388Z [WebServer]  GET /login 200 in 22ms
+2026-11-23T07:37:11.1088361Z [WebServer]  GET / 200 in 37ms
+2026-11-23T07:37:11.2881543Z [WebServer]  GET / 200 in 52ms
+2026-11-23T07:37:14.1316777Z   ✓   19 [chromium] › e2e/projects.spec.ts:30:3 › Sección Proyectos & Firmas › al hacer clic en Nuevo Proyecto se abre el diálogo con el título correcto (6.4s)
+2026-11-23T07:37:14.3241533Z [WebServer]  GET / 200 in 83ms
+2026-11-23T07:37:16.4575454Z [WebServer]  GET /login 200 in 42ms
+2026-11-23T07:37:17.6912422Z [WebServer]  GET / 200 in 31ms
+2026-11-23T07:37:17.8985461Z [WebServer]  GET / 200 in 67ms
+2026-11-23T07:37:20.7858059Z   ✓   20 [chromium] › e2e/projects.spec.ts:44:3 › Sección Proyectos & Firmas › cerrar el diálogo de Nuevo Proyecto lo oculta correctamente (6.6s)
+2026-11-23T07:37:20.9167631Z [WebServer]  GET / 200 in 61ms
+2026-11-23T07:37:23.2489818Z [WebServer]  GET /login 200 in 32ms
+2026-11-23T07:37:24.4760106Z [WebServer]  GET / 200 in 33ms
+2026-11-23T07:37:24.6938905Z [WebServer]  GET / 200 in 68ms
+2026-11-23T07:37:27.4426510Z   ✓   21 [chromium] › e2e/projects.spec.ts:55:3 › Sección Proyectos & Firmas › los campos del formulario de Nuevo Proyecto son los del ERP real (6.6s)
+2026-11-23T07:37:27.5778096Z [WebServer]  GET / 200 in 45ms
+2026-11-23T07:37:29.6646385Z [WebServer]  GET /login 200 in 33ms
+2026-11-23T07:37:30.9230689Z [WebServer]  GET / 200 in 32ms
+2026-11-23T07:37:31.1209723Z [WebServer]  GET / 200 in 64ms
+2026-11-23T07:37:34.0881563Z [WebServer]  ○ Compiling /proyectos/[id]/cierre ...
+2026-11-23T07:37:35.1538649Z [WebServer]  ✓ Compiled /proyectos/[id]/cierre in 1571ms (3616 modules)
+2026-11-23T07:37:35.8102054Z [WebServer]  GET /proyectos/proj-af20bb98-2d11-461f-8cc1-b4ce5e982999/cierre 200 in 2231ms
+2026-11-23T07:37:37.0332305Z   ✓   22 [chromium] › e2e/projects.spec.ts:69:3 › Sección Proyectos & Firmas › el listado expone la acción de cierre y abre el formulario de cierre (9.6s)
+2026-11-23T07:37:37.4011171Z [WebServer] [config] Firebase configuration loaded. { projectId: 'demo-origen-erp-test', authDomain: 'localhost' }
+2026-11-23T07:37:37.6892922Z [WebServer]  GET / 200 in 577ms
+2026-11-23T07:37:39.8314566Z [WebServer]  GET /login 200 in 39ms
+2026-11-23T07:37:41.0781571Z [WebServer]  GET / 200 in 35ms
+2026-11-23T07:37:41.3232118Z [WebServer]  GET / 200 in 70ms
+2026-11-23T07:37:50.9005186Z [WebServer]  GET / 200 in 66ms
+2026-11-23T07:37:59.3463903Z   ✓   23 [chromium] › e2e/qa-complete-platform.spec.ts:89:3 › FASE 1 — Módulo de Proyectos: ciclo de vida completo › crea un proyecto con todos los campos y valida integridad de datos (22.3s)
+2026-11-23T07:37:59.4782248Z [WebServer]  GET / 200 in 42ms
+2026-11-23T07:38:01.8080827Z [WebServer]  GET /login 200 in 36ms
+2026-11-23T07:38:03.0369381Z [WebServer]  GET / 200 in 31ms
+2026-11-23T07:38:03.2461618Z [WebServer]  GET / 200 in 73ms
+2026-11-23T07:38:10.2752802Z   ✓   24 [chromium] › e2e/qa-complete-platform.spec.ts:125:3 › FASE 1 — Módulo de Proyectos: ciclo de vida completo › archiva y restaura el proyecto sin perder datos (10.9s)
+2026-11-23T07:38:10.4010924Z [WebServer]  GET / 200 in 58ms
+2026-11-23T07:38:12.5691619Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:38:13.7991802Z [WebServer]  GET / 200 in 32ms
+2026-11-23T07:38:13.9861191Z [WebServer]  GET / 200 in 57ms
+2026-11-23T07:38:24.4964423Z   ✓   25 [chromium] › e2e/qa-complete-platform.spec.ts:151:3 › FASE 2 — Módulo de Presupuestos APU: generación y factorización de costos › genera un presupuesto a partir del proyecto creado y valida cálculos (14.2s)
+2026-11-23T07:38:24.6379175Z [WebServer]  GET / 200 in 60ms
+2026-11-23T07:38:26.7474095Z [WebServer]  GET /login 200 in 32ms
+2026-11-23T07:38:27.9693065Z [WebServer]  GET / 200 in 26ms
+2026-11-23T07:38:28.1751492Z [WebServer]  GET / 200 in 65ms
+2026-11-23T07:38:46.2928740Z   ✓   26 [chromium] › e2e/qa-complete-platform.spec.ts:209:3 › FASE 3 — Módulo de Cotizaciones: búsqueda y selección de clientes › genera una cotización, valida barra de búsqueda y selección de cliente desde proyectos (21.8s)
+2026-11-23T07:38:46.4108333Z [WebServer]  GET / 200 in 49ms
+2026-11-23T07:38:48.5240671Z [WebServer]  GET /login 200 in 28ms
+2026-11-23T07:38:49.8216290Z [WebServer]  GET / 200 in 38ms
+2026-11-23T07:38:50.0523902Z [WebServer]  GET / 200 in 63ms
+2026-11-23T07:39:00.9712151Z   ✓   27 [chromium] › e2e/qa-complete-platform.spec.ts:277:3 › FASE 4 — Transición a Ejecución: hitos, maquinaria y personal › cambia estado a Ejecución y registra hito y avance en cronograma (14.7s)
+2026-11-23T07:39:01.1012738Z [WebServer]  GET / 200 in 49ms
+2026-11-23T07:39:03.5336669Z [WebServer]  GET /login 200 in 24ms
+2026-11-23T07:39:04.7932447Z [WebServer]  GET / 200 in 27ms
+2026-11-23T07:39:05.0091925Z [WebServer]  GET / 200 in 76ms
+2026-11-23T07:39:17.6152543Z   ✓   28 [chromium] › e2e/qa-complete-platform.spec.ts:301:3 › FASE 4 — Transición a Ejecución: hitos, maquinaria y personal › registra hitos y avances de seguimiento en el cronograma (16.6s)
+2026-11-23T07:39:17.7311623Z [WebServer]  GET / 200 in 50ms
+2026-11-23T07:39:20.0698694Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:39:21.2849833Z [WebServer]  GET / 200 in 27ms
+2026-11-23T07:39:21.4675273Z [WebServer]  GET / 200 in 58ms
+2026-11-23T07:39:29.2671353Z   ✓   29 [chromium] › e2e/qa-complete-platform.spec.ts:330:3 › FASE 4 — Transición a Ejecución: hitos, maquinaria y personal › asigna maquinaria y equipo al proyecto activo (11.6s)
+2026-11-23T07:39:29.3811102Z [WebServer]  GET / 200 in 42ms
+2026-11-23T07:39:31.4849171Z [WebServer]  GET /login 200 in 23ms
+2026-11-23T07:39:32.7530143Z [WebServer]  GET / 200 in 24ms
+2026-11-23T07:39:32.9466024Z [WebServer]  GET / 200 in 66ms
+2026-11-23T07:39:51.1250950Z   ✓   30 [chromium] › e2e/qa-complete-platform.spec.ts:363:3 › FASE 4 — Transición a Ejecución: hitos, maquinaria y personal › asigna personal de campo y genera planillas de pago (21.8s)
+2026-11-23T07:39:51.2613723Z [WebServer]  GET / 200 in 64ms
+2026-11-23T07:39:53.5514436Z [WebServer]  GET /login 200 in 20ms
+2026-11-23T07:39:54.8051341Z [WebServer]  GET / 200 in 39ms
+2026-11-23T07:39:55.0073918Z [WebServer]  GET / 200 in 74ms
+2026-11-23T07:40:14.9280359Z   ✓   31 [chromium] › e2e/qa-complete-platform.spec.ts:439:3 › FASE 5 — Módulo de Gastos y Facturas: costos y facturación vinculados al proyecto › registra un gasto con factura SAT y lo propaga al proyecto en ejecución (23.8s)
+2026-11-23T07:40:15.0412267Z [WebServer]  GET / 200 in 37ms
+2026-11-23T07:40:17.4697493Z [WebServer]  GET /login 200 in 52ms
+2026-11-23T07:40:18.6821011Z [WebServer]  GET / 200 in 27ms
+2026-11-23T07:40:18.8781005Z [WebServer]  GET / 200 in 57ms
+2026-11-23T07:40:31.6094062Z   ✓   32 [chromium] › e2e/qa-complete-platform.spec.ts:486:3 › FASE 5 — Módulo de Gastos y Facturas: costos y facturación vinculados al proyecto › valida que un gasto sin campos obligatorios muestre error de validación (16.7s)
+2026-11-23T07:40:31.7493383Z [WebServer]  GET / 200 in 64ms
+2026-11-23T07:40:33.8509150Z [WebServer]  GET /login 200 in 29ms
+2026-11-23T07:40:35.4497669Z [WebServer]  GET / 200 in 30ms
+2026-11-23T07:40:35.6609056Z [WebServer]  GET / 200 in 69ms
+2026-11-23T07:40:38.0832304Z   ✓   33 [chromium] › e2e/qa-complete-platform.spec.ts:520:3 › FASE 6 — Módulos complementarios y asistentes: integración con proyectos activos › genera reporte final del proyecto activo (6.5s)
+2026-11-23T07:40:38.1977978Z [WebServer]  GET / 200 in 46ms
+2026-11-23T07:40:40.3639039Z [WebServer]  GET /login 200 in 22ms
+2026-11-23T07:40:41.6157537Z [WebServer]  GET / 200 in 33ms
+2026-11-23T07:40:41.7940127Z [WebServer]  GET / 200 in 63ms
+2026-11-23T07:40:44.3450988Z   ✓   34 [chromium] › e2e/qa-complete-platform.spec.ts:537:3 › FASE 6 — Módulos complementarios y asistentes: integración con proyectos activos › asistente IA responde en contexto del proyecto (6.3s)
+2026-11-23T07:40:44.4641939Z [WebServer]  GET / 200 in 49ms
+2026-11-23T07:40:46.8595095Z [WebServer]  GET /login 200 in 37ms
+2026-11-23T07:40:48.0924654Z [WebServer]  GET / 200 in 26ms
+2026-11-23T07:40:48.2690564Z [WebServer]  GET / 200 in 53ms
+2026-11-23T07:40:51.3989993Z   ✓   35 [chromium] › e2e/qa-complete-platform.spec.ts:558:3 › FASE 6 — Módulos complementarios y asistentes: integración con proyectos activos › sistema de correo y avisos está disponible (7.0s)
+2026-11-23T07:40:51.5099296Z [WebServer]  GET / 200 in 45ms
+2026-11-23T07:40:53.8666981Z [WebServer]  GET /login 200 in 36ms
+2026-11-23T07:40:55.1133313Z [WebServer]  GET / 200 in 25ms
+2026-11-23T07:40:55.3048165Z [WebServer]  GET / 200 in 60ms
+2026-11-23T07:40:58.2213365Z   ✓   36 [chromium] › e2e/qa-complete-platform.spec.ts:581:3 › FASE 6 — Módulos complementarios y asistentes: integración con proyectos activos › gestión de equipo de la empresa (solo si el rol lo permite) (6.8s)
+2026-11-23T07:40:58.3436235Z [WebServer]  GET / 200 in 38ms
+2026-11-23T07:41:00.4790855Z [WebServer]  GET /login 200 in 43ms
+2026-11-23T07:41:01.6818775Z [WebServer]  GET / 200 in 32ms
+2026-11-23T07:41:01.8678734Z [WebServer]  GET / 200 in 54ms
+2026-11-23T07:41:06.3385053Z   ✓   37 [chromium] › e2e/qa-complete-platform.spec.ts:597:3 › FASE 6 — Módulos complementarios y asistentes: integración con proyectos activos › tablero muestra KPIs consolidados de todos los proyectos del ciclo de vida (8.1s)
+2026-11-23T07:41:06.3571852Z ✓ QA Exhaustive E2E tests completed — PASO 1 a PASO 5
+2026-11-23T07:41:06.4790066Z [WebServer]  GET / 200 in 50ms
+2026-11-23T07:41:08.8100820Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:41:12.1276741Z [WebServer]  GET / 200 in 53ms
+2026-11-23T07:41:12.3023765Z [WebServer]  GET / 200 in 63ms
+2026-11-23T07:41:16.3422219Z   ✓   38 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:99:3 › PASO 1 — Autenticación (credenciales correctas, incorrectas, casos de borde) › PASO-1.01 — Login con credenciales válidas → redirección a Tablero (10.0s)
+2026-11-23T07:41:16.4615758Z [WebServer]  GET / 200 in 47ms
+2026-11-23T07:41:18.7822627Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:41:24.1625052Z   ✓   39 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:121:3 › PASO 1 — Autenticación (credenciales correctas, incorrectas, casos de borde) › PASO-1.02 — Login con email inválido → error de validación (7.8s)
+2026-11-23T07:41:24.2722652Z [WebServer]  GET / 200 in 40ms
+2026-11-23T07:41:26.4911079Z [WebServer]  GET /login 200 in 28ms
+2026-11-23T07:41:31.8618395Z   ✓   40 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:138:3 › PASO 1 — Autenticación (credenciales correctas, incorrectas, casos de borde) › PASO-1.03 — Login con contraseña corta (< 6 caracteres) → error (7.7s)
+2026-11-23T07:41:31.9911860Z [WebServer]  GET / 200 in 48ms
+2026-11-23T07:41:34.0652648Z [WebServer]  GET /login 200 in 30ms
+2026-11-23T07:41:39.4634201Z   ✓   41 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:154:3 › PASO 1 — Autenticación (credenciales correctas, incorrectas, casos de borde) › PASO-1.04 — Login con credenciales incorrectas → error (7.6s)
+2026-11-23T07:41:39.5725436Z [WebServer]  GET / 200 in 39ms
+2026-11-23T07:41:41.9210388Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:41:45.1492413Z   ✓   42 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:170:3 › PASO 1 — Autenticación (credenciales correctas, incorrectas, casos de borde) › PASO-1.05 — Registro exitoso de nuevo usuario (5.7s)
+2026-11-23T07:41:45.2617440Z [WebServer]  GET / 200 in 44ms
+2026-11-23T07:41:47.6191341Z [WebServer]  GET /login 200 in 28ms
+2026-11-23T07:41:48.8622333Z [WebServer]  GET / 200 in 26ms
+2026-11-23T07:41:49.0725707Z [WebServer]  GET / 200 in 74ms
+2026-11-23T07:41:50.1902271Z [WebServer]  GET /login 200 in 61ms
+2026-11-23T07:41:50.5789002Z   ✓   43 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:188:3 › PASO 1 — Autenticación (credenciales correctas, incorrectas, casos de borde) › PASO-1.06 — Cierre de sesión → redirección a login (5.4s)
+2026-11-23T07:41:50.7235032Z [WebServer]  GET / 200 in 59ms
+2026-11-23T07:41:53.0206449Z [WebServer]  GET /login 200 in 25ms
+2026-11-23T07:41:54.2396897Z [WebServer]  GET / 200 in 30ms
+2026-11-23T07:41:54.4491351Z [WebServer]  GET / 200 in 70ms
+2026-11-23T07:41:55.7671950Z   ✓   44 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:208:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.01 — Todos los botones de navegación base son visibles (5.2s)
+2026-11-23T07:41:55.8958953Z [WebServer]  GET / 200 in 57ms
+2026-11-23T07:41:57.9170799Z [WebServer]  GET /login 200 in 24ms
+2026-11-23T07:41:59.1486218Z [WebServer]  GET / 200 in 29ms
+2026-11-23T07:41:59.3532886Z [WebServer]  GET / 200 in 70ms
+2026-11-23T07:42:09.9881490Z   ✓   45 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:217:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.02 — Navegar a cada sección y verificar carga (14.2s)
+2026-11-23T07:42:10.0924693Z [WebServer]  GET / 200 in 38ms
+2026-11-23T07:42:12.3551497Z [WebServer]  GET /login 200 in 29ms
+2026-11-23T07:42:13.6257042Z [WebServer]  GET / 200 in 27ms
+2026-11-23T07:42:13.8253613Z [WebServer]  GET / 200 in 57ms
+2026-11-23T07:42:19.3052382Z   ✓   46 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:235:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.03 — Personal & IGSS con submenús (Cuadrillas, Registro GPS) (9.3s)
+2026-11-23T07:42:19.4090995Z [WebServer]  GET / 200 in 40ms
+2026-11-23T07:42:21.7911113Z [WebServer]  GET /login 200 in 31ms
+2026-11-23T07:42:23.0398683Z [WebServer]  GET / 200 in 29ms
+2026-11-23T07:42:23.2314871Z [WebServer]  GET / 200 in 64ms
+2026-11-23T07:42:24.4348168Z   ✓   47 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:249:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.04 — Planillas Guate visible y navegable para administrador (5.1s)
+2026-11-23T07:42:24.5432232Z [WebServer]  GET / 200 in 39ms
+2026-11-23T07:42:26.6551542Z [WebServer]  GET /login 200 in 33ms
+2026-11-23T07:42:28.3131135Z [WebServer]  GET / 200 in 29ms
+2026-11-23T07:42:28.5360596Z [WebServer]  GET / 200 in 59ms
+2026-11-23T07:42:29.8609279Z   ✓   48 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:259:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.05 — Reportes visible (5.4s)
+2026-11-23T07:42:29.9769157Z [WebServer]  GET / 200 in 44ms
+2026-11-23T07:42:32.0830209Z [WebServer]  GET /login 200 in 28ms
+2026-11-23T07:42:33.2926909Z [WebServer]  GET / 200 in 25ms
+2026-11-23T07:42:33.4896711Z [WebServer]  GET / 200 in 58ms
+2026-11-23T07:42:34.4065643Z   ✓   49 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:264:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.06 — Asistente IA visible (4.5s)
+2026-11-23T07:42:34.5257866Z [WebServer]  GET / 200 in 47ms
+2026-11-23T07:42:36.9762762Z [WebServer]  GET /login 200 in 23ms
+2026-11-23T07:42:38.2530791Z [WebServer]  GET / 200 in 36ms
+2026-11-23T07:42:38.4470900Z [WebServer]  GET / 200 in 59ms
+2026-11-23T07:42:39.6955729Z   ✓   50 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:269:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.07 — Correo / Avisos visible (5.3s)
+2026-11-23T07:42:39.8036923Z [WebServer]  GET / 200 in 41ms
+2026-11-23T07:42:42.1318746Z [WebServer]  GET /login 200 in 30ms
+2026-11-23T07:42:43.3321274Z [WebServer]  GET / 200 in 25ms
+2026-11-23T07:42:43.5352169Z [WebServer]  GET / 200 in 69ms
+2026-11-23T07:42:44.8275670Z   ✓   51 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:274:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.08 — Equipo de la empresa visible (5.1s)
+2026-11-23T07:42:44.9446529Z [WebServer]  GET / 200 in 40ms
+2026-11-23T07:42:47.0488140Z [WebServer]  GET /login 200 in 27ms
+2026-11-23T07:42:48.3373383Z [WebServer]  GET / 200 in 27ms
+2026-11-23T07:42:48.5554822Z [WebServer]  GET / 200 in 63ms
+2026-11-23T07:42:50.9469238Z   ✓   52 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:279:3 › PASO 2 — Exploración de Interfaz y Navegación (todos los menús) › PASO-2.09 — Configuración de empresa accesible desde escritorio (6.1s)
+2026-11-23T07:42:51.1130197Z [WebServer]  GET / 200 in 78ms
+2026-11-23T07:42:53.6162761Z [WebServer]  GET /login 200 in 28ms
+2026-11-23T07:42:54.8184698Z [WebServer]  GET / 200 in 28ms
+2026-11-23T07:42:55.0097275Z [WebServer]  GET / 200 in 70ms
+2026-11-23T07:43:10.9391460Z   ✓   53 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:300:3 › PASO 3 — Validación de Funcionalidades (procesos de negocio) › PASO-3.01 — CRUD completo de proyecto (crear, leer, actualizar, archivar, restaurar) (20.0s)
+2026-11-23T07:43:11.0560826Z [WebServer]  GET / 200 in 45ms
+2026-11-23T07:43:13.3864379Z [WebServer]  GET /login 200 in 26ms
+2026-11-23T07:43:14.5955018Z [WebServer]  GET / 200 in 23ms
+2026-11-23T07:43:14.7953734Z [WebServer]  GET / 200 in 70ms
+2026-11-23T07:43:27.4209002Z   ✓   54 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:332:3 › PASO 3 — Validación de Funcionalidades (procesos de negocio) › PASO-3.02 — Crear gasto y propagar a proyecto y tablero (16.5s)
+2026-11-23T07:43:27.5444912Z [WebServer]  GET / 200 in 41ms
+2026-11-23T07:43:29.5996993Z [WebServer]  GET /login 200 in 24ms
+2026-11-23T07:43:31.2802592Z [WebServer]  GET / 200 in 26ms
+2026-11-23T07:43:31.4850682Z [WebServer]  GET / 200 in 63ms
+2026-11-23T07:43:42.9970345Z   ✓   55 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:362:3 › PASO 3 — Validación de Funcionalidades (procesos de negocio) › PASO-3.03 — Crear cotización y marcar como aceptada (15.6s)
+2026-11-23T07:43:43.1136985Z [WebServer]  GET / 200 in 48ms
+2026-11-23T07:43:45.1345577Z [WebServer]  GET /login 200 in 28ms
+2026-11-23T07:43:46.3777126Z [WebServer]  GET / 200 in 27ms
+2026-11-23T07:43:46.6104908Z [WebServer]  GET / 200 in 65ms
+2026-11-23T07:43:56.2224371Z   ✓   56 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:387:3 › PASO 3 — Validación de Funcionalidades (procesos de negocio) › PASO-3.04 — Registrar empleado y asistencia con GPS (13.2s)
+2026-11-23T07:43:56.3384524Z [WebServer]  GET / 200 in 45ms
+2026-11-23T07:43:58.6949766Z [WebServer]  GET /login 200 in 26ms
+2026-11-23T07:43:59.9349238Z [WebServer]  GET / 200 in 26ms
+2026-11-23T07:44:00.1602978Z [WebServer]  GET / 200 in 56ms
+2026-11-23T07:44:05.7845561Z   ✓   57 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:418:3 › PASO 3 — Validación de Funcionalidades (procesos de negocio) › PASO-3.05 — Registrar maquinaria y cambiar estados (9.6s)
+2026-11-23T07:44:05.8840747Z [WebServer]  GET / 200 in 37ms
+2026-11-23T07:44:08.2352862Z [WebServer]  GET /login 200 in 29ms
+2026-11-23T07:44:09.4608106Z [WebServer]  GET / 200 in 34ms
+2026-11-23T07:44:09.6411041Z [WebServer]  GET / 200 in 58ms
+2026-11-23T07:44:13.7320912Z [WebServer]  GET / 200 in 47ms
+2026-11-23T07:44:38.6165441Z   ✘   58 [chromium] › e2e/qa-exhaustive-e2e.spec.ts:472:3 › PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, capas profundas) › PASO-4.01 — Profundidad: Proyectos → Editar → Cambiar presupuesto → Persistencia tras recarga (32.0s)
+2026-11-23T07:44:38.6170403Z Testing stopped early after 1 maximum allowed failures.
+2026-11-23T07:44:38.8887245Z 
+2026-11-23T07:44:38.8897754Z 
+2026-11-23T07:44:38.8908493Z   1) [chromium] › e2e/qa-exhaustive-e2e.spec.ts:472:3 › PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, capas profundas) › PASO-4.01 — Profundidad: Proyectos → Editar → Cambiar presupuesto → Persistencia tras recarga 
+2026-11-23T07:44:38.8910214Z 
+2026-11-23T07:44:38.8910705Z     Error: expect(locator).toContainText(expected) failed
+2026-11-23T07:44:38.8911233Z 
+2026-11-23T07:44:38.8911684Z     Locator: locator('main li').filter({ hasText: 'E2E-1795419849842' })
+2026-11-23T07:44:38.8912492Z     Expected substring: "200,000"
+2026-11-23T07:44:38.8914069Z     Received string:    "EE2E-1795419849842Proyecto E2E 1795419849842Cliente E2E • Guatemala, GuatemalaPlanificación5%Ppto. Q100,000·Gast. Q0APU Q0·Cot. 0"
+2026-11-23T07:44:38.8915214Z     Timeout: 15000ms
+2026-11-23T07:44:38.8915460Z 
+2026-11-23T07:44:38.8915680Z     Call log:
+2026-11-23T07:44:38.8916603Z       - Expect "toContainText" locator('main li').filter({ hasText: 'E2E-1795419849842' }) with timeout 15000ms
+2026-11-23T07:44:38.8917820Z       - waiting for locator('main li').filter({ hasText: 'E2E-1795419849842' })
+2026-11-23T07:44:38.8919984Z         34 × locator resolved to <li class="glass-l1 flex flex-col justify-between gap-3 rounded-xl border border-white/10 p-4 duration-200 hover:bg-white/[0.05] lg:flex-row lg:items-center">…</li>
+2026-11-23T07:44:38.8922512Z            - unexpected value "EE2E-1795419849842Proyecto E2E 1795419849842Cliente E2E • Guatemala, GuatemalaPlanificación5%Ppto. Q100,000·Gast. Q0APU Q0·Cot. 0"
+2026-11-23T07:44:38.8923938Z 
+2026-11-23T07:44:38.8923956Z 
+2026-11-23T07:44:38.8924547Z       487 |     const row = page.locator('main li').filter({ hasText: projectData.code });
+2026-11-23T07:44:38.8925530Z       488 |     await expect(row).toBeVisible({ timeout: 20_000 });
+2026-11-23T07:44:38.8926335Z     > 489 |     await expect(row).toContainText('200,000');
+2026-11-23T07:44:38.8926958Z           |                       ^
+2026-11-23T07:44:38.8927431Z       490 |   });
+2026-11-23T07:44:38.8927841Z       491 |
+2026-11-23T07:44:38.8928984Z       492 |   test('PASO-4.02 — Profundidad: Gastos → Seleccionar proyecto → Registrar → Ver en proyecto y tablero', async ({
+2026-11-23T07:44:38.8930373Z         at /home/runner/work/ORIGEN/ORIGEN/e2e/qa-exhaustive-e2e.spec.ts:489:23
+2026-11-23T07:44:38.8931013Z 
+2026-11-23T07:44:38.8931837Z     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+2026-11-23T07:44:38.8935258Z     test-results/561ddff84ab6b5a3/artifacts/qa-exhaustive-e2e-PASO-4-—-8fcc3-→-Persistencia-tras-recarga-chromium/test-failed-1.png
+2026-11-23T07:44:38.8937040Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-23T07:44:38.8937687Z 
+2026-11-23T07:44:38.8938468Z     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+2026-11-23T07:44:38.8940404Z     test-results/561ddff84ab6b5a3/artifacts/qa-exhaustive-e2e-PASO-4-—-8fcc3-→-Persistencia-tras-recarga-chromium/video.webm
+2026-11-23T07:44:38.8942050Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-23T07:44:38.8942610Z 
+2026-11-23T07:44:38.8943871Z     Error Context: test-results/561ddff84ab6b5a3/artifacts/qa-exhaustive-e2e-PASO-4-—-8fcc3-→-Persistencia-tras-recarga-chromium/error-context.md
+2026-11-23T07:44:38.8944946Z 
+2026-11-23T07:44:38.8946024Z     attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-23T07:44:38.8947746Z     test-results/561ddff84ab6b5a3/artifacts/qa-exhaustive-e2e-PASO-4-—-8fcc3-→-Persistencia-tras-recarga-chromium/trace.zip
+2026-11-23T07:44:38.8948662Z     Usage:
+2026-11-23T07:44:38.8948803Z 
+2026-11-23T07:44:38.8949859Z         npx playwright show-trace test-results/561ddff84ab6b5a3/artifacts/qa-exhaustive-e2e-PASO-4-—-8fcc3-→-Persistencia-tras-recarga-chromium/trace.zip
+2026-11-23T07:44:38.8950698Z 
+2026-11-23T07:44:38.8951115Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-23T07:44:38.8951429Z 
+2026-11-23T07:44:38.8951552Z   1 failed
+2026-11-23T07:44:38.8952754Z     [chromium] › e2e/qa-exhaustive-e2e.spec.ts:472:3 › PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, capas profundas) › PASO-4.01 — Profundidad: Proyectos → Editar → Cambiar presupuesto → Persistencia tras recarga 
+2026-11-23T07:44:38.8954387Z   492 did not run
+2026-11-23T07:44:38.8954814Z   57 passed (10.1m)
+2026-11-23T07:44:38.8955690Z   1 error was not a part of any test, see above for details
+2026-11-23T07:44:39.1766853Z [33m[1m⚠ [22m[39m Script exited unsuccessfully (code 1)
+2026-11-23T07:44:39.6781518Z [36m[1mi  emulators:[22m[39m Shutting down emulators.
+2026-11-23T07:44:39.6784871Z [36m[1mi  firestore:[22m[39m Stopping Firestore Emulator
+2026-11-23T07:44:40.0523694Z [36m[1mi  auth:[22m[39m Stopping Authentication Emulator
+2026-11-23T07:44:40.0527426Z [36m[1mi  storage:[22m[39m Stopping Storage Emulator
+2026-11-23T07:44:40.3800951Z [36m[1mi  hub:[22m[39m Stopping emulator hub
+2026-11-23T07:44:40.3804339Z [36m[1mi  logging:[22m[39m Stopping Logging Emulator
+2026-11-23T07:44:40.3838334Z 
+2026-11-23T07:44:40.3841175Z [1m[31mError:[39m[22m Script "[1mnode scripts/run-e2e-inside.mjs[22m" exited with code 1
+2026-11-23T07:44:40.6917470Z ##[error]Process completed with exit code 1.

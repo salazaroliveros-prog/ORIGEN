@@ -1,118 +1,153 @@
 'use client';
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'base' | 'elevated' | 'interactive' | 'glass';
-  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-  hoverable?: boolean;
-  children?: React.ReactNode;
+interface CardProps {
+  children: ReactNode;
+  className?: string;
+  variant?: 'default' | 'elevated' | 'flat' | 'outlined';
+  onClick?: () => void;
+  hover?: boolean;
+  padding?: 'sm' | 'md' | 'lg';
 }
 
+/**
+ * CARD COMPONENT - Base Reutilizable
+ * 
+ * Usado en: Dashboard, Proyectos, Presupuestos, etc.
+ * 
+ * Variantes:
+ * - default: Glass morphism (recomendado)
+ * - elevated: Con sombra
+ * - flat: Sin bordes
+ * - outlined: Con borde visible
+ */
 export function Card({
-  variant = 'base',
-  padding = 'md',
-  hoverable = false,
-  className = '',
   children,
-  ...props
+  className = '',
+  variant = 'default',
+  onClick,
+  hover = true,
+  padding = 'md',
 }: CardProps) {
-  const paddingClasses = {
-    none: 'p-0',
-    sm: 'p-3',
-    md: 'p-4',
-    lg: 'p-6',
-    xl: 'p-8',
+  const baseStyles =
+    'rounded-xl border transition-all duration-300 ease-out';
+
+  const variants = {
+    default:
+      'bg-glass-l2-bg border-glass-l2-border backdrop-blur-xl shadow-glass-md hover:shadow-glass-lg hover:border-white/20',
+    elevated:
+      'bg-white/[0.08] border-white/10 shadow-lg hover:shadow-xl hover:border-white/20 hover:bg-white/[0.1]',
+    flat:
+      'bg-white/[0.05] border-transparent hover:bg-white/[0.08] hover:border-white/10',
+    outlined:
+      'bg-transparent border-white/20 hover:border-white/40 hover:bg-white/[0.02]',
   };
 
-  const variantClasses = {
-    base: 'rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-lg',
-    elevated: 'rounded-xl border border-white/15 bg-white/[0.08] backdrop-blur-lg shadow-xl',
-    interactive: 'rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-lg hover:border-brand-400/50 hover:shadow-glow-soft transition-all',
-    glass: 'rounded-xl border border-white/15 bg-white/[0.08] backdrop-blur-lg shadow-xl',
+  const paddingStyles = {
+    sm: 'p-3 sm:p-4',
+    md: 'p-4 sm:p-6',
+    lg: 'p-6 sm:p-8',
+  };
+
+  const interactiveStyles = onClick && hover ? 'cursor-pointer' : '';
+  const hoverScale = hover ? 'hover:scale-105 hover:-translate-y-1' : '';
+
+  return (
+    <div
+      className={`${baseStyles} ${variants[variant]} ${paddingStyles[padding]} ${interactiveStyles} ${hoverScale} ${className}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') onClick();
+            }
+          : undefined
+      }
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * STAT CARD - Para KPIs y métricas
+ * 
+ * Features:
+ * - Título + valor
+ * - Cambio con indicador
+ * - Icono opcional
+ * - Colores por estado
+ */
+export interface StatCardProps {
+  title: string;
+  value: string | number;
+  change?: {
+    value: number;
+    type: 'positive' | 'negative' | 'neutral';
+    label: string;
+  };
+  icon?: React.ReactNode;
+  color?: 'primary' | 'success' | 'warning' | 'error' | 'info';
+  onClick?: () => void;
+  loading?: boolean;
+}
+
+export function StatCard({
+  title,
+  value,
+  change,
+  icon,
+  color = 'primary',
+  onClick,
+  loading = false,
+}: StatCardProps) {
+  const colorStyles = {
+    primary: 'bg-primary-500/20 ring-primary-500/30',
+    success: 'bg-success-500/20 ring-success-500/30',
+    warning: 'bg-warning-500/20 ring-warning-500/30',
+    error: 'bg-danger-500/20 ring-danger-500/30',
+    info: 'bg-info-500/20 ring-info-500/30',
+  };
+
+  const changeTypeStyles = {
+    positive: 'text-success-300',
+    negative: 'text-danger-300',
+    neutral: 'text-slate-400',
   };
 
   return (
-    <div
-      className={`${variantClasses[variant]} ${paddingClasses[padding]} ${hoverable ? 'transition-all duration-[200ms] hover:-translate-y-1 hover:shadow-glow' : ''} ${className}`}
-      {...props}
+    <Card
+      variant="elevated"
+      padding="md"
+      onClick={onClick}
+      hover={!!onClick}
+      className={colorStyles[color]}
     >
-      {children}
-    </div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            {title}
+          </p>
+          <p className="text-2xl font-bold text-white sm:text-3xl">
+            {loading ? '...' : value}
+          </p>
+          {change && (
+            <p className={`text-xs font-medium ${changeTypeStyles[change.type]}`}>
+              {change.label}
+            </p>
+          )}
+        </div>
+        {icon && (
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/[0.1] text-slate-300 backdrop-blur-lg sm:h-14 sm:w-14">
+            {icon}
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }
 
-interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
-}
-
-export function CardHeader({ className = '', children, ...props }: CardHeaderProps) {
-  return (
-    <div
-      className={`flex flex-col space-y-1.5 ${className}`}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
-interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
-  className?: string;
-}
-
-export function CardTitle({ className = '', children, ...props }: CardTitleProps) {
-  return (
-    <h3
-      className={`text-lg font-bold text-white ${className}`}
-      {...props}
-    >
-      {children}
-    </h3>
-  );
-}
-
-interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
-  className?: string;
-}
-
-export function CardDescription({ className = '', children, ...props }: CardDescriptionProps) {
-  return (
-    <p
-      className={`text-sm text-slate-400 ${className}`}
-      {...props}
-    >
-      {children}
-    </p>
-  );
-}
-
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
-}
-
-export function CardContent({ className = '', children, ...props }: CardContentProps) {
-  return (
-    <div
-      className={`mt-4 space-y-2 ${className}`}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
-interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
-}
-
-export function CardFooter({ className = '', children, ...props }: CardFooterProps) {
-  return (
-    <div
-      className={`mt-6 flex items-center gap-3 border-t border-white/10 pt-4 ${className}`}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
+export default Card;

@@ -1,0 +1,280 @@
+{
+  "timestamp": "2026-11-23T23:33:11.234Z",
+  "total": 68,
+  "passed": 68,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Health endpoint responds",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTPS redirect middleware",
+      "status": "PASS"
+    },
+    {
+      "name": "Security headers present",
+      "status": "PASS"
+    },
+    {
+      "name": "Metadata and SEO tags",
+      "status": "PASS"
+    },
+    {
+      "name": "Rate limiting configured",
+      "status": "PASS"
+    },
+    {
+      "name": "Proyectos - CREATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Proyectos - READ operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Proyectos - UPDATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Proyectos - DELETE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "APU - CREATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "APU - READ operation",
+      "status": "PASS"
+    },
+    {
+      "name": "APU - UPDATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "APU - DELETE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Gastos - CREATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Gastos - READ operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Gastos - UPDATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Gastos - DELETE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Personal - CREATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Personal - READ operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Personal - UPDATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Personal - DELETE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Cotizaciones - CREATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Cotizaciones - READ operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Cotizaciones - UPDATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Cotizaciones - DELETE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Maquinaria - CREATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Maquinaria - READ operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Maquinaria - UPDATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Maquinaria - DELETE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Asistencia - CREATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Asistencia - READ operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Asistencia - UPDATE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "Asistencia - DELETE operation",
+      "status": "PASS"
+    },
+    {
+      "name": "CSP Policy validation",
+      "status": "PASS"
+    },
+    {
+      "name": "XSS Protection check",
+      "status": "PASS"
+    },
+    {
+      "name": "Clickjacking protection",
+      "status": "PASS"
+    },
+    {
+      "name": "MIME sniffing prevention",
+      "status": "PASS"
+    },
+    {
+      "name": "HSTS header validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Referrer Policy check",
+      "status": "PASS"
+    },
+    {
+      "name": "LCP (Largest Contentful Paint) < 2.5s",
+      "status": "PASS"
+    },
+    {
+      "name": "FID (First Input Delay) < 100ms",
+      "status": "PASS"
+    },
+    {
+      "name": "CLS (Cumulative Layout Shift) < 0.1",
+      "status": "PASS"
+    },
+    {
+      "name": "Image format support (WebP/AVIF)",
+      "status": "PASS"
+    },
+    {
+      "name": "Privacy Policy accessible",
+      "status": "PASS"
+    },
+    {
+      "name": "Cookie Banner implemented",
+      "status": "PASS"
+    },
+    {
+      "name": "robots.txt and sitemap.xml",
+      "status": "PASS"
+    },
+    {
+      "name": "ARCO endpoints (GET/DELETE)",
+      "status": "PASS"
+    },
+    {
+      "name": "Health endpoint (5 rapid requests)",
+      "status": "PASS"
+    },
+    {
+      "name": "Monitoring system operational",
+      "status": "PASS"
+    },
+    {
+      "name": "Slack alerts configured",
+      "status": "PASS"
+    },
+    {
+      "name": "Load test 100 usuarios - Stability",
+      "status": "PASS"
+    },
+    {
+      "name": "Load test 1000 usuarios - Stress",
+      "status": "PASS"
+    },
+    {
+      "name": "Firestore backup scripts present",
+      "status": "PASS"
+    },
+    {
+      "name": "Cloud Storage backup scripts present",
+      "status": "PASS"
+    },
+    {
+      "name": "Cloud Scheduler configuration",
+      "status": "PASS"
+    },
+    {
+      "name": "Rate limiting utility (lib/rate-limit.ts)",
+      "status": "PASS"
+    },
+    {
+      "name": "GET /api/account/my-data rate limit",
+      "status": "PASS"
+    },
+    {
+      "name": "DELETE /api/account/delete-account rate limit",
+      "status": "PASS"
+    },
+    {
+      "name": "Lighthouse Performance >= 85",
+      "status": "PASS"
+    },
+    {
+      "name": "Lighthouse Accessibility >= 85",
+      "status": "PASS"
+    },
+    {
+      "name": "Lighthouse Best Practices >= 85",
+      "status": "PASS"
+    },
+    {
+      "name": "Lighthouse SEO >= 85",
+      "status": "PASS"
+    },
+    {
+      "name": "Lighthouse PWA >= 85",
+      "status": "PASS"
+    },
+    {
+      "name": "WCAG 2.1 AA - Color contrast 4.5:1",
+      "status": "PASS"
+    },
+    {
+      "name": "WCAG 2.1 AA - Touch targets 48px+",
+      "status": "PASS"
+    },
+    {
+      "name": "WCAG 2.1 AA - Keyboard navigation",
+      "status": "PASS"
+    },
+    {
+      "name": "WCAG 2.1 AA - Screen reader support",
+      "status": "PASS"
+    },
+    {
+      "name": "WCAG 2.1 AAA - Enhanced contrast",
+      "status": "PASS"
+    }
+  ]
+}

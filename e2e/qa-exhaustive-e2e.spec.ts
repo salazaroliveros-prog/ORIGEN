@@ -767,24 +767,21 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
     await page.reload();
     await openTab(page, 'Proyectos & Firmas');
 
-    // La recarga restablece el tamaño de página (10). Mostrar los 50 registros
-    // antes de verificar el proyecto evita falsos negativos cuando hay más de
-    // 10 proyectos en el emulador y evita coincidir con la opción oculta del
-    // selector "Proyecto activo".
+    // Tras recargar, la vista vuelve al tamaño de página predeterminado.
+    // Ampliar el listado evita confundir un registro persistido en otra página
+    // con un registro ausente y validar el botón de edición confirma que la
+    // tarjeta real del proyecto se renderizó de forma visible.
     await showAllProjects(page);
     await expect(
-      page.getByRole('button', { name: `Editar proyecto ${projectData.code}` })
+      page.getByRole('button', { name: `Editar proyecto ${projectData.code}`, exact: true })
     ).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-5.09 — Inventario: historial, búsqueda y filtro de movimientos', async ({ page }) => {
     await openTab(page, 'Inventario & Compras');
-    // El shell y la vista del módulo comparten el mismo texto: el shell
-    // usa h1 y el contenido usa h2. Validar el h2 del módulo evita el
-    // strict-mode violation por dos encabezados con el mismo nombre.
-    await expect(
-      page.getByRole('heading', { name: 'Inventario & Compras', level: 2, exact: true })
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'Inventario & Compras' })).toBeVisible({
+      timeout: 20_000,
+    });
 
     await page.getByRole('tab', { name: 'Movimientos' }).click();
     await expect(page.getByRole('region', { name: 'Historial de movimientos' })).toBeVisible();
