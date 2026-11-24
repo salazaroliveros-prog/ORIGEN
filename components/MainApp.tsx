@@ -1,5 +1,6 @@
+﻿'use client';
+
 import { isValidTabId } from '@/lib/constants/tabs';
-import { isValidTabId } from '@/lib/constants/tabs';'use client';
 
 import { LogoUpload } from '@/components/LogoUpload';
 import { Navbar } from '@/components/Navbar';
@@ -192,9 +193,17 @@ export default function MainApp() {
       canViewPersonnel: canReadEmployeeDirectory(role),
       canViewFullPersonnel: canReadFullPersonnel(role),
       canManageCompany: ['owner', 'admin'].includes(role ?? ''),
-      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(role ?? ''),
+      canManageInventory: ['owner', 'admin', 'project_manager', 'warehouse_manager'].includes(
+        role ?? ''
+      ),
       canManagePurchasing: ['owner', 'admin', 'project_manager', 'finance'].includes(role ?? ''),
-      canViewSupplyChain: ['owner', 'admin', 'project_manager', 'finance', 'warehouse_manager'].includes(role ?? ''),
+      canViewSupplyChain: [
+        'owner',
+        'admin',
+        'project_manager',
+        'finance',
+        'warehouse_manager',
+      ].includes(role ?? ''),
     };
   }, [membership?.role]);
   const [company, setCompany] = useState<CompanySettings>(initialCompanySettings);
@@ -567,16 +576,19 @@ export default function MainApp() {
                 quotes={data.quotes}
               />
             )}
-            {activeTab === 'inventario' && permissions.canViewSupplyChain && workspace && currentUser && (
-              <InventoryManager
-                companyId={workspace.id}
-                userId={currentUser.uid}
-                projects={activeProjects}
-                activeProjectId={activeProject?.id ?? ''}
-                canManageInventory={permissions.canManageInventory}
-                canManagePurchasing={permissions.canManagePurchasing}
-              />
-            )}
+            {activeTab === 'inventario' &&
+              permissions.canViewSupplyChain &&
+              workspace &&
+              currentUser && (
+                <InventoryManager
+                  companyId={workspace.id}
+                  userId={currentUser.uid}
+                  projects={activeProjects}
+                  activeProjectId={activeProject?.id ?? ''}
+                  canManageInventory={permissions.canManageInventory}
+                  canManagePurchasing={permissions.canManagePurchasing}
+                />
+              )}
             {activeTab === 'gastos' && (
               <ExpensesManager
                 projects={data.projects}

@@ -53,7 +53,9 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [manuallyEditedBalanceProjectId, setManuallyEditedBalanceProjectId] = useState<string | null>(null);
+  const [manuallyEditedBalanceProjectId, setManuallyEditedBalanceProjectId] = useState<
+    string | null
+  >(null);
 
   const canClose = CLOSURE_ROLES.includes(role ?? '');
 
@@ -108,7 +110,12 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
       return;
     }
 
-    if (!project || !currentUserId || !companyId || (project.companyId && project.companyId !== companyId)) {
+    if (
+      !project ||
+      !currentUserId ||
+      !companyId ||
+      (project.companyId && project.companyId !== companyId)
+    ) {
       toast.error('No se pudo validar la empresa y el proyecto activo.');
       return;
     }
@@ -117,11 +124,15 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
       return;
     }
     if (expensesLoading) {
-      toast.error('Espera a que termine de cargar el historial financiero antes de cerrar la obra.');
+      toast.error(
+        'Espera a que termine de cargar el historial financiero antes de cerrar la obra.'
+      );
       return;
     }
     if (expensesError) {
-      toast.error('No se puede cerrar la obra porque no fue posible verificar su historial financiero.');
+      toast.error(
+        'No se puede cerrar la obra porque no fue posible verificar su historial financiero.'
+      );
       return;
     }
     const financialGate = calculateProjectClosureFinancialSummary({
@@ -167,7 +178,12 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
     }
   };
 
-  if (status === 'loading' || workspaceLoading || expensesLoading || (ready && !project && projectsLoading)) {
+  if (
+    status === 'loading' ||
+    workspaceLoading ||
+    expensesLoading ||
+    (ready && !project && projectsLoading)
+  ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="text-center">
@@ -181,7 +197,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
   if (workspaceError || !ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">No se pudo cargar la empresa</h1>
           <p className="mb-4 text-sm text-slate-400">
             {workspaceError ?? 'Inicia sesión para cerrar un proyecto.'}
@@ -197,7 +213,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
   if (!project) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">Proyecto no encontrado</h1>
           <p className="mb-4 text-sm text-slate-400">
             El proyecto solicitado no existe o no pertenece a tu empresa.
@@ -213,7 +229,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
   if (!canClose) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <Card variant="glass" padding="lg" className="max-w-md text-center">
+        <Card variant="outlined" padding="lg" className="max-w-md text-center">
           <h1 className="mb-2 text-xl font-bold text-white">Permiso insuficiente</h1>
           <p className="mb-4 text-sm text-slate-400">
             Solo el propietario, un administrador o el Project Manager pueden cerrar un proyecto.
@@ -238,7 +254,7 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
 
   return (
     <div className="mx-auto max-w-2xl p-4">
-      <Card variant="glass" padding="lg">
+      <Card variant="outlined" padding="lg">
         <div className="mb-6 flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-sky-500 shadow-glass">
             <span className="font-bold text-white">📋</span>
@@ -267,10 +283,14 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Pendiente de Aprobación
             </p>
-            <p className={`text-lg font-bold ${pendingExpenseTotal > 0 ? 'text-amber-400' : 'text-slate-200'}`}>
+            <p
+              className={`text-lg font-bold ${pendingExpenseTotal > 0 ? 'text-amber-400' : 'text-slate-200'}`}
+            >
               {formatGTQ(pendingExpenseTotal)}
             </p>
-            <p className="mt-1 text-[10px] text-slate-500">{closureFinancials.pendingExpenseCount} solicitud(es)</p>
+            <p className="mt-1 text-[10px] text-slate-500">
+              {closureFinancials.pendingExpenseCount} solicitud(es)
+            </p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -287,20 +307,33 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
         </div>
 
         {expensesError ? (
-          <div role="alert" className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          <div
+            role="alert"
+            className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200"
+          >
             {expensesError} El cierre permanece bloqueado hasta recuperar una lectura válida.
           </div>
         ) : closureFinancials.pendingExpenseCount > 0 ? (
-          <div role="alert" className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
-            No es posible cerrar esta obra mientras existan gastos pendientes de aprobación. Resuelve las {closureFinancials.pendingExpenseCount} solicitud(es) por {formatGTQ(pendingExpenseTotal)}.
+          <div
+            role="alert"
+            className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"
+          >
+            No es posible cerrar esta obra mientras existan gastos pendientes de aprobación.
+            Resuelve las {closureFinancials.pendingExpenseCount} solicitud(es) por{' '}
+            {formatGTQ(pendingExpenseTotal)}.
           </div>
         ) : (
-          <p className="mb-5 text-xs text-emerald-300">No hay solicitudes de gasto pendientes de aprobación.</p>
+          <p className="mb-5 text-xs text-emerald-300">
+            No hay solicitudes de gasto pendientes de aprobación.
+          </p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="closure-notes" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <label
+              htmlFor="closure-notes"
+              className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400"
+            >
               Observaciones de Cierre
             </label>
             <textarea
@@ -319,7 +352,10 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
           </div>
 
           <div>
-            <label htmlFor="closure-final-balance" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <label
+              htmlFor="closure-final-balance"
+              className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400"
+            >
               Saldo final tras compromisos (GTQ)
             </label>
             <Input
@@ -350,7 +386,12 @@ export function ProjectClosureContent({ projectId }: { projectId: string }) {
               variant="primary"
               size="lg"
               isLoading={isLoading}
-              disabled={isLoading || expensesLoading || Boolean(expensesError) || !closureFinancials.canClose}
+              disabled={
+                isLoading ||
+                expensesLoading ||
+                Boolean(expensesError) ||
+                !closureFinancials.canClose
+              }
               className="w-full"
             >
               {isLoading ? 'Cerrando proyecto…' : 'Cerrar Proyecto Definitivamente'}

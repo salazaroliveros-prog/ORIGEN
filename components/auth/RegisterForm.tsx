@@ -82,7 +82,7 @@ export function RegisterForm({ onAuthenticated, onLogin, className }: RegisterFo
   };
 
   return (
-    <Card variant="glass" padding="lg" className={`${className} mx-auto w-full max-w-md`}>
+    <Card variant="outlined" padding="lg" className={`${className} mx-auto w-full max-w-md`}>
       <div className="mb-8 text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
           <UserPlusIcon className="h-6 w-6" aria-hidden="true" />
