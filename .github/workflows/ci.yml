@@ -8,8 +8,6 @@ on:
     branches:
       - main
 
-# Cancel obsolete validations for the same PR so only the latest source revision
-# consumes emulator/build resources and provides the authoritative check result.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -29,7 +27,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.18.0
+          node-version: 26.x
           cache: npm
 
       - name: Install dependencies
@@ -57,9 +55,6 @@ jobs:
           java-version: '21'
 
       - name: Run Firebase emulator security tests
-        # Keep the emulator version reproducible: firebase-tools 15.25+ bundles
-        # Firestore Emulator v1.22.0, which has reported transaction/rules lock regressions.
-        # 15.24.0 uses the v1.21.0 emulator while the upstream regression is unresolved.
         run: npm run test:firebase
 
       - name: Build
@@ -75,12 +70,10 @@ jobs:
         run: npm run build
 
       - name: Install Playwright Chromium
-        # La suite completa de Chromium valida flujos de escritorio y navegación móvil.
         run: npx playwright install --with-deps chromium
 
       - name: Run full Chromium browser E2E suite
         env:
           CI: 'true'
           NEXT_TELEMETRY_DISABLED: '1'
-        # Incluye las regresiones de navegación móvil y los breakpoints compactos.
         run: npm run test:e2e -- --project=chromium
