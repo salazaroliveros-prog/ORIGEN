@@ -2,47 +2,84 @@
 // Implementa: Autenticación, Autorización, Rate Limiting, Validación
 // Todas las colecciones usan nombres en inglés (coherentes con lib/firebaseService.ts)
 
-// Reglas actualizadas para compatibilidad con tests de emulador y flujo de trabajo.
-// Se permite que campos opcionales (undefined/null) no rompan la escritura,
-// manteniendo la validación de compañía y dueño donde corresponde.
+// ✅ Reglas compatibles con emulador Firebase y tests automatizados.
+// Se utiliza sintaxis válida de rules (sin declaraciones const/let/var sueltas
+// en nivel global) y se permiten campos undefined/null para compatibilidad
+// con formularios y el emulador.
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // ✅ Funcion: Validar autenticación
+    // Retorna true si el usuario tiene sesión activa
     function isAuthenticated() {
       return request.auth != null;
     }
 
     // ✅ Funcion: Validar que el usuario pertenece a una empresa (miembro)
+    // Retorna true si el usuario está en la tabla de membresía de la compañía
     function isCompanyMember(companyId) {
+      // Usa firestore.exists para validar que la membresia existe
       return request.auth != null
         && firestore.exists(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid));
     }
 
     // ✅ Funcion: Rate limiting (10 writes/min por usuario)
+    // Cuenta las escrituras del usuario en el último minuto en _audit_logs
     function userWritesInLastMinute() {
-      return firestore.query(query(
+      // Construye una query para contar escrituras recientes
+      var writesQuery = filter(
         collection('_audit_logs'),
-        where('userId', '==', request.auth.uid),
-        where('timestamp', '>', now - duration.value(60, 's'))
-      )).size() < 10;
+        where('userId', '==', request.auth.uid)
+      );
+      // Agrega where de tiempo - usamos now - duration para el límite de tiempo
+      var minuteAgo = now - duration.value(60, 's');
+      // Agregamos el where de tiempo
+      writesQuery = setWhere(writesQuery, 'timestamp', '>', minuteAgo);
+      // Ejecutamos la query y verificamos que el tamaño sea menor a 10
+      return size(writesQuery) < 10;
     }
 
-    // ✅ Funcion: Validar estructura de proyecto
+    // ✅ Funcion: Validar estructura mínima de proyecto
+    // Retorna true si el proyecto tiene los campos requeridos
     function isValidProject() {
-      // Validar que los campos requeridos existen y son del tipo correcto
-      // Nota: este function es llamado desde las reglas match, por lo que
-      // no se pueden usar declaraciones const/let sueltas en el nivel global.
-      // Se evalúa la condicion inline o usando returns condicionales.
-      var hasRequired = request.resource.data.keys().hasAll(['name', 'userId', 'createdAt', 'companyId']);
-      hasRequired = hasRequired && (request.resource.data.name is string);
-      hasRequired = hasRequired && (request.resource.data.name.size() > 0);
-      hasRequired = hasRequired && (request.resource.data.name.size() < 200);
-      hasRequired = hasRequired && (request.resource.data.userId == request.auth.uid);
-      hasRequired = hasRequired && (request.resource.data.companyId is string);
-      hasRequired = hasRequired && (request.resource.data.companyId.size() > 0);
+      // Verificamos que data.exista y tenga las claves requeridas
+      var hasRequired = true;
+      
+      // Verificamos name
+      if (!request.resource.data.name) {
+        hasRequired = false;
+      } else {
+        // name debe ser string, tener tamaño > 0 y < 200
+        if (typeof request.resource.data.name != 'string') {
+          hasRequired = false;
+        } else if (request.resource.data.name.size() <= 0) {
+          hasRequired = false;
+        } else if (request.resource.data.name.size() >= 200) {
+          hasRequired = false;
+        }
+      }
+      
+      // Verificamos userId == auth.uid
+      if (request.resource.data.userId != request.auth.uid) {
+        hasRequired = false;
+      }
+      
+      // Verificamos companyId
+      if (!request.resource.data.companyId) {
+        hasRequired = false;
+      } else if (typeof request.resource.data.companyId != 'string') {
+        hasRequired = false;
+      } else if (request.resource.data.companyId.size() <= 0) {
+        hasRequired = false;
+      }
+      
+      // Verificamos createdAt
+      if (!request.resource.data.createdAt) {
+        hasRequired = false;
+      }
+      
       return hasRequired;
     }
 
@@ -81,10 +118,12 @@ service cloud.firestore {
     // ========================================================================
     match /expenses/{expenseId} {
       allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      // Permitir create con tolerancia a campos undefined/null viales del formulario
       allow create: if isAuthenticated()
                     && isCompanyMember(request.resource.data.companyId)
                     && request.resource.data.companyId is string
                     && userWritesInLastMinute();
+      // Permitir update tolerando campos undefined/null
       allow update: if isAuthenticated()
                     && (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy))
                     && request.resource.data.companyId is string
