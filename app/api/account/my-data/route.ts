@@ -80,12 +80,10 @@ export async function GET(req: NextRequest) {
     for (const colName of collectionNames) {
       const q = query(collection(db, colName), where('userId', '==', userId));
       const snap = await getDocs(q);
-      userData.collections[colName] = snap.docs.map(
-        (d: QueryDocumentSnapshot<DocumentData>) => ({
-          id: d.id,
-          ...d.data(),
-        })
-      );
+      userData.collections[colName] = snap.docs.map((d: QueryDocumentSnapshot<DocumentData>) => ({
+        id: d.id,
+        ...d.data(),
+      }));
     }
 
     return createApiResponse(userData, {

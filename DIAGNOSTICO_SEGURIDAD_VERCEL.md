@@ -1,4 +1,5 @@
 # DIAGNOSTICO DE SEGURIDAD Y ESTABILIDAD PARA VERCEL
+
 ## ORIGEN ERP Guatemala - Next.js 15 + Firebase
 
 Fecha: 2026-11-24
@@ -20,18 +21,19 @@ Se identificaron **17 hallazgos**: 4 críticos, 8 altos, 5 medios. **TODOS han s
 
 Credenciales reales encontradas en texto plano:
 
-| Archivo | Secreto | Valor |
-|---------|---------|-------|
-| `.env.local` | `GITHUB_TOKEN` | [REVOCADO - en GitHub Secrets y Vercel Dashboard] |
-| `.env.local` | `DEFAULT_AUTH_PASSWORD` | [ROTADO - en Vercel Dashboard] |
-| `.env.local` | `PRIMARY_ADMIN_EMAIL` | [EN VERCEL DASHBOARD] |
-| `.env.vercel` | `VERCEL_OIDC_TOKEN` | [ROTADO - en Vercel Dashboard] |
-| `.env` | `GEMINI_API_KEY` | [ROTADO - en Vercel Dashboard] |
-| `.env` / `.env.local` | Firebase API Key | [EN VERCEL DASHBOARD - variable pública de Firebase] |
+| Archivo               | Secreto                 | Valor                                                |
+| --------------------- | ----------------------- | ---------------------------------------------------- |
+| `.env.local`          | `GITHUB_TOKEN`          | [REVOCADO - en GitHub Secrets y Vercel Dashboard]    |
+| `.env.local`          | `DEFAULT_AUTH_PASSWORD` | [ROTADO - en Vercel Dashboard]                       |
+| `.env.local`          | `PRIMARY_ADMIN_EMAIL`   | [EN VERCEL DASHBOARD]                                |
+| `.env.vercel`         | `VERCEL_OIDC_TOKEN`     | [ROTADO - en Vercel Dashboard]                       |
+| `.env`                | `GEMINI_API_KEY`        | [ROTADO - en Vercel Dashboard]                       |
+| `.env` / `.env.local` | Firebase API Key        | [EN VERCEL DASHBOARD - variable pública de Firebase] |
 
 **Riesgo:** Commit accidental expone token de GitHub con acceso al repositorio, contrasena de administrador por defecto, y token OIDC de Vercel que permite suplantar la identidad del despliegue.
 
 **Correccion:**
+
 1. Revocar inmediatamente el `GITHUB_TOKEN` en GitHub Settings > Developer settings > Personal access tokens.
 2. Rotar el `VERCEL_OIDC_TOKEN` en Vercel Dashboard.
 3. Rotar la `DEFAULT_AUTH_PASSWORD` y eliminar credenciales por defecto de todos los archivos `.env`.
@@ -50,24 +52,25 @@ El codigo en `lib/firebaseService.ts` escribe y lee colecciones en ingles: `proj
 
 Las reglas definen AMBAS versiones (espanol e ingles) con campos de propiedad DIFERENTES:
 
-| Coleccion en codigo | Campo de propiedad | En reglas? | Campo en reglas | Estado |
-|---------------------|-------------------|------------|-----------------|--------|
-| `projects` | `ownerId` / `createdBy` | NO (solo `/proyectos`) | `userId` | **FALTANTE** |
-| `expenses` | `authorId` | SI | `authorId` | OK |
-| `attendance` | `authorId` | SI | `authorId` | OK |
-| `employees` | `createdBy` | SI | `createdBy` | OK |
-| `machinery` | `userId` | SI | `userId` | OK |
-| `machineryLogs` | `companyId` + `machineryId` | SI | `machineryId` (como `isOwner`) | **MAL** |
-| `quotes` | `createdBy` | SI | `createdBy` | OK |
-| `fieldVisits` | `authorId` | NO | — | **FALTANTE** |
-| `companySettings` | `ownerId` | NO | — | **FALTANTE** |
-| `companies` | `ownerId` | SI | `ownerId` | OK |
+| Coleccion en codigo | Campo de propiedad          | En reglas?             | Campo en reglas                | Estado       |
+| ------------------- | --------------------------- | ---------------------- | ------------------------------ | ------------ |
+| `projects`          | `ownerId` / `createdBy`     | NO (solo `/proyectos`) | `userId`                       | **FALTANTE** |
+| `expenses`          | `authorId`                  | SI                     | `authorId`                     | OK           |
+| `attendance`        | `authorId`                  | SI                     | `authorId`                     | OK           |
+| `employees`         | `createdBy`                 | SI                     | `createdBy`                    | OK           |
+| `machinery`         | `userId`                    | SI                     | `userId`                       | OK           |
+| `machineryLogs`     | `companyId` + `machineryId` | SI                     | `machineryId` (como `isOwner`) | **MAL**      |
+| `quotes`            | `createdBy`                 | SI                     | `createdBy`                    | OK           |
+| `fieldVisits`       | `authorId`                  | NO                     | —                              | **FALTANTE** |
+| `companySettings`   | `ownerId`                   | NO                     | —                              | **FALTANTE** |
+| `companies`         | `ownerId`                   | SI                     | `ownerId`                      | OK           |
 
 **Consecuencia:** Toda escritura a `projects`, `fieldVisits`, `companySettings` es DENEGADA por la regla por defecto `match /{document=**} { allow read, write: if false; }`. La aplicacion no puede guardar proyectos en produccion.
 
 **Adicional:** `/machineryLogs` usa `isOwner(resource.data.machineryId)` que compara `request.auth.uid == machineryId`, lo cual es incorrecto (debe validar membresia de empresa via `companyId`).
 
 **Correccion:**
+
 1. Agregar reglas para `projects`, `fieldVisits`, `companySettings` con los campos correctos (`ownerId`, `createdBy`, `authorId`, `companyId`).
 2. Eliminar las reglas en espanol (`/proyectos`, `/maquinaria`, `/asistencia`, `/gastos`, `/cotizaciones`, `/personal`) que son duplicadas y confusas, o unificarlas bajo los nombres en ingles que usa el codigo.
 3. Corregir `/machineryLogs` para validar `companyId` y `userId` correctamente.
@@ -293,23 +296,23 @@ Puede ser un archivo legacy no usado por Next.js App Router. Revisar si causa co
 
 ## 6. PLAN DE CORRECCIONES (orden de prioridad)
 
-| Prioridad | Accion | Archivo(s) |
-|-----------|--------|------------|
-| P0 | Revocar `GITHUB_TOKEN`, `VERCEL_OIDC_TOKEN`, `DEFAULT_AUTH_PASSWORD` | Panel GitHub/Vercel |
-| P0 | Eliminar credenciales de `.env.local`, `.env`, `.env.vercel*` | Archivos locales |
-| P0 | Agregar reglas Firestore para `projects`, `fieldVisits`, `companySettings` | `firestore.rules` |
-| P0 | Corregir `/machineryLogs` regla de ownership | `firestore.rules` |
-| P1 | Unificar rate limiting en Firestore o Vercel KV | `lib/security.ts`, `lib/rate-limit.ts`, `lib/apiMiddleware.ts` |
-| P1 | Implementar verificacion de App Check en rutas API | `app/api/**/route.ts` |
-| P1 | Arreglar `/api/account/delete-account` y `/api/account/my-data` | Ambas rutas |
-| P1 | Quitar HPKP header | `next.config.ts` |
-| P1 | Endurecer CSP (quitar `unsafe-inline`, `data:`) | `next.config.ts`, `lib/apiMiddleware.ts` |
-| P2 | Habilitar logger en produccion vía Sentry | `lib/logger.ts` |
-| P2 | Agregar `firebase-admin` y `verifyIdToken` | `lib/apiAuth.ts` |
-| P2 | Validar JSON de clima con Zod | `app/api/weather/safety-alerts/route.ts` |
-| P3 | Quitar `output: 'standalone'` para Vercel | `next.config.ts`, `scripts/build.mjs` |
-| P3 | Cambiar `engines.node` a `20.x` | `package.json` |
-| P3 | Unificar encabezados de seguridad | `vercel.json`, `next.config.ts` |
+| Prioridad | Accion                                                                     | Archivo(s)                                                     |
+| --------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| P0        | Revocar `GITHUB_TOKEN`, `VERCEL_OIDC_TOKEN`, `DEFAULT_AUTH_PASSWORD`       | Panel GitHub/Vercel                                            |
+| P0        | Eliminar credenciales de `.env.local`, `.env`, `.env.vercel*`              | Archivos locales                                               |
+| P0        | Agregar reglas Firestore para `projects`, `fieldVisits`, `companySettings` | `firestore.rules`                                              |
+| P0        | Corregir `/machineryLogs` regla de ownership                               | `firestore.rules`                                              |
+| P1        | Unificar rate limiting en Firestore o Vercel KV                            | `lib/security.ts`, `lib/rate-limit.ts`, `lib/apiMiddleware.ts` |
+| P1        | Implementar verificacion de App Check en rutas API                         | `app/api/**/route.ts`                                          |
+| P1        | Arreglar `/api/account/delete-account` y `/api/account/my-data`            | Ambas rutas                                                    |
+| P1        | Quitar HPKP header                                                         | `next.config.ts`                                               |
+| P1        | Endurecer CSP (quitar `unsafe-inline`, `data:`)                            | `next.config.ts`, `lib/apiMiddleware.ts`                       |
+| P2        | Habilitar logger en produccion vía Sentry                                  | `lib/logger.ts`                                                |
+| P2        | Agregar `firebase-admin` y `verifyIdToken`                                 | `lib/apiAuth.ts`                                               |
+| P2        | Validar JSON de clima con Zod                                              | `app/api/weather/safety-alerts/route.ts`                       |
+| P3        | Quitar `output: 'standalone'` para Vercel                                  | `next.config.ts`, `scripts/build.mjs`                          |
+| P3        | Cambiar `engines.node` a `20.x`                                            | `package.json`                                                 |
+| P3        | Unificar encabezados de seguridad                                          | `vercel.json`, `next.config.ts`                                |
 
 ---
 
@@ -349,6 +352,7 @@ Todas las correcciones han sido implementadas y verificadas:
 
 **Accion pendiente crítica (debe hacer el usuario):**
 Revocar inmediatamente los tokens que estuvieron expuestos en el repositorio:
+
 1. `GITHUB_TOKEN` en GitHub Settings > Developer settings > Personal access tokens
 2. `VERCEL_OIDC_TOKEN` en Vercel Dashboard
 3. `DEFAULT_AUTH_PASSWORD` (`AngelDarioJose.2026`) — cambiar en Vercel Dashboard

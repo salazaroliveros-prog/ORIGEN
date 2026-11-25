@@ -39,17 +39,23 @@ const nextConfig: NextConfig = {
             value: 'strict-origin-when-cross-origin',
           },
 
-          // Content Security Policy (no unsafe-inline, no data:)
+          // Content Security Policy
+          // 'unsafe-inline' en script-src y style-src es REQUERIDO: Next.js inyecta
+          // scripts de hidratación (__next_f) y CSS crítico en línea, y la app usa
+          // faked de estilos inline (recharts/motion) y <script> inline en layout.
+          // Sin estas directivas o un nonce, la hidratación y el PWA worker se rompen.
           {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              "script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://www.gstatic.com https://www.google.com https://apis.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; " +
-              "style-src 'self' https://fonts.googleapis.com; " +
-              "img-src 'self' https: blob:; " +
-              "font-src 'self' https://fonts.gstatic.com; " +
-              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com wss://*.firebaseio.com; " +
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://www.gstatic.com https://www.google.com https://apis.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; " +
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+              "img-src 'self' https: blob: data:; " +
+              "font-src 'self' https://fonts.gstatic.com data:; " +
+              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com wss://*.firebaseio.com blob: data:; " +
               "frame-src 'self' https://www.google.com https://accounts.google.com; " +
+              "worker-src 'self' blob:; " +
+              "manifest-src 'self'; " +
               "object-src 'none'; " +
               "base-uri 'self'; " +
               "form-action 'self'; " +
@@ -65,10 +71,10 @@ const nextConfig: NextConfig = {
               'ambient-light-sensor=(), ' +
               'autoplay=(), ' +
               'battery=(), ' +
-              'camera=(), ' +
+              'camera=(self), ' +
               'clipboard-read=(), ' +
-              'clipboard-write=(), ' +
-              'geolocation=(), ' +
+              'clipboard-write=(self), ' +
+              'geolocation=(self), ' +
               'gyroscope=(), ' +
               'magnetometer=(), ' +
               'microphone=(), ' +
@@ -138,7 +144,9 @@ const nextConfig: NextConfig = {
   // ============================================
 
   experimental: {
-    optimizePackageImports: ['lodash', 'date-fns'],
+    // Optimiza imports "barrel" de librerías con muchos exports (iconos, etc.)
+    // Solo se listan paquetes realmente instalados.
+    optimizePackageImports: ['lucide-react'],
   },
 };
 

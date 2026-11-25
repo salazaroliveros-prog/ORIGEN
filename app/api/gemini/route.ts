@@ -468,7 +468,8 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
           ? body.visitId.slice(0, 64)
           : 'fv-1';
       const foremanNameRaw = typeof body.foremanName === 'string' ? body.foremanName : '';
-      const foremanName = sanitizePromptInput(foremanNameRaw).slice(0, 120) || 'Don Mario Cifuentes';
+      const foremanName =
+        sanitizePromptInput(foremanNameRaw).slice(0, 120) || 'Don Mario Cifuentes';
       const questionRaw = typeof body.question === 'string' ? body.question : '';
       const question = sanitizePromptInput(questionRaw);
       const sanitizedQuestion = isNonEmptyString(question, MAX_TEXT_LENGTH)
@@ -478,18 +479,25 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
       const visitContext =
         rawContext && typeof rawContext === 'object' && !Array.isArray(rawContext)
           ? {
-              notes: typeof (rawContext as Record<string, unknown>).notes === 'string'
-                ? sanitizePromptInput((rawContext as Record<string, unknown>).notes).slice(0, MAX_TEXT_LENGTH)
-                : '',
-              weather: typeof (rawContext as Record<string, unknown>).weather === 'string'
-                ? sanitizePromptInput((rawContext as Record<string, unknown>).weather)
-                : 'Soleado',
-              workersCount: typeof (rawContext as Record<string, unknown>).workersCount === 'number'
-                ? (rawContext as Record<string, unknown>).workersCount
-                : 0,
-              status: typeof (rawContext as Record<string, unknown>).status === 'string'
-                ? sanitizePromptInput((rawContext as Record<string, unknown>).status)
-                : 'Autorizado',
+              notes:
+                typeof (rawContext as Record<string, unknown>).notes === 'string'
+                  ? sanitizePromptInput((rawContext as Record<string, unknown>).notes).slice(
+                      0,
+                      MAX_TEXT_LENGTH
+                    )
+                  : '',
+              weather:
+                typeof (rawContext as Record<string, unknown>).weather === 'string'
+                  ? sanitizePromptInput((rawContext as Record<string, unknown>).weather)
+                  : 'Soleado',
+              workersCount:
+                typeof (rawContext as Record<string, unknown>).workersCount === 'number'
+                  ? (rawContext as Record<string, unknown>).workersCount
+                  : 0,
+              status:
+                typeof (rawContext as Record<string, unknown>).status === 'string'
+                  ? sanitizePromptInput((rawContext as Record<string, unknown>).status)
+                  : 'Autorizado',
             }
           : null;
 

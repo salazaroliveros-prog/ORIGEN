@@ -37,7 +37,11 @@ export async function DELETE(req: NextRequest) {
       return createApiError(
         'Demasiados intentos de eliminación de cuenta. Inténtalo de nuevo después de 1 hora.',
         429,
-        { headers: { 'Retry-After': Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000).toString() } }
+        {
+          headers: {
+            'Retry-After': Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000).toString(),
+          },
+        }
       );
     }
 
