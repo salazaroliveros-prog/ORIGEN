@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   try {
     // Rate limiting
     const clientIp = getClientIp(req);
-    const rateLimitResponse = rateLimitMiddleware(`firebase-config:${clientIp}`);
+    const rateLimitResponse = await rateLimitMiddleware(`firebase-config:${clientIp}`);
     if (rateLimitResponse) return rateLimitResponse;
 
     if (!hasFirebaseRuntimeConfig()) {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('@/lib/security', () => ({
-  rateLimitMiddleware: vi.fn(() => null),
+  rateLimitMiddleware: vi.fn(() => Promise.resolve(null)),
   getClientIp: vi.fn(() => '127.0.0.1'),
 }));
 
@@ -15,12 +15,13 @@ vi.mock('@google/genai', () => ({
 
 vi.mock('@/lib/apiAuth', () => ({
   requireApiUser: vi.fn(),
+  requireAppCheck: vi.fn(),
 }));
 
 import type { NextRequest } from 'next/server';
 import { POST, GET } from './safety-alerts/route';
 import { rateLimitMiddleware } from '@/lib/security';
-import { requireApiUser } from '@/lib/apiAuth';
+import { requireApiUser, requireAppCheck } from '@/lib/apiAuth';
 
 const AUTH_OK = {
   ok: true as const,
@@ -32,7 +33,8 @@ describe('app/api/weather/safety-alerts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(requireApiUser).mockResolvedValue(AUTH_OK);
-    vi.mocked(rateLimitMiddleware).mockReturnValue(null);
+    vi.mocked(requireAppCheck).mockResolvedValue(null);
+    vi.mocked(rateLimitMiddleware).mockReturnValue(Promise.resolve(null));
   });
 
   afterEach(() => {
@@ -83,7 +85,7 @@ describe('app/api/weather/safety-alerts', () => {
 
     it('should apply rate limiting', async () => {
       const rateLimitResponse = new Response('Too many', { status: 429 }) as any;
-      vi.mocked(rateLimitMiddleware).mockReturnValue(rateLimitResponse);
+      vi.mocked(rateLimitMiddleware).mockReturnValue(Promise.resolve(rateLimitResponse));
 
       const req = new Request(
         'http://localhost/api/weather/safety-alerts?lat=14.6349&lng=-90.5069'

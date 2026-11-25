@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('@/lib/security', () => ({
-  rateLimitMiddleware: vi.fn(() => null),
+  rateLimitMiddleware: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@/lib/apiAuth', () => ({
   requireApiUser: vi.fn(),
   canReadDocumentAsUser: vi.fn(),
+  requireAppCheck: vi.fn(),
 }));
 
 vi.mock('@/lib/storageRest', () => ({
@@ -21,6 +22,7 @@ vi.mock('next/server', () => ({
     json: vi.fn((body: any, init?: any) => ({
       status: init?.status ?? 200,
       body,
+      headers: new Map(),
       json: async () => body,
     })),
   },
@@ -75,7 +77,7 @@ describe('app/api/upload-project-photo', () => {
     vi.stubEnv('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'test-bucket');
     vi.mocked(requireApiUser).mockResolvedValue(AUTH_OK);
     vi.mocked(canReadDocumentAsUser).mockResolvedValue('allowed');
-    vi.mocked(rateLimitMiddleware).mockReturnValue(null);
+    vi.mocked(rateLimitMiddleware).mockReturnValue(Promise.resolve(null));
     vi.mocked(uploadImageAsUser).mockResolvedValue(STORAGE_RESULT);
   });
 
@@ -98,7 +100,7 @@ describe('app/api/upload-project-photo', () => {
 
   it('should return 429 when rate limited', async () => {
     const rateLimitResponse = new Response('Too many', { status: 429 }) as any;
-    vi.mocked(rateLimitMiddleware).mockReturnValue(rateLimitResponse);
+    vi.mocked(rateLimitMiddleware).mockReturnValue(Promise.resolve(rateLimitResponse));
 
     const res = await POST(makeMockRequest(validForm()));
     expect(res.status).toBe(429);

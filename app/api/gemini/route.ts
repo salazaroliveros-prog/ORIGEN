@@ -14,15 +14,47 @@ import {
   MAX_TEXT_LENGTH,
 } from '@/lib/api';
 import { createRateLimitMiddleware, applySecurityHeaders } from '@/lib/apiMiddleware';
-import { requireApiUser } from '@/lib/apiAuth';
+import { requireApiUser, requireAppCheck } from '@/lib/apiAuth';
 import { buildRequestOrigins, isAllowedOriginValue } from '@/lib/originAllowlist';
 import { ValidationError, ExternalServiceError, createErrorResponse } from '@/lib/errors';
+
+/**
+ * Sanitiza entradas de usuario que se interpolarán en prompts de Gemini.
+ * Elimina patrones de prompt injection ("ignore previous instructions", etc.)
+ * y normaliza espacios para evitar fuga de instrucciones del sistema.
+ */
+function sanitizePromptInput(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  let cleaned = value.trim();
+  // Eliminar patrones de inyección de prompt
+  const injectionPatterns = [
+    /ignore\s+previous\s+instructions/gi,
+    /ignore\s+all\s+previous/gi,
+    /disregard\s+previous/gi,
+    /system\s*:\s*/gi,
+    /user\s*:\s*/gi,
+    /assistant\s*:\s*/gi,
+    /<system>/gi,
+    /<\/system>/gi,
+    /\\\\n\\\\nSystem/gi,
+    /prompt\s+injection/gi,
+    /jailbreak/gi,
+  ];
+  for (const pattern of injectionPatterns) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+  return cleaned.replace(/\s+/g, ' ').trim();
+}
 
 export async function POST(req: NextRequest) {
   try {
     // La IA consume cuota real de Gemini: exige sesión antes de cualquier llamada.
     const auth = await requireApiUser(req);
     if (!auth.ok) return applySecurityHeaders(jsonError(auth.message, auth.status));
+
+    // App Check (si está configurado)
+    const appCheckResponse = await requireAppCheck(req);
+    if (appCheckResponse) return applySecurityHeaders(appCheckResponse);
 
     // Rate limiting por usuario (una IP rotativa no debe multiplicar la cuota).
     const rateLimitMiddleware = createRateLimitMiddleware({
@@ -63,7 +95,7 @@ export async function POST(req: NextRequest) {
         : 100;
     const projectName =
       typeof body.projectName === 'string' && body.projectName.trim().length > 0
-        ? body.projectName.slice(0, 120)
+        ? sanitizePromptInput(body.projectName).slice(0, 120)
         : 'Proyecto';
     const rawBudgetItems = Array.isArray(body.budgetItems) ? body.budgetItems : [];
     const budgetItems = rawBudgetItems.filter(
@@ -94,7 +126,7 @@ export async function POST(req: NextRequest) {
 
     // 1. GENERATE APU
     if (action === 'generate_apu') {
-      const description = body.description;
+      const description = sanitizePromptInput(body.description);
       if (!isNonEmptyString(description, MAX_DESCRIPTION_LENGTH)) {
         return jsonError('La descripción del renglón es requerida (máximo 500 caracteres).', 400);
       }
@@ -435,17 +467,30 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
         typeof body.visitId === 'string' && body.visitId.trim()
           ? body.visitId.slice(0, 64)
           : 'fv-1';
-      const foremanName =
-        typeof body.foremanName === 'string' && body.foremanName.trim()
-          ? body.foremanName.slice(0, 120)
-          : 'Don Mario Cifuentes';
-      const question = isNonEmptyString(body.question, MAX_TEXT_LENGTH)
-        ? body.question
+      const foremanNameRaw = typeof body.foremanName === 'string' ? body.foremanName : '';
+      const foremanName = sanitizePromptInput(foremanNameRaw).slice(0, 120) || 'Don Mario Cifuentes';
+      const questionRaw = typeof body.question === 'string' ? body.question : '';
+      const question = sanitizePromptInput(questionRaw);
+      const sanitizedQuestion = isNonEmptyString(question, MAX_TEXT_LENGTH)
+        ? question
         : '¿Cuál es el progreso reportado por el capataz?';
       const rawContext = body.visitContext;
       const visitContext =
         rawContext && typeof rawContext === 'object' && !Array.isArray(rawContext)
-          ? (rawContext as Record<string, unknown>)
+          ? {
+              notes: typeof (rawContext as Record<string, unknown>).notes === 'string'
+                ? sanitizePromptInput((rawContext as Record<string, unknown>).notes).slice(0, MAX_TEXT_LENGTH)
+                : '',
+              weather: typeof (rawContext as Record<string, unknown>).weather === 'string'
+                ? sanitizePromptInput((rawContext as Record<string, unknown>).weather)
+                : 'Soleado',
+              workersCount: typeof (rawContext as Record<string, unknown>).workersCount === 'number'
+                ? (rawContext as Record<string, unknown>).workersCount
+                : 0,
+              status: typeof (rawContext as Record<string, unknown>).status === 'string'
+                ? sanitizePromptInput((rawContext as Record<string, unknown>).status)
+                : 'Autorizado',
+            }
           : null;
 
       if (apiKey && image) {
@@ -482,7 +527,7 @@ ${
 }
 
 PREGUNTA TÉCNICA DEL USUARIO:
-"${question}"
+"${sanitizedQuestion}"
 
 INSTRUCCIONES DE AUDITORÍA:
 1. Inspecciona la foto: detecta tanto texto manuscrito o impreso en la hoja de bitácora como la evidencia visual de la obra (armado de acero, fundición de concreto, colocación de encofrados, compactación, etc.).
@@ -616,8 +661,9 @@ INSTRUCCIONES DE AUDITORÍA:
 
     // 5. CHAT
     if (action === 'chat') {
-      const userMessage = isNonEmptyString(body.message, MAX_TEXT_LENGTH)
-        ? body.message
+      const userMessage = sanitizePromptInput(body.message);
+      const sanitizedMessage = isNonEmptyString(userMessage, MAX_TEXT_LENGTH)
+        ? userMessage
         : 'Consulta sobre presupuesto';
       if (apiKey) {
         try {

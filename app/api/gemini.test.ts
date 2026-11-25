@@ -33,11 +33,12 @@ vi.mock('@/lib/guatemalaMarketData', () => ({
 // Mock de autenticación: las rutas de IA exigen sesión.
 vi.mock('@/lib/apiAuth', () => ({
   requireApiUser: vi.fn(),
+  requireAppCheck: vi.fn(),
 }));
 
 import { POST } from './gemini/route';
 import { createRateLimitMiddleware } from '@/lib/apiMiddleware';
-import { requireApiUser } from '@/lib/apiAuth';
+import { requireApiUser, requireAppCheck } from '@/lib/apiAuth';
 
 const AUTH_OK = {
   ok: true as const,
@@ -49,6 +50,7 @@ describe('app/api/gemini', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(requireApiUser).mockResolvedValue(AUTH_OK);
+    vi.mocked(requireAppCheck).mockResolvedValue(null);
     mockRateLimitMiddleware.mockResolvedValue(null);
     vi.mocked(createRateLimitMiddleware).mockReturnValue(mockRateLimitMiddleware);
   });

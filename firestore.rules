@@ -1,20 +1,27 @@
 // ✅ FIRESTORE SECURITY RULES - ORIGEN ERP GUATEMALA
 // Implementa: Autenticación, Autorización, Rate Limiting, Validación
+// Todas las colecciones usan nombres en inglés (coherentes con lib/firebaseService.ts)
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // ✅ Funcion: Validar autenticación
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    // ✅ Funcion: Validar propietario del documento
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+
+    // ✅ Funcion: Validar propietario del documento por uid
+    function isOwner(uid) {
+      return request.auth.uid == uid;
     }
-    
+
+    // ✅ Funcion: Validar que el usuario pertenece a una empresa (miembro)
+    function isCompanyMember(companyId) {
+      return request.auth != null
+        && firestore.exists(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid));
+    }
+
     // ✅ Funcion: Rate limiting (10 writes/min por usuario)
     function userWritesInLastMinute() {
       return firestore.query(query(
@@ -23,109 +30,140 @@ service cloud.firestore {
         where('timestamp', '>', now - duration.value(60, 's'))
       )).size() < 10;
     }
-    
-    // ✅ Funcion: Validar estructura de documento
+
+    // ✅ Funcion: Validar estructura de proyecto
     function isValidProject() {
-      return request.resource.data.keys().hasAll(['name', 'userId', 'createdAt']) &&
+      return request.resource.data.keys().hasAll(['name', 'userId', 'createdAt', 'companyId']) &&
              request.resource.data.name is string &&
              request.resource.data.name.size() > 0 &&
              request.resource.data.name.size() < 200 &&
-             request.resource.data.userId == request.auth.uid;
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.companyId is string &&
+             request.resource.data.companyId.size() > 0;
     }
-    
-    // ✅ PROYECTOS
-    match /proyectos/{projectId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && 
-                       isValidProject() && 
-                       userWritesInLastMinute();
+
+    // ========================================================================
+    // PROYECTOS (colección: projects)
+    // ========================================================================
+    match /projects/{projectId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy) || isCompanyMember(resource.data.companyId));
+      allow create: if isAuthenticated() && isValidProject() && userWritesInLastMinute();
       allow update: if isAuthenticated() && 
-                       isOwner(resource.data.userId) && 
+                       (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy)) && 
                        userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-      
-      // ✅ Sub-colecciones de proyectos
-      match /{document=**} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated() && userWritesInLastMinute();
+      allow delete: if isAuthenticated() && (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy));
+
+      // Sub-colección: fotos de proyecto
+      match /photos/{photoId} {
+        allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+        allow create: if isAuthenticated() && isCompanyMember(resource.data.companyId) && userWritesInLastMinute();
+        allow update: if isAuthenticated() && isOwner(resource.data.uploadedBy);
+        allow delete: if isAuthenticated() && isOwner(resource.data.uploadedBy);
       }
     }
-    
-    // ✅ APU (Análisis de Precios Unitarios)
-    match /apu/{apuId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && userWritesInLastMinute();
-      allow update: if isAuthenticated() && 
-                       isOwner(resource.data.userId) && 
-                       userWritesInLastMinute();
+
+    // ========================================================================
+    // APU (Análisis de Precios Unitarios) - colección: apuItems
+    // ========================================================================
+    match /apuItems/{apuId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
+      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    }
+
+    // ========================================================================
+    // GASTOS (colección: expenses)
+    // ========================================================================
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.authorId) && userWritesInLastMinute();
+      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
+    }
+
+    // ========================================================================
+    // PERSONAL / EMPLEADOS (colección: employees)
+    // ========================================================================
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
+      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    }
+
+    // ========================================================================
+    // MAQUINARIA (colección: machinery)
+    // ========================================================================
+    match /machinery/{machineryId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
-    
-    // ✅ GASTOS
-    match /gastos/{gastoId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && userWritesInLastMinute();
-      allow update: if isAuthenticated() && 
-                       isOwner(resource.data.userId) && 
-                       userWritesInLastMinute();
+
+    // ========================================================================
+    // BITÁCORAS DE MAQUINARIA (colección: machineryLogs)
+    // Valida empresa + usuario, no machineryId como dueño
+    // ========================================================================
+    match /machineryLogs/{logId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
-    
-    // ✅ PERSONAL
-    match /personal/{personalId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && userWritesInLastMinute();
-      allow update: if isAuthenticated() && 
-                       isOwner(resource.data.userId) && 
-                       userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+
+    // ========================================================================
+    // VISITAS DE CAMPO (colección: fieldVisits)
+    // ========================================================================
+    match /fieldVisits/{visitId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.authorId) && userWritesInLastMinute();
+      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
     }
-    
-    // ✅ COTIZACIONES
-    match /cotizaciones/{cotizacionId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && userWritesInLastMinute();
-      allow update: if isAuthenticated() && 
-                       isOwner(resource.data.userId) && 
-                       userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+
+    // ========================================================================
+    // COTIZACIONES (colección: quotes)
+    // ========================================================================
+    match /quotes/{quoteId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
+      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
     }
-    
-    // ✅ MAQUINARIA
-    match /maquinaria/{maquinariaId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && userWritesInLastMinute();
-      allow update: if isAuthenticated() && 
-                       isOwner(resource.data.userId) && 
-                       userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+
+    // ========================================================================
+    // ASISTENCIA (colección: attendance)
+    // ========================================================================
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.authorId) && userWritesInLastMinute();
+      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
     }
-    
-    // ✅ ASISTENCIA
-    match /asistencia/{asistenciaId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && userWritesInLastMinute();
-      allow update: if isAuthenticated() && 
-                       isOwner(resource.data.userId) && 
-                       userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-    }
-    
-    // ✅ USERS
+
+    // ========================================================================
+    // USERS
+    // ========================================================================
     match /users/{userId} {
       allow read: if isAuthenticated() && isOwner(userId);
       allow create: if isAuthenticated() && isOwner(userId);
       allow update: if isAuthenticated() && isOwner(userId);
       allow delete: if isAuthenticated() && isOwner(userId);
     }
-    
-    // ✅ AUDIT LOGS (Solo lectura interna)
+
+    // ========================================================================
+    // AUDIT LOGS (Solo lectura interna)
+    // ========================================================================
     match /_audit_logs/{auditId} {
-      allow read: if false; // Admin solo
-      allow write: if false; // Admin solo
+      allow read: if false;
+      allow write: if false;
     }
-    
-    // ✅ EMPRESAS y MEMEBRÍAS
+
+    // ========================================================================
+    // EMPRESAS y MEMBRESÍAS
+    // ========================================================================
     match /companies/{companyId} {
       allow read: if isAuthenticated() && isOwner(resource.data.ownerId);
       allow create: if isAuthenticated() && isOwner(request.auth.uid);
@@ -134,117 +172,95 @@ service cloud.firestore {
     }
 
     match /companies/{companyId}/members/{memberId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.uid);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.uid);
-      allow delete: if isAuthenticated() && isOwner(resource.data.uid);
+      allow read: if isAuthenticated() && isCompanyMember(companyId);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid) && isCompanyMember(companyId);
+      allow update: if isAuthenticated() && isCompanyMember(companyId);
+      allow delete: if isAuthenticated() && isCompanyMember(companyId);
     }
 
-    // ✅ PROVEEDORES
+    // ========================================================================
+    // CONFIGURACIÓN DE EMPRESA (colección: companySettings)
+    // ========================================================================
+    match /companySettings/{settingsId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.ownerId);
+      allow create: if isAuthenticated() && isOwner(request.auth.uid) && request.auth.uid == settingsId;
+      allow update: if isAuthenticated() && isOwner(resource.data.ownerId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.ownerId);
+    }
+
+    // ========================================================================
+    // PROVEEDORES (colección: suppliers)
+    // ========================================================================
     match /suppliers/{supplierId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
 
-    // ✅ BODEGAS
+    // ========================================================================
+    // BODEGAS (colección: warehouses)
+    // ========================================================================
     match /warehouses/{warehouseId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
 
-    // ✅ ARTÍCULOS DE INVENTARIO
+    // ========================================================================
+    // ARTÍCULOS DE INVENTARIO (colección: inventoryItems)
+    // ========================================================================
     match /inventoryItems/{itemId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
 
-    // ✅ MOVIMIENTOS DE INVENTARIO (solo transacciones autorizadas por la lógica de negocio)
+    // ========================================================================
+    // MOVIMIENTOS DE INVENTARIO (colección: stockMovements)
+    // ========================================================================
     match /stockMovements/{movementId} {
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
       allow write: if false; // Se controla vía transacciones en el servicio
     }
 
-    // ✅ SALDOS DE INVENTARIO
+    // ========================================================================
+    // SALDOS DE INVENTARIO (colección: inventoryBalances)
+    // ========================================================================
     match /inventoryBalances/{balanceId} {
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
       allow write: if false; // Se controla vía transacciones en el servicio
     }
 
-    // ✅ ÓRDENES DE COMPRA
+    // ========================================================================
+    // ÓRDENES DE COMPRA (colección: purchaseOrders)
+    // ========================================================================
     match /purchaseOrders/{orderId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.requestedBy);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.requestedBy);
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.auth.uid) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.requestedBy) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.requestedBy);
     }
 
-    // ✅ SUBCONTRATOS
+    // ========================================================================
+    // SUBCONTRATOS (colección: subcontracts)
+    // ========================================================================
     match /subcontracts/{contractId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.createdBy);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.auth.uid) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
     }
 
-    // ✅ GASTOS
-    match /expenses/{expenseId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.authorId);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.authorId);
-      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
-    }
-
-    // ✅ ASISTENCIA
-    match /attendance/{attendanceId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.authorId);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.authorId);
-      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
-    }
-
-    // ✅ EMPLEADOS
-    match /employees/{employeeId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.createdBy);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.createdBy);
-      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
-    }
-
-    // ✅ MAQUINARIA
-    match /machinery/{machineryId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update: if isAuthenticated() && isOwner(resource.data.userId);
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-    }
-
-    // ✅ BITÁCORAS DE MAQUINARIA
-    match /machineryLogs/{logId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.machineryId);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.machineryId);
-      allow delete: if isAuthenticated() && isOwner(resource.data.machineryId);
-    }
-
-    // ✅ COTIZACIONES
-    match /quotes/{quoteId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.createdBy);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.createdBy);
-      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
-    }
-
-    // ✅ PAGOS DE SUBCONTRATO
+    // ========================================================================
+    // PAGOS DE SUBCONTRATO (colección: subcontractPayments)
+    // ========================================================================
     match /subcontractPayments/{paymentId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.contractId);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.contractId);
+      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
+      allow create: if isAuthenticated() && isCompanyMember(request.auth.uid) && userWritesInLastMinute();
+      allow update: if isAuthenticated() && isOwner(resource.data.contractId) && userWritesInLastMinute();
       allow delete: if isAuthenticated() && isOwner(resource.data.contractId);
     }
 

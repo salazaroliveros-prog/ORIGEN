@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 
 const nextConfig: NextConfig = {
   // ============================================
-  // SECURITY: TLS/SSL Certificate Pinning
+  // SECURITY HEADERS
   // ============================================
 
   headers: async () => {
@@ -15,39 +15,12 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
-          // ========== CERTIFICATE PINNING ==========
-          // Public Key Pinning Extension (HPKP)
-          // Prevents MITM attacks even if CA is compromised
-
-          {
-            key: 'Public-Key-Pins',
-            value:
-              'pin-sha256="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; ' +
-              'pin-sha256="BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="; ' +
-              'pin-sha256="CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="; ' +
-              'max-age=31536000; ' +
-              'includeSubDomains; ' +
-              'report-uri="https://origen-erp.vercel.app/api/security/hpkp-report"',
-          },
-
           // HTTP Strict Transport Security (HSTS)
-          // - max-age: 2 years (31536000 seconds)
-          // - preload: Include in browser preload list
-          // - includeSubDomains: Apply to all subdomains
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains; preload',
           },
 
-          // ========== CERTIFICATE TRANSPARENCY ==========
-          // Expect-CT: Requires Certificate Transparency logs
-          {
-            key: 'Expect-CT',
-            value:
-              'max-age=31536000, enforce, report-uri="https://origen-erp.vercel.app/api/security/ct-report"',
-          },
-
-          // ========== MITM PREVENTION ==========
           // X-Frame-Options: Prevent clickjacking
           {
             key: 'X-Frame-Options',
@@ -60,60 +33,28 @@ const nextConfig: NextConfig = {
             value: 'nosniff',
           },
 
-          // X-XSS-Protection: Legacy XSS protection
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block; report=https://origen-erp.vercel.app/api/security/xss-report',
-          },
-
           // Referrer-Policy: Control referrer information
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
 
-          // ========== CSP WITH CERTIFICATE PINNING ==========
+          // Content Security Policy (no unsafe-inline, no data:)
           {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; " +
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-              "img-src 'self' data: https: blob:; " +
+              "script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://www.gstatic.com https://www.google.com https://apis.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; " +
+              "style-src 'self' https://fonts.googleapis.com; " +
+              "img-src 'self' https: blob:; " +
               "font-src 'self' https://fonts.gstatic.com; " +
-              "connect-src 'self' https://www.google-analytics.com https://*.firebaseio.com https://firestore.googleapis.com; " +
-              "frame-ancestors 'none'; " +
-              "form-action 'self'; " +
+              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com wss://*.firebaseio.com; " +
+              "frame-src 'self' https://www.google.com https://accounts.google.com; " +
+              "object-src 'none'; " +
               "base-uri 'self'; " +
+              "form-action 'self'; " +
               'upgrade-insecure-requests; ' +
               'block-all-mixed-content;',
-          },
-
-          // ========== CERTIFICATE TRANSPARENCY ==========
-          // Require Certificate Transparency logs for all certificates
-          {
-            key: 'X-CT-Required',
-            value: 'true',
-          },
-
-          // ========== CERTIFICATE INFORMATION ==========
-          // Custom header with certificate info (for monitoring)
-          {
-            key: 'X-Certificate-Pinned',
-            value: 'true',
-          },
-
-          // ========== ADDITIONAL SECURITY ==========
-          // X-DNS-Prefetch-Control: Disable DNS prefetch
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'off',
-          },
-
-          // X-Permitted-Cross-Domain-Policies
-          {
-            key: 'X-Permitted-Cross-Domain-Policies',
-            value: 'none',
           },
 
           // Permissions-Policy (formerly Feature-Policy)
@@ -136,28 +77,17 @@ const nextConfig: NextConfig = {
               'vr=(), ' +
               'xr-spatial-tracking=()',
           },
-        ],
-      },
 
-      // API security headers
-      {
-        source: '/api/:path*',
-        headers: [
+          // X-DNS-Prefetch-Control
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: 'X-DNS-Prefetch-Control',
+            value: 'off',
           },
+
+          // X-Permitted-Cross-Domain-Policies
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-API-Version',
-            value: '1.0',
-          },
-          {
-            key: 'X-RateLimit-Limit',
-            value: '1000',
+            key: 'X-Permitted-Cross-Domain-Policies',
+            value: 'none',
           },
         ],
       },
@@ -169,7 +99,6 @@ const nextConfig: NextConfig = {
   // ============================================
 
   outputFileTracingRoot: __dirname,
-  output: 'standalone',
 
   compress: true,
   poweredByHeader: false,

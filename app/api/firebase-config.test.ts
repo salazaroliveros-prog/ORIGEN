@@ -6,7 +6,7 @@ vi.mock('@/lib/config', () => ({
 }));
 
 vi.mock('@/lib/security', () => ({
-  rateLimitMiddleware: vi.fn(() => null),
+  rateLimitMiddleware: vi.fn(() => Promise.resolve(null)),
   getClientIp: vi.fn(() => '127.0.0.1'),
 }));
 
@@ -18,7 +18,7 @@ describe('app/api/firebase-config', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(hasFirebaseRuntimeConfig).mockReturnValue(true);
-    vi.mocked(rateLimitMiddleware).mockReturnValue(null);
+    vi.mocked(rateLimitMiddleware).mockReturnValue(Promise.resolve(null));
     vi.mocked(getClientIp).mockReturnValue('127.0.0.1');
   });
 
@@ -40,7 +40,7 @@ describe('app/api/firebase-config', () => {
     });
 
     const req = new Request('http://localhost/api/firebase-config.js');
-    const res = await GET(req);
+    const res = (await GET(req))!;
     const text = await res.text();
 
     expect(res.status).toBe(200);
@@ -55,7 +55,7 @@ describe('app/api/firebase-config', () => {
     vi.mocked(hasFirebaseRuntimeConfig).mockReturnValue(false);
 
     const req = new Request('http://localhost/api/firebase-config.js');
-    const res = await GET(req);
+    const res = (await GET(req))!;
     const text = await res.text();
 
     expect(res.status).toBe(500);
@@ -64,10 +64,10 @@ describe('app/api/firebase-config', () => {
 
   it('should return 429 when rate limited', async () => {
     const rateLimitResponse = new Response('Too many requests', { status: 429 }) as any;
-    vi.mocked(rateLimitMiddleware).mockReturnValue(rateLimitResponse);
+    vi.mocked(rateLimitMiddleware).mockReturnValue(Promise.resolve(rateLimitResponse));
 
     const req = new Request('http://localhost/api/firebase-config.js');
-    const res = await GET(req);
+    const res = (await GET(req))!;
 
     expect(res.status).toBe(429);
   });
@@ -78,7 +78,7 @@ describe('app/api/firebase-config', () => {
     });
 
     const req = new Request('http://localhost/api/firebase-config.js');
-    const res = await GET(req);
+    const res = (await GET(req))!;
     const text = await res.text();
 
     expect(res.status).toBe(500);

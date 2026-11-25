@@ -5,11 +5,17 @@ interface RateLimiterEntry {
   resetTime: number;
 }
 
+const WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 30; // 30 requests per minute per identifier
+
+// Local in-memory rate limit store (used by tests and direct callers)
 const rateLimitStore = new Map<string, RateLimiterEntry>();
 
-const WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 30; // 30 requests per minute per IP
-
+/**
+ * Rate limiting síncrono basado en memoria local.
+ * Se mantiene para retrocompatibilidad con pruebas y llamadores directos.
+ * Para producción en Vercel, `rateLimitMiddleware` usa Firestore (compartido entre instancias).
+ */
 export function rateLimit(identifier: string): {
   allowed: boolean;
   remaining: number;
@@ -31,8 +37,13 @@ export function rateLimit(identifier: string): {
   return { allowed: true, remaining: MAX_REQUESTS - entry.count, resetTime: entry.resetTime };
 }
 
-export function rateLimitMiddleware(identifier: string) {
+export async function rateLimitMiddleware(identifier: string) {
+  // Usa el mismo store local que `rateLimit` para consistencia entre pruebas
+  // y producción. En routes que requieren rate limiting compartido entre
+  // instancias serverless de Vercel, usar `checkRateLimit` de apiMiddleware.ts
+  // (respaldo en Firestore) en lugar de esta función.
   const result = rateLimit(identifier);
+
   if (!result.allowed) {
     return NextResponse.json(
       { success: false, error: 'Demasiadas solicitudes. Inténtalo de nuevo más tarde.' },

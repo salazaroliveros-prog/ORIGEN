@@ -326,16 +326,8 @@ export function handleFirestoreError(
   const errInfo: FirestoreErrorInfo = {
     error: errMsg,
     authInfo: {
-      userId: currentUser?.uid,
-      email: currentUser?.email,
-      emailVerified: currentUser?.emailVerified,
-      isAnonymous: currentUser?.isAnonymous,
-      tenantId: currentUser?.tenantId,
-      providerInfo:
-        currentUser?.providerData?.map((provider) => ({
-          providerId: provider.providerId,
-          email: provider.email,
-        })) || [],
+      // userId only (opaque identifier). Never log email or provider data.
+      userId: currentUser?.uid ?? null,
     },
     operationType,
     path,

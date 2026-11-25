@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit as checkRateLimitFirestore } from './apiMiddleware';
 
 /**
- * ✅ RATE LIMITING (Local Memory Fallback)
+ * ✅ RATE LIMITING (Firestore-backed, compartido entre instancias serverless)
  *
  * Configuración:
  * - 100 requests/min por IP global
  * - 50 requests/min por usuario autenticado
  * - 10 requests/min por endpoint crítico (/api/account/delete)
  *
- * Nota: Usa @vercel/kv en producción, fallback a memoria en desarrollo
+ * Usa Firestore como store compartido. Ya no depende de memoria local.
  */
-
-// Local in-memory rate limit store (development fallback)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 interface RateLimitConfig {
   limit: number;
@@ -25,56 +23,26 @@ export async function checkRateLimit(
   config: RateLimitConfig
 ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
   try {
-    // Obtener IP del cliente
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-
     const key = `rate-limit:${config.key}:${ip}`;
-    const now = Date.now();
+    const windowMs = config.window * 1000;
 
-    // Local implementation
-    let record = rateLimitStore.get(key);
-
-    // Check if expired
-    if (record && record.resetTime < now) {
-      rateLimitStore.delete(key);
-      record = undefined;
-    }
-
-    // Create or increment
-    if (!record) {
-      record = {
-        count: 1,
-        resetTime: now + config.window * 1000,
-      };
-    } else {
-      record.count++;
-    }
-
-    rateLimitStore.set(key, record);
-
-    const remaining = Math.max(0, config.limit - record.count);
-    const resetTime = record.resetTime;
-
-    // Si excedió límite
-    if (record.count > config.limit) {
-      return {
-        allowed: false,
-        remaining: 0,
-        resetTime,
-      };
-    }
+    const result = await checkRateLimitFirestore(key, {
+      windowMs,
+      maxRequests: config.limit,
+      keyPrefix: '', // key ya incluye el prefijo
+    });
 
     return {
-      allowed: true,
-      remaining,
-      resetTime,
+      allowed: result.allowed,
+      remaining: result.remaining,
+      resetTime: result.resetTime,
     };
   } catch (error) {
-    // Si la verificación falla, permitir (fallback seguro)
     console.error('Rate limit check failed:', error);
     return {
       allowed: true,
-      remaining: -1, // -1 indica que no fue verificado
+      remaining: -1,
       resetTime: 0,
     };
   }
@@ -108,6 +76,5 @@ export async function rateLimitMiddleware(
     );
   }
 
-  // Continuamos con la solicitud
   return null;
 }

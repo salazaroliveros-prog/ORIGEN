@@ -1,23 +1,39 @@
 import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { jsonError } from '@/lib/api';
-import { requireApiUser } from '@/lib/apiAuth';
+import { requireApiUser, requireAppCheck } from '@/lib/apiAuth';
 import { rateLimitMiddleware } from '@/lib/security';
+import { isAllowedOriginValue, buildRequestOrigins } from '@/lib/originAllowlist';
+import { createApiError, applySecurityHeaders } from '@/lib/apiMiddleware';
 
-interface WeatherPayload {
-  temperatureC: number;
-  condition: string;
-  humidity: number;
-  windSpeedKmH: number;
-  rainChancePercent: number;
-  safetyStatus: string;
-  alerts: string[];
-  recommendations: string[];
-}
+const WeatherPayloadSchema = z.object({
+  temperatureC: z.number(),
+  condition: z.enum([
+    'Soleado',
+    'Nublado',
+    'Lluvia Moderada',
+    'Tormenta Eléctrica',
+    'Vientos Fuertes',
+  ]),
+  humidity: z.number().min(0).max(100),
+  windSpeedKmH: z.number().min(0),
+  rainChancePercent: z.number().min(0).max(100),
+  safetyStatus: z.enum([
+    'Seguro para Trabajos',
+    'Precaución por Viento',
+    'Suspender Trabajo en Alturas',
+    'Alerta de Lluvia',
+  ]),
+  alerts: z.array(z.string()),
+  recommendations: z.array(z.string()),
+});
+
+type WeatherPayload = z.infer<typeof WeatherPayloadSchema>;
 
 const FALLBACK_WEATHER: WeatherPayload = {
   temperatureC: 23,
-  condition: 'Parcialmente Nublado',
+  condition: 'Nublado',
   humidity: 65,
   windSpeedKmH: 14,
   rainChancePercent: 20,
@@ -85,14 +101,42 @@ Devuelve únicamente el JSON válido sin texto extra.`;
     .replace(/```json/g, '')
     .replace(/```/g, '')
     .trim();
-  const parsed = JSON.parse(cleanJson) as WeatherPayload;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleanJson);
+  } catch {
+    return NextResponse.json({
+      success: true,
+      source: 'fallback',
+      degraded: true,
+      weather: FALLBACK_WEATHER,
+      alerts: FALLBACK_WEATHER.alerts,
+      recommendations: FALLBACK_WEATHER.recommendations,
+    });
+  }
+
+  // Validar con Zod: rechazar estructura inesperada
+  const validated = WeatherPayloadSchema.safeParse(parsed);
+  if (!validated.success) {
+    return NextResponse.json({
+      success: true,
+      source: 'fallback',
+      degraded: true,
+      weather: FALLBACK_WEATHER,
+      alerts: FALLBACK_WEATHER.alerts,
+      recommendations: FALLBACK_WEATHER.recommendations,
+    });
+  }
+
+  const weather = validated.data as WeatherPayload;
 
   return NextResponse.json({
     success: true,
     source: 'gemini-ai',
-    weather: parsed,
-    alerts: Array.isArray(parsed.alerts) ? parsed.alerts : [],
-    recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+    weather,
+    alerts: weather.alerts,
+    recommendations: weather.recommendations,
   });
 }
 
@@ -118,74 +162,116 @@ function extractParams(input: Record<string, unknown>) {
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await requireApiUser(req);
-    if (!auth.ok) return jsonError(auth.message, auth.status);
+    // CSRF: verificar origen
+    const origin = req.headers.get('origin');
+    const requestOrigins = buildRequestOrigins({
+      requestUrl: req.url,
+      host: req.headers.get('x-forwarded-host') ?? req.headers.get('host'),
+      protocol: req.headers.get('x-forwarded-proto'),
+    });
+    if (origin && !isAllowedOriginValue(origin, requestOrigins)) {
+      return createApiError('Origen no autorizado.', 403);
+    }
 
-    // El POST también consulta a Gemini: antes no tenía ningún límite de cuota.
-    const rateLimitResponse = rateLimitMiddleware(`weather:${auth.user.uid}`);
-    if (rateLimitResponse) return rateLimitResponse;
+    const auth = await requireApiUser(req);
+    if (!auth.ok) {
+      return createApiError(auth.message, auth.status);
+    }
+
+    // App Check
+    const appCheckResponse = await requireAppCheck(req);
+    if (appCheckResponse) {
+      return applySecurityHeaders(appCheckResponse);
+    }
+
+    // Rate limiting por usuario
+    const rateLimitResponse = await rateLimitMiddleware(`weather:${auth.user.uid}`);
+    if (rateLimitResponse) {
+      return applySecurityHeaders(rateLimitResponse);
+    }
 
     let body: unknown;
     try {
       body = await req.json();
     } catch {
-      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
+      return createApiError('Solicitud inválida: se esperaba un objeto JSON.', 400);
     }
 
     if (body === null || typeof body !== 'object' || Array.isArray(body)) {
-      return jsonError('Solicitud inválida: se esperaba un objeto JSON.', 400);
+      return createApiError('Solicitud inválida: se esperaba un objeto JSON.', 400);
     }
 
     const params = extractParams(body as Record<string, unknown>);
     if (!params) {
-      return jsonError('Coordenadas inválidas: verifique latitud y longitud.', 400);
+      return createApiError('Coordenadas inválidas: verifique latitud y longitud.', 400);
     }
 
-    return await buildResponse(params);
+    const response = await buildResponse(params);
+    return applySecurityHeaders(response);
   } catch (error: unknown) {
     console.error('Weather safety alerts route error:', error);
-    return NextResponse.json({
-      success: true,
-      source: 'fallback',
-      degraded: true,
-      weather: FALLBACK_WEATHER,
-      alerts: FALLBACK_WEATHER.alerts,
-      recommendations: FALLBACK_WEATHER.recommendations,
-    });
+    return applySecurityHeaders(
+      NextResponse.json({
+        success: true,
+        source: 'fallback',
+        degraded: true,
+        weather: FALLBACK_WEATHER,
+        alerts: FALLBACK_WEATHER.alerts,
+        recommendations: FALLBACK_WEATHER.recommendations,
+      })
+    );
   }
 }
 
 export async function GET(req: NextRequest) {
-  const auth = await requireApiUser(req);
-  if (!auth.ok) return jsonError(auth.message, auth.status);
-
-  // Rate limiting por usuario: la consulta puede invocar a Gemini.
-  const rateLimitResponse = rateLimitMiddleware(`weather:${auth.user.uid}`);
-  if (rateLimitResponse) return rateLimitResponse;
-
-  const { searchParams } = new URL(req.url);
-  const params = extractParams({
-    lat: searchParams.get('lat'),
-    lng: searchParams.get('lng'),
-    projectName: searchParams.get('projectName'),
-    municipality: searchParams.get('municipality'),
-  });
-
-  if (!params) {
-    return jsonError('Coordenadas inválidas: verifique latitud y longitud.', 400);
-  }
-
   try {
-    return await buildResponse(params);
+    // CSRF: verificar origen (GET también puede ser usado para CSRF en algunos escenarios)
+    const origin = req.headers.get('origin');
+    const requestOrigins = buildRequestOrigins({
+      requestUrl: req.url,
+      host: req.headers.get('x-forwarded-host') ?? req.headers.get('host'),
+      protocol: req.headers.get('x-forwarded-proto'),
+    });
+    if (origin && !isAllowedOriginValue(origin, requestOrigins)) {
+      return createApiError('Origen no autorizado.', 403);
+    }
+
+    const auth = await requireApiUser(req);
+    if (!auth.ok) {
+      return createApiError(auth.message, auth.status);
+    }
+
+    // Rate limiting por usuario
+    const rateLimitResponse = await rateLimitMiddleware(`weather:${auth.user.uid}`);
+    if (rateLimitResponse) {
+      return applySecurityHeaders(rateLimitResponse);
+    }
+
+    const { searchParams } = new URL(req.url);
+    const params = extractParams({
+      lat: searchParams.get('lat'),
+      lng: searchParams.get('lng'),
+      projectName: searchParams.get('projectName'),
+      municipality: searchParams.get('municipality'),
+    });
+
+    if (!params) {
+      return createApiError('Coordenadas inválidas: verifique latitud y longitud.', 400);
+    }
+
+    const response = await buildResponse(params);
+    return applySecurityHeaders(response);
   } catch (error: unknown) {
     console.error('Weather safety alerts route error:', error);
-    return NextResponse.json({
-      success: true,
-      source: 'fallback',
-      degraded: true,
-      weather: FALLBACK_WEATHER,
-      alerts: FALLBACK_WEATHER.alerts,
-      recommendations: FALLBACK_WEATHER.recommendations,
-    });
+    return applySecurityHeaders(
+      NextResponse.json({
+        success: true,
+        source: 'fallback',
+        degraded: true,
+        weather: FALLBACK_WEATHER,
+        alerts: FALLBACK_WEATHER.alerts,
+        recommendations: FALLBACK_WEATHER.recommendations,
+      })
+    );
   }
 }

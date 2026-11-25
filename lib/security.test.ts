@@ -66,16 +66,16 @@ describe('lib/security', () => {
   });
 
   describe('rateLimitMiddleware', () => {
-    it('should return null when allowed', () => {
-      const result = rateLimitMiddleware('ip-1');
+    it('should return null when allowed', async () => {
+      const result = await rateLimitMiddleware('ip-1');
       expect(result).toBeNull();
     });
 
-    it('should return 429 response when blocked', () => {
+    it('should return 429 response when blocked', async () => {
       for (let i = 0; i < 30; i++) {
         rateLimit('ip-blocked');
       }
-      const result = rateLimitMiddleware('ip-blocked');
+      const result = await rateLimitMiddleware('ip-blocked');
       expect(result).not.toBeNull();
       expect(result!.status).toBe(429);
       expect(NextResponse.json).toHaveBeenCalledWith(

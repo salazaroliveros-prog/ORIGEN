@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
 import {
   collection,
   getDocs,
@@ -8,17 +7,10 @@ import {
   QueryDocumentSnapshot,
   DocumentData,
 } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { checkRateLimit } from '@/lib/rate-limit';
-
-/**
- * ✅ API ENDPOINT: GET /api/account/my-data
- *
- * Derechos ARCO:
- * - Acceso: Exportar todos mis datos en JSON
- * - Usado para: GDPR Data Portability + Compliance
- *
- * Rate Limit: 50 requests/min por usuario
- */
+import { requireApiUser } from '@/lib/apiAuth';
+import { createApiError, createApiResponse, applySecurityHeaders } from '@/lib/apiMiddleware';
 
 interface UserDataExport {
   exportedAt: string;
@@ -27,9 +19,19 @@ interface UserDataExport {
   collections: Record<string, unknown[]>;
 }
 
+/**
+ * API ENDPOINT: GET /api/account/my-data
+ *
+ * Derechos ARCO:
+ * - Acceso: Exportar todos mis datos en JSON
+ * - Usado para: GDPR Data Portability + Compliance
+ *
+ * Rate Limit: 50 requests/min por usuario
+ */
+
 export async function GET(req: NextRequest) {
   try {
-    // ✅ Rate Limiting: 50 req/min por usuario
+    // Rate Limiting: 50 req/min por usuario
     const rateLimitCheck = await checkRateLimit(req, {
       limit: 50,
       window: 60,
@@ -37,10 +39,10 @@ export async function GET(req: NextRequest) {
     });
 
     if (!rateLimitCheck.allowed) {
-      return NextResponse.json(
-        { error: 'Too many data export requests. Try again later.' },
+      return createApiError(
+        'Demasiadas solicitudes de exportación de datos. Inténtalo de nuevo más tarde.',
+        429,
         {
-          status: 429,
           headers: {
             'Retry-After': Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000).toString(),
           },
@@ -48,62 +50,54 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // ✅ Autenticación requerida
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Autenticación requerida con Firebase ID token verificado
+    const auth = await requireApiUser(req);
+    if (!auth.ok) {
+      return createApiError(auth.message, auth.status);
     }
 
-    // En producción, validar token con Firebase Admin SDK
-    // const decodedToken = await admin.auth().verifyIdToken(token);
-    const userId = 'user-id-from-token'; // Placeholder
+    const userId = auth.user.uid;
 
-    // ✅ Recolectar todos los datos del usuario
+    // Recolectar todos los datos del usuario (colecciones en inglés)
     const userData: UserDataExport = {
       exportedAt: new Date().toISOString(),
       userId,
-      dataRetention: '2 years per Guatemala law',
+      dataRetention: '2 años conforme a la legislación de Guatemala',
       collections: {},
     };
 
     const collectionNames = [
-      'proyectos',
-      'apu',
-      'gastos',
-      'personal',
-      'cotizaciones',
-      'maquinaria',
-      'asistencia',
+      'projects',
+      'apuItems',
+      'expenses',
+      'attendance',
+      'employees',
+      'machinery',
+      'quotes',
+      'fieldVisits',
     ];
 
     for (const colName of collectionNames) {
       const q = query(collection(db, colName), where('userId', '==', userId));
       const snap = await getDocs(q);
-      userData.collections[colName] = snap.docs.map((d: QueryDocumentSnapshot<DocumentData>) => ({
-        id: d.id,
-        ...d.data(),
-      }));
+      userData.collections[colName] = snap.docs.map(
+        (d: QueryDocumentSnapshot<DocumentData>) => ({
+          id: d.id,
+          ...d.data(),
+        })
+      );
     }
 
-    // ✅ Crear registro de auditoría
-    const auditLog = {
-      action: 'data_export',
-      userId,
-      timestamp: new Date().toISOString(),
-      dataSize: JSON.stringify(userData).length,
-    };
-    // await db.collection('_audit_logs').add(auditLog);
-
-    return NextResponse.json(userData, {
+    return createApiResponse(userData, {
       headers: {
         'Content-Disposition': `attachment; filename="origen-data-${Date.now()}.json"`,
         'X-RateLimit-Remaining': rateLimitCheck.remaining.toString(),
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error exporting data' },
-      { status: 500 }
+    return createApiError(
+      error instanceof Error ? error.message : 'Error exportando los datos',
+      500
     );
   }
 }
