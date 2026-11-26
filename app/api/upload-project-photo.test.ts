@@ -148,7 +148,7 @@ describe('app/api/upload-project-photo', () => {
 
     const res = await POST(makeMockRequest(validForm()));
     expect(res.status).toBe(403);
-    expect(canReadDocumentAsUser).toHaveBeenCalledWith('id-token', 'projects', 'proj-1');
+    expect(canReadDocumentAsUser).toHaveBeenCalledWith('id-token', 'projects', 'proj-1', null);
     expect(uploadImageAsUser).not.toHaveBeenCalled();
   });
 

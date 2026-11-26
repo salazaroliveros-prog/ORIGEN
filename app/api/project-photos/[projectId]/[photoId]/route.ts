@@ -34,7 +34,12 @@ export async function GET(
       return jsonError('La referencia de la foto no es válida.', 400);
     }
 
-    const projectAccess = await canReadDocumentAsUser(auth.idToken, 'projects', projectId);
+    const projectAccess = await canReadDocumentAsUser(
+      auth.idToken,
+      'projects',
+      projectId,
+      request.headers.get('x-firebase-appcheck')
+    );
     if (projectAccess === 'unavailable') {
       return jsonError('No se pudo verificar el acceso al proyecto.', 503);
     }

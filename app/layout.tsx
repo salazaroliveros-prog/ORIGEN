@@ -3,6 +3,7 @@
 
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { AnalyticsProvider } from '@/components/AnalyticsProvider';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -17,40 +18,28 @@ export const metadata: Metadata = {
     'ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal',
   applicationName: 'ORIGEN ERP',
 
-  // Icon definitions - with WebP/AVIF support
+  // Icon definitions (archivos reales en /assets/branding)
   icons: {
     icon: [
       {
-        url: '/favicon.ico',
+        url: '/assets/branding/favicon.ico',
         type: 'image/x-icon',
       },
       {
-        url: '/images-optimized/favicon-192x192.webp',
-        sizes: '192x192',
-        type: 'image/webp',
+        url: '/assets/branding/favicon-32x32.png',
+        sizes: '32x32',
+        type: 'image/png',
       },
       {
-        url: '/images-optimized/favicon-192x192.avif',
-        sizes: '192x192',
-        type: 'image/avif',
-      },
-      {
-        url: '/favicon-192x192.png',
+        url: '/assets/branding/icon-192x192.png',
         sizes: '192x192',
         type: 'image/png',
       },
     ],
     apple: [
       {
-        url: '/images-optimized/apple-touch-icon.webp',
-        type: 'image/webp',
-      },
-      {
-        url: '/images-optimized/apple-touch-icon.avif',
-        type: 'image/avif',
-      },
-      {
-        url: '/apple-touch-icon.png',
+        url: '/assets/branding/apple-touch-icon.png',
+        sizes: '180x180',
         type: 'image/png',
       },
     ],
@@ -97,8 +86,7 @@ export const metadata: Metadata = {
     ],
   },
 
-  // Mobile optimization
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes',
+  // Mobile optimization (viewport se exporta arriba, no aquí)
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -153,13 +141,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* DNS Prefetch for external APIs */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-
-        {/* Preload critical resources */}
-        <link rel="preload" as="style" href="/fonts/inter.css" />
       </head>
 
       <body className="bg-gray-50 dark:bg-gray-900">
+        <AnalyticsProvider />
         {children}
+        <footer className="border-t border-white/10 bg-slate-950 px-4 py-3 text-center text-[11px] text-slate-400">
+          ORIGEN ERP Guatemala ·{' '}
+          <a href="/privacy" className="text-amber-400 hover:underline">
+            Política de Privacidad
+          </a>{' '}
+          ·{' '}
+          <a href="/terms" className="text-amber-400 hover:underline">
+            Términos y Condiciones
+          </a>
+        </footer>
 
         {/* Performance monitoring script */}
         <script

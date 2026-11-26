@@ -224,10 +224,18 @@ export interface ProjectPhotoRecord {
   projectId: string;
   companyId: string;
   filename: string;
-  storagePath: string;
+  /** Legacy: ruta en Storage. Las fotos nuevas se guardan como `dataUrl`. */
+  storagePath?: string;
   uploadedAt: string;
+  /** Tamaño original del archivo seleccionado. */
   size: number;
   uploadedBy: string;
+  /** Imagen comprimida en base64 (data URL) almacenada dentro de Firestore. */
+  dataUrl?: string;
+  mime?: string;
+  width?: number;
+  height?: number;
+  compressedSize?: number;
 }
 
 export interface FieldPhoto {

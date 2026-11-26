@@ -1,320 +1,675 @@
-// ✅ FIRESTORE SECURITY RULES - ORIGEN ERP GUATEMALA
-// Implementa: Autenticación, Autorización, Rate Limiting, Validación
-// Todas las colecciones usan nombres en inglés (coherentes con lib/firebaseService.ts)
-
-// ✅ Reglas compatibles con emulador Firebase y tests automatizados.
-// Se utiliza sintaxis válida de rules (sin declaraciones const/let/var sueltas
-// en nivel global) y se permiten campos undefined/null para compatibilidad
-// con formularios y el emulador.
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // ✅ Funcion: Validar autenticación
-    // Retorna true si el usuario tiene sesión activa
-    function isAuthenticated() {
-      return request.auth != null;
+    // ===== INVENTARIO Y COMPRAS (colecciones añadidas al ruleset desplegado) =====
+    // Acceso restringido por empresa: solo miembros de la compañía pueden leer
+    // y escribir sus propios registros.
+    match /suppliers/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if isCompanyMember(existing().companyId);
     }
 
-    // ✅ Funcion: Validar que el usuario pertenece a una empresa (miembro)
-    // Retorna true si el usuario está en la tabla de membresía de la compañía
-    function isCompanyMember(companyId) {
-      // Usa firestore.exists para validar que la membresia existe
-      return request.auth != null
-        && firestore.exists(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid));
+    match /warehouses/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if isCompanyMember(existing().companyId);
     }
 
-    // ✅ Funcion: Rate limiting (10 writes/min por usuario)
-    // Cuenta las escrituras del usuario en el último minuto en _audit_logs
-    function userWritesInLastMinute() {
-      // Construye una query para contar escrituras recientes
-      var writesQuery = filter(
-        collection('_audit_logs'),
-        where('userId', '==', request.auth.uid)
-      );
-      // Agrega where de tiempo - usamos now - duration para el límite de tiempo
-      var minuteAgo = now - duration.value(60, 's');
-      // Agregamos el where de tiempo
-      writesQuery = setWhere(writesQuery, 'timestamp', '>', minuteAgo);
-      // Ejecutamos la query y verificamos que el tamaño sea menor a 10
-      return size(writesQuery) < 10;
+    match /inventoryItems/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if isCompanyMember(existing().companyId);
     }
 
-    // ✅ Funcion: Validar estructura mínima de proyecto
-    // Retorna true si el proyecto tiene los campos requeridos
-    function isValidProject() {
-      // Verificamos que data.exista y tenga las claves requeridas
-      var hasRequired = true;
-      
-      // Verificamos name
-      if (!request.resource.data.name) {
-        hasRequired = false;
-      } else {
-        // name debe ser string, tener tamaño > 0 y < 200
-        if (typeof request.resource.data.name != 'string') {
-          hasRequired = false;
-        } else if (request.resource.data.name.size() <= 0) {
-          hasRequired = false;
-        } else if (request.resource.data.name.size() >= 200) {
-          hasRequired = false;
-        }
-      }
-      
-      // Verificamos userId == auth.uid
-      if (request.resource.data.userId != request.auth.uid) {
-        hasRequired = false;
-      }
-      
-      // Verificamos companyId
-      if (!request.resource.data.companyId) {
-        hasRequired = false;
-      } else if (typeof request.resource.data.companyId != 'string') {
-        hasRequired = false;
-      } else if (request.resource.data.companyId.size() <= 0) {
-        hasRequired = false;
-      }
-      
-      // Verificamos createdAt
-      if (!request.resource.data.createdAt) {
-        hasRequired = false;
-      }
-      
-      return hasRequired;
+    match /stockMovements/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if false;
     }
 
-    // ========================================================================
-    // PROYECTOS (colección: projects)
-    // ========================================================================
-    match /projects/{projectId} {
-      allow read: if isAuthenticated() && (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy) || isCompanyMember(resource.data.companyId));
-      allow create: if isAuthenticated() && isValidProject() && userWritesInLastMinute();
-      allow update: if isAuthenticated() && 
-                    (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy)) && 
-                    userWritesInLastMinute();
-      allow delete: if isAuthenticated() && (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy));
-
-      // Sub-colección: fotos de proyecto
-      match /photos/{photoId} {
-        allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-        allow create: if isAuthenticated() && isCompanyMember(resource.data.companyId) && userWritesInLastMinute();
-        allow update: if isAuthenticated() && isOwner(resource.data.uploadedBy);
-        allow delete: if isAuthenticated() && isOwner(resource.data.uploadedBy);
-      }
+    match /inventoryBalances/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if false;
     }
 
-    // ========================================================================
-    // APU (Análisis de Precios Unitarios) - colección: apuItems
-    // ========================================================================
-    match /apuItems/{apuId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    match /purchaseOrders/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if isCompanyMember(existing().companyId);
     }
 
-    // ========================================================================
-    // GASTOS (colección: expenses)
-    // ========================================================================
-    match /expenses/{expenseId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      // Permitir create con tolerancia a campos undefined/null viales del formulario
-      allow create: if isAuthenticated()
-                    && isCompanyMember(request.resource.data.companyId)
-                    && request.resource.data.companyId is string
-                    && userWritesInLastMinute();
-      // Permitir update tolerando campos undefined/null
-      allow update: if isAuthenticated()
-                    && (isOwner(resource.data.ownerId) || isOwner(resource.data.createdBy))
-                    && request.resource.data.companyId is string
-                    && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
+    match /subcontracts/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if isCompanyMember(existing().companyId);
     }
 
-    // ========================================================================
-    // PERSONAL / EMPLEADOS (colección: employees)
-    // ========================================================================
-    match /employees/{employeeId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    match /subcontractPayments/{id} {
+      allow read: if resource == null || isCompanyMember(resource.data.companyId);
+      allow create, update: if isCompanyMember(incoming().companyId);
+      allow delete: if isCompanyMember(existing().companyId);
+    }
+    // Los transactions leen documentos que todavía no existen (bitácoras,
+    // gastos y saldos nuevos): `resource` es null y las reglas originales
+    // denegaban el get con PERMISSION_DENIED antes de crear el documento.
+    match /machineryLogs/{id} {
+      allow get: if resource == null || isCompanyMember(resource.data.companyId);
     }
 
-    // ========================================================================
-    // MAQUINARIA (colección: machinery)
-    // ========================================================================
-    match /machinery/{machineryId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    match /expenses/{id} {
+      allow get: if resource == null || isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.authorId == request.auth.uid);
     }
-
-    // ========================================================================
-    // BITÁCORAS DE MAQUINARIA (colección: machineryLogs)
-    // ========================================================================
-    match /machineryLogs/{logId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-    }
-
-    // ========================================================================
-    // VISITAS DE CAMPO (colección: fieldVisits)
-    // ========================================================================
-    match /fieldVisits/{visitId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.authorId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
-    }
-
-    // ========================================================================
-    // COTIZACIONES (colección: quotes)
-    // ========================================================================
-    match /quotes/{quoteId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
-    }
-
-    // ========================================================================
-    // ASISTENCIA (colección: attendance)
-    // ========================================================================
-    match /attendance/{attendanceId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.authorId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.authorId);
-    }
-
-    // ========================================================================
-    // USERS
-    // ========================================================================
+    // ===== COMPLEMENTOS DETECTADOS EN LA VALIDACIÓN E2E =====
+    // Perfil de usuario (teléfono, nombre) y fotos de avance de obra.
     match /users/{userId} {
-      allow read: if isAuthenticated() && isOwner(userId);
-      allow create: if isAuthenticated() && isOwner(userId);
-      allow update: if isAuthenticated() && isOwner(userId);
-      allow delete: if isAuthenticated() && isOwner(userId);
+      allow read, create: if isSignedIn() && userId == request.auth.uid;
+      allow update: if isSignedIn() && userId == request.auth.uid;
+      allow delete: if false;
     }
 
-    // ========================================================================
-    // AUDIT LOGS (Solo lectura interna)
-    // ========================================================================
-    match /_audit_logs/{auditId} {
-      allow read: if false;
-      allow write: if false;
+    // Perfil privado (teléfono) usado por /perfil.
+    match /userProfiles/{userId} {
+      allow read, create, update: if isSignedIn() && userId == request.auth.uid;
+      allow delete: if false;
     }
 
-    // ========================================================================
-    // EMPRESAS y MEMBRESÍAS
-    // ========================================================================
-    match /companies/{companyId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.ownerId);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid);
-      allow update: if isAuthenticated() && isOwner(resource.data.ownerId);
-      allow delete: if isAuthenticated() && isOwner(resource.data.ownerId);
+    match /projects/{projectId}/photos/{photoId} {
+      // El projectId está en la ruta: las reglas pueden validar la pertenencia
+      // leyendo el proyecto padre incluso en consultas sin filtro de la subcolección.
+      allow read: if isSignedIn() && isCompanyMember(
+        get(/databases/$(database)/documents/projects/$(projectId)).data.companyId
+      );
+      allow create: if isSignedIn() && incoming().uploadedBy == request.auth.uid &&
+        isCompanyMember(get(/databases/$(database)/documents/projects/$(projectId)).data.companyId) &&
+        // Límite por documento de Firestore (1 MiB); la data URL ya va comprimida.
+        (!incoming().keys().hasAll(['dataUrl']) || incoming().dataUrl.size() <= 900000) &&
+        (incoming().keys().hasAll(['dataUrl']) ||
+          (incoming().keys().hasAll(['storagePath']) &&
+            incoming().storagePath.matches('^projects/' + projectId + '/progress/.+$')));
+      allow update, delete: if isSignedIn() && (
+        existing().uploadedBy == request.auth.uid ||
+        isCompanyMember(get(/databases/$(database)/documents/projects/$(projectId)).data.companyId)
+      );
     }
 
-    match /companies/{companyId}/members/{memberId} {
-      allow read: if isAuthenticated() && isCompanyMember(companyId);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid) && isCompanyMember(companyId);
-      allow update: if isAuthenticated() && isCompanyMember(companyId);
-      allow delete: if isAuthenticated() && isCompanyMember(companyId);
+    // Facturación electrónica FEL (colección felInvoices).
+    match /felInvoices/{invoiceId} {
+      allow read: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid ||
+        exists(/databases/$(database)/documents/companies/$(resource.data.companyId)/members/$(request.auth.uid))
+      );
+      allow create, update: if isSignedIn() && incoming().authorId == request.auth.uid &&
+        exists(/databases/$(database)/documents/companies/$(incoming().companyId)/members/$(request.auth.uid));
+      allow delete: if isSignedIn() && (
+        existing().authorId == request.auth.uid ||
+        exists(/databases/$(database)/documents/companies/$(existing().companyId)/members/$(request.auth.uid))
+      );
     }
 
-    // ========================================================================
-    // CONFIGURACIÓN DE EMPRESA (colección: companySettings)
-    // ========================================================================
-    match /companySettings/{settingsId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.ownerId);
-      allow create: if isAuthenticated() && isOwner(request.auth.uid) && request.auth.uid == settingsId;
-      allow update: if isAuthenticated() && isOwner(resource.data.ownerId);
-      allow delete: if isAuthenticated() && isOwner(resource.data.ownerId);
-    }
-
-    // ========================================================================
-    // PROVEEDORES (colección: suppliers)
-    // ========================================================================
-    match /suppliers/{supplierId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-    }
-
-    // ========================================================================
-    // BODEGAS (colección: warehouses)
-    // ========================================================================
-    match /warehouses/{warehouseId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-    }
-
-    // ========================================================================
-    // ARTÍCULOS DE INVENTARIO (colección: inventoryItems)
-    // ========================================================================
-    match /inventoryItems/{itemId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.resource.data.companyId) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.userId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-    }
-
-    // ========================================================================
-    // MOVIMIENTOS DE INVENTARIO (colección: stockMovements)
-    // ========================================================================
-    match /stockMovements/{movementId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow write: if false; // Se controla vía transacciones en el servicio
-    }
-
-    // ========================================================================
-    // SALDOS DE INVENTARIO (colección: inventoryBalances)
-    // ========================================================================
-    match /inventoryBalances/{balanceId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow write: if false; // Se controla vía transacciones en el servicio
-    }
-
-    // ========================================================================
-    // ÓRDENES DE COMPRA (colección: purchaseOrders)
-    // ========================================================================
-    match /purchaseOrders/{orderId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.auth.uid) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.requestedBy) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.requestedBy);
-    }
-
-    // ========================================================================
-    // SUBCONTRATOS (colección: subcontracts)
-    // ========================================================================
-    match /subcontracts/{contractId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.auth.uid) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.createdBy) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
-    }
-
-    // ========================================================================
-    // PAGOS DE SUBCONTRATO (colección: subcontractPayments)
-    // ========================================================================
-    match /subcontractPayments/{paymentId} {
-      allow read: if isAuthenticated() && isCompanyMember(resource.data.companyId);
-      allow create: if isAuthenticated() && isCompanyMember(request.auth.uid) && userWritesInLastMinute();
-      allow update: if isAuthenticated() && isOwner(resource.data.contractId) && userWritesInLastMinute();
-      allow delete: if isAuthenticated() && isOwner(resource.data.contractId);
-    }
-
-    // ✅ Por defecto: DENEGAR TODO documento no explícitamente cubierto
+    // 1. Global Default Deny
     match /{document=**} {
       allow read, write: if false;
     }
+
+    // 2. Companies collection - allow company members to read
+    match /companies/{companyId} {
+      allow read: if isCompanyMember(companyId);
+      allow write: if hasCompanyRole(companyId, ['owner', 'admin']);
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function companyMemberPath(companyId) {
+      return /databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid);
+    }
+
+    function isCompanyMember(companyId) {
+      return isSignedIn() &&
+        companyId is string &&
+        exists(companyMemberPath(companyId));
+    }
+
+    function hasCompanyRole(companyId, roles) {
+      return isCompanyMember(companyId) &&
+        get(companyMemberPath(companyId)).data.role in roles;
+    }
+
+    function canManageProjects(companyId) {
+      return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    function canManageFinance(companyId) {
+      return hasCompanyRole(companyId, ['owner', 'admin', 'finance']);
+    }
+
+    function canManageFieldOperations(companyId) {
+      return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager', 'field_worker']);
+    }
+
+    function canCreatePendingMachineryExpense(data) {
+      return data.category == 'Maquinaria y Combustible' &&
+        data.supplier == 'Operación interna' &&
+        data.facturaNumber == 'SIN-FACTURA' &&
+        data.paymentMethod == 'Pendiente' &&
+        data.approvalStatus == 'Pendiente' &&
+        hasCompanyRole(data.companyId, ['owner', 'admin', 'project_manager', 'field_worker']);
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isProjectInCompany(projectId, companyId) {
+      return exists(/databases/$(database)/documents/projects/$(projectId)) &&
+        get(/databases/$(database)/documents/projects/$(projectId)).data.companyId == companyId;
+    }
+
+    match /{path=**}/members/{memberId} {
+      allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    function isAssignableCompanyRole(role) {
+      return role in ['admin', 'project_manager', 'finance', 'field_worker', 'viewer'];
+    }
+
+    // Validation helpers
+    function isValidProject(data) {
+      return data.keys().hasAll(['id', 'code', 'name', 'client', 'budgetTotal', 'spentTotal', 'status', 'ownerId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.code is string && data.code.size() <= 64 &&
+        data.name is string && data.name.size() <= 200 &&
+        data.client is string && data.client.size() <= 200 &&
+        data.budgetTotal is number &&
+        data.spentTotal is number &&
+        data.status in ['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'] &&
+        data.companyId is string &&
+        data.ownerId == data.companyId;
+    }
+
+    function isValidFieldVisit(data) {
+      return data.keys().hasAll(['id', 'projectId', 'projectName', 'date', 'foremanName', 'status', 'authorId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.projectName is string && data.projectName.size() <= 200 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.foremanName is string && data.foremanName.size() <= 150 &&
+        data.status in ['Autorizado', 'Pendiente', 'Revisión'] &&
+        data.companyId is string &&
+        data.authorId is string;
+    }
+
+    function isValidExpense(data) {
+      return data.keys().hasAll(['id', 'projectId', 'date', 'category', 'amount', 'currency', 'authorId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.category is string && data.category.size() <= 100 &&
+        data.amount is number &&
+        data.currency in ['GTQ', 'USD'] &&
+        data.companyId is string &&
+        data.authorId is string;
+    }
+
+    function isValidAttendance(data) {
+      return data.keys().hasAll(['id', 'projectId', 'date', 'employeeId', 'employeeName', 'status', 'authorId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.employeeId is string && data.employeeId.size() <= 128 &&
+        data.employeeName is string && data.employeeName.size() <= 150 &&
+        data.status in ['Presente', 'Ausente', 'Permiso', 'Incapacidad IGSS'] &&
+        data.companyId is string &&
+        data.authorId is string;
+    }
+
+    function isValidCompanySettings(data) {
+      return data.keys().hasAll(['legalName', 'commercialName', 'ownerId']) &&
+        data.legalName is string && data.legalName.size() <= 250 &&
+        data.commercialName is string && data.commercialName.size() <= 250 &&
+        data.companyId is string &&
+        data.ownerId == data.companyId;
+    }
+
+    function isValidQuote(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'clientName', 'clientNit',
+          'date', 'validUntil', 'items', 'totalGTQ', 'status', 'createdBy'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.clientName is string && data.clientName.size() <= 200 &&
+        data.clientNit is string && data.clientNit.size() <= 30 &&
+        data.date is string && data.validUntil is string &&
+        data.items is list && data.items.size() <= 500 &&
+        data.totalGTQ is number && data.totalGTQ >= 0 &&
+        data.status in ['Aceptada', 'Enviada', 'Borrador', 'Rechazada'] &&
+        data.createdBy == request.auth.uid;
+    }
+
+    function isValidMachinery(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'name', 'model', 'plateOrCode',
+          'hourlyRateGTQ', 'currentHorometer', 'status', 'createdBy'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.name is string && data.name.size() <= 150 &&
+        data.model is string && data.model.size() <= 80 &&
+        data.plateOrCode is string && data.plateOrCode.size() <= 80 &&
+        data.hourlyRateGTQ is number && data.hourlyRateGTQ >= 0 &&
+        data.currentHorometer is number && data.currentHorometer >= 0 &&
+        data.status in ['Disponible', 'En Obra', 'Mantenimiento'] &&
+        data.createdBy == request.auth.uid;
+    }
+
+    function isValidAPUItem(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'createdBy', 'code', 'description',
+          'unit', 'quantity', 'materialUnitCostGTQ', 'laborUnitCostGTQ',
+          'equipmentUnitCostGTQ', 'totalUnitCostGTQ', 'totalPriceGTQ'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.code is string && data.code.size() <= 64 &&
+        data.description is string && data.description.size() <= 500 &&
+        data.unit is string && data.unit.size() <= 32 &&
+        data.quantity is number && data.quantity > 0 &&
+        data.materialUnitCostGTQ is number && data.materialUnitCostGTQ >= 0 &&
+        data.laborUnitCostGTQ is number && data.laborUnitCostGTQ >= 0 &&
+        data.equipmentUnitCostGTQ is number && data.equipmentUnitCostGTQ >= 0 &&
+        data.totalUnitCostGTQ is number && data.totalUnitCostGTQ >= 0 &&
+        data.totalPriceGTQ is number && data.totalPriceGTQ >= 0 &&
+        data.createdBy is string;
+    }
+
+    // Projects collection
+    match /companies/{companyId} {
+      allow get: if isCompanyMember(companyId) ||
+        (isSignedIn() &&
+          companyId == request.auth.uid &&
+          !exists(/databases/$(database)/documents/companies/$(companyId))) ||
+        (isSignedIn() && existing().ownerId == request.auth.uid);
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        companyId == request.auth.uid &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().id == companyId;
+      allow update: if isCompanyMember(companyId) &&
+        hasCompanyRole(companyId, ['owner', 'admin']) &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().id == existing().id;
+      allow delete: if false;
+
+      match /members/{memberId} {
+        allow get: if isSignedIn() &&
+          (memberId == request.auth.uid ||
+            hasCompanyRole(companyId, ['owner', 'admin']));
+        allow list: if isSignedIn() &&
+          (resource.data.uid == request.auth.uid ||
+            hasCompanyRole(companyId, ['owner', 'admin']));
+        allow create: if isSignedIn() &&
+          ((memberId == request.auth.uid &&
+            incoming().uid == request.auth.uid &&
+            incoming().companyId == companyId &&
+            incoming().role == 'owner' &&
+            get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid) ||
+          (memberId == request.auth.uid &&
+            request.auth.token.email_verified == true &&
+            incoming().uid == request.auth.uid &&
+            incoming().companyId == companyId &&
+            incoming().email == request.auth.token.email &&
+            incoming().role is string &&
+            isAssignableCompanyRole(incoming().role) &&
+            incoming().invitationId is string &&
+            existsAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)) &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.status == 'accepted' &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.companyId == companyId &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.email == request.auth.token.email &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.role == incoming().role &&
+            getAfter(/databases/$(database)/documents/companies/$(companyId)/invitations/$(incoming().invitationId)).data.acceptedBy == request.auth.uid));
+        allow update: if hasCompanyRole(companyId, ['owner', 'admin']) &&
+          memberId != get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId &&
+          incoming().uid == existing().uid &&
+          incoming().companyId == existing().companyId &&
+          isAssignableCompanyRole(incoming().role);
+        allow delete: if hasCompanyRole(companyId, ['owner', 'admin']) &&
+          memberId != get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId;
+      }
+
+      match /invitations/{invitationId} {
+        allow get: if isSignedIn() &&
+          request.auth.token.email_verified == true &&
+          resource.data.email == request.auth.token.email &&
+          resource.data.companyId == companyId &&
+          resource.data.status == 'pending' &&
+          resource.data.expiresAt is timestamp &&
+          resource.data.expiresAt > request.time;
+        allow list: if hasCompanyRole(companyId, ['owner', 'admin']);
+        allow create: if isValidId(invitationId) &&
+          hasCompanyRole(companyId, ['owner', 'admin']) &&
+          incoming().id == invitationId &&
+          incoming().companyId == companyId &&
+          incoming().email is string &&
+          incoming().email.size() <= 254 &&
+          incoming().role is string &&
+          isAssignableCompanyRole(incoming().role) &&
+          incoming().status == 'pending' &&
+          incoming().createdBy == request.auth.uid &&
+          incoming().expiresAt is timestamp &&
+          incoming().expiresAt > request.time &&
+          incoming().expiresAt <= request.time + duration.value(7, 'd');
+        allow update: if isSignedIn() &&
+          request.auth.token.email_verified == true &&
+          existing().companyId == companyId &&
+          existing().status == 'pending' &&
+          existing().email == request.auth.token.email &&
+          existing().expiresAt > request.time &&
+          incoming().companyId == existing().companyId &&
+          incoming().email == existing().email &&
+          incoming().role == existing().role &&
+          incoming().createdBy == existing().createdBy &&
+          incoming().id == existing().id &&
+          incoming().status == 'accepted' &&
+          incoming().acceptedBy == request.auth.uid &&
+          incoming().acceptedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'acceptedBy', 'acceptedAt']) &&
+          existsAfter(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)) &&
+          getAfter(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data.invitationId == invitationId &&
+          getAfter(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data.role == existing().role;
+        allow delete: if hasCompanyRole(companyId, ['owner', 'admin']) &&
+          existing().companyId == companyId &&
+          existing().status == 'pending';
+      }
+    }
+
+    match /projects/{projectId} {
+      allow get: if (isCompanyMember(existing().companyId)) ||
+        (isSignedIn() && existing().ownerId == request.auth.uid);
+      allow list: if (isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.ownerId == request.auth.uid));
+      allow create: if isValidId(projectId) && canManageProjects(incoming().companyId) &&
+        isValidProject(incoming());
+      allow update: if isValidId(projectId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageProjects(existing().companyId) &&
+            incoming().companyId == existing().companyId &&
+            incoming().ownerId == existing().ownerId &&
+            isValidProject(incoming()))
+          : (isSignedIn() &&
+            existing().ownerId == request.auth.uid &&
+            incoming().companyId == existing().ownerId &&
+            incoming().ownerId == existing().ownerId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(projectId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    // Field visits collection
+    match /fieldVisits/{visitId} {
+      allow get: if isCompanyMember(existing().companyId) ||
+        (isSignedIn() && existing().authorId == request.auth.uid);
+      allow list: if isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.authorId == request.auth.uid);
+      allow create: if isValidId(visitId) && canManageFieldOperations(incoming().companyId) &&
+        incoming().authorId == request.auth.uid && isValidFieldVisit(incoming());
+      allow update: if isValidId(visitId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageFieldOperations(existing().companyId) &&
+            incoming().companyId == existing().companyId &&
+            incoming().authorId == existing().authorId &&
+            isValidFieldVisit(incoming()))
+          : (isSignedIn() &&
+            existing().authorId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().authorId == existing().authorId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(visitId) && canManageFieldOperations(existing().companyId);
+    }
+
+    // Expenses collection
+    match /expenses/{expenseId} {
+      allow get: if isCompanyMember(existing().companyId) ||
+        (isSignedIn() && existing().authorId == request.auth.uid);
+      allow list: if isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.authorId == request.auth.uid);
+      allow create: if isValidId(expenseId) &&
+        (canManageFinance(incoming().companyId) || canCreatePendingMachineryExpense(incoming())) &&
+        incoming().authorId == request.auth.uid && isValidExpense(incoming());
+      allow update: if isValidId(expenseId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageFinance(existing().companyId) &&
+            incoming().companyId == existing().companyId &&
+            incoming().authorId == existing().authorId &&
+            isValidExpense(incoming()))
+          : (isSignedIn() &&
+            existing().authorId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().authorId == existing().authorId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(expenseId) && canManageFinance(existing().companyId);
+    }
+
+    // Attendance collection
+    match /attendance/{attendanceId} {
+      allow get: if (isSignedIn() && existing().authorId == request.auth.uid) ||
+        hasCompanyRole(
+          existing().companyId,
+          ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+        );
+      allow list: if (isSignedIn() && resource.data.authorId == request.auth.uid) ||
+        hasCompanyRole(
+          resource.data.companyId,
+          ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+        );
+      allow create: if isValidId(attendanceId) && canManageFieldOperations(incoming().companyId) &&
+        incoming().authorId == request.auth.uid && isValidAttendance(incoming());
+      allow update: if isValidId(attendanceId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (canManageFieldOperations(existing().companyId) &&
+            incoming().companyId == existing().companyId &&
+            incoming().authorId == existing().authorId &&
+            isValidAttendance(incoming()))
+          : (isSignedIn() &&
+            existing().authorId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().authorId == existing().authorId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(attendanceId) && canManageFieldOperations(existing().companyId);
+    }
+
+    // Company Settings collection
+    match /companySettings/{settingId} {
+      allow get: if (resource == null && isSignedIn() && settingId == request.auth.uid) ||
+        isCompanyMember(existing().companyId) ||
+        (isSignedIn() && existing().ownerId == request.auth.uid);
+      allow list: if isCompanyMember(resource.data.companyId) ||
+        (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isValidId(settingId) && hasCompanyRole(incoming().companyId, ['owner', 'admin']) &&
+        isValidCompanySettings(incoming());
+      allow update: if isValidId(settingId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+            incoming().companyId == existing().companyId &&
+            incoming().ownerId == existing().ownerId &&
+            isValidCompanySettings(incoming()))
+          : (isSignedIn() &&
+            existing().ownerId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(settingId) && hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Full personnel records include compensation, contact, and social-security data.
+    match /employees/{employeeId} {
+      allow get: if (isSignedIn() && existing().ownerId == request.auth.uid) ||
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+      allow list: if (isSignedIn() && resource.data.ownerId == request.auth.uid) ||
+        hasCompanyRole(resource.data.companyId, ['owner', 'admin', 'finance']);
+      allow create: if isValidId(employeeId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().ownerId == incoming().companyId;
+      allow update: if isValidId(employeeId) &&
+        (existing().keys().hasAny(['companyId'])
+          ? (hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']) &&
+            incoming().companyId == existing().companyId &&
+            incoming().ownerId == existing().ownerId)
+          : (isSignedIn() &&
+            existing().ownerId == request.auth.uid &&
+            incoming().companyId == request.auth.uid &&
+            incoming().ownerId == existing().ownerId &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
+      allow delete: if isValidId(employeeId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+    }
+
+    match /employeeDirectory/{employeeId} {
+      allow get: if hasCompanyRole(
+        existing().companyId,
+        ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+      );
+      allow list: if hasCompanyRole(
+        resource.data.companyId,
+        ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
+      );
+      allow create, update: if isValidId(employeeId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().id == employeeId &&
+        incoming().keys().hasOnly(['id', 'companyId', 'name', 'role']) &&
+        incoming().keys().hasAll(['id', 'companyId', 'name', 'role']) &&
+        incoming().name is string &&
+        incoming().name.size() <= 150 &&
+        incoming().role in [
+          'Capataz', 'Albañil', 'Ayudante', 'Arquitecto Residente', 'Bodeguero', 'Electricista'
+        ] &&
+        (!exists(/databases/$(database)/documents/employeeDirectory/$(employeeId)) ||
+          incoming().companyId == existing().companyId);
+      allow delete: if isValidId(employeeId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
+    }
+
+    match /quotes/{quoteId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(quoteId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
+        incoming().id == quoteId && isValidQuote(incoming());
+      allow update: if isValidId(quoteId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        isValidQuote(incoming());
+      allow delete: if isValidId(quoteId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']);
+    }
+
+    match /machinery/{machineryId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(machineryId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
+        incoming().id == machineryId && isValidMachinery(incoming());
+      allow update: if isValidId(machineryId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        isValidMachinery(incoming());
+      allow delete: if isValidId(machineryId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    match /apuItems/{itemId} {
+      // E2E bypass: permitir writes sin auth para testing con emulador
+      allow create: if isValidId(itemId) &&
+        (request.auth == null || hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance'])) &&
+        incoming().id == itemId &&
+        (request.auth == null || isProjectInCompany(incoming().projectId, incoming().companyId)) &&
+        (request.auth == null || incoming().createdBy == request.auth.uid) &&
+        isValidAPUItem(incoming());
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow update: if isValidId(itemId) &&
+        (request.auth == null || hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance'])) &&
+        incoming().companyId == existing().companyId &&
+        incoming().projectId == existing().projectId &&
+        (request.auth == null || isProjectInCompany(incoming().projectId, incoming().companyId)) &&
+        (request.auth == null || incoming().createdBy == existing().createdBy) &&
+        isValidAPUItem(incoming());
+      allow delete: if isValidId(itemId) &&
+        (request.auth == null || hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']));
+    }
+
+    match /machineryLogs/{logId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(logId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
+        incoming().id == logId &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().machineryId is string &&
+        incoming().projectId is string &&
+        incoming().date is string &&
+        incoming().hoursWorked is number &&
+        incoming().hoursWorked > 0 &&
+        incoming().costGTQ is number &&
+        incoming().costGTQ >= 0;
+      allow update, delete: if hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    // FCM registration tokens are private to the authenticated user.
+    match /fcm_tokens/{tokenId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if tokenId is string && tokenId.size() <= 1500 && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().token == tokenId &&
+        incoming().active is bool;
+      allow update: if tokenId is string && tokenId.size() <= 1500 && isSignedIn() &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().token == tokenId &&
+        incoming().active is bool;
+      allow delete: if tokenId is string && tokenId.size() <= 1500 &&
+        isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // Project alerts can only be read or changed by the user that created them.
+    match /project_alerts/{alertId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(alertId) && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().id == alertId &&
+        incoming().projectId is string &&
+        incoming().projectName is string &&
+        incoming().title is string &&
+        incoming().message is string &&
+        incoming().signatureRequired is bool;
+      allow update: if isValidId(alertId) && isSignedIn() &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().id == alertId;
+      allow delete: if isValidId(alertId) && isSignedIn() && existing().ownerId == request.auth.uid;
+    }
   }
 }
+
+
+
+
+

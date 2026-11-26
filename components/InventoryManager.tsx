@@ -1580,7 +1580,7 @@ export function InventoryManager({
                                                 onChange={(event) =>
                                                   setReceiptNumber(event.target.value)
                                                 }
-                                                pattern="[a-zA-Z0-9_-]{1,40}"
+                                                pattern="[a-zA-Z0-9_\-]{1,40}"
                                                 maxLength={40}
                                                 required
                                               />
@@ -2072,7 +2072,7 @@ export function InventoryManager({
                             setOpeningMovementId('');
                           }}
                           maxLength={100}
-                          pattern="[a-zA-Z0-9_-]{1,100}"
+                          pattern="[a-zA-Z0-9_\-]{1,100}"
                           required
                         />
                       </label>
@@ -2206,7 +2206,7 @@ export function InventoryManager({
                             setAdjustmentMovementId('');
                           }}
                           maxLength={100}
-                          pattern="[a-zA-Z0-9_-]{1,100}"
+                          pattern="[a-zA-Z0-9_\-]{1,100}"
                           required
                         />
                       </label>
@@ -2315,7 +2315,7 @@ export function InventoryManager({
                       value={issueReference}
                       onChange={(event) => setIssueReference(event.target.value)}
                       maxLength={80}
-                      pattern="[a-zA-Z0-9_-]{1,80}"
+                      pattern="[a-zA-Z0-9_\-]{1,80}"
                       required
                     />
                   </label>
@@ -2434,7 +2434,7 @@ export function InventoryManager({
                       value={transferReference}
                       onChange={(event) => setTransferReference(event.target.value)}
                       maxLength={75}
-                      pattern="[a-zA-Z0-9_-]{1,75}"
+                      pattern="[a-zA-Z0-9_\-]{1,75}"
                       required
                     />
                   </label>
@@ -2559,7 +2559,7 @@ export function InventoryManager({
                                       value={paymentReference}
                                       onChange={(event) => setPaymentReference(event.target.value)}
                                       maxLength={60}
-                                      pattern="[a-zA-Z0-9_-]{1,60}"
+                                      pattern="[a-zA-Z0-9_\-]{1,60}"
                                       required
                                     />
                                   </label>

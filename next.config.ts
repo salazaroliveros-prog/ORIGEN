@@ -52,8 +52,8 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               "img-src 'self' https: blob: data:; " +
               "font-src 'self' https://fonts.gstatic.com data:; " +
-              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com wss://*.firebaseio.com blob: data:; " +
-              "frame-src 'self' https://www.google.com https://accounts.google.com; " +
+              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com https://recaptcha.google.com wss://*.firebaseio.com blob: data:; " +
+              "frame-src 'self' https://www.google.com https://recaptcha.google.com https://accounts.google.com https://*.firebaseapp.com; " +
               "worker-src 'self' blob:; " +
               "manifest-src 'self'; " +
               "object-src 'none'; " +
@@ -105,6 +105,8 @@ const nextConfig: NextConfig = {
   // ============================================
 
   outputFileTracingRoot: __dirname,
+  // Necesario para `npm run start` (`.next/standalone/server.js`).
+  output: 'standalone',
 
   compress: true,
   poweredByHeader: false,

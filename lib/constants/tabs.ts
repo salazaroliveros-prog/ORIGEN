@@ -125,6 +125,12 @@ export const TAB_DEFINITIONS: TabDefinition[] = [
     group: 'admin',
   },
   {
+    id: 'equipo',
+    label: 'Equipo de la empresa',
+    icon: UserPlus,
+    group: 'admin',
+  },
+  {
     id: 'ai',
     label: 'Asistente IA',
     icon: Sparkles,

@@ -162,7 +162,10 @@ export async function requireApiUser(request: NextRequest): Promise<ApiAuthResul
   }
 
   try {
-    const response = await fetch(IDENTITY_TOOLKIT_URL, {
+    // `accounts:lookup` exige la API key pública; sin ella responde 400 y
+    // cualquier despliegue sin Admin SDK quedaba con todas las rutas en 401.
+    const lookupUrl = `${IDENTITY_TOOLKIT_URL}?key=${encodeURIComponent(apiKey)}`;
+    const response = await fetch(lookupUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken }),
@@ -244,7 +247,8 @@ function firestoreApiBaseUrl(): string {
 export async function canReadDocumentAsUser(
   idToken: string,
   collectionName: string,
-  documentId: string
+  documentId: string,
+  appCheckToken?: string | null
 ): Promise<DocumentAccess> {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   if (!projectId) return 'unavailable';
@@ -258,9 +262,11 @@ export async function canReadDocumentAsUser(
   )}/${encodeURIComponent(documentId)}`;
 
   try {
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${idToken}` },
-    });
+    const headers: Record<string, string> = { Authorization: `Bearer ${idToken}` };
+    // Firestore tiene App Check ENFORCED: sin reenviar el token del navegador,
+    // la comprobación de acceso siempre devuelve 403.
+    if (appCheckToken) headers['X-Firebase-AppCheck'] = appCheckToken;
+    const response = await fetch(url, { headers });
 
     if (response.ok) return 'allowed';
     if (response.status === 403 || response.status === 404) return 'denied';

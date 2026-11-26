@@ -12,9 +12,12 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const protocol = request.headers.get('x-forwarded-proto') || 'http';
+  const host = request.headers.get('host') || '';
+  const isLocalHost = /^(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/.test(host);
 
-  // ✅ Redirect HTTP → HTTPS en producción
-  if (protocol === 'http' && process.env.NODE_ENV === 'production') {
+  // ✅ Redirect HTTP → HTTPS en producción (excepto en local, donde `next start`
+  // sirve HTTP y el redirect rompería la validación E2E en modo producción).
+  if (protocol === 'http' && process.env.NODE_ENV === 'production' && !isLocalHost) {
     url.protocol = 'https:';
     return NextResponse.redirect(url, 301);
   }
