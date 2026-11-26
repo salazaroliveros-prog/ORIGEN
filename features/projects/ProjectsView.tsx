@@ -31,7 +31,11 @@ import type {
   ProjectPhotoRecord,
   QuoteRecord,
 } from '@/lib/types';
-import { saveProjectPhotoToFirestore, subscribeProjectPhotos } from '@/lib/firebaseService';
+import {
+  deleteProjectPhotoFromFirestore,
+  saveProjectPhotoToFirestore,
+  subscribeProjectPhotos,
+} from '@/lib/firebaseService';
 import type { ProjectFormProject, ProjectFormValues } from '@/lib/validation/project.schema';
 
 interface ProjectsViewProps {
@@ -150,13 +154,17 @@ export function ProjectsView({
   };
 
   const handlePhotoUploaded = async (
-    _photoUrl: string,
+    _photoDataUrl: string,
     metadata: {
       id: string;
       filename: string;
-      storagePath: string;
       uploadedAt: string;
       size: number;
+      dataUrl: string;
+      mime: string;
+      width: number;
+      height: number;
+      compressedSize: number;
     }
   ) => {
     if (!selectedProjectForPhotos || !company?.companyId) {
@@ -164,6 +172,11 @@ export function ProjectsView({
     }
     await saveProjectPhotoToFirestore(selectedProjectForPhotos.id, company.companyId, metadata);
     toast.success(`Foto vinculada al proyecto ${selectedProjectForPhotos.name}`);
+  };
+
+  const handlePhotoDelete = async (photoId: string) => {
+    if (!selectedProjectForPhotos) return;
+    await deleteProjectPhotoFromFirestore(selectedProjectForPhotos.id, photoId);
   };
 
   const handleProjectSave = async (values: ProjectFormValues): Promise<boolean> => {
@@ -498,6 +511,7 @@ export function ProjectsView({
                 projectId={selectedProjectForPhotos.id}
                 projectCode={selectedProjectForPhotos.code || 'PROYECTO'}
                 onPhotoUploaded={handlePhotoUploaded}
+                onPhotoDelete={handlePhotoDelete}
                 savedPhotos={savedProjectPhotos}
                 maxFiles={5}
                 maxSizeMB={10}

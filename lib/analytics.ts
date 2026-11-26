@@ -28,10 +28,16 @@ export function initializeAnalytics(measurementId: string) {
   window.gtag = gtag;
 }
 
+/** ID de medición compartido (GA4 o Firebase Measurement ID). */
+export function getMeasurementId(): string | undefined {
+  return process.env.NEXT_PUBLIC_GA_ID || process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID;
+}
+
 // Track page views
 export function trackPageView(pagePath: string, pageTitle: string) {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
+  const measurementId = getMeasurementId();
+  if (typeof window !== 'undefined' && window.gtag && measurementId) {
+    window.gtag('config', measurementId, {
       page_path: pagePath,
       page_title: pageTitle,
     });

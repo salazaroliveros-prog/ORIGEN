@@ -178,7 +178,7 @@ Devuelve ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta (
 }`;
 
           const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
+            model: 'gemini-3.7-flash',
             contents: prompt,
             config: {
               responseMimeType: 'application/json',
@@ -359,7 +359,7 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
 }`;
 
           const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
+            model: 'gemini-3.7-flash',
             contents: prompt,
             config: {
               responseMimeType: 'application/json',
@@ -559,7 +559,7 @@ INSTRUCCIONES DE AUDITORÍA:
    (Alertas por clima, curado de losas, tiempos de fraguado o recomendaciones para la siguiente visita).`;
 
           const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
+            model: 'gemini-3.7-flash',
             contents: {
               parts: [imagePart, { text: logbookPrompt }],
             },
@@ -685,7 +685,7 @@ Responde de forma clara, técnica, profesional y concisa, fundamentando en norma
 Consulta del usuario: "${userMessage}"`;
 
           const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
+            model: 'gemini-3.7-flash',
             contents: chatPrompt,
           });
 

@@ -1,6 +1,10 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+  type AppCheck,
+} from 'firebase/app-check';
 import { toast } from 'react-hot-toast';
 
 import {
@@ -235,19 +239,28 @@ if (useFirebaseEmulators && isNewFirebaseApp && auth && db) {
 // Inicializar Firebase App Check con reCAPTCHA Enterprise (solo en cliente)
 // En desarrollo (localhost) usa el debug token de Firebase Console para evitar
 // bloqueos de App Check enforcement en el plan Spark.
+// Instancia de App Check, compartida con el cliente API para enviar el token
+// en las rutas que exigen atestación (Gemini, subida de fotos, etc.).
+export let appCheckInstance: AppCheck | null = null;
+
 // En producción (Vercel) usa la clave de reCAPTCHA Enterprise configurada.
 if (!useFirebaseEmulators && typeof window !== 'undefined' && firebaseConfig.appCheckRecaptchaKey) {
   try {
-    // Configurar debug token para desarrollo local si está disponible en .env.local
-    if (
-      process.env.NODE_ENV === 'development' &&
-      process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN
-    ) {
-      (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN =
-        process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN;
+    // Configurar debug token para desarrollo local si está disponible en .env.local.
+    // `NEXT_PUBLIC_QA_APP_CHECK_DEBUG_TOKEN` permite validar un build de producción
+    // en local (donde reCAPTCHA Enterprise puntúa el navegador automatizado como
+    // bot). NUNCA debe definirse en un despliegue real.
+    const qaDebugToken = process.env.NEXT_PUBLIC_QA_APP_CHECK_DEBUG_TOKEN;
+    const devDebugToken =
+      process.env.NODE_ENV === 'development'
+        ? process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG_TOKEN
+        : undefined;
+    const debugToken = qaDebugToken || devDebugToken;
+    if (debugToken) {
+      (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
     }
 
-    initializeAppCheck(getAppOrThrow(), {
+    appCheckInstance = initializeAppCheck(getAppOrThrow(), {
       provider: new ReCaptchaEnterpriseProvider(firebaseConfig.appCheckRecaptchaKey),
       isTokenAutoRefreshEnabled: true,
     });
@@ -510,7 +523,8 @@ export function subscribeProjects(
 export async function saveProjectPhotoToFirestore(
   projectId: string,
   companyId: string,
-  input: Pick<ProjectPhotoRecord, 'id' | 'filename' | 'storagePath' | 'uploadedAt' | 'size'>
+  input: Pick<ProjectPhotoRecord, 'id' | 'filename' | 'uploadedAt' | 'size'> &
+    Partial<Pick<ProjectPhotoRecord, 'dataUrl' | 'mime' | 'width' | 'height' | 'compressedSize' | 'storagePath'>>
 ): Promise<ProjectPhotoRecord> {
   if (!/^[a-zA-Z0-9_-]{1,128}$/.test(projectId) || !/^[a-zA-Z0-9_-]{1,128}$/.test(input.id)) {
     throw new Error('La referencia del proyecto o de la foto no es válida.');
@@ -525,7 +539,20 @@ export async function saveProjectPhotoToFirestore(
   ) {
     throw new Error('Los metadatos de la foto no son válidos.');
   }
-  if (input.storagePath !== `projects/${projectId}/progress/${input.filename}`) {
+
+  // Fotos nuevas: imagen comprimida como data URL dentro del documento.
+  // Las fotos legacy con storagePath siguen siendo válidas para lectura.
+  if (input.dataUrl) {
+    if (!/^data:image\/(webp|jpeg|png);base64,/i.test(input.dataUrl)) {
+      throw new Error('El contenido de la foto no es una imagen válida.');
+    }
+    if (input.dataUrl.length > 900_000) {
+      throw new Error('La foto comprimida supera el límite de Firestore (1 MiB).');
+    }
+  } else if (
+    input.storagePath &&
+    input.storagePath !== `projects/${projectId}/progress/${input.filename}`
+  ) {
     throw new Error('La ruta de la foto no corresponde al proyecto seleccionado.');
   }
 
@@ -535,6 +562,17 @@ export async function saveProjectPhotoToFirestore(
     stripUndefined(record)
   );
   return record;
+}
+
+export async function deleteProjectPhotoFromFirestore(
+  projectId: string,
+  photoId: string
+): Promise<boolean> {
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(projectId) || !/^[a-zA-Z0-9_-]{1,128}$/.test(photoId)) {
+    throw new Error('La referencia de la foto no es válida.');
+  }
+  await deleteDoc(doc(getDbOrThrow(), 'projects', projectId, 'photos', photoId));
+  return true;
 }
 
 export function subscribeProjectPhotos(

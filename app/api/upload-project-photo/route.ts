@@ -85,7 +85,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. El usuario debe poder leer el proyecto (reglas de Firestore reales).
-    const access = await canReadDocumentAsUser(auth.idToken, 'projects', projectId.trim());
+    const access = await canReadDocumentAsUser(
+      auth.idToken,
+      'projects',
+      projectId.trim(),
+      request.headers.get('x-firebase-appcheck')
+    );
     if (access === 'unavailable') {
       return createApiError('No se pudo verificar el acceso al proyecto. Intenta nuevamente.', 503);
     }

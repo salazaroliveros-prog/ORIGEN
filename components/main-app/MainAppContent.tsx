@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { startTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import type {
   Project,
   CompanySettings,
@@ -44,6 +45,7 @@ type TabKey =
   | 'maquinaria'
   | 'planillas'
   | 'gastos'
+  | 'fel_invoices'
   | 'gmail'
   | 'equipo'
   | 'inventario';
@@ -106,6 +108,11 @@ const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }
     label: 'Gastos & Facturas',
     subtitle: 'Registro y control de gastos operativos',
   },
+  fel_invoices: {
+    id: 'fel_invoices',
+    label: 'Facturas FEL',
+    subtitle: 'Documentos tributarios electrónicos de Guatemala',
+  },
   gmail: {
     id: 'gmail',
     label: 'Correo & Avisos',
@@ -122,6 +129,14 @@ const TAB_CONFIG: Record<TabKey, { id: TabKey; label: string; subtitle: string }
     subtitle: 'Proveedores, bodegas, existencias y abastecimiento de obra',
   },
 };
+
+function RedirectTo({ href }: { href: string }) {
+  const router = useRouter();
+  useEffect(() => {
+    router.push(href);
+  }, [href, router]);
+  return <div className="p-8 text-sm text-slate-500">Abriendo {href}…</div>;
+}
 
 interface MainAppContentProps {
   activeTab: TabKey;
@@ -433,6 +448,12 @@ export function MainAppContent({
         }
       />
     );
+  }
+
+  // La facturación FEL vive en su propia ruta; el tab del sidebar debe
+  // navegar allí en lugar de dejar el panel en blanco.
+  if (activeTab === 'fel_invoices') {
+    return <RedirectTo href="/fel-invoices" />;
   }
 
   if (activeTab === 'gmail') {

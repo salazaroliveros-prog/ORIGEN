@@ -80,3 +80,7 @@ scripts/validate-all.ps1
 # Herramientas locales del agente / navegador
 .opencode/
 .playwright-mcp/
+
+# QA artifacts (capturas, logs y reportes con datos de producción)
+qa-artifacts/
+

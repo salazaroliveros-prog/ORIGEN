@@ -57,10 +57,12 @@ export async function uploadImageAsUser({
   });
 
   if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    console.error('[storageRest] upload failed', response.status, detail.slice(0, 300));
     throw new StorageUploadError(
       response.status === 403
         ? 'No tienes permiso para subir archivos a este proyecto.'
-        : 'No se pudo guardar la foto en Storage.',
+        : `No se pudo guardar la foto en Storage (${response.status}).`,
       response.status
     );
   }

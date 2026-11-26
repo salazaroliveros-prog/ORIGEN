@@ -110,7 +110,8 @@ describe('GET /api/project-photos/[projectId]/[photoId]', () => {
     expect(canReadDocumentAsUser).toHaveBeenCalledWith(
       AUTH_OK.idToken,
       'projects',
-      PHOTO_PARAMS.projectId
+      PHOTO_PARAMS.projectId,
+      null
     );
     expect(fetchMock).not.toHaveBeenCalled();
     expect(downloadStorageObjectAsUser).not.toHaveBeenCalled();

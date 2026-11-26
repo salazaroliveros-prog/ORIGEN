@@ -50,6 +50,16 @@ export default function LoginPage() {
           </a>
         </p>
       </main>
+      <footer className="absolute bottom-0 left-0 right-0 z-10 py-4 text-center text-[11px] text-slate-500">
+        ORIGEN ERP Guatemala ·{' '}
+        <a href="/privacy" className="underline hover:text-slate-300">
+          Política de Privacidad
+        </a>{' '}
+        ·{' '}
+        <a href="/terms" className="underline hover:text-slate-300">
+          Términos y Condiciones
+        </a>
+      </footer>
     </div>
   );
 }
