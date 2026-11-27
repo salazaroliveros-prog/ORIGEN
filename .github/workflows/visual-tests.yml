@@ -9,17 +9,14 @@ on:
 jobs:
   visual-tests:
     runs-on: ubuntu-latest
-
-    services:
-      app:
-        image: node:24-alpine
-        options: >-
-          --health-cmd "curl -f http://localhost:3000 || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 3000:3000
+    # El contenedor de servicio node:24-alpine no ejecutaba la app y su health
+    # check (curl) nunca podía pasar. El servidor se inicia en el paso "Start
+    # dev server" y se espera con wait-on. Permisos necesarios para publicar
+    # el check run y comentar en el PR.
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout code

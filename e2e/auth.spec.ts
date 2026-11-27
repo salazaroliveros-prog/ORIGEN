@@ -27,10 +27,13 @@ test.describe('Autenticación', () => {
   });
 
   test('la navegación principal con enlace real de la app es visible', async ({ page }) => {
-    // 'Tablero' es un botón de navegación de la barra lateral según Sidebar.tsx
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible({
-      timeout: 30_000,
-    });
+    // El menú lateral usa role="tab" (TabsGrouped); en móvil la barra inferior
+    // usa role="button". Aceptar ambos y el prefijo "Tablero de Control".
+    const dashboardNav = page
+      .getByRole('tab', { name: /Tablero/ })
+      .or(page.getByRole('button', { name: /Tablero/ }))
+      .first();
+    await expect(dashboardNav).toBeVisible({ timeout: 30_000 });
   });
 
   test('la sesión autenticada no muestra el formulario de inicio de sesión', async ({ page }) => {
