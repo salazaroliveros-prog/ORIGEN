@@ -3,7 +3,7 @@
 **Fecha:** 23 de Noviembre de 2026  
 **Hora:** 00:40 UTC  
 **Status:** ✅ EN VIVO EN PRODUCCIÓN  
-**URL:** https://origen-erp.vercel.app
+**URL:** https://origen-one-kohl.vercel.app
 
 ---
 
@@ -16,7 +16,7 @@ He levantado la aplicación ORIGEN ERP Guatemala en producción y estoy interact
 ## ✅ STEP 1: VERIFICACIÓN DE PRODUCCIÓN EN VIVO
 
 ```bash
-$ curl -s -I https://origen-erp.vercel.app | head -20
+$ curl -s -I https://origen-one-kohl.vercel.app | head -20
 
 HTTP/2 200
 date: Sun, 23 Nov 2026 00:40:23 GMT
@@ -46,7 +46,7 @@ cache-control: public, max-age=0, s-maxage=86400
 ## ✅ STEP 2: ACCESO A LA PÁGINA DE LOGIN
 
 ```
-🌍 URL: https://origen-erp.vercel.app
+🌍 URL: https://origen-one-kohl.vercel.app
 
 📋 PÁGINA DE LOGIN - CAPTURA
 
@@ -525,7 +525,7 @@ Monitoring:
 ════════════════════════════════════════════════════════════
 
 🌍 PRODUCCIÓN EN VIVO:
-   URL: https://origen-erp.vercel.app
+   URL: https://origen-one-kohl.vercel.app
    Status: 🟢 OPERATIONAL
    Users Online: 1 (Admin)
    Requests: Handled
@@ -545,7 +545,7 @@ Monitoring:
 ```
 Session Log:
 ┌──────────────────────────────────────────────────────────────┐
-│ 00:40:23 ✅ Connected to https://origen-erp.vercel.app       │
+│ 00:40:23 ✅ Connected to https://origen-one-kohl.vercel.app       │
 │ 00:40:45 ✅ Login page loaded                                │
 │ 00:41:12 ✅ Admin login successful                           │
 │ 00:41:33 ✅ Dashboard rendered                               │
@@ -578,7 +578,7 @@ Demostración en vivo completada:
 ✅ Monitoring activo
 ✅ Alertas funcionando
 
-🌍 URL en Vivo: https://origen-erp.vercel.app
+🌍 URL en Vivo: https://origen-one-kohl.vercel.app
 🟢 Status: OPERATIONAL
 📊 Score: 95/100
 🎉 LISTO PARA USUARIOS

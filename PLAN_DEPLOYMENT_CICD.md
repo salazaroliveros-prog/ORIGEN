@@ -22,7 +22,7 @@ DESARROLLO (dev)
    │
    ├─ Merge a develop branch
    ├─ GitHub Actions: Full CI/CD + E2E tests
-   ├─ Vercel Preview en staging-origen-erp.vercel.app
+   ├─ Vercel Preview en origen-git-develop-proyectoswm.vercel.app
    ├─ Firebase Project: origen-uno-staging
    ├─ Manual QA + penetration testing
    │
@@ -30,7 +30,7 @@ DESARROLLO (dev)
       │
       ├─ Merge a main (aprobado)
       ├─ GitHub Actions: Full suite + security scan
-      ├─ Vercel Deploy a origen-erp.vercel.app
+      ├─ Vercel Deploy a origen-one-kohl.vercel.app
       ├─ Firebase Project: origen-uno (producción)
       ├─ Automatic monitoring + alerts
       ├─ 1-hour rollback window
@@ -262,7 +262,7 @@ jobs:
     needs: [unit-tests, e2e-tests, performance, security]
     environment:
       name: production
-      url: https://origen-erp.vercel.app
+      url: https://origen-one-kohl.vercel.app
 
     steps:
       - uses: actions/checkout@v4
@@ -277,8 +277,8 @@ jobs:
 
       - name: Smoke Tests
         run: |
-          curl -f https://origen-erp.vercel.app || exit 1
-          curl -f https://origen-erp.vercel.app/api/health || exit 1
+          curl -f https://origen-one-kohl.vercel.app || exit 1
+          curl -f https://origen-one-kohl.vercel.app/api/health || exit 1
 
       - name: Notify Deployment
         if: success()
@@ -293,7 +293,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*✅ Production Deploy Successful*\n\nCommit: ${{ github.sha }}\nAutor: ${{ github.actor }}\nURL: https://origen-erp.vercel.app"
+                    "text": "*✅ Production Deploy Successful*\n\nCommit: ${{ github.sha }}\nAutor: ${{ github.actor }}\nURL: https://origen-one-kohl.vercel.app"
                   }
                 }
               ]
@@ -333,7 +333,7 @@ jobs:
       - name: Health Check
         run: |
           for i in {1..10}; do
-            if curl -s https://origen-erp.vercel.app/api/health | grep -q "ok"; then
+            if curl -s https://origen-one-kohl.vercel.app/api/health | grep -q "ok"; then
               echo "✅ Health check passed"
               exit 0
             fi
@@ -344,11 +344,11 @@ jobs:
 
       - name: Verify HTTPS
         run: |
-          curl -I https://origen-erp.vercel.app | grep -q "Strict-Transport-Security"
+          curl -I https://origen-one-kohl.vercel.app | grep -q "Strict-Transport-Security"
 
       - name: Check CSP Headers
         run: |
-          curl -I https://origen-erp.vercel.app | grep -q "Content-Security-Policy"
+          curl -I https://origen-one-kohl.vercel.app | grep -q "Content-Security-Policy"
 ```
 
 ---

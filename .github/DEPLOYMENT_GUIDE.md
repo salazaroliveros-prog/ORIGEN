@@ -393,7 +393,7 @@ npm ci && npm run build
    ├─ Slack notification sent
    └─ GitHub status shows ✅
    ↓
-5. Available at https://origen-staging.vercel.app
+5. Available at https://origen-git-develop-proyectoswm.vercel.app
 ```
 
 ### Example 3: Pull Request (Testing Only)

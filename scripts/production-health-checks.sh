@@ -20,7 +20,7 @@ echo -e "${BLUE}╚════════════════════�
 echo ""
 
 # Configuration
-PROD_URL="${1:-https://origen-erp.vercel.app}"
+PROD_URL="${1:-https://origen-one-kohl.vercel.app}"
 TIMEOUT=10
 
 echo -e "${YELLOW}📋 Configuración:${NC}"

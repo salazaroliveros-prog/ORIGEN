@@ -28,7 +28,7 @@
     └─ Monitoring ✅ (5m 12s)
 
 5️⃣  VERCEL DEPLOYMENT             ✅ COMPLETADO
-    └─ URL: https://origen-erp.vercel.app
+    └─ URL: https://origen-one-kohl.vercel.app
 
 6️⃣  HEALTH CHECKS                 ✅ TODOS PASS
     ├─ HTTPS redirect ✅
@@ -72,7 +72,7 @@ Vercel Deployment:
 ├─ Output size: 45.2 MB
 ├─ Functions: 8 serverless
 ├─ Status: 🟢 READY
-└─ URL: https://origen-erp.vercel.app
+└─ URL: https://origen-one-kohl.vercel.app
 
 Testing:
 ├─ Total tests: 68
@@ -101,7 +101,7 @@ Security:
 ✅ STATUS: PRODUCCIÓN EN VIVO
 
 ORIGEN ERP GUATEMALA está ahora disponible en:
-  🔗 https://origen-erp.vercel.app
+  🔗 https://origen-one-kohl.vercel.app
 
 Deployment Timeline:
   23:50 UTC - Limpieza + Commit + Push
@@ -124,7 +124,7 @@ Tests:                  68/68 (100% pass)
 GitHub Actions:         7/7 jobs (100% pass)
 Build Success Rate:     100%
 Deployment Time:        21m 15s
-Live URL:               https://origen-erp.vercel.app
+Live URL:               https://origen-one-kohl.vercel.app
 Status:                 🟢 LIVE
 
 ════════════════════════════════════════════════════════════════════════════

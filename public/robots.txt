@@ -6,7 +6,7 @@ Disallow: /*.json$
 Allow: /
 
 # Sitemap
-Sitemap: https://origen-erp.vercel.app/sitemap.xml
+Sitemap: https://origen-one-kohl.vercel.app/sitemap.xml
 
 # Crawl delay
 Crawl-delay: 1

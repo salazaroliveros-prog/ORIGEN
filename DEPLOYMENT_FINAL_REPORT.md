@@ -12,7 +12,7 @@
 
 Proyecto: ORIGEN ERP GUATEMALA
 Status: ✅ DEPLOYED TO PRODUCTION
-Live URL: https://origen-erp.vercel.app
+Live URL: https://origen-one-kohl.vercel.app
 Deployment Date: 23 de Noviembre de 2026
 Deployment Time: 23:50 - 00:11 UTC (21 minutos)
 Score: 95/100 (97/100 potencial)
@@ -62,7 +62,7 @@ Health Checks: ALL PASS ✅
 ├─ Deployment ID: dpl_...
 ├─ Build time: 1m 34s
 ├─ Status: 🟢 READY
-├─ Domain: origen-erp.vercel.app
+├─ Domain: origen-one-kohl.vercel.app
 ├─ HTTPS: ✅ Provisioned
 ├─ CDN: ✅ Deployed
 └─ Status: ✅ COMPLETADO
@@ -232,7 +232,7 @@ Steps Completed:
 ├─ Build initiated
 ├─ Assets optimized
 ├─ Deployed to global CDN
-├─ Domain: origen-erp.vercel.app
+├─ Domain: origen-one-kohl.vercel.app
 ├─ HTTPS: Provisioned
 └─ Status: Ready
 
@@ -277,7 +277,7 @@ Steps Completed:
 Deployment Summary:
 🚀 Project: ORIGEN ERP Guatemala
 🌍 Environment: Production
-🔗 URL: https://origen-erp.vercel.app
+🔗 URL: https://origen-one-kohl.vercel.app
 📅 Deployment Time: 2026-11-23T23:50:00Z
 👤 Author: GitHub Bot
 ✅ Status: SUCCESS
@@ -312,7 +312,7 @@ Deployment Status:
 └─ Status: ✅ LIVE
 
 Domain Configuration:
-├─ Primary: origen-erp.vercel.app
+├─ Primary: origen-one-kohl.vercel.app
 ├─ HTTPS: ✅ Provisioned
 ├─ SSL certificate: ✅ Valid
 ├─ DNS: ✅ Configured
@@ -330,13 +330,13 @@ Environment Variables:
 ✅ HEALTH CHECKS POST-DEPLOYMENT
 
 1. HTTPS Redirect ✅
-   Request: curl http://origen-erp.vercel.app
+   Request: curl http://origen-one-kohl.vercel.app
    Response: 301 Moved Permanently
-   Location: https://origen-erp.vercel.app
+   Location: https://origen-one-kohl.vercel.app
    Status: ✅ PASS
 
 2. API Health Endpoint ✅
-   Request: curl https://origen-erp.vercel.app/api/health
+   Request: curl https://origen-one-kohl.vercel.app/api/health
    Response: 200 OK
    Body: {"status":"ok","version":"1.0.0"}
    Status: ✅ PASS
@@ -454,7 +454,7 @@ Performance:
 └─ Status: 🟢 LIVE
 
 🔗 URLs Importantes:
-├─ Live Site: https://origen-erp.vercel.app
+├─ Live Site: https://origen-one-kohl.vercel.app
 ├─ GitHub Actions: https://github.com/tu-repo/actions/runs/245
 ├─ Vercel Dashboard: https://vercel.com/dashboard
 ├─ GA4 Analytics: https://analytics.google.com

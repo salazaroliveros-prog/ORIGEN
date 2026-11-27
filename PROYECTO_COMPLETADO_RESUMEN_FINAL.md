@@ -17,7 +17,7 @@ Score Inicial: 71/100
 Score Final: 95/100
 Mejora: +34% (+24 puntos)
 Status: ✅ PRODUCCIÓN EN VIVO
-URL Live: https://origen-erp.vercel.app
+URL Live: https://origen-one-kohl.vercel.app
 
 ════════════════════════════════════════════════════════════════════════════
 
@@ -147,7 +147,7 @@ GITHUB ACTIONS:
 VERCEL DEPLOYMENT:
 ├─ Build: 1m 34s
 ├─ Deploy: Ready
-├─ URL: https://origen-erp.vercel.app
+├─ URL: https://origen-one-kohl.vercel.app
 ├─ Status: 🟢 LIVE
 └─ Uptime: 100%
 

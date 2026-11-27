@@ -260,7 +260,7 @@ GitHub Secrets:
    └─ All jobs pass
 
 ✅ Deployment: SUCCESS
-   └─ Site live at origen-erp.vercel.app
+   └─ Site live at origen-one-kohl.vercel.app
 
 ✅ Health Checks: ALL PASS
    └─ HTTPS, API, Headers, Performance
@@ -358,7 +358,7 @@ Documentación (excluir del commit):
 5. Monitorear deployment
    - GitHub Actions: github.com/YOUR_REPO/actions
    - Vercel: vercel.com/dashboard
-   - Live: origen-erp.vercel.app
+   - Live: origen-one-kohl.vercel.app
 
 6. Validar health checks
    - HTTPS redirect working

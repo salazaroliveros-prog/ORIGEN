@@ -187,7 +187,7 @@ Result: https://origen-one-kohl.vercel.app ✅
 ```
 1. Same testing as main
 2. Deploy to Staging instead
-Result: https://origen-staging.vercel.app ✅
+Result: https://origen-git-develop-proyectoswm.vercel.app ✅
 ```
 
 ### Pull Request to `main`

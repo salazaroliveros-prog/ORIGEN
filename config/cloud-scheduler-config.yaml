@@ -68,7 +68,7 @@ spec:
   region: "us-central1"
   httpTarget:
     httpMethod: GET
-    uri: https://origen-erp.vercel.app/api/health
+    uri: https://origen-one-kohl.vercel.app/api/health
     headers:
       X-Health-Check: "true"
 

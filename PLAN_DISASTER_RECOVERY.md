@@ -197,7 +197,7 @@ WHERE metadata.created_time > NOW() - INTERVAL 1 HOUR
 // Vercel health checks (run every 60s)
 const healthCheck = async () => {
   try {
-    const res = await fetch('https://origen-erp.vercel.app/api/health', {
+    const res = await fetch('https://origen-one-kohl.vercel.app/api/health', {
       timeout: 10000,
     });
 

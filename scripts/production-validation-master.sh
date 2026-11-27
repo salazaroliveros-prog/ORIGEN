@@ -21,7 +21,7 @@ echo -e "${MAGENTA}╚═══════════════════�
 echo ""
 
 # Configuration
-PROD_URL="${1:-https://origen-erp.vercel.app}"
+PROD_URL="${1:-https://origen-one-kohl.vercel.app}"
 REPO="${2:-origin-erp-team/origen-erp}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 VERCEL_TOKEN="${VERCEL_TOKEN:-}"

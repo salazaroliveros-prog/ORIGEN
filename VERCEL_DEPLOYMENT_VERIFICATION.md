@@ -27,7 +27,7 @@
 
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_SENTRY_DSN=https://xxxxx@xxxxx.ingest.sentry.io/xxxxx
-NEXT_PUBLIC_SITE_URL=https://origen-erp.vercel.app
+NEXT_PUBLIC_SITE_URL=https://origen-one-kohl.vercel.app
 NEXT_PUBLIC_APP_VERSION=1.0.0
 
 VERCEL_KV_REST_API_URL=
@@ -309,7 +309,7 @@ Health checks
 ### Inmediato (0-5 minutos)
 
 ```
-✅ Site live en https://origen-erp.vercel.app
+✅ Site live en https://origen-one-kohl.vercel.app
 ✅ HTTPS funcional
 ✅ Redirect HTTP → HTTPS
 ✅ Security headers presentes
@@ -361,7 +361,7 @@ TOTAL: 15-25 minutos
 # En Vercel Dashboard:
 ✅ Build completed in X seconds
 ✅ Deployed to production
-✅ Domain: origen-erp.vercel.app
+✅ Domain: origen-one-kohl.vercel.app
 ✅ Commit: SHA xxxxx
 ✅ Author: github-user
 ✅ Status: Ready
@@ -371,10 +371,10 @@ TOTAL: 15-25 minutos
 
 ```bash
 # Manual verification:
-curl https://origen-erp.vercel.app/api/health
+curl https://origen-one-kohl.vercel.app/api/health
 # Response: {"status":"ok","timestamp":"2026-11-23T..."}
 
-curl -I https://origen-erp.vercel.app
+curl -I https://origen-one-kohl.vercel.app
 # Headers: HSTS, CSP, X-Frame-Options presente
 ```
 

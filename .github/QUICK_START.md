@@ -59,7 +59,7 @@ npm run start
 
 - Push to `develop` branch
 - Workflow triggers automatically
-- Check: https://origen-staging.vercel.app (after 30 min)
+- Check: https://origen-git-develop-proyectoswm.vercel.app (after 30 min)
 
 **Step 4: Deploy to Production** (Automated)
 
@@ -102,7 +102,7 @@ git push
 | Environment | URL                                | Branch  | Status |
 | ----------- | ---------------------------------- | ------- | ------ |
 | Production  | https://origen-one-kohl.vercel.app | main    | ✅     |
-| Staging     | https://origen-staging.vercel.app  | develop | ✅     |
+| Staging     | https://origen-git-develop-proyectoswm.vercel.app  | develop | ✅     |
 | Local       | http://localhost:3000              | any     | 🔧     |
 
 ---

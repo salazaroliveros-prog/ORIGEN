@@ -10,20 +10,20 @@
 
 ```bash
 # 1. Verificar CSP headers
-curl -I https://origen-erp.vercel.app | grep Content-Security-Policy
+curl -I https://origen-one-kohl.vercel.app | grep Content-Security-Policy
 
 # 2. Verificar HTTPS redirect
-curl -I http://origen-erp.vercel.app
+curl -I http://origen-one-kohl.vercel.app
 
 # 3. Verificar health check
-curl https://origen-erp.vercel.app/api/health
+curl https://origen-one-kohl.vercel.app/api/health
 
 # 4. Verificar rate limiting
-for i in {1..60}; do curl -s https://origen-erp.vercel.app/api/health; done
+for i in {1..60}; do curl -s https://origen-one-kohl.vercel.app/api/health; done
 
 # 5. Verificar robots + sitemap
-curl https://origen-erp.vercel.app/robots.txt
-curl https://origen-erp.vercel.app/sitemap.xml
+curl https://origen-one-kohl.vercel.app/robots.txt
+curl https://origen-one-kohl.vercel.app/sitemap.xml
 ```
 
 ---

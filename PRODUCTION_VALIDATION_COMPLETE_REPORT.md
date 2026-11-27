@@ -14,7 +14,7 @@
 
 Proyecto: ORIGEN ERP GUATEMALA
 Status: ✅ VALIDADO EN PRODUCCIÓN
-Live URL: https://origen-erp.vercel.app
+Live URL: https://origen-one-kohl.vercel.app
 Validación Date: 23 de Noviembre de 2026
 Score: 95/100 (Excelente)
 Tests: 68/68 (100% PASS)
@@ -35,14 +35,14 @@ Validadores Ejecutados: 8 (All Passed)
 ├─ Ruta: scripts/vercel-deployment-monitor.sh
 ├─ Función: Monitorea deployments en Vercel
 ├─ Requisito: Vercel CLI (vercel) + VERCEL_TOKEN
-├─ Uso: bash scripts/vercel-deployment-monitor.sh origen-erp origen-erp.vercel.app
+├─ Uso: bash scripts/vercel-deployment-monitor.sh origen-erp origen-one-kohl.vercel.app
 └─ Status: ✅ INSTALADO
 
 3️⃣ Production Health Checks
 ├─ Ruta: scripts/production-health-checks.sh
 ├─ Función: Valida todos los endpoints en producción
 ├─ Requisito: curl, openssl, jq (opcional)
-├─ Uso: bash scripts/production-health-checks.sh https://origen-erp.vercel.app
+├─ Uso: bash scripts/production-health-checks.sh https://origen-one-kohl.vercel.app
 ├─ Validaciones:
 │ ├─ HTTPS connection
 │ ├─ HTTP to HTTPS redirect
@@ -59,7 +59,7 @@ Validadores Ejecutados: 8 (All Passed)
 ├─ Ruta: scripts/api-endpoint-tester.sh
 ├─ Función: Prueba todos los endpoints de la API
 ├─ Requisito: curl, jq (opcional)
-├─ Uso: bash scripts/api-endpoint-tester.sh https://origen-erp.vercel.app
+├─ Uso: bash scripts/api-endpoint-tester.sh https://origen-one-kohl.vercel.app
 ├─ Validaciones:
 │ ├─ GET /api/health
 │ ├─ GET /api/account/my-data (ARCO)
@@ -77,7 +77,7 @@ Validadores Ejecutados: 8 (All Passed)
 ├─ Ruta: scripts/production-validation-master.sh
 ├─ Función: Ejecuta todos los validadores en secuencia
 ├─ Requisito: Todos los scripts anteriores
-├─ Uso: bash scripts/production-validation-master.sh https://origen-erp.vercel.app origin-erp-team/origen-erp
+├─ Uso: bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app origin-erp-team/origen-erp
 ├─ Fases:
 │ ├─ Phase 1: GitHub Actions Validation
 │ ├─ Phase 2: Vercel Deployment Validation
@@ -133,16 +133,16 @@ Instalación de requisitos (Linux - Debian/Ubuntu):
 
 Opción 1: Ejecutar validador individual
 ─────────────────────────────────────────────
-bash scripts/production-health-checks.sh https://origen-erp.vercel.app
+bash scripts/production-health-checks.sh https://origen-one-kohl.vercel.app
 
 Opción 2: Ejecutar API tester
 ─────────────────────────────────────────────
-bash scripts/api-endpoint-tester.sh https://origen-erp.vercel.app
+bash scripts/api-endpoint-tester.sh https://origen-one-kohl.vercel.app
 
 Opción 3: Ejecutar validador de Vercel
 ─────────────────────────────────────────────
 export VERCEL_TOKEN=your_token_here
-bash scripts/vercel-deployment-monitor.sh origen-erp origen-erp.vercel.app
+bash scripts/vercel-deployment-monitor.sh origen-erp origen-one-kohl.vercel.app
 
 Opción 4: Ejecutar validador de GitHub Actions
 ─────────────────────────────────────────────
@@ -151,7 +151,7 @@ bash scripts/github-actions-validator.sh origin-erp-team origen-erp
 
 Opción 5: Ejecutar validación COMPLETA (Recomendado)
 ─────────────────────────────────────────────
-bash scripts/production-validation-master.sh https://origen-erp.vercel.app origin-erp-team/origen-erp
+bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app origin-erp-team/origen-erp
 
 ════════════════════════════════════════════════════════════════════════════
 
@@ -211,7 +211,7 @@ Vercel Deployment:
 ├─ Build Status: Success
 ├─ Deploy Status: Ready
 ├─ Environment: Production
-├─ Domain: origen-erp.vercel.app
+├─ Domain: origen-one-kohl.vercel.app
 └─ Status: ✅ LIVE
 
 Health Checks:
@@ -262,7 +262,7 @@ Próximas Acciones Recomendadas:
 
 🔗 RECURSOS IMPORTANTES
 
-Production URL: https://origen-erp.vercel.app
+Production URL: https://origen-one-kohl.vercel.app
 GitHub Repository: https://github.com/origin-erp-team/origen-erp
 GitHub Actions: https://github.com/origin-erp-team/origen-erp/actions
 Vercel Dashboard: https://vercel.com/dashboard

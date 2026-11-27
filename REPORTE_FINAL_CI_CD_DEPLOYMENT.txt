@@ -177,7 +177,7 @@ Project Setup: ✅ VERIFICADO
 ├─ Connected to GitHub
 ├─ Auto deploy: Enabled
 ├─ Branches: main (production), develop (staging)
-└─ Domain: origen-erp.vercel.app
+└─ Domain: origen-one-kohl.vercel.app
 
 Environment Variables: ✅ CONFIGURADAS
 ├─ NEXT_PUBLIC_GA_ID (GA4)
@@ -285,7 +285,7 @@ Monitoring integrations:
 📈 ESPERADO POST-DEPLOYMENT
 
 Inmediato (0-5 minutos):
-✅ Site live: https://origen-erp.vercel.app
+✅ Site live: https://origen-one-kohl.vercel.app
 ✅ HTTPS funcional
 ✅ Redirect activo
 ✅ Security headers presentes
@@ -367,7 +367,7 @@ PUSH A GITHUB:
 MONITOREAR DEPLOYMENT:
 1. GitHub Actions: https://github.com/YOUR_REPO/actions
 2. Vercel Deployment: https://vercel.com/dashboard
-3. Live site: https://origen-erp.vercel.app
+3. Live site: https://origen-one-kohl.vercel.app
 
 POST-DEPLOYMENT:
 1. Verificar health checks (automatizado)

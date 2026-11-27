@@ -22,7 +22,7 @@ echo ""
 # Configuration
 VERCEL_TOKEN="${VERCEL_TOKEN:-}"
 PROJECT_NAME="${1:-origen-erp}"
-PROD_DOMAIN="${2:-origen-erp.vercel.app}"
+PROD_DOMAIN="${2:-origen-one-kohl.vercel.app}"
 
 echo -e "${YELLOW}📋 Configuración:${NC}"
 echo "   Project: $PROJECT_NAME"

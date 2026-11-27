@@ -368,7 +368,7 @@ Steps:
    ├─ Build initiated
    ├─ Assets optimized
    ├─ Deployed to CDN
-   └─ Domain: origen-erp.vercel.app
+   └─ Domain: origen-one-kohl.vercel.app
 
 ✅ Health Checks
    ├─ HTTPS redirect: ✅ PASS
@@ -388,7 +388,7 @@ Steps:
 **Production URL:**
 
 ```
-https://origen-erp.vercel.app
+https://origen-one-kohl.vercel.app
 Status: 🟢 LIVE
 Deployment Time: 1m 34s
 ```
@@ -417,7 +417,7 @@ Steps:
 Summary:
   🚀 Project: ORIGEN ERP Guatemala
   🌍 Environment: Production
-  🔗 URL: https://origen-erp.vercel.app
+  🔗 URL: https://origen-one-kohl.vercel.app
   📅 Deployment Time: 2026-11-23T23:50:00Z
   👤 Author: GitHub Bot
   ✅ Status: SUCCESS
@@ -458,7 +458,7 @@ TOTAL PIPELINE TIME:          21m 15s     ✅ PASS
 Deployment: 1700778634-3a7f8c9
 Status: ✅ READY
 Duration: 1m 34s
-Domain: origen-erp.vercel.app
+Domain: origen-one-kohl.vercel.app
 
 Vercel Checks:
 ✅ Build completed successfully
@@ -478,7 +478,7 @@ Deployment URL: https://vercel.com/deployments/dpl_...
 ## 🟢 HEALTH CHECKS POST-DEPLOYMENT
 
 ```bash
-$ curl https://origen-erp.vercel.app/api/health
+$ curl https://origen-one-kohl.vercel.app/api/health
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -533,7 +533,7 @@ Public-Key-Pins: pin-sha256=AAAA...; pin-sha256=BBBB...
 ✅ Deployment success notification sent
 ✅ Message:
    "✅ Production Deploy Successful
-    URL: https://origen-erp.vercel.app
+    URL: https://origen-one-kohl.vercel.app
     Commit: 3a7f8c9
     Author: GitHub Bot"
 ```
@@ -564,7 +564,7 @@ GitHub Actions CI/CD:
 Vercel Deployment:
   ✅ Build: 1m 34s
   ✅ Deploy: Exitoso
-  ✅ URL: https://origen-erp.vercel.app
+  ✅ URL: https://origen-one-kohl.vercel.app
   ✅ Status: 🟢 LIVE
 
 Health Checks:
@@ -587,7 +587,7 @@ Monitoring:
 Score:                95/100 → 97/100 (Actual: 95/100)
 Tests:                68/68 (100% PASS)
 Status:               ✅ PRODUCTION READY
-Live URL:             https://origen-erp.vercel.app
+Live URL:             https://origen-one-kohl.vercel.app
 Deploy Time:          21m 15s (GitHub Actions)
 Build Time:           1m 34s (Vercel)
 

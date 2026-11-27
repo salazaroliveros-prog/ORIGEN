@@ -14,7 +14,7 @@
   - [ ] `VERCEL_KV_REST_API_URL`
   - [ ] `VERCEL_KV_REST_API_TOKEN`
   - [ ] `SLACK_WEBHOOK_URL`
-  - [ ] `NEXT_PUBLIC_SITE_URL` = `https://origen-erp.vercel.app`
+  - [ ] `NEXT_PUBLIC_SITE_URL` = `https://origen-one-kohl.vercel.app`
 
 - [ ] **Firebase Setup:**
   - [ ] Admin SDK JSON descargado
@@ -41,7 +41,7 @@
 
 ### Testing en Staging
 
-- [ ] Deploy a staging-origen-erp.vercel.app
+- [ ] Deploy a origen-git-develop-proyectoswm.vercel.app
 - [ ] Smoke tests 100% pass
 - [ ] Security headers verificados
 - [ ] Load test 100 usuarios OK
@@ -93,17 +93,17 @@ npm run test:functional
 
 ```bash
 # Verificar todos los headers
-curl -I https://staging-origen-erp.vercel.app
+curl -I https://origen-git-develop-proyectoswm.vercel.app
 
 # Verificar CSP
-curl https://staging-origen-erp.vercel.app | grep CSP
+curl https://origen-git-develop-proyectoswm.vercel.app | grep CSP
 
 # Verificar HTTPS redirect
-curl -I http://staging-origen-erp.vercel.app
+curl -I http://origen-git-develop-proyectoswm.vercel.app
 
 # Verificar robots.txt + sitemap
-curl https://staging-origen-erp.vercel.app/robots.txt
-curl https://staging-origen-erp.vercel.app/sitemap.xml
+curl https://origen-git-develop-proyectoswm.vercel.app/robots.txt
+curl https://origen-git-develop-proyectoswm.vercel.app/sitemap.xml
 ```
 
 **Success Criteria:**
@@ -194,20 +194,20 @@ git push origin main
 
 ```bash
 # Verificar que app está live
-curl -I https://origen-erp.vercel.app
+curl -I https://origen-one-kohl.vercel.app
 
 # Verificar health endpoint
-curl https://origen-erp.vercel.app/api/health | jq .
+curl https://origen-one-kohl.vercel.app/api/health | jq .
 
 # Verificar que responde rápido (< 500ms)
-time curl https://origen-erp.vercel.app
+time curl https://origen-one-kohl.vercel.app
 ```
 
 **Paso 2: Security Verification (10 min)**
 
 ```bash
 # Verificar TODOS los headers
-curl -I https://origen-erp.vercel.app | grep -i "x-\|content\|strict"
+curl -I https://origen-one-kohl.vercel.app | grep -i "x-\|content\|strict"
 
 # Expected output:
 # X-Content-Type-Options: nosniff ✅
@@ -227,14 +227,14 @@ curl -I https://origen-erp.vercel.app | grep -i "x-\|content\|strict"
 # → ✅ Debe estar accesible
 
 # 3. Verificar robots + sitemap
-curl https://origen-erp.vercel.app/robots.txt
-curl https://origen-erp.vercel.app/sitemap.xml
+curl https://origen-one-kohl.vercel.app/robots.txt
+curl https://origen-one-kohl.vercel.app/sitemap.xml
 
 # 4. Cookie banner
 # → ✅ Debe aparecer al primer acceso
 
 # 5. Verificar JSON-LD schema
-curl https://origen-erp.vercel.app | grep "schema.org"
+curl https://origen-one-kohl.vercel.app | grep "schema.org"
 ```
 
 **Paso 4: Monitoring Setup (10 min)**
@@ -260,10 +260,10 @@ curl https://origen-erp.vercel.app | grep "schema.org"
 
 ```bash
 # Lighthouse mobile
-npm run lighthouse:audit -- https://origen-erp.vercel.app
+npm run lighthouse:audit -- https://origen-one-kohl.vercel.app
 
 # Verificar Core Web Vitals
-npm run vitals:check -- https://origen-erp.vercel.app
+npm run vitals:check -- https://origen-one-kohl.vercel.app
 
 # Expected:
 # Performance: > 85 ✅

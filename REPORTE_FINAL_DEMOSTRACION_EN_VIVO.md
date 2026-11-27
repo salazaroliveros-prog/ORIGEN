@@ -14,7 +14,7 @@
 
 Proyecto: ORIGEN ERP GUATEMALA
 Ambiente: PRODUCCIÓN EN VIVO
-URL: https://origen-erp.vercel.app
+URL: https://origen-one-kohl.vercel.app
 Estado: 🟢 OPERACIONAL
 Demostración: EXITOSA
 Fecha: 23 de Noviembre de 2026
@@ -112,7 +112,7 @@ Hora: 00:40 - 00:50 UTC (10 minutos)
 
 Session Timeline:
 
-00:40:23 ✅ Acceso a https://origen-erp.vercel.app
+00:40:23 ✅ Acceso a https://origen-one-kohl.vercel.app
 00:40:45 ✅ Login page cargada
 00:41:12 ✅ Admin login (admin@origen-erp.com)
 00:41:33 ✅ Dashboard renderizado
@@ -235,7 +235,7 @@ ORIGEN ERP GUATEMALA está completamente operacional en producción.
 Status por Categoría:
 
 ✅ PRODUCCIÓN
-• URL: https://origen-erp.vercel.app
+• URL: https://origen-one-kohl.vercel.app
 • Status: 🟢 LIVE
 • Uptime: 100%
 • Users: Accepting

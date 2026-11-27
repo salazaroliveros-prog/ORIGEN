@@ -11,8 +11,8 @@ export const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'ConstructERP Guatemala',
-  url: 'https://origen-erp.vercel.app',
-  logo: 'https://origen-erp.vercel.app/assets/branding/web-banner-logo.png',
+  url: 'https://origen-one-kohl.vercel.app',
+  logo: 'https://origen-one-kohl.vercel.app/assets/branding/web-banner-logo.png',
   description: 'ERP integral para arquitectos y constructoras en Guatemala',
   email: 'support@origen-erp.com',
   address: {
@@ -28,10 +28,10 @@ export const softwareApplicationSchema = {
   name: 'ConstructERP Guatemala',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
-  url: 'https://origen-erp.vercel.app',
+  url: 'https://origen-one-kohl.vercel.app',
   description:
     'ERP integral para arquitectos y constructoras: control de obras, presupuestos APU, planillas IGSS, firma digital y gestión de maquinaria',
-  image: 'https://origen-erp.vercel.app/assets/branding/web-banner-logo.png',
+  image: 'https://origen-one-kohl.vercel.app/assets/branding/web-banner-logo.png',
   author: {
     '@type': 'Organization',
     name: 'ConstructERP Guatemala',

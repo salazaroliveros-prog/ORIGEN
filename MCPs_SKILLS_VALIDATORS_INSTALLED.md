@@ -27,7 +27,7 @@
    ├─ Función: Monitoreo de deployment en Vercel
    ├─ Requisitos: Vercel CLI (vercel), VERCEL_TOKEN
    ├─ Uso:
-   │ └─ bash scripts/vercel-deployment-monitor.sh origen-erp origen-erp.vercel.app
+   │ └─ bash scripts/vercel-deployment-monitor.sh origen-erp origen-one-kohl.vercel.app
    ├─ Validaciones:
    │ ├─ Estado del build
    │ ├─ Deploy status
@@ -40,7 +40,7 @@
    ├─ Función: Validación de salud del sistema
    ├─ Requisitos: curl, openssl, jq (opcional)
    ├─ Uso:
-   │ └─ bash scripts/production-health-checks.sh https://origen-erp.vercel.app
+   │ └─ bash scripts/production-health-checks.sh https://origen-one-kohl.vercel.app
    ├─ Validaciones (9 checks):
    │ ├─ HTTPS Connection
    │ ├─ HTTP→HTTPS Redirect
@@ -58,7 +58,7 @@
    ├─ Función: Testing completo de endpoints
    ├─ Requisitos: curl, jq (opcional)
    ├─ Uso:
-   │ └─ bash scripts/api-endpoint-tester.sh https://origen-erp.vercel.app
+   │ └─ bash scripts/api-endpoint-tester.sh https://origen-one-kohl.vercel.app
    ├─ Validaciones (15+ tests):
    │ ├─ Health endpoints
    │ ├─ Account endpoints (ARCO)
@@ -75,7 +75,7 @@
    ├─ Función: Orquestador de todas las validaciones
    ├─ Requisitos: Todos los anteriores
    ├─ Uso:
-   │ └─ bash scripts/production-validation-master.sh https://origen-erp.vercel.app origin-erp-team/origen-erp
+   │ └─ bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app origin-erp-team/origen-erp
    ├─ Fases (Secuencial):
    │ ├─ Phase 1: GitHub Actions Validation
    │ ├─ Phase 2: Vercel Deployment Validation
@@ -139,16 +139,16 @@ Validación Individual:
 
 # 1. Health Checks
 
-bash scripts/production-health-checks.sh https://origen-erp.vercel.app
+bash scripts/production-health-checks.sh https://origen-one-kohl.vercel.app
 
 # 2. API Testing
 
-bash scripts/api-endpoint-tester.sh https://origen-erp.vercel.app
+bash scripts/api-endpoint-tester.sh https://origen-one-kohl.vercel.app
 
 # 3. Vercel Deployment
 
 export VERCEL_TOKEN=your_token
-bash scripts/vercel-deployment-monitor.sh origen-erp origen-erp.vercel.app
+bash scripts/vercel-deployment-monitor.sh origen-erp origen-one-kohl.vercel.app
 
 # 4. GitHub Actions
 
@@ -157,7 +157,7 @@ bash scripts/github-actions-validator.sh origin-erp-team origen-erp
 Validación Completa (Recomendada):
 ─────────────────────────────────────────────
 bash scripts/production-validation-master.sh \
-https://origen-erp.vercel.app \
+https://origen-one-kohl.vercel.app \
 origin-erp-team/origen-erp
 
 Validación Autom
@@ -206,7 +206,7 @@ GitHub Actions:
 Vercel Deployment:
 ├─ Build Status: 🟢 Ready
 ├─ Deploy Status: 🟢 Live
-├─ Domain: 🟢 origen-erp.vercel.app
+├─ Domain: 🟢 origen-one-kohl.vercel.app
 ├─ HTTPS: 🟢 Provisioned
 └─ Status: 🟢 Operational
 

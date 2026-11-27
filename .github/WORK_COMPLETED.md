@@ -293,7 +293,7 @@ Result: ✅ Live in production
 
 1. [ ] Push to develop branch
 2. [ ] Monitor GitHub Actions workflow
-3. [ ] Verify staging deployment at https://origen-staging.vercel.app
+3. [ ] Verify staging deployment at https://origen-git-develop-proyectoswm.vercel.app
 4. [ ] Test staging application
 5. [ ] Push to main branch
 6. [ ] Monitor production deployment at https://origen-one-kohl.vercel.app

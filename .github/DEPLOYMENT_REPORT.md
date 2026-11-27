@@ -39,7 +39,7 @@ cdb876a - fix: resolve ESLint issues
 
 - **Tiempo de Build:** 2 minutos
 - **Status:** ✅ READY
-- **Build URL:** https://origen-44g9blqut-proyectoswm.vercel.app
+- **Build URL:** https://origen-one-kohl.vercel.app
 - **Production URL:** https://origen-one-kohl.vercel.app
 
 ### Build Output
