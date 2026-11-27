@@ -58,6 +58,15 @@ async function fillNewProjectForm(page: Page, code: string, name: string) {
   return dialog;
 }
 
+/** Amplía el listado para que el proyecto recién creado no quede paginado. */
+async function showAllProjects(page: Page) {
+  const pageSize = page.getByLabel('Elementos por página');
+  await pageSize.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
+  if (await pageSize.isVisible().catch(() => false)) {
+    await pageSize.selectOption('50');
+  }
+}
+
 /** Crea un proyecto desde la interfaz y espera a que aparezca en la lista. */
 async function createProject(page: Page, code: string, name: string) {
   await openTab(page, PROYECTOS_TAB);
@@ -65,6 +74,7 @@ async function createProject(page: Page, code: string, name: string) {
   const dialog = await fillNewProjectForm(page, code, name);
   await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
   await expect(dialog).toBeHidden({ timeout: 20_000 });
+  await showAllProjects(page);
   await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
     timeout: 20_000,
   });
@@ -165,6 +175,10 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
 
     await expect(dialog).toBeHidden();
+    await showAllProjects(page);
+    await expect(page.getByRole('button', { name: `Editar proyecto ${code}` })).toBeVisible({
+      timeout: 20_000,
+    });
     await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
       timeout: 10_000,
     });
