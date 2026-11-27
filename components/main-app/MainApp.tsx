@@ -432,7 +432,7 @@ export default function MainApp() {
         <main
           id="main-content"
           aria-busy={authStatus === 'authenticated' && workspaceLoading}
-          className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:ml-[280px] lg:mr-0 lg:max-w-[calc(100%-280px)] lg:px-8"
+          className="landscape-compact mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:ml-[280px] lg:mr-0 lg:max-w-[calc(100%-280px)] lg:px-8"
         >
           {authStatus === 'authenticated' && workspaceLoading && (
             <div

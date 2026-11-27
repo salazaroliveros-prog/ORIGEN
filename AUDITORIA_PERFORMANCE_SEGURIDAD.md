@@ -113,7 +113,7 @@ Disallow: /api/
 Disallow: /admin/
 Allow: /
 
-Sitemap: https://origin-domain.com/sitemap.xml
+Sitemap: https://origen-one-kohl.vercel.app/sitemap.xml
 ```
 
 ---

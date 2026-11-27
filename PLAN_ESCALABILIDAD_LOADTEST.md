@@ -359,7 +359,7 @@ export const options = {
 
 export default function () {
   // Simular login
-  let res = http.post('https://origin-staging.vercel.app/api/auth/login', {
+  let res = http.post('https://origen-one-kohl.vercel.app.vercel.app/api/auth/login', {
     email: `user${__VU}@test.com`,
     password: 'test123',
   });
@@ -372,7 +372,7 @@ export default function () {
   sleep(1);
 
   // Fetch proyectos
-  res = http.get('https://origin-staging.vercel.app/api/proyectos');
+  res = http.get('https://origen-one-kohl.vercel.app.vercel.app/api/proyectos');
   check(res, {
     'proyectos fetched': (r) => r.status === 200,
     'response time < 500ms': (r) => r.timings.duration < 500,
@@ -381,7 +381,7 @@ export default function () {
   sleep(2);
 
   // Create gastos
-  res = http.post('https://origin-staging.vercel.app/api/gastos', {
+  res = http.post('https://origen-one-kohl.vercel.app.vercel.app/api/gastos', {
     amount: 100,
     category: 'materials',
     projectId: 'proj-123',

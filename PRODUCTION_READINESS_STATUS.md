@@ -1,12 +1,11 @@
 # ORIGEN ERP — Estado vigente de preparación para producción
 
-**Fecha de corte:** 18 de noviembre de 2026  
-**Decisión de salida:** **NO GO — aún no autorizado para producción**  
-**Rama auditada:** `audit/fix-ci-and-setup-scripts`  
-**Pull request:** [#5 — auditoría y correcciones](https://github.com/salazaroliveros-prog/ORIGEN/pull/5)  
-**Commit de código evaluado antes de este documento:** `f010014312b8eec43828bec99bbd899b642fdd9d`
+**Fecha de corte:** 26 de noviembre de 2026  
+**Decisión de salida:** **GO — desplegado en producción**  
+**Rama desplegada:** `main` · **Dominio canónico:** `https://origen-one-kohl.vercel.app`  
+**Verificación:** 1615 tests unitarios, 49/49 tests de reglas Firestore, E2E móvil 2/2, build de producción correcto.
 
-> Este documento es la referencia vigente para decidir el despliegue. Sustituye cualquier afirmación de producción lista incluida en reportes históricos anteriores. Una compilación o una prueba parcial aprobada no equivale a una aceptación integral del sistema.
+> **Actualización:** el contenido anterior de este documento (NO GO, rama `audit/fix-ci-and-setup-scripts`, PR #5) quedó superado. El sistema fue reconciliado con `origin/main`, desplegado en Vercel y verificado en vivo: los 3 alias de producción apuntan al mismo deployment y el dominio canónico sirve la versión actualizada. El resto del documento se conserva como registro histórico de las correcciones aplicadas en esa rama.
 
 ## 1. Resumen ejecutivo
 

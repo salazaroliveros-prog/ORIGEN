@@ -253,7 +253,7 @@ Database:             ✅ Connected
 Environment: Production
 Node Env: production
 API Keys: Configured ✅
-Firebase Project: origen-constructora-de
+Firebase Project: origen-one-kohl.vercel.app-de
 Database: Firestore (Active)
 Authentication: Firebase Auth
 Storage: Google Cloud Storage

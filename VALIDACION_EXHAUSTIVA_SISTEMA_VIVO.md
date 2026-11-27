@@ -512,7 +512,7 @@ DELETE: N/A (read-only)
 ### **5.12 IA ✅**
 
 ```
-READ:   ✅ Consulta Claude
+READ:   ✅ Consulta Gemini
 CREATE: ✅ Nueva consulta
 UPDATE: N/A
 DELETE: N/A (histórico)

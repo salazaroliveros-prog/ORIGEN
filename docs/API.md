@@ -87,7 +87,7 @@ AI-powered construction assistance for Guatemalan projects.
 
 ```json
 {
-  "action": "chat" | "analyze",
+  "action": "chat" | "generate_apu" | "audit_budget" | "market_update" | "analyze_logbook",
   "message": "string",
   "department": "string (Guatemala department)",
   "projectData": { ... }
@@ -170,12 +170,20 @@ Generate Smart Bitácora from foreman voice notes.
 }
 ```
 
+## Other implemented endpoints
+
+- `GET /api/health` — health check
+- `GET /api/firebase-config.js` — public Firebase config for the browser
+- `POST /api/metrics` — client-side metrics ingestion
+- `POST /api/gemini/receipt` and `/api/gemini/bitacora` (see above)
+- `POST /api/upload-project-photo`, `GET/DELETE /api/project-photos/[projectId]/[photoId]`
+- `GET/POST /api/account/my-data`, `DELETE /api/account/delete-account`
+- `POST /api/alerts/slack`, `GET /api/weather/safety-alerts`
+
 ## Versioning
 
-API versioning is handled via URL path:
-
-- Current: `/api/v1/` (implicit, v1 is default)
-- Future versions: `/api/v2/`, etc.
+The API is **not versioned** via URL path. All routes live under `/api/*` directly
+(e.g. `/api/gemini`). There are no `/api/v1/*` or `/api/v2/*` routes.
 
 ## Changelog
 

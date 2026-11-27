@@ -142,7 +142,7 @@ service cloud.firestore {
 - [x] Email/Password habilitado
 - [x] Social providers configurados (Google, GitHub)
 - [x] Custom claims para roles
-- [x] 2FA soportado (opcional)
+- [x] 2FA no implementado (requiere decisión de producto) (opcional)
 
 **Mejora:**
 

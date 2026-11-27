@@ -295,7 +295,7 @@ Steps:
 **Build Output:**
 
 ```
-▲ Next.js 14.0.0
+▲ Next.js 15
 
 > Build complete
 > Information collected

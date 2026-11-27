@@ -14,7 +14,7 @@
    ├─ Función: Validación en tiempo real de CI/CD
    ├─ Requisitos: GitHub CLI (gh), autenticación
    ├─ Uso:
-   │ └─ bash scripts/github-actions-validator.sh origin-erp-team origen-erp
+   │ └─ bash scripts/github-actions-validator.sh salazaroliveros-prog ORIGEN
    ├─ Validaciones:
    │ ├─ Estado del workflow
    │ ├─ Estado de jobs
@@ -75,7 +75,7 @@
    ├─ Función: Orquestador de todas las validaciones
    ├─ Requisitos: Todos los anteriores
    ├─ Uso:
-   │ └─ bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app origin-erp-team/origen-erp
+   │ └─ bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app salazaroliveros-prog/ORIGEN
    ├─ Fases (Secuencial):
    │ ├─ Phase 1: GitHub Actions Validation
    │ ├─ Phase 2: Vercel Deployment Validation
@@ -152,13 +152,13 @@ bash scripts/vercel-deployment-monitor.sh origen-erp origen-one-kohl.vercel.app
 
 # 4. GitHub Actions
 
-bash scripts/github-actions-validator.sh origin-erp-team origen-erp
+bash scripts/github-actions-validator.sh salazaroliveros-prog ORIGEN
 
 Validación Completa (Recomendada):
 ─────────────────────────────────────────────
 bash scripts/production-validation-master.sh \
 https://origen-one-kohl.vercel.app \
-origin-erp-team/origen-erp
+salazaroliveros-prog/ORIGEN
 
 Validación Autom
 

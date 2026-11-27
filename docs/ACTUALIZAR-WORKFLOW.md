@@ -18,7 +18,7 @@ el workflow manualmente desde GitHub.
   Firebase, build y E2E.
 - El E2E usa Firebase Emulators desechables y genera credenciales nuevas por
   corrida; no depende de una cuenta fija ni de datos viejos.
-- La matriz E2E declara proyectos basados en Chromium y WebKit. El workflow
+- La matriz E2E declara proyectos basados en Chromium y 4 perfiles móviles. El workflow
   instala ambos motores antes de ejecutar Playwright.
 
 ## Mantenimiento futuro

@@ -93,11 +93,11 @@ La mayoría de entidades operativas se enlaza con `companyId`; APU, cotizaciones
 
 ```bash
 npm test
-npm run test:rules
+npm run test:firebase
 npx tsc --noEmit
 npm run lint
 npm audit --audit-level=moderate
 npm run build
 ```
 
-`npm test` no requiere emulador. `npm run test:rules` inicia Firestore Emulator por medio de Firebase CLI. Las pruebas locales no acreditan autenticación con proveedores reales ni autorización de Gmail/Gemini en producción.
+`npm test` no requiere emulador. `npm run test:firebase` inicia Firestore Emulator por medio de Firebase CLI. Las pruebas locales no acreditan autenticación con proveedores reales ni autorización de Gmail/Gemini en producción.

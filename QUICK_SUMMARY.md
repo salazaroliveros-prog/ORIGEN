@@ -127,7 +127,7 @@ git remote set-url origin https://<TOKEN>@github.com/salazaroliveros-prog/ORIGEN
 
 - Equipo: proyectoswm
 - Proyecto: origen
-- URL: https://origen-proyectoswm.vercel.app
+- URL: https://origen-one-kohl.vercel.app
 - Estado: Activo y desplegado
 
 ### Aplicación

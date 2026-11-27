@@ -77,7 +77,7 @@
 [ ] Acceder a staging
 [ ] Login con credenciales de test
 [ ] Crear proyecto (cero datos)
-[ ] Navegar todos los 14 módulos
+[ ] Navegar todos los 15 módulos
 [ ] Probar CRUD en cada módulo
 [ ] Validar mobile responsiveness
 [ ] Revisar logs (Sentry)

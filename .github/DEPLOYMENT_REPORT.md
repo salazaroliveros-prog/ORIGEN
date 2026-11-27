@@ -205,7 +205,7 @@ Los siguientes archivos fueron creados durante este proceso:
 
 ### Workflow Documentation
 
-- `.github/workflows/main.yml` - CI/CD Pipeline (14 jobs)
+- `.github/workflows/main.yml` - CI/CD Pipeline (8 jobs)
 - `.github/workflows/ci.yml` - Quick validation
 - `.github/workflows/visual-tests.yml` - Visual regression tests
 

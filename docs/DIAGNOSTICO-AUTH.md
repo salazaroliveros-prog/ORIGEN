@@ -26,13 +26,13 @@
 Verificación realizada el 27 de octubre de 2026:
 
 - `npm test`: 41 pruebas aprobadas.
-- `npm run test:rules`: 18 pruebas de reglas Firestore aprobadas.
-- `npm run test:emulator`: 3 pruebas de integración aprobadas con Auth y Firestore Emulator, incluido el CRUD de APU a través del servicio.
-- `npm run test:e2e:emulator`: una prueba Playwright aprobada. Registra una cuenta; crea, lee, edita, archiva y restaura un proyecto; crea y elimina un APU y un gasto; registra y lee empleado y asistencia, y elimina la asistencia; crea una cotización y cambia su estado; crea maquinaria y cambia su estado. Las peticiones Firebase del navegador se verifican como locales.
+- `npm run test:firebase`: 18 pruebas de reglas Firestore aprobadas.
+- `npm run test:firebase`: 3 pruebas de integración aprobadas con Auth y Firestore Emulator, incluido el CRUD de APU a través del servicio.
+- `npm run test:e2e`: una prueba Playwright aprobada. Registra una cuenta; crea, lee, edita, archiva y restaura un proyecto; crea y elimina un APU y un gasto; registra y lee empleado y asistencia, y elimina la asistencia; crea una cotización y cambia su estado; crea maquinaria y cambia su estado. Las peticiones Firebase del navegador se verifican como locales.
 - `npm run type-check` y ESLint dirigido a los archivos modificados: aprobados.
 - `npm run build`: compilación de producción aprobada. Persiste una advertencia de optimización de imagen por `<img>` en `components/ProjectPhotoDropzone.tsx`.
 
-La cobertura comprueba operaciones representativas de esos módulos, no todas las pantallas ni todas las operaciones para cada tipo de entidad. El proyecto se archiva/restaura en vez de eliminarse; empleado y maquinaria no se borran en el recorrido E2E. No se hicieron escrituras en Firebase de producción. Para repetir el recorrido: `npm run test:e2e:emulator`.
+La cobertura comprueba operaciones representativas de esos módulos, no todas las pantallas ni todas las operaciones para cada tipo de entidad. El proyecto se archiva/restaura en vez de eliminarse; empleado y maquinaria no se borran en el recorrido E2E. No se hicieron escrituras en Firebase de producción. Para repetir el recorrido: `npm run test:e2e`.
 
 ## OAuth de Gmail
 

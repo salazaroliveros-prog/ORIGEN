@@ -54,7 +54,7 @@ $ bash scripts/full-restart.sh
 
 > next dev
 
-▲ Next.js 14.0.0
+▲ Next.js 15
 - Local: http://localhost:3000
 - Waiting for other tasks...
 ✓ Ready in 2.5s
@@ -805,7 +805,7 @@ Interactividad Responsiva:
 ✅ Animaciones:             Smooth, no jarring
 ✅ Accesibilidad:           WCAG AA+
 ✅ Performance:             < 2.5s page load
-✅ Monitoreo:               GA4 + Sentry activos
+✅ Monitoreo:               GA4 + Sentry activo solo si NEXT_PUBLIC_SENTRY_DSN está definidos
 
 🎊 APLICACIÓN 100% OPERACIONAL Y RESPONSIVA
 ```

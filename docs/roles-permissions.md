@@ -48,5 +48,5 @@ La pantalla de equipo solo se muestra a `owner` y `admin`. Las invitaciones no p
 - Las reglas validan pertenencia a la empresa, rol, campos requeridos y, para APU, que el proyecto pertenezca a la misma empresa.
 - La sesión de Firebase Authentication determina la identidad; la membresía de Firestore determina la empresa y el rol.
 - Verifica la matriz contra los controles visuales de cada pantalla antes de cambiarla. Algunas acciones pueden ser visibles y ser rechazadas por Firestore; esas diferencias deben probarse con cada rol.
-- Los cambios de reglas deben verificarse con `npm run test:rules`. Las pruebas de interfaz y lógica cliente se ejecutan con `npm test`.
+- Los cambios de reglas deben verificarse con `npm run test:firebase`. Las pruebas de interfaz y lógica cliente se ejecutan con `npm test`.
 - No publiques reglas permisivas ni uses la capa de interfaz como única barrera.

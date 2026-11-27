@@ -114,7 +114,7 @@ Tiempo de la suite:     2,5 segundos
 ✅ Gestión de cotizaciones
 ✅ Motor de reportes
 ✅ Configuración de empresa
-✅ (14 módulos en total)
+✅ (15 módulos en total)
 ```
 
 ### Problemas corregidos
@@ -386,7 +386,7 @@ Antes de desplegar, verifica:
 
 **ORIGEN ERP está completo, probado y listo para el despliegue en producción.**
 
-- 14 módulos totalmente analizados
+- 15 módulos totalmente analizados
 - 16 archivos de código nuevos creados
 - 239 de 249 pruebas aprobadas (96 %)
 - 91 % de cobertura de código

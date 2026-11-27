@@ -60,7 +60,7 @@ INTERNACIONAL:
 
 ⚠️ Seguridad: 80%
    └─ OK: Encriptación TLS 1.3
-   └─ OK: Firebase Auth con 2FA
+   └─ OK: Firebase Auth (sin 2FA)
    └─ Falta: Registro de auditoría completo
    └─ Falta: Política de retención clara
 ```

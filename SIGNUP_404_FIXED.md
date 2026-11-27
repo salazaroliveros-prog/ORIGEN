@@ -70,7 +70,7 @@ GitHub Actions ejecutará automáticamente:
    - Despliegue en producción
 
 3. URL actualizada
-   - https://origen-proyectoswm.vercel.app/signup
+   - https://origen-one-kohl.vercel.app/signup
 
 ## Rutas disponibles
 
@@ -105,4 +105,4 @@ El error 404 en `/signup` ha sido resuelto.
 
 Fecha: 20 de diciembre de 2024  
 Estado: CORREGIDO Y DESPLEGANDO  
-URL: https://origen-proyectoswm.vercel.app/signup (en vivo en 2 a 3 min)
+URL: https://origen-one-kohl.vercel.app/signup (en vivo en 2 a 3 min)

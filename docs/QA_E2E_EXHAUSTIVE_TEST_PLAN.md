@@ -86,7 +86,7 @@ Este plan de pruebas E2E simula el comportamiento de un usuario real que:
 | AUTH-002 | Login con email inválido              | Página de login     | Escribir email sin formato → Clic submit                  | Error de validación: "Ingresa un correo válido"               |
 | AUTH-003 | Login con contraseña corta            | Página de login     | Escribir contraseña < 6 caracteres → Clic submit          | Error: "La contraseña debe tener al menos 6 caracteres"       |
 | AUTH-004 | Login con credenciales incorrectas    | Usuario no existe   | Email válido + contraseña incorrecta → Clic submit        | Error: "Correo o contraseña incorrectos"                      |
-| AUTH-005 | Rate limiting — 5 intentos fallidos   | Página de login     | 5 intentos con contraseña incorrecta                      | Cuenta bloqueada por 15 minutos, timer visible                |
+| AUTH-005 | Rate limiting — 5 intentos fallidos   | Página de login     | 5 intentos con contraseña incorrecta                      | **DESCARTADO**: no se implementa bloqueo local; Firebase Auth aplica throttling en servidor (un bloqueo client-side sería evadible). |
 | AUTH-006 | Registro con contraseña débil         | Página de registro  | Contraseña sin mayúscula/número/carácter especial         | Error de validación específico                                |
 | AUTH-007 | Registro con contraseñas no coinciden | Página de registro  | Contraseña y confirmar diferente                          | Error: "Las contraseñas no coinciden"                         |
 | AUTH-008 | Registro exitoso                      | Página de registro  | Todos los campos válidos → Clic "Crear cuenta"            | Cuenta creada, redirección a dashboard                        |

@@ -355,7 +355,7 @@ TOTAL COVERAGE: ✅ 100%
 ### **FEATURES FUNCIONALES**
 
 ```
-✅ 14 módulos/tabs:
+✅ 15 módulos/tabs:
    ├── Dashboard (KPI + Charts)
    ├── Proyectos (Full CRUD + Firmas)
    ├── Presupuestos (APU + Gastos)
@@ -368,7 +368,7 @@ TOTAL COVERAGE: ✅ 100%
    ├── Gastos (Expenses + Facturas)
    ├── Inventario (Stock + Compras)
    ├── Gmail (Email integration)
-   ├── Asistente IA (Claude integration)
+   ├── Asistente IA (Gemini integration)
    └── Equipo (Team management)
 
 ✅ Integración:

@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   description:
     'ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal',
   applicationName: 'ORIGEN ERP',
+  // URL canónica única: evita que los 3 alias de Vercel generen contenido duplicado.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-one-kohl.vercel.app'),
+  alternates: { canonical: '/' },
 
   // Icon definitions - rutas reales existentes en /assets/branding
   icons: {

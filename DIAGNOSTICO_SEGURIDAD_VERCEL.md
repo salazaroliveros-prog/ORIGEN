@@ -5,6 +5,12 @@
 Fecha: 2026-11-24
 Estado: TODAS LAS CORRECCIONES IMPLEMENTADAS Y VERIFICADAS
 
+> **Nota de vigencia (26/11/2026):** los hallazgos marcados como 🔴 CRÍTICO en este documento
+> son un registro histórico. C-1/C-3/C-4/H-1/H-2/H-4/M-1/M-2/M-4/M-6 están resueltos en `main`:
+> reglas Firestore válidas (49/49 tests), rate limiting en Firestore (`lib/rate-limit.ts`),
+> App Check verificado en `lib/apiAuth.ts`, ARCO con `requireApiUser`, CSP/HSTS activos en
+> producción y JSON-LD/robots/sitemap presentes. No vuelvan a tratarlos como bugs abiertos.
+
 ---
 
 ## 1. RESUMEN EJECUTIVO

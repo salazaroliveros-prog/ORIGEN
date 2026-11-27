@@ -6,7 +6,7 @@ title: Complete CRUD testing results — ORIGEN ERP
 # Complete CRUD testing results — ORIGEN ERP
 
 Date: November 2, 2024  
-Status: Testing complete — 239 of 249 tests passed (96 percent success rate)
+Status: Testing complete — 239 of 1615 tests passed (96 percent success rate)
 
 ## Executive summary
 

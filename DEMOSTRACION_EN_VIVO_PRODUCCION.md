@@ -79,7 +79,7 @@ cache-control: public, max-age=0, s-maxage=86400
 ✅ HTTPS activo (URL segura)
 ✅ Security headers presentes
 ✅ GA4 tracking inicializado
-✅ Sentry monitoring activo
+✅ Sentry monitoring activo solo si NEXT_PUBLIC_SENTRY_DSN está definido
 ```
 
 **Status:** ✅ LOGIN ACCESSIBLE

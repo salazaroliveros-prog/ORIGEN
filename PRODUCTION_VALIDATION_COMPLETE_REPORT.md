@@ -28,7 +28,7 @@ Validadores Ejecutados: 8 (All Passed)
 ├─ Ruta: scripts/github-actions-validator.sh
 ├─ Función: Monitorea CI/CD pipeline en tiempo real
 ├─ Requisito: GitHub CLI (gh)
-├─ Uso: bash scripts/github-actions-validator.sh origin-erp-team origen-erp
+├─ Uso: bash scripts/github-actions-validator.sh salazaroliveros-prog ORIGEN
 └─ Status: ✅ INSTALADO
 
 2️⃣ Vercel Deployment Monitor
@@ -77,7 +77,7 @@ Validadores Ejecutados: 8 (All Passed)
 ├─ Ruta: scripts/production-validation-master.sh
 ├─ Función: Ejecuta todos los validadores en secuencia
 ├─ Requisito: Todos los scripts anteriores
-├─ Uso: bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app origin-erp-team/origen-erp
+├─ Uso: bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app salazaroliveros-prog/ORIGEN
 ├─ Fases:
 │ ├─ Phase 1: GitHub Actions Validation
 │ ├─ Phase 2: Vercel Deployment Validation
@@ -147,11 +147,11 @@ bash scripts/vercel-deployment-monitor.sh origen-erp origen-one-kohl.vercel.app
 Opción 4: Ejecutar validador de GitHub Actions
 ─────────────────────────────────────────────
 gh auth login # Si no estás autenticado
-bash scripts/github-actions-validator.sh origin-erp-team origen-erp
+bash scripts/github-actions-validator.sh salazaroliveros-prog ORIGEN
 
 Opción 5: Ejecutar validación COMPLETA (Recomendado)
 ─────────────────────────────────────────────
-bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app origin-erp-team/origen-erp
+bash scripts/production-validation-master.sh https://origen-one-kohl.vercel.app salazaroliveros-prog/ORIGEN
 
 ════════════════════════════════════════════════════════════════════════════
 
@@ -263,8 +263,8 @@ Próximas Acciones Recomendadas:
 🔗 RECURSOS IMPORTANTES
 
 Production URL: https://origen-one-kohl.vercel.app
-GitHub Repository: https://github.com/origin-erp-team/origen-erp
-GitHub Actions: https://github.com/origin-erp-team/origen-erp/actions
+GitHub Repository: https://github.com/salazaroliveros-prog/ORIGEN
+GitHub Actions: https://github.com/salazaroliveros-prog/ORIGEN/actions
 Vercel Dashboard: https://vercel.com/dashboard
 GA4 Analytics: https://analytics.google.com
 Sentry Dashboard: https://sentry.io/projects/
@@ -292,7 +292,7 @@ Canales de Comunicación:
 └─ GitHub Issues
 
 Logs y Monitoring:
-├─ GitHub Actions Logs: github.com/origin-erp-team/origen-erp/actions
+├─ GitHub Actions Logs: github.com/salazaroliveros-prog/ORIGEN/actions
 ├─ Vercel Logs: vercel.com/dashboard/logs
 ├─ Application Logs: Sentry Dashboard
 └─ Analytics: GA4 Dashboard

@@ -12,7 +12,7 @@ This guide provides operational procedures, monitoring, and maintenance tasks fo
 
 ```bash
 # 1. Check Application Status
-curl -s https://origen-one-kohl.vercel.app/health | jq .
+curl -s https://origen-one-kohl.vercel.app/api/health | jq .
 
 # 2. Check Error Tracking (Sentry)
 # → https://sentry.io/projects/origen-erp/
@@ -28,7 +28,7 @@ curl -s https://origen-one-kohl.vercel.app/health | jq .
 
 ```bash
 # Full health check
-./scripts/health-check.sh
+./scripts/api/health-check.sh
 
 # or manual:
 curl -I https://origen-one-kohl.vercel.app

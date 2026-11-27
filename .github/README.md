@@ -10,7 +10,7 @@ This directory contains GitHub configuration, workflows, and deployment document
 
 - **Purpose:** Complete continuous integration and deployment pipeline
 - **Trigger:** Push to `main` or `develop` branches
-- **Jobs:** 14 jobs (lint, security, build, test, deploy, monitor)
+- **Jobs:** 8 jobs (lint, security, build, test, deploy, monitor)
 - **Duration:** ~40-60 minutes
 - **Key Features:**
   - Automatic deployment to Vercel
@@ -293,7 +293,7 @@ Result: Live on production ✅
 - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
-- `NEXT_PUBLIC_FIREBASE_VAPIR_KEY`
+- `NEXT_PUBLIC_FIREBASE_VAPID_KEY`
 
 **Application (3):**
 

@@ -32,14 +32,14 @@ b4e5ff9 EXCELENCIA: 9.85/10 — 8 phases, 79-plus edits, 50-plus features
 | -------------- | --------------------------------------- |
 | Expected       | Automatic build trigger                 |
 | Build status   | Pending                                 |
-| Deployment URL | https://origen-constructora.vercel.app/ |
+| Deployment URL | https://origen-one-kohl.vercel.app.vercel.app/ |
 | Monitor        | https://vercel.com/dashboard            |
 
 ### Build details
 
 | Item             | Value           |
 | ---------------- | --------------- |
-| Framework        | Next.js 15.5.28 |
+| Framework        | Next.js 15.5.29 |
 | Node version     | 24.13.0         |
 | Build command    | `npm run build` |
 | Output directory | `.next`         |

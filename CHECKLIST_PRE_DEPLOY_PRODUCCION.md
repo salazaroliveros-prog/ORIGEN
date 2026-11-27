@@ -107,7 +107,7 @@
      └─ Email delivery → Ready
 
 [✅] MÓDULO 12: Asistente IA
-     └─ Claude integration → Ready
+     └─ Gemini integration → Ready
      └─ Query processing → OK
      └─ Response formatting → OK
 
@@ -219,7 +219,7 @@
      └─ Password hashing: Firebase handles
      └─ Session tokens: Secure
      └─ Token expiry: Configured
-     └─ MFA ready: Infrastructure OK
+     └─ MFA no implementado: Infrastructure OK
      └─ CORS headers: Configured
 
 [✅] Authorization

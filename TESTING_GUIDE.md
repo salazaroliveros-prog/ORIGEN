@@ -59,7 +59,7 @@ Las pruebas E2E validan el sistema completo usando Playwright con navegadores re
 
 ### Prerrequisitos
 
-- Node.js 18 o superior
+- Node.js 24 o superior
 - Navegadores instalados (Chromium, Firefox, WebKit)
 - Servidor de desarrollo en ejecución (para algunas pruebas)
 
