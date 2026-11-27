@@ -26,6 +26,7 @@ async function openTab(page: Page, name: RegExp | string) {
 
 async function showAllProjectsForTest(page: Page) {
   const pageSize = page.getByLabel('Elementos por página');
+  await pageSize.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
   if (await pageSize.isVisible().catch(() => false)) {
     await pageSize.selectOption('50');
   }
@@ -66,6 +67,9 @@ test.describe('CRUD completo de módulos ERP', () => {
       await expect(dialog).toBeHidden({ timeout: 30_000 });
 
       await showAllProjectsForTest(page);
+      await expect(
+        page.getByRole('button', { name: `Editar proyecto ${projectCode}` })
+      ).toBeVisible({ timeout: 30_000 });
       await expect(
         page.getByText(projectCode, { exact: false }).filter({ visible: true }).first()
       ).toBeVisible({ timeout: 20_000 });
