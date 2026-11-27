@@ -1,10 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
-import {
-  initializeAppCheck,
-  ReCaptchaEnterpriseProvider,
-  type AppCheck,
-} from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, type AppCheck } from 'firebase/app-check';
 import { toast } from 'react-hot-toast';
 
 import {
@@ -524,7 +520,12 @@ export async function saveProjectPhotoToFirestore(
   projectId: string,
   companyId: string,
   input: Pick<ProjectPhotoRecord, 'id' | 'filename' | 'uploadedAt' | 'size'> &
-    Partial<Pick<ProjectPhotoRecord, 'dataUrl' | 'mime' | 'width' | 'height' | 'compressedSize' | 'storagePath'>>
+    Partial<
+      Pick<
+        ProjectPhotoRecord,
+        'dataUrl' | 'mime' | 'width' | 'height' | 'compressedSize' | 'storagePath'
+      >
+    >
 ): Promise<ProjectPhotoRecord> {
   if (!/^[a-zA-Z0-9_-]{1,128}$/.test(projectId) || !/^[a-zA-Z0-9_-]{1,128}$/.test(input.id)) {
     throw new Error('La referencia del proyecto o de la foto no es válida.');

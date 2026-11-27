@@ -38,7 +38,7 @@ try {
 
   // Ejecutar tests
   let cmd = 'npx playwright test --config playwright.visual.config.ts';
-  
+
   if (isCI) {
     cmd += ' --workers=1';
   } else {
@@ -56,7 +56,7 @@ try {
 
   // Copiar screenshots a baselines
   console.log('\n📋 Copiando screenshots a test-baselines/...');
-  
+
   try {
     const screenshotDir = 'screenshots';
     const files = readdirSync(screenshotDir, { recursive: true });
@@ -65,13 +65,16 @@ try {
     files.forEach((file) => {
       const src = join(screenshotDir, String(file));
       const dst = join('test-baselines/screenshots', String(file));
-      
+
       // Crear directorios si es necesario
       const fileStr = String(file);
       const lastSlashIndex = fileStr.lastIndexOf('/');
-      const dir = lastSlashIndex >= 0 ? join('test-baselines/screenshots', fileStr.substring(0, lastSlashIndex)) : 'test-baselines/screenshots';
+      const dir =
+        lastSlashIndex >= 0
+          ? join('test-baselines/screenshots', fileStr.substring(0, lastSlashIndex))
+          : 'test-baselines/screenshots';
       mkdirSync(dir, { recursive: true });
-      
+
       try {
         copyFileSync(src, dst);
         copied++;

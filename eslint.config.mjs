@@ -53,7 +53,12 @@ export default [
     },
   },
   {
-    files: ['**/__mocks__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'e2e/**/*.{ts,tsx}'],
+    files: [
+      '**/__mocks__/**/*.{ts,tsx}',
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      'e2e/**/*.{ts,tsx}',
+    ],
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
     },

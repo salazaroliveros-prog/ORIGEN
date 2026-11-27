@@ -17,24 +17,50 @@ const NAME = `Obra QA Fina ${RUN}`;
 const OUT = path.join('qa-artifacts', `fine-${RUN}`);
 fs.mkdirSync(path.join(OUT, 'files'), { recursive: true });
 
-const report = { run: RUN, code: CODE, startedAt: now.toISOString(), steps: [], skipped: [], consoleErrors: [], pageErrors: [], failedResponses: [] };
+const report = {
+  run: RUN,
+  code: CODE,
+  startedAt: now.toISOString(),
+  steps: [],
+  skipped: [],
+  consoleErrors: [],
+  pageErrors: [],
+  failedResponses: [],
+};
 let shotIndex = 0;
 let currentStep = 'bootstrap';
 
-const browser = await chromium.launch({ headless: false, args: ['--disable-blink-features=AutomationControlled'] });
-const context = await browser.newContext({ viewport: { width: 1500, height: 950 }, locale: 'es-GT', acceptDownloads: true, serviceWorkers: 'block' });
+const browser = await chromium.launch({
+  headless: false,
+  args: ['--disable-blink-features=AutomationControlled'],
+});
+const context = await browser.newContext({
+  viewport: { width: 1500, height: 950 },
+  locale: 'es-GT',
+  acceptDownloads: true,
+  serviceWorkers: 'block',
+});
 const page = await context.newPage();
 page.setDefaultTimeout(12_000);
-await page.addInitScript(() => { window.print = () => {}; });
-page.on('console', (m) => { if (m.type() === 'error') report.consoleErrors.push({ step: currentStep, text: m.text() }); });
+await page.addInitScript(() => {
+  window.print = () => {};
+});
+page.on('console', (m) => {
+  if (m.type() === 'error') report.consoleErrors.push({ step: currentStep, text: m.text() });
+});
 page.on('pageerror', (e) => report.pageErrors.push({ step: currentStep, text: String(e) }));
-page.on('response', (r) => { if (r.status() >= 400) report.failedResponses.push({ step: currentStep, status: r.status(), url: r.url() }); });
+page.on('response', (r) => {
+  if (r.status() >= 400)
+    report.failedResponses.push({ step: currentStep, status: r.status(), url: r.url() });
+});
 page.on('dialog', (d) => d.accept().catch(() => {}));
 
 const delay = (ms = 900) => new Promise((r) => setTimeout(r, ms));
 async function shot(name) {
   const file = path.join(OUT, `${String(++shotIndex).padStart(2, '0')}-${name}.png`);
-  try { await page.screenshot({ path: file, fullPage: true }); } catch {}
+  try {
+    await page.screenshot({ path: file, fullPage: true });
+  } catch {}
 }
 async function step(name, fn) {
   currentStep = name;
@@ -43,10 +69,12 @@ async function step(name, fn) {
   console.log(`\n=== ${name} ===`);
   try {
     const detail = await fn();
-    e.status = 'ok'; if (detail !== undefined) e.detail = detail;
+    e.status = 'ok';
+    if (detail !== undefined) e.detail = detail;
     console.log(`OK  ${name}`);
   } catch (err) {
-    e.status = 'failed'; e.error = String(err?.message || err);
+    e.status = 'failed';
+    e.error = String(err?.message || err);
     console.error(`FAIL ${name}: ${e.error}`);
     await shot(`FAIL-${name.replace(/[^a-z0-9]+/gi, '-').slice(0, 32)}`);
   }
@@ -71,7 +99,10 @@ const nav = async (label) => {
 async function waitText(re, timeout = 15000) {
   const end = Date.now() + timeout;
   while (Date.now() < end) {
-    const t = await page.locator('body').innerText().catch(() => '');
+    const t = await page
+      .locator('body')
+      .innerText()
+      .catch(() => '');
     if (re.test(t)) return t;
     await delay(350);
   }
@@ -81,14 +112,25 @@ async function selectText(locator, text) {
   const needles = Array.isArray(text) ? text : [text];
   const end = Date.now() + 20000;
   while (Date.now() < end) {
-    const info = await locator.evaluate((root, ns) => {
-      const sels = root.tagName === 'SELECT' ? [root] : Array.from(root.querySelectorAll('select'));
-      for (let i = 0; i < sels.length; i++) {
-        const opt = Array.from(sels[i].options).find((o) => ns.every((n) => (o.textContent || '').includes(n)));
-        if (opt) return { value: opt.value, text: opt.textContent, isRoot: root.tagName === 'SELECT', i };
-      }
-      return null;
-    }, needles).catch(() => null);
+    const info = await locator
+      .evaluate((root, ns) => {
+        const sels =
+          root.tagName === 'SELECT' ? [root] : Array.from(root.querySelectorAll('select'));
+        for (let i = 0; i < sels.length; i++) {
+          const opt = Array.from(sels[i].options).find((o) =>
+            ns.every((n) => (o.textContent || '').includes(n))
+          );
+          if (opt)
+            return {
+              value: opt.value,
+              text: opt.textContent,
+              isRoot: root.tagName === 'SELECT',
+              i,
+            };
+        }
+        return null;
+      }, needles)
+      .catch(() => null);
     if (info?.value) {
       if (info.isRoot) await locator.selectOption(info.value);
       else await locator.locator('select').nth(info.i).selectOption(info.value);
@@ -115,8 +157,15 @@ try {
     await delay(3500);
     await page.getByLabel('Correo electrónico').fill(EMAIL);
     await page.getByLabel('Contraseña', { exact: true }).fill(PASSWORD);
-    await page.getByRole('button', { name: /Iniciar Sesión/i }).first().click();
-    await page.locator('[role="tab"]:visible').filter({ hasText: 'Tablero' }).first().waitFor({ timeout: 60000 });
+    await page
+      .getByRole('button', { name: /Iniciar Sesión/i })
+      .first()
+      .click();
+    await page
+      .locator('[role="tab"]:visible')
+      .filter({ hasText: 'Tablero' })
+      .first()
+      .waitFor({ timeout: 60000 });
   });
 
   await step('proyecto-qa-fino', async () => {
@@ -142,23 +191,42 @@ try {
     await d.getByLabel('Fecha de Finalización').fill('2027-11-25');
     await d.getByRole('button', { name: 'Crear Proyecto' }).click();
     await d.waitFor({ state: 'hidden', timeout: 30000 });
-    const sel = page.locator('select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible').first();
+    const sel = page
+      .locator(
+        'select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible'
+      )
+      .first();
     await selectText(sel, CODE);
     await waitText(new RegExp(NAME));
   });
 
   await step('sync-filtros', async () => {
-    await page.getByRole('button', { name: /Firestore en línea|Sin conexión|Sincronizando/ }).first().click();
-    await page.getByPlaceholder(/Buscar por colección/).first().fill('projects');
-    await page.getByRole('button', { name: /Exitosos/ }).first().click();
-    await page.getByRole('button', { name: /En Proceso/ }).first().click();
+    await page
+      .getByRole('button', { name: /Firestore en línea|Sin conexión|Sincronizando/ })
+      .first()
+      .click();
+    await page
+      .getByPlaceholder(/Buscar por colección/)
+      .first()
+      .fill('projects');
+    await page
+      .getByRole('button', { name: /Exitosos/ })
+      .first()
+      .click();
+    await page
+      .getByRole('button', { name: /En Proceso/ })
+      .first()
+      .click();
     await page.getByRole('button', { name: 'Forzar Resincronización' }).first().click();
     await delay(1200);
     await shot('sync-filtros');
   });
 
   await step('branding-colores', async () => {
-    await page.getByRole('button', { name: /Configuración de Marca|Configuración/ }).first().click();
+    await page
+      .getByRole('button', { name: /Configuración de Marca|Configuración/ })
+      .first()
+      .click();
     await waitText(/Marca|Configuración/i);
     const colors = page.locator('input[type="color"]');
     if (await colors.count()) {
@@ -168,7 +236,10 @@ try {
     const name = page.getByPlaceholder('Nombre de la empresa');
     if (await name.count()) await name.fill('WM Proyectos QA');
     const apply = page.getByRole('button', { name: 'Aplicar a Toda la App' }).first();
-    if (await apply.count()) { await apply.click(); await delay(1000); }
+    if (await apply.count()) {
+      await apply.click();
+      await delay(1000);
+    }
     await shot('branding-colores');
   });
 
@@ -176,14 +247,20 @@ try {
     await nav('Tablero');
     const filter = page.locator('#project-status-filter');
     if (await filter.count()) await filter.selectOption('En Ejecución');
-    await page.getByRole('button', { name: /Personalizar Widgets/ }).first().click();
+    await page
+      .getByRole('button', { name: /Personalizar Widgets/ })
+      .first()
+      .click();
     const high = page.getByRole('button', { name: /Alta Prioridad/ }).first();
     if (await high.count()) await high.click();
     const all = page.getByRole('button', { name: /Todos Visibles/ }).first();
     if (await all.count()) await all.click();
     await page.getByRole('button', { name: 'Guardar Preferencias' }).first().click();
     const hide = page.getByRole('button', { name: /Ocultar widget/ }).first();
-    if (await hide.count()) { await hide.click(); await delay(800); }
+    if (await hide.count()) {
+      await hide.click();
+      await delay(800);
+    }
     await shot('dashboard-filtros');
   });
 
@@ -198,7 +275,10 @@ try {
       if (await next.count()) await next.click();
       await delay(600);
     }
-    await page.getByRole('button', { name: `Editar proyecto ${CODE}` }).first().click();
+    await page
+      .getByRole('button', { name: `Editar proyecto ${CODE}` })
+      .first()
+      .click();
     const d = page.getByRole('dialog', { name: 'Editar Proyecto' });
     await d.getByLabel('Teléfono del cliente').fill('5555-9999');
     await d.getByLabel('Email del cliente').fill('cliente2@qa.com');
@@ -210,10 +290,16 @@ try {
 
   await step('apu-recalc-e-inspect', async () => {
     await nav('Presupuestos APU');
-    const dept = page.locator('select').filter({ has: page.locator('option[value="Guatemala"]') }).first();
+    const dept = page
+      .locator('select')
+      .filter({ has: page.locator('option[value="Guatemala"]') })
+      .first();
     if (await dept.count()) await dept.selectOption('Guatemala');
     const recalc = page.getByRole('button', { name: /Actualizar Costos a/ }).first();
-    if (await recalc.count()) { await recalc.click(); await delay(1500); }
+    if (await recalc.count()) {
+      await recalc.click();
+      await delay(1500);
+    }
     await page.getByRole('button', { name: 'Renglón Manual' }).first().click();
     await page.locator('input[name="code"]').fill('99.99');
     await page.locator('input[name="unit"]').fill('m2');
@@ -223,7 +309,10 @@ try {
     await page.getByRole('button', { name: 'Guardar Renglón APU' }).click();
     await waitText(/99\.99/);
     const row = page.locator('tr').filter({ hasText: '99.99' }).first();
-    if (await row.count()) { await row.getByRole('button').first().click(); await delay(900); }
+    if (await row.count()) {
+      await row.getByRole('button').first().click();
+      await delay(900);
+    }
     await shot('apu-inspect');
     await closeOverlays();
   });
@@ -231,17 +320,27 @@ try {
   await step('cotizaciones-extra', async () => {
     await nav('Cotizaciones');
     await page.getByPlaceholder('Buscar por cliente, NIT o código…').first().fill('Cliente QA');
-    const status = page.locator('select').filter({ has: page.locator('option[value="Rechazada"]') }).first();
+    const status = page
+      .locator('select')
+      .filter({ has: page.locator('option[value="Rechazada"]') })
+      .first();
     if (await status.count()) {
       await selectText(status, 'Aceptada');
       await selectText(status, 'Todos los Estados');
     }
     await page.getByRole('button', { name: 'Nueva Cotización Rápida' }).first().click();
     await waitText(/Generador Rápido de Cotizaciones/);
-    const modal = page.locator('div.fixed').filter({ has: page.locator('input[name="clientName"]') }).last();
+    const modal = page
+      .locator('div.fixed')
+      .filter({ has: page.locator('input[name="clientName"]') })
+      .last();
     await modal.locator('input[name="clientName"]').fill('Cliente QA Fino');
     await modal.locator('input[placeholder="Ej. 8492019-2 o CF"]').fill('1234567-8');
-    await modal.getByRole('button', { name: /Aplicar|Usar esta plantilla/ }).first().click().catch(() => {});
+    await modal
+      .getByRole('button', { name: /Aplicar|Usar esta plantilla/ })
+      .first()
+      .click()
+      .catch(() => {});
     await modal.getByRole('button', { name: 'Guardar Borrador' }).click();
     await waitText(/Cliente QA Fino/);
     const pdf = page.getByRole('button', { name: 'Descargar PDF' }).first();
@@ -256,10 +355,16 @@ try {
     await page.getByPlaceholder('Buscar por tarea, fase o responsable…').first().fill('Fundición');
     for (const t of ['Filtrar en ejecución', 'Filtrar completadas', 'Filtrar ruta crítica']) {
       const b = page.getByTitle(t).first();
-      if (await b.count()) { await b.click(); await delay(300); }
+      if (await b.count()) {
+        await b.click();
+        await delay(300);
+      }
     }
     const complete = page.getByTitle('Marcar como completada al 100%').first();
-    if (await complete.count()) { await complete.click(); await delay(800); }
+    if (await complete.count()) {
+      await complete.click();
+      await delay(800);
+    }
     await shot('gantt-extra');
   });
 
@@ -270,7 +375,11 @@ try {
     const aprob = page.getByRole('button', { name: /Aprobados \(/ }).first();
     if (await aprob.count()) await aprob.click();
     const mod = page.getByRole('button', { name: 'Modificar' }).first();
-    if (await mod.count()) { await mod.click(); await waitText(/Aprobación de Gasto/); await shot('gasto-modificar'); }
+    if (await mod.count()) {
+      await mod.click();
+      await waitText(/Aprobación de Gasto/);
+      await shot('gasto-modificar');
+    }
   });
 
   await step('inventario-oc-completa', async () => {
@@ -278,9 +387,15 @@ try {
     await page.getByRole('tab', { name: 'Órdenes de compra' }).click();
     await waitText(/Órdenes de compra/);
     const create = page.getByRole('button', { name: 'Crear borrador de OC' }).first();
-    if (!(await create.count())) { report.skipped.push({ step: currentStep, reason: 'Botón Crear borrador de OC no visible' }); return; }
+    if (!(await create.count())) {
+      report.skipped.push({ step: currentStep, reason: 'Botón Crear borrador de OC no visible' });
+      return;
+    }
     await create.click();
-    const form = page.locator('form').filter({ hasText: /Proyecto|Proveedor|Artículo/ }).last();
+    const form = page
+      .locator('form')
+      .filter({ hasText: /Proyecto|Proveedor|Artículo/ })
+      .last();
     await shot('oc-form');
     await closeOverlays();
   });
@@ -290,20 +405,30 @@ try {
     await page.getByRole('tab', { name: 'Movimientos' }).click();
     await delay(1000);
     const form = page.locator('form').filter({ hasText: 'Trasladar entre bodegas' }).first();
-    if (!(await form.count())) { report.skipped.push({ step: currentStep, reason: 'Formulario de traslado no visible' }); return; }
+    if (!(await form.count())) {
+      report.skipped.push({ step: currentStep, reason: 'Formulario de traslado no visible' });
+      return;
+    }
     await selectText(form, ['Cemento QA']);
     const dest = form.getByLabel('Bodega de destino');
-    const destValue = await dest.evaluate((sel) => {
-      const options = Array.from(sel.options).filter((o) => o.value);
-      const chosen = options.find((o) => o.value !== (sel.querySelector('option:checked')?.value ?? ''));
-      return chosen?.value ?? options[0]?.value ?? null;
-    }).catch(() => null);
+    const destValue = await dest
+      .evaluate((sel) => {
+        const options = Array.from(sel.options).filter((o) => o.value);
+        const chosen = options.find(
+          (o) => o.value !== (sel.querySelector('option:checked')?.value ?? '')
+        );
+        return chosen?.value ?? options[0]?.value ?? null;
+      })
+      .catch(() => null);
     if (destValue) await dest.selectOption(destValue);
     await form.getByLabel('Cantidad a trasladar').fill('1');
     await form.getByLabel(/Número \/ referencia del traslado/).fill(`TRA-${RUN}`);
     const transferBtn = form.getByRole('button', { name: 'Confirmar traslado' });
     if (!(await transferBtn.isEnabled())) {
-      report.skipped.push({ step: currentStep, reason: 'No hay segunda bodega con existencias para completar el traslado' });
+      report.skipped.push({
+        step: currentStep,
+        reason: 'No hay segunda bodega con existencias para completar el traslado',
+      });
       return { skipped: true };
     }
     await transferBtn.click();
@@ -320,7 +445,10 @@ try {
     const hasPrint = await print.count();
     const hasActa = await acta.count();
     if (!hasPrint || !hasActa) throw new Error('Faltan botones de impresión en Reportes');
-    report.skipped.push({ step: currentStep, reason: 'Botones de impresión verificados; no se ejecuta window.print() (diálogo nativo)' });
+    report.skipped.push({
+      step: currentStep,
+      reason: 'Botones de impresión verificados; no se ejecuta window.print() (diálogo nativo)',
+    });
     await shot('reportes-extra');
   });
 
@@ -330,7 +458,10 @@ try {
     await page.getByPlaceholder('Buscar por DTE, serie, NIT, nombre…').fill('QA');
     await delay(1000);
     const view = page.getByRole('button', { name: 'Ver' }).first();
-    if (await view.count()) { await view.click(); await delay(1000); }
+    if (await view.count()) {
+      await view.click();
+      await delay(1000);
+    }
     await shot('fel-list-extra');
   });
 
@@ -342,12 +473,18 @@ try {
     const phone = page.getByPlaceholder(/Teléfono/).first();
     if (await phone.count()) await phone.fill('5555-0000');
     const save = page.getByRole('button', { name: 'Guardar Cambios' }).first();
-    if (await save.count()) { await save.click(); await delay(1200); }
+    if (await save.count()) {
+      await save.click();
+      await delay(1200);
+    }
     await shot('perfil-campos');
   });
 
   await step('login-extra-controles', async () => {
-    const ctx2 = await browser.newContext({ viewport: { width: 900, height: 800 }, locale: 'es-GT' });
+    const ctx2 = await browser.newContext({
+      viewport: { width: 900, height: 800 },
+      locale: 'es-GT',
+    });
     const p2 = await ctx2.newPage();
     await p2.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await delay(2500);
@@ -361,7 +498,8 @@ try {
 
   report.status = 'completed';
 } catch (e) {
-  report.status = 'failed'; report.failure = String(e?.stack || e);
+  report.status = 'failed';
+  report.failure = String(e?.stack || e);
 } finally {
   report.finishedAt = new Date().toISOString();
   report.summary = {
@@ -378,4 +516,3 @@ try {
   console.log('SUMMARY:', JSON.stringify(report.summary));
   await browser.close();
 }
-

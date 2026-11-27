@@ -76,7 +76,7 @@ export function DataTable<T>({
       // El inset shadow avisa de que hay scroll horizontal; tabIndex permite
       // desplazar la tabla con el teclado (WCAG 2.1.1).
       tabIndex={0}
-      className={`overflow-x-auto rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50 scroll-smooth snap-x shadow-[inset_-15px_0_15px_-10px_rgba(0,0,0,0.3)] ${className}`}
+      className={`snap-x overflow-x-auto scroll-smooth rounded-lg shadow-[inset_-15px_0_15px_-10px_rgba(0,0,0,0.3)] outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50 ${className}`}
     >
       <table
         role="grid"

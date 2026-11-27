@@ -218,8 +218,8 @@ export function ProjectPhotoDropzone({
                     : 'Arrastra fotos o haz clic para seleccionar'}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  PNG, JPG, WEBP (máx. {maxSizeMB}MB, {maxFiles} fotos en el proyecto). Se
-                  comprimen automáticamente antes de guardarse.
+                  PNG, JPG, WEBP (máx. {maxSizeMB}MB, {maxFiles} fotos en el proyecto). Se comprimen
+                  automáticamente antes de guardarse.
                 </p>
               </div>
             </>
@@ -236,11 +236,7 @@ export function ProjectPhotoDropzone({
             {displayedFiles.map((file) => (
               <div key={file.id} className="group relative">
                 <div className="aspect-square overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                  <img
-                    src={file.url}
-                    alt={file.filename}
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={file.url} alt={file.filename} className="h-full w-full object-cover" />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 rounded-b-lg bg-black/60 p-1.5 text-xs text-white">
                   <p className="truncate">{file.filename}</p>
@@ -254,7 +250,7 @@ export function ProjectPhotoDropzone({
                     aria-label={`Eliminar foto ${file.filename}`}
                     disabled={deleting === file.id}
                     onClick={() => void handleDelete(file.id)}
-                    className="absolute right-1 top-1 rounded-md bg-red-600/90 p-1 text-white opacity-0 transition group-hover:opacity-100 disabled:opacity-50"
+                    className="absolute right-1 top-1 rounded-md bg-red-600/90 p-1 text-white opacity-0 transition disabled:opacity-50 group-hover:opacity-100"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

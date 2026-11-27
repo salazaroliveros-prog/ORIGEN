@@ -27,13 +27,20 @@ const email = page.getByLabel('Correo electrónico');
 if (await email.isVisible().catch(() => false)) {
   await email.fill(EMAIL);
   await page.getByLabel('Contraseña', { exact: true }).fill(PASSWORD);
-  await page.getByRole('button', { name: /Iniciar Sesión/i }).first().click();
+  await page
+    .getByRole('button', { name: /Iniciar Sesión/i })
+    .first()
+    .click();
   await page.waitForTimeout(15000);
 }
-const ok = await page.locator('[role="tab"]:visible').filter({ hasText: 'Tablero' }).first().isVisible().catch(() => false);
+const ok = await page
+  .locator('[role="tab"]:visible')
+  .filter({ hasText: 'Tablero' })
+  .first()
+  .isVisible()
+  .catch(() => false);
 console.log('LOGIN_OK:', ok);
 console.log('URL:', page.url());
 console.log('FAILURES:', JSON.stringify(failures.slice(0, 10), null, 2));
 await page.screenshot({ path: 'qa-artifacts/probe-persistent.png', fullPage: true });
 await context.close();
-

@@ -122,7 +122,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* DNS Prefetch for external APIs */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-
       </head>
 
       <body className="bg-gray-50 dark:bg-gray-900">

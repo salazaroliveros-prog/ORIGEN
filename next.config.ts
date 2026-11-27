@@ -7,7 +7,10 @@ const __dirname = dirname(__filename);
 
 // Orígenes permitidos en desarrollo (equipos remotos / contenedores Docker).
 // Se pueden ampliar con ORIGEN_DEV_ORIGINS sin tocar el código.
-const devOrigins = (process.env.ORIGEN_DEV_ORIGINS ?? 'localhost,127.0.0.1,host.docker.internal,192.168.0.8,192.168.0.2')
+const devOrigins = (
+  process.env.ORIGEN_DEV_ORIGINS ??
+  'localhost,127.0.0.1,host.docker.internal,192.168.0.8,192.168.0.2'
+)
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -71,13 +74,15 @@ const nextConfig: NextConfig = {
               "default-src 'self'; " +
               "script-src 'self' 'unsafe-inline' " +
               (isProduction ? '' : "'unsafe-eval' ") +
-              "https://www.googletagmanager.com https://www.google-analytics.com https://www.gstatic.com https://www.google.com https://apis.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; " +
+              'https://www.googletagmanager.com https://www.google-analytics.com https://www.gstatic.com https://www.google.com https://apis.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; ' +
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               "img-src 'self' https: blob: data:; " +
               "font-src 'self' https://fonts.gstatic.com data:; " +
               "connect-src 'self' " +
-              (isProduction ? '' : devOrigins.map((origin) => `http://${origin}:* ws://${origin}:* `).join(' ')) +
-              "https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com https://recaptcha.google.com wss://*.firebaseio.com blob: data:; " +
+              (isProduction
+                ? ''
+                : devOrigins.map((origin) => `http://${origin}:* ws://${origin}:* `).join(' ')) +
+              'https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com https://recaptcha.google.com wss://*.firebaseio.com blob: data:; ' +
               "frame-src 'self' https://www.google.com https://recaptcha.google.com https://accounts.google.com https://*.firebaseapp.com; " +
               "worker-src 'self' blob:; " +
               "manifest-src 'self'; " +
@@ -85,7 +90,7 @@ const nextConfig: NextConfig = {
               "base-uri 'self'; " +
               "form-action 'self'; " +
               // En HTTP local, forzar HTTPS deja la app sin hidratar.
-               (isProduction ? 'upgrade-insecure-requests; block-all-mixed-content;' : ''),
+              (isProduction ? 'upgrade-insecure-requests; block-all-mixed-content;' : ''),
           },
 
           // Permissions-Policy (formerly Feature-Policy)

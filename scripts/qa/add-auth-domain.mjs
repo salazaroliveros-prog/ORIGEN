@@ -1,11 +1,15 @@
 import { GoogleAuth } from 'google-auth-library';
 
-const KEY_FILE = 'C:/Users/wilso/Pictures/origen-erp-guatemala-firebase-adminsdk-fbsvc-58f3a985e4.json';
+const KEY_FILE =
+  'C:/Users/wilso/Pictures/origen-erp-guatemala-firebase-adminsdk-fbsvc-58f3a985e4.json';
 const PROJECT = 'origen-erp-guatemala';
 const NEW_DOMAIN = '127.0.0.1';
 const auth = new GoogleAuth({
   keyFile: KEY_FILE,
-  scopes: ['https://www.googleapis.com/auth/firebase', 'https://www.googleapis.com/auth/cloud-platform'],
+  scopes: [
+    'https://www.googleapis.com/auth/firebase',
+    'https://www.googleapis.com/auth/cloud-platform',
+  ],
 });
 const client = await auth.getClient();
 const { token } = await client.getAccessToken();
@@ -22,4 +26,3 @@ const patch = await fetch(`${base}?updateMask=authorizedDomains`, {
 console.log('PATCH_STATUS:', patch.status);
 const after = await (await fetch(base, { headers })).json();
 console.log('AUTHORIZED_DOMAINS:', JSON.stringify(after.authorizedDomains ?? []));
-

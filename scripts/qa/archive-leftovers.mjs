@@ -13,17 +13,30 @@ await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.waitForTimeout(4000);
 await page.getByLabel('Correo electrónico').fill(EMAIL);
 await page.getByLabel('Contraseña', { exact: true }).fill(PASSWORD);
-await page.getByRole('button', { name: /Iniciar Sesión/i }).first().click();
-await page.locator('[role="tab"]:visible').filter({ hasText: 'Tablero' }).first().waitFor({ timeout: 60000 });
-await page.locator('[role="tab"]:visible').filter({ hasText: 'Proyectos & Firmas' }).first().click();
+await page
+  .getByRole('button', { name: /Iniciar Sesión/i })
+  .first()
+  .click();
+await page
+  .locator('[role="tab"]:visible')
+  .filter({ hasText: 'Tablero' })
+  .first()
+  .waitFor({ timeout: 60000 });
+await page
+  .locator('[role="tab"]:visible')
+  .filter({ hasText: 'Proyectos & Firmas' })
+  .first()
+  .click();
 await page.waitForTimeout(2000);
 
 const selector = page
-  .locator('select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible')
+  .locator(
+    'select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible'
+  )
   .first();
-const options = await selector.locator('option').evaluateAll((nodes) =>
-  nodes.map((n) => ({ value: n.value, text: n.textContent || '' }))
-);
+const options = await selector
+  .locator('option')
+  .evaluateAll((nodes) => nodes.map((n) => ({ value: n.value, text: n.textContent || '' })));
 const leftovers = options.filter((o) => /Obra QA/.test(o.text));
 const archived = [];
 for (const leftover of leftovers) {
@@ -38,4 +51,3 @@ for (const leftover of leftovers) {
 console.log('LEFTOVERS:', JSON.stringify(leftovers.map((o) => o.text)));
 console.log('ARCHIVED:', JSON.stringify(archived));
 await browser.close();
-

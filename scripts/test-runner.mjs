@@ -3,9 +3,9 @@
 
 /**
  * ✅ SISTEMA DE TESTING EXHAUSTIVO - ORIGEN ERP GUATEMALA
- * 
+ *
  * Ejecución: node scripts/test-runner.mjs
- * 
+ *
  * Coverage:
  * - Smoke Tests (5)
  * - Functional Tests (7 módulos)
@@ -48,7 +48,7 @@ const RESULTS = {
 function log(level, message, data = '') {
   const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
   const prefix = `[${timestamp}] [${level}]`;
-  
+
   if (level === 'ERROR') console.error(`\x1b[31m${prefix} ${message}\x1b[0m`, data);
   else if (level === 'PASS') console.log(`\x1b[32m${prefix} ✅ ${message}\x1b[0m`, data);
   else if (level === 'FAIL') console.log(`\x1b[31m${prefix} ❌ ${message}\x1b[0m`, data);
@@ -104,7 +104,10 @@ async function runSmokeTests() {
       'x-content-type-options': 'nosniff',
       'strict-transport-security': 'present',
     };
-    assert(Object.values(headers).every(v => v), 'All security headers present');
+    assert(
+      Object.values(headers).every((v) => v),
+      'All security headers present'
+    );
   });
 
   await test('Metadata and SEO tags', async () => {
@@ -316,10 +319,10 @@ async function runLoadTestSimulation() {
     log('INFO', '  → Simulating 100 concurrent users');
     const errorRate = 0.005; // 0.5%
     const avgResponseTime = 350; // ms
-    
+
     assert(errorRate < 0.01, `Error rate ${(errorRate * 100).toFixed(2)}% < 1%`);
     assert(avgResponseTime < 500, `Avg response ${avgResponseTime}ms < 500ms`);
-    
+
     log('INFO', `     Avg response: ${avgResponseTime}ms ✓`);
     log('INFO', `     Error rate: ${(errorRate * 100).toFixed(2)}% ✓`);
   });
@@ -328,10 +331,10 @@ async function runLoadTestSimulation() {
     log('INFO', '  → Simulating 1000 concurrent users');
     const errorRate = 0.08; // 8% (acceptable under stress)
     const avgResponseTime = 850; // ms
-    
+
     assert(errorRate < 0.1, `Error rate ${(errorRate * 100).toFixed(2)}% < 10%`);
     assert(avgResponseTime < 1000, `Avg response ${avgResponseTime}ms < 1000ms`);
-    
+
     log('INFO', `     Avg response: ${avgResponseTime}ms ✓`);
     log('INFO', `     Error rate: ${(errorRate * 100).toFixed(2)}% ✓`);
   });
@@ -531,7 +534,7 @@ async function runAllTests() {
 // EJECUTAR
 // ============================================================
 
-runAllTests().catch(error => {
+runAllTests().catch((error) => {
   log('ERROR', 'Fatal error', error);
   process.exit(1);
 });

@@ -90,7 +90,9 @@ export async function compressImageFile(
 
     for (const quality of qualities) {
       const webp = canvas.toDataURL('image/webp', quality);
-      const mime: CompressedImage['mime'] = webp.startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
+      const mime: CompressedImage['mime'] = webp.startsWith('data:image/webp')
+        ? 'image/webp'
+        : 'image/jpeg';
       const dataUrl = mime === 'image/webp' ? webp : canvas.toDataURL('image/jpeg', quality);
       const candidate: CompressedImage = {
         dataUrl,

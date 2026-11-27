@@ -166,7 +166,7 @@ export function LoginForm({ className }: { className?: string }) {
                 type="button"
                 onClick={() => setShowPassword((p) => !p)}
                 disabled={isAuthenticating}
-                className="pointer-events-auto -mr-2 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-2 focus-visible:outline-brand-400 disabled:opacity-50"
+                className="pointer-events-auto -mr-2 flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-full text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-2 focus-visible:outline-brand-400 disabled:opacity-50"
                 aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

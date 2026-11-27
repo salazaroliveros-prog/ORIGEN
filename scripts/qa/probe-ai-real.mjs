@@ -27,8 +27,15 @@ await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.waitForTimeout(4000);
 await page.getByLabel('Correo electrónico').fill(EMAIL);
 await page.getByLabel('Contraseña', { exact: true }).fill(PASSWORD);
-await page.getByRole('button', { name: /Iniciar Sesión/i }).first().click();
-await page.locator('[role="tab"]:visible').filter({ hasText: 'Tablero' }).first().waitFor({ timeout: 60000 });
+await page
+  .getByRole('button', { name: /Iniciar Sesión/i })
+  .first()
+  .click();
+await page
+  .locator('[role="tab"]:visible')
+  .filter({ hasText: 'Tablero' })
+  .first()
+  .waitFor({ timeout: 60000 });
 await page.locator('[role="tab"]:visible').filter({ hasText: 'Asistente IA' }).first().click();
 await page.waitForTimeout(1500);
 
@@ -39,11 +46,13 @@ await page.waitForTimeout(60000);
 
 const body = await page.locator('body').innerText();
 await page.screenshot({ path: `${OUT}/respuesta.png`, fullPage: true });
-const failed = /Tu sesión expiró|Token de App Check requerido|No se pudo consultar|Error al consultar/i.test(body.slice(-3000));
+const failed =
+  /Tu sesión expiró|Token de App Check requerido|No se pudo consultar|Error al consultar/i.test(
+    body.slice(-3000)
+  );
 const usedGemini = responses.some((r) => r.status === 200 && r.source === 'gemini-ai');
 console.log('API_RESPONSES:', JSON.stringify(responses));
 console.log('FAILED:', failed, 'GEMINI_USED:', usedGemini);
 console.log('BODY_TAIL:', body.slice(-1200).replace(/\s+/g, ' '));
 await browser.close();
 if (failed || !usedGemini) process.exitCode = 1;
-

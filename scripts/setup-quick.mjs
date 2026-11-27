@@ -83,7 +83,9 @@ async function signUpUser(apiKey, email, password) {
     const errorMsg = signUpResult.data.error?.message || 'Error desconocido';
     console.error(`   ❌ Error: ${errorMsg}`);
     if (errorMsg.includes('EMAIL_EXISTS')) {
-      throw new Error('El correo ya existe, pero la contraseña suministrada no permite iniciar sesión. Usa la recuperación de contraseña o el instalador completo con credenciales de servicio.');
+      throw new Error(
+        'El correo ya existe, pero la contraseña suministrada no permite iniciar sesión. Usa la recuperación de contraseña o el instalador completo con credenciales de servicio.'
+      );
     }
     throw new Error(errorMsg);
   }
@@ -144,7 +146,6 @@ async function main() {
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝\n');
-
   } catch (error) {
     console.error('\n╔═══════════════════════════════════════════════════════════════╗');
     console.error('║  ❌ ERROR                                                      ║');

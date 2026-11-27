@@ -68,11 +68,15 @@ page.on('pageerror', (err) => {
 page.on('response', async (res) => {
   if (res.status() < 400) return;
   let body = '';
-  try { body = (await res.text()).slice(0, 600); } catch {}
+  try {
+    body = (await res.text()).slice(0, 600);
+  } catch {}
   report.failedResponses.push({ step: currentStep, status: res.status(), url: res.url(), body });
 });
 
-function delay(ms = 1000) { return new Promise((r) => setTimeout(r, ms)); }
+function delay(ms = 1000) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 async function shot(name) {
   const file = path.join(OUT, `${String(++stepIndex).padStart(2, '0')}-${name}.png`);
@@ -85,7 +89,10 @@ async function shot(name) {
 async function waitForText(regex, timeout = 20_000) {
   const end = Date.now() + timeout;
   while (Date.now() < end) {
-    const text = await page.locator('body').innerText().catch(() => '');
+    const text = await page
+      .locator('body')
+      .innerText()
+      .catch(() => '');
     if (regex.test(text)) return text;
     await delay(400);
   }
@@ -114,7 +121,10 @@ async function selectOptionText(locator, text, timeout = 25_000) {
         }
         return null;
       }, needles)
-      .catch((e) => { last = String(e); return null; });
+      .catch((e) => {
+        last = String(e);
+        return null;
+      });
     if (info && info.value) {
       if (info.isRoot) {
         await locator.selectOption(info.value);
@@ -137,7 +147,9 @@ async function selectOptionText(locator, text, timeout = 25_000) {
       );
     })
     .catch(() => []);
-  throw new Error(`Opción no encontrada: ${JSON.stringify(needles)}. Opciones disponibles: ${JSON.stringify(available)}`);
+  throw new Error(
+    `Opción no encontrada: ${JSON.stringify(needles)}. Opciones disponibles: ${JSON.stringify(available)}`
+  );
 }
 
 /** Cierra cualquier modal abierto para que no intercepte los clics de navegación. */
@@ -167,7 +179,9 @@ const nav = async (label) => {
 
 async function selectActiveProject() {
   const selector = page
-    .locator('select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible')
+    .locator(
+      'select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible'
+    )
     .first();
   await selector.waitFor({ state: 'visible', timeout: 30_000 });
   const option = selector.locator('option').filter({ hasText: CODE }).first();
@@ -212,9 +226,16 @@ try {
     if (await email.isVisible().catch(() => false)) {
       await email.fill(EMAIL);
       await page.getByLabel('Contraseña', { exact: true }).fill(PASSWORD);
-      await page.getByRole('button', { name: /Iniciar Sesión/i }).first().click();
+      await page
+        .getByRole('button', { name: /Iniciar Sesión/i })
+        .first()
+        .click();
     }
-    await page.locator('[role="tab"]:visible').filter({ hasText: 'Tablero' }).first().waitFor({ timeout: 60_000 });
+    await page
+      .locator('[role="tab"]:visible')
+      .filter({ hasText: 'Tablero' })
+      .first()
+      .waitFor({ timeout: 60_000 });
     await delay(2500);
     await shot('dashboard-inicial');
     return { url: page.url() };
@@ -304,9 +325,12 @@ try {
     await modal.locator('input[type="number"]').nth(1).fill('12');
     await delay(800);
     const body = await modal.innerText();
-    if (!/41,283\.20/.test(body)) throw new Error(`Total de cotización incorrecto: ${body.slice(-500)}`);
+    if (!/41,283\.20/.test(body))
+      throw new Error(`Total de cotización incorrecto: ${body.slice(-500)}`);
     await modal.getByRole('button', { name: /Guardar como Enviada/ }).click();
-    await page.getByText('Generador Rápido de Cotizaciones').waitFor({ state: 'hidden', timeout: 30_000 });
+    await page
+      .getByText('Generador Rápido de Cotizaciones')
+      .waitFor({ state: 'hidden', timeout: 30_000 });
     await waitForText(new RegExp(CLIENT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 30_000);
     await delay(1000);
     const accept = page.getByRole('button', { name: /Marcar cotización .* como aceptada/ }).first();
@@ -320,7 +344,10 @@ try {
   // ── 6. Proyecto a Ejecución ───────────────────────────────────
   await step('proyecto-en-ejecucion', async () => {
     await nav('Proyectos & Firmas');
-    await page.getByRole('button', { name: `Editar proyecto ${CODE}` }).first().click();
+    await page
+      .getByRole('button', { name: `Editar proyecto ${CODE}` })
+      .first()
+      .click();
     const dialog = page.getByRole('dialog', { name: 'Editar Proyecto' });
     await dialog.waitFor({ state: 'visible', timeout: 15_000 });
     await dialog.getByLabel('Estado del Proyecto').selectOption('En Ejecución');
@@ -343,7 +370,10 @@ try {
     await page.locator('#new-task-start').fill('2026-11-26');
     await page.locator('#new-task-end').fill('2026-12-10');
     await page.locator('#new-task-assigned').fill('Cuadrilla Estructuras');
-    await page.locator('form:has(#new-task-name)').getByRole('button', { name: 'Crear Actividad' }).click();
+    await page
+      .locator('form:has(#new-task-name)')
+      .getByRole('button', { name: 'Crear Actividad' })
+      .click();
     await page.getByText('Fundición de losa nivel 1').first().waitFor({ timeout: 30_000 });
     await shot('gantt-tarea');
     return { task: 'Fundición de losa nivel 1' };
@@ -351,7 +381,10 @@ try {
 
   // ── 8. Gantt hito ─────────────────────────────────────────────
   await step('gantt-hito', async () => {
-    await page.getByRole('button', { name: /Hitos hacia el Objetivo/ }).first().click();
+    await page
+      .getByRole('button', { name: /Hitos hacia el Objetivo/ })
+      .first()
+      .click();
     await delay(600);
     await page.getByRole('button', { name: 'Nuevo hito' }).first().click();
     await page.getByText('Crear hito del proyecto').waitFor({ timeout: 10_000 });
@@ -531,7 +564,10 @@ try {
   // ── 19. Inventario: salida a obra ─────────────────────────────
   await step('inventario-salida', async () => {
     await delay(5000);
-    const form = page.locator('form').filter({ hasText: 'Registrar salida de material a obra' }).first();
+    const form = page
+      .locator('form')
+      .filter({ hasText: 'Registrar salida de material a obra' })
+      .first();
     await form.waitFor({ state: 'visible', timeout: 20_000 });
     await selectOptionText(form, PROJECT_NAME);
     await selectOptionText(form, `Cemento QA ${RUN}`);
@@ -550,7 +586,10 @@ try {
     await nav('Reportes Finales');
     await delay(1500);
     const dl = page.waitForEvent('download', { timeout: 20_000 }).catch(() => null);
-    await page.getByRole('button', { name: /Exportar gastos CSV/ }).first().click();
+    await page
+      .getByRole('button', { name: /Exportar gastos CSV/ })
+      .first()
+      .click();
     const download = await dl;
     let saved = null;
     if (download) {
@@ -587,15 +626,22 @@ try {
     await shot('asistente-ia');
     // El disclaimer de la UI dice "puede contener errores": no debe contar
     // como fallo. Solo indican error los mensajes reales del backend.
-    const failed = /Tu sesión expiró|Token de App Check requerido|No se pudo consultar|Error al consultar|API key inválid/i.test(body.slice(-3000));
+    const failed =
+      /Tu sesión expiró|Token de App Check requerido|No se pudo consultar|Error al consultar|API key inválid/i.test(
+        body.slice(-3000)
+      );
     if (failed) {
       report.expectedFailures.push({
         step: currentStep,
-        reason: 'Local: FIREBASE_ADMIN_CREDENTIALS es placeholder [SENSITIVE] y Identity Toolkit exige App Check; en Vercel Admin SDK sí valida. GEMINI_API_KEY también es placeholder local.',
+        reason:
+          'Local: FIREBASE_ADMIN_CREDENTIALS es placeholder [SENSITIVE] y Identity Toolkit exige App Check; en Vercel Admin SDK sí valida. GEMINI_API_KEY también es placeholder local.',
         sample: body.slice(-800),
       });
     }
-    return { responded: !failed, note: failed ? 'Backend IA sin clave válida (esperado en local)' : 'Respuesta recibida' };
+    return {
+      responded: !failed,
+      note: failed ? 'Backend IA sin clave válida (esperado en local)' : 'Respuesta recibida',
+    };
   });
 
   // ── 23. Aprobación final de gastos ( genera cierre sin pendientes ) ──
@@ -620,11 +666,19 @@ try {
   // ── 24. Cierre de proyecto ────────────────────────────────────
   await step('cierre-proyecto', async () => {
     await nav('Proyectos & Firmas');
-    await page.getByRole('button', { name: `Cerrar proyecto ${CODE}` }).first().click();
+    await page
+      .getByRole('button', { name: `Cerrar proyecto ${CODE}` })
+      .first()
+      .click();
     await page.waitForURL(/\/proyectos\/.+\/cierre$/, { timeout: 30_000 });
-    await page.getByRole('heading', { name: 'Cierre de Proyecto' }).first().waitFor({ timeout: 30_000 });
+    await page
+      .getByRole('heading', { name: 'Cierre de Proyecto' })
+      .first()
+      .waitFor({ timeout: 30_000 });
     await delay(2500);
-    await page.getByLabel('Observaciones de Cierre').fill('Cierre QA: obra entregada, finiquito firmado y retenciones liberadas.');
+    await page
+      .getByLabel('Observaciones de Cierre')
+      .fill('Cierre QA: obra entregada, finiquito firmado y retenciones liberadas.');
     await page.getByRole('button', { name: 'Cerrar Proyecto Definitivamente' }).click();
     await delay(5000);
     const body = await page.locator('body').innerText();
@@ -691,11 +745,13 @@ try {
   // ── 26. Limpieza de proyectos QA huérfanos ────────────────────
   await step('limpieza-proyectos-qa', async () => {
     const selector = page
-      .locator('select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible')
+      .locator(
+        'select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible'
+      )
       .first();
-    const options = await selector.locator('option').evaluateAll((nodes) =>
-      nodes.map((n) => ({ value: n.value, text: n.textContent || '' }))
-    );
+    const options = await selector
+      .locator('option')
+      .evaluateAll((nodes) => nodes.map((n) => ({ value: n.value, text: n.textContent || '' })));
     const leftovers = options.filter((o) => /Obra QA/.test(o.text) && !o.text.includes(CODE));
     let archived = 0;
     for (const leftover of leftovers) {
@@ -732,4 +788,3 @@ try {
 }
 
 if (report.steps.some((s) => s.status === 'failed')) process.exitCode = 1;
-
