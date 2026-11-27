@@ -16,3 +16,19 @@ export function navItem(page: Page, pattern: RegExp | string): Locator {
 export async function expectNavVisible(page: Page, pattern: RegExp, timeout = 30_000) {
   await expect(navItem(page, pattern)).toBeVisible({ timeout });
 }
+
+/** El sidebar usa etiquetas largas; el primer token identifica el módulo. */
+export function sectionPattern(section: string): RegExp {
+  return new RegExp(section.split(/[ &]/)[0], 'i');
+}
+
+/** El estado activo es aria-current en la barra móvil y aria-selected en el sidebar. */
+export async function expectNavActive(page: Page, pattern: RegExp, timeout = 20_000) {
+  const item = navItem(page, pattern);
+  await expect(item).toBeVisible({ timeout });
+  const active = await item.evaluate(
+    (el) =>
+      el.getAttribute('aria-current') === 'page' || el.getAttribute('aria-selected') === 'true'
+  );
+  expect(active).toBe(true);
+}

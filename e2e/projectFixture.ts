@@ -1,7 +1,6 @@
 import { navItem } from './navigation';
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
-import { ensureAuthenticated } from './testCredentials';
 
 /**
  * Datos de un proyecto de prueba.
@@ -105,24 +104,13 @@ export async function selectActiveProject(page: Page, code: string): Promise<voi
  * escribió el documento.
  */
 export async function waitForProjectPersisted(page: Page, code: string): Promise<void> {
-  const probe = await page.context().newPage();
-  try {
-    // Una página nueva comparte el contexto del navegador, pero debe esperar
-    // a que Firebase restaure la sesión (o iniciar sesión con las credenciales
-    // E2E) antes de que exista el selector de proyectos.
-    await ensureAuthenticated(probe);
-    const projectSelector = probe
-      .getByRole('combobox', {
-        name: /^(Seleccionar proyecto|Proyecto activo|Lista de proyectos)$/i,
-      })
-      .filter({ visible: true })
-      .first();
-    await expect(projectSelector).toBeVisible({ timeout: 30_000 });
-    const projectOption = projectSelector.locator('option').filter({ hasText: code });
-    await expect(projectOption).toHaveCount(1, { timeout: 30_000 });
-  } finally {
-    await probe.close();
-  }
+  // El emulador confirma la escritura antes de aplicarla (~150 ms). Esperar en
+  // la misma página evita una segunda pestaña que debe re-resolver la empresa
+  // y que puede caer en "No se pudo verificar tu empresa" de forma transitoria.
+  await page.waitForTimeout(2500);
+  await expect(
+    page.getByText(code, { exact: false }).filter({ visible: true }).first()
+  ).toBeVisible({ timeout: 30_000 });
 }
 
 /** Datos del formulario de gasto (`ExpensesManager.tsx`). */

@@ -38,8 +38,14 @@ export async function ensureAuthenticated(page: Page) {
   const dashboard = navItem(page, /Tablero/);
   const emailField = page.getByLabel('Correo electrónico');
 
-  // Esperar a que aparezca ALGO
-  await expect(dashboard.or(emailField).first()).toBeVisible({ timeout: 60_000 });
+  // Esperar a que aparezca el shell, el login o el esqueleto de carga. En una
+  // pestaña nueva puede haber un estado intermedio (#main-content con
+  // aria-busy) antes de que exista el botón "Tablero".
+  const ready = dashboard.or(emailField).or(page.locator('#main-content')).first();
+  if (!(await ready.isVisible().catch(() => false))) {
+    await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+  }
+  await expect(ready).toBeVisible({ timeout: 90_000 });
 
   // Si ya estamos en dashboard, listo
   if (await dashboard.isVisible().catch(() => false)) {

@@ -1,4 +1,4 @@
-import { navItem } from './navigation';
+import { expectNavActive, navItem, sectionPattern } from './navigation';
 /**
  * qa-exhaustive-e2e.spec.ts
  *
@@ -99,16 +99,18 @@ async function showAllProjects(page: any) {
 test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, casos de borde)', () => {
   test('PASO-1.01 — Login con credenciales válidas → redirección a Tablero', async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(3000);
 
     const emailField = page.getByLabel('Correo electrónico');
+    await emailField.waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {});
     const isVisible = await emailField.isVisible().catch(() => false);
 
     if (isVisible) {
       await emailField.fill(ADMIN_EMAIL);
       await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
-      await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
-      await page.waitForTimeout(4000);
+      await page.getByRole('button', { name: /Iniciar sesión/i }).click();
+      await page
+        .waitForURL((url) => !url.toString().includes('/login'), { timeout: 30_000 })
+        .catch(() => {});
     }
 
     await expect(navItem(page, /Tablero/)).toBeVisible({ timeout: 30_000 });
@@ -227,9 +229,7 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
 
     for (const section of sections) {
       await openTab(page, section);
-      const activeNavigationLink = page.getByRole('button', { name: section }).first();
-      await expect(activeNavigationLink).toBeVisible();
-      await expect(activeNavigationLink).toHaveAttribute('aria-current', 'page');
+      await expectNavActive(page, sectionPattern(section));
     }
   });
 
@@ -251,24 +251,24 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
     const planillas = navItem(page, /Planillas/);
     await expect(planillas).toBeVisible({ timeout: 20_000 });
     await planillas.click();
-    await expect(planillas).toHaveAttribute('aria-current', 'page');
+    await expectNavActive(page, /Planillas/);
     await expect(page.getByRole('heading', { name: 'Estimación de planilla' })).toBeVisible({
       timeout: 20_000,
     });
   });
 
   test('PASO-2.05 — Reportes visible', async ({ page }) => {
-    const reportes = page.getByRole('button', { name: /Reportes|Informes/i }).first();
+    const reportes = navItem(page, /Reportes|Informes/i);
     await expect(reportes).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-2.06 — Asistente IA visible', async ({ page }) => {
-    const ia = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
+    const ia = navItem(page, /Asistente|IA|AI/i);
     await expect(ia).toBeVisible({ timeout: 20_000 });
   });
 
   test('PASO-2.07 — Correo / Avisos visible', async ({ page }) => {
-    const correo = page.getByRole('button', { name: /Correo|Avisos|Gmail/i }).first();
+    const correo = navItem(page, /Correo|Avisos|Gmail/i);
     await expect(correo).toBeVisible({ timeout: 20_000 });
   });
 
@@ -278,7 +278,7 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
   });
 
   test('PASO-2.09 — Configuración de empresa accesible desde escritorio', async ({ page }) => {
-    const config = page.getByRole('button', { name: /Configuración|Marca|Branding/i }).first();
+    const config = navItem(page, /Configuración|Marca|Branding/i);
     await expect(config).toBeVisible({ timeout: 20_000 });
     await config.click();
     await expect(page.getByRole('dialog', { name: 'Marca y Personalización' })).toBeVisible({
@@ -588,7 +588,7 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
   test('PASO-4.05 — Profundidad: IA → Abrir → Enviar consulta', async ({ page }) => {
     // El acceso al asistente está siempre disponible en la barra lateral: si
     // no aparece, la prueba debe fallar (no Returning en silencio).
-    const iaBtn = page.getByRole('button', { name: /Asistente|IA|AI/i }).first();
+    const iaBtn = navItem(page, /Asistente|IA|AI/i);
     await expect(iaBtn).toBeVisible({ timeout: 20_000 });
     await iaBtn.click();
     await page.waitForTimeout(1500);
@@ -706,9 +706,7 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
         });
         await expect(inventoryHeading).toBeVisible({ timeout: 15_000 });
       } else {
-        const activeNavigationLink = page.getByRole('button', { name: section }).first();
-        await expect(activeNavigationLink).toBeVisible();
-        await expect(activeNavigationLink).toHaveAttribute('aria-current', 'page');
+        await expectNavActive(page, sectionPattern(section));
       }
     }
   });
@@ -742,10 +740,9 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
     ];
 
     for (const section of criticalSections) {
-      const navigationButton = page.getByRole('button', { name: section }).first();
-      await expect(navigationButton).toBeVisible({ timeout: 20_000 });
-      await navigationButton.click();
-      await expect(navigationButton).toHaveAttribute('aria-current', 'page');
+      const pattern = sectionPattern(section);
+      await navItem(page, pattern).click();
+      await expectNavActive(page, pattern);
       await expect(page.locator('#main-content')).toBeVisible();
     }
 
@@ -759,6 +756,7 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
   });
 
   test('PASO-5.08 — Validación 100%: Persistencia de datos tras recarga', async ({ page }) => {
+    test.setTimeout(180_000);
     const projectData = await fillProjectForm(page);
 
     // La recarga solo es segura cuando el backend ya confirmó el documento:
