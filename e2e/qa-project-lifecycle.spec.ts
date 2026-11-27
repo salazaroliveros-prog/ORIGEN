@@ -10,6 +10,13 @@ async function openTab(page: Page, name: RegExp) {
   await page.waitForTimeout(1500);
 }
 
+async function showAllProjects(page: Page) {
+  const pageSize = page.getByLabel('Elementos por página');
+  if (await pageSize.isVisible().catch(() => false)) {
+    await pageSize.selectOption('50');
+  }
+}
+
 async function createProject(page: Page, code: string, name: string, progress: number) {
   await openTab(page, /Proyectos & Firmas/);
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
@@ -31,10 +38,7 @@ async function createProject(page: Page, code: string, name: string, progress: n
   // proyecto nuevo puede quedar fuera de la primera página. Ampliar el tamaño
   // y esperar su tarjeta evita que el botón "Editar proyecto <código>" no
   // exista en los tests siguientes.
-  const pageSize = page.getByLabel('Elementos por página');
-  if (await pageSize.isVisible().catch(() => false)) {
-    await pageSize.selectOption('50');
-  }
+  await showAllProjects(page);
   await expect(page.getByRole('button', { name: `Editar proyecto ${code}` })).toBeVisible({
     timeout: 20_000,
   });
@@ -66,6 +70,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, /Proyectos & Firmas/);
+    await showAllProjects(page);
     await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
       timeout: 20_000,
     });
@@ -203,6 +208,7 @@ test.describe('QA defectos detectados', () => {
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, /Proyectos & Firmas/);
+    await showAllProjects(page);
     await expect(page.getByText('60%').filter({ visible: true }).first()).toBeVisible({
       timeout: 20_000,
     });
