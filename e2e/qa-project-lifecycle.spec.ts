@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 import { expect, test, type Page } from '@playwright/test';
 import { ensureAuthenticated } from './testCredentials';
 import { fillExpenseForm, selectActiveProject } from './projectFixture';
@@ -5,7 +6,7 @@ import { fillExpenseForm, selectActiveProject } from './projectFixture';
 const RUN_ID = Date.now().toString().slice(-6);
 
 async function openTab(page: Page, name: RegExp) {
-  await page.getByRole('button', { name }).first().click();
+  await navItem(page, name).click();
   await page.waitForTimeout(1500);
 }
 

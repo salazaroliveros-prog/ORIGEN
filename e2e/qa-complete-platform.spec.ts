@@ -12,7 +12,7 @@ test.setTimeout(300_000);
  */
 
 async function openTab(page: Page, name: RegExp | string) {
-  await page.getByRole('button', { name }).first().click();
+  await navItem(page, name).click();
   await page.waitForTimeout(1500);
 }
 

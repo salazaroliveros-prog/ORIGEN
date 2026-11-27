@@ -31,7 +31,7 @@ const RUN_ID = Date.now().toString().slice(-6);
 // ============================================================
 
 async function openTab(page: any, name: string | RegExp) {
-  await page.getByRole('button', { name }).first().click();
+  await navItem(page, name).click();
   await page.waitForTimeout(1500);
 }
 
