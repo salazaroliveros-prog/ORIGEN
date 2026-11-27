@@ -87,9 +87,23 @@ test.describe('Sección Proyectos & Firmas', () => {
 
     // Navega al formulario real de cierre (fuera del shell de MainApp).
     await expect(page).toHaveURL(/\/proyectos\/.+\/cierre$/, { timeout: 20_000 });
-    await expect(page.getByRole('heading', { name: 'Cierre de Proyecto' }).first()).toBeVisible({
-      timeout: 20_000,
-    });
+    // Esta ruta vive fuera del shell; bajo carga el detector offline de la PWA
+    // puede mostrar la pantalla "Sin conexión" aunque el servidor responda.
+    const heading = page.getByRole('heading', { name: 'Cierre de Proyecto' }).first();
+    const retry = page.getByRole('button', { name: 'Volver a intentar' });
+    for (
+      let attempt = 0;
+      attempt < 3 && !(await heading.isVisible().catch(() => false));
+      attempt++
+    ) {
+      if (await retry.isVisible().catch(() => false)) {
+        await retry.click();
+      } else {
+        await page.reload().catch(() => {});
+      }
+      await page.waitForTimeout(1500);
+    }
+    await expect(heading).toBeVisible({ timeout: 20_000 });
     await expect(page.getByLabel('Observaciones de Cierre')).toBeVisible();
     await expect(page.getByLabel(/Saldo final tras compromisos/)).toBeVisible();
   });

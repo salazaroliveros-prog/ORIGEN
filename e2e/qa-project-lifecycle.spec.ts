@@ -26,6 +26,18 @@ async function createProject(page: Page, code: string, name: string, progress: n
   await page.getByLabel('Estado del Proyecto').selectOption({ label: 'En Ejecución' });
   await page.getByRole('button', { name: 'Crear Proyecto' }).click();
   await page.waitForTimeout(3000);
+
+  // Con varios proyectos creados en la misma corrida, el listado pagina y el
+  // proyecto nuevo puede quedar fuera de la primera página. Ampliar el tamaño
+  // y esperar su tarjeta evita que el botón "Editar proyecto <código>" no
+  // exista en los tests siguientes.
+  const pageSize = page.getByLabel('Elementos por página');
+  if (await pageSize.isVisible().catch(() => false)) {
+    await pageSize.selectOption('50');
+  }
+  await expect(page.getByRole('button', { name: `Editar proyecto ${code}` })).toBeVisible({
+    timeout: 20_000,
+  });
 }
 
 test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
@@ -242,7 +254,7 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     });
 
     // Navegar al cronograma Gantt
-    const ganttTab = page.getByRole('button', { name: /Cronograma|Gantt/i }).first();
+    const ganttTab = navItem(page, /Cronograma|Gantt/i);
     if (await ganttTab.isVisible().catch(() => false)) {
       await ganttTab.click();
       await page.waitForTimeout(1500);
@@ -262,7 +274,7 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     await ensureAuthenticated(page);
 
     // Navegar a módulo de maquinaria
-    const macTab = page.getByRole('button', { name: /Maquinaria|Equipo/i }).first();
+    const macTab = navItem(page, /Maquinaria|Equipo/i);
     if (!(await macTab.isVisible().catch(() => false))) return;
     await macTab.click();
     await page.waitForTimeout(1500);
@@ -294,7 +306,7 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
   test('registra asistencia de empleado con GPS', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const staffTab = page.getByRole('button', { name: /Personal & IGSS/ }).first();
+    const staffTab = navItem(page, /Personal & IGSS/);
     await expect(staffTab).toBeVisible({ timeout: 20_000 });
     await staffTab.click();
     await page.waitForTimeout(1500);
@@ -304,12 +316,8 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     await expect(
       page.getByRole('heading', { name: /Control de Personal, Cuadrillas & Asistencia/i })
     ).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByRole('button', { name: 'Registro & Marcaje GPS' })).toBeVisible({
-      timeout: 15_000,
-    });
-    await expect(page.getByRole('button', { name: /^Cuadrillas/ })).toBeVisible({
-      timeout: 15_000,
-    });
+    await expect(navItem(page, /Registro & Marcaje GPS/)).toBeVisible({ timeout: 15_000 });
+    await expect(navItem(page, /^Cuadrillas/)).toBeVisible({ timeout: 15_000 });
   });
 
   test('genera reporte final del proyecto', async ({ page }) => {
