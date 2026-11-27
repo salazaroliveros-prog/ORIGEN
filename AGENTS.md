@@ -1,31 +1,38 @@
 # AGENTS.md
 
-Next.js 15 (App Router) + strict TypeScript + React 19 ERP for construction/project management (Guatemala). Firebase (Auth/Firestore/Storage, client + `firebase-admin`) backend; business logic lives in `lib/`, UI in `app/` and `components/`.
+Next.js 15 App Router + React 19 + strict TypeScript ERP de construcción (Guatemala). Firebase Auth/Firestore/Storage (cliente + admin). Node >=20 / npm >=10; CI usa Node 24 (`ci.yml`), `main.yml` usa 26.
 
-## Layout & boundaries
+## Mapa real del código
 
-- `app/` — routes/UI (`app/api/**` route handlers). `components/` — shared UI. `lib/` — domain logic, calculations, Firebase/data access, validation, hooks (`lib/utils`, `lib/hooks`, etc.). `features/` — feature modules.
-- `e2e/` + `playwright.config.ts` — Playwright E2E (global setup `e2e/global-setup.ts`). `scripts/` — dev/build/seed/maintenance (see quirks). `docs/` and many root `*_SUMMARY|*_REPORT|*_GUIDE.md` files are reference/summaries, not source of truth for behavior.
+- `app/` rutas y `app/api/**` route handlers; `components/` UI compartida; `lib/` lógica de dominio, cálculos, Firebase, validación y hooks; `features/` módulos; `e2e/` Playwright; `scripts/` dev/build/seed.
+- El shell real es **`components/main-app/MainApp.tsx`**: `app/page.tsx` → `ClientOnlyApp` → `main-app/MainApp`. El antiguo `components/MainApp.tsx` fue eliminado; no lo restaures.
+- `docs/` y los `*_SUMMARY|*_REPORT|*_GUIDE.md` de la raíz son resúmenes históricos, **no fuente de verdad**. Si documentación y configuración/scripts difieren, manda el ejecutable.
+- Tema: **solo `app/globals.css` se importa**. `lib/design-tokens.ts` lo usa `RegisterForm` + su test. `lib/design-system.ts` y `app/design-system.css` se eliminaron por duplicados.
 
-## Commands
+## Comandos exactos
 
-- Install: `npm install` (CI uses `npm ci --no-audit --no-fund`, Node 24).
-- Dev: `npm run dev` (runs `scripts/dev.mjs` → `next dev`, defaults `-p 3000 -H 0.0.0.0`; emulated: `npm run dev:emulated`; Firebase emulators: `npm run emulators`).
-- Build/start: `npm run build` (`scripts/build.mjs`, sets `NODE_ENV=production` and `--max-old-space-size=1024`, `output: 'standalone'`); prod server: `npm run start` (`node .next/standalone/server.js`).
-- Lint/format/typecheck: `npm run lint` (`eslint .`), `npm run lint:fix`, `npm run format` / `format:check`, `npm run type-check` (`tsc --noEmit`).
-- Tests (Vitest, jsdom): `npm run test` / `test:watch` / `test:coverage`. Focused: `npm run test -- <pattern|path>` (e.g. `npm run test -- calculations`, `npm run test -- crud.integration`, `npm run test -- lib/utils/foo.test.ts`).
-- Firestore emulator tests: `npm run test:firebase` (excluded from default `vitest` run; runs `lib/firestore-emulator.test.ts` via `firebase emulators:exec`).
-- E2E (Playwright): `npm run test:e2e` / `test:e2e:ui` / `test:e2e:headed` (base `http://localhost:3000` or `E2E_BASE_URL`; projects chromium/firefox/webkit/mobile). **Requisito**: el `globalSetup` hace login con `E2E_ADMIN_EMAIL/PASSWORD` y falla si la cuenta no existe. En emuladores nuevos hay que sembrarla primero: `npm run e2e:seed` (crea usuario + empresa + membresía owner).
+- Install: `npm ci --no-audit --no-fund` (CI). Dev: `npm run dev` (`scripts/dev.mjs` → `next dev`, `-p 3000 -H 0.0.0.0`); emulado: `npm run dev:emulated`; emuladores: `npm run emulators` (auth 9099, firestore 8080, storage 9199).
+- Verificación local: `npm run type-check` → `npm run lint` → `npm run format:check` → `npm run test` → `npm run build`. CI (`ci.yml`): lint → format:check → type-check → `pwa:validate-manifest` → test → `test:firebase` → build → E2E `--project=chromium`; el build necesita los secretos `NEXT_PUBLIC_FIREBASE_*`.
+- Un test: `npm run test -- <pattern>` (p. ej. `npm run test -- calculations`) o `npx vitest run lib/__tests__/securityHeaders.test.ts`. Vitest: jsdom, include `lib/**/*.test.ts(x)` y `app/api/**/*.test.ts`, setup `vitest.setup.ts`, alias `@/*` → raíz.
+- Reglas/CRUD Firebase: `npm run test:firebase` (49 tests; lanza sus propios emuladores vía `emulators:exec`). Para correrlos contra emuladores ya activos: exporta `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`, `GCLOUD_PROJECT=demo-origen-erp-test`, `FIREBASE_EMULATOR_HUB=127.0.0.1:4400`, `FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199` y ejecuta `npx vitest run --config vitest.emulator.config.ts`.
+- E2E: `npm run test:e2e` → `scripts/run-e2e.mjs` elige puerto libre, **lanza sus propios emuladores** y siembra credenciales efímeras desde `.env.e2e`. Detén los emuladores sueltos antes. `e2e/global-setup.ts` solo espera al servidor; el login real está en `e2e/testCredentials.ts` (`ensureAuthenticated`). Proyectos: `chromium` + `mobile-iphone/android/ipad/small` (no Firefox/WebKit).
+- E2E semilla manual: `npm run e2e:seed` (usuario + empresa + membresía owner). Visual: `npm run test:visual:*` (configs de Playwright/Docker).
 
-## Toolchain & quirks
+## Gotchas verificados
 
-- Path alias `@/*` → repo root (tsconfig/vitest). Vitest includes `lib/**/*.test.ts(x)` and `app/api/**/*.test.ts`; setup `vitest.setup.ts`.
-- `scripts/dev.mjs` auto-heals `/app` symlinks and copies `package.json` into `/app` (cloud/runtime artifact) — preserve this behavior. Build script constrains Node heap.
-- Env: copy `.env.example` → `.env.local`. Client vars `NEXT_PUBLIC_FIREBASE_*` (+ optional App Check/VAPID/emulator flags); server-only `GEMINI_API_KEY`, `PRIMARY_ADMIN_EMAIL`, `ALLOWED_ORIGINS`. Never commit real secrets.
-- CI (`.github/workflows/ci.yml`, push/PR to `main`): `lint` → `type-check` → `test` → `build` (build requires `NEXT_PUBLIC_FIREBASE_*` secrets). El paso `type-check` está añadido en la rama local `ci/type-check` pendiente de push (GitHub exige scope `workflow` para tocar `.github/workflows/**`); mientras tanto, ejecuta `npm run type-check` en local.
-- Pre-commit (`.husky/pre-commit` → `lint-staged` con `.lintstagedrc.json`): corre `eslint --fix` + `prettier --write` sobre los archivos en staged y valida el mensaje con `commitlint`. Prettier usa `endOfLine: auto`: no reescribas a mano los fines de línea de los archivos, el repo mezcla CRLF y eso hacía fallar el hook.
+- **Nunca corras `npm run build` con el dev server vivo ni `type-check` en paralelo con el build**: ambos tocan `.next` / `.next/types` → `EADDRINUSE` o `TS6053` falso. Secuencia estricta: type-check → lint → test → build.
+- `scripts/dev.mjs` repara symlinks `/app` y copia `package.json` ahí (artefacto de runtime); conserva ese comportamiento.
+- Prettier `endOfLine: auto`: el repo mezcla CRLF. No reescribas finales de línea a mano. Hook: `.husky/pre-commit` → lint-staged (`eslint --fix` + `prettier --write`) + commitlint.
+- `.env.local` y `.env.e2e` son ignorados. `NEXT_PUBLIC_*` es visible en cliente; `GEMINI_API_KEY`, `PRIMARY_ADMIN_EMAIL` y `ALLOWED_ORIGINS` son server-only. `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true` hornea config de emulador en un build de producción: verifícalo antes de desplegar.
+- `next.config.ts`: CSP/HSTS es **solo producción**; en dev se permite `'unsafe-eval'` (React Refresh) y los orígenes de `ORIGEN_DEV_ORIGINS`. Si abres la app desde Docker/otra IP, ajusta `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST` y `ORIGEN_DEV_ORIGINS` a esa IP.
+- `firestore.rules` es CEL: versiones regresadas con `var`/`setWhere` invalidan **todas** las escrituras. Valida siempre con la suite de emulador (49 tests).
+- Estado real: 2FA no implementado; lockout local tras 5 intentos descartado (Firebase Auth ya hace throttling); `initSentry()` no está cableado y no hay DSN; GA4 tiene `trackEvent` pero no tiene consumidores. No afirmes lo contrario en docs.
 
-## Conventions
+## Vercel / producción
 
-- Prefer minimal, architecture-aligned fixes: keep domain/calculation logic in `lib/` (typed helpers over `any`); respect Next.js server/client boundaries for Firebase/auth/data access.
-- For logic changes prefer/add focused tests near existing ones (`lib/**/*.test.ts`, `*.integration.test.ts`); validate with the smallest relevant command (single test/file) rather than full suite when possible. Report exact verification run and result.
+<!-- VERCEL BEST PRACTICES START -->
+- Proyecto `proyectoswm/origen`, repo `salazaroliveros-prog/ORIGEN`, rama de producción `main`. Dominio canónico **`https://origen-one-kohl.vercel.app`**; los alias `origen-proyectoswm` y `origen-git-main-proyectoswm` apuntan al mismo deployment. No hay dominios custom.
+- El canónico está repetido en `app/layout.tsx` (`metadataBase`/`alternates`), `lib/schema-org.tsx`, `public/robots.txt` y `public/sitemap.xml`: cámbialo en los cuatro juntos.
+- `vercel.json` define build/install y headers de caché, **`crons: []`** y sin headers de seguridad (CSP/HSTS viven en `next.config.ts`). Las funciones son stateless: para programar tareas usa Cron Jobs (UTC, GET a la URL de producción), no daemon en memoria.
+- Secrets en variables de entorno de Vercel, nunca en git ni en `NEXT_PUBLIC_*`. Sincroniza con `vercel pull` / `vercel env pull`. Si una URL de deployment protegido devuelve 401/403, reintenta con `vercel curl <url>`; no desactives la protección.
+<!-- VERCEL BEST PRACTICES END -->
