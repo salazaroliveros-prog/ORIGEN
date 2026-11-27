@@ -162,7 +162,7 @@ export function LaborProductivityChart({
           <div className="flex items-center rounded-xl border border-slate-700 bg-slate-800 p-0.5">
             <button
               onClick={() => setViewScope('empleado')}
-              className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
+              className={`min-h-[44px] cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'empleado'
                   ? 'bg-sky-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-white'
@@ -172,7 +172,7 @@ export function LaborProductivityChart({
             </button>
             <button
               onClick={() => setViewScope('rol')}
-              className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
+              className={`min-h-[44px] cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'rol'
                   ? 'bg-sky-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-white'
@@ -182,7 +182,7 @@ export function LaborProductivityChart({
             </button>
             <button
               onClick={() => setViewScope('proyecto')}
-              className={`cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
+              className={`min-h-[44px] cursor-pointer rounded-lg px-3 py-1 text-xs font-bold transition ${
                 viewScope === 'proyecto'
                   ? 'bg-sky-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-white'

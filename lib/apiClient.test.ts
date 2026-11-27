@@ -6,7 +6,7 @@ const state = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@/lib/firebaseService', () => ({ auth: state.auth }));
+vi.mock('@/lib/firebaseService', () => ({ auth: state.auth, appCheckInstance: null }));
 
 import { authFetch, getIdTokenOrNull } from './apiClient';
 

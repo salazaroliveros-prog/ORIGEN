@@ -382,7 +382,7 @@ export default function MainApp() {
             onClick={() => setIsSyncLogOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={isSyncLogOpen}
-            className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/10 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400/40 hover:text-white"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400/40 hover:text-white"
           >
             <span
               aria-hidden="true"

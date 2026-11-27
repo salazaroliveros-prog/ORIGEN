@@ -149,7 +149,7 @@ export function CashFlowProjectionChart({
           <div className="flex items-center rounded-xl border border-slate-700 bg-slate-800 p-0.5 font-bold">
             <button
               onClick={() => setChartMode('inflow_outflow')}
-              className={`rounded-lg px-2.5 py-1 transition ${
+              className={`min-h-[44px] rounded-lg px-2.5 py-1 transition ${
                 chartMode === 'inflow_outflow'
                   ? 'bg-cyan-700 text-white shadow'
                   : 'text-slate-400 hover:text-white'
@@ -159,7 +159,7 @@ export function CashFlowProjectionChart({
             </button>
             <button
               onClick={() => setChartMode('net_cumulative')}
-              className={`rounded-lg px-2.5 py-1 transition ${
+              className={`min-h-[44px] rounded-lg px-2.5 py-1 transition ${
                 chartMode === 'net_cumulative'
                   ? 'bg-cyan-700 text-white shadow'
                   : 'text-slate-400 hover:text-white'
@@ -175,7 +175,7 @@ export function CashFlowProjectionChart({
             <button
               onClick={() => setStartOffsetMonths((prev) => Math.max(-3, prev - 1))}
               disabled={startOffsetMonths <= -3}
-              className="px-1 font-mono font-bold text-slate-400 hover:text-white disabled:opacity-30"
+              className="flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center font-mono font-bold text-slate-400 hover:text-white disabled:opacity-30"
               title="Mes anterior"
             >
               ◀
@@ -186,7 +186,7 @@ export function CashFlowProjectionChart({
             <button
               onClick={() => setStartOffsetMonths((prev) => Math.min(12, prev + 1))}
               disabled={startOffsetMonths >= 12}
-              className="px-1 font-mono font-bold text-slate-400 hover:text-white disabled:opacity-30"
+              className="flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center font-mono font-bold text-slate-400 hover:text-white disabled:opacity-30"
               title="Mes siguiente"
             >
               ▶

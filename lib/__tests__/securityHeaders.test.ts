@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import nextConfig from '../../next.config';
 
@@ -10,6 +10,12 @@ import nextConfig from '../../next.config';
  *  - Permissions-Policy con camera/geolocation/clipboard-write vacíos -> rompía
  *    getUserMedia, geolocalización y copiar al portapapeles de la app.
  */
+
+// Estas cabeceras son intencionalmente específicas de producción: en HTTP
+// local, forzar HTTPS rompe la hidratación. Simulamos el entorno de despliegue.
+beforeEach(() => {
+  vi.stubEnv('NODE_ENV', 'production');
+});
 
 type Header = { key: string; value: string };
 

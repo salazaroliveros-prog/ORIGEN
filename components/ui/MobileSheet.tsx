@@ -11,6 +11,8 @@ interface MobileSheetProps {
   swipeToClose?: boolean;
   id?: string;
   labelledBy?: string;
+  /** Etiqueta accesible cuando no se proporciona `labelledBy`. */
+  ariaLabel?: string;
 }
 
 export function MobileSheet({
@@ -22,6 +24,7 @@ export function MobileSheet({
   swipeToClose = true,
   id,
   labelledBy,
+  ariaLabel = 'Panel de contenido',
 }: MobileSheetProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
@@ -35,6 +38,16 @@ export function MobileSheet({
       document.body.style.overflow = previousOverflow;
     };
   }, [isOpen]);
+
+  // Escape cierra el sheet: imprescindible en tablets con teclado y en navegación por teclado.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!swipeToClose) return;
@@ -76,7 +89,7 @@ export function MobileSheet({
           role="dialog"
           aria-modal="true"
           aria-labelledby={labelledBy}
-          aria-label={labelledBy ? undefined : 'Panel de navegación'}
+          aria-label={labelledBy ? undefined : ariaLabel}
           style={{
             transform: transformStyle,
             transition: isDragging ? 'none' : 'transform var(--transition-slower)',

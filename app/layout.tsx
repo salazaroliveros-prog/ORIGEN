@@ -1,15 +1,20 @@
-// app/layout.tsx - UPDATED with WebP/AVIF image optimization
+// app/layout.tsx - Layout raíz: viewport móvil, metadata PWA y notificaciones globales
 /* eslint-disable @next/next/no-page-custom-font */
 
 import type { Metadata, Viewport } from 'next';
-import './globals.css';
+import { GlobalToaster } from '@/components/ui/GlobalToaster';
 import { AnalyticsProvider } from '@/components/AnalyticsProvider';
+import './globals.css';
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  // Permite zoom (accesibilidad WCAG 1.4.4) sin desactivar el viewport adaptable.
   maximumScale: 5,
+  // Extiende la app bajo el notch / barra de gestos y permite respetar los insets.
+  viewportFit: 'cover',
   themeColor: '#1f2937',
+  colorScheme: 'dark',
 };
 
 export const metadata: Metadata = {
@@ -18,31 +23,14 @@ export const metadata: Metadata = {
     'ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal',
   applicationName: 'ORIGEN ERP',
 
-  // Icon definitions (archivos reales en /assets/branding)
+  // Icon definitions - rutas reales existentes en /assets/branding
   icons: {
     icon: [
-      {
-        url: '/assets/branding/favicon.ico',
-        type: 'image/x-icon',
-      },
-      {
-        url: '/assets/branding/favicon-32x32.png',
-        sizes: '32x32',
-        type: 'image/png',
-      },
-      {
-        url: '/assets/branding/icon-192x192.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
+      { url: '/assets/branding/favicon.ico', type: 'image/x-icon' },
+      { url: '/assets/branding/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/assets/branding/icon-192x192.png', sizes: '192x192', type: 'image/png' },
     ],
-    apple: [
-      {
-        url: '/assets/branding/apple-touch-icon.png',
-        sizes: '180x180',
-        type: 'image/png',
-      },
-    ],
+    apple: [{ url: '/assets/branding/apple-touch-icon.png', type: 'image/png' }],
   },
 
   // Manifest with optimized images
@@ -52,21 +40,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'es_GT',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-one-kohl.vercel.app',
     siteName: 'ORIGEN ERP Guatemala',
     title: 'ORIGEN ERP Guatemala',
     description:
       'ERP integral para construcción. Gestión de proyectos, APU, cotizaciones y personal',
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/images-optimized/og-image.webp`,
-        width: 1200,
-        height: 630,
-        alt: 'ORIGEN ERP',
-        type: 'image/webp',
-      },
-      {
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/og-image.png`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-one-kohl.vercel.app'}/assets/branding/web-banner-logo.png`,
         width: 1200,
         height: 630,
         alt: 'ORIGEN ERP',
@@ -82,11 +63,11 @@ export const metadata: Metadata = {
     description:
       'ERP integral para construcción. Gestión de proyectos, APU, cotizaciones y personal',
     images: [
-      `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/images-optimized/twitter-image.webp`,
+      `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-one-kohl.vercel.app'}/assets/branding/web-banner-logo.png`,
     ],
   },
 
-  // Mobile optimization (viewport se exporta arriba, no aquí)
+  // Mobile optimization (el viewport se exporta arriba, no en metadata - Next 15)
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -108,9 +89,9 @@ const schema = {
   description:
     'ERP integral para construcción con gestión de proyectos, APU, cotizaciones y personal',
   applicationCategory: 'BusinessApplication',
-  image: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app'}/images-optimized/logo.webp`,
+  image: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-one-kohl.vercel.app'}/assets/branding/web-banner-logo.png`,
   operatingSystem: 'Web',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-erp.vercel.app',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://origen-one-kohl.vercel.app',
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '4.9',
@@ -141,11 +122,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* DNS Prefetch for external APIs */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+
       </head>
 
       <body className="bg-gray-50 dark:bg-gray-900">
         <AnalyticsProvider />
         {children}
+        <GlobalToaster />
         <footer className="border-t border-white/10 bg-slate-950 px-4 py-3 text-center text-[11px] text-slate-400">
           ORIGEN ERP Guatemala ·{' '}
           <a href="/privacy" className="text-amber-400 hover:underline">

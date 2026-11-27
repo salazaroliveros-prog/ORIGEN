@@ -57,7 +57,7 @@ export function DataTable<T>({
       <div
         role="region"
         aria-label={ariaLabel}
-        className={`rounded-xl border p-8 text-center ${className}`}
+        className={`rounded-xl border border-white/10 p-8 text-center ${className}`}
       >
         {emptyIcon && (
           <div className="mx-auto mb-3 h-8 w-8 text-slate-400" aria-hidden="true">
@@ -73,13 +73,15 @@ export function DataTable<T>({
     <div
       role="region"
       aria-label={ariaLabel}
-      // ✅ CORRECCIÓN: Shadow inset para indicar scroll horizontal disponible
-      className={`overflow-x-auto rounded-lg shadow-[inset_-15px_0_15px_-10px_rgba(0,0,0,0.3)] ${className}`}
+      // El inset shadow avisa de que hay scroll horizontal; tabIndex permite
+      // desplazar la tabla con el teclado (WCAG 2.1.1).
+      tabIndex={0}
+      className={`overflow-x-auto rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50 scroll-smooth snap-x shadow-[inset_-15px_0_15px_-10px_rgba(0,0,0,0.3)] ${className}`}
     >
       <table
         role="grid"
         aria-label={ariaLabel}
-        className="w-full border-collapse text-left text-xs"
+        className="w-full border-collapse text-left text-sm"
       >
         <caption className="sr-only">{ariaLabel}</caption>
         <thead>
@@ -88,7 +90,7 @@ export function DataTable<T>({
               <th
                 key={String(col.key)}
                 scope="col"
-                className={`px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-300 ${col.className ?? ''}`}
+                className={`whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-300 ${col.className ?? ''}`}
               >
                 {col.header}
               </th>

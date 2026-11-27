@@ -1,9 +1,7 @@
 'use client';
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { Menu, X, ChevronDown, Search, User } from 'lucide-react';
+import { Menu, ChevronDown, User } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -26,8 +24,6 @@ export function MobileHeader({
   userEmail,
   className = '',
 }: MobileHeaderProps) {
-  const pathname = usePathname();
-
   return (
     <div
       className={`sticky top-0 z-50 flex items-center gap-3 border-b border-white/10 bg-white/[0.05] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] ${className}`}
@@ -56,14 +52,19 @@ export function MobileHeader({
         </Button>
       )}
 
-      <div className="flex min-w-0 flex-1 items-center justify-between">
-        <h1 className="truncate text-base font-semibold leading-tight text-white">{title}</h1>
+      <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+        <h1
+          title={title}
+          className="line-clamp-1 min-w-0 text-base font-semibold leading-tight text-white"
+        >
+          {title}
+        </h1>
 
         {showSearch && (
           <Input
             type="text"
             placeholder="Buscar..."
-            className="w-32 border border-white/10 bg-white/[0.05] px-3 py-2.5 text-sm focus-visible:ring-brand-400/30"
+            className="w-32 shrink-0 border border-white/10 bg-white/[0.05] px-3 py-2.5 focus-visible:ring-brand-400/30 sm:w-48"
             aria-label="Buscar"
           />
         )}
@@ -74,7 +75,7 @@ export function MobileHeader({
               <User size={18} className="text-slate-400" aria-hidden="true" />
               <div className="hidden min-w-0 flex-col items-end sm:flex">
                 <span className="truncate text-xs font-medium text-white">{userName}</span>
-                <span className="truncate text-[11px] text-slate-500">{userEmail}</span>
+                <span className="truncate text-xs text-slate-400">{userEmail}</span>
               </div>
             </div>
           )}

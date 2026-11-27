@@ -15,9 +15,10 @@ const variantStyles = {
   danger: 'bg-red-500 text-white border border-red-500/30',
 };
 
+// Mínimo 12px para garantizar legibilidad en pantallas compactas y uso en obra.
 const sizeStyles = {
-  sm: 'text-[10px] px-2 py-0.5',
-  md: 'text-xs px-2.5 py-1',
+  sm: 'text-xs px-2 py-0.5',
+  md: 'text-sm px-2.5 py-1',
 };
 
 export function Badge({

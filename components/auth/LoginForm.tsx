@@ -166,7 +166,7 @@ export function LoginForm({ className }: { className?: string }) {
                 type="button"
                 onClick={() => setShowPassword((p) => !p)}
                 disabled={isAuthenticating}
-                className="pointer-events-auto absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors hover:text-slate-300 disabled:opacity-50"
+                className="pointer-events-auto -mr-2 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-2 focus-visible:outline-brand-400 disabled:opacity-50"
                 aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -179,7 +179,7 @@ export function LoginForm({ className }: { className?: string }) {
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex min-h-[44px] items-center gap-3">
           <input
             id="remember-me"
             type="checkbox"
@@ -190,7 +190,7 @@ export function LoginForm({ className }: { className?: string }) {
           />
           <label
             htmlFor="remember-me"
-            className="cursor-pointer text-sm text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer py-2 text-sm text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Recordarme
           </label>
@@ -281,7 +281,7 @@ export function LoginForm({ className }: { className?: string }) {
               type="button"
               onClick={handleForgotPassword}
               disabled={!email.trim() || isAuthenticating}
-              className="text-sm text-brand-secondary transition-colors hover:text-brand-secondary-hover disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-[44px] px-4 text-sm text-brand-secondary transition-colors hover:text-brand-secondary-hover focus-visible:outline-2 focus-visible:outline-brand-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               ¿Olvidaste tu contraseña?
             </button>

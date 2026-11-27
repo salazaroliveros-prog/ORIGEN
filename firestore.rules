@@ -1,124 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ===== INVENTARIO Y COMPRAS (colecciones añadidas al ruleset desplegado) =====
-    // Acceso restringido por empresa: solo miembros de la compañía pueden leer
-    // y escribir sus propios registros.
-    match /suppliers/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if isCompanyMember(existing().companyId);
-    }
-
-    match /warehouses/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if isCompanyMember(existing().companyId);
-    }
-
-    match /inventoryItems/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if isCompanyMember(existing().companyId);
-    }
-
-    match /stockMovements/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if false;
-    }
-
-    match /inventoryBalances/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if false;
-    }
-
-    match /purchaseOrders/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if isCompanyMember(existing().companyId);
-    }
-
-    match /subcontracts/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if isCompanyMember(existing().companyId);
-    }
-
-    match /subcontractPayments/{id} {
-      allow read: if resource == null || isCompanyMember(resource.data.companyId);
-      allow create, update: if isCompanyMember(incoming().companyId);
-      allow delete: if isCompanyMember(existing().companyId);
-    }
-    // Los transactions leen documentos que todavía no existen (bitácoras,
-    // gastos y saldos nuevos): `resource` es null y las reglas originales
-    // denegaban el get con PERMISSION_DENIED antes de crear el documento.
-    match /machineryLogs/{id} {
-      allow get: if resource == null || isCompanyMember(resource.data.companyId);
-    }
-
-    match /expenses/{id} {
-      allow get: if resource == null || isCompanyMember(resource.data.companyId) ||
-        (isSignedIn() && resource.data.authorId == request.auth.uid);
-    }
-    // ===== COMPLEMENTOS DETECTADOS EN LA VALIDACIÓN E2E =====
-    // Perfil de usuario (teléfono, nombre) y fotos de avance de obra.
-    match /users/{userId} {
-      allow read, create: if isSignedIn() && userId == request.auth.uid;
-      allow update: if isSignedIn() && userId == request.auth.uid;
-      allow delete: if false;
-    }
-
-    // Perfil privado (teléfono) usado por /perfil.
-    match /userProfiles/{userId} {
-      allow read, create, update: if isSignedIn() && userId == request.auth.uid;
-      allow delete: if false;
-    }
-
-    match /projects/{projectId}/photos/{photoId} {
-      // El projectId está en la ruta: las reglas pueden validar la pertenencia
-      // leyendo el proyecto padre incluso en consultas sin filtro de la subcolección.
-      allow read: if isSignedIn() && isCompanyMember(
-        get(/databases/$(database)/documents/projects/$(projectId)).data.companyId
-      );
-      allow create: if isSignedIn() && incoming().uploadedBy == request.auth.uid &&
-        isCompanyMember(get(/databases/$(database)/documents/projects/$(projectId)).data.companyId) &&
-        // Límite por documento de Firestore (1 MiB); la data URL ya va comprimida.
-        (!incoming().keys().hasAll(['dataUrl']) || incoming().dataUrl.size() <= 900000) &&
-        (incoming().keys().hasAll(['dataUrl']) ||
-          (incoming().keys().hasAll(['storagePath']) &&
-            incoming().storagePath.matches('^projects/' + projectId + '/progress/.+$')));
-      allow update, delete: if isSignedIn() && (
-        existing().uploadedBy == request.auth.uid ||
-        isCompanyMember(get(/databases/$(database)/documents/projects/$(projectId)).data.companyId)
-      );
-    }
-
-    // Facturación electrónica FEL (colección felInvoices).
-    match /felInvoices/{invoiceId} {
-      allow read: if isSignedIn() && (
-        resource.data.authorId == request.auth.uid ||
-        exists(/databases/$(database)/documents/companies/$(resource.data.companyId)/members/$(request.auth.uid))
-      );
-      allow create, update: if isSignedIn() && incoming().authorId == request.auth.uid &&
-        exists(/databases/$(database)/documents/companies/$(incoming().companyId)/members/$(request.auth.uid));
-      allow delete: if isSignedIn() && (
-        existing().authorId == request.auth.uid ||
-        exists(/databases/$(database)/documents/companies/$(existing().companyId)/members/$(request.auth.uid))
-      );
-    }
-
     // 1. Global Default Deny
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // 2. Companies collection - allow company members to read
-    match /companies/{companyId} {
-      allow read: if isCompanyMember(companyId);
-      allow write: if hasCompanyRole(companyId, ['owner', 'admin']);
-    }
+    // Las reglas específicas de companies/{companyId} están definidas más abajo.
 
     // Helper functions
     function isSignedIn() {
@@ -136,7 +24,10 @@ service cloud.firestore {
     }
 
     function hasCompanyRole(companyId, roles) {
-      return isCompanyMember(companyId) &&
+      // A missing membership makes this lookup fail closed. Reading it once
+      // avoids the previous exists()+get() pair for every role check.
+      return isSignedIn() &&
+        companyId is string &&
         get(companyMemberPath(companyId)).data.role in roles;
     }
 
@@ -154,10 +45,15 @@ service cloud.firestore {
 
     function canCreatePendingMachineryExpense(data) {
       return data.category == 'Maquinaria y Combustible' &&
-        data.supplier == 'Operación interna' &&
-        data.facturaNumber == 'SIN-FACTURA' &&
         data.paymentMethod == 'Pendiente' &&
         data.approvalStatus == 'Pendiente' &&
+        data.machineryLogId is string &&
+        existsAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)) &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.expenseId == data.id &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.companyId == data.companyId &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.projectId == data.projectId &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.costGTQ == data.amount &&
+        getAfter(/databases/$(database)/documents/machineryLogs/$(data.machineryLogId)).data.createdBy == request.auth.uid &&
         hasCompanyRole(data.companyId, ['owner', 'admin', 'project_manager', 'field_worker']);
     }
 
@@ -174,8 +70,774 @@ service cloud.firestore {
     }
 
     function isProjectInCompany(projectId, companyId) {
-      return exists(/databases/$(database)/documents/projects/$(projectId)) &&
+      return projectId is string &&
+        companyId is string &&
         get(/databases/$(database)/documents/projects/$(projectId)).data.companyId == companyId;
+    }
+
+    function isMachineryInCompany(machineryId, companyId) {
+      return exists(/databases/$(database)/documents/machinery/$(machineryId)) &&
+        get(/databases/$(database)/documents/machinery/$(machineryId)).data.companyId == companyId;
+    }
+
+    function isSupplierInCompany(supplierId, companyId) {
+      return supplierId is string &&
+        companyId is string &&
+        get(/databases/$(database)/documents/suppliers/$(supplierId)).data.companyId == companyId;
+    }
+
+    function canManageInventory(companyId) {
+      return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager', 'warehouse_manager']);
+    }
+
+    function canManagePurchasing(companyId) {
+      return hasCompanyRole(companyId, ['owner', 'admin', 'project_manager', 'finance']);
+    }
+
+    function isActiveWarehouseForProject(warehouseId, projectId, companyId) {
+      let warehousePath = /databases/$(database)/documents/warehouses/$(warehouseId);
+      return exists(warehousePath) &&
+        isActiveWarehouseForProjectAfter(warehousePath, projectId, companyId);
+    }
+
+    function isActiveWarehouseForProjectAfter(warehousePath, projectId, companyId) {
+      let warehouse = get(warehousePath).data;
+      return warehouse.companyId == companyId &&
+        warehouse.active == true &&
+        (warehouse.type == 'general' ||
+          (warehouse.type == 'project' && warehouse.projectId == projectId));
+    }
+
+    function isActiveInventoryItem(itemId, companyId) {
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(itemId);
+      return exists(itemPath) &&
+        isActiveInventoryItemAfter(itemPath, companyId);
+    }
+
+    function isActiveInventoryItemAfter(itemPath, companyId) {
+      let item = get(itemPath).data;
+      return item.companyId == companyId && item.active == true;
+    }
+
+    function receiptMovementPath(movementId) {
+      return /databases/$(database)/documents/stockMovements/$(movementId);
+    }
+
+    function receiptOrderPath(orderId) {
+      return /databases/$(database)/documents/purchaseOrders/$(orderId);
+    }
+
+    function receiptBalancePath(balanceId) {
+      return /databases/$(database)/documents/inventoryBalances/$(balanceId);
+    }
+
+    function purchaseOrderLineReferencePath(lineReferenceId) {
+      return /databases/$(database)/documents/purchaseOrderLineRefs/$(lineReferenceId);
+    }
+
+    function isMatchingPurchaseOrderLineReference(order, lineIndex, suffix) {
+      let referenceId = 'pol_' + order.id + suffix;
+      let reference = getAfter(purchaseOrderLineReferencePath(referenceId)).data;
+      return reference.id == referenceId &&
+        reference.orderId == order.id &&
+        reference.companyId == order.companyId &&
+        reference.createdBy == order.requestedBy &&
+        reference.lineIndex == lineIndex &&
+        reference.itemId == order.lines[lineIndex].itemId;
+    }
+
+    function arePurchaseOrderLineReferencesValid(order) {
+      return order.lines is list &&
+        order.lines.size() >= 1 && order.lines.size() <= 2 &&
+        isMatchingPurchaseOrderLineReference(order, 0, '_0') &&
+        (order.lines.size() < 2 || (
+          isMatchingPurchaseOrderLineReference(order, 1, '_1') &&
+          order.lines[1].itemId != order.lines[0].itemId
+        ));
+    }
+
+    function isValidPurchaseOrderLineReference(data, referenceId) {
+      let item = get(/databases/$(database)/documents/inventoryItems/$(data.itemId)).data;
+      return data.keys().hasAll(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
+        data.keys().hasOnly(['id', 'companyId', 'orderId', 'lineIndex', 'itemId', 'createdBy']) &&
+        data.id == referenceId &&
+        isValidId(referenceId) &&
+        data.orderId is string && isValidId(data.orderId) &&
+        data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < 2 &&
+        referenceId == 'pol_' + data.orderId + (data.lineIndex == 0 ? '_0' : '_1') &&
+        data.companyId is string &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.createdBy == request.auth.uid &&
+        canManagePurchasing(data.companyId) &&
+        item.companyId == data.companyId;
+    }
+
+    function isWithinOneCent(actual, expected) {
+      return actual >= expected - 0.01 && actual <= expected + 0.01;
+    }
+
+    function purchaseOrderLinesSubtotal(lines) {
+      return lines[0].quantity * lines[0].unitPriceGTQ +
+        (lines.size() > 1 ? lines[1].quantity * lines[1].unitPriceGTQ : 0);
+    }
+
+    function isPurchaseOrderFullyReceived(lines) {
+      return lines is list && lines.size() >= 1 && lines.size() <= 2 &&
+        lines[0].receivedQuantity == lines[0].quantity &&
+        (lines.size() < 2 || lines[1].receivedQuantity == lines[1].quantity);
+    }
+
+    function isReceiptLine(beforeLine, afterLine, quantity) {
+      return afterLine.itemId == beforeLine.itemId &&
+        afterLine.description == beforeLine.description &&
+        afterLine.unit == beforeLine.unit &&
+        afterLine.quantity == beforeLine.quantity &&
+        afterLine.unitPriceGTQ == beforeLine.unitPriceGTQ &&
+        afterLine.receivedQuantity == beforeLine.receivedQuantity + quantity;
+    }
+
+    function isPurchaseOrderReceiptLinesUpdated(beforeLines, afterLines, lineIndex, quantity) {
+      return beforeLines is list && afterLines is list &&
+        beforeLines.size() >= 1 && beforeLines.size() <= 2 &&
+        afterLines.size() == beforeLines.size() &&
+        (
+          (lineIndex == 0 &&
+            isReceiptLine(beforeLines[0], afterLines[0], quantity) &&
+            (beforeLines.size() <= 1 || afterLines[1] == beforeLines[1])) ||
+          (lineIndex == 1 &&
+            beforeLines.size() > 1 &&
+            isReceiptLine(beforeLines[1], afterLines[1], quantity) &&
+            afterLines[0] == beforeLines[0])
+        );
+    }
+
+    function receiptOrderUpdated(data, movementId) {
+      let orderPath = receiptOrderPath(data.referenceId);
+      let beforeOrder = get(orderPath).data;
+      let afterOrder = getAfter(orderPath).data;
+      return exists(orderPath) &&
+        existsAfter(orderPath) &&
+        beforeOrder.status in ['approved', 'partially_received'] &&
+        afterOrder.lastReceiptMovementId == movementId &&
+        isPurchaseOrderReceiptLinesUpdated(beforeOrder.lines, afterOrder.lines, data.lineIndex, data.quantity) &&
+        afterOrder.status == (isPurchaseOrderFullyReceived(afterOrder.lines) ? 'received' : 'partially_received');
+    }
+
+    function receiptBalanceUpdated(data, movementId) {
+      let balancePath = receiptBalancePath(data.balanceId);
+      let balance = getAfter(balancePath).data;
+      return existsAfter(balancePath) &&
+        balance.lastMovementId == movementId &&
+        balance.companyId == data.companyId &&
+        balance.itemId == data.itemId &&
+        balance.warehouseId == data.warehouseId;
+    }
+
+    function isValidReceiptMovement(data, movementId) {
+      let orderPath = receiptOrderPath(data.referenceId);
+      let order = get(orderPath).data;
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId',
+          'balanceId', 'receiptNumber', 'lineIndex', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.projectId is string && isValidId(data.projectId) &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId is string && isValidId(data.balanceId) &&
+        data.occurredAt is string &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.kind == 'purchase_receipt' &&
+        data.referenceId is string &&
+        exists(orderPath) &&
+        order.companyId == data.companyId &&
+        order.projectId == data.projectId &&
+        order.status in ['approved', 'partially_received'] &&
+        order.approvedBy is string &&
+        order.lines is list && order.lines.size() >= 1 && order.lines.size() <= 2 &&
+        data.lineIndex is int && data.lineIndex >= 0 && data.lineIndex < order.lines.size() &&
+        data.itemId == order.lines[data.lineIndex].itemId &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number &&
+        data.unitCostGTQ == order.lines[data.lineIndex].unitPriceGTQ &&
+        data.receiptNumber is string &&
+        data.receiptNumber.matches('^[a-zA-Z0-9_-]{1,40}$') &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        isActiveWarehouseForProject(data.warehouseId, data.projectId, data.companyId) &&
+        isActiveInventoryItem(data.itemId, data.companyId) &&
+        order.lines[data.lineIndex].receivedQuantity + data.quantity <= order.lines[data.lineIndex].quantity &&
+        receiptOrderUpdated(data, movementId) &&
+        receiptBalanceUpdated(data, movementId);
+    }
+
+    function isTransferPairLinked(outgoing, incoming) {
+      return outgoing.kind == 'transfer_out' &&
+        incoming.kind == 'transfer_in' &&
+        outgoing.referenceId is string &&
+        outgoing.referenceId.size() > 0 &&
+        outgoing.referenceId == incoming.referenceId &&
+        outgoing.companyId is string &&
+        outgoing.companyId == incoming.companyId &&
+        outgoing.itemId is string && isValidId(outgoing.itemId) &&
+        outgoing.itemId == incoming.itemId &&
+        outgoing.warehouseId is string && isValidId(outgoing.warehouseId) &&
+        incoming.warehouseId is string && isValidId(incoming.warehouseId) &&
+        outgoing.quantity is number && outgoing.quantity > 0 &&
+        outgoing.quantity == incoming.quantity &&
+        outgoing.unitCostGTQ is number && outgoing.unitCostGTQ >= 0 &&
+        outgoing.unitCostGTQ == incoming.unitCostGTQ &&
+        outgoing.createdBy is string && outgoing.createdBy.size() > 0 &&
+        outgoing.createdBy == incoming.createdBy &&
+        outgoing.occurredAt is string &&
+        outgoing.occurredAt == incoming.occurredAt &&
+        outgoing.warehouseId != incoming.warehouseId &&
+        outgoing.balanceId == 'bal_' + outgoing.warehouseId + '_' + outgoing.itemId &&
+        incoming.balanceId == 'bal_' + incoming.warehouseId + '_' + incoming.itemId;
+    }
+
+    function isTransferMovementPairValid(data, movementId, outgoing, incoming) {
+      return data.id == movementId &&
+        isValidId(movementId) &&
+        data.referenceId is string &&
+        data.referenceId.size() > 0 && data.referenceId.size() <= 75 &&
+        outgoing.id == 'tr_' + data.referenceId + '_out' &&
+        incoming.id == 'tr_' + data.referenceId + '_in' &&
+        isTransferPairLinked(outgoing, incoming) &&
+        data.companyId == outgoing.companyId &&
+        data.itemId == outgoing.itemId &&
+        data.createdBy == request.auth.uid &&
+        (
+          (data.kind == 'transfer_out' &&
+            data.id == outgoing.id &&
+            data.warehouseId == outgoing.warehouseId &&
+            data.balanceId == outgoing.balanceId) ||
+          (data.kind == 'transfer_in' &&
+            data.id == incoming.id &&
+            data.warehouseId == incoming.warehouseId &&
+            data.balanceId == incoming.balanceId)
+        );
+    }
+
+    function isTransferProjectContextValid(outgoing, incoming, sourceWarehouse, destinationWarehouse) {
+      return (
+          sourceWarehouse.type == 'general' &&
+          destinationWarehouse.type == 'general' &&
+          !outgoing.keys().hasAny(['projectId']) &&
+          !incoming.keys().hasAny(['projectId'])
+        ) || (
+          outgoing.keys().hasAny(['projectId']) &&
+          incoming.keys().hasAny(['projectId']) &&
+          outgoing.projectId == incoming.projectId &&
+          isProjectInCompany(outgoing.projectId, outgoing.companyId) &&
+          (sourceWarehouse.type == 'general' || sourceWarehouse.projectId == outgoing.projectId) &&
+          (destinationWarehouse.type == 'general' || destinationWarehouse.projectId == outgoing.projectId)
+        );
+    }
+
+    function isTransferWarehousesValid(outgoing, incoming) {
+      let sourcePath = /databases/$(database)/documents/warehouses/$(outgoing.warehouseId);
+      let destinationPath = /databases/$(database)/documents/warehouses/$(incoming.warehouseId);
+      return exists(sourcePath) && exists(destinationPath) &&
+        isTransferWarehousesAfter(outgoing, incoming, sourcePath, destinationPath);
+    }
+
+    function isTransferWarehousesAfter(outgoing, incoming, sourcePath, destinationPath) {
+      let sourceWarehouse = get(sourcePath).data;
+      let destinationWarehouse = get(destinationPath).data;
+      return sourceWarehouse.companyId == outgoing.companyId &&
+        destinationWarehouse.companyId == outgoing.companyId &&
+        sourceWarehouse.active == true &&
+        destinationWarehouse.active == true &&
+        sourceWarehouse.type in ['general', 'project'] &&
+        destinationWarehouse.type in ['general', 'project'] &&
+        isTransferProjectContextValid(outgoing, incoming, sourceWarehouse, destinationWarehouse);
+    }
+
+    function isTransferBalancePairPresent(outgoing, incoming) {
+      let sourcePath = receiptBalancePath(outgoing.balanceId);
+      let destinationPath = receiptBalancePath(incoming.balanceId);
+      return existsAfter(sourcePath) && existsAfter(destinationPath) &&
+        isTransferBalancePairLinkedAfter(outgoing, incoming, sourcePath, destinationPath);
+    }
+
+    function isTransferBalancePairLinkedAfter(outgoing, incoming, sourcePath, destinationPath) {
+      let sourceBalance = getAfter(sourcePath).data;
+      let destinationBalance = getAfter(destinationPath).data;
+      // Existence alone is insufficient: the source balance already exists
+      // before a transfer. Both post-write balances must point to their new
+      // immutable movement, otherwise a transfer could mint stock by only
+      // writing the incoming side.
+      return sourceBalance.lastMovementId == outgoing.id &&
+        destinationBalance.lastMovementId == incoming.id;
+    }
+
+    function isValidTransferOutMovement(data, movementId) {
+      let transferId = data.referenceId;
+      let outgoingPath = receiptMovementPath('tr_' + transferId + '_out');
+      let incomingPath = receiptMovementPath('tr_' + transferId + '_in');
+      return transferId is string &&
+        transferId.size() > 0 && transferId.size() <= 75 &&
+        !exists(outgoingPath) && !exists(incomingPath) &&
+        existsAfter(incomingPath) &&
+        isValidTransferOutPairAfter(data, movementId, incomingPath);
+    }
+
+    // The outgoing document is already the request being authorized. Reuse its
+    // data instead of performing a redundant getAfter() on the same document.
+    // This keeps the atomic pair validation within Firestore's per-write access
+    // budget while still checking the incoming movement and both balances.
+    function isValidTransferOutPairAfter(data, movementId, incomingPath) {
+      let outgoing = data;
+      let incoming = getAfter(incomingPath).data;
+      // The destination balance rule validates the shared item record while
+      // calculating its weighted average, avoiding a second item lookup here.
+      return isTransferMovementPairValid(data, movementId, outgoing, incoming) &&
+        canManageInventory(outgoing.companyId) &&
+        isTransferBalancePairPresent(outgoing, incoming) &&
+        isTransferWarehousesValid(outgoing, incoming);
+    }
+
+    // The outgoing movement is the authoritative validator for the complete
+    // pair. The incoming side only proves it belongs to that new transfer,
+    // avoiding a second lookup of both movement documents and duplicate checks.
+    function isValidTransferInMovement(data, movementId) {
+      let transferId = data.referenceId;
+      let outgoingPath = receiptMovementPath('tr_' + transferId + '_out');
+      return transferId is string &&
+        transferId.size() > 0 && transferId.size() <= 75 &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.kind == 'transfer_in' &&
+        data.createdBy == request.auth.uid &&
+        existsAfter(outgoingPath) &&
+        isValidTransferInPairAfter(transferId, outgoingPath);
+    }
+
+    function isValidTransferInPairAfter(transferId, outgoingPath) {
+      let outgoing = getAfter(outgoingPath).data;
+      return outgoing.id == 'tr_' + transferId + '_out' &&
+        outgoing.kind == 'transfer_out' &&
+        outgoing.referenceId == transferId &&
+        outgoing.createdBy == request.auth.uid;
+    }
+
+    function isValidTransferMovement(data, movementId) {
+      return data.kind == 'transfer_out'
+        ? isValidTransferOutMovement(data, movementId)
+        : (data.kind == 'transfer_in'
+          ? isValidTransferInMovement(data, movementId)
+          : false);
+    }
+
+    function isValidTransferOutBalance(data, balanceId, movement) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      // The transfer_out movement validator requires the complete pair and
+      // both post-transfer balances. This rule validates this side's arithmetic.
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        movement.kind == 'transfer_out' &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        data.quantity == existing().quantity - movement.quantity &&
+        data.averageUnitCostGTQ == (data.quantity == 0 ? 0 : existing().averageUnitCostGTQ) &&
+        data.reorderLevel == existing().reorderLevel;
+    }
+
+    function isValidTransferInBalance(data, balanceId, creating, movement) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        isValidTransferInBalanceWithItem(data, balanceId, creating, movement);
+    }
+
+    function isValidTransferInBalanceWithItem(data, balanceId, creating, movement) {
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(movement.itemId);
+      return exists(itemPath) &&
+        isValidTransferInBalanceForActiveItem(data, balanceId, creating, movement, itemPath);
+    }
+
+    function isValidTransferInBalanceForActiveItem(data, balanceId, creating, movement, itemPath) {
+      let item = get(itemPath).data;
+      let previousQuantity = creating ? 0 : existing().quantity;
+      let previousAverage = creating ? 0 : existing().averageUnitCostGTQ;
+      let previousReorder = creating ? item.reorderLevel : existing().reorderLevel;
+      // This is the only transfer helper that reads the item. It verifies the
+      // company and active flag and reuses the same read for its reorder level.
+      return item.companyId == data.companyId &&
+        item.active == true &&
+        movement.kind == 'transfer_in' &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        data.quantity == previousQuantity + movement.quantity &&
+        isWithinOneCent(
+          data.averageUnitCostGTQ,
+          (
+            previousQuantity * previousAverage +
+            movement.quantity * movement.unitCostGTQ
+          ) / data.quantity
+        ) &&
+        data.reorderLevel == previousReorder;
+    }
+
+    function isValidIssueBalance(data, balanceId, movement) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        movement.kind == 'project_issue' &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        data.quantity == existing().quantity - movement.quantity &&
+        data.averageUnitCostGTQ == (data.quantity == 0 ? 0 : existing().averageUnitCostGTQ) &&
+        data.reorderLevel == existing().reorderLevel;
+    }
+
+    function isValidAdjustmentWarehouse(data, warehouse) {
+      return warehouse.companyId == data.companyId &&
+        warehouse.active == true &&
+        (
+          (warehouse.type == 'general' && !data.keys().hasAny(['projectId'])) ||
+          (warehouse.type == 'project' &&
+            data.keys().hasAny(['projectId']) &&
+            data.projectId == warehouse.projectId &&
+            isProjectInCompany(data.projectId, data.companyId))
+        );
+    }
+
+    function isValidStockAdjustmentMovement(data, movementId) {
+      let balancePath = receiptBalancePath(data.balanceId);
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
+      let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
+      return data.keys().hasAll([
+          'id', 'companyId', 'itemId', 'warehouseId', 'kind', 'quantity',
+          'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId', 'notes', 'createdBy'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId',
+          'notes', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.kind in ['adjustment_in', 'adjustment_out'] &&
+        data.companyId is string &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number && data.unitCostGTQ >= 0 &&
+        data.occurredAt is string &&
+        data.referenceId is string && data.referenceId.size() > 0 && data.referenceId.size() <= 100 &&
+        data.notes is string && data.notes.size() > 0 && data.notes.size() <= 1000 &&
+        exists(balancePath) &&
+        existsAfter(balancePath) &&
+        exists(itemPath) &&
+        exists(warehousePath) &&
+        isValidStockAdjustmentMovementReferences(data, movementId, balancePath, itemPath, warehousePath);
+    }
+
+    function isValidStockAdjustmentMovementReferences(data, movementId, balancePath, itemPath, warehousePath) {
+      let previousBalance = get(balancePath).data;
+      let nextBalance = getAfter(balancePath).data;
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return previousBalance.id == data.balanceId &&
+        previousBalance.companyId == data.companyId &&
+        previousBalance.itemId == data.itemId &&
+        previousBalance.warehouseId == data.warehouseId &&
+        previousBalance.quantity is number &&
+        previousBalance.quantity >= 0 &&
+        previousBalance.averageUnitCostGTQ is number &&
+        previousBalance.averageUnitCostGTQ >= 0 &&
+        nextBalance.id == data.balanceId &&
+        nextBalance.companyId == data.companyId &&
+        nextBalance.itemId == data.itemId &&
+        nextBalance.warehouseId == data.warehouseId &&
+        nextBalance.lastMovementId == movementId &&
+        nextBalance.createdBy == previousBalance.createdBy &&
+        nextBalance.createdAt == previousBalance.createdAt &&
+        nextBalance.reorderLevel == previousBalance.reorderLevel &&
+        nextBalance.updatedAt == data.occurredAt &&
+        item.companyId == data.companyId &&
+        item.active == true &&
+        (data.kind != 'adjustment_out' || data.unitCostGTQ == previousBalance.averageUnitCostGTQ) &&
+        isValidAdjustmentWarehouse(data, warehouse) &&
+        isValidAdjustmentBalanceTransition(data, previousBalance, nextBalance);
+    }
+
+    function isValidAdjustmentBalanceTransition(data, previousBalance, nextBalance) {
+      return data.kind == 'adjustment_in'
+        ? (
+          nextBalance.quantity == previousBalance.quantity + data.quantity &&
+          isWithinOneCent(
+            nextBalance.averageUnitCostGTQ,
+            (
+              previousBalance.quantity * previousBalance.averageUnitCostGTQ +
+              data.quantity * data.unitCostGTQ
+            ) / nextBalance.quantity
+          )
+        )
+        : (
+          previousBalance.quantity >= data.quantity &&
+          nextBalance.quantity == previousBalance.quantity - data.quantity &&
+          nextBalance.averageUnitCostGTQ == (
+            nextBalance.quantity == 0 ? 0 : previousBalance.averageUnitCostGTQ
+          )
+        );
+    }
+
+    function isValidAdjustmentBalance(data, balanceId, movement) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        movement.kind in ['adjustment_in', 'adjustment_out'] &&
+        movement.id == data.lastMovementId &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        (
+          movement.kind == 'adjustment_in'
+            ? (
+              data.quantity == existing().quantity + movement.quantity &&
+              isWithinOneCent(
+                data.averageUnitCostGTQ,
+                (
+                  existing().quantity * existing().averageUnitCostGTQ +
+                  movement.quantity * movement.unitCostGTQ
+                ) / data.quantity
+              )
+            )
+            : (
+              existing().quantity >= movement.quantity &&
+              data.quantity == existing().quantity - movement.quantity &&
+              data.averageUnitCostGTQ == (
+                data.quantity == 0 ? 0 : existing().averageUnitCostGTQ
+              )
+            )
+        ) &&
+        data.reorderLevel == existing().reorderLevel;
+    }
+
+    function isOpeningWarehouseValid(data, warehouse) {
+      return warehouse.companyId == data.companyId &&
+        warehouse.active == true &&
+        (
+          (warehouse.type == 'general' && !data.keys().hasAny(['projectId'])) ||
+          (warehouse.type == 'project' &&
+            data.projectId is string &&
+            warehouse.projectId == data.projectId &&
+            isProjectInCompany(data.projectId, data.companyId))
+        );
+    }
+
+    function isValidOpeningBalance(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return !exists(movementPath) && existsAfter(movementPath) &&
+        isValidOpeningBalanceAfter(data, balanceId, movementPath);
+    }
+
+    function isValidOpeningBalanceAfter(data, balanceId, movementPath) {
+      let movement = getAfter(movementPath).data;
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
+      let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
+      return movement.kind == 'opening' &&
+        movement.id == data.lastMovementId &&
+        movement.id is string &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        movement.createdBy == request.auth.uid &&
+        data.id == balanceId &&
+        data.id == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.createdBy == request.auth.uid &&
+        data.quantity == movement.quantity &&
+        data.averageUnitCostGTQ == movement.unitCostGTQ &&
+        exists(itemPath) && exists(warehousePath) &&
+        isValidOpeningBalanceReferences(data, movement, itemPath, warehousePath);
+    }
+
+    function isValidOpeningBalanceReferences(data, movement, itemPath, warehousePath) {
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return data.reorderLevel == item.reorderLevel &&
+        item.companyId == data.companyId &&
+        item.active == true &&
+        isOpeningWarehouseValid(movement, warehouse);
+    }
+
+    function isValidOpeningMovement(data, movementId) {
+      let balancePath = receiptBalancePath(data.balanceId);
+      return !exists(balancePath) && existsAfter(balancePath) &&
+        isValidOpeningMovementAfter(data, movementId, balancePath);
+    }
+
+    function isValidOpeningMovementAfter(data, movementId, balancePath) {
+      let balance = getAfter(balancePath).data;
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
+      let warehousePath = /databases/$(database)/documents/warehouses/$(data.warehouseId);
+      return data.keys().hasAll([
+          'id', 'companyId', 'itemId', 'warehouseId', 'kind', 'quantity',
+          'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId', 'createdBy'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId', 'balanceId',
+          'notes', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.kind == 'opening' &&
+        data.companyId is string &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number && data.unitCostGTQ >= 0 &&
+        data.occurredAt is string &&
+        data.referenceId is string && data.referenceId.size() > 0 && data.referenceId.size() <= 100 &&
+        (!data.keys().hasAny(['notes']) ||
+          (data.notes is string && data.notes.size() <= 1000)) &&
+        balance.id == data.balanceId &&
+        balance.lastMovementId == movementId &&
+        balance.companyId == data.companyId &&
+        balance.itemId == data.itemId &&
+        balance.warehouseId == data.warehouseId &&
+        balance.createdBy == request.auth.uid &&
+        balance.quantity == data.quantity &&
+        balance.averageUnitCostGTQ == data.unitCostGTQ &&
+        exists(itemPath) && exists(warehousePath) &&
+        isValidOpeningMovementReferences(data, balance, itemPath, warehousePath);
+    }
+
+    function isValidOpeningMovementReferences(data, balance, itemPath, warehousePath) {
+      let item = get(itemPath).data;
+      let warehouse = get(warehousePath).data;
+      return balance.reorderLevel == item.reorderLevel &&
+        item.companyId == data.companyId &&
+        item.active == true &&
+        isOpeningWarehouseValid(data, warehouse);
+    }
+
+    // Dispatch by the authoritative movement kind before calling validators.
+    // This avoids evaluating receipt/issue rule branches for unrelated movement types.
+    function isValidInventoryBalanceCreate(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return existsAfter(movementPath) &&
+        isValidInventoryBalanceCreateForMovement(data, balanceId, movementPath);
+    }
+
+    function isValidInventoryBalanceCreateForMovement(data, balanceId, movementPath) {
+      let movement = getAfter(movementPath).data;
+      return movement.kind == 'opening'
+        ? isValidOpeningBalance(data, balanceId)
+        : (movement.kind == 'purchase_receipt'
+          ? isValidReceiptBalance(data, balanceId, true, movement)
+          : (movement.kind == 'transfer_in'
+            ? isValidTransferInBalance(data, balanceId, true, movement)
+            : false));
+    }
+
+    function isValidInventoryBalanceUpdate(data, balanceId) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      return existsAfter(movementPath) &&
+        isValidInventoryBalanceUpdateForMovement(data, balanceId, movementPath);
+    }
+
+    function isValidInventoryBalanceUpdateForMovement(data, balanceId, movementPath) {
+      let movement = getAfter(movementPath).data;
+      return movement.kind == 'purchase_receipt'
+        ? (data.quantity > existing().quantity &&
+          isValidReceiptBalance(data, balanceId, false, movement))
+        : (movement.kind == 'transfer_in'
+          ? (data.quantity > existing().quantity &&
+            isValidTransferInBalance(data, balanceId, false, movement))
+          : (movement.kind == 'project_issue'
+            ? (data.quantity < existing().quantity &&
+              isValidIssueBalance(data, balanceId, movement))
+            : (movement.kind == 'transfer_out'
+              ? (data.quantity < existing().quantity &&
+                isValidTransferOutBalance(data, balanceId, movement))
+              : ((movement.kind == 'adjustment_in' || movement.kind == 'adjustment_out')
+                ? isValidAdjustmentBalance(data, balanceId, movement)
+                : false))));
+    }
+
+    function isValidProjectIssueMovement(data, movementId) {
+      let balancePath = receiptBalancePath(data.balanceId);
+      let beforeBalance = get(balancePath).data;
+      let afterBalance = getAfter(balancePath).data;
+      return data.keys().hasAll([
+          'id', 'companyId', 'projectId', 'itemId', 'warehouseId', 'kind',
+          'quantity', 'unitCostGTQ', 'occurredAt', 'referenceId',
+          'balanceId', 'createdBy'
+        ]) &&
+        data.id == movementId &&
+        isValidId(movementId) &&
+        data.companyId is string &&
+        canManageInventory(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.kind == 'project_issue' &&
+        data.projectId is string && isValidId(data.projectId) &&
+        data.itemId is string && isValidId(data.itemId) &&
+        data.warehouseId is string && isValidId(data.warehouseId) &&
+        data.balanceId == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        data.referenceId is string && data.referenceId.size() > 0 && data.referenceId.size() <= 100 &&
+        data.occurredAt is string &&
+        data.quantity is number && data.quantity > 0 &&
+        data.unitCostGTQ is number && data.unitCostGTQ >= 0 &&
+        exists(balancePath) &&
+        beforeBalance.companyId == data.companyId &&
+        beforeBalance.itemId == data.itemId &&
+        beforeBalance.warehouseId == data.warehouseId &&
+        beforeBalance.quantity >= data.quantity &&
+        beforeBalance.averageUnitCostGTQ == data.unitCostGTQ &&
+        existsAfter(balancePath) &&
+        afterBalance.lastMovementId == movementId &&
+        afterBalance.quantity == beforeBalance.quantity - data.quantity &&
+        afterBalance.averageUnitCostGTQ == beforeBalance.averageUnitCostGTQ &&
+        isProjectInCompany(data.projectId, data.companyId) &&
+        isActiveWarehouseForProject(data.warehouseId, data.projectId, data.companyId) &&
+        isActiveInventoryItem(data.itemId, data.companyId);
+    }
+
+    function isValidReceiptBalance(data, balanceId, creating, movement) {
+      let movementPath = receiptMovementPath(data.lastMovementId);
+      let itemPath = /databases/$(database)/documents/inventoryItems/$(data.itemId);
+      return data.id == balanceId &&
+        data.id == 'bal_' + data.warehouseId + '_' + data.itemId &&
+        !exists(movementPath) && existsAfter(movementPath) &&
+        movement.balanceId == balanceId &&
+        movement.companyId == data.companyId &&
+        movement.itemId == data.itemId &&
+        movement.warehouseId == data.warehouseId &&
+        movement.kind == 'purchase_receipt' &&
+        movement.createdBy == request.auth.uid &&
+        movement.quantity is number && movement.quantity > 0 &&
+        movement.unitCostGTQ is number && movement.unitCostGTQ >= 0 &&
+        (creating
+          ? data.reorderLevel == get(itemPath).data.reorderLevel &&
+            data.quantity == movement.quantity &&
+            data.averageUnitCostGTQ == movement.unitCostGTQ
+          : data.reorderLevel == resource.data.reorderLevel &&
+            data.quantity == resource.data.quantity + movement.quantity &&
+            data.averageUnitCostGTQ >= (
+              (resource.data.quantity * resource.data.averageUnitCostGTQ +
+                movement.quantity * movement.unitCostGTQ) / data.quantity
+            ) - 0.01 &&
+            data.averageUnitCostGTQ <= (
+              (resource.data.quantity * resource.data.averageUnitCostGTQ +
+                movement.quantity * movement.unitCostGTQ) / data.quantity
+            ) + 0.01);
     }
 
     match /{path=**}/members/{memberId} {
@@ -183,7 +845,7 @@ service cloud.firestore {
     }
 
     function isAssignableCompanyRole(role) {
-      return role in ['admin', 'project_manager', 'finance', 'field_worker', 'viewer'];
+      return role in ['admin', 'project_manager', 'finance', 'field_worker', 'warehouse_manager', 'viewer'];
     }
 
     // Validation helpers
@@ -193,11 +855,13 @@ service cloud.firestore {
         data.code is string && data.code.size() <= 64 &&
         data.name is string && data.name.size() <= 200 &&
         data.client is string && data.client.size() <= 200 &&
-        data.budgetTotal is number &&
-        data.spentTotal is number &&
+        data.budgetTotal is number && data.budgetTotal >= 0 &&
+        data.spentTotal is number && data.spentTotal >= 0 &&
+        (!data.keys().hasAny(['progressPercent']) ||
+          (data.progressPercent is number && data.progressPercent >= 0 && data.progressPercent <= 100)) &&
         data.status in ['En Ejecución', 'Planificación', 'Finalizado', 'Suspendido', 'Archivado', 'Cerrado'] &&
         data.companyId is string &&
-        data.ownerId == data.companyId;
+        data.ownerId is string && data.ownerId.size() <= 128;
     }
 
     function isValidFieldVisit(data) {
@@ -218,7 +882,7 @@ service cloud.firestore {
         data.projectId is string && data.projectId.size() <= 128 &&
         data.date is string && data.date.size() <= 30 &&
         data.category is string && data.category.size() <= 100 &&
-        data.amount is number &&
+        data.amount is number && data.amount >= 0 &&
         data.currency in ['GTQ', 'USD'] &&
         data.companyId is string &&
         data.authorId is string;
@@ -258,7 +922,7 @@ service cloud.firestore {
         data.items is list && data.items.size() <= 500 &&
         data.totalGTQ is number && data.totalGTQ >= 0 &&
         data.status in ['Aceptada', 'Enviada', 'Borrador', 'Rechazada'] &&
-        data.createdBy == request.auth.uid;
+        data.createdBy is string && data.createdBy.size() > 0;
     }
 
     function isValidMachinery(data) {
@@ -274,7 +938,58 @@ service cloud.firestore {
         data.hourlyRateGTQ is number && data.hourlyRateGTQ >= 0 &&
         data.currentHorometer is number && data.currentHorometer >= 0 &&
         data.status in ['Disponible', 'En Obra', 'Mantenimiento'] &&
-        data.createdBy == request.auth.uid;
+        (!data.keys().hasAny(['lastMachineryLogId']) ||
+          (data.lastMachineryLogId is string && data.lastMachineryLogId.size() > 0 && data.lastMachineryLogId.size() <= 128)) &&
+        data.createdBy is string && data.createdBy.size() > 0;
+    }
+
+    // The meter is initialized with the machine, but every later increase must
+    // be paired atomically with an immutable usage log for this same machine.
+    function isMachineryMeterAdvanceLinkedToLog(data, machineryId) {
+      let logPath = /databases/$(database)/documents/machineryLogs/$(data.lastMachineryLogId);
+      return data.lastMachineryLogId is string &&
+        data.lastMachineryLogId.size() > 0 &&
+        data.lastMachineryLogId.size() <= 128 &&
+        (!existing().keys().hasAny(['lastMachineryLogId']) ||
+          data.lastMachineryLogId != existing().lastMachineryLogId) &&
+        !exists(logPath) &&
+        existsAfter(logPath) &&
+        getAfter(logPath).data.id == data.lastMachineryLogId &&
+        getAfter(logPath).data.machineryId == machineryId &&
+        getAfter(logPath).data.companyId == data.companyId &&
+        getAfter(logPath).data.createdBy == request.auth.uid &&
+        getAfter(logPath).data.hoursWorked is number &&
+        getAfter(logPath).data.hoursWorked > 0 &&
+        data.currentHorometer == existing().currentHorometer + getAfter(logPath).data.hoursWorked &&
+        data.currentProjectId == getAfter(logPath).data.projectId &&
+        data.status == 'En Obra';
+    }
+
+    function isMachineryMeterUpdateValid(data, machineryId) {
+      let newLogPresent = data.keys().hasAny(['lastMachineryLogId']);
+      let oldLogPresent = existing().keys().hasAny(['lastMachineryLogId']);
+      return (
+        data.currentHorometer == existing().currentHorometer &&
+        newLogPresent == oldLogPresent &&
+        (!newLogPresent || data.lastMachineryLogId == existing().lastMachineryLogId)
+      ) || (
+        data.currentHorometer > existing().currentHorometer &&
+        existing().status != 'Mantenimiento' &&
+        isMachineryMeterAdvanceLinkedToLog(data, machineryId)
+      );
+    }
+
+    function isMachineryLogMeterTransitionValid(data, logId) {
+      let machinePath = /databases/$(database)/documents/machinery/$(data.machineryId);
+      return exists(machinePath) &&
+        existsAfter(machinePath) &&
+        get(machinePath).data.companyId == data.companyId &&
+        get(machinePath).data.status != 'Mantenimiento' &&
+        getAfter(machinePath).data.lastMachineryLogId == logId &&
+        getAfter(machinePath).data.currentHorometer ==
+          get(machinePath).data.currentHorometer + data.hoursWorked &&
+        getAfter(machinePath).data.currentProjectId == data.projectId &&
+        getAfter(machinePath).data.status == 'En Obra';
     }
 
     function isValidAPUItem(data) {
@@ -296,6 +1011,32 @@ service cloud.firestore {
         data.totalUnitCostGTQ is number && data.totalUnitCostGTQ >= 0 &&
         data.totalPriceGTQ is number && data.totalPriceGTQ >= 0 &&
         data.createdBy is string;
+    }
+
+    function isValidFelInvoice(data) {
+      return data.keys().hasAll([
+          'id', 'companyId', 'authorId', 'dteNumber', 'serie', 'correlativo',
+          'date', 'status', 'emisor', 'receptor', 'items',
+          'subtotalGTQ', 'taxAmountGTQ', 'totalGTQ'
+        ]) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.companyId is string &&
+        data.authorId is string &&
+        data.dteNumber is string && data.dteNumber.size() <= 80 &&
+        data.serie is string && data.serie.size() <= 20 &&
+        data.correlativo is string && data.correlativo.size() <= 40 &&
+        data.date is string && data.date.size() <= 30 &&
+        data.status in ['Borrador', 'Emitida', 'Anulada'] &&
+        data.emisor is map &&
+        data.emisor.nit is string && data.emisor.nit.size() <= 30 &&
+        data.emisor.nombre is string && data.emisor.nombre.size() <= 250 &&
+        data.receptor is map &&
+        data.receptor.nit is string && data.receptor.nit.size() <= 30 &&
+        data.receptor.nombre is string && data.receptor.nombre.size() <= 250 &&
+        data.items is list && data.items.size() <= 200 &&
+        data.subtotalGTQ is number && data.subtotalGTQ >= 0 &&
+        data.taxAmountGTQ is number && data.taxAmountGTQ >= 0 &&
+        data.totalGTQ is number && data.totalGTQ >= 0;
     }
 
     // Projects collection
@@ -403,11 +1144,14 @@ service cloud.firestore {
         (isSignedIn() && existing().ownerId == request.auth.uid);
       allow list: if (isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.ownerId == request.auth.uid));
-      allow create: if isValidId(projectId) && canManageProjects(incoming().companyId) &&
+      allow create: if isValidId(projectId) && incoming().id == projectId &&
+        canManageProjects(incoming().companyId) &&
+        incoming().ownerId == request.auth.uid &&
         isValidProject(incoming());
       allow update: if isValidId(projectId) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageProjects(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == projectId &&
             incoming().companyId == existing().companyId &&
             incoming().ownerId == existing().ownerId &&
             isValidProject(incoming()))
@@ -418,6 +1162,34 @@ service cloud.firestore {
             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
       allow delete: if isValidId(projectId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+
+      match /photos/{photoId} {
+        function photoProjectPath() {
+          return /databases/$(database)/documents/projects/$(projectId);
+        }
+        function canReadProjectPhotos() {
+          return isSignedIn() && exists(photoProjectPath()) &&
+            isCompanyMember(get(photoProjectPath()).data.companyId);
+        }
+        allow get, list: if canReadProjectPhotos();
+        allow create: if isValidId(photoId) &&
+          incoming().id == photoId &&
+          incoming().projectId == projectId &&
+          incoming().keys().hasOnly([
+            'id', 'projectId', 'companyId', 'filename', 'storagePath',
+            'uploadedAt', 'size', 'uploadedBy'
+          ]) &&
+          exists(photoProjectPath()) &&
+          incoming().companyId == get(photoProjectPath()).data.companyId &&
+          isCompanyMember(incoming().companyId) &&
+          incoming().uploadedBy == request.auth.uid &&
+          incoming().filename is string &&
+          incoming().filename.matches('^[a-zA-Z0-9_-]{1,120}\\.(jpg|png|webp|gif|heic|heif)$') &&
+          incoming().storagePath == 'projects/' + projectId + '/progress/' + incoming().filename &&
+          incoming().uploadedAt is string &&
+          incoming().size is number && incoming().size > 0 && incoming().size <= 10485760;
+        allow update, delete: if false;
+      }
     }
 
     // Field visits collection
@@ -426,12 +1198,16 @@ service cloud.firestore {
         (isSignedIn() && existing().authorId == request.auth.uid);
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.authorId == request.auth.uid);
-      allow create: if isValidId(visitId) && canManageFieldOperations(incoming().companyId) &&
+      allow create: if isValidId(visitId) && incoming().id == visitId &&
+        canManageFieldOperations(incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         incoming().authorId == request.auth.uid && isValidFieldVisit(incoming());
       allow update: if isValidId(visitId) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFieldOperations(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == visitId &&
             incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
             incoming().authorId == existing().authorId &&
             isValidFieldVisit(incoming()))
           : (isSignedIn() &&
@@ -444,17 +1220,33 @@ service cloud.firestore {
 
     // Expenses collection
     match /expenses/{expenseId} {
-      allow get: if isCompanyMember(existing().companyId) ||
+      // Permit a signed-in caller to check an empty deterministic ID before
+      // atomically creating a new ledger row; existing records remain private.
+      allow get: if (resource == null && isSignedIn()) ||
+        isCompanyMember(existing().companyId) ||
         (isSignedIn() && existing().authorId == request.auth.uid);
       allow list: if isCompanyMember(resource.data.companyId) ||
         (isSignedIn() && resource.data.authorId == request.auth.uid);
       allow create: if isValidId(expenseId) &&
-        (canManageFinance(incoming().companyId) || canCreatePendingMachineryExpense(incoming())) &&
+        incoming().id == expenseId &&
+        (
+          (incoming().keys().hasAny(['subcontractPaymentId'])
+            ? (canManagePurchasing(incoming().companyId) &&
+              isValidSubcontractPaymentExpense(incoming()))
+            : (canManageFinance(incoming().companyId) || canCreatePendingMachineryExpense(incoming())))
+        ) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         incoming().authorId == request.auth.uid && isValidExpense(incoming());
+      // A subcontract payment expense is an immutable ledger entry. Its
+      // amount, date, category and payment link must never be edited or erased.
       allow update: if isValidId(expenseId) &&
+        !existing().keys().hasAny(['subcontractPaymentId']) &&
+        !incoming().keys().hasAny(['subcontractPaymentId']) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFinance(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == expenseId &&
             incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
             incoming().authorId == existing().authorId &&
             isValidExpense(incoming()))
           : (isSignedIn() &&
@@ -462,7 +1254,9 @@ service cloud.firestore {
             incoming().companyId == request.auth.uid &&
             incoming().authorId == existing().authorId &&
             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId'])));
-      allow delete: if isValidId(expenseId) && canManageFinance(existing().companyId);
+      allow delete: if isValidId(expenseId) &&
+        !existing().keys().hasAny(['subcontractPaymentId']) &&
+        canManageFinance(existing().companyId);
     }
 
     // Attendance collection
@@ -477,12 +1271,16 @@ service cloud.firestore {
           resource.data.companyId,
           ['owner', 'admin', 'project_manager', 'finance', 'field_worker']
         );
-      allow create: if isValidId(attendanceId) && canManageFieldOperations(incoming().companyId) &&
+      allow create: if isValidId(attendanceId) && incoming().id == attendanceId &&
+        canManageFieldOperations(incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         incoming().authorId == request.auth.uid && isValidAttendance(incoming());
       allow update: if isValidId(attendanceId) &&
         (existing().keys().hasAny(['companyId'])
           ? (canManageFieldOperations(existing().companyId) &&
+            incoming().id == existing().id && incoming().id == attendanceId &&
             incoming().companyId == existing().companyId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId) &&
             incoming().authorId == existing().authorId &&
             isValidAttendance(incoming()))
           : (isSignedIn() &&
@@ -568,14 +1366,39 @@ service cloud.firestore {
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(quoteId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
-        incoming().id == quoteId && isValidQuote(incoming());
+        incoming().id == quoteId &&
+        incoming().createdBy == request.auth.uid &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isValidQuote(incoming());
       allow update: if isValidId(quoteId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
         incoming().companyId == existing().companyId &&
         incoming().createdBy == existing().createdBy &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
         isValidQuote(incoming());
       allow delete: if isValidId(quoteId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']);
+    }
+
+    // Electronic invoices (FEL). Data is entered manually from SAT-issued
+    // invoices; the app never calls SAT APIs. Financial document: any company
+    // member can read, finance-level roles can write.
+    match /felInvoices/{invoiceId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(invoiceId) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().id == invoiceId &&
+        incoming().authorId == request.auth.uid &&
+        isValidFelInvoice(incoming());
+      allow update: if isValidId(invoiceId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']) &&
+        incoming().id == existing().id &&
+        incoming().companyId == existing().companyId &&
+        incoming().authorId == existing().authorId &&
+        isValidFelInvoice(incoming());
+      allow delete: if isValidId(invoiceId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'finance']);
     }
 
     match /machinery/{machineryId} {
@@ -583,52 +1406,491 @@ service cloud.firestore {
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(machineryId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
-        incoming().id == machineryId && isValidMachinery(incoming());
+        incoming().id == machineryId &&
+        incoming().createdBy == request.auth.uid &&
+        isValidMachinery(incoming());
       allow update: if isValidId(machineryId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
         incoming().companyId == existing().companyId &&
         incoming().createdBy == existing().createdBy &&
-        isValidMachinery(incoming());
+        isValidMachinery(incoming()) &&
+        isMachineryMeterUpdateValid(incoming(), machineryId);
       allow delete: if isValidId(machineryId) &&
         hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
     }
 
     match /apuItems/{itemId} {
-      // E2E bypass: permitir writes sin auth para testing con emulador
       allow create: if isValidId(itemId) &&
-        (request.auth == null || hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance'])) &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
         incoming().id == itemId &&
-        (request.auth == null || isProjectInCompany(incoming().projectId, incoming().companyId)) &&
-        (request.auth == null || incoming().createdBy == request.auth.uid) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
         isValidAPUItem(incoming());
       allow get: if isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
       allow update: if isValidId(itemId) &&
-        (request.auth == null || hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance'])) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']) &&
         incoming().companyId == existing().companyId &&
         incoming().projectId == existing().projectId &&
-        (request.auth == null || isProjectInCompany(incoming().projectId, incoming().companyId)) &&
-        (request.auth == null || incoming().createdBy == existing().createdBy) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        incoming().createdBy == existing().createdBy &&
         isValidAPUItem(incoming());
       allow delete: if isValidId(itemId) &&
-        (request.auth == null || hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']));
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager', 'finance']);
     }
 
     match /machineryLogs/{logId} {
-      allow get: if isCompanyMember(existing().companyId);
+      // Allow a signed-in caller to check a deterministic log ID before an
+      // atomic create; existing log contents remain company-private.
+      allow get: if (resource == null && isSignedIn()) ||
+        isCompanyMember(existing().companyId);
       allow list: if isCompanyMember(resource.data.companyId);
       allow create: if isValidId(logId) &&
         hasCompanyRole(incoming().companyId, ['owner', 'admin', 'project_manager', 'field_worker']) &&
         incoming().id == logId &&
         incoming().createdBy == request.auth.uid &&
-        incoming().machineryId is string &&
-        incoming().projectId is string &&
+        incoming().expenseId == 'machine-' + logId &&
+        isMachineryInCompany(incoming().machineryId, incoming().companyId) &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isMachineryLogMeterTransitionValid(incoming(), logId) &&
+        incoming().machineryName is string &&
         incoming().date is string &&
+        incoming().operatorName is string &&
         incoming().hoursWorked is number &&
         incoming().hoursWorked > 0 &&
+        incoming().fuelGallons is number &&
+        incoming().fuelGallons >= 0 &&
         incoming().costGTQ is number &&
         incoming().costGTQ >= 0;
-      allow update, delete: if hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+      allow update: if isValidId(logId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']) &&
+        incoming().id == existing().id && incoming().id == logId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().expenseId == existing().expenseId &&
+        incoming().machineryId == existing().machineryId &&
+        incoming().projectId == existing().projectId &&
+        incoming().hoursWorked is number && incoming().hoursWorked > 0 &&
+        incoming().fuelGallons is number && incoming().fuelGallons >= 0 &&
+        incoming().costGTQ is number && incoming().costGTQ >= 0;
+      allow delete: if isValidId(logId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin', 'project_manager']);
+    }
+
+    // Suppliers are shared company records; only finance/admin can maintain them.
+    match /suppliers/{supplierId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(supplierId) &&
+        incoming().id == supplierId &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 200 &&
+        incoming().nit is string && incoming().nit.size() > 0 && incoming().nit.size() <= 30 &&
+        incoming().active is bool;
+      allow update: if isValidId(supplierId) &&
+        canManagePurchasing(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == supplierId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 200 &&
+        incoming().nit is string && incoming().nit.size() > 0 && incoming().nit.size() <= 30 &&
+        incoming().active is bool;
+      allow delete: if isValidId(supplierId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Warehouses belong to a company and may optionally be scoped to one project.
+    match /warehouses/{warehouseId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(warehouseId) &&
+        incoming().id == warehouseId &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 150 &&
+        incoming().type in ['general', 'project'] &&
+        (incoming().type == 'general'
+          ? !incoming().keys().hasAny(['projectId'])
+          : (incoming().projectId is string && isProjectInCompany(incoming().projectId, incoming().companyId)));
+      allow update: if isValidId(warehouseId) &&
+        canManageInventory(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == warehouseId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().type == existing().type &&
+        (incoming().type == 'general'
+          ? !incoming().keys().hasAny(['projectId'])
+          : (incoming().projectId == existing().projectId &&
+            isProjectInCompany(incoming().projectId, incoming().companyId)));
+      // Keep warehouse history stable; archive by setting active=false instead.
+      allow delete: if false;
+    }
+
+    // Inventory catalog. Stock itself is derived from immutable movements.
+    match /inventoryItems/{itemId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(itemId) &&
+        incoming().id == itemId &&
+        canManageInventory(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 200 &&
+        incoming().unit is string && incoming().unit.size() > 0 && incoming().unit.size() <= 32 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        incoming().active is bool;
+      allow update: if isValidId(itemId) &&
+        canManageInventory(existing().companyId) &&
+        incoming().id == existing().id && incoming().id == itemId &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 200 &&
+        incoming().unit is string && incoming().unit.size() > 0 && incoming().unit.size() <= 32 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        incoming().active is bool;
+      allow delete: if isValidId(itemId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
+
+    // Balances change only in the same atomic transaction as a verified receipt,
+    // project issue, or paired warehouse transfer movement.
+    match /inventoryBalances/{balanceId} {
+      allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(balanceId) &&
+        incoming().id == balanceId &&
+        incoming().keys().hasAll([
+          'id', 'companyId', 'warehouseId', 'itemId', 'quantity',
+          'averageUnitCostGTQ', 'reorderLevel', 'createdBy', 'createdAt',
+          'updatedAt', 'lastMovementId'
+        ]) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().createdAt is string &&
+        incoming().updatedAt is string &&
+        incoming().quantity is number && incoming().quantity > 0 &&
+        incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        isValidInventoryBalanceCreate(incoming(), balanceId);
+      allow update: if isValidId(balanceId) &&
+        incoming().id == existing().id &&
+        incoming().id == balanceId &&
+        incoming().companyId == existing().companyId &&
+        incoming().warehouseId == existing().warehouseId &&
+        incoming().itemId == existing().itemId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'quantity', 'averageUnitCostGTQ', 'reorderLevel', 'updatedAt', 'lastMovementId'
+        ]) &&
+        incoming().updatedAt is string &&
+        incoming().quantity is number && incoming().quantity >= 0 &&
+        incoming().averageUnitCostGTQ is number && incoming().averageUnitCostGTQ >= 0 &&
+        incoming().reorderLevel is number && incoming().reorderLevel >= 0 &&
+        isValidInventoryBalanceUpdate(incoming(), balanceId);
+      allow delete: if false;
+    }
+
+    // Movements are append-only and must match their paired order and balance writes.
+    match /stockMovements/{movementId} {
+      allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if incoming().kind == 'opening'
+        ? isValidOpeningMovement(incoming(), movementId)
+        : (incoming().kind == 'purchase_receipt'
+          ? isValidReceiptMovement(incoming(), movementId)
+          : (incoming().kind == 'project_issue'
+            ? isValidProjectIssueMovement(incoming(), movementId)
+             : ((incoming().kind == 'transfer_out' || incoming().kind == 'transfer_in')
+               ? isValidTransferMovement(incoming(), movementId)
+               : ((incoming().kind == 'adjustment_in' || incoming().kind == 'adjustment_out')
+                 ? isValidStockAdjustmentMovement(incoming(), movementId)
+                 : false))));
+      allow update, delete: if false;
+    }
+
+    // Purchase orders are draft-only on create; updates are restricted to approval or paired receipt.
+    match /purchaseOrders/{orderId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(orderId) &&
+        incoming().id == orderId &&
+        incoming().keys().hasAll([
+          'id', 'companyId', 'projectId', 'supplierId', 'number', 'status',
+          'currency', 'lines', 'subtotalGTQ', 'discountGTQ', 'taxPercent',
+          'taxGTQ', 'totalGTQ', 'requestedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().requestedBy == request.auth.uid &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().currency == 'GTQ' &&
+        incoming().status == 'draft' &&
+        !incoming().keys().hasAny(['approvedBy', 'lastReceiptMovementId']) &&
+        arePurchaseOrderLineReferencesValid(incoming()) &&
+        incoming().number is string &&
+        incoming().number.size() > 0 &&
+        incoming().number.size() <= 80 &&
+        incoming().createdAt is string &&
+        incoming().updatedAt is string &&
+        incoming().subtotalGTQ is number &&
+        incoming().subtotalGTQ >= 0 &&
+        incoming().discountGTQ is number &&
+        incoming().discountGTQ >= 0 &&
+        incoming().discountGTQ <= incoming().subtotalGTQ &&
+        incoming().taxPercent is number &&
+        incoming().taxPercent >= 0 &&
+        incoming().taxPercent <= 100 &&
+        incoming().taxGTQ is number &&
+        incoming().taxGTQ >= 0 &&
+        incoming().totalGTQ is number &&
+        incoming().totalGTQ >= 0 &&
+        isWithinOneCent(incoming().subtotalGTQ, purchaseOrderLinesSubtotal(incoming().lines)) &&
+        isWithinOneCent(incoming().taxGTQ, (incoming().subtotalGTQ - incoming().discountGTQ) * incoming().taxPercent / 100) &&
+        isWithinOneCent(incoming().totalGTQ, incoming().subtotalGTQ - incoming().discountGTQ + incoming().taxGTQ);
+
+      allow update: if isValidId(orderId) &&
+        incoming().id == existing().id &&
+        incoming().id == orderId &&
+        incoming().companyId == existing().companyId &&
+        incoming().projectId == existing().projectId &&
+        incoming().supplierId == existing().supplierId &&
+        incoming().number == existing().number &&
+        incoming().currency == existing().currency &&
+        incoming().requestedBy == existing().requestedBy &&
+        incoming().subtotalGTQ == existing().subtotalGTQ &&
+        incoming().discountGTQ == existing().discountGTQ &&
+        incoming().taxPercent == existing().taxPercent &&
+        incoming().taxGTQ == existing().taxGTQ &&
+        incoming().totalGTQ == existing().totalGTQ &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().lines is list &&
+        incoming().lines.size() >= 1 && incoming().lines.size() <= 2 &&
+        existing().lines is list &&
+        existing().lines.size() >= 1 && existing().lines.size() <= 2 &&
+        (
+          (
+            canManagePurchasing(existing().companyId) &&
+            existing().status == 'draft' &&
+            incoming().status == 'approved' &&
+            incoming().approvedBy == request.auth.uid &&
+            incoming().updatedAt is string &&
+            incoming().lines == existing().lines &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'approvedBy', 'updatedAt'
+            ])
+          ) ||
+          (
+            canManageInventory(existing().companyId) &&
+            existing().status in ['approved', 'partially_received'] &&
+            incoming().status in ['partially_received', 'received'] &&
+            incoming().approvedBy == existing().approvedBy &&
+            incoming().approvedBy is string &&
+            incoming().updatedAt is string &&
+            incoming().lastReceiptMovementId is string &&
+            incoming().status == (isPurchaseOrderFullyReceived(incoming().lines) ? 'received' : 'partially_received') &&
+            existsAfter(receiptMovementPath(incoming().lastReceiptMovementId)) &&
+            getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.referenceId == orderId &&
+            isPurchaseOrderReceiptLinesUpdated(
+              existing().lines,
+              incoming().lines,
+              getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.lineIndex,
+              getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.quantity
+            ) &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'lines', 'updatedAt', 'lastReceiptMovementId'
+            ]) &&
+            getAfter(receiptMovementPath(incoming().lastReceiptMovementId)).data.lineIndex is int
+          )
+        );
+
+      allow delete: if isValidId(orderId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        existing().status == 'draft' &&
+        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_0')) &&
+        !existsAfter(purchaseOrderLineReferencePath('pol_' + orderId + '_1'));
+    }
+
+    // Immutable line references each authorize a single validated item line.
+    // The references and order header are created/deleted in the same transaction.
+    match /purchaseOrderLineRefs/{lineReferenceId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidPurchaseOrderLineReference(incoming(), lineReferenceId);
+      allow update: if false;
+      allow delete: if isValidId(lineReferenceId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        !existsAfter(receiptOrderPath(existing().orderId));
+    }
+
+    // GTQ ledger values must be cent-aligned. The tolerance only absorbs
+    // IEEE-754 representation noise around exact cent values.
+    function isGTQAmountInCents(value) {
+      let scaled = value * 100;
+      let remainder = scaled % 1;
+      return value is number &&
+        value >= 0 &&
+        (remainder < 0.000001 || remainder > 0.999999);
+    }
+
+    // Subcontracts remain linked to the project and supplier that own them.
+    function isValidSubcontractPayment(data, paymentId) {
+      let contractPath = /databases/$(database)/documents/subcontracts/$(data.contractId);
+      let beforeContract = get(contractPath).data;
+      let afterContract = getAfter(contractPath).data;
+      return data.id == paymentId &&
+        isValidId(paymentId) &&
+        data.keys().hasAll([
+          'id', 'companyId', 'contractId', 'projectId', 'supplierId',
+          'amountGTQ', 'paymentDate', 'reference', 'paymentMethod', 'createdBy', 'createdAt'
+        ]) &&
+        canManagePurchasing(data.companyId) &&
+        data.createdBy == request.auth.uid &&
+        data.amountGTQ is number && data.amountGTQ > 0 &&
+        isGTQAmountInCents(data.amountGTQ) &&
+        data.paymentDate is string && data.paymentDate.size() == 10 && data.paymentDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}') &&
+        data.reference is string && data.reference.size() > 0 && data.reference.size() <= 60 &&
+        data.paymentMethod in ['Efectivo', 'Cheque', 'Transferencia BI', 'Tarjeta'] &&
+        data.createdAt is string &&
+        exists(contractPath) &&
+        existsAfter(contractPath) &&
+        beforeContract.companyId == data.companyId &&
+        beforeContract.projectId == data.projectId &&
+        beforeContract.supplierId == data.supplierId &&
+        beforeContract.status == 'active' &&
+        isGTQAmountInCents(beforeContract.paidGTQ) &&
+        isGTQAmountInCents(afterContract.paidGTQ) &&
+        afterContract.companyId == beforeContract.companyId &&
+        afterContract.paidGTQ == beforeContract.paidGTQ + data.amountGTQ &&
+        afterContract.paidGTQ <= beforeContract.amountGTQ &&
+        afterContract.status == beforeContract.status &&
+        afterContract.lastPaymentId == paymentId &&
+        afterContract.updatedAt == data.createdAt;
+    }
+
+    // The payment and its project expense must be created in the same atomic
+    // Firestore write. This gives project spend a single auditable source and
+    // prevents forged or duplicate "Subcontratos" expenses.
+    function isValidSubcontractPaymentExpense(data) {
+      let paymentId = data.subcontractPaymentId;
+      let paymentPath = /databases/$(database)/documents/subcontractPayments/$(paymentId);
+      let payment = getAfter(paymentPath).data;
+      let supplierPath = /databases/$(database)/documents/suppliers/$(payment.supplierId);
+      let supplier = get(supplierPath).data;
+      return data.subcontractPaymentId is string &&
+        data.subcontractPaymentId == data.id &&
+        data.keys().hasAll([
+          'subcontractPaymentId', 'paymentReference', 'paymentMethod',
+          'approvalStatus', 'approvedBy', 'approvedAt'
+        ]) &&
+        existsAfter(paymentPath) &&
+        exists(supplierPath) &&
+        payment.id == paymentId &&
+        payment.companyId == data.companyId &&
+        payment.projectId == data.projectId &&
+        payment.amountGTQ == data.amount &&
+        payment.paymentDate == data.date &&
+        payment.reference == data.paymentReference &&
+        payment.paymentMethod == data.paymentMethod &&
+        payment.createdBy == data.authorId &&
+        data.approvalStatus == 'Aprobado' &&
+        data.approvedBy == payment.createdBy &&
+        data.approvedAt == payment.createdAt &&
+        data.category == 'Subcontratos' &&
+        data.currency == 'GTQ' &&
+        data.supplier == supplier.name &&
+        data.nitSupplier == supplier.nit &&
+        isValidExpense(data) &&
+        isProjectInCompany(data.projectId, data.companyId);
+    }
+
+    function hasMatchingSubcontractPayment(contractId) {
+      let paymentId = incoming().lastPaymentId;
+      let paymentPath = /databases/$(database)/documents/subcontractPayments/$(paymentId);
+      let payment = getAfter(paymentPath).data;
+      return incoming().paidGTQ > existing().paidGTQ &&
+        incoming().paidGTQ <= existing().amountGTQ &&
+        incoming().lastPaymentId is string &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'paidGTQ', 'lastPaymentId', 'updatedAt'
+        ]) &&
+        existsAfter(paymentPath) &&
+        payment.id == paymentId &&
+        payment.contractId == contractId &&
+        payment.companyId == existing().companyId &&
+        payment.projectId == existing().projectId &&
+        payment.supplierId == existing().supplierId &&
+        payment.amountGTQ == incoming().paidGTQ - existing().paidGTQ &&
+        payment.createdBy == request.auth.uid &&
+        payment.createdAt == incoming().updatedAt &&
+        isValidSubcontractPayment(payment, paymentId);
+    }
+
+    match /subcontracts/{contractId} {
+      allow get: if isCompanyMember(existing().companyId);
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidId(contractId) &&
+        incoming().id == contractId &&
+        incoming().keys().hasAll(['id', 'companyId', 'projectId', 'supplierId', 'contractNumber', 'description', 'startDate', 'endDate', 'amountGTQ', 'paidGTQ', 'status', 'createdBy']) &&
+        canManagePurchasing(incoming().companyId) &&
+        incoming().createdBy == request.auth.uid &&
+        isProjectInCompany(incoming().projectId, incoming().companyId) &&
+        isSupplierInCompany(incoming().supplierId, incoming().companyId) &&
+        incoming().contractNumber is string && incoming().contractNumber.size() > 0 && incoming().contractNumber.size() <= 80 &&
+        incoming().description is string && incoming().description.size() > 0 && incoming().description.size() <= 1000 &&
+        incoming().startDate is string && incoming().startDate.size() == 10 && incoming().startDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}') &&
+        incoming().endDate is string && incoming().endDate.size() == 10 && incoming().endDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}') && incoming().endDate >= incoming().startDate &&
+        incoming().amountGTQ is number && incoming().amountGTQ > 0 &&
+        isGTQAmountInCents(incoming().amountGTQ) &&
+        isGTQAmountInCents(incoming().paidGTQ) &&
+        incoming().paidGTQ == 0 &&
+        incoming().status in ['draft', 'active'];
+      allow update: if isValidId(contractId) &&
+        canManagePurchasing(existing().companyId) &&
+        incoming().id == existing().id &&
+        incoming().companyId == existing().companyId &&
+        incoming().projectId == existing().projectId &&
+        incoming().supplierId == existing().supplierId &&
+        incoming().amountGTQ == existing().amountGTQ &&
+        incoming().status == existing().status &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().updatedAt is string &&
+        hasMatchingSubcontractPayment(contractId);
+      allow delete: if isValidId(contractId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        existing().status == 'draft' &&
+        existing().paidGTQ == 0;
+    }
+
+    match /subcontractPayments/{paymentId} {
+      // A signed-in caller may check an unused deterministic payment ID for idempotency.
+      // Existing payment data remains readable only by members of its company.
+      allow get: if isSignedIn() && (resource == null || isCompanyMember(resource.data.companyId));
+      allow list: if isCompanyMember(resource.data.companyId);
+      allow create: if isValidSubcontractPayment(incoming(), paymentId);
+      allow update, delete: if false;
+    }
+
+    // Contact details are private and scoped to the authenticated UID.
+    match /userProfiles/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        request.auth.uid == userId &&
+        isValidId(userId) &&
+        incoming().uid == userId &&
+        incoming().phoneNumber is string &&
+        incoming().phoneNumber.size() <= 32 &&
+        incoming().updatedAt is string &&
+        incoming().keys().hasOnly(['uid', 'phoneNumber', 'updatedAt']);
+      allow update: if isSignedIn() &&
+        request.auth.uid == userId &&
+        incoming().uid == existing().uid &&
+        incoming().uid == userId &&
+        incoming().phoneNumber is string &&
+        incoming().phoneNumber.size() <= 32 &&
+        incoming().updatedAt is string &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phoneNumber', 'updatedAt']);
+      allow delete: if false;
     }
 
     // FCM registration tokens are private to the authenticated user.
@@ -666,10 +1928,28 @@ service cloud.firestore {
         incoming().id == alertId;
       allow delete: if isValidId(alertId) && isSignedIn() && existing().ownerId == request.auth.uid;
     }
+
+    match /qa_runs/{runId} {
+      allow get: if isSignedIn() &&
+        (resource == null || isCompanyMember(resource.data.companyId));
+      allow list: if false;
+      allow create: if isValidId(runId) &&
+        incoming().id == runId &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().createdDocumentIds is list &&
+        incoming().createdDocumentIds.size() <= 100 &&
+        hasCompanyRole(incoming().companyId, ['owner', 'admin']);
+      allow update: if isValidId(runId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']) &&
+        incoming().id == existing().id &&
+        incoming().companyId == existing().companyId &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdDocumentIds is list &&
+        incoming().createdDocumentIds.size() <= 100 &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['createdDocumentIds', 'updatedAt']);
+      allow delete: if isValidId(runId) &&
+        hasCompanyRole(existing().companyId, ['owner', 'admin']);
+    }
   }
 }
-
-
-
-
-
