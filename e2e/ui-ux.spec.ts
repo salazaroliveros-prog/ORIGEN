@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 /**
  * ORIGEN ERP - UI/UX Component Testing (E2E - Playwright)
  * Cubre los gaps de UI-001 a UI-025 no cubiertos por los spec existentes.
@@ -335,7 +336,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
       await page.getByRole('textbox', { name: 'Contraseña' }).fill(ADMIN_PASSWORD);
       await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
       await page.waitForTimeout(4000);
-      await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
+      await expect(navItem(page, /Tablero/)).toBeVisible({ timeout: 30_000 });
     }
   });
 
@@ -381,7 +382,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     // Al cerrar sesión la app redirige a /login y debe mostrar el formulario
     // de acceso.
     await expect(page.getByLabel('Correo electrónico')).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
+    await expect(navItem(page, /Tablero/)).toHaveCount(0);
   });
 
   // ============================================================

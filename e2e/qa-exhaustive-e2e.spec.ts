@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 /**
  * qa-exhaustive-e2e.spec.ts
  *
@@ -110,7 +111,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
       await page.waitForTimeout(4000);
     }
 
-    await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({ timeout: 30_000 });
+    await expect(navItem(page, /Tablero/)).toBeVisible({ timeout: 30_000 });
     await expect(
       page
         .getByRole('complementary', { name: 'Navegación principal' })
@@ -132,7 +133,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
     await page.waitForTimeout(2000);
 
     // Debe mostrar error de validación, no redirigir
-    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
+    await expect(navItem(page, /Tablero/)).toHaveCount(0);
   });
 
   test('PASO-1.03 — Login con contraseña corta (< 6 caracteres) → error', async ({ page }) => {
@@ -148,7 +149,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
     await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
     await page.waitForTimeout(2000);
 
-    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
+    await expect(navItem(page, /Tablero/)).toHaveCount(0);
   });
 
   test('PASO-1.04 — Login con credenciales incorrectas → error', async ({ page }) => {
@@ -164,7 +165,7 @@ test.describe('PASO 1 — Autenticación (credenciales correctas, incorrectas, c
     await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
     await page.waitForTimeout(2000);
 
-    await expect(page.getByRole('button', { name: 'Tablero' })).toHaveCount(0);
+    await expect(navItem(page, /Tablero/)).toHaveCount(0);
   });
 
   test('PASO-1.05 — Registro exitoso de nuevo usuario', async ({ page }) => {
@@ -206,12 +207,12 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
   });
 
   test('PASO-2.01 — Todos los botones de navegación base son visibles', async ({ page }) => {
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Proyectos & Firmas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Presupuestos APU' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Cotizaciones' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Gastos & Facturas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Maquinaria' }).first()).toBeVisible();
+    await expect(navItem(page, /Tablero/)).toBeVisible();
+    await expect(navItem(page, /Proyectos/)).toBeVisible();
+    await expect(navItem(page, /Presupuestos/)).toBeVisible();
+    await expect(navItem(page, /Cotizaciones/)).toBeVisible();
+    await expect(navItem(page, /Gastos/)).toBeVisible();
+    await expect(navItem(page, /Maquinaria/)).toBeVisible();
   });
 
   test('PASO-2.02 — Navegar a cada sección y verificar carga', async ({ page }) => {
@@ -247,7 +248,7 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
   });
 
   test('PASO-2.04 — Planillas Guate visible y navegable para administrador', async ({ page }) => {
-    const planillas = page.getByRole('button', { name: 'Planillas Guate' }).first();
+    const planillas = navItem(page, /Planillas/);
     await expect(planillas).toBeVisible({ timeout: 20_000 });
     await planillas.click();
     await expect(planillas).toHaveAttribute('aria-current', 'page');
@@ -272,7 +273,7 @@ test.describe('PASO 2 — Exploración de Interfaz y Navegación (todos los men�
   });
 
   test('PASO-2.08 — Equipo de la empresa visible', async ({ page }) => {
-    const equipo = page.getByRole('button', { name: 'Equipo de la empresa' }).first();
+    const equipo = navItem(page, /Equipo/);
     await expect(equipo).toBeVisible({ timeout: 20_000 });
   });
 
@@ -489,7 +490,7 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
 
     // Confirm persistence independently of the current React state.
     await page.reload();
-    await expect(page.getByRole('button', { name: 'Tablero' })).toBeVisible({
+    await expect(navItem(page, /Tablero/)).toBeVisible({
       timeout: 30_000,
     });
     await openTab(page, 'Proyectos & Firmas');

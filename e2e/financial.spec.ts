@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 import { expect, test } from '@playwright/test';
 import { createTestProject } from './projectFixture';
 import { ensureAuthenticated } from './testCredentials';
@@ -42,7 +43,7 @@ test.describe.serial('Sección Gastos & Facturas', () => {
     await ensureAuthenticated(page);
 
     // Navegar a la sección de gastos
-    await page.getByRole('button', { name: 'Gastos & Facturas' }).first().click();
+    await navItem(page, /Gastos/).click();
     await page.waitForTimeout(2000);
   });
 

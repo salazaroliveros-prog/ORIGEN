@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 import { expect, type Page } from '@playwright/test';
 
 // Cargar desde .env.e2e si está disponible (vía --env-file)
@@ -34,7 +35,7 @@ async function waitForWorkspaceReady(page: Page) {
 export async function ensureAuthenticated(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
-  const dashboard = page.getByRole('button', { name: 'Tablero' }).first();
+  const dashboard = navItem(page, /Tablero/);
   const emailField = page.getByLabel('Correo electrónico');
 
   // Esperar a que aparezca ALGO

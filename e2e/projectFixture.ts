@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { ensureAuthenticated } from './testCredentials';
@@ -30,7 +31,7 @@ export async function createTestProject(page: Page, project: TestProject): Promi
     );
   }
 
-  await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
+  await navItem(page, /Proyectos/).click();
   await page.getByRole('button', { name: 'Nuevo Proyecto' }).first().click();
 
   const dialog = page.getByRole('dialog', { name: 'Nuevo Proyecto' });
@@ -52,7 +53,10 @@ export async function createTestProject(page: Page, project: TestProject): Promi
   // La sincronización se confirma en el selector accesible. No buscar el código
   // en toda la página: la opción HTML del <select> existe en el DOM, pero no
   // es texto visible y puede ser el primer resultado de getByText().
-  const projectSelector = page.getByRole('combobox', { name: 'Proyecto activo' });
+  const projectSelector = page
+    .getByRole('combobox', { name: /^(Seleccionar proyecto|Proyecto activo|Lista de proyectos)$/i })
+    .filter({ visible: true })
+    .first();
   await expect(projectSelector).toBeVisible({ timeout: 15_000 });
   const projectOption = projectSelector.locator('option').filter({ hasText: project.code });
   await expect(projectOption).toHaveCount(1, { timeout: 30_000 });
@@ -74,7 +78,10 @@ export async function selectActiveProject(page: Page, code: string): Promise<voi
     await expect(openDialog.first()).toBeHidden({ timeout: 20_000 });
   }
 
-  const selector = page.getByRole('combobox', { name: 'Proyecto activo' });
+  const selector = page
+    .getByRole('combobox', { name: /^(Seleccionar proyecto|Proyecto activo|Lista de proyectos)$/i })
+    .filter({ visible: true })
+    .first();
   await expect(selector).toBeVisible({ timeout: 15_000 });
 
   // El proyecto llega por la suscripción de Firestore: esperar la opción
@@ -104,7 +111,12 @@ export async function waitForProjectPersisted(page: Page, code: string): Promise
     // a que Firebase restaure la sesión (o iniciar sesión con las credenciales
     // E2E) antes de que exista el selector de proyectos.
     await ensureAuthenticated(probe);
-    const projectSelector = probe.getByRole('combobox', { name: 'Proyecto activo' });
+    const projectSelector = probe
+      .getByRole('combobox', {
+        name: /^(Seleccionar proyecto|Proyecto activo|Lista de proyectos)$/i,
+      })
+      .filter({ visible: true })
+      .first();
     await expect(projectSelector).toBeVisible({ timeout: 30_000 });
     const projectOption = projectSelector.locator('option').filter({ hasText: code });
     await expect(projectOption).toHaveCount(1, { timeout: 30_000 });

@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 import { expect, test, type Page } from '@playwright/test';
 import { ensureAuthenticated } from './testCredentials';
 import { fillExpenseForm, selectActiveProject } from './projectFixture';
@@ -585,7 +586,7 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
   test('gestión de equipo de la empresa (solo si el rol lo permite)', async ({ page }) => {
     await ensureAuthenticated(page);
 
-    const equipoTab = page.getByRole('button', { name: 'Equipo de la empresa' }).first();
+    const equipoTab = navItem(page, /Equipo/);
     const equipoVisible = await equipoTab.isVisible().catch(() => false);
     if (equipoVisible) {
       await equipoTab.click();

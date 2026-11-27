@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 import { expect, test } from '@playwright/test';
 import { ensureAuthenticated } from './testCredentials';
 
@@ -20,16 +21,16 @@ test.describe('Navegación principal', () => {
     page,
   }) => {
     // Estas son las secciones que siempre están disponibles (sin permisos condicionales)
-    await expect(page.getByRole('button', { name: 'Tablero' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Proyectos & Firmas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Presupuestos APU' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Cotizaciones' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Gastos & Facturas' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Maquinaria' }).first()).toBeVisible();
+    await expect(navItem(page, /Tablero/)).toBeVisible();
+    await expect(navItem(page, /Proyectos/)).toBeVisible();
+    await expect(navItem(page, /Presupuestos/)).toBeVisible();
+    await expect(navItem(page, /Cotizaciones/)).toBeVisible();
+    await expect(navItem(page, /Gastos/)).toBeVisible();
+    await expect(navItem(page, /Maquinaria/)).toBeVisible();
   });
 
   test('navegar a Inventario & Compras muestra sus secciones', async ({ page }) => {
-    const inventoryLink = page.getByRole('button', { name: 'Inventario & Compras' }).first();
+    const inventoryLink = navItem(page, /Inventario/);
     await expect(inventoryLink).toBeVisible({ timeout: 20_000 });
     await inventoryLink.click();
 
@@ -45,7 +46,7 @@ test.describe('Navegación principal', () => {
   test('navegar a Proyectos & Firmas muestra la lista de proyectos o estado vacío', async ({
     page,
   }) => {
-    await page.getByRole('button', { name: 'Proyectos & Firmas' }).first().click();
+    await navItem(page, /Proyectos/).click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el botón de crear proyecto o estado sin proyectos
@@ -56,7 +57,7 @@ test.describe('Navegación principal', () => {
   });
 
   test('navegar a Gastos & Facturas muestra la sección de gastos', async ({ page }) => {
-    await page.getByRole('button', { name: 'Gastos & Facturas' }).first().click();
+    await navItem(page, /Gastos/).click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el botón para registrar un nuevo gasto o estado sin proyectos
@@ -71,7 +72,7 @@ test.describe('Navegación principal', () => {
   });
 
   test('navegar a Cotizaciones muestra la sección de cotizaciones', async ({ page }) => {
-    await page.getByRole('button', { name: 'Cotizaciones' }).first().click();
+    await navItem(page, /Cotizaciones/).click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el botón para crear una cotización
@@ -80,7 +81,7 @@ test.describe('Navegación principal', () => {
   });
 
   test('navegar a Presupuestos APU carga la vista de presupuestos', async ({ page }) => {
-    await page.getByRole('button', { name: 'Presupuestos APU' }).first().click();
+    await navItem(page, /Presupuestos/).click();
     await page.waitForTimeout(2000);
 
     // La vista APU muestra botón de renglón manual si hay proyectos,

@@ -1,3 +1,4 @@
+import { navItem } from './navigation';
 import { expect, test } from '@playwright/test';
 import { ensureAuthenticated } from './testCredentials';
 
@@ -21,13 +22,13 @@ test.describe('Sección Personal & IGSS', () => {
     page,
   }) => {
     // El administrador (owner) siempre ve Personal & IGSS
-    await expect(page.getByRole('button', { name: 'Personal & IGSS' }).first()).toBeVisible({
+    await expect(navItem(page, /Personal/)).toBeVisible({
       timeout: 20_000,
     });
   });
 
   test('la sección Personal & IGSS carga contenido de cuadrillas al navegar', async ({ page }) => {
-    await page.getByRole('button', { name: 'Personal & IGSS' }).first().click();
+    await navItem(page, /Personal/).click();
     await page.waitForTimeout(2000);
 
     // Debe aparecer el sub-menú o botón de 'Cuadrillas' confirmado en system-crud.spec.ts
@@ -36,7 +37,7 @@ test.describe('Sección Personal & IGSS', () => {
   });
 
   test('la sub-sección Cuadrillas permite registrar un empleado nuevo', async ({ page }) => {
-    await page.getByRole('button', { name: 'Personal & IGSS' }).first().click();
+    await navItem(page, /Personal/).click();
     await page.waitForTimeout(1500);
 
     await page
@@ -53,7 +54,7 @@ test.describe('Sección Personal & IGSS', () => {
 
   test('la sub-sección Planillas Guate está visible en la navegación', async ({ page }) => {
     // Planillas es condicional (canViewPayroll) pero el admin tiene acceso
-    const planillasBtn = page.getByRole('button', { name: 'Planillas Guate' }).first();
+    const planillasBtn = navItem(page, /Planillas/);
     await expect(planillasBtn).toBeVisible({ timeout: 20_000 });
   });
 });
