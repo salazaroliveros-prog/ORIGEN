@@ -9,6 +9,8 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
+  /* Fuera de outputDir para que el reporter HTML no borre los artefactos. */
+  outputDir: 'test-results/visual-artifacts',
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
@@ -135,7 +137,9 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    // El workflow (y el dev local) ya deja el servidor arrancado en :3000;
+    // iniciar otro hace fallar Playwright con "port already used".
+    reuseExistingServer: true,
     timeout: 120000,
   },
 });

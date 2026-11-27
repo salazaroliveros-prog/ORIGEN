@@ -80,21 +80,21 @@ Este plan de pruebas E2E simula el comportamiento de un usuario real que:
 
 ### 4.1. Autenticación (Login)
 
-| ID       | Caso de Prueba                        | Precondición        | Paso                                                      | Resultado Esperado                                            |
-| -------- | ------------------------------------- | ------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
-| AUTH-001 | Login con credenciales válidas        | Usuario registrado  | Llenar email y password correctos → Clic "Iniciar Sesión" | Redirección a Tablero, sesión activa, email visible en navbar |
-| AUTH-002 | Login con email inválido              | Página de login     | Escribir email sin formato → Clic submit                  | Error de validación: "Ingresa un correo válido"               |
-| AUTH-003 | Login con contraseña corta            | Página de login     | Escribir contraseña < 6 caracteres → Clic submit          | Error: "La contraseña debe tener al menos 6 caracteres"       |
-| AUTH-004 | Login con credenciales incorrectas    | Usuario no existe   | Email válido + contraseña incorrecta → Clic submit        | Error: "Correo o contraseña incorrectos"                      |
+| ID       | Caso de Prueba                        | Precondición        | Paso                                                      | Resultado Esperado                                                                                                                   |
+| -------- | ------------------------------------- | ------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| AUTH-001 | Login con credenciales válidas        | Usuario registrado  | Llenar email y password correctos → Clic "Iniciar Sesión" | Redirección a Tablero, sesión activa, email visible en navbar                                                                        |
+| AUTH-002 | Login con email inválido              | Página de login     | Escribir email sin formato → Clic submit                  | Error de validación: "Ingresa un correo válido"                                                                                      |
+| AUTH-003 | Login con contraseña corta            | Página de login     | Escribir contraseña < 6 caracteres → Clic submit          | Error: "La contraseña debe tener al menos 6 caracteres"                                                                              |
+| AUTH-004 | Login con credenciales incorrectas    | Usuario no existe   | Email válido + contraseña incorrecta → Clic submit        | Error: "Correo o contraseña incorrectos"                                                                                             |
 | AUTH-005 | Rate limiting — 5 intentos fallidos   | Página de login     | 5 intentos con contraseña incorrecta                      | **DESCARTADO**: no se implementa bloqueo local; Firebase Auth aplica throttling en servidor (un bloqueo client-side sería evadible). |
-| AUTH-006 | Registro con contraseña débil         | Página de registro  | Contraseña sin mayúscula/número/carácter especial         | Error de validación específico                                |
-| AUTH-007 | Registro con contraseñas no coinciden | Página de registro  | Contraseña y confirmar diferente                          | Error: "Las contraseñas no coinciden"                         |
-| AUTH-008 | Registro exitoso                      | Página de registro  | Todos los campos válidos → Clic "Crear cuenta"            | Cuenta creada, redirección a dashboard                        |
-| AUTH-009 | Recuperación de contraseña            | Página de login     | Clic "¿Olvidaste tu contraseña?" → Email → Enviar         | Toast: "Correo de reseteo enviado"                            |
-| AUTH-010 | Recordarme persiste sesión            | Página de login     | Marcar "Recuérdame" → Iniciar → Cerrar navegador → Abrir  | Sesión aún activa                                             |
-| AUTH-011 | Cierre de sesión                      | Usuario autenticado | Clic en "Cerrar sesión"                                   | Redirección a login, sesión borrada                           |
-| AUTH-012 | Acceso sin autenticación              | Sin sesión activa   | Intentar acceder a /dashboard directamente                | Redirección a login                                           |
-| AUTH-013 | Persistencia de sesión                | Usuario autenticado | Recargar la página                                        | La sesión sigue activa sin volver a iniciar sesión            |
+| AUTH-006 | Registro con contraseña débil         | Página de registro  | Contraseña sin mayúscula/número/carácter especial         | Error de validación específico                                                                                                       |
+| AUTH-007 | Registro con contraseñas no coinciden | Página de registro  | Contraseña y confirmar diferente                          | Error: "Las contraseñas no coinciden"                                                                                                |
+| AUTH-008 | Registro exitoso                      | Página de registro  | Todos los campos válidos → Clic "Crear cuenta"            | Cuenta creada, redirección a dashboard                                                                                               |
+| AUTH-009 | Recuperación de contraseña            | Página de login     | Clic "¿Olvidaste tu contraseña?" → Email → Enviar         | Toast: "Correo de reseteo enviado"                                                                                                   |
+| AUTH-010 | Recordarme persiste sesión            | Página de login     | Marcar "Recuérdame" → Iniciar → Cerrar navegador → Abrir  | Sesión aún activa                                                                                                                    |
+| AUTH-011 | Cierre de sesión                      | Usuario autenticado | Clic en "Cerrar sesión"                                   | Redirección a login, sesión borrada                                                                                                  |
+| AUTH-012 | Acceso sin autenticación              | Sin sesión activa   | Intentar acceder a /dashboard directamente                | Redirección a login                                                                                                                  |
+| AUTH-013 | Persistencia de sesión                | Usuario autenticado | Recargar la página                                        | La sesión sigue activa sin volver a iniciar sesión                                                                                   |
 
 ### 4.2. Navegación Global y Menú Principal
 

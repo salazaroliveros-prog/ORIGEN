@@ -28,12 +28,12 @@ b4e5ff9 EXCELENCIA: 9.85/10 — 8 phases, 79-plus edits, 50-plus features
 
 ### Vercel build status
 
-| Item           | Value                                   |
-| -------------- | --------------------------------------- |
-| Expected       | Automatic build trigger                 |
-| Build status   | Pending                                 |
+| Item           | Value                                          |
+| -------------- | ---------------------------------------------- |
+| Expected       | Automatic build trigger                        |
+| Build status   | Pending                                        |
 | Deployment URL | https://origen-one-kohl.vercel.app.vercel.app/ |
-| Monitor        | https://vercel.com/dashboard            |
+| Monitor        | https://vercel.com/dashboard                   |
 
 ### Build details
 

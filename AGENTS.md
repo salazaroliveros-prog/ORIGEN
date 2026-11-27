@@ -31,8 +31,10 @@ Next.js 15 App Router + React 19 + strict TypeScript ERP de construcción (Guate
 ## Vercel / producción
 
 <!-- VERCEL BEST PRACTICES START -->
+
 - Proyecto `proyectoswm/origen`, repo `salazaroliveros-prog/ORIGEN`, rama de producción `main`. Dominio canónico **`https://origen-one-kohl.vercel.app`**; los alias `origen-proyectoswm` y `origen-git-main-proyectoswm` apuntan al mismo deployment. No hay dominios custom.
 - El canónico está repetido en `app/layout.tsx` (`metadataBase`/`alternates`), `lib/schema-org.tsx`, `public/robots.txt` y `public/sitemap.xml`: cámbialo en los cuatro juntos.
 - `vercel.json` define build/install y headers de caché, **`crons: []`** y sin headers de seguridad (CSP/HSTS viven en `next.config.ts`). Las funciones son stateless: para programar tareas usa Cron Jobs (UTC, GET a la URL de producción), no daemon en memoria.
 - Secrets en variables de entorno de Vercel, nunca en git ni en `NEXT_PUBLIC_*`. Sincroniza con `vercel pull` / `vercel env pull`. Si una URL de deployment protegido devuelve 401/403, reintenta con `vercel curl <url>`; no desactives la protección.
+
 <!-- VERCEL BEST PRACTICES END -->
