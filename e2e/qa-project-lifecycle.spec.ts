@@ -133,6 +133,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await expect(page.getByText('12,000').filter({ visible: true }).first()).toBeVisible();
 
     await openTab(page, /Proyectos & Firmas/);
+    await showAllProjects(page);
     const rowContainer = page.locator('main li').filter({ hasText: code });
     await expect(rowContainer).toBeVisible({ timeout: 20_000 });
     await expect(rowContainer).toContainText('12,000');
@@ -181,6 +182,7 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     });
 
     await openTab(page, /Proyectos & Firmas/);
+    await showAllProjects(page);
     const rowContainer = page.locator('main li').filter({ hasText: code });
     await expect(rowContainer).toBeVisible({ timeout: 20_000 });
     await expect(rowContainer).toContainText('Cot. 1');

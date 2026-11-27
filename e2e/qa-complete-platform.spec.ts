@@ -62,9 +62,17 @@ async function getProjectRow(
   code: string,
   action: 'Editar proyecto' | 'Archivar proyecto' | 'Restaurar proyecto' = 'Editar proyecto'
 ) {
+  await showAllProjects(page);
   const actionButton = page.getByRole('button', { name: `${action} ${code}` });
   await expect(actionButton).toBeVisible({ timeout: 20_000 });
   return actionButton.locator('xpath=ancestor::li[1]');
+}
+
+async function showAllProjects(page: Page) {
+  const pageSize = page.getByLabel('Elementos por página');
+  if (await pageSize.isVisible().catch(() => false)) {
+    await pageSize.selectOption('50');
+  }
 }
 
 async function createProject(page: Page, code: string, name: string, progress: number) {
@@ -83,6 +91,7 @@ async function createProject(page: Page, code: string, name: string, progress: n
   await page.getByLabel('Estado del Proyecto').selectOption({ label: 'Planificación' });
   await page.getByRole('button', { name: 'Crear Proyecto' }).click();
   await page.waitForTimeout(3000);
+  await showAllProjects(page);
 }
 
 /**
@@ -281,6 +290,7 @@ test.describe('FASE 3 — Módulo de Cotizaciones: búsqueda y selección de cli
 
     // Vinculación: verificar que la cotización aparece en el proyecto
     await openTab(page, 'Proyectos & Firmas');
+    await showAllProjects(page);
     const rowContainer = page.locator('main li').filter({ hasText: code });
     await expect(rowContainer).toBeVisible({ timeout: 20_000 });
     await expect(rowContainer).toContainText('Cot. 1');
@@ -512,6 +522,7 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
 
     // Propagación: verificar que el gasto se refleja en el proyecto
     await openTab(page, 'Proyectos & Firmas');
+    await showAllProjects(page);
     const rowContainer = page.locator('main li').filter({ hasText: code });
     await expect(rowContainer).toBeVisible({ timeout: 20_000 });
     await expect(rowContainer).toContainText('18,000');
