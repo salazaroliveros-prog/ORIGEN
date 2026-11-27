@@ -78,7 +78,7 @@ jobs:
           PRIMARY_ADMIN_EMAIL: ${{ secrets.PRIMARY_ADMIN_EMAIL }}
 
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Run E2E tests
         run: npm run test:e2e -- --project=chromium
