@@ -66,7 +66,9 @@ function initFirebaseAdmin(expectedProjectId) {
   if (getApps().length > 0) {
     const existingApp = getApp();
     if (existingApp.options.projectId !== expectedProjectId) {
-      throw new Error('La instancia de Firebase Admin no coincide con NEXT_PUBLIC_FIREBASE_PROJECT_ID.');
+      throw new Error(
+        'La instancia de Firebase Admin no coincide con NEXT_PUBLIC_FIREBASE_PROJECT_ID.'
+      );
     }
     return existingApp;
   }
@@ -80,7 +82,9 @@ function initFirebaseAdmin(expectedProjectId) {
       throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY no contiene JSON válido.');
     }
     if (serviceAccount.project_id !== expectedProjectId) {
-      throw new Error('La cuenta de servicio pertenece a otro proyecto Firebase. Se canceló el bootstrap.');
+      throw new Error(
+        'La cuenta de servicio pertenece a otro proyecto Firebase. Se canceló el bootstrap.'
+      );
     }
     return initializeApp({
       credential: cert(serviceAccount),
@@ -138,7 +142,9 @@ async function seedFirestore(db, adminUid) {
   const companyRef = db.collection('companies').doc(COMPANY_ID);
   const existingCompany = await companyRef.get();
   if (existingCompany.exists && existingCompany.data()?.ownerId !== adminUid) {
-    throw new Error('El identificador de empresa ya pertenece a otro usuario. No se modificó información existente.');
+    throw new Error(
+      'El identificador de empresa ya pertenece a otro usuario. No se modificó información existente.'
+    );
   }
 
   const memberRef = companyRef.collection('members').doc(adminUid);
@@ -163,19 +169,29 @@ async function seedFirestore(db, adminUid) {
     });
   }
 
-  batch.set(memberRef, {
-    id: adminUid,
-    companyId: COMPANY_ID,
-    uid: adminUid,
-    email: ADMIN_EMAIL,
-    role: 'owner',
-    joinedAt: now,
-    invitationId: 'initial-owner',
-  }, { merge: true });
+  batch.set(
+    memberRef,
+    {
+      id: adminUid,
+      companyId: COMPANY_ID,
+      uid: adminUid,
+      email: ADMIN_EMAIL,
+      role: 'owner',
+      joinedAt: now,
+      invitationId: 'initial-owner',
+    },
+    { merge: true }
+  );
 
   const existingSettings = await settingsRef.get();
-  if (existingSettings.exists && (existingSettings.data()?.companyId !== COMPANY_ID || existingSettings.data()?.ownerId !== COMPANY_ID)) {
-    throw new Error('La configuración existente no pertenece a la empresa indicada. No se sobrescribió.');
+  if (
+    existingSettings.exists &&
+    (existingSettings.data()?.companyId !== COMPANY_ID ||
+      existingSettings.data()?.ownerId !== COMPANY_ID)
+  ) {
+    throw new Error(
+      'La configuración existente no pertenece a la empresa indicada. No se sobrescribió.'
+    );
   }
   if (!existingSettings.exists) {
     batch.create(settingsRef, {
@@ -210,23 +226,29 @@ async function seedFirestore(db, adminUid) {
 
 async function verifySetup(auth, db, adminUid) {
   const user = await auth.getUser(adminUid);
-  if (user.email !== ADMIN_EMAIL) throw new Error('La cuenta administradora no coincide con el correo configurado.');
+  if (user.email !== ADMIN_EMAIL)
+    throw new Error('La cuenta administradora no coincide con el correo configurado.');
 
   const companyRef = db.collection('companies').doc(COMPANY_ID);
-  const [companyDoc, memberDoc, settingsDoc, projectsSnapshot, expensesSnapshot] = await Promise.all([
-    companyRef.get(),
-    companyRef.collection('members').doc(adminUid).get(),
-    db.collection('companySettings').doc(COMPANY_ID).get(),
-    db.collection('projects').where('companyId', '==', COMPANY_ID).get(),
-    db.collection('expenses').where('companyId', '==', COMPANY_ID).get(),
-  ]);
+  const [companyDoc, memberDoc, settingsDoc, projectsSnapshot, expensesSnapshot] =
+    await Promise.all([
+      companyRef.get(),
+      companyRef.collection('members').doc(adminUid).get(),
+      db.collection('companySettings').doc(COMPANY_ID).get(),
+      db.collection('projects').where('companyId', '==', COMPANY_ID).get(),
+      db.collection('expenses').where('companyId', '==', COMPANY_ID).get(),
+    ]);
 
   if (!companyDoc.exists) throw new Error('No se encontró el documento de empresa.');
-  if (companyDoc.data()?.ownerId !== adminUid) throw new Error('El propietario de la empresa no coincide con la cuenta administradora.');
-  if (!memberDoc.exists || memberDoc.data()?.role !== 'owner') throw new Error('No se pudo verificar la membresía owner.');
+  if (companyDoc.data()?.ownerId !== adminUid)
+    throw new Error('El propietario de la empresa no coincide con la cuenta administradora.');
+  if (!memberDoc.exists || memberDoc.data()?.role !== 'owner')
+    throw new Error('No se pudo verificar la membresía owner.');
   if (!settingsDoc.exists) throw new Error('No se encontró la configuración inicial de empresa.');
   if (settingsDoc.data()?.companyId !== COMPANY_ID || settingsDoc.data()?.ownerId !== COMPANY_ID) {
-    throw new Error('La configuración de empresa tiene un propietario o identificador inconsistente.');
+    throw new Error(
+      'La configuración de empresa tiene un propietario o identificador inconsistente.'
+    );
   }
 
   console.log('\n🔍 Verificación completada');
@@ -261,7 +283,9 @@ async function main() {
   COMPANY_ID = process.env.SETUP_COMPANY_ID || '';
   COMPANY_NAME = process.env.SETUP_COMPANY_NAME || '';
   if (!ADMIN_EMAIL || !ADMIN_PASSWORD || !COMPANY_ID || !COMPANY_NAME) {
-    console.error('Faltan SETUP_ADMIN_EMAIL, SETUP_ADMIN_PASSWORD, SETUP_COMPANY_ID o SETUP_COMPANY_NAME.');
+    console.error(
+      'Faltan SETUP_ADMIN_EMAIL, SETUP_ADMIN_PASSWORD, SETUP_COMPANY_ID o SETUP_COMPANY_NAME.'
+    );
     process.exit(1);
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ADMIN_EMAIL)) {
@@ -273,17 +297,21 @@ async function main() {
     process.exit(1);
   }
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(COMPANY_ID)) {
-    console.error('SETUP_COMPANY_ID solo puede contener letras, números, guion y guion bajo (máximo 128 caracteres).');
+    console.error(
+      'SETUP_COMPANY_ID solo puede contener letras, números, guion y guion bajo (máximo 128 caracteres).'
+    );
     process.exit(1);
   }
   if (process.env.CONFIRM_FIREBASE_SETUP !== 'YES') {
-    console.error('Operación bloqueada: define CONFIRM_FIREBASE_SETUP=YES para confirmar escrituras en Firebase.');
+    console.error(
+      'Operación bloqueada: define CONFIRM_FIREBASE_SETUP=YES para confirmar escrituras en Firebase.'
+    );
     process.exit(1);
   }
 
   // Verificar variables críticas
   const requiredEnv = ['NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'NEXT_PUBLIC_FIREBASE_API_KEY'];
-  const missingEnv = requiredEnv.filter(k => !process.env[k]);
+  const missingEnv = requiredEnv.filter((k) => !process.env[k]);
   if (missingEnv.length > 0) {
     console.error(`❌ Variables de entorno faltantes: ${missingEnv.join(', ')}`);
     console.error('💡 Crea el archivo .env.local con las variables de Firebase');
@@ -295,7 +323,9 @@ async function main() {
     const expectedProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID.trim();
     const app = initFirebaseAdmin(expectedProjectId);
     if (app.options.projectId !== expectedProjectId) {
-      throw new Error('El proyecto Firebase inicializado no coincide con el proyecto confirmado. Se canceló el bootstrap.');
+      throw new Error(
+        'El proyecto Firebase inicializado no coincide con el proyecto confirmado. Se canceló el bootstrap.'
+      );
     }
     console.log(`✅ Firebase Admin inicializado (proyecto: ${app.options.projectId})`);
 
@@ -319,7 +349,6 @@ async function main() {
     console.log('║  URL de la aplicación: http://localhost:3000                  ║');
     console.log('║  Página de login:    http://localhost:3000/login              ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝\n');
-
   } catch (error) {
     console.error('\n╔═══════════════════════════════════════════════════════════════╗');
     console.error('║  ❌ ERROR EN LA CONFIGURACIÓN                                   ║');

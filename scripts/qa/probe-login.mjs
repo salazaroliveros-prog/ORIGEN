@@ -51,7 +51,10 @@ if (await email.isVisible().catch(() => false)) {
   console.log('LOGIN FORM FOUND');
   await email.fill(EMAIL);
   await page.getByLabel('Contraseña', { exact: true }).fill(PASSWORD);
-  await page.getByRole('button', { name: /Iniciar Sesión/i }).first().click();
+  await page
+    .getByRole('button', { name: /Iniciar Sesión/i })
+    .first()
+    .click();
   await page.waitForTimeout(12000);
   console.log('URL2:', page.url());
   console.log('TEXT2:', (await page.locator('body').innerText()).slice(0, 1500));
@@ -63,4 +66,3 @@ console.log('PAGE_ERRORS:', JSON.stringify(pageErrors, null, 2));
 console.log('FAILED_RESPONSES:', JSON.stringify(failedResponses, null, 2));
 
 await browser.close();
-

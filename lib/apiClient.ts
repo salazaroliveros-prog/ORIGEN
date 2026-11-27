@@ -38,10 +38,7 @@ export async function authFetch(
   input: RequestInfo | URL,
   init: RequestInit = {}
 ): Promise<Response> {
-  const [token, appCheckToken] = await Promise.all([
-    getIdTokenOrNull(),
-    getAppCheckTokenOrNull(),
-  ]);
+  const [token, appCheckToken] = await Promise.all([getIdTokenOrNull(), getAppCheckTokenOrNull()]);
   const headers = new Headers(init.headers);
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);

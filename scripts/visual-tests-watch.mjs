@@ -9,12 +9,7 @@ import { watch } from 'fs';
 import { spawn } from 'child_process';
 import { resolve } from 'path';
 
-const watchDirs = [
-  'e2e/visual',
-  'src',
-  'app',
-  'components',
-];
+const watchDirs = ['e2e/visual', 'src', 'app', 'components'];
 
 let testProcess = null;
 let debounceTimer = null;
@@ -32,16 +27,14 @@ function runTests() {
 ╚════════════════════════════════════════════════════════════╝
   `);
 
-  testProcess = spawn('npx', [
-    'playwright',
-    'test',
-    '--config',
-    'playwright.visual.config.ts',
-    '--workers=2',
-  ], {
-    stdio: 'inherit',
-    shell: true,
-  });
+  testProcess = spawn(
+    'npx',
+    ['playwright', 'test', '--config', 'playwright.visual.config.ts', '--workers=2'],
+    {
+      stdio: 'inherit',
+      shell: true,
+    }
+  );
 
   testProcess.on('close', (code) => {
     console.log(`

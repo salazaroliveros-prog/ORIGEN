@@ -59,7 +59,7 @@ console.log(`
    ${config.devices.join(', ')}
 
 📋 Test Suites: ${config.suites.length}
-   ${config.suites.map(s => s.split('/').pop()).join(', ')}
+   ${config.suites.map((s) => s.split('/').pop()).join(', ')}
 
 🎯 Iniciando pruebas...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

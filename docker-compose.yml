@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     container_name: constructerp-web
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -16,10 +16,10 @@ services:
       NEXT_PUBLIC_FIREBASE_PROJECT_ID: demo-origen-erp-test
       NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyDemoApiKey12345
       NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: localhost:5173
-      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:demo"
+      NEXT_PUBLIC_FIREBASE_APP_ID: '1:000000000000:web:demo'
       NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: demo-origen-erp-test.appspot.com
-      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
-      NEXT_PUBLIC_USE_FIREBASE_EMULATORS: "false"
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+      NEXT_PUBLIC_USE_FIREBASE_EMULATORS: 'false'
       # Admin
       PRIMARY_ADMIN_EMAIL: admin@test.com
       DEFAULT_AUTH_EMAIL: admin@test.com
@@ -29,7 +29,7 @@ services:
     networks:
       - erp-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -44,20 +44,20 @@ services:
       - .:/app
       - firebase-emulator-data:/data
     ports:
-      - "4000:4000"  # Emulator UI
-      - "5000:5000"  # Auth
-      - "5173:5173"  # Firestore
-      - "5174:5174"  # Storage
-      - "9099:9099"  # Auth (alternative)
+      - '4000:4000' # Emulator UI
+      - '5000:5000' # Auth
+      - '5173:5173' # Firestore
+      - '5174:5174' # Storage
+      - '9099:9099' # Auth (alternative)
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx512m"
+      JAVA_TOOL_OPTIONS: '-Xmx512m'
     command: >
       sh -c "npm install -g firebase-tools &&
              firebase emulators:start --config firebase.emulators.json --project demo-origen-erp-test"
     networks:
       - erp-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:4000']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -76,7 +76,7 @@ services:
       - ./test-results:/app/test-results
       - ./screenshots:/app/screenshots
     environment:
-      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "false"
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 'false'
       BASE_URL: http://app:3000
     depends_on:
       app:

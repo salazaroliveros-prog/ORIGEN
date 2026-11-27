@@ -17,10 +17,14 @@ const companyIdOption = option('company-id') || '';
 const actorUidOption = option('actor-uid') || '';
 
 if (!['emulator', 'live'].includes(target)) {
-  throw new Error('Indica --target=emulator o --target=live. No se selecciona destino por defecto.');
+  throw new Error(
+    'Indica --target=emulator o --target=live. No se selecciona destino por defecto.'
+  );
 }
 if (!/^[a-z0-9-]{4,16}$/.test(runId)) {
-  throw new Error('--run-id debe contener entre 4 y 16 caracteres: letras minúsculas, números o guiones.');
+  throw new Error(
+    '--run-id debe contener entre 4 y 16 caracteres: letras minúsculas, números o guiones.'
+  );
 }
 if (isCleanup && !runIdWasProvided) {
   throw new Error('--cleanup requiere --run-id explícito para limitar los borrados.');
@@ -29,9 +33,7 @@ if (isCleanup && !isApply) {
   throw new Error('--cleanup requiere también --apply.');
 }
 if (target === 'live' && (!firebaseProjectId || !companyIdOption)) {
-  throw new Error(
-    'Live requiere --firebase-project y --company-id; no se infieren del entorno.'
-  );
+  throw new Error('Live requiere --firebase-project y --company-id; no se infieren del entorno.');
 }
 if (target === 'live' && firebaseProjectId.startsWith('demo-')) {
   throw new Error('El destino live no puede usar un projectId demo-.');
@@ -151,10 +153,34 @@ const projectScenarios = [
 ];
 
 const employees = [
-  { key: 'worker-01', name: 'QA Personal - Capataz', role: 'Capataz', dailyRateGTQ: 250, igssAffiliated: true },
-  { key: 'worker-02', name: 'QA Personal - Albanil', role: 'Albañil', dailyRateGTQ: 200, igssAffiliated: true },
-  { key: 'worker-03', name: 'QA Personal - Ayudante', role: 'Ayudante', dailyRateGTQ: 150, igssAffiliated: false },
-  { key: 'worker-04', name: 'QA Personal - Electricista', role: 'Electricista', dailyRateGTQ: 225, igssAffiliated: true },
+  {
+    key: 'worker-01',
+    name: 'QA Personal - Capataz',
+    role: 'Capataz',
+    dailyRateGTQ: 250,
+    igssAffiliated: true,
+  },
+  {
+    key: 'worker-02',
+    name: 'QA Personal - Albanil',
+    role: 'Albañil',
+    dailyRateGTQ: 200,
+    igssAffiliated: true,
+  },
+  {
+    key: 'worker-03',
+    name: 'QA Personal - Ayudante',
+    role: 'Ayudante',
+    dailyRateGTQ: 150,
+    igssAffiliated: false,
+  },
+  {
+    key: 'worker-04',
+    name: 'QA Personal - Electricista',
+    role: 'Electricista',
+    dailyRateGTQ: 225,
+    igssAffiliated: true,
+  },
 ].map((employee, index) => ({
   ...employee,
   id: `${prefix}-${employee.key}`,
@@ -236,8 +262,22 @@ const projects = projectScenarios.map((scenario, index) => {
 const apuItems = [];
 for (const project of projects) {
   for (const [index, item] of [
-    { description: 'Excavacion y nivelacion QA', unit: 'm3', quantity: 100, material: 0, labor: 85, equipment: 40 },
-    { description: 'Concreto estructural QA', unit: 'm3', quantity: 24, material: 950, labor: 320, equipment: 80 },
+    {
+      description: 'Excavacion y nivelacion QA',
+      unit: 'm3',
+      quantity: 100,
+      material: 0,
+      labor: 85,
+      equipment: 40,
+    },
+    {
+      description: 'Concreto estructural QA',
+      unit: 'm3',
+      quantity: 24,
+      material: 950,
+      labor: 320,
+      equipment: 80,
+    },
   ].entries()) {
     const totalUnitCostGTQ = item.material + item.labor + item.equipment;
     apuItems.push({
@@ -286,14 +326,26 @@ for (const scenario of projectScenarios) {
 
 const machinery = [
   {
-    id: `${prefix}-machine-01`, companyId, createdBy: actorUid,
-    name: 'Excavadora QA', model: 'QA-2026', plateOrCode: `QA-${runId}-M1`,
-    hourlyRateGTQ: 1_000, currentHorometer: 1_160, status: 'Disponible',
+    id: `${prefix}-machine-01`,
+    companyId,
+    createdBy: actorUid,
+    name: 'Excavadora QA',
+    model: 'QA-2026',
+    plateOrCode: `QA-${runId}-M1`,
+    hourlyRateGTQ: 1_000,
+    currentHorometer: 1_160,
+    status: 'Disponible',
   },
   {
-    id: `${prefix}-machine-02`, companyId, createdBy: actorUid,
-    name: 'Compactadora QA', model: 'QA-2026', plateOrCode: `QA-${runId}-M2`,
-    hourlyRateGTQ: 1_000, currentHorometer: 730, status: 'En Obra',
+    id: `${prefix}-machine-02`,
+    companyId,
+    createdBy: actorUid,
+    name: 'Compactadora QA',
+    model: 'QA-2026',
+    plateOrCode: `QA-${runId}-M2`,
+    hourlyRateGTQ: 1_000,
+    currentHorometer: 730,
+    status: 'En Obra',
     currentProjectId: projects[2].id,
   },
 ];
@@ -389,7 +441,12 @@ const quotes = projects.map((project, index) => {
     validUntil: dateAtMonthOffset(1, 15),
     items: [
       { description: 'Obra preliminar QA', qty: 1, unit: 'global', unitPriceGTQ: itemAmount },
-      { description: 'Estructura y acabados QA', qty: 1, unit: 'global', unitPriceGTQ: itemAmount * 2 },
+      {
+        description: 'Estructura y acabados QA',
+        qty: 1,
+        unit: 'global',
+        unitPriceGTQ: itemAmount * 2,
+      },
     ],
     totalGTQ: itemAmount * 3,
     status: index === 4 ? 'Aceptada' : 'Borrador',
@@ -452,7 +509,8 @@ function printSummary() {
       .filter((expense) => expense.projectId === project.id)
       .reduce((total, expense) => total + expense.amount, 0);
     const estimatedBillings = project.scheduleMilestones.reduce(
-      (total, milestone) => total + Math.round((project.budgetTotal * milestone.weightPercent) / 100),
+      (total, milestone) =>
+        total + Math.round((project.budgetTotal * milestone.weightPercent) / 100),
       0
     );
     console.log(
@@ -481,16 +539,22 @@ async function prepareFirebaseEnvironment() {
   loadEnvConfig(process.cwd());
 
   const isEmulator = target === 'emulator';
-  const projectId = isEmulator ? 'demo-origen-erp-test' : process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const projectId = isEmulator
+    ? 'demo-origen-erp-test'
+    : process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   if (isEmulator) {
     assertLoopbackEmulatorHost('127.0.0.1:8080', 8080, 'Firestore Emulator');
     assertLoopbackEmulatorHost('127.0.0.1:9099', 9099, 'Auth Emulator');
   } else {
     if (process.env.FIRESTORE_EMULATOR_HOST || process.env.FIREBASE_AUTH_EMULATOR_HOST) {
-      throw new Error('Live fue solicitado, pero hay variables de emulador activas. Cancelo para evitar ambiguedad.');
+      throw new Error(
+        'Live fue solicitado, pero hay variables de emulador activas. Cancelo para evitar ambiguedad.'
+      );
     }
     if (option('confirm-project') !== firebaseProjectId || firebaseProjectId !== projectId) {
-      throw new Error('Live requiere --confirm-project igual al Firebase project ID de la configuracion actual.');
+      throw new Error(
+        'Live requiere --confirm-project igual al Firebase project ID de la configuracion actual.'
+      );
     }
   }
 
@@ -508,14 +572,17 @@ async function prepareFirebaseEnvironment() {
     import('firebase/auth'),
     import('firebase/firestore'),
   ]);
-  const app = appSdk.initializeApp({
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || (isEmulator ? 'demo-api-key' : ''),
-    authDomain: isEmulator ? 'localhost' : process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  }, `lifecycle-seed-${runId}`);
+  const app = appSdk.initializeApp(
+    {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || (isEmulator ? 'demo-api-key' : ''),
+      authDomain: isEmulator ? 'localhost' : process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    },
+    `lifecycle-seed-${runId}`
+  );
   const auth = authSdk.getAuth(app);
   const db = firestoreSdk.getFirestore(
     app,
@@ -550,8 +617,14 @@ async function prepareFirebaseEnvironment() {
       firestoreSdk.doc(db, 'companies', companyId, 'members', authenticatedUid)
     );
     const role = memberSnapshot.data()?.role;
-    if (!companySnapshot.exists() || !memberSnapshot.exists() || !['owner', 'admin'].includes(role)) {
-      throw new Error('La empresa/miembro no existe o el usuario no tiene rol owner/admin. No se escribe nada.');
+    if (
+      !companySnapshot.exists() ||
+      !memberSnapshot.exists() ||
+      !['owner', 'admin'].includes(role)
+    ) {
+      throw new Error(
+        'La empresa/miembro no existe o el usuario no tiene rol owner/admin. No se escribe nada.'
+      );
     }
   }
 
@@ -561,7 +634,9 @@ async function prepareFirebaseEnvironment() {
 async function main() {
   if (!isApply) {
     printSummary();
-    console.log('\nDry-run: no se inicializo Firebase ni se escribieron datos. Usa --apply para continuar.');
+    console.log(
+      '\nDry-run: no se inicializo Firebase ni se escribieron datos. Usa --apply para continuar.'
+    );
     return;
   }
 
@@ -580,10 +655,14 @@ async function main() {
       firestoreSdk.doc(db, `${collectionName}/${document.id}`)
     );
     await firestoreSdk.runTransaction(db, async (transaction) => {
-      const snapshots = await Promise.all(references.map((reference) => transaction.get(reference)));
+      const snapshots = await Promise.all(
+        references.map((reference) => transaction.get(reference))
+      );
       const existingIndex = snapshots.findIndex((snapshot) => snapshot.exists());
       if (existingIndex >= 0) {
-        throw new Error(`El documento ${references[existingIndex].path} ya existe; no se sobrescribe.`);
+        throw new Error(
+          `El documento ${references[existingIndex].path} ya existe; no se sobrescribe.`
+        );
       }
       references.forEach((reference, index) => transaction.set(reference, entries[index].document));
     });
@@ -654,7 +733,9 @@ async function main() {
       firestoreSdk.doc(db, 'companies', companyId, 'members', actorUid)
     );
     if (!memberSnapshot.exists() || !['owner', 'admin'].includes(memberSnapshot.data()?.role)) {
-      throw new Error('La empresa no contiene una membresia owner/admin para el actor. No se escribe nada.');
+      throw new Error(
+        'La empresa no contiene una membresia owner/admin para el actor. No se escribe nada.'
+      );
     }
   }
 
@@ -679,8 +760,12 @@ async function main() {
   );
   await createDataEntries(dependentEntries);
 
-  console.log(`\nSe crearon ${createdDocumentCount} documentos en Firebase ${environment.projectId}.`);
-  console.log(`Para borrar solo este dataset: repite los parametros con --run-id=${runId} --cleanup --apply.`);
+  console.log(
+    `\nSe crearon ${createdDocumentCount} documentos en Firebase ${environment.projectId}.`
+  );
+  console.log(
+    `Para borrar solo este dataset: repite los parametros con --run-id=${runId} --cleanup --apply.`
+  );
 }
 
 async function cleanup() {
@@ -689,7 +774,9 @@ async function cleanup() {
   const manifestRef = firestoreSdk.doc(db, 'qa_runs', runId);
   const manifestSnapshot = await firestoreSdk.getDoc(manifestRef);
   if (!manifestSnapshot.exists()) {
-    throw new Error(`No existe el manifiesto del run ${runId}; no se intentara borrar por prefijo.`);
+    throw new Error(
+      `No existe el manifiesto del run ${runId}; no se intentara borrar por prefijo.`
+    );
   }
   const manifest = manifestSnapshot.data();
   if (manifest.companyId !== companyId || manifest.createdBy !== actorUid) {
@@ -710,7 +797,9 @@ async function cleanup() {
     remainingDocumentIds = nextDocumentIds;
   }
   await firestoreSdk.deleteDoc(manifestRef);
-  console.log(`Se eliminaron ${manifest.createdDocumentIds.length} IDs del run ${runId}; no se tocaron otros documentos.`);
+  console.log(
+    `Se eliminaron ${manifest.createdDocumentIds.length} IDs del run ${runId}; no se tocaron otros documentos.`
+  );
   if (target === 'emulator' && !companyIdOption) {
     console.log(`Se conserva la empresa tecnica ${companyId} y su owner en el Auth Emulator.`);
   }

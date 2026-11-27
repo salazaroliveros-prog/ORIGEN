@@ -28,7 +28,11 @@ export default function PrivacyPage() {
       </p>
       <p className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
         Responsable del tratamiento: ORIGEN ERP Guatemala. Contacto para privacidad y derechos de
-        los titulares: <a className="underline" href="mailto:salazaroliveros@gmail.com">salazaroliveros@gmail.com</a>.
+        los titulares:{' '}
+        <a className="underline" href="mailto:salazaroliveros@gmail.com">
+          salazaroliveros@gmail.com
+        </a>
+        .
       </p>
 
       <div className="mt-8 space-y-6 text-sm leading-relaxed">

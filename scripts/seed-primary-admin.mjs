@@ -1,7 +1,7 @@
 /**
  * Seed script para asegurar que el administrador principal tenga rol owner
  * en todas las compañías donde tenga membresía.
- * 
+ *
  * Uso:
  *   node scripts/seed-primary-admin.mjs
  */
@@ -10,7 +10,14 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { connectFirestoreEmulator, doc, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  connectFirestoreEmulator,
+  doc,
+  getDoc,
+  getFirestore,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 
 // Cargar variables de entorno desde .env.local
 function loadEnvFile(filePath) {
@@ -39,7 +46,9 @@ const ADMIN_EMAIL = process.env.PRIMARY_ADMIN_EMAIL || process.env.DEFAULT_AUTH_
 const ADMIN_PASSWORD = process.env.DEFAULT_AUTH_PASSWORD;
 
 if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-  console.error('Faltan PRIMARY_ADMIN_EMAIL y DEFAULT_AUTH_PASSWORD. Asegúrate de configurarlas en .env.local');
+  console.error(
+    'Faltan PRIMARY_ADMIN_EMAIL y DEFAULT_AUTH_PASSWORD. Asegúrate de configurarlas en .env.local'
+  );
   console.log('Variables disponibles:', {
     PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     PRIMARY_ADMIN_EMAIL: process.env.PRIMARY_ADMIN_EMAIL,
@@ -76,9 +85,11 @@ async function ensureOwnerRole() {
     // Listar todas las compañías donde el usuario tiene membresía
     console.log('Buscando compañías...');
     const companiesSnapshot = await getDoc(doc(db, 'companies', uid));
-    
+
     if (!companiesSnapshot.exists()) {
-      console.log('El usuario no tiene ninguna compañía. Crea la primera empresa desde la aplicación.');
+      console.log(
+        'El usuario no tiene ninguna compañía. Crea la primera empresa desde la aplicación.'
+      );
       return;
     }
 
@@ -128,7 +139,6 @@ async function ensureOwnerRole() {
     }
 
     console.log('\n✅ Seed completado: Administrador principal tiene rol owner');
-
   } catch (error) {
     console.error('Error:', error);
     process.exit(1);

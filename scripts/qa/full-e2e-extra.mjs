@@ -21,19 +21,37 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(path.join(OUT, 'files'), { recursive: true });
 
 const report = {
-  run: RUN, code: CODE, startedAt: now.toISOString(), steps: [],
-  consoleErrors: [], pageErrors: [], failedResponses: [], skipped: [],
+  run: RUN,
+  code: CODE,
+  startedAt: now.toISOString(),
+  steps: [],
+  consoleErrors: [],
+  pageErrors: [],
+  failedResponses: [],
+  skipped: [],
 };
 let shotIndex = 0;
 let currentStep = 'bootstrap';
 
-const browser = await chromium.launch({ headless: false, args: ['--disable-blink-features=AutomationControlled'] });
-const context = await browser.newContext({ viewport: { width: 1500, height: 950 }, locale: 'es-GT', acceptDownloads: true, serviceWorkers: 'block' });
+const browser = await chromium.launch({
+  headless: false,
+  args: ['--disable-blink-features=AutomationControlled'],
+});
+const context = await browser.newContext({
+  viewport: { width: 1500, height: 950 },
+  locale: 'es-GT',
+  acceptDownloads: true,
+  serviceWorkers: 'block',
+});
 const page = await context.newPage();
 page.setDefaultTimeout(15_000);
 // Evita que window.print() abra el diálogo nativo y bloquee el runner.
-await page.addInitScript(() => { window.print = () => {}; });
-page.on('console', (m) => { if (m.type() === 'error') report.consoleErrors.push({ step: currentStep, text: m.text() }); });
+await page.addInitScript(() => {
+  window.print = () => {};
+});
+page.on('console', (m) => {
+  if (m.type() === 'error') report.consoleErrors.push({ step: currentStep, text: m.text() });
+});
 page.on('pageerror', (e) => report.pageErrors.push({ step: currentStep, text: String(e) }));
 const apiUploads = [];
 page.on('response', (r) => {
@@ -41,7 +59,10 @@ page.on('response', (r) => {
 });
 page.on('response', async (r) => {
   if (r.status() >= 400) {
-    let body = ''; try { body = (await r.text()).slice(0, 300); } catch {}
+    let body = '';
+    try {
+      body = (await r.text()).slice(0, 300);
+    } catch {}
     report.failedResponses.push({ step: currentStep, status: r.status(), url: r.url(), body });
   }
 });
@@ -49,7 +70,10 @@ page.on('response', async (r) => {
 const delay = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
 async function shot(name) {
   const file = path.join(OUT, `${String(++shotIndex).padStart(2, '0')}-${name}.png`);
-  try { await page.screenshot({ path: file, fullPage: true }); report.artifacts?.screenshots?.push(file); } catch {}
+  try {
+    await page.screenshot({ path: file, fullPage: true });
+    report.artifacts?.screenshots?.push(file);
+  } catch {}
 }
 async function step(name, fn) {
   currentStep = name;
@@ -58,10 +82,12 @@ async function step(name, fn) {
   console.log(`\n=== ${name} ===`);
   try {
     const detail = await fn();
-    entry.status = 'ok'; if (detail !== undefined) entry.detail = detail;
+    entry.status = 'ok';
+    if (detail !== undefined) entry.detail = detail;
     console.log(`OK  ${name}`);
   } catch (e) {
-    entry.status = 'failed'; entry.error = String(e?.message || e);
+    entry.status = 'failed';
+    entry.error = String(e?.message || e);
     console.error(`FAIL ${name}: ${entry.error}`);
     await shot(`FAIL-${name.replace(/[^a-z0-9]+/gi, '-').slice(0, 35)}`);
   }
@@ -76,7 +102,10 @@ const nav = async (label) => {
 async function waitText(re, timeout = 20000) {
   const end = Date.now() + timeout;
   while (Date.now() < end) {
-    const t = await page.locator('body').innerText().catch(() => '');
+    const t = await page
+      .locator('body')
+      .innerText()
+      .catch(() => '');
     if (re.test(t)) return t;
     await delay(400);
   }
@@ -86,14 +115,25 @@ async function selectText(locator, text, timeout = 25000) {
   const needles = Array.isArray(text) ? text : [text];
   const end = Date.now() + timeout;
   while (Date.now() < end) {
-    const info = await locator.evaluate((root, ns) => {
-      const sels = root.tagName === 'SELECT' ? [root] : Array.from(root.querySelectorAll('select'));
-      for (let i = 0; i < sels.length; i++) {
-        const opt = Array.from(sels[i].options).find((o) => ns.every((n) => (o.textContent || '').includes(n)));
-        if (opt) return { value: opt.value, text: opt.textContent, isRoot: root.tagName === 'SELECT', i };
-      }
-      return null;
-    }, needles).catch(() => null);
+    const info = await locator
+      .evaluate((root, ns) => {
+        const sels =
+          root.tagName === 'SELECT' ? [root] : Array.from(root.querySelectorAll('select'));
+        for (let i = 0; i < sels.length; i++) {
+          const opt = Array.from(sels[i].options).find((o) =>
+            ns.every((n) => (o.textContent || '').includes(n))
+          );
+          if (opt)
+            return {
+              value: opt.value,
+              text: opt.textContent,
+              isRoot: root.tagName === 'SELECT',
+              i,
+            };
+        }
+        return null;
+      }, needles)
+      .catch(() => null);
     if (info?.value) {
       if (info.isRoot) await locator.selectOption(info.value);
       else await locator.locator('select').nth(info.i).selectOption(info.value);
@@ -130,8 +170,15 @@ try {
     await delay(3500);
     await page.getByLabel('Correo electrónico').fill(EMAIL);
     await page.getByLabel('Contraseña', { exact: true }).fill(PASSWORD);
-    await page.getByRole('button', { name: /Iniciar Sesión/i }).first().click();
-    await page.locator('[role="tab"]:visible').filter({ hasText: 'Tablero' }).first().waitFor({ timeout: 60000 });
+    await page
+      .getByRole('button', { name: /Iniciar Sesión/i })
+      .first()
+      .click();
+    await page
+      .locator('[role="tab"]:visible')
+      .filter({ hasText: 'Tablero' })
+      .first()
+      .waitFor({ timeout: 60000 });
     await delay(2000);
   });
 
@@ -153,13 +200,20 @@ try {
     await d.getByLabel('Fecha de Finalización').fill('2027-11-25');
     await d.getByRole('button', { name: 'Crear Proyecto' }).click();
     await d.waitFor({ state: 'hidden', timeout: 30000 });
-    const sel = page.locator('select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible').first();
+    const sel = page
+      .locator(
+        'select[aria-label="Seleccionar proyecto"]:visible, select[aria-label="Proyecto activo"]:visible'
+      )
+      .first();
     await selectText(sel, CODE);
     await waitText(new RegExp(NAME), 20000);
   });
 
   await step('shell-sync-log', async () => {
-    await page.getByRole('button', { name: /Firestore en línea|Sin conexión|Sincronizando/ }).first().click();
+    await page
+      .getByRole('button', { name: /Firestore en línea|Sin conexión|Sincronizando/ })
+      .first()
+      .click();
     await waitText(/Historial de Sincronización|Registro de sincronización/i, 10000);
     await page.getByRole('button', { name: 'Limpiar Historial' }).first().click();
     await page.getByRole('button', { name: 'Aceptar' }).first().click();
@@ -167,7 +221,10 @@ try {
   });
 
   await step('shell-branding', async () => {
-    await page.getByRole('button', { name: /Configuración de Marca|Configuración/ }).first().click();
+    await page
+      .getByRole('button', { name: /Configuración de Marca|Configuración/ })
+      .first()
+      .click();
     await waitText(/Marca|Configuración/i, 10000);
     const rate = page.locator('#company-exchange-rate');
     if (await rate.count()) {
@@ -181,7 +238,10 @@ try {
 
   await step('dashboard-widgets', async () => {
     await nav('Tablero');
-    await page.getByRole('button', { name: /Personalizar Widgets/ }).first().click();
+    await page
+      .getByRole('button', { name: /Personalizar Widgets/ })
+      .first()
+      .click();
     await waitText(/Personalizar|Widgets/i, 10000);
     await page.getByRole('button', { name: 'Guardar Preferencias' }).first().click();
     await delay(1200);
@@ -190,21 +250,33 @@ try {
 
   await step('dashboard-export-pdf', async () => {
     await nav('Tablero');
-    const f = await download(page.getByRole('button', { name: /Exportar Reporte PDF/ }).first(), 'dashboard.pdf');
+    const f = await download(
+      page.getByRole('button', { name: /Exportar Reporte PDF/ }).first(),
+      'dashboard.pdf'
+    );
     return { file: f };
   });
 
   await step('proyectos-export-csv', async () => {
     await nav('Proyectos & Firmas');
-    const f = await download(page.getByRole('button', { name: /Exportar proyectos a CSV/ }).first(), 'proyectos.csv');
+    const f = await download(
+      page.getByRole('button', { name: /Exportar proyectos a CSV/ }).first(),
+      'proyectos.csv'
+    );
     return { file: f };
   });
 
   await step('proyectos-fotos', async () => {
     await nav('Proyectos & Firmas');
-    await page.getByRole('button', { name: `Subir fotos de avance ${CODE}` }).first().click();
+    await page
+      .getByRole('button', { name: `Subir fotos de avance ${CODE}` })
+      .first()
+      .click();
     await waitText(new RegExp(`Fotos de Avance`), 10000);
-    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==', 'base64');
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==',
+      'base64'
+    );
     const file = path.join(OUT, 'files', 'foto-qa.png');
     fs.writeFileSync(file, png);
     const input = page.locator('input[type="file"]').last();
@@ -213,7 +285,10 @@ try {
     await shot('fotos');
     const deleteBtn = page.getByRole('button', { name: /Eliminar foto/ }).first();
     const deleted = await deleteBtn.count();
-    if (deleted) { await deleteBtn.click(); await delay(1500); }
+    if (deleted) {
+      await deleteBtn.click();
+      await delay(1500);
+    }
     await shot('fotos-eliminar');
     await closeOverlays();
     return { file, storedAs: 'base64 en Firestore', deleteButton: deleted > 0 };
@@ -223,16 +298,30 @@ try {
     await nav('Presupuestos APU');
     await page.getByRole('button', { name: 'Generar APU con IA' }).first().click();
     await waitText(/Generar APU|Análisis APU/i, 10000);
-    const modal = page.locator('div.fixed').filter({ hasText: /Generar APU|Análisis APU/ }).last();
+    const modal = page
+      .locator('div.fixed')
+      .filter({ hasText: /Generar APU|Análisis APU/ })
+      .last();
     await modal.locator('textarea').first().fill('Muro de block 14x19x39 con solera');
     await modal.getByRole('button', { name: /Calcular Análisis APU con IA/ }).click();
-    const add = page.getByRole('button', { name: /Incorporar este Renglón al Presupuesto/ }).first();
-    const ready = await add.isVisible().catch(() => false) || await add.waitFor({ state: 'visible', timeout: 45_000 }).then(() => true).catch(() => false);
+    const add = page
+      .getByRole('button', { name: /Incorporar este Renglón al Presupuesto/ })
+      .first();
+    const ready =
+      (await add.isVisible().catch(() => false)) ||
+      (await add
+        .waitFor({ state: 'visible', timeout: 45_000 })
+        .then(() => true)
+        .catch(() => false));
     if (ready) {
       await add.click();
       await delay(2500);
     } else {
-      report.skipped.push({ step: currentStep, reason: 'El servicio de IA no devolvió el APU en 45 s (caso intermitente ya validado en ejecución anterior)' });
+      report.skipped.push({
+        step: currentStep,
+        reason:
+          'El servicio de IA no devolvió el APU en 45 s (caso intermitente ya validado en ejecución anterior)',
+      });
     }
     await shot('apu-ia');
     await closeOverlays();
@@ -250,7 +339,10 @@ try {
     await nav('Presupuestos APU');
     await page.getByRole('button', { name: 'Precios Mercado GT' }).first().click();
     await waitText(/Catálogo de Precios de Referencia/i, 15000);
-    await page.getByPlaceholder(/Buscar insumo/).first().fill('cemento');
+    await page
+      .getByPlaceholder(/Buscar insumo/)
+      .first()
+      .fill('cemento');
     await delay(1200);
     await shot('apu-mercado');
     await closeOverlays();
@@ -258,55 +350,93 @@ try {
 
   await step('gantt-recordatorios', async () => {
     await nav('Seguimiento & Hitos');
-    await page.getByRole('button', { name: /Configurar Recordatorios/ }).first().click();
+    await page
+      .getByRole('button', { name: /Configurar Recordatorios/ })
+      .first()
+      .click();
     await delay(1000);
     let d = page.locator('div.fixed').filter({ hasText: 'Programar recordatorio' }).last();
     if (!(await d.count())) {
       await page.getByRole('button', { name: 'Recordatorios Configurados' }).first().click();
       await delay(600);
       const nb = page.getByRole('button', { name: /Nuevo recordatorio/i }).first();
-      if (await nb.count()) { await nb.click(); await delay(600); }
+      if (await nb.count()) {
+        await nb.click();
+        await delay(600);
+      }
       d = page.locator('div.fixed').filter({ hasText: 'Programar recordatorio' }).last();
     }
     if (!(await d.count())) throw new Error('No se abrió el modal Programar recordatorio');
     await d.getByLabel('Título').fill('Recordatorio QA Extra');
     await d.getByLabel('Fecha').fill('2026-12-01');
     await d.getByRole('button', { name: 'Guardar recordatorio' }).click();
-    const saved = await waitText(/Recordatorio QA Extra/, 12000).then(() => true).catch(() => false);
-    if (!saved) report.skipped.push({ step: currentStep, reason: 'Recordatorio creado pero no visible en el listado filtrado del proyecto' });
+    const saved = await waitText(/Recordatorio QA Extra/, 12000)
+      .then(() => true)
+      .catch(() => false);
+    if (!saved)
+      report.skipped.push({
+        step: currentStep,
+        reason: 'Recordatorio creado pero no visible en el listado filtrado del proyecto',
+      });
     const probe = page.getByRole('button', { name: 'Probar' }).first();
     if (await probe.count()) await probe.click();
-    const del = page.getByRole('button', { name: /Eliminar recordatorio Recordatorio QA Extra/ }).first();
-    if (await del.count()) { await del.click(); await delay(1200); }
+    const del = page
+      .getByRole('button', { name: /Eliminar recordatorio Recordatorio QA Extra/ })
+      .first();
+    if (await del.count()) {
+      await del.click();
+      await delay(1200);
+    }
     await shot('recordatorios');
   });
 
   await step('gantt-progreso-y-hito', async () => {
     await nav('Seguimiento & Hitos');
     const plus = page.getByRole('button', { name: '+25%' }).first();
-    if (await plus.count()) { await plus.click(); await delay(1200); }
-    await page.getByRole('button', { name: /Hitos hacia el Objetivo/ }).first().click();
+    if (await plus.count()) {
+      await plus.click();
+      await delay(1200);
+    }
+    await page
+      .getByRole('button', { name: /Hitos hacia el Objetivo/ })
+      .first()
+      .click();
     await delay(700);
     const cert = page.getByRole('button', { name: /Marcar Cumplido/ }).first();
-    if (await cert.count()) { await cert.click(); await delay(1500); }
+    if (await cert.count()) {
+      await cert.click();
+      await delay(1500);
+    }
     await shot('gantt-progreso');
   });
 
   await step('maquinaria-mantenimiento', async () => {
     await nav('Maquinaria');
     const btn = page.getByRole('button', { name: /Enviar a Mantenimiento/ }).last();
-    if (await btn.count()) { await btn.click(); await delay(1500); }
+    if (await btn.count()) {
+      await btn.click();
+      await delay(1500);
+    }
     const avail = page.getByRole('button', { name: /Marcar disponible/ }).last();
-    if (await avail.count()) { await avail.click(); await delay(1500); }
+    if (await avail.count()) {
+      await avail.click();
+      await delay(1500);
+    }
     await shot('mantenimiento');
   });
 
   await step('personal-cuadrillas-y-fuera', async () => {
     await nav('Personal & IGSS');
-    await page.getByText(/Cuadrillas \(\d+\)/).first().click();
+    await page
+      .getByText(/Cuadrillas \(\d+\)/)
+      .first()
+      .click();
     await delay(1000);
     await shot('cuadrillas');
-    await page.getByRole('button', { name: /Registro & Marcaje GPS/ }).first().click();
+    await page
+      .getByRole('button', { name: /Registro & Marcaje GPS/ })
+      .first()
+      .click();
     await delay(800);
     await page.getByRole('button', { name: 'Fuera' }).first().click();
     await waitText(/FUERA DE OBRA|Excepción/i, 10000);
@@ -323,8 +453,14 @@ try {
     const ded = page.getByLabel(/Deducción referencial/).first();
     if (await ded.count()) await ded.fill('10');
     const save = page.getByRole('button', { name: /Guardar parámetros/ }).first();
-    if (await save.count()) { await save.click(); await delay(1500); }
-    const f = await download(page.getByRole('button', { name: /Exportar estimación a CSV/ }).first(), 'planillas.csv');
+    if (await save.count()) {
+      await save.click();
+      await delay(1500);
+    }
+    const f = await download(
+      page.getByRole('button', { name: /Exportar estimación a CSV/ }).first(),
+      'planillas.csv'
+    );
     const print = page.getByRole('button', { name: /Imprimir estimación/ }).first();
     const hasPrint = await print.count(); // no clicking: window.print() bloquea al navegador headed
     await shot('planillas');
@@ -333,13 +469,26 @@ try {
 
   await step('gastos-histograma-y-auditoria', async () => {
     await nav('Gastos & Facturas');
-    await page.getByRole('button', { name: /Histograma Mensual/ }).first().click();
+    await page
+      .getByRole('button', { name: /Histograma Mensual/ })
+      .first()
+      .click();
     await waitText(/Histograma Mensual/i, 10000);
-    const f = await download(page.getByRole('button', { name: /Exportar Resumen a PDF/ }).first(), 'gastos.pdf');
-    await page.getByRole('button', { name: /Facturas & Aprobación/ }).first().click();
+    const f = await download(
+      page.getByRole('button', { name: /Exportar Resumen a PDF/ }).first(),
+      'gastos.pdf'
+    );
+    await page
+      .getByRole('button', { name: /Facturas & Aprobación/ })
+      .first()
+      .click();
     await delay(800);
     const audit = page.getByRole('button', { name: /Ver Pista de Auditoría Completa/ }).first();
-    if (await audit.count()) { await audit.click(); await shot('auditoria'); await closeOverlays(); }
+    if (await audit.count()) {
+      await audit.click();
+      await shot('auditoria');
+      await closeOverlays();
+    }
     await shot('histograma');
     return { file: f };
   });
@@ -351,7 +500,11 @@ try {
     const actaBtn = page.getByRole('button', { name: /Preparar acta para imprimir/ }).first();
     if (!(await actaBtn.count())) throw new Error('No existe el botón Preparar acta para imprimir');
     await shot('acta');
-    report.skipped.push({ step: currentStep, reason: 'Botón verificado; no se ejecuta window.print() para evitar el diálogo nativo del navegador' });
+    report.skipped.push({
+      step: currentStep,
+      reason:
+        'Botón verificado; no se ejecuta window.print() para evitar el diálogo nativo del navegador',
+    });
     return { actaButtonPresent: true };
   });
 
@@ -363,7 +516,13 @@ try {
     // Crear OC requiere proveedor+artículo ya creados por el runner principal;
     // si no existen, se reporta como observación en vez de fallo.
     const create = page.getByRole('button', { name: /Nueva Orden|Crear Orden|Nueva OC/ }).first();
-    if (!(await create.count())) { report.skipped.push({ step: currentStep, reason: 'No hay botón de creación de OC en la UI actual' }); return { skipped: true }; }
+    if (!(await create.count())) {
+      report.skipped.push({
+        step: currentStep,
+        reason: 'No hay botón de creación de OC en la UI actual',
+      });
+      return { skipped: true };
+    }
     await create.click();
     await shot('oc-crear');
     await closeOverlays();
@@ -382,7 +541,10 @@ try {
       if (await ref.count()) await ref.fill(`AJU-${RUN}`);
       const motive = adj.getByLabel(/Motivo documentado del ajuste/);
       if (await motive.count()) await motive.fill('Ajuste QA de validación');
-      await adj.getByRole('button', { name: /Registrar ajuste auditado/ }).first().click();
+      await adj
+        .getByRole('button', { name: /Registrar ajuste auditado/ })
+        .first()
+        .click();
       await delay(2000);
     }
     await shot('ajuste-traslado');
@@ -393,8 +555,14 @@ try {
     await page.getByRole('tab', { name: 'Subcontratos' }).click();
     await waitText(/Subcontratos/i, 10000);
     await shot('subcontratos-listado');
-    const form = page.locator('form').filter({ hasText: /Nuevo subcontrato|Registrar subcontrato/ }).first();
-    if (!(await form.count())) { report.skipped.push({ step: currentStep, reason: 'Formulario de subcontrato no visible' }); return { skipped: true }; }
+    const form = page
+      .locator('form')
+      .filter({ hasText: /Nuevo subcontrato|Registrar subcontrato/ })
+      .first();
+    if (!(await form.count())) {
+      report.skipped.push({ step: currentStep, reason: 'Formulario de subcontrato no visible' });
+      return { skipped: true };
+    }
     await selectText(form, 'Proveedor QA');
     await form.getByLabel('Número de contrato').fill(`SC-QA-${RUN}`);
     await form.getByLabel('Descripción / alcance').fill('Subcontrato QA de validación');
@@ -404,7 +572,10 @@ try {
     await form.getByRole('button', { name: 'Guardar subcontrato' }).click();
     await waitText(new RegExp(`SC-QA-${RUN}`), 20000);
     const pay = page.getByRole('button', { name: 'Registrar pago' }).first();
-    if (await pay.count()) { await pay.click(); await delay(1000); }
+    if (await pay.count()) {
+      await pay.click();
+      await delay(1000);
+    }
     await shot('subcontratos');
     return { contract: `SC-QA-${RUN}` };
   });
@@ -427,10 +598,16 @@ try {
     await page.locator('input[type="date"]').first().fill('2026-11-26');
     await page.locator('input[placeholder="1234567-8"]').nth(0).fill('1234567-8');
     await page.locator('input[placeholder="Nombre de la empresa emisora"]').fill('Empresa QA');
-    await page.locator('input[placeholder="Dirección completa"]').nth(0).fill('Dirección QA emisor');
+    await page
+      .locator('input[placeholder="Dirección completa"]')
+      .nth(0)
+      .fill('Dirección QA emisor');
     await page.locator('input[placeholder="1234567-8"]').nth(1).fill('9876543-2');
     await page.locator('input[placeholder="Nombre del cliente"]').fill('Cliente QA FEL');
-    await page.locator('input[placeholder="Dirección completa"]').nth(1).fill('Dirección QA receptor');
+    await page
+      .locator('input[placeholder="Dirección completa"]')
+      .nth(1)
+      .fill('Dirección QA receptor');
     await page.getByRole('button', { name: 'Editar' }).first().click();
     await delay(600);
     await page.locator('input[placeholder="Descripción"]').first().fill('Ítem QA de validación');
@@ -454,8 +631,15 @@ try {
     const summary = page.getByRole('button', { name: /Insertar resumen del proyecto/ }).first();
     if (await summary.count()) await summary.click();
     const preview = page.getByRole('button', { name: /Revisar mensaje/ }).first();
-    if (await preview.count() && await preview.isEnabled()) { await preview.click(); await delay(1200); }
-    else report.skipped.push({ step: currentStep, reason: 'Vista previa deshabilitada sin autorización OAuth de Gmail; envío real omitido por seguridad' });
+    if ((await preview.count()) && (await preview.isEnabled())) {
+      await preview.click();
+      await delay(1200);
+    } else
+      report.skipped.push({
+        step: currentStep,
+        reason:
+          'Vista previa deshabilitada sin autorización OAuth de Gmail; envío real omitido por seguridad',
+      });
     await shot('gmail');
   });
 
@@ -467,7 +651,10 @@ try {
     await nav('Equipo de la empresa');
     await waitText(/Invitar por correo|Miembros/i, 15000);
     await shot('equipo');
-    report.skipped.push({ step: currentStep, reason: 'Crear invitación real enviaría correo a una cuenta externa' });
+    report.skipped.push({
+      step: currentStep,
+      reason: 'Crear invitación real enviaría correo a una cuenta externa',
+    });
   });
 
   await step('perfil-pagina', async () => {
@@ -478,7 +665,8 @@ try {
 
   report.status = 'completed';
 } catch (e) {
-  report.status = 'failed'; report.failure = String(e?.stack || e);
+  report.status = 'failed';
+  report.failure = String(e?.stack || e);
 } finally {
   report.finishedAt = new Date().toISOString();
   report.summary = {
@@ -495,4 +683,3 @@ try {
   console.log('SUMMARY:', JSON.stringify(report.summary));
   await browser.close();
 }
-

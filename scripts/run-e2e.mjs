@@ -85,7 +85,9 @@ async function main() {
           // previos. Next agregará los tipos de esta corrida al tsconfig temporal.
           if (Array.isArray(projectConfig.include)) {
             projectConfig.include = projectConfig.include.filter(
-              (entry) => typeof entry !== 'string' || (!entry.startsWith('.next/') && !entry.startsWith('./.next/'))
+              (entry) =>
+                typeof entry !== 'string' ||
+                (!entry.startsWith('.next/') && !entry.startsWith('./.next/'))
             );
           }
           return JSON.stringify(projectConfig, null, 2) + '\n';

@@ -17,7 +17,12 @@
  */
 
 import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  connectAuthEmulator,
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { connectFirestoreEmulator, doc, getDoc, getFirestore, setDoc } from 'firebase/firestore';
 
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? 'demo-origen-erp-test';
@@ -26,7 +31,9 @@ const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD;
 
 if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-  console.error('Faltan E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD. Usa: node --env-file=.env.e2e scripts/seed-e2e-emulator.mjs');
+  console.error(
+    'Faltan E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD. Usa: node --env-file=.env.e2e scripts/seed-e2e-emulator.mjs'
+  );
   process.exit(1);
 }
 

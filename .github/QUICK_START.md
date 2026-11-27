@@ -99,11 +99,11 @@ git push
 
 ## 📊 Deployment Status
 
-| Environment | URL                                | Branch  | Status |
-| ----------- | ---------------------------------- | ------- | ------ |
-| Production  | https://origen-one-kohl.vercel.app | main    | ✅     |
-| Staging     | https://origen-git-develop-proyectoswm.vercel.app  | develop | ✅     |
-| Local       | http://localhost:3000              | any     | 🔧     |
+| Environment | URL                                               | Branch  | Status |
+| ----------- | ------------------------------------------------- | ------- | ------ |
+| Production  | https://origen-one-kohl.vercel.app                | main    | ✅     |
+| Staging     | https://origen-git-develop-proyectoswm.vercel.app | develop | ✅     |
+| Local       | http://localhost:3000                             | any     | 🔧     |
 
 ---
 

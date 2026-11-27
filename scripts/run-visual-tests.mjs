@@ -23,12 +23,7 @@ console.log(`   • Modo headed: ${isHeaded ? 'Sí ✓' : 'No'}`);
 console.log(`   • Modo UI: ${isUI ? 'Sí ✓' : 'No'}\n`);
 
 const command = 'npx';
-const playwrightArgs = [
-  'playwright',
-  'test',
-  '--config',
-  'playwright.visual.config.ts',
-];
+const playwrightArgs = ['playwright', 'test', '--config', 'playwright.visual.config.ts'];
 
 if (isHeaded) playwrightArgs.push('--headed');
 if (isUI) playwrightArgs.push('--ui');

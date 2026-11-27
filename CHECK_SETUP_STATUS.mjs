@@ -8,21 +8,21 @@
 import fs from 'fs';
 
 const files = {
-  'Config': [
+  Config: [
     'playwright.visual.config.ts',
     'Dockerfile.playwright',
     'docker-compose.yml',
     '.env.visual',
     '.github/workflows/visual-tests.yml',
   ],
-  'Tests': [
+  Tests: [
     'e2e/visual/visual-responsiveness.spec.ts',
     'e2e/visual/login-flow.spec.ts',
     'e2e/visual/dashboard-responsiveness.spec.ts',
     'e2e/visual/interactive-components.spec.ts',
     'e2e/visual/helpers.ts',
   ],
-  'Scripts': [
+  Scripts: [
     'scripts/run-visual-tests.mjs',
     'scripts/visual-tests.mjs',
     'scripts/generate-baseline.mjs',
@@ -30,7 +30,7 @@ const files = {
     'scripts/visual-tests-watch.mjs',
     'START_VISUAL_TESTS.mjs',
   ],
-  'Docs': [
+  Docs: [
     'PLAYWRIGHT_VISUAL_TESTING.md',
     'VISUAL_TESTING_QUICKSTART.md',
     'SETUP_SUMMARY.md',
@@ -52,7 +52,7 @@ console.log(`
 Object.entries(files).forEach(([category, fileList]) => {
   console.log(`📁 ${category}:`);
   console.log('─'.repeat(60));
-  fileList.forEach(f => {
+  fileList.forEach((f) => {
     const exists = fs.existsSync(f);
     const status = exists ? '✅' : '❌';
     console.log(`   ${status} ${f}`);
