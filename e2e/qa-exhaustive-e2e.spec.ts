@@ -779,9 +779,9 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
 
   test('PASO-5.09 — Inventario: historial, búsqueda y filtro de movimientos', async ({ page }) => {
     await openTab(page, 'Inventario & Compras');
-    await expect(page.getByRole('heading', { name: 'Inventario & Compras' })).toBeVisible({
-      timeout: 20_000,
-    });
+    await expect(
+      page.locator('#main-content').getByRole('heading', { name: 'Inventario & Compras', level: 2 })
+    ).toBeVisible({ timeout: 20_000 });
 
     await page.getByRole('tab', { name: 'Movimientos' }).click();
     await expect(page.getByRole('region', { name: 'Historial de movimientos' })).toBeVisible();
