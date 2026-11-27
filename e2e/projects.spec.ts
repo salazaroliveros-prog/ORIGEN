@@ -74,7 +74,12 @@ test.describe('Sección Proyectos & Firmas', () => {
 
     if ((await closeActions.count()) === 0) {
       // Base de datos vacía: no hay nada que cerrar y la acción no debe existir.
-      await expect(page.getByText(/No hay proyectos activos/).first()).toBeVisible();
+      await expect(
+        page
+          .getByText(/No hay proyectos activos/)
+          .filter({ visible: true })
+          .first()
+      ).toBeVisible();
       return;
     }
 

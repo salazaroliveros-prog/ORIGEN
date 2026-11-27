@@ -319,7 +319,7 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     // Archivar: con el filtro "Activos" el proyecto archivado deja de listarse.
     await page.getByRole('button', { name: `Archivar proyecto ${projectData.code}` }).click();
     await page.waitForTimeout(2500);
-    await expect(page.getByText(projectData.code)).toHaveCount(0);
+    await expect(page.getByText(projectData.code).filter({ visible: true })).toHaveCount(0);
 
     // Restaurar: el filtro "Archivados" muestra los proyectos archivados.
     await page.getByLabel('Mostrar').selectOption('archived');
@@ -351,13 +351,19 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
-    await expect(page.getByText('Gasto de prueba E2E').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('15,000').first()).toBeVisible();
+    await expect(
+      page.getByText('Gasto de prueba E2E').filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('15,000').filter({ visible: true }).first()).toBeVisible();
 
     // Propagación al tablero
     await openTab(page, 'Tablero');
-    await expect(page.getByText('Gastos Registrados', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('15,000').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText('Gastos Registrados', { exact: true }).filter({ visible: true }).first()
+    ).toBeVisible();
+    await expect(page.getByText('15,000').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('PASO-3.03 — Crear cotización y marcar como aceptada', async ({ page }) => {
@@ -380,9 +386,13 @@ test.describe('PASO 3 — Validación de Funcionalidades (procesos de negocio)',
     await page.getByRole('button', { name: /Guardar como Enviada/i }).click();
     await page.waitForTimeout(3500);
 
-    await expect(page.getByText('Cliente E2E Cotización').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText('Cliente E2E Cotización').filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
     // 20,000 + IVA 12% (tarifa SAT de Guatemala) = 22,400.
-    await expect(page.getByText('22,400').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('22,400').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('PASO-3.04 — Registrar empleado y asistencia con GPS', async ({ page }) => {
@@ -521,7 +531,9 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
-    await expect(page.getByText('Gasto profundidad E2E').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText('Gasto profundidad E2E').filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
 
     // Ver en proyecto
     await openTab(page, 'Proyectos & Firmas');
@@ -538,7 +550,9 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
         .filter({ hasText: /^Gastos Registrados$/ })
         .first()
     ).toBeVisible();
-    await expect(page.getByText('8,000').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('8,000').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('PASO-4.03 — Profundidad: Cotizaciones → Crear → Vincular proyecto → Ver en proyecto', async ({
@@ -579,7 +593,12 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
       .isVisible()
       .catch(() => false);
     if (reportsVisible) {
-      await expect(page.getByText(/Reporte|Informe|Exportar|PDF/i).first()).toBeVisible({
+      await expect(
+        page
+          .getByText(/Reporte|Informe|Exportar|PDF/i)
+          .filter({ visible: true })
+          .first()
+      ).toBeVisible({
         timeout: 15_000,
       });
     }
@@ -592,7 +611,12 @@ test.describe('PASO 4 — Profundidad de Pruebas (submenús, módulos anidados, 
     await expect(iaBtn).toBeVisible({ timeout: 20_000 });
     await iaBtn.click();
     await page.waitForTimeout(1500);
-    await expect(page.getByText(/Asistente|Gemini|Consulta|Pregunta/i).first()).toBeVisible({
+    await expect(
+      page
+        .getByText(/Asistente|Gemini|Consulta|Pregunta/i)
+        .filter({ visible: true })
+        .first()
+    ).toBeVisible({
       timeout: 15_000,
     });
   });
@@ -714,7 +738,10 @@ test.describe('PASO 5 — Validación del 100% (casos de borde, formularios, UI 
   test('PASO-5.06 — UI: Estado vacío manejado sin errores', async ({ page }) => {
     await openTab(page, 'Proyectos & Firmas');
     // Si no hay proyectos, debe mostrar estado vacío, no error
-    const emptyState = page.getByText(/No hay proyectos|Sin proyectos/).first();
+    const emptyState = page
+      .getByText(/No hay proyectos|Sin proyectos/)
+      .filter({ visible: true })
+      .first();
     const hasProjects = await page
       .getByRole('button', { name: 'Nuevo Proyecto' })
       .isVisible()

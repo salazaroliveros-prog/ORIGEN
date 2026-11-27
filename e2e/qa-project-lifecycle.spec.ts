@@ -35,46 +35,58 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     const name = `QA Torre Integridad ${RUN_ID}`;
 
     await createProject(page, code, name, 5);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(name).first()).toBeVisible();
-    await expect(page.getByText('En Ejecución').first()).toBeVisible();
-    await expect(page.getByText('100,000').first()).toBeVisible();
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByText(name).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('En Ejecución').filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('100,000').filter({ visible: true }).first()).toBeVisible();
 
     await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
-    await expect(page.getByText('Editar Proyecto')).toBeVisible();
+    await expect(page.getByText('Editar Proyecto').filter({ visible: true })).toBeVisible();
     await page.getByLabel('Presupuesto Total (Q)').fill('150000');
     await page.getByRole('button', { name: 'Actualizar' }).click();
     await page.waitForTimeout(3000);
-    await expect(page.getByText('150,000').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('150,000').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, /Proyectos & Firmas/);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('150,000').first()).toBeVisible();
-    await expect(page.getByText('En Ejecución').first()).toBeVisible();
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByText('150,000').filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('En Ejecución').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('archiva y restaura el proyecto sin perder datos', async ({ page }) => {
     await ensureAuthenticated(page);
     const code = `QA-${RUN_ID}-B`;
     await createProject(page, code, `QA Bodega ${RUN_ID}`, 10);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     await page.getByRole('button', { name: `Archivar proyecto ${code}` }).click();
     await page.waitForTimeout(2500);
-    await expect(page.getByText(code)).toHaveCount(0);
+    await expect(page.getByText(code).filter({ visible: true })).toHaveCount(0);
 
     await page.locator('main select').first().selectOption({ label: 'Archivados' });
     await page.waitForTimeout(2000);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     await page.getByRole('button', { name: `Restaurar proyecto ${code}` }).click();
     await page.waitForTimeout(2500);
     await page.locator('main select').first().selectOption({ label: 'Activos' });
     await page.waitForTimeout(2000);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('100,000').first()).toBeVisible();
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByText('100,000').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('registra un gasto y lo propaga al proyecto y al tablero', async ({ page }) => {
@@ -98,8 +110,10 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
-    await expect(page.getByText('Compra de cemento QA').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('12,000').first()).toBeVisible();
+    await expect(
+      page.getByText('Compra de cemento QA').filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('12,000').filter({ visible: true }).first()).toBeVisible();
 
     await openTab(page, /Proyectos & Firmas/);
     const rowContainer = page.locator('main li').filter({ hasText: code });
@@ -107,8 +121,12 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await expect(rowContainer).toContainText('12,000');
 
     await openTab(page, /Tablero/);
-    await expect(page.getByText('Gastos Registrados', { exact: true })).toBeVisible();
-    await expect(page.getByText('12,000').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.locator('#main-content').getByText('Gastos Registrados', { exact: true }).first()
+    ).toBeVisible();
+    await expect(page.getByText('12,000').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('registra una cotización y la refleja como ingreso del proyecto', async ({ page }) => {
@@ -138,8 +156,12 @@ test.describe.serial('QA integridad de datos - ciclo de proyecto', () => {
     await page.getByRole('button', { name: /Guardar como Enviada/i }).click();
     await page.waitForTimeout(3500);
 
-    await expect(page.getByText('Cliente Ingreso QA').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('28,000').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText('Cliente Ingreso QA').filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('28,000').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     await openTab(page, /Proyectos & Firmas/);
     const rowContainer = page.locator('main li').filter({ hasText: code });
@@ -154,18 +176,24 @@ test.describe('QA defectos detectados', () => {
     const code = `QA-${RUN_ID}-P`;
     await createProject(page, code, `QA Avance ${RUN_ID}`, 25);
 
-    await expect(page.getByText('25%').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('25%').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
     await page.getByLabel('Avance (%)').fill('60');
     await page.getByRole('button', { name: 'Actualizar' }).click();
     await page.waitForTimeout(3000);
-    await expect(page.getByText('60%').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('60%').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     await page.reload();
     await page.waitForTimeout(4000);
     await openTab(page, /Proyectos & Firmas/);
-    await expect(page.getByText('60%').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('60%').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('gasto sin proveedor muestra error de validación específico (bug corregido)', async ({
@@ -188,7 +216,9 @@ test.describe('QA defectos detectados', () => {
     await page.waitForTimeout(3500);
 
     // El error ahora debe ser específico de validación, no de sesión
-    await expect(page.getByText('No se pudo guardar el gasto. Verifica tu sesión')).toHaveCount(0);
+    await expect(
+      page.getByText('No se pudo guardar el gasto. Verifica tu sesión').filter({ visible: true })
+    ).toHaveCount(0);
     // El formulario sigue abierto: no se guardó nada.
     await expect(
       page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).first()
@@ -207,7 +237,9 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     await page.getByLabel('Estado del Proyecto').selectOption({ label: 'En Ejecución' });
     await page.getByRole('button', { name: 'Actualizar' }).click();
     await page.waitForTimeout(2500);
-    await expect(page.getByText('En Ejecución').first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('En Ejecución').filter({ visible: true }).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     // Navegar al cronograma Gantt
     const ganttTab = page.getByRole('button', { name: /Cronograma|Gantt/i }).first();
@@ -215,7 +247,12 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
       await ganttTab.click();
       await page.waitForTimeout(1500);
       // Verificar que el cronograma carga
-      await expect(page.getByText(/Cronograma|Gantt|Hito|Tarea/i).first()).toBeVisible({
+      await expect(
+        page
+          .getByText(/Cronograma|Gantt|Hito|Tarea/i)
+          .filter({ visible: true })
+          .first()
+      ).toBeVisible({
         timeout: 15_000,
       });
     }
@@ -246,7 +283,9 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     if (await saveBtn.isVisible().catch(() => false)) {
       await saveBtn.click();
       await page.waitForTimeout(2500);
-      await expect(page.getByText(`Retroexcavadora QA-${RUN_ID}`).first()).toBeVisible({
+      await expect(
+        page.getByText(`Retroexcavadora QA-${RUN_ID}`).filter({ visible: true }).first()
+      ).toBeVisible({
         timeout: 15_000,
       });
     }
@@ -307,7 +346,12 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     await aiTab.click();
     await page.waitForTimeout(1500);
 
-    await expect(page.getByText(/Asistente|Gemini|Consulta|Pregunta/i).first()).toBeVisible({
+    await expect(
+      page
+        .getByText(/Asistente|Gemini|Consulta|Pregunta/i)
+        .filter({ visible: true })
+        .first()
+    ).toBeVisible({
       timeout: 15_000,
     });
   });
@@ -318,11 +362,21 @@ test.describe.serial('QA módulos complementarios - ciclo completo', () => {
     await page.waitForTimeout(2000);
 
     // Verificar KPIs principales del dashboard
-    await expect(page.getByText(/Presupuesto|Budget|Proyectos/i).first()).toBeVisible({
+    await expect(
+      page
+        .getByText(/Presupuesto|Budget|Proyectos/i)
+        .filter({ visible: true })
+        .first()
+    ).toBeVisible({
       timeout: 15_000,
     });
     // El gasto acumulado de los proyectos QA debe aparecer
-    await expect(page.getByText(/GASTO|Ejecutado|Gastado/i).first()).toBeVisible({
+    await expect(
+      page
+        .getByText(/GASTO|Ejecutado|Gastado/i)
+        .filter({ visible: true })
+        .first()
+    ).toBeVisible({
       timeout: 15_000,
     });
   });

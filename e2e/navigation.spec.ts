@@ -51,7 +51,10 @@ test.describe('Navegación principal', () => {
 
     // Debe aparecer el botón de crear proyecto o estado sin proyectos
     const nuevoProyecto = page.getByRole('button', { name: 'Nuevo Proyecto' }).first();
-    const sinProyectos = page.getByText(/No hay proyectos activos/).first();
+    const sinProyectos = page
+      .getByText(/No hay proyectos activos/)
+      .filter({ visible: true })
+      .first();
 
     await expect(nuevoProyecto.or(sinProyectos).first()).toBeVisible({ timeout: 20_000 });
   });
@@ -63,7 +66,10 @@ test.describe('Navegación principal', () => {
     // Debe aparecer el botón para registrar un nuevo gasto o estado sin proyectos
     const nuevoGasto = page.getByRole('button', { name: 'Registrar Gasto / Factura' }).first();
     const irProyectos = page.getByRole('button', { name: 'Ir a Proyectos' }).first();
-    const sinProyectos = page.getByText(/Sin proyectos disponibles/, { exact: true }).first();
+    const sinProyectos = page
+      .getByText(/Sin proyectos disponibles/, { exact: true })
+      .filter({ visible: true })
+      .first();
 
     // Uno de los tres debe estar visible según el estado de proyectos
     await expect(nuevoGasto.or(irProyectos).or(sinProyectos).first()).toBeVisible({
@@ -87,7 +93,10 @@ test.describe('Navegación principal', () => {
     // La vista APU muestra botón de renglón manual si hay proyectos,
     // o mensaje de sin proyectos si no los hay
     const renglon = page.getByRole('button', { name: 'Renglón Manual' }).first();
-    const sinProyectos = page.getByText(/Aún no hay proyectos/).first();
+    const sinProyectos = page
+      .getByText(/Aún no hay proyectos/)
+      .filter({ visible: true })
+      .first();
 
     await expect(renglon.or(sinProyectos).first()).toBeVisible({ timeout: 20_000 });
   });

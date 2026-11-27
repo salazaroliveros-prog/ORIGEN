@@ -108,7 +108,7 @@ test.describe('FASE 1 — Módulo de Proyectos: ciclo de vida completo', () => {
 
     // Editar: corregir presupuesto.
     await page.getByRole('button', { name: `Editar proyecto ${code}` }).click();
-    await expect(page.getByText('Editar Proyecto')).toBeVisible();
+    await expect(page.getByText('Editar Proyecto').filter({ visible: true })).toBeVisible();
     await page.getByLabel('Presupuesto Total (Q)').fill('250000');
     await page.getByLabel('Avance (%)').fill('10');
     await page.getByRole('button', { name: 'Actualizar' }).click();
@@ -195,13 +195,23 @@ test.describe('FASE 2 — Módulo de Presupuestos APU: generación y factorizaci
     });
 
     // Verificar que los renglones aparecen en la tabla
-    await expect(page.getByText("Concreto f'c=250 psi").first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('Acero corrugado 1/2"').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('4,500').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('6,000').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText("Concreto f'c=250 psi").filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText('Acero corrugado 1/2"').filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('4,500').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByText('6,000').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     // Total del presupuesto: 4,500 + 6,000 = 10,500 Q
-    await expect(page.getByText('10,500').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('10,500').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 });
 
@@ -261,9 +271,13 @@ test.describe('FASE 3 — Módulo de Cotizaciones: búsqueda y selección de cli
     await page.waitForTimeout(3500);
 
     await expect(quoteModal).toBeHidden();
-    await expect(page.getByText('Cliente Cotización QA').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText('Cliente Cotización QA').filter({ visible: true }).first()
+    ).toBeVisible({ timeout: 20_000 });
     // 15,000 + IVA 12% (tarifa SAT de Guatemala) = 16,800.
-    await expect(page.getByText('16,800').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('16,800').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     // Vinculación: verificar que la cotización aparece en el proyecto
     await openTab(page, 'Proyectos & Firmas');
@@ -288,7 +302,9 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
     await page.getByLabel('Estado del Proyecto').selectOption({ label: 'En Ejecución' });
     await page.getByRole('button', { name: 'Actualizar' }).click();
     await page.waitForTimeout(2500);
-    await expect(page.getByText('En Ejecución').first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('En Ejecución').filter({ visible: true }).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     await openTab(page, /Seguimiento & Hitos/);
     const ganttVisible = await page
@@ -297,7 +313,12 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
       .isVisible()
       .catch(() => false);
     if (ganttVisible) {
-      await expect(page.getByText(/Cronograma|Gantt|Hito|Tarea/i).first()).toBeVisible({
+      await expect(
+        page
+          .getByText(/Cronograma|Gantt|Hito|Tarea/i)
+          .filter({ visible: true })
+          .first()
+      ).toBeVisible({
         timeout: 15_000,
       });
     }
@@ -328,7 +349,9 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
         .first()
         .click();
       await page.waitForTimeout(2500);
-      await expect(page.getByText('Cimentación completada')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText('Cimentación completada').filter({ visible: true })).toBeVisible({
+        timeout: 15_000,
+      });
     }
   });
 
@@ -359,7 +382,9 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
 
     await expect(macDialog).toBeHidden();
     const macCard = page.locator('div.grid > div').filter({
-      has: page.getByText(`Retroexcavadora QA-${RUN_ID}`, { exact: true }),
+      has: page
+        .getByText(`Retroexcavadora QA-${RUN_ID}`, { exact: true })
+        .filter({ visible: true }),
     });
     await expect(macCard).toContainText('Disponible');
     await expect(macCard).toContainText('300');
@@ -391,7 +416,9 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
     await page.waitForTimeout(2500);
 
     await expect(empDialog).toBeHidden();
-    await expect(page.getByText(`Empleado Campo QA-${RUN_ID}`, { exact: true })).toBeVisible();
+    await expect(
+      page.getByText(`Empleado Campo QA-${RUN_ID}`, { exact: true }).filter({ visible: true })
+    ).toBeVisible();
 
     // Generar planilla de pago
     await openTab(page, 'Planillas Guate');
@@ -403,7 +430,12 @@ test.describe('FASE 4 — Transición a Ejecución: hitos, maquinaria y personal
       .isVisible()
       .catch(() => false);
     if (planillaVisible) {
-      await expect(page.getByText(/Planilla|Pago|Nomina|Nomina/i).first()).toBeVisible({
+      await expect(
+        page
+          .getByText(/Planilla|Pago|Nomina|Nomina/i)
+          .filter({ visible: true })
+          .first()
+      ).toBeVisible({
         timeout: 15_000,
       });
     }
@@ -471,10 +503,12 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
     await page.getByRole('button', { name: 'Registrar Gasto (Paso 1)' }).click();
     await page.waitForTimeout(3500);
 
-    await expect(page.getByText('Compra de acero estructural QA').first()).toBeVisible({
+    await expect(
+      page.getByText('Compra de acero estructural QA').filter({ visible: true }).first()
+    ).toBeVisible({
       timeout: 20_000,
     });
-    await expect(page.getByText('18,000').first()).toBeVisible();
+    await expect(page.getByText('18,000').filter({ visible: true }).first()).toBeVisible();
 
     // Propagación: verificar que el gasto se refleja en el proyecto
     await openTab(page, 'Proyectos & Firmas');
@@ -484,8 +518,15 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
 
     // Propagación: verificar en el tablero
     await openTab(page, 'Tablero');
-    await expect(page.getByText(/Gastos Registrados/i).first()).toBeVisible();
-    await expect(page.getByText('18,000').first()).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page
+        .getByText(/Gastos Registrados/i)
+        .filter({ visible: true })
+        .first()
+    ).toBeVisible();
+    await expect(page.getByText('18,000').filter({ visible: true }).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('valida que un gasto sin campos obligatorios muestre error de validación', async ({
@@ -512,7 +553,7 @@ test.describe('FASE 5 — Módulo de Gastos y Facturas: costos y facturación vi
     await page.waitForTimeout(3500);
 
     // No debe guardar sin monto
-    await expect(page.getByText('Gasto incompleto QA')).toHaveCount(0);
+    await expect(page.getByText('Gasto incompleto QA').filter({ visible: true })).toHaveCount(0);
   });
 });
 
@@ -554,7 +595,12 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
       .isVisible()
       .catch(() => false);
     if (aiVisible) {
-      await expect(page.getByText(/Asistente|Gemini|Consulta|Pregunta/i).first()).toBeVisible({
+      await expect(
+        page
+          .getByText(/Asistente|Gemini|Consulta|Pregunta/i)
+          .filter({ visible: true })
+          .first()
+      ).toBeVisible({
         timeout: 15_000,
       });
     }
@@ -577,7 +623,12 @@ test.describe('FASE 6 — Módulos complementarios y asistentes: integración co
       .isVisible()
       .catch(() => false);
     if (gmailVisible) {
-      await expect(page.getByText(/Correo|Aviso|Mensaje|Notificación/i).first()).toBeVisible({
+      await expect(
+        page
+          .getByText(/Correo|Aviso|Mensaje|Notificación/i)
+          .filter({ visible: true })
+          .first()
+      ).toBeVisible({
         timeout: 15_000,
       });
     }

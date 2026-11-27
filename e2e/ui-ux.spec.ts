@@ -65,7 +65,9 @@ async function createProject(page: Page, code: string, name: string) {
   const dialog = await fillNewProjectForm(page, code, name);
   await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
   await expect(dialog).toBeHidden({ timeout: 20_000 });
-  await expect(page.getByText(code).first()).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+    timeout: 20_000,
+  });
 }
 
 /**
@@ -139,7 +141,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await expect(
       page
         .getByRole('button', { name: 'Nuevo Proyecto' })
-        .or(page.getByText(/No hay proyectos activos/i))
+        .or(page.getByText(/No hay proyectos activos/i).filter({ visible: true }))
         .first()
     ).toBeVisible({ timeout: 20_000 });
   });
@@ -163,7 +165,9 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await dialog.getByRole('button', { name: 'Crear Proyecto' }).click();
 
     await expect(dialog).toBeHidden();
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('UI-005: Botón Cancelar cierra modal sin guardar', async ({ page }) => {
@@ -176,7 +180,7 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await dialog.getByRole('button', { name: 'Cancelar' }).click();
 
     await expect(dialog).toBeHidden();
-    await expect(page.getByText(code)).toHaveCount(0);
+    await expect(page.getByText(code).filter({ visible: true })).toHaveCount(0);
   });
 
   test('UI-006: Botón Editar proyecto abre modal con datos precargados', async ({ page }) => {
@@ -199,7 +203,9 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await editDialog.getByLabel('Nombre del Proyecto').fill(updatedName);
     await editDialog.getByRole('button', { name: 'Actualizar' }).click();
     await expect(editDialog).toBeHidden();
-    await expect(page.getByText(updatedName).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(updatedName).filter({ visible: true }).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('UI-008: Botón Archivar proyecto cambia estado a archivado', async ({ page }) => {
@@ -209,7 +215,9 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await page.getByRole('button', { name: `Archivar proyecto ${code}` }).click();
     await page.getByLabel('Mostrar').selectOption('archived');
     await page.waitForTimeout(2000);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('UI-009: Botón Restaurar proyecto reactiva proyecto archivado', async ({ page }) => {
@@ -219,12 +227,16 @@ test.describe('UI/UX - Botones de navegación y acciones (UI-001 a UI-025)', () 
     await page.getByRole('button', { name: `Archivar proyecto ${code}` }).click();
     await page.getByLabel('Mostrar').selectOption('archived');
     await page.waitForTimeout(2000);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 10_000,
+    });
 
     await page.getByRole('button', { name: `Restaurar proyecto ${code}` }).click();
     await page.getByLabel('Mostrar').selectOption('active');
     await page.waitForTimeout(2000);
-    await expect(page.getByText(code).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(code).filter({ visible: true }).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   // ============================================================
