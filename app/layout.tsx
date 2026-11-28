@@ -128,6 +128,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body className="bg-gray-50 dark:bg-gray-900">
+        {/* WCAG 2.4.1 Bypass Blocks: permite a usuarios de teclado y lectores de pantalla saltar la navegación. */}
+        <a
+          href="#main-content"
+          className="focus:white-space-normal focus:margin-0 sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:h-auto focus:w-auto focus:overflow-visible focus:rounded focus:bg-brand-400 focus:px-4 focus:py-2 focus:font-semibold focus:text-slate-950"
+        >
+          Saltar al contenido principal
+        </a>
         <AnalyticsProvider />
         {children}
         <GlobalToaster />

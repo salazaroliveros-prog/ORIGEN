@@ -35,6 +35,7 @@ import { BottomNav } from '@/components/ui/BottomNav';
 import { MobileSheet } from '@/components/ui/MobileSheet';
 import { FocusTrap } from '@/components/a11y/FocusTrap';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 
 interface NavbarProps {
   company: CompanySettings;
@@ -85,6 +86,7 @@ const MOBILE_TABS = [
   { id: 'cronograma_gantt', label: 'Seguimiento', icon: CalendarDays },
   { id: 'personal', label: 'Personal', icon: Users },
   { id: 'fel_invoices', label: 'FEL', icon: FileCheck2 },
+  { id: 'gastos', label: 'Gastos', icon: Receipt },
   { id: 'inventario', label: 'Inventario', icon: Boxes },
 ];
 
@@ -191,14 +193,16 @@ export function Navbar({
           <ThemeToggle />
         </header>
 
-        <div className="flex-1 overflow-y-auto pb-20">{children}</div>
+        <PullToRefresh onRefresh={() => void window.location.reload()}>
+          <div className="flex-1 overflow-y-auto pb-[calc(80px+env(safe-area-inset-bottom))]">
+            {children}
+          </div>
+        </PullToRefresh>
 
         <BottomNav
           items={mobileTabs.map((tab) => ({
             key: tab.id,
-            ...(tab.id === 'fel_invoices'
-              ? { href: '/fel-invoices' }
-              : { onSelect: () => onSelectTab(tab.id) }),
+            onSelect: () => onSelectTab(tab.id),
             label: tab.label,
             icon: <tab.icon className="h-5 w-5" />,
             activeIcon: <tab.icon className="h-5 w-5" />,

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, ChevronDown, User } from 'lucide-react';
+import { Menu, ChevronLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -36,7 +36,7 @@ export function MobileHeader({
           className="h-10 min-h-[44px] w-10 min-w-[44px] p-0"
           aria-label="Regresar"
         >
-          <ChevronDown size={20} />
+          <ChevronLeft size={20} />
         </Button>
       )}
 
